@@ -9,9 +9,28 @@ Each entry lists the commit it landed in, so you can match it to a version of th
 
 ---
 
+## 7 Oct 2026: Three-Role RBAC System Architecture in AGENTS.md
+
+Commit `95a1406`. Architectural standard defining user, professional (therapist), and administrator access boundaries.
+
+**Why.** AROM serves three distinct groups with very different workflows: everyday seekers who need personal self-care, licensed therapists who manage clients and appointments, and administrators who oversee safety and verified credentials. Explicitly defining these roles in the project guidelines ensures all database schemas and UI permissions enforce strict access control.
+
+**What changed for users:**
+- **Dedicated Role Protection.** Seekers receive a clean wellness journey, therapists receive private client management, and administrators ensure clinical safety and therapist verification.
+
+**What changed for the team:**
+- **Defined 3 Core Roles in AGENTS.md.** Added `user`, `professional`, and `admin` to Section 1 and created Section 10.
+- **Database Architecture Standard.** Mandates an explicit `user_role` enum and strict role-based Row Level Security (RLS) policies in Supabase.
+
+**What to re-test:**
+- Check Section 1 and Section 10 in `AGENTS.md` for role specifications;
+- Verify no em dashes or loose hyphens exist in the documentation.
+
+---
+
 ## 6 Oct 2026: Mandatory Pre-Work Git Sync Rule in AGENTS.md
 
-Commit `d39b36e`. Documentation update establishing team collaboration workflow for multi-developer repository.
+Commit `d3e1252`. Documentation update establishing team collaboration workflow for multi-developer repository.
 
 **Why.** Two developers actively collaborate on this project. Establishing a strict agent rule to verify git status and pull the latest changes before starting work guarantees that neither teammate's commits are accidentally overwritten, preventing costly merge conflicts.
 

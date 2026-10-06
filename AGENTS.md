@@ -13,6 +13,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 ## 1. Project Overview
 - **Product:** AROM (អារម្មណ៍), a bilingual (English & Khmer) mental health and emotional wellness web platform.
 - **Repository:** https://github.com/rith369/Arom-version1
+- **User Roles:** Seeker (`user`), Therapist (`professional`), Administrator (`admin`).
 - **Core Features:** Emotion/wellness detection, Mindguide, practice exercises, learning modules, community, and professional booking.
 
 ## 2. Tech Stack & Libraries
@@ -72,5 +73,12 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - **Environment Variable Protection:** Never expose secret server keys (such as `SUPABASE_SERVICE_ROLE_KEY` or private API tokens) in client side components or public bundles. Always use public anon keys (`NEXT_PUBLIC_SUPABASE_ANON_KEY`) for browser operations and keep privileged keys strictly in server side handlers.
 - **No Sensitive Logging:** Never log raw user journals, personal reflections, vulnerability states, or emotional responses to browser consoles or external third party analytics.
 - **Data Minimization:** Only request and persist the minimum personal data required for the user's wellbeing journey.
+
+## 10. Role-Based Access Control (RBAC) Architecture
+- **Three Core System Roles:** AROM strictly operates with three distinct user roles defined in the database:
+  - `user`: General seekers and clients. Access to personal mood detection, voice journaling, Gemini AI wellness insights, mindfulness lessons, and booking therapy sessions. Can only access their own private reflections and appointments.
+  - `professional`: Verified therapists, counselors, and psychologists. Access to their professional appointment schedule, incoming client bookings and intake questionnaires, professional profile management, publishing therapist podcasts, and mentoring community support groups.
+  - `admin`: Platform administrators. Access to verifying therapist credentials and licenses, platform safety and community moderation, managing curriculum content, and emergency crisis hotlines.
+- **Database Role Enforcement:** The `profiles` table in Supabase must store this role using an explicit enum (`user_role`: `user`, `professional`, `admin`). Row Level Security (RLS) policies must explicitly verify the user's role to prevent privilege escalation.
 
 
