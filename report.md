@@ -9,6 +9,24 @@ Each entry lists the commit it landed in, so you can match it to a version of th
 
 ---
 
+## 6 Oct 2026: Mandatory Pre-Work Git Sync Rule in AGENTS.md
+
+Commit `d39b36e`. Documentation update establishing team collaboration workflow for multi-developer repository.
+
+**Why.** Two developers actively collaborate on this project. Establishing a strict agent rule to verify git status and pull the latest changes before starting work guarantees that neither teammate's commits are accidentally overwritten, preventing costly merge conflicts.
+
+**What changed for users:**
+- **Smooth Team Development.** Features and bug fixes ship reliably without accidental regressions or overwritten updates.
+
+**What changed for the team:**
+- **Added Mandatory Git Pull Rule in AGENTS.md.** AI assistants and team members must verify `git status` and run `git pull origin main` prior to editing files or writing new code.
+
+**What to re-test:**
+- Check Section 5 in `AGENTS.md` and verify the new `Always Check Git and Pull First` rule is clearly listed;
+- Ensure no em dashes or loose hyphens exist in the documentation.
+
+---
+
 ## 6 Oct 2026: Supabase SDK Integration and Client Helper
 
 Commit `4898d0c`. Integration of @supabase/supabase-js and @supabase/ssr with local environment configuration.
