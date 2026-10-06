@@ -9,9 +9,31 @@ Each entry lists the commit it landed in, so you can match it to a version of th
 
 ---
 
+## 6 Oct 2026: Supabase SDK Integration and Client Helper
+
+Commit `4898d0c`. Integration of @supabase/supabase-js and @supabase/ssr with local environment configuration.
+
+**Why.** Preparing the platform for real authentication and clinical grade database persistence. Establishing a standardized client helper allows features across the app to communicate with Supabase while strictly keeping credentials safe.
+
+**What changed for users:**
+- **Zero Disruption.** Existing pages continue functioning seamlessly while preparing the foundation for real user accounts and private data persistence.
+
+**What changed for the team:**
+- **Installed Supabase SDKs.** Added `@supabase/supabase-js` and `@supabase/ssr` to `package.json`.
+- **Created `lib/supabase.ts`.** Provides a standard Supabase client singleton reading `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
+- **Configured `.env.local`.** Added project credentials locally (ignored by Git to ensure zero credential leakage).
+- **Verified Build.** Next.js production build compiled 27 pages cleanly with zero errors.
+
+**What to re-test:**
+- Run `npm run build` and ensure Next.js builds successfully;
+- Check that `.env.local` is ignored by Git and not tracked;
+- Inspect `lib/supabase.ts` for clean environment variable resolution.
+
+---
+
 ## 6 Oct 2026: Privacy, Security, and Repository Standards in AGENTS.md
 
-Commit `d8e88f4`. Documentation update establishing mental health data confidentiality, Row Level Security requirements, and official repository links.
+Commit `79344a6`. Documentation update establishing mental health data confidentiality, Row Level Security requirements, and official repository links.
 
 **Why.** AROM is an emotional wellness and mental health application dealing with sensitive personal reflections, vulnerability states, mood tracking, and therapist appointments. Explicitly mandating user privacy, Row Level Security (RLS), and credential hygiene in the core agent guidelines ensures that every AI and developer treats user data with strict clinical grade confidentiality.
 
