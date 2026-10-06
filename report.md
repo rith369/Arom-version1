@@ -9,6 +9,26 @@ Each entry lists the commit it landed in, so you can match it to a version of th
 
 ---
 
+## 6 Oct 2026: Privacy, Security, and Repository Standards in AGENTS.md
+
+Commit `d8e88f4`. Documentation update establishing mental health data confidentiality, Row Level Security requirements, and official repository links.
+
+**Why.** AROM is an emotional wellness and mental health application dealing with sensitive personal reflections, vulnerability states, mood tracking, and therapist appointments. Explicitly mandating user privacy, Row Level Security (RLS), and credential hygiene in the core agent guidelines ensures that every AI and developer treats user data with strict clinical grade confidentiality.
+
+**What changed for users:**
+- **Guaranteed Privacy Protection.** All future database and API implementations must enforce strict isolation so no user can ever access another user's personal journals, mood records, or appointments.
+
+**What changed for the team:**
+- **Added Official Repository Link in AGENTS.md.** Recorded `https://github.com/rith369/Arom-version1` in Section 1.
+- **Added Section 9 in AGENTS.md.** Established permanent rules for clinical grade confidentiality, strict Supabase Row Level Security (RLS), environment key segregation, data minimization, and zero unauthorized logging of vulnerable user reflections.
+
+**What to re-test:**
+- Open `AGENTS.md` and verify the repository link is present under Section 1;
+- Verify that Section 9 contains all 5 privacy and security directives;
+- Ensure no em dashes or loose hyphens are present in the documentation text.
+
+---
+
 ## 6 Oct 2026: Bilingual Voice to Text (Speech Recognition) on Journal Reflection Page
 
 Commit `fd306fd`. No database step: client-side Web Speech API integration in /detection/journal route.

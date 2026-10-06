@@ -11,7 +11,8 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 # AROM — Project Instructions & Guidelines
 
 ## 1. Project Overview
-- **Product:** AROM (អារម្មណ៍) — A bilingual (English & Khmer) mental health and emotional wellness web platform.
+- **Product:** AROM (អារម្មណ៍), a bilingual (English & Khmer) mental health and emotional wellness web platform.
+- **Repository:** https://github.com/rith369/Arom-version1
 - **Core Features:** Emotion/wellness detection, Mindguide, practice exercises, learning modules, community, and professional booking.
 
 ## 2. Tech Stack & Libraries
@@ -63,5 +64,12 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
   - `**What changed for the team:**` Bulleted list with bold summaries explaining developer/team impact.
   - `**What to re-test:**` Step-by-step checklist of specific test actions to verify the feature works.
 - Keep newest entries first at the top of the log.
+
+## 9. Privacy, Security & Data Protection Standards (Mental Health Priority)
+- **User Privacy & Confidentiality First:** AROM is a mental health and emotional wellness platform. User journals, mood logs, emotional detection scores, voice notes, and professional therapy bookings contain sensitive personal information. They must be treated with clinical grade confidentiality.
+- **Strict Row Level Security (RLS):** When creating or interacting with database tables (Supabase/PostgreSQL), Row Level Security (RLS) must always be enforced for production tables. Users must only ever have permission to read, insert, or update their own personal entries. No user should ever be able to query or see another user's private reflections, mood logs, or booking details.
+- **Environment Variable Protection:** Never expose secret server keys (such as `SUPABASE_SERVICE_ROLE_KEY` or private API tokens) in client side components or public bundles. Always use public anon keys (`NEXT_PUBLIC_SUPABASE_ANON_KEY`) for browser operations and keep privileged keys strictly in server side handlers.
+- **No Sensitive Logging:** Never log raw user journals, personal reflections, vulnerability states, or emotional responses to browser consoles or external third party analytics.
+- **Data Minimization:** Only request and persist the minimum personal data required for the user's wellbeing journey.
 
 
