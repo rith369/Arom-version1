@@ -7,6 +7,30 @@ A plain-language log of what changed in the app, written for the team rather tha
 
 Each entry lists the commit it landed in, so you can match it to a version of the site.
 
+## 7 Oct 2026: Restored Clean Layout on Daily Recommendation Cards
+
+Commit `e3e66a8`. Removed cramped inline buttons from Daily Recommendation cards in MindGuide, restoring spacious text display and clean card interactions.
+
+**Why.** Adding inline buttons directly into the 3-column recommendation card grid caused visual crowding and truncated activity titles into short ellipses. Removing the cramped button restores Figma-level aesthetics, clean card padding, and full readability, while keeping the plan addition feature cleanly accessible inside the activity details modal.
+
+**What changed for users:**
+- **Restored Full Title Readability.** Recommendation cards under "For Today" in MindGuide no longer squeeze text. Full titles such as "Interactive Breathing Exercise" and "Managing Daily Stress" display without truncation.
+- **Clean Single-Action Cards.** Tapping any recommendation card smoothly opens the activity details modal, providing full breathing room.
+- **Dedicated Plan Action in Modal.** Users can still add or remove any activity from their Home Screen Daily Plan using the spacious primary button inside the activity details modal.
+
+**What changed for the team:**
+- **Streamlined `MindGuideHome` in `app/_components/mindguide-home.tsx`.** Removed inline button nesting and redundant icon imports, restoring single button card triggers with clean hover transitions.
+- **Verified Build.** Clean production build check passed with zero errors across all 27 routes.
+
+**What to re-test:**
+- Navigate to MindGuide (`/mindguide`) and view the Daily Recommendations section;
+- Verify that titles on all three recommendation cards are fully visible without truncation or clutter;
+- Click any card to open the activity modal;
+- Test adding and removing the activity to your Home Screen Daily Plan via the modal button;
+- Verify the Home screen (`/`) updates accordingly.
+
+---
+
 ## 7 Oct 2026: Explicit Small Add to Plan Buttons on Daily Recommendations
 
 Commit `9708f0e`. Added prominent small "+ Add to Plan" and "In Plan" buttons directly on each activity card under Daily Recommendations (For Today) in MindGuide, as well as in the activity modal header.

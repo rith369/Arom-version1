@@ -14,7 +14,6 @@ import {
   ChevronRight,
   Clock,
   Play,
-  Plus,
   Wind,
   X,
 } from "lucide-react";
@@ -222,37 +221,14 @@ function ActivityModal({
         className="relative z-10 w-full max-w-md overflow-hidden rounded-3xl border border-arom-border/70 bg-white p-6 shadow-2xl sm:p-7"
       >
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-arom-soft px-3 py-1 text-xs font-semibold text-arom">
-              {km ? activity.khmerCategory : activity.category}
-            </span>
-            <button
-              type="button"
-              onClick={() => onTogglePlan(activity)}
-              className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11.5px] font-semibold transition-all cursor-pointer ${
-                isInPlan
-                  ? "bg-arom text-white shadow-2xs hover:bg-arom-deep"
-                  : "bg-arom-wash text-arom border border-arom/30 hover:bg-arom-soft"
-              }`}
-            >
-              {isInPlan ? (
-                <>
-                  <Check size={12} strokeWidth={2.5} />
-                  <span>{km ? "ក្នុងផែនការ" : "In Plan"}</span>
-                </>
-              ) : (
-                <>
-                  <Plus size={12} strokeWidth={2.5} />
-                  <span>{km ? "+ ផែនការ" : "+ Add to Plan"}</span>
-                </>
-              )}
-            </button>
-          </div>
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-arom-soft px-3 py-1 text-xs font-semibold text-arom">
+            {km ? activity.khmerCategory : activity.category}
+          </span>
           <button
             type="button"
             onClick={onClose}
             aria-label={km ? "បិទផ្ទាំង" : "Close modal"}
-            className="flex size-9 items-center justify-center rounded-full text-ink-muted transition-colors hover:bg-arom-wash hover:text-arom"
+            className="flex size-9 items-center justify-center rounded-full text-ink-muted transition-colors hover:bg-arom-wash hover:text-arom cursor-pointer"
           >
             <X aria-hidden="true" size={20} />
           </button>
@@ -646,92 +622,45 @@ export function MindGuideHome() {
             </div>
 
             <div className="mt-4 grid gap-2.5 lg:grid-cols-3 lg:gap-5">
-              {todayActivities.map((activity) => {
-                const inPlan = planIds.includes(activity.id);
-                return (
-                  <div
-                    key={activity.id}
-                    className="group relative flex min-h-[64px] w-full items-center rounded-2xl border-2 border-arom/80 bg-arom/[0.07] p-2.5 transition-[background-color,box-shadow,transform] duration-150 hover:-translate-y-0.5 hover:bg-arom-soft hover:shadow-card lg:min-h-[86px] lg:p-3"
-                  >
-                    <button
-                      type="button"
-                      onClick={() => setSelectedActivity(activity)}
-                      className="flex flex-1 items-center min-w-0 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-arom cursor-pointer"
-                    >
-                      <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-arom/20 lg:size-12">
-                        <Image
-                          src={activity.image}
-                          alt=""
-                          width={42}
-                          height={42}
-                          className="size-7 object-contain lg:size-8"
-                          unoptimized
-                        />
-                      </div>
-                      <span className="ml-3 min-w-0 flex-1">
-                        <span className="block truncate text-sm font-semibold text-arom lg:text-base">
-                          {km ? activity.khmerTitle : activity.title}
-                        </span>
-                        <span className="mt-0.5 flex items-center gap-1.5 text-[0.72rem] text-ink lg:text-xs">
-                          <span className="font-medium text-ink-muted">
-                            {km ? activity.khmerDuration : activity.duration}
-                          </span>
-                          <span className="text-arom/50">•</span>
-                          <span className="rounded bg-arom/15 px-1.5 py-0.5 text-[0.65rem] font-semibold text-arom">
-                            {km ? activity.khmerBadge : activity.badge}
-                          </span>
-                        </span>
-                      </span>
-                    </button>
-
-                    {/* Small button that can add to plan */}
-                    <div className="flex items-center gap-1.5 shrink-0 ml-2">
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleTogglePlan(activity);
-                        }}
-                        aria-label={
-                          inPlan
-                            ? km
-                              ? "លុបចេញពីផែនការទំព័រដើម"
-                              : "Remove from Home Daily Plan"
-                            : km
-                            ? "បន្ថែមទៅផែនការទំព័រដើម"
-                            : "Add to Home Daily Plan"
-                        }
-                        className={`flex h-8 items-center gap-1.5 rounded-xl px-2.5 text-xs font-semibold transition-all duration-150 cursor-pointer ${
-                          inPlan
-                            ? "bg-arom text-white shadow-xs hover:bg-arom-deep"
-                            : "bg-white text-arom border border-arom/30 shadow-2xs hover:bg-arom-soft hover:border-arom"
-                        }`}
-                      >
-                        {inPlan ? (
-                          <>
-                            <Check aria-hidden="true" size={13} strokeWidth={2.5} />
-                            <span className="text-[11.5px]">{km ? "ក្នុងផែនការ" : "In Plan"}</span>
-                          </>
-                        ) : (
-                          <>
-                            <Plus aria-hidden="true" size={13} strokeWidth={2.5} />
-                            <span className="text-[11.5px]">{km ? "+ ផែនការ" : "+ Add to Plan"}</span>
-                          </>
-                        )}
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => setSelectedActivity(activity)}
-                        aria-label={km ? "មើលលម្អិត" : "View details"}
-                        className="flex size-7 items-center justify-center text-arom/60 hover:text-arom transition-colors cursor-pointer"
-                      >
-                        <ChevronRight size={18} strokeWidth={2.2} />
-                      </button>
-                    </div>
+              {todayActivities.map((activity) => (
+                <button
+                  key={activity.id}
+                  type="button"
+                  onClick={() => setSelectedActivity(activity)}
+                  className="group flex min-h-[60px] w-full items-center rounded-2xl border-2 border-arom/80 bg-arom/[0.07] px-3 py-2 text-left transition-[background-color,box-shadow,transform] duration-150 active:scale-[0.99] hover:-translate-y-0.5 hover:bg-arom-soft hover:shadow-card focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-arom lg:min-h-[86px] lg:rounded-2xl lg:px-4 cursor-pointer"
+                >
+                  <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-arom/20 lg:size-12">
+                    <Image
+                      src={activity.image}
+                      alt=""
+                      width={42}
+                      height={42}
+                      className="size-7 object-contain lg:size-8"
+                      unoptimized
+                    />
                   </div>
-                );
-              })}
+                  <span className="ml-3.5 min-w-0 flex-1">
+                    <span className="block truncate text-sm font-semibold text-arom lg:text-base">
+                      {km ? activity.khmerTitle : activity.title}
+                    </span>
+                    <span className="mt-0.5 flex items-center gap-1.5 text-[0.72rem] text-ink lg:text-xs">
+                      <span className="font-medium text-ink-muted">
+                        {km ? activity.khmerDuration : activity.duration}
+                      </span>
+                      <span className="text-arom/50">•</span>
+                      <span className="rounded bg-arom/15 px-1.5 py-0.5 text-[0.65rem] font-semibold text-arom">
+                        {km ? activity.khmerBadge : activity.badge}
+                      </span>
+                    </span>
+                  </span>
+                  <ChevronRight
+                    aria-hidden="true"
+                    size={22}
+                    strokeWidth={2.5}
+                    className="ml-2 shrink-0 text-arom transition-transform duration-150 group-hover:translate-x-0.5"
+                  />
+                </button>
+              ))}
             </div>
           </motion.section>
         </div>
