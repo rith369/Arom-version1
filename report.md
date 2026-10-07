@@ -7,6 +7,35 @@ A plain-language log of what changed in the app, written for the team rather tha
 
 Each entry lists the commit it landed in, so you can match it to a version of the site.
 
+## 7 Oct 2026: MindGuide Content Curation to Home Daily Plan
+
+Commit `f43a44c`. Added ability for users to customize their Home Screen "Your Plan For Today" directly from MindGuide, Practice Hub, Learn Hub, and Daily Stress guides.
+
+**Why.** Users exploring MindGuide frequently discover specific breathing exercises, mindfulness lessons, or stress management routines that resonate with them. Previously, the Home Screen daily plan was fixed and only allowed adding micro tips. Users can now actively curate their daily wellness plan with any MindGuide activity they like, tailoring their daily routine to their personal emotional needs.
+
+**What changed for users:**
+- **Add to Daily Plan from MindGuide Activities.** Under the "For Today" section in MindGuide, users can tap the calendar icon on any activity card or open the details modal to tap "Add to Daily Plan at Home Screen" (បន្ថែមទៅផែនការទំព័រដើម).
+- **Personalized Home Screen Daily Plan.** Any activity added from MindGuide instantly appears in "Your Plan For Today" on the Home page with dedicated tags, bilingual descriptions, and interactive completion checkboxes.
+- **Support Across Hubs.** Users can add exercises directly from Practice Hub (Interactive Breathing, Mindful Body Scan), lessons from Learn Hub (Learn About Stress), and guides from Managing Daily Stress.
+- **Real-Time Progress Tracking.** Marking added MindGuide activities complete updates the daily segment progress bar in real time, celebrating incremental progress.
+- **Easy Management.** Users can toggle or remove curated items anytime with immediate feedback toasts.
+
+**What changed for the team:**
+- **Created Unified Daily Plan Store in `app/_components/daily-plan-store.ts`.** Centralized storage utility managing custom daily plan items, toggle status, and real-time cross-component event broadcasting.
+- **Updated `DailyPlanCard` in `app/components/daily-plan-card.tsx`.** Extended the home screen card to dynamically render user-curated items alongside default baseline checks.
+- **Integrated Plan Toggles Across MindGuide Components.** Added calendar buttons and notification toasts in `mindguide-home.tsx`, `managing-daily-stress.tsx`, `practice-detail-view.tsx`, `practice-home-view.tsx`, `lesson-detail-view.tsx`, and `learn-home-view.tsx`.
+- **Verified Build.** Next.js production build cleanly compiled with zero errors across all 27 routes.
+
+**What to re-test:**
+- Navigate to MindGuide (`/mindguide`) and click the calendar icon on "Interactive Breathing Exercise";
+- Verify the feedback toast notification appears and the button toggles to active;
+- Open the Home screen (`/`) and verify "Interactive Breathing Exercise" appears in "Your Plan For Today";
+- Check off the task to verify progress bar incrementation;
+- Test adding items from Practice Hub (`/practice`) and Learn Hub (`/learn`);
+- Verify removing an item updates the Home Screen daily plan immediately.
+
+---
+
 ## 7 Oct 2026: Desktop Sidebar Width Expansion to 19rem and Zero Text Truncation
 
 Commit `2c8f4d1`. Expanded the desktop sidebar layout grid from 15rem (240px) to 19rem (304px) across all 14 application views, completely eliminating text truncation and balancing desktop screen proportions.

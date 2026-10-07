@@ -5,6 +5,9 @@ import {
   ArrowLeft,
   ArrowRight,
   Bookmark,
+  CalendarCheck,
+  CalendarPlus,
+  CheckCircle2,
   ChevronRight,
   Clock3,
   GraduationCap,
@@ -13,8 +16,12 @@ import {
   Wind,
   X,
 } from "lucide-react";
-import { motion } from "motion/react";
-import { useMemo, useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
+import { useEffect, useMemo, useState } from "react";
+import {
+  getCustomPlanItems,
+  toggleCustomPlanItem,
+} from "../daily-plan-store";
 import { useLanguage } from "../language-provider";
 import {
   ALL_PRACTICES,
@@ -40,6 +47,58 @@ export function PracticeHomeView({
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<PracticeCategory>("All");
+  const [planIds, setPlanIds] = useState<string[]>([]);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    const syncPlan = () => {
+      const items = getCustomPlanItems();
+      setPlanIds(items.map((i) => i.id));
+    };
+    syncPlan();
+    window.addEventListener("arom_plan_updated", syncPlan);
+    return () => window.removeEventListener("arom_plan_updated", syncPlan);
+  }, []);
+
+  useEffect(() => {
+    if (toastMessage) {
+      const timer = window.setTimeout(() => setToastMessage(null), 3200);
+      return () => window.clearTimeout(timer);
+    }
+  }, [toastMessage]);
+
+  const handleTogglePlan = (practice: PracticeItem) => {
+    const categoryLabel = km
+      ? PRACTICE_CATEGORIES.find((c) => c.id === practice.category)?.kmLabel || practice.category
+      : practice.category;
+
+    const isAdded = toggleCustomPlanItem({
+      id: practice.id,
+      source: "practice",
+      title: practice.title,
+      titleKm: practice.kmTitle || practice.title,
+      subtitle: `${practice.duration} • ${practice.subtitle}`,
+      subtitleKm: `${practice.kmDuration || practice.duration} • ${practice.kmSubtitle || practice.subtitle}`,
+      badge: practice.category,
+      badgeKm: categoryLabel,
+      icon: "hugeicons_yoga-03",
+      href: "/practice",
+    });
+
+    if (isAdded) {
+      setToastMessage(
+        km
+          ? `បានបន្ថែម "${practice.kmTitle || practice.title}" ទៅផែនការទំព័រដើមរបស់អ្នក`
+          : `Added "${practice.title}" to your Home Screen Daily Plan`
+      );
+    } else {
+      setToastMessage(
+        km
+          ? `បានលុប "${practice.kmTitle || practice.title}" ចេញពីផែនការទំព័រដើម`
+          : `Removed "${practice.title}" from your Home Screen Daily Plan`
+      );
+    }
+  };
 
   const filteredPractices = useMemo(() => {
     return ALL_PRACTICES.filter((item) => {
@@ -68,7 +127,7 @@ export function PracticeHomeView({
           <button
             type="button"
             onClick={onBackToMindGuide}
-            className="flex items-center gap-2 text-xs font-semibold text-arom transition-colors hover:text-arom-deep"
+            className="flex items-center gap-2 text-xs font-semibold text-arom transition-colors hover:text-arom-deep cursor-pointer"
           >
             <span className="flex size-10 items-center justify-center rounded-full border border-arom-border bg-white shadow-sm transition-transform hover:-translate-x-0.5">
               <ArrowLeft size={18} />
@@ -81,10 +140,10 @@ export function PracticeHomeView({
           <button
             type="button"
             onClick={onOpenSaved}
-            className="flex items-center gap-2 rounded-full border border-arom-border bg-white px-4 py-2 text-xs font-semibold text-arom shadow-sm transition-all hover:bg-arom-wash focus-visible:outline-2 focus-visible:outline-arom"
+            className="flex items-center gap-2 rounded-full border border-arom-border bg-white px-4 py-2 text-xs font-semibold text-arom shadow-sm transition-all hover:bg-arom-wash focus-visible:outline-2 focus-visible:outline-arom cursor-pointer"
           >
             <Bookmark size={15} className="text-arom" />
-            <span>{km ? "លំហាត់ដែលបានរក្សាទុក (Saved)" : "Saved Practices"}</span>
+            <span>{km ? "ការអនុវត្តដែលបានរក្សាទុក (Saved)" : "Saved"}</span>
           </button>
         </div>
 
@@ -93,13 +152,13 @@ export function PracticeHomeView({
           <span className="inline-flex items-center rounded-full bg-arom-soft px-3 py-1 text-xs font-semibold text-arom">
             ARom MindGuide
           </span>
-          <h1 className="mt-2.5 text-2xl font-bold tracking-tight text-arom sm:text-3xl lg:text-4xl">
-            {km ? "ការអនុវត្ត (Practice)" : "Practice"}
+          <h1 className="mt-2 text-2xl font-bold tracking-tight text-arom sm:text-3xl lg:text-4xl">
+            {km ? "មជ្ឈមណ្ឌលអនុវត្ត (Practice Hub)" : "Practice Hub"}
           </h1>
-          <p className="mt-1 text-sm text-ink-muted sm:text-base">
+          <p className="mt-2 max-w-xl text-xs leading-relaxed text-ink-muted sm:text-sm">
             {km
-              ? "ធ្វើឱ្យចិត្ត និងរាងកាយរបស់អ្នកស្ងប់ស្ងាត់ តាមរយៈលំហាត់អនុវត្តជាក់ស្តែង។"
-              : "Calm your mind and body through guided exercises."}
+              ? "ស្វែងរក និងអនុវត្តលំហាត់ដកដង្ហើម សមាធិ និងការពិនិត្យរាងកាយដើម្បីបន្ធូរបន្ថយភាពតានតឹង។"
+              : "Explore guided breathing sessions, meditations, and mindful exercises designed to calm your nervous system."}
           </p>
         </header>
 
@@ -125,7 +184,7 @@ export function PracticeHomeView({
               <button
                 type="button"
                 onClick={() => setSearchQuery("")}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-ink-muted hover:text-ink"
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-ink-muted hover:text-ink cursor-pointer"
               >
                 <X size={16} />
               </button>
@@ -145,7 +204,7 @@ export function PracticeHomeView({
                 key={cat.id}
                 type="button"
                 onClick={() => setSelectedCategory(cat.id)}
-                className={`shrink-0 rounded-full px-4 py-2 text-xs font-semibold transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-arom ${
+                className={`shrink-0 rounded-full px-4 py-2 text-xs font-semibold transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-arom cursor-pointer ${
                   isSelected
                     ? "bg-arom text-white shadow-sm"
                     : "border border-arom-border bg-white text-ink-muted hover:bg-arom-wash hover:text-arom"
@@ -190,16 +249,43 @@ export function PracticeHomeView({
                 </p>
               </div>
 
-              <button
-                type="button"
-                onClick={() => onSelectPractice(PRACTICE_BREATHING)}
-                className="group flex size-12 shrink-0 items-center justify-center rounded-2xl bg-arom text-white shadow-md transition-all duration-150 hover:-translate-y-0.5 hover:bg-arom-deep hover:shadow-[0_10px_24px_rgba(31,111,91,0.25)] sm:size-14"
-              >
-                <ArrowRight
-                  size={22}
-                  className="transition-transform duration-150 group-hover:translate-x-0.5"
-                />
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleTogglePlan(PRACTICE_BREATHING)}
+                  title={
+                    planIds.includes(PRACTICE_BREATHING.id)
+                      ? km
+                        ? "លុបចេញពីផែនការទំព័រដើម"
+                        : "Remove from Home Daily Plan"
+                      : km
+                      ? "បន្ថែមទៅផែនការទំព័រដើម"
+                      : "Add to Home Daily Plan"
+                  }
+                  className={`flex size-12 shrink-0 items-center justify-center rounded-2xl border transition-all duration-150 cursor-pointer sm:size-14 ${
+                    planIds.includes(PRACTICE_BREATHING.id)
+                      ? "border-arom bg-arom text-white shadow-md"
+                      : "border-arom-border bg-white text-arom hover:border-arom hover:bg-arom-wash shadow-sm"
+                  }`}
+                >
+                  {planIds.includes(PRACTICE_BREATHING.id) ? (
+                    <CalendarCheck size={22} />
+                  ) : (
+                    <CalendarPlus size={22} />
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => onSelectPractice(PRACTICE_BREATHING)}
+                  className="group flex size-12 shrink-0 items-center justify-center rounded-2xl bg-arom text-white shadow-md transition-all duration-150 hover:-translate-y-0.5 hover:bg-arom-deep hover:shadow-[0_10px_24px_rgba(31,111,91,0.25)] sm:size-14 cursor-pointer"
+                >
+                  <ArrowRight
+                    size={22}
+                    className="transition-transform duration-150 group-hover:translate-x-0.5"
+                  />
+                </button>
+              </div>
             </div>
           </section>
         )}
@@ -224,6 +310,7 @@ export function PracticeHomeView({
           <div className="mt-4 space-y-3">
             {filteredPractices.map((practice) => {
               const isAvailable = practice.isAvailable;
+              const inPlan = planIds.includes(practice.id);
               const categoryLabel = km
                 ? PRACTICE_CATEGORIES.find((c) => c.id === practice.category)?.kmLabel || practice.category
                 : practice.category;
@@ -292,10 +379,36 @@ export function PracticeHomeView({
                     </div>
                   </div>
 
-                  {/* Arrow or Lock indicator */}
-                  <div className="shrink-0">
+                  {/* Actions: Add to plan + Arrow or Lock */}
+                  <div className="flex items-center gap-2 shrink-0">
+                    {isAvailable && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleTogglePlan(practice);
+                        }}
+                        title={
+                          inPlan
+                            ? km
+                              ? "លុបចេញពីផែនការទំព័រដើម"
+                              : "Remove from Home Daily Plan"
+                            : km
+                            ? "បន្ថែមទៅផែនការទំព័រដើម"
+                            : "Add to Home Daily Plan"
+                        }
+                        className={`flex size-9 items-center justify-center rounded-xl border transition-all duration-150 cursor-pointer ${
+                          inPlan
+                            ? "border-arom bg-arom text-white shadow-2xs"
+                            : "border-arom-border bg-white text-arom hover:border-arom hover:bg-arom-wash"
+                        }`}
+                      >
+                        {inPlan ? <CalendarCheck size={16} /> : <CalendarPlus size={16} />}
+                      </button>
+                    )}
+
                     {isAvailable ? (
-                      <span className="flex size-10 items-center justify-center rounded-full bg-arom-soft text-arom transition-colors group-hover:bg-arom group-hover:text-white">
+                      <span className="flex size-9 items-center justify-center rounded-full bg-arom-soft text-arom transition-colors group-hover:bg-arom group-hover:text-white">
                         <ChevronRight size={18} />
                       </span>
                     ) : (
@@ -310,6 +423,21 @@ export function PracticeHomeView({
           </div>
         </section>
       </div>
+
+      {/* Toast Alert */}
+      <AnimatePresence>
+        {toastMessage && (
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 16 }}
+            className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 flex items-center gap-2 rounded-2xl bg-ink px-4 py-3 text-xs font-semibold text-white shadow-xl sm:text-sm"
+          >
+            <CheckCircle2 size={16} className="text-[#83dfca] shrink-0" />
+            <span>{toastMessage}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

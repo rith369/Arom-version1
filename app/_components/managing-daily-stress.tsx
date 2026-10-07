@@ -2,11 +2,15 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, Clock3 } from "lucide-react";
-import { motion, useReducedMotion } from "motion/react";
-import { useState } from "react";
+import { ArrowLeft, CalendarPlus, CheckCircle2, Clock3 } from "lucide-react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { useEffect, useState } from "react";
 import { DesktopNavigation, MobileNavigation } from "./app-navigation";
 import { BreathingExperience } from "./breathing-session";
+import {
+  getCustomPlanItems,
+  toggleCustomPlanItem,
+} from "./daily-plan-store";
 import { useLanguage } from "./language-provider";
 
 const easeOut = [0.23, 1, 0.32, 1] as const;
@@ -24,7 +28,57 @@ export function ManagingDailyStress() {
   const { language } = useLanguage();
   const shouldReduceMotion = useReducedMotion();
   const [sessionOpen, setSessionOpen] = useState(false);
+  const [planIds, setPlanIds] = useState<string[]>([]);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
   const km = language === "km";
+
+  useEffect(() => {
+    const syncPlan = () => {
+      const items = getCustomPlanItems();
+      setPlanIds(items.map((i) => i.id));
+    };
+    syncPlan();
+    window.addEventListener("arom_plan_updated", syncPlan);
+    return () => window.removeEventListener("arom_plan_updated", syncPlan);
+  }, []);
+
+  useEffect(() => {
+    if (toastMessage) {
+      const timer = window.setTimeout(() => setToastMessage(null), 3200);
+      return () => window.clearTimeout(timer);
+    }
+  }, [toastMessage]);
+
+  const isInPlan = planIds.includes("managing-daily-stress");
+
+  const handleTogglePlan = () => {
+    const isAdded = toggleCustomPlanItem({
+      id: "managing-daily-stress",
+      source: "guide",
+      title: "Managing Daily Stress",
+      titleKm: "ការគ្រប់គ្រងភាពតានតឹងប្រចាំថ្ងៃ (Daily Stress)",
+      subtitle: "5 mins • Build healthy habits and mindful pauses",
+      subtitleKm: "៥ នាទី • បង្កើតទម្លាប់ល្អសម្រាប់សុខភាព និងការសម្រាកខ្លីៗ",
+      badge: "Daily Guide",
+      badgeKm: "ការណែនាំប្រចាំថ្ងៃ (Daily Guide)",
+      icon: "boxicons_note-filled",
+      href: "/mindguide/managing-daily-stress",
+    });
+
+    if (isAdded) {
+      setToastMessage(
+        km
+          ? "បានបន្ថែម 'ការគ្រប់គ្រងភាពតានតឹងប្រចាំថ្ងៃ' ទៅផែនការទំព័រដើមរបស់អ្នក"
+          : "Added 'Managing Daily Stress' to your Home Screen Daily Plan"
+      );
+    } else {
+      setToastMessage(
+        km
+          ? "បានលុបចេញពីផែនការទំព័រដើមរបស់អ្នក"
+          : "Removed from your Home Screen Daily Plan"
+      );
+    }
+  };
 
   const item = {
     hidden: {
@@ -99,13 +153,40 @@ export function ManagingDailyStress() {
                     : "Stress is your body's reaction to pressure. In small doses it can help you focus, but ongoing stress can wear you down."}
                 </p>
 
-                <button
-                  type="button"
-                  onClick={() => setSessionOpen(true)}
-                  className="mt-6 flex h-12 w-full items-center justify-center rounded-[1.1rem] bg-arom px-6 text-xl font-bold text-white shadow-[0_12px_28px_rgba(31,111,91,0.18)] transition-[background-color,box-shadow,transform] duration-150 hover:-translate-y-0.5 hover:bg-arom-deep hover:shadow-[0_15px_32px_rgba(31,111,91,0.24)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-arom lg:max-w-sm"
-                >
-                  {km ? "ចាប់ផ្តើម (Start)" : "Start"}
-                </button>
+                <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
+                  <button
+                    type="button"
+                    onClick={() => setSessionOpen(true)}
+                    className="flex h-12 w-full items-center justify-center rounded-[1.1rem] bg-arom px-6 text-xl font-bold text-white shadow-[0_12px_28px_rgba(31,111,91,0.18)] transition-[background-color,box-shadow,transform] duration-150 hover:-translate-y-0.5 hover:bg-arom-deep hover:shadow-[0_15px_32px_rgba(31,111,91,0.24)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-arom sm:w-auto sm:min-w-[140px] cursor-pointer"
+                  >
+                    {km ? "ចាប់ផ្តើម (Start)" : "Start"}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleTogglePlan}
+                    className={`flex h-12 w-full items-center justify-center gap-2 rounded-[1.1rem] border px-5 text-sm font-semibold transition-all duration-150 active:scale-[0.98] cursor-pointer sm:w-auto ${
+                      isInPlan
+                        ? "border-arom bg-arom-soft text-arom shadow-xs"
+                        : "border-arom-border bg-white text-arom hover:bg-arom-wash hover:border-arom/40"
+                    }`}
+                  >
+                    {isInPlan ? (
+                      <CheckCircle2 aria-hidden="true" size={18} className="text-arom" />
+                    ) : (
+                      <CalendarPlus aria-hidden="true" size={18} className="text-arom" />
+                    )}
+                    <span>
+                      {isInPlan
+                        ? km
+                          ? "មានក្នុងផែនការទំព័រដើមរួចរាល់ (In Daily Plan)"
+                          : "In Home Daily Plan (Tap to Remove)"
+                        : km
+                        ? "បន្ថែមទៅផែនការទំព័រដើម (Add to Plan)"
+                        : "Add to Daily Plan at Home Screen"}
+                    </span>
+                  </button>
+                </div>
               </div>
             </motion.div>
 
@@ -150,6 +231,21 @@ export function ManagingDailyStress() {
       </motion.main>
 
       <MobileNavigation active="MindGuide" />
+
+      {/* Toast Alert */}
+      <AnimatePresence>
+        {toastMessage && (
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 16 }}
+            className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 flex items-center gap-2 rounded-2xl bg-ink px-4 py-3 text-xs font-semibold text-white shadow-xl sm:text-sm"
+          >
+            <CheckCircle2 size={16} className="text-[#83dfca] shrink-0" />
+            <span>{toastMessage}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

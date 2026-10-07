@@ -7,6 +7,9 @@ import {
   ArrowLeft,
   ArrowRight,
   BookOpen,
+  CalendarCheck,
+  CalendarPlus,
+  Check,
   CheckCircle2,
   ChevronRight,
   Clock,
@@ -18,6 +21,11 @@ import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { AromBrand, DesktopNavigation, MobileNavigation } from "./app-navigation";
 import { BreathingExperience } from "./breathing-session";
+import {
+  getCustomPlanItems,
+  toggleCustomPlanItem,
+  type DailyPlanCustomItem,
+} from "./daily-plan-store";
 import { useLanguage } from "./language-provider";
 import { LessonCompleteView } from "./learn/lesson-complete-view";
 import { LESSON_ABOUT_STRESS } from "./learn/learn-data";
@@ -162,10 +170,14 @@ function ActivityModal({
   activity,
   onClose,
   onStart,
+  onTogglePlan,
+  isInPlan,
 }: {
   activity: TodayActivity;
   onClose: () => void;
   onStart: (activity: TodayActivity) => void;
+  onTogglePlan: (activity: TodayActivity) => void;
+  isInPlan: boolean;
 }) {
   const { language } = useLanguage();
   const shouldReduceMotion = useReducedMotion();
@@ -270,7 +282,7 @@ function ActivityModal({
           <button
             type="button"
             onClick={() => onStart(activity)}
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-arom px-5 text-base font-semibold text-white shadow-sm transition-all duration-150 active:scale-[0.98] hover:bg-arom-deep"
+            className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-arom px-5 text-base font-semibold text-white shadow-sm transition-all duration-150 active:scale-[0.98] hover:bg-arom-deep cursor-pointer"
           >
             <Play aria-hidden="true" size={18} className="fill-current" />
             <span>
@@ -288,10 +300,36 @@ function ActivityModal({
             </span>
           </button>
 
+          {/* Add to Daily Plan at Home button */}
+          <button
+            type="button"
+            onClick={() => onTogglePlan(activity)}
+            className={`flex h-11 w-full items-center justify-center gap-2 rounded-xl border text-sm font-semibold transition-all duration-150 active:scale-[0.98] cursor-pointer ${
+              isInPlan
+                ? "border-arom bg-arom-soft text-arom shadow-xs"
+                : "border-arom-border bg-white text-arom hover:bg-arom-wash hover:border-arom/40"
+            }`}
+          >
+            {isInPlan ? (
+              <CheckCircle2 aria-hidden="true" size={18} className="text-arom" />
+            ) : (
+              <CalendarPlus aria-hidden="true" size={18} className="text-arom" />
+            )}
+            <span>
+              {isInPlan
+                ? km
+                  ? "មានក្នុងផែនការទំព័រដើមរួចរាល់ (In Daily Plan)"
+                  : "In Home Daily Plan (Tap to Remove)"
+                : km
+                ? "បន្ថែមទៅផែនការទំព័រដើម (Add to Plan)"
+                : "Add to Daily Plan at Home"}
+            </span>
+          </button>
+
           <Link
             href={activity.hubHref}
             onClick={onClose}
-            className="flex h-11 w-full items-center justify-center gap-1.5 rounded-xl border border-arom-border bg-white text-sm font-semibold text-arom transition-colors hover:bg-arom-wash"
+            className="flex h-11 w-full items-center justify-center gap-1.5 rounded-xl border border-arom-border bg-white text-sm font-semibold text-ink-muted transition-colors hover:text-arom hover:bg-arom-wash"
           >
             <span>{km ? activity.hubLabelKm : activity.hubLabelEn}</span>
             <ArrowRight aria-hidden="true" size={16} />
@@ -311,7 +349,70 @@ export function MindGuideHome() {
   const [activeExperience, setActiveExperience] = useState<
     "breathing" | "lesson" | "lesson-complete" | null
   >(null);
+  const [planIds, setPlanIds] = useState<string[]>([]);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
   const km = language === "km";
+
+  useEffect(() => {
+    const syncPlan = () => {
+      const items = getCustomPlanItems();
+      setPlanIds(items.map((i) => i.id));
+    };
+    syncPlan();
+    window.addEventListener("arom_plan_updated", syncPlan);
+    return () => window.removeEventListener("arom_plan_updated", syncPlan);
+  }, []);
+
+  useEffect(() => {
+    if (toastMessage) {
+      const timer = window.setTimeout(() => setToastMessage(null), 3200);
+      return () => window.clearTimeout(timer);
+    }
+  }, [toastMessage]);
+
+  const handleTogglePlan = (activity: TodayActivity) => {
+    const isAdded = toggleCustomPlanItem({
+      id: activity.id,
+      source:
+        activity.category === "Practice"
+          ? "practice"
+          : activity.category === "Learn"
+          ? "learn"
+          : "guide",
+      title: activity.title,
+      titleKm: activity.khmerTitle,
+      subtitle: activity.duration + " • " + (activity.outcomes[0]?.en || ""),
+      subtitleKm: activity.khmerDuration + " • " + (activity.outcomes[0]?.km || ""),
+      badge: activity.badge,
+      badgeKm: activity.khmerBadge,
+      icon:
+        activity.actionType === "breathing"
+          ? "hugeicons_yoga-03"
+          : activity.actionType === "learn-stress"
+          ? "ant-design_play-circle-filled"
+          : "boxicons_note-filled",
+      href:
+        activity.actionType === "daily-stress"
+          ? "/mindguide/managing-daily-stress"
+          : activity.actionType === "breathing"
+          ? "/practice"
+          : "/learn",
+    });
+
+    if (isAdded) {
+      setToastMessage(
+        km
+          ? `បានបន្ថែម "${activity.khmerTitle}" ទៅផែនការទំព័រដើមរបស់អ្នក`
+          : `Added "${activity.title}" to your Home Screen Daily Plan`
+      );
+    } else {
+      setToastMessage(
+        km
+          ? `បានលុប "${activity.khmerTitle}" ចេញពីផែនការទំព័រដើម`
+          : `Removed "${activity.title}" from your Home Screen Daily Plan`
+      );
+    }
+  };
 
   const item = {
     hidden: {
@@ -521,45 +622,75 @@ export function MindGuideHome() {
             </div>
 
             <div className="mt-4 grid gap-2.5 lg:grid-cols-3 lg:gap-5">
-              {todayActivities.map((activity) => (
-                <button
-                  key={activity.id}
-                  type="button"
-                  onClick={() => setSelectedActivity(activity)}
-                  className="group flex min-h-[60px] w-full items-center rounded-2xl border-2 border-arom/80 bg-arom/[0.07] px-3 py-2 text-left transition-[background-color,box-shadow,transform] duration-150 active:scale-[0.99] hover:-translate-y-0.5 hover:bg-arom-soft hover:shadow-card focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-arom lg:min-h-[86px] lg:rounded-2xl lg:px-4"
-                >
-                  <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-arom/20 lg:size-12">
-                    <Image
-                      src={activity.image}
-                      alt=""
-                      width={42}
-                      height={42}
-                      className="size-7 object-contain lg:size-8"
-                      unoptimized
-                    />
+              {todayActivities.map((activity) => {
+                const inPlan = planIds.includes(activity.id);
+                return (
+                  <div
+                    key={activity.id}
+                    className="group relative flex min-h-[64px] w-full items-center rounded-2xl border-2 border-arom/80 bg-arom/[0.07] p-2.5 transition-[background-color,box-shadow,transform] duration-150 hover:-translate-y-0.5 hover:bg-arom-soft hover:shadow-card lg:min-h-[86px] lg:p-3"
+                  >
+                    <button
+                      type="button"
+                      onClick={() => setSelectedActivity(activity)}
+                      className="flex flex-1 items-center min-w-0 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-arom cursor-pointer"
+                    >
+                      <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-arom/20 lg:size-12">
+                        <Image
+                          src={activity.image}
+                          alt=""
+                          width={42}
+                          height={42}
+                          className="size-7 object-contain lg:size-8"
+                          unoptimized
+                        />
+                      </div>
+                      <span className="ml-3 min-w-0 flex-1">
+                        <span className="block truncate text-sm font-semibold text-arom lg:text-base">
+                          {km ? activity.khmerTitle : activity.title}
+                        </span>
+                        <span className="mt-0.5 flex items-center gap-1.5 text-[0.72rem] text-ink lg:text-xs">
+                          <span className="font-medium text-ink-muted">
+                            {km ? activity.khmerDuration : activity.duration}
+                          </span>
+                          <span className="text-arom/50">•</span>
+                          <span className="rounded bg-arom/15 px-1.5 py-0.5 text-[0.65rem] font-semibold text-arom">
+                            {km ? activity.khmerBadge : activity.badge}
+                          </span>
+                        </span>
+                      </span>
+                    </button>
+
+                    {/* Quick Add to Home Plan Button */}
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleTogglePlan(activity);
+                      }}
+                      title={
+                        inPlan
+                          ? km
+                            ? "លុបចេញពីផែនការទំព័រដើម"
+                            : "Remove from Home Daily Plan"
+                          : km
+                          ? "បន្ថែមទៅផែនការទំព័រដើម"
+                          : "Add to Home Daily Plan"
+                      }
+                      className={`ml-2 flex size-8.5 shrink-0 items-center justify-center rounded-xl border transition-all duration-150 cursor-pointer ${
+                        inPlan
+                          ? "border-arom bg-arom text-white shadow-xs"
+                          : "border-arom-border bg-white text-arom hover:border-arom hover:bg-arom-wash"
+                      }`}
+                    >
+                      {inPlan ? (
+                        <Check aria-hidden="true" size={15} strokeWidth={2.5} />
+                      ) : (
+                        <CalendarPlus aria-hidden="true" size={15} strokeWidth={2} />
+                      )}
+                    </button>
                   </div>
-                  <span className="ml-3.5 min-w-0 flex-1">
-                    <span className="block truncate text-sm font-semibold text-arom lg:text-base">
-                      {km ? activity.khmerTitle : activity.title}
-                    </span>
-                    <span className="mt-0.5 flex items-center gap-1.5 text-[0.72rem] text-ink lg:text-xs">
-                      <span className="font-medium text-ink-muted">
-                        {km ? activity.khmerDuration : activity.duration}
-                      </span>
-                      <span className="text-arom/50">•</span>
-                      <span className="rounded bg-arom/15 px-1.5 py-0.5 text-[0.65rem] font-semibold text-arom">
-                        {km ? activity.khmerBadge : activity.badge}
-                      </span>
-                    </span>
-                  </span>
-                  <ChevronRight
-                    aria-hidden="true"
-                    size={22}
-                    strokeWidth={2.5}
-                    className="ml-2 shrink-0 text-arom transition-transform duration-150 group-hover:translate-x-0.5"
-                  />
-                </button>
-              ))}
+                );
+              })}
             </div>
           </motion.section>
         </div>
@@ -574,7 +705,24 @@ export function MindGuideHome() {
             activity={selectedActivity}
             onClose={() => setSelectedActivity(null)}
             onStart={handleStartActivity}
+            onTogglePlan={handleTogglePlan}
+            isInPlan={planIds.includes(selectedActivity.id)}
           />
+        )}
+      </AnimatePresence>
+
+      {/* Toast Alert */}
+      <AnimatePresence>
+        {toastMessage && (
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 16 }}
+            className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 flex items-center gap-2 rounded-2xl bg-ink px-4 py-3 text-xs font-semibold text-white shadow-xl sm:text-sm"
+          >
+            <CheckCircle2 size={16} className="text-[#83dfca] shrink-0" />
+            <span>{toastMessage}</span>
+          </motion.div>
         )}
       </AnimatePresence>
     </div>

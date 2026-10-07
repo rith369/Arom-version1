@@ -4,14 +4,20 @@ import Image from "next/image";
 import {
   ArrowLeft,
   Bookmark,
+  CalendarCheck,
+  CalendarPlus,
   CheckCircle2,
   Clock3,
   GraduationCap,
   Wind,
   Zap,
 } from "lucide-react";
-import { motion } from "motion/react";
-import { useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
+import { useEffect, useState } from "react";
+import {
+  getCustomPlanItems,
+  toggleCustomPlanItem,
+} from "../daily-plan-store";
 import { useLanguage } from "../language-provider";
 import {
   isPracticeBookmarked,
@@ -36,6 +42,25 @@ export function PracticeDetailView({
   const [bookmarked, setBookmarked] = useState(() =>
     isPracticeBookmarked(practice.id),
   );
+  const [inPlan, setInPlan] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    const syncPlan = () => {
+      const items = getCustomPlanItems();
+      setInPlan(items.some((i) => i.id === practice.id));
+    };
+    syncPlan();
+    window.addEventListener("arom_plan_updated", syncPlan);
+    return () => window.removeEventListener("arom_plan_updated", syncPlan);
+  }, [practice.id]);
+
+  useEffect(() => {
+    if (toastMessage) {
+      const timer = window.setTimeout(() => setToastMessage(null), 3200);
+      return () => window.clearTimeout(timer);
+    }
+  }, [toastMessage]);
 
   const categoryLabel = km
     ? PRACTICE_CATEGORIES.find((c) => c.id === practice.category)?.kmLabel || practice.category
@@ -46,6 +71,35 @@ export function PracticeDetailView({
     setBookmarked(newState);
   };
 
+  const handleTogglePlan = () => {
+    const isAdded = toggleCustomPlanItem({
+      id: practice.id,
+      source: "practice",
+      title: practice.title,
+      titleKm: practice.kmTitle || practice.title,
+      subtitle: `${practice.duration} • ${practice.subtitle}`,
+      subtitleKm: `${practice.kmDuration || practice.duration} • ${practice.kmSubtitle || practice.subtitle}`,
+      badge: practice.category,
+      badgeKm: categoryLabel,
+      icon: "hugeicons_yoga-03",
+      href: "/practice",
+    });
+
+    if (isAdded) {
+      setToastMessage(
+        km
+          ? `បានបន្ថែម "${practice.kmTitle || practice.title}" ទៅផែនការទំព័រដើមរបស់អ្នក`
+          : `Added "${practice.title}" to your Home Screen Daily Plan`
+      );
+    } else {
+      setToastMessage(
+        km
+          ? `បានលុប "${practice.kmTitle || practice.title}" ចេញពីផែនការទំព័រដើម`
+          : `Removed "${practice.title}" from your Home Screen Daily Plan`
+      );
+    }
+  };
+
   return (
     <div className="min-h-screen bg-canvas text-ink pb-24 lg:pb-12">
       {/* Top sticky bar */}
@@ -54,7 +108,7 @@ export function PracticeDetailView({
           type="button"
           onClick={onBack}
           aria-label={km ? "ត្រឡប់ក្រោយ" : "Back to Practice"}
-          className="flex size-10 items-center justify-center rounded-full border border-arom-border bg-white text-arom shadow-sm transition-colors hover:bg-arom-wash focus-visible:outline-2 focus-visible:outline-arom"
+          className="flex size-10 items-center justify-center rounded-full border border-arom-border bg-white text-arom shadow-sm transition-colors hover:bg-arom-wash focus-visible:outline-2 focus-visible:outline-arom cursor-pointer"
         >
           <ArrowLeft size={19} />
         </button>
@@ -63,29 +117,63 @@ export function PracticeDetailView({
           {km ? "ទិដ្ឋភាពទូទៅនៃការអនុវត្ត (Overview)" : "Practice Overview"}
         </span>
 
-        <button
-          type="button"
-          onClick={handleBookmarkToggle}
-          aria-label={
-            bookmarked
-              ? km
-                ? "លុបចំណាំ"
-                : "Remove bookmark"
-              : km
-                ? "ចំណាំការអនុវត្តនេះ"
-                : "Bookmark this practice"
-          }
-          className={`flex size-10 items-center justify-center rounded-full border shadow-sm transition-all duration-150 focus-visible:outline-2 focus-visible:outline-arom ${
-            bookmarked
-              ? "border-arom bg-arom-soft text-arom"
-              : "border-arom-border bg-white text-ink-muted hover:bg-arom-wash hover:text-arom"
-          }`}
-        >
-          <Bookmark
-            size={18}
-            className={bookmarked ? "fill-arom" : "fill-none"}
-          />
-        </button>
+        <div className="flex items-center gap-2">
+          {/* Add to Daily Plan Header Button */}
+          <button
+            type="button"
+            onClick={handleTogglePlan}
+            aria-label={
+              inPlan
+                ? km
+                  ? "លុបចេញពីផែនការទំព័រដើម"
+                  : "Remove from Home Daily Plan"
+                : km
+                ? "បន្ថែមទៅផែនការទំព័រដើម"
+                : "Add to Home Daily Plan"
+            }
+            title={
+              inPlan
+                ? km
+                  ? "មានក្នុងផែនការទំព័រដើមរួចរាល់"
+                  : "In Home Daily Plan"
+                : km
+                ? "បន្ថែមទៅផែនការទំព័រដើម"
+                : "Add to Home Daily Plan"
+            }
+            className={`flex size-10 items-center justify-center rounded-full border shadow-sm transition-all duration-150 focus-visible:outline-2 focus-visible:outline-arom cursor-pointer ${
+              inPlan
+                ? "border-arom bg-arom text-white"
+                : "border-arom-border bg-white text-ink-muted hover:bg-arom-wash hover:text-arom"
+            }`}
+          >
+            {inPlan ? <CalendarCheck size={18} /> : <CalendarPlus size={18} />}
+          </button>
+
+          {/* Bookmark Button */}
+          <button
+            type="button"
+            onClick={handleBookmarkToggle}
+            aria-label={
+              bookmarked
+                ? km
+                  ? "លុបចំណាំ"
+                  : "Remove bookmark"
+                : km
+                  ? "ចំណាំការអនុវត្តនេះ"
+                  : "Bookmark this practice"
+            }
+            className={`flex size-10 items-center justify-center rounded-full border shadow-sm transition-all duration-150 focus-visible:outline-2 focus-visible:outline-arom cursor-pointer ${
+              bookmarked
+                ? "border-arom bg-arom-soft text-arom"
+                : "border-arom-border bg-white text-ink-muted hover:bg-arom-wash hover:text-arom"
+            }`}
+          >
+            <Bookmark
+              size={18}
+              className={bookmarked ? "fill-arom" : "fill-none"}
+            />
+          </button>
+        </div>
       </header>
 
       <main className="mx-auto max-w-3xl px-4 pt-6 sm:px-8 sm:pt-8">
@@ -101,52 +189,37 @@ export function PracticeDetailView({
             alt={practice.title}
             fill
             priority
-            sizes="(max-width: 768px) 100vw, 800px"
+            sizes="(max-width: 768px) 100vw, 768px"
             className="object-cover"
             unoptimized
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-arom-deep/80 via-transparent to-transparent" />
-
-          {/* Badges on hero */}
-          <div className="absolute bottom-4 left-4 right-4 flex flex-wrap items-center justify-between gap-2 sm:bottom-6 sm:left-6 sm:right-6">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1 text-xs font-semibold text-arom shadow-sm backdrop-blur-md">
-              <Wind size={13} className="text-arom" />
-              {categoryLabel}
+          <div className="absolute inset-0 bg-gradient-to-t from-arom/75 via-arom/20 to-transparent" />
+          <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between sm:bottom-6 sm:left-6 sm:right-6">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1 text-xs font-bold text-arom shadow-sm backdrop-blur-sm">
+              <Clock3 size={13} strokeWidth={2.5} />
+              {km && practice.kmDuration ? practice.kmDuration : practice.duration}
             </span>
-
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-arom/90 px-3 py-1 text-xs font-semibold text-white shadow-sm backdrop-blur-md">
-              <Clock3 size={13} />
-              {km ? practice.kmDuration : practice.duration}
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-arom/90 px-3 py-1 text-xs font-bold text-white shadow-sm backdrop-blur-sm">
+              {categoryLabel}
             </span>
           </div>
         </motion.div>
 
-        {/* Title and Metadata */}
+        {/* Title, Category & Description */}
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.25, delay: 0.06 }}
           className="mt-6 sm:mt-8"
         >
-          <div className="flex flex-wrap items-center gap-2 text-xs font-semibold text-arom">
-            <span>{km ? "ប្រភេទ៖" : "Category:"}</span>
-            <span className="rounded-md bg-arom-soft px-2 py-0.5 text-arom">
-              {categoryLabel}
-            </span>
-            <span className="text-ink-muted/40">•</span>
-            <span className="inline-flex items-center gap-1 text-ink-muted">
-              <GraduationCap size={14} />
-              {km ? practice.kmDifficulty : practice.difficulty}
-            </span>
-            <span className="text-ink-muted/40">•</span>
-            <span className="inline-flex items-center gap-1 text-ink-muted">
-              <Wind size={14} />
-              {km ? practice.kmFormat : practice.format}
-            </span>
+          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-arom-accent">
+            <span>{categoryLabel}</span>
+            <span>•</span>
+            <span>{km && practice.kmDifficulty ? practice.kmDifficulty : practice.difficulty}</span>
           </div>
 
-          <h1 className="mt-3 text-2xl font-bold tracking-tight text-arom sm:text-3xl lg:text-4xl">
-            {km ? practice.kmTitle : practice.title}
+          <h1 className="mt-2 text-2xl font-bold tracking-tight text-arom sm:text-3xl">
+            {km && practice.kmTitle ? practice.kmTitle : practice.title}
           </h1>
           <p className="mt-1 text-base font-semibold text-arom-accent sm:text-lg">
             {km ? practice.kmSubtitle : practice.subtitle}
@@ -187,17 +260,17 @@ export function PracticeDetailView({
           </ul>
         </motion.section>
 
-        {/* Primary Start Button */}
+        {/* Action Buttons: Start + Add to Daily Plan */}
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.25, delay: 0.18 }}
-          className="mt-8 sm:mt-10"
+          className="mt-8 sm:mt-10 flex flex-col gap-3 sm:flex-row sm:items-center"
         >
           <button
             type="button"
             onClick={onStartPractice}
-            className="group flex h-14 w-full items-center justify-center gap-3 rounded-2xl bg-arom px-6 text-base font-bold text-white shadow-[0_12px_28px_rgba(31,111,91,0.2)] transition-all duration-150 hover:-translate-y-0.5 hover:bg-arom-deep hover:shadow-[0_16px_36px_rgba(31,111,91,0.28)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-arom"
+            className="group flex h-14 flex-1 items-center justify-center gap-3 rounded-2xl bg-arom px-6 text-base font-bold text-white shadow-[0_12px_28px_rgba(31,111,91,0.2)] transition-all duration-150 hover:-translate-y-0.5 hover:bg-arom-deep hover:shadow-[0_16px_36px_rgba(31,111,91,0.28)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-arom cursor-pointer"
           >
             <span>
               {km ? "ចាប់ផ្តើមការហាត់ដកដង្ហើម (Start Breathing)" : "Start Breathing Session"}
@@ -206,8 +279,48 @@ export function PracticeDetailView({
               →
             </span>
           </button>
+
+          <button
+            type="button"
+            onClick={handleTogglePlan}
+            className={`flex h-14 items-center justify-center gap-2.5 rounded-2xl border px-6 text-sm font-semibold transition-all duration-150 active:scale-[0.98] cursor-pointer ${
+              inPlan
+                ? "border-arom bg-arom-soft text-arom shadow-xs"
+                : "border-arom-border bg-white text-arom hover:bg-arom-wash hover:border-arom/40 shadow-sm"
+            }`}
+          >
+            {inPlan ? (
+              <CheckCircle2 size={18} className="text-arom" />
+            ) : (
+              <CalendarPlus size={18} className="text-arom" />
+            )}
+            <span>
+              {inPlan
+                ? km
+                  ? "មានក្នុងផែនការទំព័រដើមរួចរាល់ (In Daily Plan)"
+                  : "In Home Daily Plan (Tap to Remove)"
+                : km
+                ? "បន្ថែមទៅផែនការទំព័រដើម (Add to Plan)"
+                : "Add to Daily Plan at Home Screen"}
+            </span>
+          </button>
         </motion.div>
       </main>
+
+      {/* Toast Alert */}
+      <AnimatePresence>
+        {toastMessage && (
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 16 }}
+            className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 flex items-center gap-2 rounded-2xl bg-ink px-4 py-3 text-xs font-semibold text-white shadow-xl sm:text-sm"
+          >
+            <CheckCircle2 size={16} className="text-[#83dfca] shrink-0" />
+            <span>{toastMessage}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
