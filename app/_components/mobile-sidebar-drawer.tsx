@@ -155,95 +155,140 @@ export function MobileSidebarDrawer() {
 
             {/* 3 Navigation Sections: Main Page, Professional, Community */}
             <nav aria-label="Mobile Primary" className="mt-4 flex-1 space-y-4 px-3">
-              {NAVIGATION_SECTIONS.map((section) => (
-                <div key={section.id} className="space-y-1">
-                  {/* Section Title */}
-                  <p className="px-3 text-[10.5px] font-bold uppercase tracking-[0.08em] text-ink-muted/80">
-                    {isKm ? section.kmTitle : section.enTitle}
-                  </p>
+              {NAVIGATION_SECTIONS.map((section) => {
+                const activeItems = section.items.filter((item) => !item.isComingSoon);
+                const comingSoonItems = section.items.filter((item) => item.isComingSoon);
 
-                  {/* Section Items */}
-                  <div className="flex flex-col gap-0.5">
-                    {section.items.map((item: NavItem) => {
-                      const Icon = item.icon;
-                      const isActive =
-                        item.id === "detection"
-                          ? pathname.startsWith("/detection")
-                          : getIsActive(item.href);
+                return (
+                  <div
+                    key={section.id}
+                    className="rounded-2xl border border-arom-border/60 bg-[#f8faf9] p-2 shadow-[0_1px_3px_rgba(20,54,47,0.03)] space-y-1"
+                  >
+                    {/* Section Header with subtle emerald dot */}
+                    <div className="flex items-center gap-1.5 px-2.5 pt-1 pb-1.5">
+                      <span className="size-1.5 rounded-full bg-arom/70" />
+                      <p className="text-[11px] font-bold uppercase tracking-[0.08em] text-arom-deep">
+                        {isKm ? section.kmTitle : section.enTitle}
+                      </p>
+                    </div>
 
-                      // Coming Soon item
-                      if (item.isComingSoon) {
-                        return (
-                          <div
-                            key={item.id}
-                            title={
-                              isKm
-                                ? `${item.kmTitle}: មុខងារនេះនឹងមកដល់ឆាប់ៗនេះ (Coming Soon)`
-                                : `${item.enTitle}: Coming Soon`
-                            }
-                            className="group flex min-h-10 items-center justify-between rounded-xl px-3 py-1.5 text-xs font-medium text-ink-muted/65 transition-colors cursor-default select-none"
-                          >
-                            <div className="flex items-center gap-2.5 min-w-0">
-                              <Icon size={17} strokeWidth={1.8} className="shrink-0 text-ink-muted/50" />
-                              <span className="truncate">
+                    {/* Active Section Items */}
+                    <div className="flex flex-col gap-1">
+                      {activeItems.map((item: NavItem) => {
+                        const Icon = item.icon;
+                        const isActive =
+                          item.id === "detection"
+                            ? pathname.startsWith("/detection")
+                            : getIsActive(item.href);
+
+                        // Detection modal trigger
+                        if (item.id === "detection") {
+                          return (
+                            <button
+                              key={item.id}
+                              type="button"
+                              onClick={() => {
+                                closeSidebar();
+                                openDetection();
+                              }}
+                              aria-current={isActive ? "page" : undefined}
+                              className={`group flex min-h-[46px] w-full items-center gap-3 rounded-xl px-2.5 py-1.5 text-left transition-all duration-150 cursor-pointer ${
+                                isActive
+                                  ? "bg-white text-arom shadow-xs ring-1 ring-arom/20"
+                                  : "text-ink hover:bg-white hover:text-arom hover:shadow-2xs"
+                              }`}
+                            >
+                              <div
+                                className={`flex size-9 shrink-0 items-center justify-center rounded-xl transition-all duration-150 ${
+                                  isActive
+                                    ? "bg-arom text-white shadow-[0_2px_8px_rgba(31,111,91,0.28)]"
+                                    : "bg-white text-arom border border-arom-border/70 group-hover:bg-arom-soft group-hover:border-arom/40"
+                                }`}
+                              >
+                                <Icon size={19} strokeWidth={isActive ? 2.3 : 2} />
+                              </div>
+                              <span
+                                className={`truncate text-sm font-semibold leading-tight ${
+                                  isActive ? "text-arom font-bold" : "text-ink group-hover:text-arom"
+                                }`}
+                              >
                                 {isKm ? item.kmTitle : item.enTitle}
                               </span>
-                            </div>
-                            <span className="shrink-0 rounded-full bg-arom-wash px-1.5 py-0.5 text-[9.5px] font-bold text-arom border border-arom-border/60">
-                              {isKm ? "ឆាប់ៗ" : "Soon"}
-                            </span>
-                          </div>
-                        );
-                      }
+                            </button>
+                          );
+                        }
 
-                      // Detection modal trigger
-                      if (item.id === "detection") {
+                        // Standard navigation link
                         return (
-                          <button
+                          <Link
                             key={item.id}
-                            type="button"
-                            onClick={() => {
-                              closeSidebar();
-                              openDetection();
-                            }}
+                            href={item.href || "/"}
+                            onClick={closeSidebar}
                             aria-current={isActive ? "page" : undefined}
-                            className={`group flex min-h-10 w-full items-center gap-2.5 rounded-xl px-3 py-1.5 text-xs font-semibold transition-colors duration-150 text-left cursor-pointer ${
+                            className={`group flex min-h-[46px] items-center gap-3 rounded-xl px-2.5 py-1.5 transition-all duration-150 ${
                               isActive
-                                ? "bg-arom-soft text-arom shadow-xs"
-                                : "text-ink-muted hover:bg-arom-wash hover:text-arom"
+                                ? "bg-white text-arom shadow-xs ring-1 ring-arom/20"
+                                : "text-ink hover:bg-white hover:text-arom hover:shadow-2xs"
                             }`}
                           >
-                            <Icon size={18} strokeWidth={isActive ? 2.3 : 1.9} className="shrink-0" />
-                            <span className="truncate">
+                            <div
+                              className={`flex size-9 shrink-0 items-center justify-center rounded-xl transition-all duration-150 ${
+                                isActive
+                                  ? "bg-arom text-white shadow-[0_2px_8px_rgba(31,111,91,0.28)]"
+                                  : "bg-white text-arom border border-arom-border/70 group-hover:bg-arom-soft group-hover:border-arom/40"
+                              }`}
+                            >
+                              <Icon size={19} strokeWidth={isActive ? 2.3 : 2} />
+                            </div>
+                            <span
+                              className={`truncate text-sm font-semibold leading-tight ${
+                                isActive ? "text-arom font-bold" : "text-ink group-hover:text-arom"
+                              }`}
+                            >
                               {isKm ? item.kmTitle : item.enTitle}
                             </span>
-                          </button>
+                          </Link>
                         );
-                      }
+                      })}
+                    </div>
 
-                      // Standard navigation link
-                      return (
-                        <Link
-                          key={item.id}
-                          href={item.href || "/"}
-                          onClick={closeSidebar}
-                          aria-current={isActive ? "page" : undefined}
-                          className={`group flex min-h-10 items-center gap-2.5 rounded-xl px-3 py-1.5 text-xs font-semibold transition-colors duration-150 ${
-                            isActive
-                              ? "bg-arom-soft text-arom shadow-xs"
-                              : "text-ink-muted hover:bg-arom-wash hover:text-arom"
-                          }`}
-                        >
-                          <Icon size={18} strokeWidth={isActive ? 2.3 : 1.9} className="shrink-0" />
-                          <span className="truncate">
-                            {isKm ? item.kmTitle : item.enTitle}
-                          </span>
-                        </Link>
-                      );
-                    })}
+                    {/* Upcoming Items (if any in this section) */}
+                    {comingSoonItems.length > 0 && (
+                      <div className="pt-1.5 mt-1 border-t border-arom-border/50 space-y-0.5">
+                        <p className="px-2.5 py-0.5 text-[9.5px] font-bold uppercase tracking-wider text-ink-muted/70">
+                          {isKm ? "មុខងារនឹងមកដល់ឆាប់ៗ" : "Coming Soon"}
+                        </p>
+                        {comingSoonItems.map((item: NavItem) => {
+                          const Icon = item.icon;
+                          return (
+                            <div
+                              key={item.id}
+                              title={
+                                isKm
+                                  ? `${item.kmTitle}: មុខងារនេះនឹងមកដល់ឆាប់ៗនេះ (Coming Soon)`
+                                  : `${item.enTitle}: Coming Soon`
+                              }
+                              className="group flex min-h-9 items-center justify-between rounded-xl px-2.5 py-1 text-xs font-medium text-ink-muted/75 transition-colors cursor-default select-none"
+                            >
+                              <div className="flex items-center gap-2.5 min-w-0">
+                                <div className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-white/80 border border-arom-border/50 text-ink-muted/60">
+                                  <Icon size={14} strokeWidth={1.8} />
+                                </div>
+                                <span className="truncate text-xs font-medium text-ink-muted">
+                                  {isKm ? item.kmTitle : item.enTitle}
+                                </span>
+                              </div>
+                              <span className="shrink-0 rounded-full bg-white px-2 py-0.5 text-[9.5px] font-bold text-arom border border-arom-border/60">
+                                {isKm ? "ឆាប់ៗ" : "Soon"}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </nav>
 
             {/* Profile & Settings Link matching DesktopNavigation */}

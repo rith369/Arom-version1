@@ -7,6 +7,35 @@ A plain-language log of what changed in the app, written for the team rather tha
 
 Each entry lists the commit it landed in, so you can match it to a version of the site.
 
+## 7 Oct 2026: Wellness Icon Tiles and Island Navigation Redesign
+
+Commit `3147e75`. Redesigned desktop sidebar and mobile navigation drawer into card-based wellness islands featuring dedicated icon tiles, enlarged 14px high-contrast typography, and active-first tool ordering.
+
+**Why.** Users experienced difficulty scanning navigation on mobile devices due to small 12px text, monochromatic bare icons, and unreleased Coming Soon items placed right between working tools. Upgrading to distinct icon tiles, 14px typography, and active-first grouping makes navigation immediately legible and intuitive to browse.
+
+**What changed for users:**
+- **Dedicated Wellness Icon Tiles.** Every active tool now features a rounded tile with crisp mint borders and AROM brand green icons (`#1f6f5b`), turning solid emerald with a white icon when selected.
+- **Enlarged 14px High-Contrast Typography.** Item labels are enlarged to 14px (`text-sm font-semibold`) with deep contrast text (`#14221f`), dramatically improving readability for both Khmer (Kantumruy Pro) and English.
+- **Active-First Layout with Clean Separation.** Working features (Home, MindGuide, Detection, Progress) are grouped at the top of each category. Unreleased features (Quests, Shop, Friends) are neatly organized below a subtle hairline divider with quiet styling and Soon badges.
+- **Card-Based Wellness Island Groups.** Categories (Main Page, Professional, Community) are enclosed in gentle off-white island cards (`bg-[#f8faf9]`) with an emerald dot indicator, making the page structure scannable in seconds.
+- **Comfortable 46px Mobile Tap Targets.** Expanded touch areas ensure easy, comfortable tapping on mobile phone screens.
+
+**What changed for the team:**
+- **Updated `NAVIGATION_SECTIONS` in `app/_components/navigation-config.ts`.** Reordered Main Page items so working features precede unreleased items.
+- **Upgraded `DesktopNavigation` in `app/_components/app-navigation.tsx`.** Implemented card-based island layout with icon tiles and active-first separation.
+- **Upgraded `MobileSidebarDrawer` in `app/_components/mobile-sidebar-drawer.tsx`.** Applied matching island containers and icon tiles for seamless mobile responsiveness.
+- **Verified Build.** Next.js production build succeeded with zero errors across all 27 routes.
+
+**What to re-test:**
+- Open the mobile navigation drawer on phone and confirm the card-based sections render cleanly;
+- Verify the active tools (Home, MindGuide, Detection, Progress) appear first with 14px text and rounded icon tiles;
+- Verify Coming Soon items appear below the divider line with quiet styling;
+- Tap `Detection` and confirm the Track Your Mind dialog opens smoothly;
+- Check the desktop sidebar on laptop screens to verify the matching card island layout;
+- Verify no em dashes or loose hyphens exist in the UI copy or documentation.
+
+---
+
 ## 7 Oct 2026: Reversion to Unified Detection Modal Navigation
 
 Commit `16e4a0a`. Reverted sidebar and mobile drawer navigation to a single Detection item that launches the Track Your Mind modal, asking users to choose between Journal and Symptom Detection.
