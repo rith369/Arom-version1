@@ -3,6 +3,8 @@ import { Inter, Kantumruy_Pro } from "next/font/google";
 import "./index.css";
 import { LanguageProvider } from "./_components/language-provider";
 import { DetectionProvider } from "./_components/detection-provider";
+import { SidebarProvider } from "./_components/sidebar-provider";
+import { MobileSidebarDrawer } from "./_components/mobile-sidebar-drawer";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -26,11 +28,22 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${inter.variable} ${kantumruyPro.variable} antialiased`} suppressHydrationWarning>
-      <body suppressHydrationWarning>
+    <html lang="en" className={`${inter.variable} ${kantumruyPro.variable} antialiased`}>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "try{localStorage.removeItem('arom-theme');document.documentElement.classList.remove('dark');delete document.documentElement.dataset.theme;}catch(e){}",
+          }}
+        />
+      </head>
+      <body>
         <LanguageProvider>
           <DetectionProvider>
-            {children}
+            <SidebarProvider>
+              {children}
+              <MobileSidebarDrawer />
+            </SidebarProvider>
           </DetectionProvider>
         </LanguageProvider>
       </body>

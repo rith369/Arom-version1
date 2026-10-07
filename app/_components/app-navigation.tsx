@@ -14,37 +14,24 @@ import {
 import { useLanguage } from "./language-provider";
 import { useDetection } from "./detection-provider";
 
+import { NAVIGATION_SECTIONS, type NavItem } from "./navigation-config";
+
 export type NavigationLabel =
   | "Home"
+  | "Quests"
+  | "Shop"
+  | "Friends"
   | "MindGuide"
+  | "Journal"
   | "Detection"
+  | "Progress"
   | "Professional"
+  | "ClinicHospital"
+  | "BookingHistory"
+  | "Schedule"
   | "Community"
+  | "PlayCards"
   | "Profile";
-
-type NavigationItem = {
-  label: NavigationLabel;
-  icon: LucideIcon;
-  href: string;
-  emphasized?: boolean;
-};
-
-const navigationItems: NavigationItem[] = [
-  { label: "Home", icon: Home, href: "/" },
-  { label: "MindGuide", icon: BookOpen, href: "/mindguide" },
-  { label: "Detection", icon: Activity, href: "/detection", emphasized: true },
-  { label: "Professional", icon: Heart, href: "/professional" },
-  { label: "Community", icon: UsersRound, href: "/community" },
-];
-
-const khmerNavigation: Record<NavigationLabel, string> = {
-  Home: "ទំព័រដើម",
-  MindGuide: "មគ្គុទ្ទេសក៍ចិត្ត",
-  Detection: "ពិនិត្យអារម្មណ៍",
-  Professional: "អ្នកជំនាញ",
-  Community: "សហគមន៍",
-  Profile: "ប្រវត្តិរូប",
-};
 
 export function AromBrand({ compact = false }: { compact?: boolean }) {
   const { language } = useLanguage();
@@ -79,95 +66,151 @@ export function AromBrand({ compact = false }: { compact?: boolean }) {
 export function DesktopNavigation({ active }: { active: NavigationLabel }) {
   const { language } = useLanguage();
   const { openDetection } = useDetection();
+  const isKm = language === "km";
+
   return (
-    <aside className="sticky top-0 hidden h-screen flex-col border-r border-arom-border bg-white px-5 py-8 lg:flex">
-      <div className="px-2">
+    <aside className="sticky top-0 hidden h-screen w-full flex-col border-r border-arom-border bg-white px-3.5 py-6 lg:flex overflow-hidden">
+      {/* Brand Header */}
+      <div className="px-2 shrink-0">
         <AromBrand compact />
       </div>
 
-      <nav aria-label="Primary" className="mt-14 flex flex-col gap-2">
-        {navigationItems.map(({ label, icon: Icon, href }) => {
-          const isActive = active === label;
-          if (label === "Detection") {
-            return (
-              <button
-                key={label}
-                type="button"
-                onClick={openDetection}
-                aria-current={isActive ? "page" : undefined}
-                className={`group flex min-h-12 w-full items-center gap-3 rounded-2xl px-4 text-sm font-semibold transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-arom text-left ${
-                  isActive
-                    ? "bg-arom-soft text-arom"
-                    : "text-ink-muted hover:bg-arom-wash hover:text-arom"
-                }`}
-              >
-                <Icon aria-hidden="true" size={21} strokeWidth={isActive ? 2.4 : 2} />
-                {language === "km" ? khmerNavigation[label] : label}
-              </button>
-            );
-          }
-          return (
-            <Link
-              key={label}
-              href={href}
-              aria-current={isActive ? "page" : undefined}
-              className={`group flex min-h-12 items-center gap-3 rounded-2xl px-4 text-sm font-semibold transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-arom ${
-                isActive
-                  ? "bg-arom-soft text-arom"
-                  : "text-ink-muted hover:bg-arom-wash hover:text-arom"
-              }`}
-            >
-              <Icon aria-hidden="true" size={21} strokeWidth={isActive ? 2.4 : 2} />
-              {language === "km" ? khmerNavigation[label] : label}
-            </Link>
-          );
-        })}
+      {/* 3 Navigation Sections: Main Page, Professional, Community */}
+      <nav
+        aria-label="Primary"
+        className="mt-6 flex-1 overflow-y-auto pr-1 space-y-5 scrollbar-thin scrollbar-thumb-arom-border"
+      >
+        {NAVIGATION_SECTIONS.map((section) => (
+          <div key={section.id} className="space-y-1">
+            {/* Section Heading */}
+            <p className="px-3 text-[10.5px] font-bold uppercase tracking-[0.08em] text-ink-muted/80">
+              {isKm ? section.kmTitle : section.enTitle}
+            </p>
+
+            {/* Section Items */}
+            <div className="flex flex-col gap-0.5">
+              {section.items.map((item: NavItem) => {
+                const Icon = item.icon;
+                const isActive = active === item.label;
+
+                // Coming Soon item
+                if (item.isComingSoon) {
+                  return (
+                    <div
+                      key={item.id}
+                      title={
+                        isKm
+                          ? `${item.kmTitle}: មុខងារនេះនឹងមកដល់ឆាប់ៗនេះ (Coming Soon)`
+                          : `${item.enTitle}: Coming Soon`
+                      }
+                      className="group flex min-h-10 items-center justify-between rounded-xl px-3 py-1.5 text-xs font-medium text-ink-muted/65 transition-colors cursor-default select-none"
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <Icon size={17} strokeWidth={1.8} className="shrink-0 text-ink-muted/50" />
+                        <span className="truncate">
+                          {isKm ? item.kmTitle : item.enTitle}
+                        </span>
+                      </div>
+                      <span className="shrink-0 rounded-full bg-arom-wash px-1.5 py-0.5 text-[9.5px] font-bold text-arom border border-arom-border/60">
+                        {isKm ? "ឆាប់ៗ" : "Soon"}
+                      </span>
+                    </div>
+                  );
+                }
+
+                // Detection modal trigger
+                if (item.id === "detection") {
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={openDetection}
+                      aria-current={isActive ? "page" : undefined}
+                      className={`group flex min-h-10 w-full items-center gap-2.5 rounded-xl px-3 py-1.5 text-xs font-semibold transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-arom text-left cursor-pointer ${
+                        isActive
+                          ? "bg-arom-soft text-arom shadow-xs"
+                          : "text-ink-muted hover:bg-arom-wash hover:text-arom"
+                      }`}
+                    >
+                      <Icon size={18} strokeWidth={isActive ? 2.3 : 1.9} className="shrink-0" />
+                      <span className="truncate">
+                        {isKm ? item.kmTitle : item.enTitle}
+                      </span>
+                    </button>
+                  );
+                }
+
+                // Standard navigation link
+                return (
+                  <Link
+                    key={item.id}
+                    href={item.href || "/"}
+                    aria-current={isActive ? "page" : undefined}
+                    className={`group flex min-h-10 items-center gap-2.5 rounded-xl px-3 py-1.5 text-xs font-semibold transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-arom ${
+                      isActive
+                        ? "bg-arom-soft text-arom shadow-xs"
+                        : "text-ink-muted hover:bg-arom-wash hover:text-arom"
+                    }`}
+                  >
+                    <Icon size={18} strokeWidth={isActive ? 2.3 : 1.9} className="shrink-0" />
+                    <span className="truncate">
+                      {isKm ? item.kmTitle : item.enTitle}
+                    </span>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        ))}
       </nav>
 
-      <div className="mt-auto flex flex-col gap-3">
+      {/* Footer: User Profile */}
+      <div className="mt-auto shrink-0 pt-3 border-t border-arom-border/60">
         <Link
           href="/profile"
           aria-label="Profile and Settings"
-          className={`group flex items-center gap-3 rounded-2xl border p-2.5 transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-arom ${
+          className={`group flex items-center gap-2.5 rounded-xl border p-2 transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-arom ${
             active === "Profile"
-              ? "border-arom/40 bg-arom-soft text-arom shadow-sm"
+              ? "border-arom/40 bg-arom-soft text-arom shadow-xs"
               : "border-arom-border bg-white text-ink hover:border-arom/30 hover:bg-arom-wash"
           }`}
         >
           <Image
             src="/brand/muoyly-avatar.svg"
             alt="Muoyly"
-            width={38}
-            height={38}
-            className="size-9 rounded-full object-cover ring-2 ring-arom/20"
+            width={34}
+            height={34}
+            className="size-8 rounded-full object-cover ring-2 ring-arom/20"
             unoptimized
           />
           <div className="min-w-0 flex-1">
             <p className="truncate text-xs font-bold leading-tight text-ink">Muoyly Seng</p>
-            <p className="truncate text-[0.7rem] text-ink-muted">
-              {language === "km" ? "ប្រវត្តិរូប និងការកំណត់ (Profile & Settings)" : "Profile & Settings"}
+            <p className="truncate text-[0.65rem] text-ink-muted">
+              {isKm ? "ប្រវត្តិរូប និងការកំណត់ (Profile & Settings)" : "Profile & Settings"}
             </p>
           </div>
-          <Settings aria-hidden="true" size={17} className="text-ink-muted transition-transform duration-150 group-hover:rotate-45 group-hover:text-arom" />
+          <Settings aria-hidden="true" size={15} className="text-ink-muted transition-transform duration-150 group-hover:rotate-45 group-hover:text-arom" />
         </Link>
-
-        <div className="rounded-3xl bg-arom p-5 text-white">
-          <div className="mb-4 flex size-10 items-center justify-center rounded-full bg-white/14">
-            <Heart aria-hidden="true" size={20} />
-          </div>
-          <p className="text-sm font-semibold">
-            {language === "km" ? "ទុកពេលវេលាសម្រាប់ខ្លួនឯង។" : "Make space for yourself."}
-          </p>
-          <p className="mt-1 text-xs leading-5 text-white/70">
-            {language === "km"
-              ? "ការពិនិត្យនិងសួរសុខទុក្ខចិត្តខ្លួនឯងបន្តិច អាចផ្លាស់ប្តូរថ្ងៃរបស់អ្នកឱ្យកាន់តែស្រស់បំព្រង។"
-              : "A small check-in can change the shape of your day."}
-          </p>
-        </div>
       </div>
     </aside>
   );
 }
+
+type BottomNavItem = {
+  label: NavigationLabel;
+  icon: typeof Home;
+  href: string;
+  km: string;
+  emphasized?: boolean;
+};
+
+const bottomNavItems: BottomNavItem[] = [
+  { label: "Home", icon: Home, href: "/", km: "ទំព័រដើម" },
+  { label: "MindGuide", icon: BookOpen, href: "/mindguide", km: "មគ្គុទ្ទេសក៍ចិត្ត" },
+  { label: "Detection", icon: Activity, href: "/detection", km: "ពិនិត្យអារម្មណ៍", emphasized: true },
+  { label: "Professional", icon: Heart, href: "/professional", km: "អ្នកជំនាញ" },
+  { label: "Community", icon: UsersRound, href: "/community", km: "សហគមន៍" },
+];
 
 export function MobileNavigation({
   active,
@@ -186,7 +229,7 @@ export function MobileNavigation({
       className="fixed inset-x-0 bottom-0 z-40 border-t border-arom-border bg-white/96 px-3 pb-[calc(0.55rem+env(safe-area-inset-bottom))] pt-2 shadow-[0_-12px_35px_rgba(15,80,65,0.06)] backdrop-blur-xl lg:hidden"
     >
       <div className="mx-auto grid max-w-md grid-cols-5">
-        {navigationItems.map(({ label, icon: Icon, href, emphasized }) => {
+        {bottomNavItems.map(({ label, icon: Icon, href, km, emphasized }) => {
           const isActive = active === label;
           const content = (
             <>
@@ -203,15 +246,25 @@ export function MobileNavigation({
                   aria-hidden="true"
                   size={emphasized ? 25 : 24}
                   strokeWidth={isActive ? 2.5 : 2}
-                  className={!emphasized && isActive ? "text-arom" : ""}
+                  className={
+                    emphasized
+                      ? ""
+                      : isActive
+                      ? "text-arom"
+                      : "text-ink-muted/80 group-hover:text-arom"
+                  }
                 />
               </span>
               <span
                 className={`transition-colors duration-150 ${
                   emphasized ? "mt-7" : ""
-                } ${isActive ? "font-bold text-arom" : "font-medium text-ink/75"}`}
+                } ${
+                  isActive
+                    ? "font-bold text-arom"
+                    : "font-medium text-ink/75 group-hover:text-arom"
+                }`}
               >
-                {language === "km" ? khmerNavigation[label] : label}
+                {language === "km" ? km : label}
               </span>
             </>
           );
@@ -222,8 +275,8 @@ export function MobileNavigation({
                 key={label}
                 type="button"
                 onClick={handleOpenDetection}
-                aria-label={language === "km" ? khmerNavigation[label] : label}
-                className="relative flex min-h-[52px] flex-col items-center justify-end gap-1 rounded-xl text-[0.66rem] transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-arom"
+                aria-label={language === "km" ? km : label}
+                className="group relative flex min-h-[52px] flex-col items-center justify-end gap-1 rounded-xl text-[0.66rem] transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-arom cursor-pointer select-none"
               >
                 {content}
               </button>
@@ -235,7 +288,7 @@ export function MobileNavigation({
               key={label}
               href={href}
               aria-current={isActive ? "page" : undefined}
-              className="relative flex min-h-[52px] flex-col items-center justify-end gap-1 rounded-xl text-[0.66rem] transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-arom"
+              className="group relative flex min-h-[52px] flex-col items-center justify-end gap-1 rounded-xl text-[0.66rem] transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-arom cursor-pointer select-none"
             >
               {content}
             </Link>
@@ -245,3 +298,7 @@ export function MobileNavigation({
     </nav>
   );
 }
+
+export { MobileSidebarDrawer } from "./mobile-sidebar-drawer";
+export { SidebarProvider, useSidebar } from "./sidebar-provider";
+

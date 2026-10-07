@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { DetectionModal } from "../components/detection-modal";
 
 type DetectionContextType = {
@@ -19,14 +19,24 @@ const DetectionContext = createContext<DetectionContextType>({
 export function DetectionProvider({ children }: { children: ReactNode }) {
   const [isDetectionOpen, setIsDetectionOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
 
-  // Automatically close detection modal whenever route changes
+  // Open modal automatically when directly visiting /detection, otherwise close on route changes
   useEffect(() => {
-    setIsDetectionOpen(false);
+    if (pathname === "/detection") {
+      setIsDetectionOpen(true);
+    } else {
+      setIsDetectionOpen(false);
+    }
   }, [pathname]);
 
   const openDetection = () => setIsDetectionOpen(true);
-  const closeDetection = () => setIsDetectionOpen(false);
+  const closeDetection = () => {
+    setIsDetectionOpen(false);
+    if (pathname === "/detection") {
+      router.push("/");
+    }
+  };
 
   return (
     <DetectionContext.Provider value={{ isDetectionOpen, openDetection, closeDetection }}>

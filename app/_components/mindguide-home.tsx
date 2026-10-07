@@ -22,6 +22,7 @@ import { useLanguage } from "./language-provider";
 import { LessonCompleteView } from "./learn/lesson-complete-view";
 import { LESSON_ABOUT_STRESS } from "./learn/learn-data";
 import { LessonScreen } from "./learn/lesson-screen";
+import { useSidebar } from "./sidebar-provider";
 
 const easeOut = [0.23, 1, 0.32, 1] as const;
 
@@ -304,6 +305,7 @@ function ActivityModal({
 export function MindGuideHome() {
   const router = useRouter();
   const { language } = useLanguage();
+  const sidebar = useSidebar();
   const shouldReduceMotion = useReducedMotion();
   const [selectedActivity, setSelectedActivity] = useState<TodayActivity | null>(null);
   const [activeExperience, setActiveExperience] = useState<
@@ -372,22 +374,44 @@ export function MindGuideHome() {
         className="min-w-0 px-5 pb-28 pt-5 sm:px-8 sm:pt-7 lg:px-10 lg:pb-12 lg:pt-8 xl:px-12"
       >
         <div className="mx-auto w-full max-w-[70rem]">
-          <motion.header variants={item} className="flex items-center justify-between gap-4 lg:hidden">
+          <motion.header variants={item} className="flex items-center justify-between gap-3 lg:hidden">
             <AromBrand />
-            <Link
-              href="/profile"
-              aria-label="Open profile and settings"
-              className="rounded-full focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-arom"
-            >
-              <Image
-                src="/brand/muoyly-avatar.svg"
-                alt="Muoyly"
-                width={40}
-                height={40}
-                className="size-10 rounded-full object-cover ring-2 ring-white shadow-[0_5px_18px_rgba(20,75,63,0.15)]"
-                unoptimized
-              />
-            </Link>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={sidebar.openSidebar}
+                aria-label={km ? "បើកម៉ឺនុយរុករក" : "Open sidebar navigation"}
+                className="flex size-9 items-center justify-center rounded-2xl bg-arom-soft border border-arom/30 shadow-[0_2px_10px_rgba(31,111,91,0.12)] text-arom transition-all hover:bg-arom-soft/80 active:scale-95 cursor-pointer"
+              >
+                <svg
+                  className="size-5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#1f6f5b"
+                  strokeWidth="2.4"
+                  strokeLinecap="round"
+                  aria-hidden="true"
+                >
+                  <line x1="4" y1="7" x2="20" y2="7" />
+                  <line x1="4" y1="12" x2="16" y2="12" />
+                  <line x1="4" y1="17" x2="20" y2="17" />
+                </svg>
+              </button>
+              <Link
+                href="/profile"
+                aria-label="Open profile and settings"
+                className="rounded-full focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-arom"
+              >
+                <Image
+                  src="/brand/muoyly-avatar.svg"
+                  alt="Muoyly"
+                  width={36}
+                  height={36}
+                  className="size-9 rounded-full object-cover ring-2 ring-white shadow-[0_5px_18px_rgba(20,75,63,0.15)]"
+                  unoptimized
+                />
+              </Link>
+            </div>
           </motion.header>
 
           <motion.section

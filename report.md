@@ -7,6 +7,148 @@ A plain-language log of what changed in the app, written for the team rather tha
 
 Each entry lists the commit it landed in, so you can match it to a version of the site.
 
+## 7 Oct 2026: Reversion to Unified Detection Modal Navigation
+
+Commit `16e4a0a`. Reverted sidebar and mobile drawer navigation to a single Detection item that launches the Track Your Mind modal, asking users to choose between Journal and Symptom Detection.
+
+**Why.** Having separate Journal and Detection Symptoms items in the sidebar caused navigation ambiguity and mismatched active highlights when writing reflections. Reverting to the proven pattern where touching Detection opens the Track Your Mind dialog provides a clean, unified mental model with direct choices for Journal (Ready) and Symptom Detection (Coming Soon).
+
+**What changed for users:**
+- **Single Intuitive Detection Item in Navigation.** The sidebar under Main Page now features a single clean entry: `ពិនិត្យអារម្មណ៍ (Detection)` with the activity pulse icon. The duplicate Journal link has been removed.
+- **Track Your Mind Choice Modal Restored.** Clicking or tapping `Detection` opens the dialog asking users to choose:
+  - **Journal:** Ready to write daily reflections, directly linking to `/detection/journal`.
+  - **Symptom Detection:** Clearly marked with a Coming Soon badge.
+- **Accurate Active Highlighting in Journal.** While writing in `/detection/journal`, the Detection item in the sidebar remains active, accurately indicating the parent wellness area.
+- **Direct Link Support.** Visiting `/detection` renders the platform cleanly and immediately presents the Track Your Mind dialog without flickering or navigation glitches.
+
+**What changed for the team:**
+- **Updated `NAVIGATION_SECTIONS` in `app/_components/navigation-config.ts`.** Removed the separate `journal` item and standardized `detection` with `enTitle: "Detection"` and `kmTitle: "ពិនិត្យអារម្មណ៍"`.
+- **Enhanced `DetectionProvider` in `app/_components/detection-provider.tsx`.** Added automatic modal opening when visiting `/detection` and clean router redirection to `/` when dismissing the dialog.
+- **Streamlined `app/detection/page.tsx`.** Simplified the detection route to render `AromMainView`, allowing the provider modal overlay to handle interaction seamlessly.
+- **Updated `MobileSidebarDrawer` Active Logic.** Ensured `pathname.startsWith("/detection")` highlights the Detection item on mobile devices.
+- **Verified Build.** Next.js production build check completed successfully across all 27 application routes.
+
+**What to re-test:**
+- Click `ពិនិត្យអារម្មណ៍ (Detection)` in the desktop sidebar and verify the Track Your Mind modal opens smoothly;
+- Click `Journal` inside the modal and verify it navigates to `/detection/journal`;
+- Verify that on `/detection/journal`, the Detection item in the sidebar remains highlighted;
+- Open the mobile navigation drawer, tap `Detection`, and verify the drawer closes and the modal opens;
+- Tap `Symptom Detection` in the modal and verify the Coming Soon notification appears;
+- Verify no em dashes or loose hyphens exist in the UI copy or documentation.
+
+---
+
+## 7 Oct 2026: Resolution of Mixed Dark Sidebar and Complete Single Theme Unification
+
+Commit `16e4a0a`. Complete audit and elimination of residual dark utility classes causing hybrid dark sidebar styling, restoring 100% unified calming light wellness theme.
+
+**Why.** When dark mode was previously enabled, specific components received `dark:*` Tailwind utility classes. When the toggle button was removed, Tailwind CSS v4 fell back to its default `@media (prefers-color-scheme: dark)` system query. On devices with OS dark mode active, the desktop sidebar and header streak pill turned dark while the main page remained white. This created a jarring mixed appearance that needed a thorough audit and permanent resolution.
+
+**What changed for users:**
+- **100% Unified Light Wellness Theme.** The desktop sidebar, top gamified header, streak pill, and main content now share a single, harmonious light palette with soft borders (`#dcebe7`), crisp white backgrounds, and AROM emerald accents (`#1f6f5b`).
+- **No Inconsistent Dark Panels.** The left sidebar and header streak pill will never switch to dark, regardless of whether the operating system or browser prefers dark mode.
+- **Consistent 3-Category Navigation.** Main Page, Professional, and Community sections remain cleanly organized with Coming Soon badges and smooth navigation.
+
+**What changed for the team:**
+- **Purged All `dark:*` Utilities across Codebase.** Audited the repository with ripgrep to ensure zero lingering `dark:` prefixes in `DesktopNavigation`, `MobileNavigation`, `MobileSidebarDrawer`, `TopHeader`, `MindGuideHome`, `TherapistDirectory`, and `ProfileSettings`.
+- **Automatic Client Storage Reset in `app/layout.tsx`.** Added a defensive initialization snippet in `<head>` to clear any legacy `localStorage['arom-theme']` keys or `.dark` class attributes from the user's browser.
+- **Verified Full Production Build.** Successfully validated that all 27 Next.js static and dynamic routes compile cleanly with zero TypeScript or styling warnings.
+
+**What to re-test:**
+- Reload the browser at `http://localhost:3000` or `http://localhost:3000/detection`;
+- Confirm the left desktop sidebar displays with a pure white background and soft emerald borders;
+- Confirm the top header streak pill and XP bar display in clean white and light tones matching the rest of the page;
+- Verify on systems with OS Dark Mode enabled that no elements turn dark;
+- Confirm all 3 navigation categories (Main Page, Professional, Community) remain intact and functional.
+
+---
+
+## 7 Oct 2026: Dark and Light Mode Theme System and Toggle Buttons
+
+Commit `pending`. Introduction of complete dark and light mode theme architecture with ThemeProvider, ThemeSwitcher, ThemeToggleButton, and ThemeModeSelectCards.
+
+**Why.** Users seeking mental wellness and emotional rest frequently browse in low-light evening environments. Providing an accessible, eye-comforting dark mode with soothing emerald tones reduces visual strain and respects user sensory preferences.
+
+**What changed for users:**
+- **Dark and Light Mode Support.** Users can freely toggle between soothing Light Mode and night-comforting Dark Mode across the entire platform.
+- **Top Header Quick Toggle.** A clean, responsive Sun/Moon button in the top header allows instant 1-tap switching between modes on both mobile and desktop with animated icon transitions.
+- **In-Sidebar Segmented Theme Switcher.** Both the desktop sidebar footer and mobile drawer feature an intuitive segmented pill switcher: `ពន្លឺ (Light)` and `ងងឹត (Dark)`.
+- **Profile and Settings Visual Cards.** The Settings and Profile page includes full visual theme cards with descriptive previews for Daytime Focus and Restful Night.
+- **Subpage Header Integration.** The Dark and Light toggle button is now readily available on MindGuide and Professional directory mobile headers as well.
+- **Sensory-Friendly Emerald Night Palette.** Dark mode uses calming deep emerald tones (`#0d1a16`, `#132620`, `#2bb996`) rather than harsh pitch black, preserving AROM's serene wellness identity.
+- **Persistent Preference.** Theme choices automatically persist across sessions via local storage and respect system preferences by default.
+
+**What changed for the team:**
+- **Created `app/_components/theme-provider.tsx`.** Context provider managing theme state, HTML `.dark` class, `data-theme`, and local storage synchronization.
+- **Created `app/_components/theme-toggle.tsx`.** Exports `ThemeToggleButton` (compact animated icon button), `ThemeSwitcher` (segmented pill slider), and `ThemeModeSelectCards` (visual preview selection cards).
+- **Updated `app/index.css`.** Added dark mode CSS tokens, `@custom-variant dark`, and automatic dark surface color rules.
+- **Updated `app/layout.tsx`.** Wrapped application body with `ThemeProvider`.
+- **Integrated into `TopHeader`, `DesktopNavigation`, `MobileSidebarDrawer`, `ProfileSettings`, `MindGuideHome`, and `TherapistDirectory`.** Placed controls consistently across all key touchpoints.
+
+**What to re-test:**
+- Click the Sun/Moon button in the top header and verify the application switches smoothly between light and dark modes;
+- Open the desktop sidebar or mobile drawer and test the segmented `ពន្លឺ (Light)` / `ងងឹត (Dark)` toggle;
+- Visit `/profile` and test switching themes using the visual theme cards;
+- Refresh the page and confirm the selected theme persists from localStorage;
+- Check that text contrast remains clear and readable in both modes;
+- Verify no em dashes or loose hyphens exist in the UI copy or documentation.
+
+---
+
+## 7 Oct 2026: Three-Category Sidebar Navigation Architecture
+
+Commit `pending`. Restructuring of desktop sidebar and mobile navigation drawer into 3 categorized sections: Main Page, Professional, and Community.
+
+**Why.** Users need a structured, intuitive mental model when navigating AROM. Grouping features into Main Page (daily wellness and personal tools), Professional (therapy and clinical services), and Community (peer support and social activities), while clearly indicating unreleased features with Coming Soon badges, provides clarity without broken links.
+
+**What changed for users:**
+- **Three Core Navigation Categories.** The sidebar navigation on both laptop and mobile is now organized into three distinct sections:
+  - **ទំព័រចម្បង (Main Page):** Home Page, Quests (Coming Soon), Shop (Coming Soon), Friends (Coming Soon), MindGuide, Journal, Detection Symptoms, and Progress Dashboard.
+  - **អ្នកជំនាញ (Professional):** Professional, Find Clinic & Hospital (Coming Soon), Booking History (Coming Soon), and Schedule Management (Coming Soon).
+  - **សហគមន៍ (Community):** Community, and Play Cards with Friends (Coming Soon).
+- **Graceful "Coming Soon" Indicators.** Planned features show a delicate mint pill badge with disabled cursor and tooltip explaining the feature is arriving soon, preventing dead clicks or broken routes.
+- **Direct Section Anchoring.** Clicking Progress Dashboard scrolls directly to the interactive wellness progress card on the page.
+
+**What changed for the team:**
+- **Created `app/_components/navigation-config.ts`.** Centralized single source of truth for all 3 navigation sections, metadata, bilingual titles, and coming-soon status.
+- **Updated `DesktopNavigation` in `app/_components/app-navigation.tsx`.** Adapted to render the 3 categorized sections with scrollable container and section headings.
+- **Updated `MobileSidebarDrawer` in `app/_components/mobile-sidebar-drawer.tsx`.** Synchronized with `navigation-config.ts` so mobile users experience the exact same 3-section navigation.
+- **Added anchor ID in `app/components/progress-dashboard.tsx`.** Added `id="progress-dashboard"` for smooth anchor navigation.
+
+**What to re-test:**
+- Check sidebar navigation on laptop to verify all 3 categories (Main Page, Professional, Community) render cleanly with section headings;
+- Verify active links (Home, MindGuide, Journal, Detection, Progress Dashboard, Professional, Community) navigate correctly;
+- Verify Coming Soon items (Quests, Shop, Friends, Find Clinic & Hospital, Booking History, Schedule Management, Play Cards) show the "Soon" badge and do not trigger broken routes;
+- Open the mobile sidebar drawer and confirm the same 3 categories appear;
+- Ensure no em dashes or loose hyphens exist in the documentation.
+
+---
+
+## 7 Oct 2026: Phone Gamified Header and Mobile Navigation Sidebar Drawer
+
+Commit `pending`. Introduction of phone gamified header HUD matching screenshot design and responsive mobile navigation sidebar drawer.
+
+**Why.** On mobile phones, users need immediate visibility into their personal wellness level and daily streaks, as well as an accessible slide-over sidebar drawer containing all existing navigation destinations. On laptop screens, the sidebar remains automatically open as designed.
+
+**What changed for users:**
+- **Gamified Phone Header in AROM Brand Green.** The mobile header now uses AROM's signature forest and mint green palette (`#1f6f5b`) for the circular progress arc, the central level number, the XP progress bar, and the hamburger menu button instead of purple, creating complete visual harmony with the platform.
+- **Slide-over Mobile Sidebar Drawer in Native AROM Style.** Tapping the green hamburger button opens an accessible, smooth slide-out drawer matching `DesktopNavigation` directly: ទំព័រដើម (Home), មគ្គុទ្ទេសក៍ចិត្ត (MindGuide), ពិនិត្យអារម្មណ៍ (Detection), អ្នកជំនាញ (Professional), សហគមន៍ (Community), and ប្រវត្តិរូប និងការកំណត់ (Profile & Settings).
+- **In-Drawer Progress & Quick Controls.** The drawer includes a serene wellness level overview with green progress indicators, a bilingual language switcher (Khmer and English), and an encouraging mindfulness reminder card matching the desktop sidebar card.
+- **Laptop Auto-Open Sidebar Continuity.** On laptop and desktop screens, the desktop sidebar remains automatically open and fixed on the left side of the screen.
+
+**What changed for the team:**
+- **Created `app/_components/sidebar-provider.tsx`.** Context provider managing open, close, and toggle states with automatic route change listener and Escape key handling.
+- **Created `app/_components/mobile-sidebar-drawer.tsx`.** Accessible drawer component animated with Motion, supporting bilingual labeling and existing navigation routes.
+- **Updated `app/components/top-header.tsx`.** Re-architected top header to render the gamified mobile HUD and responsive desktop controls.
+- **Updated `app/layout.tsx`.** Wrapped application body with `SidebarProvider` and mounted `MobileSidebarDrawer`.
+
+**What to re-test:**
+- Open the application on mobile screen width (e.g. 390px) and verify the Level 4 circular arc, progress bar, 54 / 100 XP, streak pill, coins pill, and purple hamburger menu button match the design;
+- Tap the hamburger menu button and verify the sidebar drawer slides in smoothly from the left;
+- Verify all navigation links in the drawer work and that tapping backdrop, close button, or pressing Escape closes the drawer;
+- Resize to laptop screen width (e.g. 1024px or higher) and verify the desktop sidebar is automatically open and visible on the left;
+- Verify no em dashes or loose hyphens exist in the UI copy or documentation.
+
 ---
 
 ## 7 Oct 2026: Three-Role RBAC System Architecture in AGENTS.md

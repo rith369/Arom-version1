@@ -461,8 +461,9 @@ export function ProgressDashboard() {
   return (
     <>
       <section
+        id="progress-dashboard"
         aria-label={km ? "ដំណើរការរបស់អ្នក" : "Your Progress"}
-        className="mt-6 flex flex-col gap-4 sm:gap-5"
+        className="mt-6 flex flex-col gap-4 sm:gap-5 scroll-mt-6"
       >
         {/* ================= 1. SECTION HEADER ================= */}
         <div className="flex items-center justify-between px-1">

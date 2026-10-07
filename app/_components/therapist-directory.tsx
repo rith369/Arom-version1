@@ -20,6 +20,7 @@ import {
 import { AromBrand, DesktopNavigation, MobileNavigation } from "./app-navigation";
 import { useLanguage } from "./language-provider";
 import { TherapistFilter } from "./therapist-filter";
+import { useSidebar } from "./sidebar-provider";
 
 const locations = [
   { en: "Phnom Penh, Cambodia", km: "ភ្នំពេញ, កម្ពុជា (Phnom Penh)" },
@@ -87,6 +88,7 @@ function TherapistCard({ therapist }: { therapist: Therapist }) {
 
 export function TherapistDirectory() {
   const { language } = useLanguage();
+  const sidebar = useSidebar();
   const km = language === "km";
   const [query, setQuery] = useState("");
   const [location, setLocation] = useState(locations[0].en);
@@ -149,7 +151,7 @@ export function TherapistDirectory() {
           variants={containerVariants}
           className="mx-auto min-h-screen w-full max-w-[78rem] px-4 pb-28 pt-5 sm:px-8 sm:pt-7 lg:px-10 lg:pb-12 lg:pt-8 xl:px-12"
         >
-          <motion.header variants={itemVariants} className="flex items-start justify-between gap-4">
+          <motion.header variants={itemVariants} className="flex items-center justify-between gap-3">
             <div className="lg:hidden">
               <AromBrand />
             </div>
@@ -162,20 +164,42 @@ export function TherapistDirectory() {
               </p>
             </div>
 
-            <Link
-              href="/profile"
-              aria-label="Open profile and settings"
-              className="rounded-full focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-arom"
-            >
-              <Image
-                src="/brand/muoyly-avatar.svg"
-                alt="Muoyly"
-                width={45}
-                height={42}
-                className="size-11 rounded-full object-cover ring-2 ring-white shadow-[0_5px_18px_rgba(20,75,63,0.15)]"
-                unoptimized
-              />
-            </Link>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={sidebar.openSidebar}
+                aria-label={km ? "បើកម៉ឺនុយរុករក" : "Open sidebar navigation"}
+                className="flex size-9 sm:size-10 items-center justify-center rounded-2xl bg-arom-soft border border-arom/30 shadow-[0_2px_10px_rgba(31,111,91,0.12)] text-arom transition-all hover:bg-arom-soft/80 active:scale-95 cursor-pointer lg:hidden"
+              >
+                <svg
+                  className="size-5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#1f6f5b"
+                  strokeWidth="2.4"
+                  strokeLinecap="round"
+                  aria-hidden="true"
+                >
+                  <line x1="4" y1="7" x2="20" y2="7" />
+                  <line x1="4" y1="12" x2="16" y2="12" />
+                  <line x1="4" y1="17" x2="20" y2="17" />
+                </svg>
+              </button>
+              <Link
+                href="/profile"
+                aria-label="Open profile and settings"
+                className="rounded-full focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-arom"
+              >
+                <Image
+                  src="/brand/muoyly-avatar.svg"
+                  alt="Muoyly"
+                  width={40}
+                  height={40}
+                  className="size-10 rounded-full object-cover ring-2 ring-white shadow-[0_5px_18px_rgba(20,75,63,0.15)]"
+                  unoptimized
+                />
+              </Link>
+            </div>
           </motion.header>
 
           <motion.section variants={itemVariants} className="mt-8 lg:mt-12">
