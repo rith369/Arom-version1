@@ -865,13 +865,13 @@ function JournalContent() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f7faf9] text-[#14221f] lg:grid lg:grid-cols-[15rem_minmax(0,1fr)]">
+    <div className="min-h-screen bg-[#f7faf9] text-[#14221f] lg:grid lg:grid-cols-[19rem_minmax(0,1fr)]">
       {/* Desktop Sidebar Navigation */}
       <DesktopNavigation active="Detection" />
 
       {/* Main Content Area */}
       <div className="min-w-0 pb-28 sm:pb-32 lg:pb-12">
-        <main className="mx-auto w-full max-w-[430px] px-5 pt-4 sm:px-6 md:max-w-xl lg:max-w-2xl lg:pt-8 xl:max-w-3xl">
+        <main className="mx-auto w-full max-w-[430px] px-5 pt-4 sm:px-6 md:max-w-xl lg:max-w-2xl lg:pt-8 xl:max-w-4xl">
           {/* Top Brand Header matching Figma */}
           <TopHeader />
 

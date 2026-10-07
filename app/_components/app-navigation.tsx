@@ -69,9 +69,9 @@ export function DesktopNavigation({ active }: { active: NavigationLabel }) {
   const isKm = language === "km";
 
   return (
-    <aside className="sticky top-0 hidden h-screen w-full flex-col border-r border-arom-border bg-white px-3.5 py-6 lg:flex overflow-hidden">
+    <aside className="sticky top-0 hidden h-screen w-full flex-col border-r border-arom-border bg-white px-4.5 py-6 lg:flex overflow-hidden">
       {/* Brand Header */}
-      <div className="px-2 shrink-0">
+      <div className="px-1 shrink-0">
         <AromBrand compact />
       </div>
 
@@ -87,10 +87,10 @@ export function DesktopNavigation({ active }: { active: NavigationLabel }) {
           return (
             <div
               key={section.id}
-              className="rounded-2xl border border-arom-border/60 bg-[#f8faf9] p-2 shadow-[0_1px_3px_rgba(20,54,47,0.03)] space-y-1"
+              className="rounded-2xl border border-arom-border/60 bg-[#f8faf9] p-2.5 shadow-[0_1px_3px_rgba(20,54,47,0.03)] space-y-1.5"
             >
               {/* Section Heading with subtle emerald dot */}
-              <div className="flex items-center gap-1.5 px-2.5 pt-1 pb-1.5">
+              <div className="flex items-center gap-2 px-2.5 pt-1 pb-1">
                 <span className="size-1.5 rounded-full bg-arom/70" />
                 <p className="text-[11px] font-bold uppercase tracking-[0.08em] text-arom-deep">
                   {isKm ? section.kmTitle : section.enTitle}
@@ -111,23 +111,23 @@ export function DesktopNavigation({ active }: { active: NavigationLabel }) {
                         type="button"
                         onClick={openDetection}
                         aria-current={isActive ? "page" : undefined}
-                        className={`group flex min-h-[44px] w-full items-center gap-3 rounded-xl px-2.5 py-1.5 text-left transition-all duration-150 cursor-pointer ${
+                        className={`group flex min-h-[46px] w-full items-center gap-3 rounded-xl px-3 py-2 text-left transition-all duration-150 cursor-pointer ${
                           isActive
                             ? "bg-white text-arom shadow-xs ring-1 ring-arom/20"
                             : "text-ink hover:bg-white hover:text-arom hover:shadow-2xs"
                         }`}
                       >
                         <div
-                          className={`flex size-8.5 shrink-0 items-center justify-center rounded-xl transition-all duration-150 ${
+                          className={`flex size-9 shrink-0 items-center justify-center rounded-xl transition-all duration-150 ${
                             isActive
                               ? "bg-arom text-white shadow-[0_2px_8px_rgba(31,111,91,0.28)]"
                               : "bg-white text-arom border border-arom-border/70 group-hover:bg-arom-soft group-hover:border-arom/40"
                           }`}
                         >
-                          <Icon size={18} strokeWidth={isActive ? 2.3 : 2} />
+                          <Icon size={19} strokeWidth={isActive ? 2.3 : 2} />
                         </div>
                         <span
-                          className={`truncate text-[13.5px] font-semibold leading-tight ${
+                          className={`text-[14px] font-semibold leading-snug ${
                             isActive ? "text-arom font-bold" : "text-ink group-hover:text-arom"
                           }`}
                         >
@@ -143,23 +143,23 @@ export function DesktopNavigation({ active }: { active: NavigationLabel }) {
                       key={item.id}
                       href={item.href || "/"}
                       aria-current={isActive ? "page" : undefined}
-                      className={`group flex min-h-[44px] items-center gap-3 rounded-xl px-2.5 py-1.5 transition-all duration-150 ${
+                      className={`group flex min-h-[46px] items-center gap-3 rounded-xl px-3 py-2 transition-all duration-150 ${
                         isActive
                           ? "bg-white text-arom shadow-xs ring-1 ring-arom/20"
                           : "text-ink hover:bg-white hover:text-arom hover:shadow-2xs"
                       }`}
                     >
                       <div
-                        className={`flex size-8.5 shrink-0 items-center justify-center rounded-xl transition-all duration-150 ${
+                        className={`flex size-9 shrink-0 items-center justify-center rounded-xl transition-all duration-150 ${
                           isActive
                             ? "bg-arom text-white shadow-[0_2px_8px_rgba(31,111,91,0.28)]"
                             : "bg-white text-arom border border-arom-border/70 group-hover:bg-arom-soft group-hover:border-arom/40"
                         }`}
                       >
-                        <Icon size={18} strokeWidth={isActive ? 2.3 : 2} />
+                        <Icon size={19} strokeWidth={isActive ? 2.3 : 2} />
                       </div>
                       <span
-                        className={`truncate text-[13.5px] font-semibold leading-tight ${
+                        className={`text-[14px] font-semibold leading-snug ${
                           isActive ? "text-arom font-bold" : "text-ink group-hover:text-arom"
                         }`}
                       >
@@ -172,7 +172,7 @@ export function DesktopNavigation({ active }: { active: NavigationLabel }) {
 
               {/* Upcoming Items (if any in this section) */}
               {comingSoonItems.length > 0 && (
-                <div className="pt-1.5 mt-1 border-t border-arom-border/50 space-y-0.5">
+                <div className="pt-2 mt-1 border-t border-arom-border/50 space-y-0.5">
                   <p className="px-2.5 py-0.5 text-[9.5px] font-bold uppercase tracking-wider text-ink-muted/70">
                     {isKm ? "មុខងារនឹងមកដល់ឆាប់ៗ" : "Coming Soon"}
                   </p>
@@ -186,17 +186,17 @@ export function DesktopNavigation({ active }: { active: NavigationLabel }) {
                             ? `${item.kmTitle}: មុខងារនេះនឹងមកដល់ឆាប់ៗនេះ (Coming Soon)`
                             : `${item.enTitle}: Coming Soon`
                         }
-                        className="group flex min-h-9 items-center justify-between rounded-xl px-2.5 py-1 text-xs font-medium text-ink-muted/75 transition-colors cursor-default select-none"
+                        className="group flex min-h-[38px] items-center justify-between rounded-xl px-3 py-1.5 text-xs font-medium text-ink-muted/75 transition-colors cursor-default select-none"
                       >
                         <div className="flex items-center gap-2.5 min-w-0">
-                          <div className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-white/80 border border-arom-border/50 text-ink-muted/60">
-                            <Icon size={14} strokeWidth={1.8} />
+                          <div className="flex size-7.5 shrink-0 items-center justify-center rounded-lg bg-white/80 border border-arom-border/50 text-ink-muted/60">
+                            <Icon size={15} strokeWidth={1.8} />
                           </div>
-                          <span className="truncate text-xs font-medium text-ink-muted">
+                          <span className="text-[12.5px] font-medium text-ink-muted leading-tight">
                             {isKm ? item.kmTitle : item.enTitle}
                           </span>
                         </div>
-                        <span className="shrink-0 rounded-full bg-white px-2 py-0.5 text-[9.5px] font-bold text-arom border border-arom-border/60">
+                        <span className="shrink-0 rounded-full bg-white px-2 py-0.5 text-[9.5px] font-bold text-arom border border-arom-border/60 ml-2">
                           {isKm ? "ឆាប់ៗ" : "Soon"}
                         </span>
                       </div>
@@ -214,7 +214,7 @@ export function DesktopNavigation({ active }: { active: NavigationLabel }) {
         <Link
           href="/profile"
           aria-label="Profile and Settings"
-          className={`group flex items-center gap-2.5 rounded-xl border p-2 transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-arom ${
+          className={`group flex items-center gap-3 rounded-2xl border p-2.5 transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-arom ${
             active === "Profile"
               ? "border-arom/40 bg-arom-soft text-arom shadow-xs"
               : "border-arom-border bg-white text-ink hover:border-arom/30 hover:bg-arom-wash"
@@ -223,18 +223,18 @@ export function DesktopNavigation({ active }: { active: NavigationLabel }) {
           <Image
             src="/brand/muoyly-avatar.svg"
             alt="Muoyly"
-            width={34}
-            height={34}
-            className="size-8 rounded-full object-cover ring-2 ring-arom/20"
+            width={38}
+            height={38}
+            className="size-9.5 rounded-full object-cover ring-2 ring-arom/20"
             unoptimized
           />
           <div className="min-w-0 flex-1">
             <p className="truncate text-xs font-bold leading-tight text-ink">Muoyly Seng</p>
-            <p className="truncate text-[0.65rem] text-ink-muted">
+            <p className="truncate text-[0.68rem] text-ink-muted">
               {isKm ? "ប្រវត្តិរូប និងការកំណត់ (Profile & Settings)" : "Profile & Settings"}
             </p>
           </div>
-          <Settings aria-hidden="true" size={15} className="text-ink-muted transition-transform duration-150 group-hover:rotate-45 group-hover:text-arom" />
+          <Settings aria-hidden="true" size={16} className="text-ink-muted transition-transform duration-150 group-hover:rotate-45 group-hover:text-arom" />
         </Link>
       </div>
     </aside>

@@ -379,7 +379,7 @@ export function TherapistBooking({ therapist, days }: { therapist: Therapist; da
     "-ml-2 flex size-11 items-center justify-center rounded-full text-arom transition-colors duration-150 hover:bg-arom-wash focus-visible:outline-2 focus-visible:outline-arom";
 
   return (
-    <div className="min-h-screen bg-canvas lg:grid lg:grid-cols-[15rem_minmax(0,1fr)]">
+    <div className="min-h-screen bg-canvas lg:grid lg:grid-cols-[19rem_minmax(0,1fr)]">
       <DesktopNavigation active="Professional" />
 
       <main className="min-w-0 bg-white lg:bg-canvas">

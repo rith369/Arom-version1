@@ -237,7 +237,7 @@ export function AromHome() {
   };
 
   return (
-    <div className="min-h-screen bg-canvas lg:grid lg:grid-cols-[15rem_minmax(0,1fr)]">
+    <div className="min-h-screen bg-canvas lg:grid lg:grid-cols-[19rem_minmax(0,1fr)]">
       <DesktopNavigation active="Home" />
 
       <div className="min-w-0">

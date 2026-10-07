@@ -7,6 +7,32 @@ A plain-language log of what changed in the app, written for the team rather tha
 
 Each entry lists the commit it landed in, so you can match it to a version of the site.
 
+## 7 Oct 2026: Desktop Sidebar Width Expansion to 19rem and Zero Text Truncation
+
+Commit `2c8f4d1`. Expanded the desktop sidebar layout grid from 15rem (240px) to 19rem (304px) across all 14 application views, completely eliminating text truncation and balancing desktop screen proportions.
+
+**Why.** The previous 15rem desktop sidebar was overly narrow, causing labels like "Progress Dashboard" and "Find Clinic & Hospital" to truncate with ellipses while leaving excessive empty whitespace on the right side of the screen. Expanding to 19rem gives all navigation items generous breathing room and creates a well-proportioned desktop layout.
+
+**What changed for users:**
+- **Zero Text Truncation.** All navigation labels, including "Progress Dashboard", "Find Clinic & Hospital", and "Schedule Management", now render fully and cleanly without any cutoffs or trailing ellipses.
+- **Spacious 19rem Desktop Navigation.** Expanded sidebar width by 64px (+27% wider) provides comfortable breathing room for both English and natural Khmer script.
+- **Harmonious Desktop Proportions.** Better utilizes available screen real estate on laptops and monitors, balancing the sidebar against a generous `max-w-5xl` main wellness canvas.
+- **Unified Across All Sections.** Home, Journal, MindGuide, Professional Directory, Community, Practice, and Settings all maintain the exact same spacious 19rem sidebar layout.
+
+**What changed for the team:**
+- **Updated Layout Grids in 14 Page Views.** Replaced `lg:grid-cols-[15rem_minmax(0,1fr)]` with `lg:grid-cols-[19rem_minmax(0,1fr)]` across all desktop layout files.
+- **Refined `DesktopNavigation` in `app/_components/app-navigation.tsx`.** Expanded container padding to `px-4.5`, increased island card spacing, and removed restrictive text truncation classes.
+- **Verified Build.** Next.js production build completed cleanly with zero warnings or errors across all 27 routes.
+
+**What to re-test:**
+- View the home page on laptop screen width and confirm the sidebar is visibly wider;
+- Verify "Progress Dashboard" displays completely on one line without trailing dots;
+- Verify "Find Clinic & Hospital" displays completely without truncation;
+- Navigate to MindGuide, Journal, Professional, Community, and Profile to confirm the sidebar maintains consistent width;
+- Verify no em dashes or loose hyphens exist in the UI copy or documentation.
+
+---
+
 ## 7 Oct 2026: Removal of Duplicate Level and XP Card from Mobile Drawer
 
 Commit `9886839`. Removed the redundant Level 4, XP bar, and streak badge card from the mobile sidebar drawer to maximize vertical navigation space.

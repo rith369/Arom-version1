@@ -159,13 +159,13 @@ export default function CommunityPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f7faf9] text-[#14221f] lg:grid lg:grid-cols-[15rem_minmax(0,1fr)]">
+    <div className="min-h-screen bg-[#f7faf9] text-[#14221f] lg:grid lg:grid-cols-[19rem_minmax(0,1fr)]">
       {/* Desktop Sidebar Navigation */}
       <DesktopNavigation active="Community" />
 
       {/* Main Content Area */}
       <div className={`min-w-0 ${view === "group-hub" ? "pb-4" : "pb-20 lg:pb-12"}`}>
-        <main className="mx-auto w-full max-w-[440px] md:max-w-xl lg:max-w-2xl lg:pt-6">
+        <main className="mx-auto w-full max-w-[440px] md:max-w-xl lg:max-w-3xl xl:max-w-4xl lg:pt-6">
           {view === "home" && (
             <CommunityHomeView
               myGroup={myGroup}
