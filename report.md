@@ -7,6 +7,28 @@ A plain-language log of what changed in the app, written for the team rather tha
 
 Each entry lists the commit it landed in, so you can match it to a version of the site.
 
+## 7 Oct 2026: Removal of Duplicate Level and XP Card from Mobile Drawer
+
+Commit `9886839`. Removed the redundant Level 4, XP bar, and streak badge card from the mobile sidebar drawer to maximize vertical navigation space.
+
+**Why.** The mobile top header already features the gamified Level 4 progress ring, streak counter, coins, and XP bar. Having this card duplicated inside the slide-over sidebar drawer was unnecessary and consumed significant vertical screen space. Removing it lets the navigation sections start immediately at the top of the drawer, making browsing faster and eliminating scrolling.
+
+**What changed for users:**
+- **Instant Access to Navigation.** Opening the mobile drawer immediately displays the navigation categories (**Main Page**, **Professional**, **Community**) right below the brand logo without an unnecessary level banner taking up screen height.
+- **Clean and Spacious Mobile Experience.** More working features are instantly visible without requiring users to scroll downward.
+
+**What changed for the team:**
+- **Cleaned Up `app/_components/mobile-sidebar-drawer.tsx`.** Removed the duplicate progress card markup and purged the unused `Flame` icon import.
+- **Verified Build.** Production build succeeded with zero errors across all 27 application routes.
+
+**What to re-test:**
+- Tap the green hamburger menu button on phone screen width;
+- Confirm the drawer opens with the AROM logo at the top and the **Main Page** section starting immediately;
+- Verify that the Level and XP card is gone from the drawer while remaining intact in the top page header;
+- Verify no em dashes or loose hyphens exist in the UI copy or documentation.
+
+---
+
 ## 7 Oct 2026: Wellness Icon Tiles and Island Navigation Redesign
 
 Commit `3147e75`. Redesigned desktop sidebar and mobile navigation drawer into card-based wellness islands featuring dedicated icon tiles, enlarged 14px high-contrast typography, and active-first tool ordering.

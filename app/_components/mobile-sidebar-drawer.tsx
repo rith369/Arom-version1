@@ -7,7 +7,6 @@ import {
   Heart,
   Settings,
   X,
-  Flame,
   Globe,
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
@@ -71,90 +70,8 @@ export function MobileSidebarDrawer() {
               </button>
             </div>
 
-            {/* User Level & Wellness Progress Badge in AROM brand green style */}
-            <div className="px-3.5 pt-3.5 shrink-0">
-              <div className="rounded-2xl border border-arom-border bg-gradient-to-br from-arom-wash/70 to-white p-3 shadow-sm">
-                <div className="flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-2">
-                    {/* Circle badge */}
-                    <div className="relative flex size-8 items-center justify-center shrink-0">
-                      <svg className="size-8" viewBox="0 0 36 36">
-                        <circle
-                          cx="18"
-                          cy="18"
-                          r="15"
-                          fill="none"
-                          stroke="var(--arom-border)"
-                          strokeWidth="3.2"
-                        />
-                        <circle
-                          cx="18"
-                          cy="18"
-                          r="15"
-                          fill="none"
-                          stroke="var(--arom)"
-                          strokeWidth="3.2"
-                          strokeDasharray="94.25"
-                          strokeDashoffset="43.35"
-                          strokeLinecap="round"
-                          transform="rotate(-90 18 18)"
-                        />
-                      </svg>
-                      <span className="absolute text-[11px] font-bold text-arom">
-                        4
-                      </span>
-                    </div>
-
-                    <div>
-                      <p className="text-xs font-bold text-ink leading-tight">
-                        {isKm ? "កម្រិត ៤ (Level 4)" : "Level 4"}
-                      </p>
-                      <p className="text-[10px] font-semibold text-ink-muted">
-                        54 / 100 XP
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Pills row */}
-                  <div className="flex items-center gap-1.5">
-                    {/* Streak pill */}
-                    <div className="flex items-center gap-1 rounded-full bg-white border border-arom-border px-2 py-0.5 shadow-xs">
-                      <Flame size={12} className="text-[#ec4899]" strokeWidth={2.2} />
-                      <span className="text-[10.5px] font-bold text-ink">0</span>
-                    </div>
-                    {/* Coins pill */}
-                    <div className="flex items-center gap-1 rounded-full bg-white border border-arom-border px-2 py-0.5 shadow-xs">
-                      <svg
-                        className="size-3 text-[#f59e0b]"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2.2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <circle cx="8" cy="8" r="6" />
-                        <circle cx="8" cy="8" r="1.5" fill="currentColor" />
-                        <path d="M18 12a6 6 0 1 1-6-6" />
-                        <circle cx="15.5" cy="15.5" r="1.5" fill="currentColor" />
-                      </svg>
-                      <span className="text-[10.5px] font-bold text-ink">98</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Mini progress bar in AROM brand green */}
-                <div className="mt-2 h-1.5 w-full rounded-full border border-arom-border/60 bg-white overflow-hidden">
-                  <div
-                    className="h-full rounded-full bg-arom"
-                    style={{ width: "54%" }}
-                  />
-                </div>
-              </div>
-            </div>
-
             {/* 3 Navigation Sections: Main Page, Professional, Community */}
-            <nav aria-label="Mobile Primary" className="mt-4 flex-1 space-y-4 px-3">
+            <nav aria-label="Mobile Primary" className="mt-3 flex-1 space-y-4 px-3">
               {NAVIGATION_SECTIONS.map((section) => {
                 const activeItems = section.items.filter((item) => !item.isComingSoon);
                 const comingSoonItems = section.items.filter((item) => item.isComingSoon);
