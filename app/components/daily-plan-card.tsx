@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { Check, ChevronRight, X } from "lucide-react";
+import { Check, ChevronRight, Plus, SlidersHorizontal, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { FigmaIcon } from "./figma-icon";
+import { DailyPlanCuratorModal } from "./daily-plan-curator-modal";
 import { useLanguage } from "../_components/language-provider";
 import {
   getPlanTryNowItems,
@@ -82,6 +83,7 @@ export function DailyPlanCard() {
   const km = language === "km";
   const [tryNowItems, setTryNowItems] = useState<PlanTryNowItem[]>([]);
   const [customItems, setCustomItems] = useState<DailyPlanCustomItem[]>([]);
+  const [isCuratorOpen, setIsCuratorOpen] = useState(false);
 
   useEffect(() => {
     setTryNowItems(getPlanTryNowItems());
@@ -192,9 +194,20 @@ export function DailyPlanCard() {
         <h2 id="daily-plan-heading" className="text-sm font-medium tracking-normal sm:text-base">
           {km ? "ផែនការប្រចាំថ្ងៃរបស់អ្នក (Daily Plan)" : "Your Plan For Today"}
         </h2>
-        <span className="text-xs font-semibold text-[#83dfca]">
-          {completedTasks}/{totalTasks} {km ? "រួចរាល់" : "done"}
-        </span>
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-semibold text-[#83dfca]">
+            {completedTasks}/{totalTasks} {km ? "រួចរាល់" : "done"}
+          </span>
+          <button
+            type="button"
+            onClick={() => setIsCuratorOpen(true)}
+            aria-label={km ? "រៀបចំផែនការសុខុមាលភាព" : "Curate daily plan"}
+            className="flex items-center gap-1 rounded-full bg-white/15 px-2.5 py-0.5 text-xs font-medium text-white transition-all hover:bg-white/25 active:scale-95 cursor-pointer"
+          >
+            <SlidersHorizontal size={12} />
+            <span>{km ? "រៀបចំ" : "Curate"}</span>
+          </button>
+        </div>
       </div>
 
       {/* Dynamic segment progress bar */}
@@ -306,6 +319,26 @@ export function DailyPlanCard() {
           </Link>
         ))}
       </div>
+
+      {/* Bottom launcher for Daily Flow Curator */}
+      <button
+        type="button"
+        onClick={() => setIsCuratorOpen(true)}
+        className="mt-3.5 flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-white/35 bg-white/[0.08] px-3 py-2.5 text-xs font-semibold text-white/95 transition-all hover:border-white/70 hover:bg-white/15 active:scale-[0.99] cursor-pointer"
+      >
+        <Plus size={14} strokeWidth={2.5} />
+        <span>
+          {km
+            ? "+ បន្ថែមសកម្មភាពទៅផែនការប្រចាំថ្ងៃ"
+            : "+ Add Activities to Your Daily Flow"}
+        </span>
+      </button>
+
+      {/* Daily Plan Curator Modal */}
+      <DailyPlanCuratorModal
+        isOpen={isCuratorOpen}
+        onClose={() => setIsCuratorOpen(false)}
+      />
     </section>
   );
 }

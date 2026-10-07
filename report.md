@@ -7,6 +7,34 @@ A plain-language log of what changed in the app, written for the team rather tha
 
 Each entry lists the commit it landed in, so you can match it to a version of the site.
 
+## 7 Oct 2026: Innovative Daily Plan Curator and Ambient Floating Corner Pin
+
+Commit `8a2c720`. Introduced an interactive Daily Plan Curator Sheet on the Home Screen alongside ambient floating corner pins on MindGuide cards for zero title compression.
+
+**Why.** Previously, inline buttons crammed inside recommendation cards looked clumsy and truncated titles, while users on the Home screen had no central place to discover and curate their wellness routine. This release delivers a cohesive, Figma-grade system: an interactive Daily Plan Curator sheet directly on the Home Screen, plus quiet, floating corner pins on cards that preserve full typography and spaciousness.
+
+**What changed for users:**
+- **Interactive Daily Plan Curator Sheet.** On the Home Screen, users can tap "Curate" in the header or the dashed "+ Add Activities to Your Daily Flow" card to open a full wellness picker sheet.
+- **Categorized Curation & Live Metrics.** The Curator sheet organizes activities across Practice, Learn, Stress Guides, and Micro-Tips, displaying total chosen activities and estimated minutes in real time with instant 1-tap toggling.
+- **Ambient Floating Corner Pin on Cards.** In MindGuide Daily Recommendations, each card features a discreet floating corner pin. It sits gracefully in the top-right corner without compressing or truncating activity titles.
+- **Harmonious Status Feedback.** Tapping the corner pin instantly updates the card state, shows a gentle toast confirmation, and synchronizes live with the Home Screen schedule.
+
+**What changed for the team:**
+- **Created `DailyPlanCuratorModal` in `app/components/daily-plan-curator-modal.tsx`.** Built a reusable curation sheet with live store subscription, category filtering, metric counters, and accessible keyboard dismissal.
+- **Updated `DailyPlanCard` in `app/components/daily-plan-card.tsx`.** Added the header "Curate" trigger and bottom flow builder card.
+- **Refined `MindGuideHome` in `app/_components/mindguide-home.tsx`.** Positioned the floating pin with absolute corner anchoring and generous text padding to prevent any title ellipsis.
+- **Verified Build.** Next.js production build cleanly compiled with zero errors across all 27 routes.
+
+**What to re-test:**
+- Open Home page (`/`) and tap "Curate" or "+ Add Activities to Your Daily Flow" on the Daily Plan card;
+- Verify the Daily Plan Curator sheet opens with categorized tabs and live minutes counter;
+- Toggle activities to confirm instant addition and removal;
+- Navigate to MindGuide (`/mindguide`) and verify the Daily Recommendations cards display full titles with the floating corner pin;
+- Tap the corner pin to verify toast alert and instant toggle without opening the modal;
+- Click the card body to confirm it opens the full details modal with the primary plan action.
+
+---
+
 ## 7 Oct 2026: Restored Clean Layout on Daily Recommendation Cards
 
 Commit `e3e66a8`. Removed cramped inline buttons from Daily Recommendation cards in MindGuide, restoring spacious text display and clean card interactions.
