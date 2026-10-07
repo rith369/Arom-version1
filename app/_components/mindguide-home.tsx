@@ -14,6 +14,7 @@ import {
   ChevronRight,
   Clock,
   Play,
+  Plus,
   Wind,
   X,
 } from "lucide-react";
@@ -221,9 +222,32 @@ function ActivityModal({
         className="relative z-10 w-full max-w-md overflow-hidden rounded-3xl border border-arom-border/70 bg-white p-6 shadow-2xl sm:p-7"
       >
         <div className="flex items-center justify-between">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-arom-soft px-3 py-1 text-xs font-semibold text-arom">
-            {km ? activity.khmerCategory : activity.category}
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-arom-soft px-3 py-1 text-xs font-semibold text-arom">
+              {km ? activity.khmerCategory : activity.category}
+            </span>
+            <button
+              type="button"
+              onClick={() => onTogglePlan(activity)}
+              className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11.5px] font-semibold transition-all cursor-pointer ${
+                isInPlan
+                  ? "bg-arom text-white shadow-2xs hover:bg-arom-deep"
+                  : "bg-arom-wash text-arom border border-arom/30 hover:bg-arom-soft"
+              }`}
+            >
+              {isInPlan ? (
+                <>
+                  <Check size={12} strokeWidth={2.5} />
+                  <span>{km ? "ក្នុងផែនការ" : "In Plan"}</span>
+                </>
+              ) : (
+                <>
+                  <Plus size={12} strokeWidth={2.5} />
+                  <span>{km ? "+ ផែនការ" : "+ Add to Plan"}</span>
+                </>
+              )}
+            </button>
+          </div>
           <button
             type="button"
             onClick={onClose}
@@ -660,34 +684,51 @@ export function MindGuideHome() {
                       </span>
                     </button>
 
-                    {/* Quick Add to Home Plan Button */}
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleTogglePlan(activity);
-                      }}
-                      title={
-                        inPlan
-                          ? km
-                            ? "លុបចេញពីផែនការទំព័រដើម"
-                            : "Remove from Home Daily Plan"
-                          : km
-                          ? "បន្ថែមទៅផែនការទំព័រដើម"
-                          : "Add to Home Daily Plan"
-                      }
-                      className={`ml-2 flex size-8.5 shrink-0 items-center justify-center rounded-xl border transition-all duration-150 cursor-pointer ${
-                        inPlan
-                          ? "border-arom bg-arom text-white shadow-xs"
-                          : "border-arom-border bg-white text-arom hover:border-arom hover:bg-arom-wash"
-                      }`}
-                    >
-                      {inPlan ? (
-                        <Check aria-hidden="true" size={15} strokeWidth={2.5} />
-                      ) : (
-                        <CalendarPlus aria-hidden="true" size={15} strokeWidth={2} />
-                      )}
-                    </button>
+                    {/* Small button that can add to plan */}
+                    <div className="flex items-center gap-1.5 shrink-0 ml-2">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleTogglePlan(activity);
+                        }}
+                        aria-label={
+                          inPlan
+                            ? km
+                              ? "លុបចេញពីផែនការទំព័រដើម"
+                              : "Remove from Home Daily Plan"
+                            : km
+                            ? "បន្ថែមទៅផែនការទំព័រដើម"
+                            : "Add to Home Daily Plan"
+                        }
+                        className={`flex h-8 items-center gap-1.5 rounded-xl px-2.5 text-xs font-semibold transition-all duration-150 cursor-pointer ${
+                          inPlan
+                            ? "bg-arom text-white shadow-xs hover:bg-arom-deep"
+                            : "bg-white text-arom border border-arom/30 shadow-2xs hover:bg-arom-soft hover:border-arom"
+                        }`}
+                      >
+                        {inPlan ? (
+                          <>
+                            <Check aria-hidden="true" size={13} strokeWidth={2.5} />
+                            <span className="text-[11.5px]">{km ? "ក្នុងផែនការ" : "In Plan"}</span>
+                          </>
+                        ) : (
+                          <>
+                            <Plus aria-hidden="true" size={13} strokeWidth={2.5} />
+                            <span className="text-[11.5px]">{km ? "+ ផែនការ" : "+ Add to Plan"}</span>
+                          </>
+                        )}
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setSelectedActivity(activity)}
+                        aria-label={km ? "មើលលម្អិត" : "View details"}
+                        className="flex size-7 items-center justify-center text-arom/60 hover:text-arom transition-colors cursor-pointer"
+                      >
+                        <ChevronRight size={18} strokeWidth={2.2} />
+                      </button>
+                    </div>
                   </div>
                 );
               })}

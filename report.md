@@ -7,6 +7,30 @@ A plain-language log of what changed in the app, written for the team rather tha
 
 Each entry lists the commit it landed in, so you can match it to a version of the site.
 
+## 7 Oct 2026: Explicit Small Add to Plan Buttons on Daily Recommendations
+
+Commit `9708f0e`. Added prominent small "+ Add to Plan" and "In Plan" buttons directly on each activity card under Daily Recommendations (For Today) in MindGuide, as well as in the activity modal header.
+
+**Why.** Users exploring Daily Recommendations in MindGuide wanted an immediate, small button on each recommendation card to quickly add or remove activities from their Home Screen plan without ambiguous icons.
+
+**What changed for users:**
+- **Explicit Small Button on Recommendation Cards.** Each card under Daily Recommendations (For Today) now features a dedicated small "+ Add to Plan" (or "+ ផែនការ") pill button that toggles to "In Plan" (or "ក្នុងផែនការ") upon selection.
+- **Top Header Quick Button in Activity Modal.** The activity details modal now displays a matching small button in the top header next to the category badge for instant toggling.
+- **Immediate Visual Status.** Users can instantly see which recommended activities are already in their Home Screen plan and toggle them with a single click.
+
+**What changed for the team:**
+- **Refined `MindGuideHome` in `app/_components/mindguide-home.tsx`.** Replaced icon-only controls with labeled, responsive small buttons featuring clear Plus and Check icons and accessible labels.
+- **Verified Build.** Clean production build with zero errors across all 27 routes.
+
+**What to re-test:**
+- Navigate to MindGuide (`/mindguide`) and view the Daily Recommendations (For Today) section;
+- Verify each card shows the small "+ Add to Plan" button;
+- Click the button to confirm it updates to "In Plan" with a check icon;
+- Open the card modal and verify the small button is also available in the modal header;
+- Check the Home page (`/`) to confirm the activity appears in "Your Plan For Today".
+
+---
+
 ## 7 Oct 2026: MindGuide Content Curation to Home Daily Plan
 
 Commit `f43a44c`. Added ability for users to customize their Home Screen "Your Plan For Today" directly from MindGuide, Practice Hub, Learn Hub, and Daily Stress guides.
