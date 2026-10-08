@@ -1,4 +1,4 @@
--- AROM 2 of 6: onboarding survey, initial insight, mood, journal, symptom checks.
+-- AROM 2 of 8: onboarding survey, initial insight, mood, journal, symptom checks.
 -- All tables here are private to their owner. Therapists and admins cannot read them.
 
 create type public.mood_level as enum ('very_low', 'low', 'okay', 'good', 'great');

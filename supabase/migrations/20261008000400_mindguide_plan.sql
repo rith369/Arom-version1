@@ -1,4 +1,4 @@
--- AROM 4 of 6: MindGuide activity (saved, viewed, completed) and Today's Plan.
+-- AROM 4 of 8: MindGuide activity (saved, viewed, completed) and Today's Plan.
 -- Lesson, practice, tip and podcast content stays in the code for now.
 -- content_id matches the ids used in learn-data.ts, practice-data.ts, tips-data.ts.
 

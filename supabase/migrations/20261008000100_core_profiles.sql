@@ -1,4 +1,4 @@
--- AROM 1 of 6: roles, profiles and shared helpers.
+-- AROM 1 of 8: roles, profiles and shared helpers.
 -- Run the migration files in filename order on a fresh AROM project.
 
 create type public.user_role as enum ('user', 'professional', 'admin');

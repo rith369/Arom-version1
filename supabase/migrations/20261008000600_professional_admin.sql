@@ -1,4 +1,4 @@
--- AROM 6 of 6: professional and admin tools.
+-- AROM 6 of 8: professional and admin tools.
 -- Therapist applications, intake questions, sharing results with a therapist,
 -- private session notes, crisis hotlines, account suspension, admin audit log
 -- and privacy safe platform stats.

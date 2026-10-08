@@ -1,4 +1,4 @@
--- AROM 3 of 6: clinics, therapist profiles, schedules, bookings, podcasts.
+-- AROM 3 of 8: clinics, therapist profiles, schedules, bookings, podcasts.
 -- Covers Find Clinic & Hospital, Schedule Management and Booking History.
 
 create type public.session_type as enum ('online', 'in_person');

@@ -7,6 +7,33 @@ A plain-language log of what changed in the app, written for the team rather tha
 
 Each entry lists the commit it landed in, so you can match it to a version of the site.
 
+## 8 Oct 2026: Support Path Rules and Safety Flag for Symptom Checks
+
+Commit pending (not yet committed). Database migration: 2 new SQL files, `20261008000700_symptom_level_none.sql` and `20261008000800_support_journeys.sql`. Run them after files `0100` to `0600`, in order, on the AROM project. File `0700` must finish before `0800` starts.
+
+**Why.** The team agreed how AROM should respond to a symptom check result. A user with no symptoms should not be pushed anywhere. A user with low or medium symptoms should try self help first, and only be pointed to a professional if things are not better after two weeks. A user with serious symptoms should get professional help and self help at the same time. Any answer that suggests self harm must show crisis hotlines immediately. Putting these rules in the database means every screen gets the same answer.
+
+**What changed for users:**
+- **Nothing visible yet for symptom checks.** Those screens are not built. These rules will drive them.
+- **Journal "Grateful" emotion now shows a sunflower (🌻)** instead of the sparkles symbol, following the project rule against AI style sparkle icons.
+
+**What changed for the team:**
+- **New "none" symptom level.** Results can now be none, low, medium or high.
+- **Automatic support path.** Saving a row in `symptom_checks` sets `recommended_path` by itself: none gives no path, low and medium give `self_help`, high gives `self_help_and_professional`.
+- **14 day review.** New table `support_journeys` keeps one active journey per user per concern, with `review_due_on` set 14 days ahead (Cambodia time). At the review, the same or a higher level recommends a professional, a lower level starts another 14 days, and none marks the journey improved. A high result at any time recommends a professional straight away.
+- **Safety flag.** New column `symptom_checks.safety_concern`. When the app sets it, it must show `crisis_resources` immediately, whatever the level.
+- **Privacy.** Journeys are read only for the owner, and visible to a therapist only when the client shares symptom checks. Nobody writes them directly.
+- **Tested locally.** All 8 files ran on a fresh Postgres, and 108 checks passed, including every path rule.
+- **App flow guide.** A web guide for developers explains the full user, therapist and admin flows, these rules, what is built today, and where each screen's data goes.
+
+**What to re-test:**
+- Run files `0700` and then `0800` in the AROM SQL Editor and confirm both finish without errors;
+- Insert a `symptom_checks` row with level `low` for a test user and confirm `recommended_path` becomes `self_help` and a `support_journeys` row appears due in 14 days;
+- Insert a row with level `high` and confirm the path is `self_help_and_professional`;
+- Insert a row with level `none` for a new user and confirm no journey is created.
+
+---
+
 ## 8 Oct 2026: Supabase Database Design for All AROM Data
 
 Commit `442b605`. Database migration: 6 new SQL files in `supabase/migrations/`. They are not applied to any project yet. Run them in filename order in the AROM project (`miaczhhhvbnlqwijpmru`) SQL Editor. Do not run them on the BrachNha project.

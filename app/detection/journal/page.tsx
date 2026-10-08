@@ -189,7 +189,7 @@ type EmotionOption = {
 const EMOTIONS: EmotionOption[] = [
   // Positive & Uplifting
   { en: "Happy", km: "រីករាយ (Happy)", emoji: "😊", category: "positive" },
-  { en: "Grateful", km: "ដឹងគុណ (Grateful)", emoji: "✨", category: "positive" },
+  { en: "Grateful", km: "ដឹងគុណ (Grateful)", emoji: "🌻", category: "positive" },
   { en: "Calm", km: "ស្ងប់ស្ងាត់ (Calm)", emoji: "🌿", category: "positive" },
   { en: "Proud", km: "មានមោទនភាព (Proud)", emoji: "⭐", category: "positive" },
   { en: "Hopeful", km: "មានសង្ឃឹម (Hopeful)", emoji: "🌱", category: "positive" },

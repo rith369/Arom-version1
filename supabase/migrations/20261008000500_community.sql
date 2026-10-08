@@ -1,4 +1,4 @@
--- AROM 5 of 6: small support groups (max 10 members, 1 mentor).
+-- AROM 5 of 8: small support groups (max 10 members, 1 mentor).
 -- Mentors are verified professionals. Seekers cannot create groups.
 -- Members appear to each other only as "Member 03", never by name.
 
