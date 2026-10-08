@@ -7,6 +7,37 @@ A plain-language log of what changed in the app, written for the team rather tha
 
 Each entry lists the commit it landed in, so you can match it to a version of the site.
 
+## 8 Oct 2026: Supabase Database Design for All AROM Data
+
+Commit pending (not yet committed). Database migration: 6 new SQL files in `supabase/migrations/`. They are not applied to any project yet. Run them in filename order in the AROM project (`miaczhhhvbnlqwijpmru`) SQL Editor. Do not run them on the BrachNha project.
+
+**Why.** Every piece of user data in AROM (journal, mood, daily plan, saved lessons, community messages) lives only in the browser today. It disappears when a user clears their browser or switches phones, and bookings are not saved anywhere. This design gives every feature in the UX brief a proper, private home in Supabase, for all three roles (seeker, therapist, admin), so the next step can connect the app to it one feature at a time.
+
+**What changed for users:**
+- **Nothing visible yet.** The app still uses browser storage. This entry only prepares the database.
+
+**What changed for the team:**
+- **28 tables across 6 areas.** Accounts (`profiles`), onboarding and detection (survey, initial insight, mood check ins, journal, symptom checks), therapists (clinics, therapist profiles, credentials, schedule slots, appointments, podcasts), MindGuide and Today's Plan (saved and completed content, plan items), community (groups, members, waitlist, discussions, replies, group check ins, safety flags), and professional and admin tools (therapist applications, intake questions and answers, session notes, crisis hotlines, admin audit log).
+- **Therapist tools.** Apply as a therapist (an admin approves, which verifies the account in one step), custom intake questions, private session notes that only the writing therapist can read, and marking sessions completed or no show.
+- **Client controlled sharing.** A client can choose, per booking, to share their survey and insight or their symptom checks with that therapist. It is off by default and can be turned off at any time.
+- **Admin tools.** Suspend or restore accounts (a suspended account cannot book, join groups or post, but can still read its own data), crisis hotlines in English and Khmer, an append only audit log of role, verification, suspension and safety decisions, and `admin_stats()`, which returns counts only and never names or journal text.
+- **Strict privacy rules (RLS) on every table.** Journal, mood, survey, insight, symptom checks and plan are visible to their owner only. Therapists and admins cannot read journals. A therapist sees only their own bookings, and sees a client's name only if that client is not in Anonymous Mode.
+- **Roles stay `user`, `professional`, `admin`.** Mentors are professionals. Only a verified professional can create a support group. Users cannot change their own role, and only an admin can verify a therapist.
+- **Safe booking and joining.** `book_appointment()` stops two people from booking the same time. `join_support_group()` enforces the 10 member limit and gives each member a "Member 03" style label instead of their name.
+- **Profiles are created automatically** when someone signs up with email or Google.
+- **Lesson, practice, tip and podcast content stays in the code** for now. The database only stores which items a user saved, viewed or finished.
+- **Not included yet:** "Play Cards with Friends" (not in the brief), therapist reviews, notifications, editing lessons from an admin screen, and the private storage bucket for license documents.
+- **Crisis hotline numbers are not filled in.** An admin must enter numbers that have been checked with each provider.
+- **Tested locally.** All 6 files ran on a fresh Postgres, and 94 privacy, booking and admin checks passed.
+
+**What to re-test:**
+- In the AROM Supabase SQL Editor, run the 6 files in order (`...0100` to `...0600`) and confirm each finishes without errors;
+- Sign up a test user and confirm a row appears in `profiles` with role `user`;
+- Promote a second account to `professional` in the Table Editor, add its `professional_profiles` row, then set `verification_status` to `verified`;
+- Check Database, Advisors in Supabase and confirm no table is listed as missing RLS.
+
+---
+
 ## 7 Oct 2026: Innovative Daily Plan Curator and Ambient Floating Corner Pin
 
 Commit `8a2c720`. Introduced an interactive Daily Plan Curator Sheet on the Home Screen alongside ambient floating corner pins on MindGuide cards for zero title compression.
