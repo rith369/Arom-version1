@@ -7,6 +7,27 @@ A plain-language log of what changed in the app, written for the team rather tha
 
 Each entry lists the commit it landed in, so you can match it to a version of the site.
 
+## 8 Oct 2026: Removed Quests, Shop, and Friends Coming Soon Items
+
+Commit `pending`. No database migration required.
+
+**Why.** The Main Page section previously contained three placeholder Coming Soon items (Quests, Shop, and Friends). Removing these items streamlines the sidebar navigation, eliminating unused placeholders and focusing users on core features: Home, MindGuide, Detection, and Progress Dashboard.
+
+**What changed for users:**
+- **Simplified Main Navigation.** The "Coming Soon" section under Main Page has been removed. Users now see only available, active navigation destinations (Home, MindGuide, Detection, Progress Dashboard) without distracting unreleased placeholders.
+- **Unified Mobile Drawer.** The slide-out mobile navigation drawer is updated identically, offering a clean, uncluttered browsing experience.
+
+**What changed for the team:**
+- **Updated `NAVIGATION_SECTIONS` in `app/_components/navigation-config.ts`.** Removed `quests`, `shop`, and `friends` from the main section array. Cleaned up unused Lucide icon imports (`Compass`, `ShoppingBag`, `Users`).
+- **Refined `NavigationLabel` in `app/_components/app-navigation.tsx`.** Removed obsolete label types `Quests`, `Shop`, and `Friends`.
+
+**What to re-test:**
+- Check desktop sidebar to verify the Main Page section contains only Home, MindGuide, Detection, and Progress Dashboard with no Coming Soon section underneath;
+- Open mobile sidebar drawer and confirm the same streamlined Main Page section;
+- Verify TypeScript checks pass without errors.
+
+---
+
 ## 8 Oct 2026: Roles in the Login Token and Admin Role Controls
 
 Commit pending. Migration: run `supabase/migrations/20261008000900_role_claims.sql` after files `0100` to `0800`, then turn on the access token hook (Authentication, Hooks). `0001_profiles_auth.sql` was removed: the team schema in `20261008000100_core_profiles.sql` now owns `profiles`.

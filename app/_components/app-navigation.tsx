@@ -19,9 +19,6 @@ import { useAuth } from "./auth-provider";
 
 export type NavigationLabel =
   | "Home"
-  | "Quests"
-  | "Shop"
-  | "Friends"
   | "MindGuide"
   | "Journal"
   | "Detection"
