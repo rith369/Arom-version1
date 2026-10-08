@@ -9,7 +9,7 @@ Each entry lists the commit it landed in, so you can match it to a version of th
 
 ## 8 Oct 2026: Merged Appointments Navigation Item
 
-Commit `pending`. No database migration required.
+Commit `7996830`. No database migration required.
 
 **Why.** Previously, the sidebar displayed two separate upcoming navigation items for "Booking History" and "Schedule Management". Consolidating these into a single "Appointments" item simplifies navigation for users and unifies client booking history and therapist schedule management under one cohesive destination.
 
