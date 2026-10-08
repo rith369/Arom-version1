@@ -7,6 +7,13 @@ import {
   UsersRound,
   ArrowUpRight,
   HeartHandshake,
+  BookOpen,
+  Headphones,
+  Calendar,
+  MessagesSquare,
+  NotebookPen,
+  Settings2,
+  ClipboardList,
 } from 'lucide-react';
 import type { ReactNode } from 'react';
 import {
@@ -27,6 +34,41 @@ export function AdminShell({ children }: { children: ReactNode }) {
       href: '/admin/professionals',
       label: km ? 'អ្នកជំនាញ' : 'Professionals',
       icon: UsersRound,
+    },
+    {
+      href: '/admin/content',
+      label: km ? 'មាតិកា' : 'Content',
+      icon: BookOpen,
+    },
+    {
+      href: '/admin/podcasts',
+      label: km ? 'ផតខាស' : 'Podcasts',
+      icon: Headphones,
+    },
+    {
+      href: '/admin/bookings',
+      label: km ? 'ការកក់' : 'Bookings',
+      icon: Calendar,
+    },
+    {
+      href: '/admin/community',
+      label: km ? 'សហគមន៍' : 'Community',
+      icon: MessagesSquare,
+    },
+    {
+      href: '/admin/journal-prompts',
+      label: km ? 'សំណួរកំណត់ហេតុ' : 'Journal prompts',
+      icon: NotebookPen,
+    },
+    {
+      href: '/admin/settings',
+      label: km ? 'ការកំណត់' : 'Settings',
+      icon: Settings2,
+    },
+    {
+      href: '/admin/audit-log',
+      label: km ? 'កំណត់ហេតុសកម្មភាព' : 'Audit log',
+      icon: ClipboardList,
     },
     {
       href: '/admin/users',
