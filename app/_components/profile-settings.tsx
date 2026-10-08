@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -25,6 +24,7 @@ import { motion, useReducedMotion } from "motion/react";
 import { useState } from "react";
 import { AromBrand, DesktopNavigation, MobileNavigation } from "./app-navigation";
 import { LanguageSwitcher, useLanguage, type Language } from "./language-provider";
+import { ProfileSummary } from "./profile-summary";
 
 const easeOut = [0.23, 1, 0.32, 1] as const;
 
@@ -105,45 +105,7 @@ export function ProfileSettings() {
             aria-label="User profile summary"
             className="mt-6 overflow-hidden rounded-3xl border border-arom-border bg-gradient-to-br from-white via-white to-arom-wash p-5 shadow-card sm:p-6"
           >
-            <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex items-center gap-4">
-                <div className="relative">
-                  <Image
-                    src="/brand/muoyly-avatar.svg"
-                    alt="Muoyly Seng"
-                    width={72}
-                    height={72}
-                    className="size-16 rounded-full object-cover ring-4 ring-white shadow-md sm:size-20"
-                    unoptimized
-                  />
-                  <span
-                    aria-label="Online"
-                    className="absolute bottom-0 right-0 size-4 rounded-full border-2 border-white bg-arom-accent"
-                  />
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h2 className="text-lg font-bold text-ink sm:text-xl">Muoyly Seng</h2>
-                    <span className="rounded-full bg-arom-soft px-2.5 py-0.5 text-[0.68rem] font-semibold text-arom-deep">
-                      {km ? "សមាជិក (Member)" : "Member"}
-                    </span>
-                  </div>
-                  <p className="text-xs text-ink-muted sm:text-sm">muoyly.seng@arom.app</p>
-                  <p className="mt-1 text-xs text-arom font-medium">
-                    {km ? "ដំណើរស្ងប់ចិត្ត (Mindful Journey) · ចាប់តាំងពីឆ្នាំ ២០២៦" : "Mindful Journey · Since 2026"}
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2 sm:self-start">
-                <Link
-                  href="/login"
-                  className="rounded-full border border-arom-border bg-white px-4 py-2 text-xs font-semibold text-ink shadow-sm transition-colors duration-150 hover:bg-arom-wash focus-visible:outline-2 focus-visible:outline-arom"
-                >
-                  {km ? "ប្តូរគណនី (Switch Account)" : "Switch Account"}
-                </Link>
-              </div>
-            </div>
+            <ProfileSummary km={km} />
 
             {/* Wellness Stats Row */}
             <div className="mt-6 grid grid-cols-3 gap-3 border-t border-arom-border/60 pt-5">
@@ -439,25 +401,27 @@ export function ProfileSettings() {
                 />
               </Link>
 
-              <Link
-                href="/login"
-                className="group flex items-center justify-between py-3.5 text-arom-danger transition-colors duration-150 hover:opacity-85"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="flex size-9 items-center justify-center rounded-xl bg-arom-danger-soft text-arom-danger">
-                    <LogOut size={18} />
+              <form action="/api/auth/logout" method="post">
+                <button
+                  type="submit"
+                  className="group flex w-full items-center justify-between py-3.5 text-left text-arom-danger transition-colors duration-150 hover:opacity-85"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="flex size-9 items-center justify-center rounded-xl bg-arom-danger-soft text-arom-danger">
+                      <LogOut size={18} />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold">
+                        {km ? "ចាកចេញពីគណនី (Log Out)" : "Log out"}
+                      </p>
+                      <p className="text-xs text-ink-muted">
+                        {km ? "ចាកចេញពីគណនីលើឧបករណ៍នេះ" : "Sign out from this device"}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm font-semibold">
-                      {km ? "ចាកចេញពីគណនី (Log Out)" : "Log out"}
-                    </p>
-                    <p className="text-xs text-ink-muted">
-                      {km ? "ចាកចេញពីគណនីលើឧបករណ៍នេះ" : "Sign out from this device"}
-                    </p>
-                  </div>
-                </div>
-                <ChevronRight size={18} className="text-ink-muted" />
-              </Link>
+                  <ChevronRight size={18} className="text-ink-muted" />
+                </button>
+              </form>
             </div>
           </motion.section>
         </motion.main>

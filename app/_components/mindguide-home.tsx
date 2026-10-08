@@ -32,6 +32,7 @@ import { LessonCompleteView } from "./learn/lesson-complete-view";
 import { LESSON_ABOUT_STRESS } from "./learn/learn-data";
 import { LessonScreen } from "./learn/lesson-screen";
 import { useSidebar } from "./sidebar-provider";
+import { UserAvatar } from "./user-avatar";
 
 const easeOut = [0.23, 1, 0.32, 1] as const;
 
@@ -504,14 +505,7 @@ export function MindGuideHome() {
                 aria-label="Open profile and settings"
                 className="rounded-full focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-arom"
               >
-                <Image
-                  src="/brand/muoyly-avatar.svg"
-                  alt="Muoyly"
-                  width={36}
-                  height={36}
-                  className="size-9 rounded-full object-cover ring-2 ring-white shadow-[0_5px_18px_rgba(20,75,63,0.15)]"
-                  unoptimized
-                />
+                <UserAvatar className="size-9 rounded-full ring-2 ring-white shadow-[0_5px_18px_rgba(20,75,63,0.15)] text-xs" />
               </Link>
             </div>
           </motion.header>

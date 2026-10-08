@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -15,6 +14,8 @@ import { useLanguage } from "./language-provider";
 import { useDetection } from "./detection-provider";
 import { AromBrand } from "./app-navigation";
 import { NAVIGATION_SECTIONS, type NavItem } from "./navigation-config";
+import { UserAvatar } from "./user-avatar";
+import { useAuth } from "./auth-provider";
 
 export function MobileSidebarDrawer() {
   const { isOpen, closeSidebar } = useSidebar();
@@ -23,6 +24,7 @@ export function MobileSidebarDrawer() {
   const pathname = usePathname();
 
   const isKm = language === "km";
+  const { user, status } = useAuth();
 
   // Determine active item from current route pathname
   const getIsActive = (href?: string) => {
@@ -219,17 +221,11 @@ export function MobileSidebarDrawer() {
                     : "border-arom-border bg-white text-ink hover:border-arom/30 hover:bg-arom-wash"
                 }`}
               >
-                <Image
-                  src="/brand/muoyly-avatar.svg"
-                  alt="Muoyly"
-                  width={34}
-                  height={34}
-                  className="size-8 rounded-full object-cover ring-2 ring-arom/20"
-                  unoptimized
-                />
+                <UserAvatar className="size-8 rounded-full ring-2 ring-arom/20 text-xs" />
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-xs font-bold leading-tight text-ink">
-                    Muoyly Seng
+                    {user?.fullName ||
+                      (status === "loading" ? "\u00a0" : isKm ? "ភ្ញៀវ (Guest)" : "Guest")}
                   </p>
                   <p className="truncate text-[0.65rem] text-ink-muted">
                     {isKm

@@ -1,24 +1,32 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CheckCircle2, LockKeyhole, Mail, UserRound } from "lucide-react";
+import { LockKeyhole, Mail, UserRound } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
-import { signupSchema, type SignupValues } from "@/lib/auth";
+import {
+  PENDING_CONFIRMATION_KEY,
+  signupSchema,
+  type AuthErrorBody,
+  type RegisterResponse,
+  type SignupValues,
+} from "@/lib/auth";
 import { AuthInput, FormAlert } from "./auth-input";
-
-const pause = (milliseconds: number) =>
-  new Promise((resolve) => window.setTimeout(resolve, milliseconds));
+import { useAuth } from "../auth-provider";
+import { useLanguage } from "../language-provider";
 
 export function SignupForm() {
   const router = useRouter();
+  const { refresh } = useAuth();
+  const { language } = useLanguage();
   const shouldReduceMotion = useReducedMotion();
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting, isSubmitSuccessful },
+    setError,
+    formState: { errors, isSubmitting },
   } = useForm<SignupValues>({
     resolver: zodResolver(signupSchema),
     defaultValues: {
@@ -32,13 +40,46 @@ export function SignupForm() {
   });
 
   const onSubmit = handleSubmit(async (values) => {
-    await pause(550);
-    window.sessionStorage.setItem(
-      "arom:mock-registration",
-      JSON.stringify({ name: values.fullName, email: values.email }),
-    );
-    await pause(650);
-    router.push("/login");
+    try {
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...values, language }),
+      });
+
+      if (!response.ok) {
+        const body = (await response.json().catch(() => null)) as AuthErrorBody | null;
+        setError("root", {
+          type: body?.error.code ?? "server_error",
+          message:
+            body?.error.code === "rate_limited"
+              ? "Too many attempts. Please wait a moment and try again."
+              : "We could not create your account. Please try again.",
+        });
+        return;
+      }
+
+      const result = (await response.json()) as RegisterResponse;
+      if (result.needsConfirmation) {
+        try {
+          window.sessionStorage.setItem(PENDING_CONFIRMATION_KEY, values.email);
+        } catch {
+          // Private mode can block storage. The confirm page then asks for the email.
+        }
+        router.push("/signup/confirm");
+        return;
+      }
+    } catch {
+      setError("root", {
+        type: "network",
+        message: "You seem to be offline. Check your connection and try again.",
+      });
+      return;
+    }
+
+    await refresh();
+    router.replace("/");
+    router.refresh();
   });
 
   return (
@@ -137,13 +178,7 @@ export function SignupForm() {
           )}
         </div>
 
-        {isSubmitSuccessful && (
-          <FormAlert tone="success">
-            <span className="flex items-center gap-2">
-              <CheckCircle2 aria-hidden="true" size={18} /> Account created. Taking you to log in…
-            </span>
-          </FormAlert>
-        )}
+        {errors.root?.message && <FormAlert tone="error">{errors.root.message}</FormAlert>}
 
         <motion.button
           type="submit"

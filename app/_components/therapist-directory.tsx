@@ -21,6 +21,7 @@ import { AromBrand, DesktopNavigation, MobileNavigation } from "./app-navigation
 import { useLanguage } from "./language-provider";
 import { TherapistFilter } from "./therapist-filter";
 import { useSidebar } from "./sidebar-provider";
+import { UserAvatar } from "./user-avatar";
 
 const locations = [
   { en: "Phnom Penh, Cambodia", km: "ភ្នំពេញ, កម្ពុជា (Phnom Penh)" },
@@ -190,14 +191,7 @@ export function TherapistDirectory() {
                 aria-label="Open profile and settings"
                 className="rounded-full focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-arom"
               >
-                <Image
-                  src="/brand/muoyly-avatar.svg"
-                  alt="Muoyly"
-                  width={40}
-                  height={40}
-                  className="size-10 rounded-full object-cover ring-2 ring-white shadow-[0_5px_18px_rgba(20,75,63,0.15)]"
-                  unoptimized
-                />
+                <UserAvatar className="size-10 rounded-full ring-2 ring-white shadow-[0_5px_18px_rgba(20,75,63,0.15)] text-xs" />
               </Link>
             </div>
           </motion.header>

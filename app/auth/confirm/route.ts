@@ -1,0 +1,6 @@
+import type { NextRequest } from "next/server";
+import { confirmEmail } from "@/lib/controllers/auth-controller";
+
+export async function GET(request: NextRequest) {
+  return confirmEmail(request);
+}

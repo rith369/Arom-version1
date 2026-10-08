@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Kantumruy_Pro } from "next/font/google";
 import "./index.css";
 import { LanguageProvider } from "./_components/language-provider";
+import { AuthProvider } from "./_components/auth-provider";
 import { DetectionProvider } from "./_components/detection-provider";
 import { SidebarProvider } from "./_components/sidebar-provider";
 import { MobileSidebarDrawer } from "./_components/mobile-sidebar-drawer";
@@ -39,12 +40,14 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       </head>
       <body>
         <LanguageProvider>
-          <DetectionProvider>
-            <SidebarProvider>
-              {children}
-              <MobileSidebarDrawer />
-            </SidebarProvider>
-          </DetectionProvider>
+          <AuthProvider>
+            <DetectionProvider>
+              <SidebarProvider>
+                {children}
+                <MobileSidebarDrawer />
+              </SidebarProvider>
+            </DetectionProvider>
+          </AuthProvider>
         </LanguageProvider>
       </body>
     </html>

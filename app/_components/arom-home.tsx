@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import {
   Angry,
@@ -22,6 +21,8 @@ import { motion, useReducedMotion } from "motion/react";
 import { useState } from "react";
 import { AromBrand, DesktopNavigation, MobileNavigation } from "./app-navigation";
 import { useLanguage } from "./language-provider";
+import { UserAvatar } from "./user-avatar";
+import { useFirstName } from "./auth-provider";
 
 type PlanItem = {
   title: string;
@@ -210,6 +211,8 @@ function MoodCheckIn() {
 
 export function AromHome() {
   const { language } = useLanguage();
+  const firstName = useFirstName();
+  const greetingName = firstName ? ` ${firstName}` : "";
   const shouldReduceMotion = useReducedMotion();
 
   const containerVariants = {
@@ -265,14 +268,7 @@ export function AromHome() {
               aria-label="Open profile and settings"
               className="rounded-full focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-arom"
             >
-              <Image
-                src="/brand/muoyly-avatar.svg"
-                alt="Muoyly"
-                width={45}
-                height={42}
-                className="size-11 rounded-full object-cover ring-2 ring-white shadow-[0_5px_18px_rgba(20,75,63,0.15)]"
-                unoptimized
-              />
+              <UserAvatar className="size-11 rounded-full ring-2 ring-white shadow-[0_5px_18px_rgba(20,75,63,0.15)] text-xs" />
             </Link>
           </motion.header>
 
@@ -281,7 +277,7 @@ export function AromHome() {
             className="mt-8 sm:mt-10 lg:mt-12 xl:mx-auto xl:w-full xl:max-w-[28rem]"
           >
             <p className="text-2xl font-bold tracking-[-0.035em] text-arom sm:text-[1.75rem]">
-              {language === "km" ? "អរុណសួស្តី Muoyly!" : "Good morning Muoyly!"}
+              {language === "km" ? `អរុណសួស្តី${greetingName}!` : `Good morning${greetingName}!`}
             </p>
             <p className="mt-1.5 text-sm text-ink sm:text-base">
               {language === "km" ? "ថ្ងៃនេះអ្នកមានអារម្មណ៍យ៉ាងដូចម្តេច?" : "How are you feeling today?"}

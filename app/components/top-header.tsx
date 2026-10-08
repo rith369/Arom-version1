@@ -1,10 +1,10 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { Flame } from "lucide-react";
 import { useLanguage } from "../_components/language-provider";
 import { useSidebar } from "../_components/sidebar-provider";
+import { UserAvatar } from "../_components/user-avatar";
 
 export type TopHeaderProps = {
   level?: number;
@@ -145,14 +145,7 @@ export function TopHeader({
           aria-label={km ? "ប្រវត្តិរូប និងការកំណត់" : "Profile and settings"}
           className="hidden rounded-full ring-2 ring-white shadow-[0_4px_14px_rgba(31,111,91,0.18)] transition-transform hover:scale-105 focus-visible:outline-2 focus-visible:outline-arom lg:inline-flex"
         >
-          <Image
-            src="/brand/muoyly-avatar.svg"
-            alt="Muoyly"
-            width={40}
-            height={40}
-            className="size-10 rounded-full object-cover"
-            unoptimized
-          />
+          <UserAvatar className="size-10 rounded-full text-xs" />
         </Link>
       </div>
     </header>

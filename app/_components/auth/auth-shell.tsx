@@ -8,7 +8,7 @@ import type { ReactNode } from "react";
 
 type AuthShellProps = {
   children: ReactNode;
-  mode: "login" | "signup";
+  mode: "login" | "signup" | "confirm";
 };
 
 const illustrations = {
@@ -19,6 +19,10 @@ const illustrations = {
   signup: {
     src: "/lottie/Sign up-amico.svg",
     alt: "A person creating a new account",
+  },
+  confirm: {
+    src: "/lottie/Sign up-amico.svg",
+    alt: "A person finishing their new account setup",
   },
 } as const;
 

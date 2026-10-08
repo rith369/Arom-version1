@@ -14,6 +14,8 @@ import { useLanguage } from "./language-provider";
 import { useDetection } from "./detection-provider";
 
 import { NAVIGATION_SECTIONS, type NavItem } from "./navigation-config";
+import { UserAvatar } from "./user-avatar";
+import { useAuth } from "./auth-provider";
 
 export type NavigationLabel =
   | "Home"
@@ -65,6 +67,7 @@ export function DesktopNavigation({ active }: { active: NavigationLabel }) {
   const { language } = useLanguage();
   const { openDetection } = useDetection();
   const isKm = language === "km";
+  const { user, status } = useAuth();
 
   return (
     <aside className="sticky top-0 hidden h-screen w-full flex-col border-r border-arom-border bg-white px-4.5 py-6 lg:flex overflow-hidden">
@@ -218,16 +221,11 @@ export function DesktopNavigation({ active }: { active: NavigationLabel }) {
               : "border-arom-border bg-white text-ink hover:border-arom/30 hover:bg-arom-wash"
           }`}
         >
-          <Image
-            src="/brand/muoyly-avatar.svg"
-            alt="Muoyly"
-            width={38}
-            height={38}
-            className="size-9.5 rounded-full object-cover ring-2 ring-arom/20"
-            unoptimized
-          />
+          <UserAvatar className="size-9.5 rounded-full ring-2 ring-arom/20 text-xs" />
           <div className="min-w-0 flex-1">
-            <p className="truncate text-xs font-bold leading-tight text-ink">Muoyly Seng</p>
+            <p className="truncate text-xs font-bold leading-tight text-ink">
+              {user?.fullName || (status === "loading" ? "\u00a0" : isKm ? "ភ្ញៀវ (Guest)" : "Guest")}
+            </p>
             <p className="truncate text-[0.68rem] text-ink-muted">
               {isKm ? "ប្រវត្តិរូប និងការកំណត់ (Profile & Settings)" : "Profile & Settings"}
             </p>
