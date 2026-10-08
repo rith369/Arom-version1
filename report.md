@@ -9,7 +9,7 @@ Each entry lists the commit it landed in, so you can match it to a version of th
 
 ## 8 Oct 2026: Removed Quests, Shop, and Friends Coming Soon Items
 
-Commit `pending`. No database migration required.
+Commit `fa17d76`. No database migration required.
 
 **Why.** The Main Page section previously contained three placeholder Coming Soon items (Quests, Shop, and Friends). Removing these items streamlines the sidebar navigation, eliminating unused placeholders and focusing users on core features: Home, MindGuide, Detection, and Progress Dashboard.
 
