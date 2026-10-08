@@ -7,6 +7,35 @@ A plain-language log of what changed in the app, written for the team rather tha
 
 Each entry lists the commit it landed in, so you can match it to a version of the site.
 
+## 8 Oct 2026: Admin Overview with Live Data, Needs Attention Queue and Sign Up Graph
+
+Commit pending. No migration. Uses `admin_stats()` and existing tables. New dependency: `recharts`.
+
+**Why.** The admin overview only counted demo professionals. Admins need to see what needs them first (safety flags, missing crisis hotlines, waiting therapist applications) and how the platform is growing, from real Supabase data, without ever seeing private content.
+
+**What changed for users (admins):**
+- **Needs attention queue.** Self harm risk flags come first, then other flags, missing crisis hotline numbers, and waiting therapist applications. Applications can be approved or rejected right in the list, with a confirm step.
+- **Real numbers.** Accounts, verified professionals, upcoming sessions and open safety flags come from the database.
+- **New accounts line graph.** Daily sign ups for the last 7, 30 or 90 days with a hover tooltip and a "View as table" option.
+- **Accounts by role, wellbeing activity and recent admin actions** in a side column. Activity is counts only, with a note that admins cannot read journals, answers or session notes.
+- **Clearer layout.** Panels now sit on a slightly darker background with stronger borders, so each box is easy to see. The demo data banner only shows on pages that still use demo data.
+
+**What changed for the team:**
+- **`GET /api/admin/overview?days=7|30|90`** in `lib/controllers/admin-controller.ts`. Admin only (uses `requireRole`). Returns counts and queue metadata only; flag details, emails and private content are never selected.
+- **`lib/admin-overview.ts`** holds the response types and the Cambodia time day bucketing for the graph.
+- **`app/admin/_components/signups-chart.tsx`** is a Recharts line chart (2px line, light wash, crosshair tooltip).
+- **New tokens in `app/index.css`:** `arom-warning`, `arom-warning-soft`, `arom-grid`, `arom-line`, `admin-canvas`, `shadow-panel`.
+
+**What to re-test:**
+- Log in as admin and open `/admin`; confirm the four numbers match Supabase;
+- With no crisis hotlines added, confirm "No crisis hotlines added yet" shows as Urgent;
+- Switch the graph between 7d, 30d and 90d and hover a point to see the date and count;
+- Open "View as table" and confirm the daily counts;
+- Create a test therapist application, approve it from the queue, and confirm the account becomes `professional` and an entry appears under Recent admin actions;
+- Log in as a normal user and confirm `/admin` sends you home and `/api/admin/overview` returns 403.
+
+---
+
 ## 8 Oct 2026: Roles in the Login Token and Admin Role Controls
 
 Commit pending. Migration: run `supabase/migrations/20261008000900_role_claims.sql` after files `0100` to `0800`, then turn on the access token hook (Authentication, Hooks). `0001_profiles_auth.sql` was removed: the team schema in `20261008000100_core_profiles.sql` now owns `profiles`.

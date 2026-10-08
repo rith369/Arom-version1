@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard,
   UsersRound,
+  BadgeCheck,
   ArrowUpRight,
   HeartHandshake,
 } from 'lucide-react';
@@ -26,7 +27,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
     {
       href: '/admin/professionals',
       label: km ? 'អ្នកជំនាញ' : 'Professionals',
-      icon: UsersRound,
+      icon: BadgeCheck,
     },
     {
       href: '/admin/users',
@@ -35,12 +36,12 @@ export function AdminShell({ children }: { children: ReactNode }) {
     },
   ];
   return (
-    <div className="min-h-screen lg:pl-64">
-      <aside className="border-b border-arom-border bg-white p-5 lg:fixed lg:inset-y-0 lg:left-0 lg:w-64 lg:border-r lg:border-b-0 lg:p-7">
+    <div className="min-h-screen bg-admin-canvas lg:pl-64">
+      <aside className="border-b border-arom-line bg-white p-5 lg:fixed lg:inset-y-0 lg:left-0 lg:w-64 lg:border-r lg:border-b-0 lg:p-7">
         <Link href="/admin" className="flex items-center gap-3">
           <Image src="/brand/arom-mark.svg" width={42} height={42} alt="" />
           <span className="text-2xl font-semibold tracking-tight">
-            ARom
+            AROM
             <span className="block text-xs font-normal text-ink-muted">
               {km ? 'កន្លែងគ្រប់គ្រង' : 'Administration'}
             </span>
@@ -81,18 +82,17 @@ export function AdminShell({ children }: { children: ReactNode }) {
           <ArrowUpRight size={16} />
         </Link>
       </aside>
-      <header className="flex flex-wrap items-center justify-between gap-3 border-b border-arom-border bg-white/80 px-6 py-4 lg:px-10">
-        <span className="text-sm text-ink-muted">
-          {km ? 'រួមគ្នាបង្កើតកន្លែងថែទាំចិត្ត' : 'A calmer space, together'}
-        </span>
-        <LanguageSwitcher />
-      </header>
       <main id="admin-main" className="mx-auto max-w-7xl p-5 sm:p-8 lg:p-10">
-        <div className="mb-7 rounded-xl border border-arom-border bg-arom-wash px-4 py-3 text-xs text-arom">
-          {km
-            ? 'ទិន្នន័យសាកល្បង។ ការផ្លាស់ប្តូរនឹងត្រូវកំណត់ឡើងវិញនៅពេលផ្ទុកទំព័រឡើងវិញ។'
-            : 'Demo workspace. Changes stay during navigation and reset when you refresh.'}
+        <div className="mb-5 flex justify-end">
+          <LanguageSwitcher />
         </div>
+        {pathname !== '/admin' && (
+          <div className="mb-7 rounded-xl border border-arom-warning/25 bg-arom-warning-soft px-4 py-3 text-xs text-arom-warning">
+            {km
+              ? 'ទិន្នន័យសាកល្បង។ ការផ្លាស់ប្តូរនឹងត្រូវកំណត់ឡើងវិញនៅពេលផ្ទុកទំព័រឡើងវិញ។'
+              : 'Demo data on this page. Changes reset when you refresh.'}
+          </div>
+        )}
         {children}
       </main>
     </div>
