@@ -15,10 +15,12 @@ import {
 } from "@/lib/auth";
 import { AuthInput, FormAlert } from "./auth-input";
 import { useAuth } from "../auth-provider";
+import { useLanguage } from "../language-provider";
 
 export function SignupForm() {
   const router = useRouter();
   const { refresh } = useAuth();
+  const { language } = useLanguage();
   const shouldReduceMotion = useReducedMotion();
   const {
     register,
@@ -42,7 +44,7 @@ export function SignupForm() {
       const response = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(values),
+        body: JSON.stringify({ ...values, language }),
       });
 
       if (!response.ok) {

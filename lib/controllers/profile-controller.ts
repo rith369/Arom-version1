@@ -29,7 +29,7 @@ export async function getProfile() {
   return json<ProfileResponse>({ user: await toAuthUser(supabase, user) });
 }
 
-/** PATCH /api/profile. Accepts `fullName` and `locale` only. */
+/** PATCH /api/profile. Accepts `fullName` and `language` only. */
 export async function updateProfile(request: NextRequest) {
   const parsed = profileUpdateSchema.safeParse(await readJson(request));
   if (!parsed.success) return invalidInput();
@@ -40,10 +40,10 @@ export async function updateProfile(request: NextRequest) {
   } = await supabase.auth.getUser();
   if (!user) return unauthorized();
 
-  const { fullName, locale } = parsed.data;
-  const changes: { full_name?: string; locale?: "en" | "km" } = {};
+  const { fullName, language } = parsed.data;
+  const changes: { full_name?: string; language?: "en" | "km" } = {};
   if (fullName !== undefined) changes.full_name = fullName;
-  if (locale !== undefined) changes.locale = locale;
+  if (language !== undefined) changes.language = language;
 
   const { data: profile, error } = await supabase
     .from("profiles")

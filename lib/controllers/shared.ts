@@ -42,11 +42,12 @@ export function isRateLimited(error: AuthError) {
 export interface ProfileRow {
   full_name: string | null;
   role: string;
-  locale: string;
+  language: string;
+  account_status: string;
   created_at: string;
 }
 
-export const PROFILE_COLUMNS = "full_name, role, locale, created_at";
+export const PROFILE_COLUMNS = "full_name, role, language, account_status, created_at";
 
 /** Builds the public user shape from the auth user and their profile row. */
 export function buildAuthUser(user: User, profile: ProfileRow | null): AuthUser {
@@ -58,7 +59,8 @@ export function buildAuthUser(user: User, profile: ProfileRow | null): AuthUser 
     email: user.email ?? "",
     fullName: profile?.full_name ?? metadataName,
     role: ROLES.find((value) => value === profile?.role) ?? "user",
-    locale: profile?.locale === "km" ? "km" : "en",
+    language: profile?.language === "km" ? "km" : "en",
+    accountStatus: profile?.account_status === "suspended" ? "suspended" : "active",
     createdAt: profile?.created_at ?? user.created_at,
   };
 }

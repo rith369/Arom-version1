@@ -32,6 +32,8 @@ export const signupSchema = z
     terms: z.boolean().refine((value) => value, {
       message: "Please accept the Terms and Privacy Policy",
     }),
+    /** App language at signup. The database trigger saves it to the profile. */
+    language: z.enum(["en", "km"]).optional(),
   })
   .refine((values) => values.password === values.confirmPassword, {
     path: ["confirmPassword"],
@@ -53,7 +55,7 @@ export const profileUpdateSchema = z
       .trim()
       .min(2, "Enter your full name")
       .max(60, "Name must be 60 characters or fewer"),
-    locale: z.enum(["en", "km"]),
+    language: z.enum(["en", "km"]),
   })
   .partial()
   .refine((values) => Object.keys(values).length > 0, {
@@ -77,7 +79,8 @@ export interface AuthUser {
   email: string;
   fullName: string;
   role: UserRole;
-  locale: "en" | "km";
+  language: "en" | "km";
+  accountStatus: "active" | "suspended";
   /** ISO timestamp of when the profile was created. */
   createdAt: string;
 }
@@ -89,6 +92,7 @@ export type AuthErrorCode =
   | "email_not_confirmed"
   | "rate_limited"
   | "unauthorized"
+  | "forbidden"
   | "server_error";
 
 export interface AuthErrorBody {

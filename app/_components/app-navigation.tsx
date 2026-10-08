@@ -9,7 +9,6 @@ import {
   Home,
   Settings,
   UsersRound,
-  type LucideIcon,
 } from "lucide-react";
 import { useLanguage } from "./language-provider";
 import { useDetection } from "./detection-provider";
@@ -29,8 +28,7 @@ export type NavigationLabel =
   | "Progress"
   | "Professional"
   | "ClinicHospital"
-  | "BookingHistory"
-  | "Schedule"
+  | "Appointments"
   | "Community"
   | "PlayCards"
   | "Profile";

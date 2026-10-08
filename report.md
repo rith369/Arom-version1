@@ -7,9 +7,38 @@ A plain-language log of what changed in the app, written for the team rather tha
 
 Each entry lists the commit it landed in, so you can match it to a version of the site.
 
+## 8 Oct 2026: Roles in the Login Token and Admin Role Controls
+
+Commit pending. Migration: run `supabase/migrations/20261008000900_role_claims.sql` after files `0100` to `0800`, then turn on the access token hook (Authentication, Hooks). `0001_profiles_auth.sql` was removed: the team schema in `20261008000100_core_profiles.sql` now owns `profiles`.
+
+**Why.** AROM has three roles: `user`, `professional` and `admin`. Each needs a clear, safe way to be given, and the app needs to know a person's role quickly on every page. Therapists must only be promoted by an admin, and nobody should be able to make themselves an admin through the app.
+
+**What changed for users:**
+- **Admin and therapist pages are protected.** Anything under `/admin` is for admins only, and anything under `/pro` is for professionals and admins. Everyone else is sent home, and signed out visitors are sent to log in.
+- **Language is remembered from sign up.** Signing up while AROM is in Khmer now saves Khmer to the new account.
+
+**What changed for the team:**
+- **How each role is given.** `user`: automatically at sign up. `professional`: only by an admin, by approving an application or with the set role endpoint. `admin`: only by hand in the Supabase SQL editor. The database now blocks granting or removing `admin` through the API, even by another admin.
+- **Role in the JWT.** New `custom_access_token_hook` adds `user_role` and `account_status` claims to every access token. `proxy.ts` uses `user_role` to guard pages without a database query. A role change shows up in the token at its next refresh (within about an hour, or right away after logging out and in).
+- **Role controller in `lib/controllers/role-controller.ts`.** `requireRole(...)` checks the role in the database (not the token), so APIs react to a role change immediately. Endpoints: `GET /api/admin/users`, `PATCH /api/admin/users/:id/role` (`user` or `professional` only), `GET /api/admin/applications`, `POST /api/admin/applications/:id/review`. All are admin only.
+- **New `set_user_role()` database function.** Admin only. Moves an account between `user` and `professional`, hides a demoted therapist from the directory, and is logged in `admin_audit_log` by the existing triggers.
+- **Role rules in `lib/roles.ts`.** Shared schemas, types and the `ROLE_ROUTES` page map.
+- **Profile code now matches the team schema.** `locale` became `language`, and the profile also returns `accountStatus`.
+
+**What to re-test:**
+- Run the cleanup SQL (only if `0001_profiles_auth.sql` was run before), then files `0100` to `0900` in order;
+- Turn on the Customize Access Token hook with `public.custom_access_token_hook`;
+- Make your account admin in the SQL editor, log out and log back in;
+- Open `/api/admin/users` while logged in and confirm you see the account list;
+- Log in as a normal user and confirm `/api/admin/users` returns 403 and `/admin` sends you home;
+- As admin, try `PATCH /api/admin/users/<id>/role` with `{"role":"admin"}` and confirm it is refused;
+- Sign up with AROM set to Khmer and confirm `profiles.language` is `km`.
+
+---
+
 ## 8 Oct 2026: Your Real Name and Profile Across AROM
 
-Commit pending. No new migration. Uses the `profiles` table from `0001_profiles_auth.sql`.
+Commit `a67dd1c`. No new migration. The `profiles` table now comes from `20261008000100_core_profiles.sql` (see the entry above).
 
 **Why.** Every screen greeted everyone as "Muoyly" and showed the same avatar, even after real accounts arrived. Now that people sign in with their own accounts, AROM should know who they are: their name in the greeting and sidebar, and a profile page that shows their real details and saves their choices.
 
@@ -41,7 +70,7 @@ Commit pending. No new migration. Uses the `profiles` table from `0001_profiles_
 
 ## 7 Oct 2026: Real Accounts with Supabase (Register, Log In, Log Out)
 
-Commit pending. Database: run `supabase/migrations/0001_profiles_auth.sql` once in the Supabase SQL editor before testing. It creates the `user_role` enum, the `profiles` table, the signup trigger and Row Level Security.
+Commit `a67dd1c`. The original `0001_profiles_auth.sql` was later replaced by the team schema in `20261008000100_core_profiles.sql`.
 
 **Why.** Login and signup were a demo that only accepted one hardcoded account and stored it in the browser. AROM holds sensitive mental health data, so every seeker, therapist and admin needs a real, private account before journals, mood logs or bookings can be saved. This change connects AROM to Supabase Auth and sets up the role system (user, professional, admin) that later features build on.
 
@@ -74,6 +103,87 @@ Commit pending. Database: run `supabase/migrations/0001_profiles_auth.sql` once 
 - Log in correctly and confirm you return to `/profile`;
 - While logged in, open `/login` and confirm you are sent to `/`;
 - While logged in as a normal user, try to update your own `profiles.role` to `admin` through the Supabase client and confirm it fails with "only admins can change roles".
+
+---
+
+## 8 Oct 2026: Merged Appointments Navigation Item
+
+Commit `7996830`. No database migration required.
+
+**Why.** Previously, the sidebar displayed two separate upcoming navigation items for "Booking History" and "Schedule Management". Consolidating these into a single "Appointments" item simplifies navigation for users and unifies client booking history and therapist schedule management under one cohesive destination.
+
+**What changed for users:**
+- **Consolidated Appointments Navigation.** In the Professional section of both the desktop sidebar and mobile navigation drawer, "Booking History" and "Schedule Management" have been merged into a single item titled "ការណាត់ជួប (Appointments)" with a calendar check icon and "Soon" badge.
+- **Cleaner Sidebar Interface.** Removing the duplicate upcoming items reduces clutter in the Professional menu while clearly communicating future appointment management features.
+
+**What changed for the team:**
+- **Updated `NAVIGATION_SECTIONS` in `app/_components/navigation-config.ts`.** Replaced separate `booking-history` and `schedule` nav items with a unified `appointments` item using `CalendarCheck` icon and `isComingSoon: true`.
+- **Refined `NavigationLabel` in `app/_components/app-navigation.tsx`.** Updated type definition to include `Appointments` and removed obsolete separate labels.
+- **Unused Icons Cleaned Up.** Removed unused `CalendarClock` icon import in `navigation-config.ts`.
+
+**What to re-test:**
+- Check desktop sidebar under "អ្នកជំនាញ (Professional)" to verify "Booking History" and "Schedule Management" are replaced by a single "Appointments" item with the "Soon" badge;
+- Toggle language to Khmer to confirm the bilingual label renders as "ការណាត់ជួប" with "ឆាប់ៗ" badge;
+- Open the mobile navigation drawer to confirm the same unified "Appointments" item renders properly;
+- Verify hover tooltip displays correct bilingual coming soon message.
+
+---
+
+## 8 Oct 2026: Support Path Rules and Safety Flag for Symptom Checks
+
+Commit `af64361`. Database migration: 2 new SQL files, `20261008000700_symptom_level_none.sql` and `20261008000800_support_journeys.sql`. Run them after files `0100` to `0600`, in order, on the AROM project. File `0700` must finish before `0800` starts.
+
+**Why.** The team agreed how AROM should respond to a symptom check result. A user with no symptoms should not be pushed anywhere. A user with low or medium symptoms should try self help first, and only be pointed to a professional if things are not better after two weeks. A user with serious symptoms should get professional help and self help at the same time. Any answer that suggests self harm must show crisis hotlines immediately. Putting these rules in the database means every screen gets the same answer.
+
+**What changed for users:**
+- **Nothing visible yet for symptom checks.** Those screens are not built. These rules will drive them.
+- **Journal "Grateful" emotion now shows a sunflower (🌻)** instead of the sparkles symbol, following the project rule against AI style sparkle icons.
+
+**What changed for the team:**
+- **New "none" symptom level.** Results can now be none, low, medium or high.
+- **Automatic support path.** Saving a row in `symptom_checks` sets `recommended_path` by itself: none gives no path, low and medium give `self_help`, high gives `self_help_and_professional`.
+- **14 day review.** New table `support_journeys` keeps one active journey per user per concern, with `review_due_on` set 14 days ahead (Cambodia time). At the review, the same or a higher level recommends a professional, a lower level starts another 14 days, and none marks the journey improved. A high result at any time recommends a professional straight away.
+- **Safety flag.** New column `symptom_checks.safety_concern`. When the app sets it, it must show `crisis_resources` immediately, whatever the level.
+- **Privacy.** Journeys are read only for the owner, and visible to a therapist only when the client shares symptom checks. Nobody writes them directly.
+- **Tested locally.** All 8 files ran on a fresh Postgres, and 108 checks passed, including every path rule.
+- **App flow guide.** A web guide for developers explains the full user, therapist and admin flows, these rules, what is built today, and where each screen's data goes.
+
+**What to re-test:**
+- Run files `0700` and then `0800` in the AROM SQL Editor and confirm both finish without errors;
+- Insert a `symptom_checks` row with level `low` for a test user and confirm `recommended_path` becomes `self_help` and a `support_journeys` row appears due in 14 days;
+- Insert a row with level `high` and confirm the path is `self_help_and_professional`;
+- Insert a row with level `none` for a new user and confirm no journey is created.
+
+---
+
+## 8 Oct 2026: Supabase Database Design for All AROM Data
+
+Commit `442b605`. Database migration: 6 new SQL files in `supabase/migrations/`. They are not applied to any project yet. Run them in filename order in the AROM project (`miaczhhhvbnlqwijpmru`) SQL Editor. Do not run them on the BrachNha project.
+
+**Why.** Every piece of user data in AROM (journal, mood, daily plan, saved lessons, community messages) lives only in the browser today. It disappears when a user clears their browser or switches phones, and bookings are not saved anywhere. This design gives every feature in the UX brief a proper, private home in Supabase, for all three roles (seeker, therapist, admin), so the next step can connect the app to it one feature at a time.
+
+**What changed for users:**
+- **Nothing visible yet.** The app still uses browser storage. This entry only prepares the database.
+
+**What changed for the team:**
+- **28 tables across 6 areas.** Accounts (`profiles`), onboarding and detection (survey, initial insight, mood check ins, journal, symptom checks), therapists (clinics, therapist profiles, credentials, schedule slots, appointments, podcasts), MindGuide and Today's Plan (saved and completed content, plan items), community (groups, members, waitlist, discussions, replies, group check ins, safety flags), and professional and admin tools (therapist applications, intake questions and answers, session notes, crisis hotlines, admin audit log).
+- **Therapist tools.** Apply as a therapist (an admin approves, which verifies the account in one step), custom intake questions, private session notes that only the writing therapist can read, and marking sessions completed or no show.
+- **Client controlled sharing.** A client can choose, per booking, to share their survey and insight or their symptom checks with that therapist. It is off by default and can be turned off at any time.
+- **Admin tools.** Suspend or restore accounts (a suspended account cannot book, join groups or post, but can still read its own data), crisis hotlines in English and Khmer, an append only audit log of role, verification, suspension and safety decisions, and `admin_stats()`, which returns counts only and never names or journal text.
+- **Strict privacy rules (RLS) on every table.** Journal, mood, survey, insight, symptom checks and plan are visible to their owner only. Therapists and admins cannot read journals. A therapist sees only their own bookings, and sees a client's name only if that client is not in Anonymous Mode.
+- **Roles stay `user`, `professional`, `admin`.** Mentors are professionals. Only a verified professional can create a support group. Users cannot change their own role, and only an admin can verify a therapist.
+- **Safe booking and joining.** `book_appointment()` stops two people from booking the same time. `join_support_group()` enforces the 10 member limit and gives each member a "Member 03" style label instead of their name.
+- **Profiles are created automatically** when someone signs up with email or Google.
+- **Lesson, practice, tip and podcast content stays in the code** for now. The database only stores which items a user saved, viewed or finished.
+- **Not included yet:** "Play Cards with Friends" (not in the brief), therapist reviews, notifications, editing lessons from an admin screen, and the private storage bucket for license documents.
+- **Crisis hotline numbers are not filled in.** An admin must enter numbers that have been checked with each provider.
+- **Tested locally.** All 6 files ran on a fresh Postgres, and 94 privacy, booking and admin checks passed.
+
+**What to re-test:**
+- In the AROM Supabase SQL Editor, run the 6 files in order (`...0100` to `...0600`) and confirm each finishes without errors;
+- Sign up a test user and confirm a row appears in `profiles` with role `user`;
+- Promote a second account to `professional` in the Table Editor, add its `professional_profiles` row, then set `verification_status` to `verified`;
+- Check Database, Advisors in Supabase and confirm no table is listed as missing RLS.
 
 ---
 

@@ -31,7 +31,7 @@ export async function register(request: NextRequest) {
   const parsed = signupSchema.safeParse(await readJson(request));
   if (!parsed.success) return invalidInput();
 
-  const { email, password, fullName } = parsed.data;
+  const { email, password, fullName, language } = parsed.data;
   const supabase = await createClient();
 
   const { data, error } = await supabase.auth.signUp({
@@ -39,7 +39,7 @@ export async function register(request: NextRequest) {
     password,
     options: {
       // Role is not sent. The database trigger always creates new accounts as `user`.
-      data: { full_name: fullName },
+      data: { full_name: fullName, language: language ?? "en" },
       emailRedirectTo: `${request.nextUrl.origin}/auth/confirm`,
     },
   });

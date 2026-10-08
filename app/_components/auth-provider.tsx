@@ -52,7 +52,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     (nextUser: AuthUser | null) => {
       setUser(nextUser);
       setStatus(nextUser ? "authenticated" : "guest");
-      if (nextUser) setLanguage(nextUser.locale);
+      if (nextUser) setLanguage(nextUser.language);
     },
     [setLanguage],
   );
@@ -104,13 +104,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Switching language while signed in saves it to the profile (an external system).
   useEffect(() => {
-    if (!user || language === user.locale) return;
+    if (!user || language === user.language) return;
     let active = true;
 
     fetch("/api/profile", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ locale: language }),
+      body: JSON.stringify({ language }),
     })
       .then((response) => (response.ok ? (response.json() as Promise<ProfileResponse>) : null))
       .then((body) => {
