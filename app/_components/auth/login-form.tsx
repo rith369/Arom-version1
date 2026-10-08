@@ -5,19 +5,28 @@ import { CheckCircle2, LockKeyhole, Mail } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import {
   loginSchema,
-  matchesMockCredentials,
-  mockUser,
+  type AuthErrorBody,
+  type AuthErrorCode,
   type LoginValues,
 } from "@/lib/auth";
 import { AuthInput, FormAlert } from "./auth-input";
+import { useAuth } from "../auth-provider";
 
-const pause = (milliseconds: number) =>
-  new Promise((resolve) => window.setTimeout(resolve, milliseconds));
+const loginErrors: Partial<Record<AuthErrorCode, string>> = {
+  invalid_credentials: "That email and password do not match an AROM account.",
+  email_not_confirmed: "Please confirm your email first. Check your inbox for the link.",
+  rate_limited: "Too many attempts. Please wait a moment and try again.",
+};
+
+/** Only same site paths, so `?next=` cannot send users off AROM. */
+function safeNext(value: string | null) {
+  return value && value.startsWith("/") && !value.startsWith("//") ? value : "/";
+}
 
 function SocialMark({ src }: { src: string }) {
   return (
@@ -34,12 +43,13 @@ function SocialMark({ src }: { src: string }) {
 
 export function LoginForm() {
   const router = useRouter();
+  const { refresh } = useAuth();
+  const searchParams = useSearchParams();
   const shouldReduceMotion = useReducedMotion();
   const [notice, setNotice] = useState<string | null>(null);
   const {
     register,
     handleSubmit,
-    reset,
     setError,
     formState: { errors, isSubmitting, isSubmitSuccessful },
   } = useForm<LoginValues>({
@@ -50,28 +60,36 @@ export function LoginForm() {
 
   const onSubmit = handleSubmit(async (values) => {
     setNotice(null);
-    await pause(450);
 
-    if (!matchesMockCredentials(values)) {
+    try {
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(values),
+      });
+
+      if (!response.ok) {
+        const body = (await response.json().catch(() => null)) as AuthErrorBody | null;
+        const code = body?.error.code;
+        setError("root", {
+          type: code ?? "server_error",
+          message:
+            (code && loginErrors[code]) ?? "We could not log you in. Please try again.",
+        });
+        return;
+      }
+    } catch {
       setError("root", {
-        type: "credentials",
-        message: "That email and password do not match the demo account.",
+        type: "network",
+        message: "You seem to be offline. Check your connection and try again.",
       });
       return;
     }
 
-    window.sessionStorage.setItem(
-      "arom:mock-session",
-      JSON.stringify({ name: mockUser.name, email: mockUser.email }),
-    );
-    await pause(350);
-    router.push("/");
+    await refresh();
+    router.replace(safeNext(searchParams.get("next")));
+    router.refresh();
   });
-
-  const useDemoAccount = () => {
-    reset({ email: mockUser.email, password: mockUser.password });
-    setNotice("Demo credentials added. You can log in now.");
-  };
 
   return (
     <div>
@@ -112,19 +130,10 @@ export function LoginForm() {
           error={errors.password?.message}
         />
 
-        <div className="-mt-1 flex items-center justify-between gap-4 pb-4">
+        <div className="-mt-1 flex items-center justify-end gap-4 pb-4">
           <button
             type="button"
-            onClick={useDemoAccount}
-            className="rounded-md text-xs font-semibold text-ink-muted underline decoration-arom-border underline-offset-4 transition-colors duration-150 hover:text-arom focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-arom"
-          >
-            Use demo account
-          </button>
-          <button
-            type="button"
-            onClick={() =>
-              setNotice("Password reset is not connected in this prototype. Use the demo account instead.")
-            }
+            onClick={() => setNotice("Password reset is coming soon.")}
             className="rounded-md text-sm font-semibold text-arom transition-colors duration-150 hover:text-arom-deep focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-arom"
           >
             Forgot password?
@@ -161,14 +170,14 @@ export function LoginForm() {
       <div className="grid grid-cols-2 gap-3">
         <button
           type="button"
-          onClick={() => setNotice("Google sign-in is not connected in this prototype.")}
+          onClick={() => setNotice("Google sign in is coming soon.")}
           className="flex h-12 items-center justify-center gap-2 rounded-xl border border-arom-border bg-white text-sm font-semibold text-ink shadow-sm transition-colors duration-150 hover:border-arom/35 hover:bg-arom-wash focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-arom"
         >
           <SocialMark src="/google.svg" /> Google
         </button>
         <button
           type="button"
-          onClick={() => setNotice("Apple sign-in is not connected in this prototype.")}
+          onClick={() => setNotice("Apple sign in is coming soon.")}
           className="flex h-12 items-center justify-center gap-2 rounded-xl border border-arom-border bg-white text-sm font-semibold text-ink shadow-sm transition-colors duration-150 hover:border-arom/35 hover:bg-arom-wash focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-arom"
         >
           <SocialMark src="/Apple_light.svg" /> Apple

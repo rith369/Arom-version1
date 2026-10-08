@@ -7,6 +7,76 @@ A plain-language log of what changed in the app, written for the team rather tha
 
 Each entry lists the commit it landed in, so you can match it to a version of the site.
 
+## 8 Oct 2026: Your Real Name and Profile Across AROM
+
+Commit pending. No new migration. Uses the `profiles` table from `0001_profiles_auth.sql`.
+
+**Why.** Every screen greeted everyone as "Muoyly" and showed the same avatar, even after real accounts arrived. Now that people sign in with their own accounts, AROM should know who they are: their name in the greeting and sidebar, and a profile page that shows their real details and saves their choices.
+
+**What changed for users:**
+- **Your name everywhere.** The home greeting says "Good morning" with your first name, and the sidebar shows your full name. Guests see "Good morning!" and "Guest".
+- **Your own avatar.** The shared illustration is replaced by a calm initials avatar (for example "SD"). Guests see a neutral person icon.
+- **Real profile details.** The Profile page shows your name, email, role (Member, Professional or Admin) and the year you joined.
+- **Edit your name.** Tap the pencil next to your name on Profile, type, and save.
+- **Language follows you.** Switching between English and Khmer while signed in is saved to your account and comes back on any device.
+- **Switch Account works.** It now signs you out and opens the login page.
+
+**What changed for the team:**
+- **`AuthProvider` and `useAuth()` in `app/_components/auth-provider.tsx`.** Wraps the app in `app/layout.tsx`, fetches `/api/auth/me` once, and exposes `user`, `status` (`loading`, `authenticated`, `guest`), `refresh()` and `updateProfile()`. `useFirstName()` helps greetings.
+- **`UserAvatar` in `app/_components/user-avatar.tsx`.** Replaces the hardcoded avatar image in 7 places: sidebar, mobile drawer, top header, home, MindGuide, professional directory and profile.
+- **Profile API.** `GET /api/profile` and `PATCH /api/profile` (accepts only `fullName` and `locale`; role can never be sent) in `lib/controllers/profile-controller.ts`.
+- **Shared controller helpers in `lib/controllers/shared.ts`.** Common JSON responses, error codes and the profile read, used by both controllers.
+- **`GET /api/auth/me` now returns `{ user: null }` with 200 for guests** instead of 401, so the browser console stays clean on every page.
+- **Still mock data.** Profile stats (day streak, sessions, mindful minutes), journal entries, moods and community messages still live only in the browser and are not tied to an account yet.
+
+**What to re-test:**
+- Signed out, open `/` and confirm the greeting says "Good morning!" and the sidebar shows "Guest";
+- Log in and confirm the greeting shows your first name and the sidebar shows your full name and initials;
+- Open `/profile` and confirm your name, email, "Member" badge and join year are correct;
+- Tap the pencil, change your name, save, and confirm it updates in the sidebar right away and in `profiles.full_name` in Supabase;
+- Switch to Khmer on Profile, reload the page, and confirm Khmer stays and `profiles.locale` is `km`;
+- Tap "Switch Account" and confirm you land on `/login` signed out.
+
+---
+
+## 7 Oct 2026: Real Accounts with Supabase (Register, Log In, Log Out)
+
+Commit pending. Database: run `supabase/migrations/0001_profiles_auth.sql` once in the Supabase SQL editor before testing. It creates the `user_role` enum, the `profiles` table, the signup trigger and Row Level Security.
+
+**Why.** Login and signup were a demo that only accepted one hardcoded account and stored it in the browser. AROM holds sensitive mental health data, so every seeker, therapist and admin needs a real, private account before journals, mood logs or bookings can be saved. This change connects AROM to Supabase Auth and sets up the role system (user, professional, admin) that later features build on.
+
+**What changed for users:**
+- **Create a real account.** The signup form now creates a Supabase account. When email confirmation is on, users go to a new "Check Your Email" page (`/signup/confirm`) with simple steps.
+- **Resend or recover the confirmation email.** The confirm page has a resend button with a 60 second wait between sends. If a link is old or broken, users land on the same page with a "Link expired" message and can send a new link.
+- **Log in with your own email and password.** The demo account and the "Use demo account" button are gone. Wrong details show a clear, private message that does not reveal whether an email is registered.
+- **Private pages need a login.** Profile, Settings and therapist booking now send signed out visitors to the login page, then back to where they were going after login.
+- **Log out works.** "Log out" in Profile now ends the session on this device.
+
+**What changed for the team:**
+- **New auth controller in `lib/controllers/auth-controller.ts`.** Holds `register`, `login`, `logout`, `me` and `confirmEmail`. It validates input with the shared zod schemas in `lib/auth.ts`, returns stable error codes (`invalid_input`, `invalid_credentials`, `email_not_confirmed`, `rate_limited`, `unauthorized`, `server_error`) and never logs passwords or tokens.
+- **Thin endpoints.** `POST /api/auth/register`, `POST /api/auth/login`, `POST /api/auth/logout`, `POST /api/auth/resend`, `GET /api/auth/me` and `GET /auth/confirm` only call the controller.
+- **Confirm page in `app/signup/confirm/page.tsx` and `app/_components/auth/confirm-email-form.tsx`.** Reuses `AuthShell` and `AuthInput`. The signup email reaches the page through `sessionStorage`, never the URL. The resend endpoint answers the same way for any email, so it cannot be used to check who has an account.
+- **Supabase clients in `lib/supabase/`.** `server.ts` for Route Handlers and Server Components, `client.ts` for the browser, `proxy.ts` for session refresh. The unused `lib/supabase.ts` was removed. Only the public anon key is used.
+- **Root `proxy.ts` (Next 16 replacement for middleware).** Refreshes the session cookie on every page request and guards protected routes.
+- **Roles are locked down in the database.** New accounts are always `user`. A trigger blocks anyone except an admin (or the dashboard SQL editor) from changing a role, so users cannot promote themselves.
+- **`.env.example` added** with the two public Supabase variables.
+- **Not done yet.** The name "Muoyly" is still hardcoded in the header, greeting and profile. Password reset, Google and Apple sign in are still "coming soon".
+
+**What to re-test:**
+- Run the migration SQL in Supabase, then confirm `profiles` exists with RLS enabled;
+- In Supabase Auth settings, set Site URL to your app URL and add `http://localhost:3000/auth/confirm` to Redirect URLs;
+- Sign up at `/signup` with a new email and confirm you land on `/signup/confirm` with your email filled in;
+- Tap "Resend Email" and confirm the button counts down from 60 and a second email arrives;
+- Open `/auth/confirm?token_hash=abc&type=email` and confirm you see the "Link expired" version of the page;
+- Open the email link and confirm you land on `/` signed in, and a `profiles` row exists with role `user`;
+- Log out from `/profile`, then open `/profile` again and confirm you are sent to `/login?next=/profile`;
+- Log in with a wrong password and confirm the "do not match" message appears;
+- Log in correctly and confirm you return to `/profile`;
+- While logged in, open `/login` and confirm you are sent to `/`;
+- While logged in as a normal user, try to update your own `profiles.role` to `admin` through the Supabase client and confirm it fails with "only admins can change roles".
+
+---
+
 ## 7 Oct 2026: Innovative Daily Plan Curator and Ambient Floating Corner Pin
 
 Commit `8a2c720`. Introduced an interactive Daily Plan Curator Sheet on the Home Screen alongside ambient floating corner pins on MindGuide cards for zero title compression.
