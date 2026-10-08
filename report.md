@@ -7,6 +7,29 @@ A plain-language log of what changed in the app, written for the team rather tha
 
 Each entry lists the commit it landed in, so you can match it to a version of the site.
 
+## 8 Oct 2026: Merged Appointments Navigation Item
+
+Commit `pending`. No database migration required.
+
+**Why.** Previously, the sidebar displayed two separate upcoming navigation items for "Booking History" and "Schedule Management". Consolidating these into a single "Appointments" item simplifies navigation for users and unifies client booking history and therapist schedule management under one cohesive destination.
+
+**What changed for users:**
+- **Consolidated Appointments Navigation.** In the Professional section of both the desktop sidebar and mobile navigation drawer, "Booking History" and "Schedule Management" have been merged into a single item titled "ការណាត់ជួប (Appointments)" with a calendar check icon and "Soon" badge.
+- **Cleaner Sidebar Interface.** Removing the duplicate upcoming items reduces clutter in the Professional menu while clearly communicating future appointment management features.
+
+**What changed for the team:**
+- **Updated `NAVIGATION_SECTIONS` in `app/_components/navigation-config.ts`.** Replaced separate `booking-history` and `schedule` nav items with a unified `appointments` item using `CalendarCheck` icon and `isComingSoon: true`.
+- **Refined `NavigationLabel` in `app/_components/app-navigation.tsx`.** Updated type definition to include `Appointments` and removed obsolete separate labels.
+- **Unused Icons Cleaned Up.** Removed unused `CalendarClock` icon import in `navigation-config.ts`.
+
+**What to re-test:**
+- Check desktop sidebar under "អ្នកជំនាញ (Professional)" to verify "Booking History" and "Schedule Management" are replaced by a single "Appointments" item with the "Soon" badge;
+- Toggle language to Khmer to confirm the bilingual label renders as "ការណាត់ជួប" with "ឆាប់ៗ" badge;
+- Open the mobile navigation drawer to confirm the same unified "Appointments" item renders properly;
+- Verify hover tooltip displays correct bilingual coming soon message.
+
+---
+
 ## 8 Oct 2026: Support Path Rules and Safety Flag for Symptom Checks
 
 Commit `af64361`. Database migration: 2 new SQL files, `20261008000700_symptom_level_none.sql` and `20261008000800_support_journeys.sql`. Run them after files `0100` to `0600`, in order, on the AROM project. File `0700` must finish before `0800` starts.
