@@ -19,6 +19,7 @@ import {
   toggleCustomPlanItem,
 } from "../daily-plan-store";
 import { useLanguage } from "../language-provider";
+import { EducationalNote } from "../educational-note";
 import { ReportProblemButton } from "../report-problem";
 import {
   isPracticeBookmarked,
@@ -312,8 +313,10 @@ export function PracticeDetailView({
           </button>
         </motion.div>
 
+        <EducationalNote className="mt-8" />
+
         {!preview && (
-          <div className="mt-8 flex justify-center">
+          <div className="mt-6 flex justify-center">
             <ReportProblemButton
               target={{ type: "practice", sourceId: practice.id }}
               itemTitle={km && practice.kmTitle ? practice.kmTitle : practice.title}

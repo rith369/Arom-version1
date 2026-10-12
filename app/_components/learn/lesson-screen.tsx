@@ -16,6 +16,7 @@ import {
 import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
 import { useLanguage } from "../language-provider";
+import { EducationalNote } from "../educational-note";
 import { ReportProblemButton } from "../report-problem";
 import {
   saveLessonProgress,
@@ -367,6 +368,8 @@ export function LessonScreen({
                 </ul>
               </div>
             )}
+
+            <EducationalNote />
 
             {/* References preview accordion */}
             <div className="border-t border-arom-border pt-4 text-xs text-ink-muted">

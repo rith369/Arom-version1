@@ -10,6 +10,7 @@ import {
   getTherapistRole,
 } from "@/lib/therapists";
 import { DesktopNavigation, MobileNavigation } from "../app-navigation";
+import { EducationalNote } from "../educational-note";
 import { useLanguage } from "../language-provider";
 import {
   MINDGUIDE_PODCASTS,
@@ -217,6 +218,8 @@ export function PodcastEpisodeView({ podcast }: { podcast: MindGuidePodcast }) {
           </Link>
         </section>
       )}
+
+      <EducationalNote className="mt-6" />
     </Shell>
   );
 }

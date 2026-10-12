@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { useLanguage } from "../language-provider";
+import { EducationalNote } from "../educational-note";
 import { ReportProblemButton } from "../report-problem";
 import {
   isTipBookmarked,
@@ -144,6 +145,8 @@ export function TipDetailView({
             <div className="mt-6 text-center text-xs text-ink-muted">
               <p>{km ? tip.kmSourceCitation : tip.sourceCitation}</p>
             </div>
+
+            <EducationalNote className="mt-4" />
 
             {/* Primary Action Button */}
             <div className="mt-8">

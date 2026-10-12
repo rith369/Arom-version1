@@ -161,6 +161,8 @@ Do not change these without asking Rith.
 - **Professionals edit their own profile.** Admins review and moderate only.
 - **Admins never see private wellbeing content.** Counts only.
 - **AROM has no "Owner" role.** Only `user`, `professional`, `admin`.
+- **Educational note is fixed app text.** Every lesson, tip, practice and podcast screen shows "For learning only. This is not a diagnosis or treatment." from `app/_components/educational-note.tsx`. It is not stored as content, so no admin edit can remove it.
+- **No crisis helpline card on content screens.** Users find helpline information in Settings.
 - **Two kinds of podcasts.** MindGuide podcasts are made by admins and shown in MindGuide. Professional podcasts are published by professionals themselves on their own profile so users can listen before booking. They are separate lists.
 
 ## 8. Become a professional (user applies)

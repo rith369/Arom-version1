@@ -7,6 +7,32 @@ A plain-language log of what changed in the app, written for the team rather tha
 
 Each entry lists the commit it landed in, so you can match it to a version of the site.
 
+## 13 Oct 2026: "For Learning Only, Not a Diagnosis" Note on Every MindGuide Screen
+
+Commit pending. No migration.
+
+**Why.** MindGuide lessons, tips, practices and podcasts teach people about their mental health, but they are not a diagnosis or treatment. Users need to see that clearly, and it protects AROM too. Because it is a safety message, it is written into the app and cannot be deleted by editing content.
+
+**What changed for users:**
+- **A short calm note** on the lesson overview, inside every lesson section, the tip overview and steps page, the practice overview and every podcast episode: "For learning only. This is not a diagnosis or treatment. If you are worried about your mental health, talk to a professional."
+- **"Talk to a professional"** links to the professional directory.
+- **Khmer and English.**
+
+**What changed for the team:**
+- **New `EducationalNote`** in `app/_components/educational-note.tsx`, placed in the five MindGuide screens and the podcast episode page.
+- **It is fixed app text, not content,** so it also shows in the admin preview and no admin edit can remove it.
+- **Decision recorded:** no crisis helpline card on content screens, because helpline information is in Settings. Noted in `BACKEND-HANDOFF.md` section 7.
+
+**What to re-test:**
+- Open a lesson overview and step through the lesson; confirm the note shows on the overview and in every section;
+- Open a tip overview, its steps page and a practice overview; confirm the note shows;
+- Open a podcast episode and confirm the note is at the bottom;
+- Tap "talk to a professional" and confirm it opens the professional directory;
+- Open a lesson in the admin editor Preview and confirm the note shows there too;
+- Switch to Khmer and check the wording.
+
+---
+
 ## 13 Oct 2026: MindGuide Podcasts for Users, and Admin Podcasts Separate From Professional Podcasts
 
 Commit `33fe5a2`. No migration yet. Frontend only, on sample episodes.

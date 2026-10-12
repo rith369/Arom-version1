@@ -21,6 +21,7 @@ import {
   toggleCustomPlanItem,
 } from "../daily-plan-store";
 import { useLanguage } from "../language-provider";
+import { EducationalNote } from "../educational-note";
 import { ReportProblemButton } from "../report-problem";
 import {
   getLessonProgress,
@@ -369,8 +370,10 @@ export function LessonDetailView({
           </button>
         </motion.div>
 
+        <EducationalNote className="mt-8" />
+
         {!preview && (
-          <div className="mt-8 flex justify-center">
+          <div className="mt-6 flex justify-center">
             <ReportProblemButton
               target={{ type: "lesson", sourceId: lesson.id }}
               itemTitle={km && lesson.kmTitle ? lesson.kmTitle : lesson.title}
