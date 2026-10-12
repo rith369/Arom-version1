@@ -9,7 +9,7 @@ Each entry lists the commit it landed in, so you can match it to a version of th
 
 ## 12 Oct 2026: Admin Panel Link and Admins Land on the Admin Panel After Login
 
-Commit pending. No migration.
+Commit `bceb0cb`. No migration.
 
 **Why.** Admins logged in and landed on the normal user home page with no way to reach the admin area except typing `/admin` by hand. It looked like their admin access was missing.
 
@@ -34,7 +34,7 @@ Commit pending. No migration.
 
 ## 12 Oct 2026: Admin Content and Podcasts Merged Into One MindGuide Page
 
-Commit pending. No migration.
+Commit `bceb0cb`. No migration.
 
 **Why.** Lessons, tips, practices and podcasts are all part of MindGuide for users, but admins had to manage them on two separate pages (Content and Podcasts). One page with the same name users see makes the admin area simpler and easier to find things in.
 
@@ -63,7 +63,7 @@ Commit pending. No migration.
 
 ## 12 Oct 2026: "Other" Option for Specialties in the Professional Application
 
-Commit pending. No migration.
+Commit `bceb0cb`. No migration.
 
 **Why.** The application form only offered nine fixed specialties. Therapists who work in other areas, such as addiction or postpartum support, had no way to say so.
 
