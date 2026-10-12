@@ -9,7 +9,7 @@ Each entry lists the commit it landed in, so you can match it to a version of th
 
 ## 13 Oct 2026: MindGuide Podcasts for Users, and Admin Podcasts Separate From Professional Podcasts
 
-Commit pending. No migration yet. Frontend only, on sample episodes.
+Commit `33fe5a2`. No migration yet. Frontend only, on sample episodes.
 
 **Why.** AROM has two kinds of podcasts. Professionals publish their own on their profile so users can hear them before booking. The AROM team also makes general podcasts for MindGuide. Before this change the MindGuide "Podcast" icon went nowhere, and the admin Podcasts tab required every episode to belong to a professional.
 
