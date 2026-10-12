@@ -9,7 +9,7 @@ Each entry lists the commit it landed in, so you can match it to a version of th
 
 ## 13 Oct 2026: Live Preview in the MindGuide Editor Using the Real User Screens
 
-Commit pending. No migration.
+Commit `bbeb916`. No migration.
 
 **Why.** Admins fix text, but they also need to see how it will actually look to users before publishing. A preview that copies the design would drift from the real app, so the editor now shows the exact screens users get.
 
