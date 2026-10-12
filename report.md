@@ -9,7 +9,7 @@ Each entry lists the commit it landed in, so you can match it to a version of th
 
 ## 13 Oct 2026: "For Learning Only, Not a Diagnosis" Note on Every MindGuide Screen
 
-Commit pending. No migration.
+Commit `52f54f5`. No migration.
 
 **Why.** MindGuide lessons, tips, practices and podcasts teach people about their mental health, but they are not a diagnosis or treatment. Users need to see that clearly, and it protects AROM too. Because it is a safety message, it is written into the app and cannot be deleted by editing content.
 
