@@ -9,6 +9,7 @@ import {
 } from '../_data/professionals';
 
 import {
+  currentAdminId,
   initialUsers,
   type AdminUser,
   type UserRole,
@@ -16,9 +17,11 @@ import {
 } from '../_data/users';
 
 import {
-  initialContent,
-  type AdminContent,
-  type ContentStatus,
+  emptyBody,
+  initialContentRecords,
+  type ContentBody,
+  type ContentRecord,
+  type ContentType,
 } from '../_data/content';
 import {
   initialPodcasts,
@@ -41,16 +44,7 @@ import {
 
 import { initialSettings, type AdminSettings } from '../_data/settings';
 
-import {
-  initialLessonDetails,
-  type AdminLessonDetails,
-} from '../_data/lesson-details';
-import { initialTipDetails, type AdminTipDetails } from '../_data/tip-details';
 
-import {
-  initialPracticeDetails,
-  type AdminPracticeDetails,
-} from '../_data/practice-details';
 
 type AdminState = {
   professionals: Professional[];
@@ -78,9 +72,22 @@ type AdminState = {
     promotion?: ProfessionalPromotion,
   ) => void;
 
-  content: AdminContent[];
-  saveContent: (record: AdminContent) => void;
-  setContentStatus: (contentId: string, status: ContentStatus) => void;
+  contentRecords: ContentRecord[];
+  currentAdminName: string;
+  createContent: (type: ContentType) => ContentRecord;
+  saveContentDraft: (
+    id: string,
+    body: ContentBody,
+    expectedUpdatedAt: string | null,
+  ) => ContentActionResult;
+  publishContent: (
+    id: string,
+    expectedUpdatedAt: string | null,
+  ) => ContentActionResult;
+  discardContentDraft: (id: string) => void;
+  setContentHidden: (id: string, hidden: boolean) => void;
+  restoreContentVersion: (id: string, version: number) => string;
+  deleteContent: (id: string) => void;
 
   podcasts: AdminPodcast[];
   savePodcast: (record: AdminPodcast) => void;
@@ -103,17 +110,15 @@ type AdminState = {
   settings: AdminSettings;
   saveSettings: (record: AdminSettings) => void;
 
-  lessonDetails: AdminLessonDetails[];
-  saveLessonDetails: (record: AdminLessonDetails) => void;
-
-  tipDetails: AdminTipDetails[];
-  saveTipDetails: (record: AdminTipDetails) => void;
-
-  practiceDetails: AdminPracticeDetails[];
-  savePracticeDetails: (record: AdminPracticeDetails) => void;
 };
 
 export type ReviewDecision = 'approve' | 'reject';
+
+// Mirrors the hint codes the backend will return. `stale` means another admin
+// saved after this editor loaded the item, so nothing was overwritten.
+export type ContentActionResult =
+  | { ok: true; updatedAt: string }
+  | { ok: false; code: 'stale' | 'shape' };
 
 // License details an admin records when promoting someone they already know.
 export type ProfessionalPromotion = {
@@ -131,7 +136,9 @@ export function AdminProvider({ children }: { children: ReactNode }) {
 
   const [users, setUsers] = useState<AdminUser[]>(initialUsers);
 
-  const [content, setContent] = useState<AdminContent[]>(initialContent);
+  const [contentRecords, setContentRecords] = useState<ContentRecord[]>(
+    initialContentRecords,
+  );
 
   function updateProfessional(
     id: string,
@@ -267,23 +274,141 @@ export function AdminProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  function saveContent(record: AdminContent) {
-    setContent((current) => {
-      const exists = current.some((item) => item.id === record.id);
+  const currentAdminName =
+    users.find((user) => user.id === currentAdminId)?.fullName ?? 'Admin';
 
-      return exists
-        ? current.map((item) => (item.id === record.id ? record : item))
-        : [...current, record];
-    });
-  }
-
-  function setContentStatus(contentId: string, status: ContentStatus) {
-    setContent((current) =>
-      current.map((item) =>
-        item.id === contentId ? { ...item, status } : item,
-      ),
+  function updateContentRecord(
+    id: string,
+    update: (record: ContentRecord) => ContentRecord,
+  ) {
+    setContentRecords((current) =>
+      current.map((item) => (item.id === id ? update(item) : item)),
     );
   }
+
+  function createContent(type: ContentType) {
+    const sourceId = crypto.randomUUID();
+    const record: ContentRecord = {
+      id: `${type}:${sourceId}`,
+      sourceId,
+      type,
+      liveVersion: null,
+      versions: [],
+      draft: {
+        body: emptyBody(type, sourceId),
+        baseVersion: null,
+        updatedAt: new Date().toISOString(),
+        updatedBy: currentAdminName,
+      },
+    };
+
+    setContentRecords((current) => [...current, record]);
+
+    return record;
+  }
+
+  function saveContentDraft(
+    id: string,
+    body: ContentBody,
+    expectedUpdatedAt: string | null,
+  ): ContentActionResult {
+    const record = contentRecords.find((item) => item.id === id);
+
+    if (!record) return { ok: false, code: 'shape' };
+    if ((record.draft?.updatedAt ?? null) !== expectedUpdatedAt) {
+      return { ok: false, code: 'stale' };
+    }
+
+    const updatedAt = new Date().toISOString();
+
+    updateContentRecord(id, (item) => ({
+      ...item,
+      draft: {
+        body: structuredClone(body),
+        baseVersion: item.versions.at(-1)?.version ?? null,
+        updatedAt,
+        updatedBy: currentAdminName,
+      },
+    }));
+
+    return { ok: true, updatedAt };
+  }
+
+  // Publishes exactly the saved draft as the next version, then removes the draft.
+  function publishContent(
+    id: string,
+    expectedUpdatedAt: string | null,
+  ): ContentActionResult {
+    const record = contentRecords.find((item) => item.id === id);
+
+    if (!record?.draft) return { ok: false, code: 'shape' };
+    if (record.draft.updatedAt !== expectedUpdatedAt) {
+      return { ok: false, code: 'stale' };
+    }
+
+    const publishedAt = new Date().toISOString();
+    const version = (record.versions.at(-1)?.version ?? 0) + 1;
+
+    updateContentRecord(id, (item) => ({
+      ...item,
+      liveVersion: version,
+      versions: [
+        ...item.versions,
+        {
+          version,
+          body: item.draft!.body,
+          publishedAt,
+          publishedBy: currentAdminName,
+        },
+      ],
+      draft: null,
+    }));
+
+    return { ok: true, updatedAt: publishedAt };
+  }
+
+  function discardContentDraft(id: string) {
+    updateContentRecord(id, (item) => ({ ...item, draft: null }));
+  }
+
+  // Hiding keeps every version. Showing again puts the newest version live.
+  function setContentHidden(id: string, hidden: boolean) {
+    updateContentRecord(id, (item) => ({
+      ...item,
+      liveVersion: hidden ? null : (item.versions.at(-1)?.version ?? null),
+    }));
+  }
+
+  // Copies an old version into the draft. Nothing changes for users until it is published.
+  function restoreContentVersion(id: string, version: number) {
+    const updatedAt = new Date().toISOString();
+
+    updateContentRecord(id, (item) => {
+      const source = item.versions.find((entry) => entry.version === version);
+
+      if (!source) return item;
+
+      return {
+        ...item,
+        draft: {
+          body: structuredClone(source.body),
+          baseVersion: item.versions.at(-1)?.version ?? null,
+          updatedAt,
+          updatedBy: currentAdminName,
+        },
+      };
+    });
+
+    return updatedAt;
+  }
+
+  // Only items that were never published can be deleted. Published ones are hidden instead.
+  function deleteContent(id: string) {
+    setContentRecords((current) =>
+      current.filter((item) => item.id !== id || item.versions.length > 0),
+    );
+  }
+
   const [podcasts, setPodcasts] = useState<AdminPodcast[]>(initialPodcasts);
 
   function savePodcast(record: AdminPodcast) {
@@ -366,43 +491,6 @@ export function AdminProvider({ children }: { children: ReactNode }) {
     setSettings(record);
   }
 
-  const [lessonDetails, setLessonDetails] =
-    useState<AdminLessonDetails[]>(initialLessonDetails);
-
-  function saveLessonDetails(record: AdminLessonDetails) {
-    setLessonDetails((current) =>
-      current.some((item) => item.sourceId === record.sourceId)
-        ? current.map((item) =>
-            item.sourceId === record.sourceId ? record : item,
-          )
-        : [...current, record],
-    );
-  }
-  const [tipDetails, setTipDetails] =
-    useState<AdminTipDetails[]>(initialTipDetails);
-
-  function saveTipDetails(record: AdminTipDetails) {
-    setTipDetails((current) =>
-      current.some((item) => item.sourceId === record.sourceId)
-        ? current.map((item) =>
-            item.sourceId === record.sourceId ? record : item,
-          )
-        : [...current, record],
-    );
-  }
-  const [practiceDetails, setPracticeDetails] = useState<
-    AdminPracticeDetails[]
-  >(initialPracticeDetails);
-
-  function savePracticeDetails(record: AdminPracticeDetails) {
-    setPracticeDetails((current) =>
-      current.some((item) => item.sourceId === record.sourceId)
-        ? current.map((item) =>
-            item.sourceId === record.sourceId ? record : item,
-          )
-        : [...current, record],
-    );
-  }
 
   return (
     <AdminContext.Provider
@@ -414,9 +502,15 @@ export function AdminProvider({ children }: { children: ReactNode }) {
         users,
         setUserStatus,
         setUserRole,
-        content,
-        saveContent,
-        setContentStatus,
+        contentRecords,
+        currentAdminName,
+        createContent,
+        saveContentDraft,
+        publishContent,
+        discardContentDraft,
+        setContentHidden,
+        restoreContentVersion,
+        deleteContent,
         podcasts,
         savePodcast,
         setPodcastStatus,
@@ -433,12 +527,6 @@ export function AdminProvider({ children }: { children: ReactNode }) {
         setJournalPromptActive,
         settings,
         saveSettings,
-        lessonDetails,
-        saveLessonDetails,
-        tipDetails,
-        saveTipDetails,
-        practiceDetails,
-        savePracticeDetails,
       }}>
       {children}
     </AdminContext.Provider>

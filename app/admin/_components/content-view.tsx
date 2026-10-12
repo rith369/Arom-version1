@@ -1,122 +1,100 @@
 'use client';
 
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import {
-  Plus,
-  Search,
-  Pencil,
-  Archive,
-  RotateCcw,
-  BookOpen,
-  Lightbulb,
-  HeartHandshake,
-} from 'lucide-react';
+import { BookOpen, Pencil, Plus, Search } from 'lucide-react';
 
 import { useAdmin } from './admin-provider';
-import { ContentForm } from './content-form';
+import { PublishStateChip, usePublishStateLabels } from './content-status';
 import { useLanguage } from '../../_components/language-provider';
 
-import type {
-  AdminContent,
-  ContentStatus,
-  ContentType,
+import {
+  getPublishState,
+  getWorkingBody,
+  type ContentType,
+  type PublishState,
 } from '../_data/content';
-import { LessonEditor } from './lesson-editor';
-import { TipEditor } from './tip-editor';
-import { PracticeEditor } from './practice-editor';
 
-type StatusFilter = ContentStatus | 'all';
+type StatusFilter = PublishState | 'all';
 
 // One content type at a time. The MindGuide page owns the header and tabs.
 export function ContentView({ activeType }: { activeType: ContentType }) {
-  const { content, saveContent, setContentStatus } = useAdmin();
+  const router = useRouter();
+  const { contentRecords, createContent } = useAdmin();
   const { language } = useLanguage();
-
   const km = language === 'km';
+  const t = (kmText: string, enText: string) => (km ? kmText : enText);
+  const stateLabels = usePublishStateLabels();
 
   const [query, setQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
 
-  const [editor, setEditor] = useState<{ record: AdminContent | null } | null>(
-    null,
-  );
-
-  const [notice, setNotice] = useState('');
-
   const typeLabels: Record<ContentType, string> = {
-    lesson: km ? 'មេរៀន' : 'Lessons',
-    tip: km ? 'គន្លឹះ' : 'Tips',
-    practice: km ? 'ការអនុវត្ត' : 'Practices',
-  };
-
-  const statusLabels: Record<ContentStatus, string> = {
-    draft: km ? 'សេចក្តីព្រាង' : 'Draft',
-    published: km ? 'បានផ្សព្វផ្សាយ' : 'Published',
-    archived: km ? 'បានទុកក្នុងបណ្ណសារ' : 'Archived',
+    lesson: t('មេរៀន', 'Lessons'),
+    tip: t('គន្លឹះ', 'Tips'),
+    practice: t('ការអនុវត្ត', 'Practices'),
   };
 
   const addLabels: Record<ContentType, string> = {
-    lesson: km ? 'បន្ថែមមេរៀន' : 'Add lesson',
-    tip: km ? 'បន្ថែមគន្លឹះ' : 'Add tip',
-    practice: km ? 'បន្ថែមការអនុវត្ត' : 'Add practice',
+    lesson: t('បន្ថែមមេរៀន', 'Add lesson'),
+    tip: t('បន្ថែមគន្លឹះ', 'Add tip'),
+    practice: t('បន្ថែមការអនុវត្ត', 'Add practice'),
   };
+
+  const dateFormatter = new Intl.DateTimeFormat(km ? 'km-KH' : 'en-GB', {
+    day: 'numeric',
+    month: 'short',
+    timeZone: 'Asia/Phnom_Penh',
+  });
 
   const searchText = query.trim().toLocaleLowerCase();
 
-  const typeContent = content.filter((item) => item.type === activeType);
+  const rows = contentRecords
+    .filter((record) => record.type === activeType)
+    .map((record) => {
+      const body = getWorkingBody(record);
+      const lastVersion = record.versions.at(-1);
+      const lastChange = record.draft
+        ? { at: record.draft.updatedAt, by: record.draft.updatedBy }
+        : lastVersion
+          ? { at: lastVersion.publishedAt, by: lastVersion.publishedBy }
+          : null;
 
-  const filteredContent = typeContent.filter((item) => {
-    const matchesStatus =
-      statusFilter === 'all' || item.status === statusFilter;
+      return { record, meta: body.meta, state: getPublishState(record), lastChange };
+    })
+    .filter(
+      ({ meta, state }) =>
+        (statusFilter === 'all' || state === statusFilter) &&
+        `${meta.title} ${meta.kmTitle} ${meta.category}`
+          .toLocaleLowerCase()
+          .includes(searchText),
+    );
 
-    const matchesSearch = `${item.title} ${item.kmTitle} ${item.category}`
-      .toLocaleLowerCase()
-      .includes(searchText);
+  const totalOfType = contentRecords.filter((record) => record.type === activeType).length;
 
-    return matchesStatus && matchesSearch;
-  });
-  const [tipEditor, setTipEditor] = useState<AdminContent | null>(null);
-  const [practiceEditor, setPracticeEditor] = useState<AdminContent | null>(
-    null,
-  );
+  function addContent() {
+    const record = createContent(activeType);
+    router.push(`/admin/mindguide/${record.type}/${record.sourceId}`);
+  }
 
   function clearFilters() {
     setQuery('');
     setStatusFilter('all');
   }
 
-  function handleSave(record: AdminContent) {
-    saveContent(record);
-    setEditor(null);
-
-    // Show the saved record even if its status changed.
-    clearFilters();
-
-    setNotice(km ? 'បានរក្សាទុកមាតិកា។' : `${record.title}: content saved.`);
-  }
-
-  function toggleArchive(record: AdminContent) {
-    const nextStatus: ContentStatus =
-      record.status === 'archived' ? 'draft' : 'archived';
-
-    setContentStatus(record.id, nextStatus);
-
-    setNotice(
-      km
-        ? 'បានធ្វើបច្ចុប្បន្នភាពស្ថានភាពមាតិកា។'
-        : `${record.title}: ${
-            nextStatus === 'draft' ? 'restored as draft' : 'archived'
-          }.`,
-    );
-  }
-  const [lessonEditor, setLessonEditor] = useState<AdminContent | null>(null);
-
   return (
     <>
-      <div className="flex justify-end">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p className="text-sm text-ink-muted">
+          {t(
+            'ការកែប្រែត្រូវបានរក្សាទុកជាសេចក្តីព្រាង ហើយអ្នកប្រើឃើញតែបន្ទាប់ពីផ្សព្វផ្សាយ។',
+            'Edits are saved as drafts. Users only see them after you publish.',
+          )}
+        </p>
         <button
           type="button"
-          onClick={() => setEditor({ record: null })}
+          onClick={addContent}
           className="flex items-center gap-2 rounded-full bg-arom px-5 py-3 text-sm font-medium text-white hover:bg-arom-deep">
           <Plus size={18} aria-hidden="true" />
           {addLabels[activeType]}
@@ -126,59 +104,45 @@ export function ContentView({ activeType }: { activeType: ContentType }) {
       <section className="mt-4 overflow-hidden rounded-3xl border border-arom-border bg-white shadow-sm">
         <div className="flex flex-wrap items-center gap-3 border-b border-arom-border p-5">
           <div className="relative min-w-48 flex-1">
-            <Search
-              size={18}
-              aria-hidden="true"
-              className="absolute left-3 top-3 text-ink-muted"
-            />
-
+            <Search size={18} aria-hidden="true" className="absolute left-3 top-3 text-ink-muted" />
             <input
               type="search"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              aria-label={km ? 'ស្វែងរកមាតិកា' : 'Search content'}
-              placeholder={
-                km
-                  ? 'ស្វែងរកតាមចំណងជើង ឬប្រភេទ...'
-                  : 'Search by title or category...'
-              }
+              aria-label={t('ស្វែងរកមាតិកា', 'Search content')}
+              placeholder={t('ស្វែងរកតាមចំណងជើង ឬប្រភេទ...', 'Search by title or category...')}
               className="w-full rounded-xl border border-arom-border bg-arom-wash py-2.5 pl-10 pr-3 text-sm outline-none focus:border-arom focus:ring-2 focus:ring-arom/15"
             />
           </div>
 
           <select
             value={statusFilter}
-            onChange={(event) =>
-              setStatusFilter(event.target.value as StatusFilter)
-            }
-            aria-label={km ? 'តម្រងស្ថានភាព' : 'Filter by status'}
+            onChange={(event) => setStatusFilter(event.target.value as StatusFilter)}
+            aria-label={t('តម្រងស្ថានភាព', 'Filter by status')}
             className="rounded-xl border border-arom-border bg-white px-3 py-2.5 text-sm">
-            <option value="all">{km ? 'គ្រប់ស្ថានភាព' : 'All statuses'}</option>
-
-            <option value="draft">{statusLabels.draft}</option>
-            <option value="published">{statusLabels.published}</option>
-            <option value="archived">{statusLabels.archived}</option>
+            <option value="all">{t('គ្រប់ស្ថានភាព', 'All statuses')}</option>
+            {(Object.keys(stateLabels) as PublishState[]).map((state) => (
+              <option key={state} value={state}>
+                {stateLabels[state]}
+              </option>
+            ))}
           </select>
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[800px] text-left text-sm">
+          <table className="w-full min-w-[760px] text-left text-sm">
             <caption className="sr-only">{typeLabels[activeType]}</caption>
-
             <thead className="bg-arom-wash text-xs text-ink-muted">
               <tr>
                 {[
-                  km ? 'ចំណងជើង' : 'Title',
-                  km ? 'ប្រភេទ' : 'Category',
-                  km ? 'រយៈពេល' : 'Duration',
-                  km ? 'កម្រិត' : 'Difficulty',
-                  km ? 'ស្ថានភាព' : 'Status',
-                  km ? 'សកម្មភាព' : 'Actions',
+                  t('ចំណងជើង', 'Title'),
+                  t('ប្រភេទ', 'Category'),
+                  t('រយៈពេល', 'Duration'),
+                  t('ស្ថានភាព', 'Status'),
+                  t('កែចុងក្រោយ', 'Last change'),
+                  t('សកម្មភាព', 'Actions'),
                 ].map((heading) => (
-                  <th
-                    key={heading}
-                    scope="col"
-                    className="px-5 py-4 font-medium">
+                  <th key={heading} scope="col" className="px-5 py-4 font-medium">
                     {heading}
                   </th>
                 ))}
@@ -186,119 +150,54 @@ export function ContentView({ activeType }: { activeType: ContentType }) {
             </thead>
 
             <tbody className="divide-y divide-arom-border">
-              {filteredContent.map((item) => {
+              {rows.map(({ record, meta, state, lastChange }) => {
                 const displayTitle =
-                  km && item.kmTitle ? item.kmTitle : item.title;
-
+                  (km && meta.kmTitle) || meta.title || t('គ្មានចំណងជើង', 'Untitled');
                 const description =
-                  km && item.kmDescription
-                    ? item.kmDescription
-                    : item.description;
-
-                const isArchived = item.status === 'archived';
+                  (km && meta.kmDescription) || meta.description;
 
                 return (
-                  <tr key={item.id} className="hover:bg-arom-wash/50">
+                  <tr key={record.id} className="hover:bg-arom-wash/50">
                     <td className="max-w-sm px-5 py-5">
                       <p className="font-medium">{displayTitle}</p>
-
-                      <p className="mt-1 line-clamp-2 text-xs leading-5 text-ink-muted">
-                        {description}
-                      </p>
+                      {description && (
+                        <p className="mt-1 line-clamp-2 text-xs leading-5 text-ink-muted">
+                          {description}
+                        </p>
+                      )}
                     </td>
-
                     <td className="px-5 py-5">
-                      <span className="rounded-lg bg-arom-wash px-2 py-1 text-xs text-arom">
-                        {item.category}
-                      </span>
+                      {meta.category && (
+                        <span className="rounded-lg bg-arom-wash px-2 py-1 text-xs text-arom">
+                          {meta.category}
+                        </span>
+                      )}
                     </td>
-
-                    <td className="whitespace-nowrap px-5 py-5 text-ink-muted">
-                      {item.duration}
-                    </td>
-
-                    <td className="px-5 py-5 text-ink-muted">
-                      {item.difficulty === 'Beginner'
-                        ? km
-                          ? 'កម្រិតដំបូង'
-                          : 'Beginner'
-                        : km
-                          ? 'កម្រិតមធ្យម'
-                          : 'Intermediate'}
-                    </td>
-
+                    <td className="whitespace-nowrap px-5 py-5 text-ink-muted">{meta.duration}</td>
                     <td className="px-5 py-5">
-                      <span
-                        className={`whitespace-nowrap rounded-full px-3 py-1 text-xs ${
-                          item.status === 'published'
-                            ? 'bg-arom-soft text-arom'
-                            : item.status === 'draft'
-                              ? 'bg-amber-50 text-amber-800'
-                              : 'bg-gray-100 text-gray-600'
-                        }`}>
-                        {statusLabels[item.status]}
-                      </span>
+                      <PublishStateChip state={state} />
+                      {record.liveVersion && (
+                        <p className="mt-1.5 text-xs text-ink-muted">
+                          {t('កំណែទី', 'Version')} {record.liveVersion}
+                        </p>
+                      )}
                     </td>
-
+                    <td className="px-5 py-5 text-xs text-ink-muted">
+                      {lastChange && (
+                        <>
+                          <p>{dateFormatter.format(new Date(lastChange.at))}</p>
+                          <p className="mt-0.5">{lastChange.by}</p>
+                        </>
+                      )}
+                    </td>
                     <td className="px-5 py-5">
-                      <div className="flex gap-2">
-                        <button
-                          type="button"
-                          aria-label={`${
-                            km ? 'កែសម្រួល' : 'Edit'
-                          }: ${displayTitle}`}
-                          onClick={() => setEditor({ record: item })}
-                          className="rounded-lg border border-arom-border p-2 text-arom hover:bg-arom-soft">
-                          <Pencil size={16} aria-hidden="true" />
-                        </button>
-
-                        <button
-                          type="button"
-                          aria-label={`${
-                            isArchived
-                              ? km
-                                ? 'ស្ដារជាសេចក្តីព្រាង'
-                                : 'Restore as draft'
-                              : km
-                                ? 'ទុកក្នុងបណ្ណសារ'
-                                : 'Archive'
-                          }: ${displayTitle}`}
-                          onClick={() => toggleArchive(item)}
-                          className="rounded-lg border border-arom-border p-2 text-ink-muted hover:bg-arom-soft">
-                          {isArchived ? (
-                            <RotateCcw size={16} aria-hidden="true" />
-                          ) : (
-                            <Archive size={16} aria-hidden="true" />
-                          )}
-                        </button>
-                        {item.type === 'lesson' && (
-                          <button
-                            type="button"
-                            onClick={() => setLessonEditor(item)}
-                            aria-label={`${km ? 'كែសម្រួលផ្នែកមេរៀន' : 'Edit lesson sections'}: ${displayTitle}`}
-                            className="rounded-lg border border-arom-border p-2 text-arom hover:bg-arom-soft">
-                            <BookOpen size={16} aria-hidden="true" />
-                          </button>
-                        )}
-                        {item.type === 'tip' && (
-                          <button
-                            type="button"
-                            onClick={() => setTipEditor(item)}
-                            aria-label={`${km ? 'កែសម្រួលជំហាន' : 'Edit tip steps'}: ${displayTitle}`}
-                            className="rounded-lg border border-arom-border p-2 text-arom hover:bg-arom-soft">
-                            <Lightbulb size={16} aria-hidden="true" />
-                          </button>
-                        )}
-                        {item.type === 'practice' && (
-                          <button
-                            type="button"
-                            onClick={() => setPracticeEditor(item)}
-                            aria-label={`${km ? 'កែសម្រួលការណែនាំ' : 'Edit practice instructions'}: ${displayTitle}`}
-                            className="rounded-lg border border-arom-border p-2 text-arom hover:bg-arom-soft">
-                            <HeartHandshake size={16} aria-hidden="true" />
-                          </button>
-                        )}
-                      </div>
+                      <Link
+                        href={`/admin/mindguide/${record.type}/${record.sourceId}`}
+                        aria-label={`${t('កែសម្រួល', 'Edit')}: ${displayTitle}`}
+                        className="inline-flex items-center gap-2 rounded-full border border-arom-border px-4 py-2 text-xs font-medium text-arom hover:bg-arom-soft">
+                        <Pencil size={14} aria-hidden="true" />
+                        {t('កែសម្រួល', 'Edit')}
+                      </Link>
                     </td>
                   </tr>
                 );
@@ -307,75 +206,26 @@ export function ContentView({ activeType }: { activeType: ContentType }) {
           </table>
         </div>
 
-        {filteredContent.length === 0 && (
+        {rows.length === 0 && (
           <div className="p-12 text-center">
-            <BookOpen
-              size={32}
-              aria-hidden="true"
-              className="mx-auto text-ink-muted"
-            />
-
-            <h2 className="mt-4 font-medium">
-              {km ? 'មិនមានលទ្ធផល' : 'No matching content'}
-            </h2>
-
+            <BookOpen size={32} aria-hidden="true" className="mx-auto text-ink-muted" />
+            <h2 className="mt-4 font-medium">{t('មិនមានលទ្ធផល', 'No matching content')}</h2>
             <p className="mt-2 text-sm text-ink-muted">
-              {km
-                ? 'សាកល្បងពាក្យស្វែងរក ឬតម្រងផ្សេង។'
-                : 'Try another search or clear your filters.'}
+              {t('សាកល្បងពាក្យស្វែងរក ឬតម្រងផ្សេង។', 'Try another search or clear your filters.')}
             </p>
-
             <button
               type="button"
               onClick={clearFilters}
               className="mt-4 text-sm font-medium text-arom underline">
-              {km ? 'សម្អាតតម្រង' : 'Clear filters'}
+              {t('សម្អាតតម្រង', 'Clear filters')}
             </button>
           </div>
         )}
 
         <p className="border-t border-arom-border px-5 py-4 text-xs text-ink-muted">
-          {km ? 'លទ្ធផល' : 'Showing'} {filteredContent.length} /{' '}
-          {typeContent.length}
+          {t('លទ្ធផល', 'Showing')} {rows.length} / {totalOfType}
         </p>
       </section>
-
-      <p
-        role="status"
-        aria-live="polite"
-        className="mt-4 min-h-5 text-sm text-arom">
-        {notice}
-      </p>
-
-      {editor && (
-        <ContentForm
-          record={editor.record}
-          defaultType={activeType}
-          onSave={handleSave}
-          onClose={() => setEditor(null)}
-        />
-      )}
-      {lessonEditor && (
-        <LessonEditor
-          key={lessonEditor.id}
-          record={lessonEditor}
-          onClose={() => setLessonEditor(null)}
-        />
-      )}
-      {tipEditor && (
-        <TipEditor
-          key={tipEditor.id}
-          record={tipEditor}
-          onClose={() => setTipEditor(null)}
-        />
-      )}
-      {practiceEditor && (
-        <PracticeEditor
-          key={practiceEditor.id}
-          record={practiceEditor}
-          onClose={() => setPracticeEditor(null)}
-        />
-      )}
     </>
   );
 }

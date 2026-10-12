@@ -1,13 +1,10 @@
 'use client';
 
-import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { Plus, Trash2, ArrowUp, ArrowDown } from 'lucide-react';
 
-import { Plus, Trash2, ArrowUp, ArrowDown, X } from 'lucide-react';
-
-import { useAdmin } from './admin-provider';
 import { useLanguage } from '../../_components/language-provider';
 
-import type { AdminContent } from '../_data/content';
+import type { AdminLessonDetails } from '../_data/lesson-details';
 import type {
   LessonSection,
   ReferenceItem,
@@ -26,43 +23,36 @@ function splitLines(value: string) {
     .filter(Boolean);
 }
 
-function hasText(value: string | undefined) {
-  return Boolean(value?.trim());
-}
-
-export function LessonEditor({
-  record,
-  onClose,
+// Lesson sections and references. Controlled by the MindGuide editor page,
+// which owns saving, publishing and checks.
+export function LessonFields({
+  value,
+  onChange,
+  nextSectionId,
 }: {
-  record: AdminContent;
-  onClose: () => void;
+  value: AdminLessonDetails;
+  onChange: (next: AdminLessonDetails) => void;
+  // Section ids are never reused, even after a section is deleted.
+  nextSectionId: number;
 }) {
-  const { lessonDetails, saveLessonDetails } = useAdmin();
   const { language } = useLanguage();
-
   const km = language === 'km';
-  const dialogRef = useRef<HTMLDialogElement>(null);
 
-  const existing = lessonDetails.find(
-    (item) => item.sourceId === record.sourceId,
-  );
+  const { sections, references } = value;
 
-  const [sections, setSections] = useState<LessonSection[]>(() =>
-    structuredClone(existing?.sections ?? []),
-  );
+  function setSections(update: (current: LessonSection[]) => LessonSection[]) {
+    onChange({
+      ...value,
+      sections: update(value.sections).map((section, index) => ({
+        ...section,
+        sectionNumber: index + 1,
+      })),
+    });
+  }
 
-  const [references, setReferences] = useState<ReferenceItem[]>(() =>
-    structuredClone(existing?.references ?? []),
-  );
-
-  const [error, setError] = useState('');
-
-  useEffect(() => {
-    const dialog = dialogRef.current;
-    dialog?.showModal();
-
-    return () => dialog?.close();
-  }, []);
+  function setReferences(update: (current: ReferenceItem[]) => ReferenceItem[]) {
+    onChange({ ...value, references: update(value.references) });
+  }
 
   function updateSection(id: number, changes: Partial<LessonSection>) {
     setSections((current) =>
@@ -76,7 +66,7 @@ export function LessonEditor({
     setSections((current) => [
       ...current,
       {
-        id: Math.max(0, ...current.map((section) => section.id)) + 1,
+        id: Math.max(nextSectionId, ...current.map((section) => section.id + 1)),
         sectionNumber: current.length + 1,
         title: '',
         kmTitle: '',
@@ -146,144 +136,15 @@ export function LessonEditor({
     );
   }
 
-  function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
-    if (!sections.length) {
-      setError(
-        km
-          ? 'សូមបន្ថែមយ៉ាងហោចណាស់មួយផ្នែក។'
-          : 'Add at least one lesson section.',
-      );
-      return;
-    }
-
-    for (const section of sections) {
-      if (!hasText(section.title)) {
-        setError(
-          km ? 'សូមបំពេញចំណងជើងគ្រប់ផ្នែក។' : 'Every section needs a title.',
-        );
-        return;
-      }
-
-      if (
-        section.type !== 'quiz' &&
-        !section.paragraphs.some((paragraph) => paragraph.trim())
-      ) {
-        setError(
-          km
-            ? 'សូមបំពេញអត្ថបទក្នុងផ្នែកមេរៀន។'
-            : 'Each non-quiz section needs at least one paragraph.',
-        );
-        return;
-      }
-
-      if (section.type === 'quiz') {
-        const quiz = section.quiz;
-
-        if (
-          !quiz ||
-          !hasText(quiz.question) ||
-          !hasText(quiz.explanation) ||
-          quiz.options.length < 2 ||
-          quiz.options.some((option) => !hasText(option.text)) ||
-          quiz.options.filter((option) => option.isCorrect).length !== 1
-        ) {
-          setError(
-            km
-              ? 'សំណួរត្រូវមានចម្លើយយ៉ាងហោចណាស់ពីរ ចម្លើយត្រឹមត្រូវមួយ និងការពន្យល់។'
-              : 'Each quiz needs a question, explanation, at least two answers, and exactly one correct answer.',
-          );
-          return;
-        }
-      }
-    }
-
-    for (const reference of references) {
-      if (
-        !hasText(reference.citation) ||
-        !hasText(reference.source) ||
-        !hasText(reference.title)
-      ) {
-        setError(
-          km
-            ? 'សូមបំពេញព័ត៌មានឯកសារយោង។'
-            : 'Each reference needs a citation label, source, and title.',
-        );
-        return;
-      }
-
-      if (reference.url?.trim()) {
-        try {
-          const protocol = new URL(reference.url.trim()).protocol;
-
-          if (protocol !== 'https:' && protocol !== 'http:') {
-            throw new Error('Unsupported URL');
-          }
-        } catch {
-          setError(
-            km
-              ? 'សូមពិនិត្យតំណឯកសារយោង។'
-              : 'References must use valid HTTP or HTTPS URLs.',
-          );
-          return;
-        }
-      }
-    }
-
-    saveLessonDetails({
-      sourceId: record.sourceId,
-      sections: sections.map((section, index) => ({
-        ...section,
-        sectionNumber: index + 1,
-        title: section.title.trim(),
-        kmTitle: section.kmTitle?.trim() ?? '',
-      })),
-      references: references.map((reference) => ({
-        ...reference,
-        citation: reference.citation.trim(),
-        source: reference.source.trim(),
-        title: reference.title.trim(),
-        url: reference.url?.trim() || undefined,
-      })),
-    });
-
-    onClose();
-  }
-
   return (
-    <dialog
-      ref={dialogRef}
-      onCancel={onClose}
-      aria-labelledby="lesson-editor-title"
-      className="m-auto max-h-[90dvh] w-[calc(100%-2rem)] max-w-4xl overflow-y-auto rounded-3xl border border-arom-border bg-white p-6 text-ink shadow-card backdrop:bg-ink/35">
-      <header className="flex items-start justify-between gap-4">
-        <div>
-          <h2 id="lesson-editor-title" className="text-xl font-semibold">
-            {km ? 'កែសម្រួលមេរៀន' : 'Lesson editor'}
-          </h2>
-          <p className="mt-2 text-sm text-ink-muted">
-            {km && record.kmTitle ? record.kmTitle : record.title}
-          </p>
-        </div>
-
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label={km ? 'បិទ' : 'Close'}
-          className={smallButton}>
-          <X size={20} />
-        </button>
-      </header>
-
-      <form onSubmit={submit} className="mt-6">
+    <div>
         <p className="rounded-xl bg-arom-wash p-3 text-xs leading-5 text-ink-muted">
           {km
             ? 'បញ្ចូលអត្ថបទមួយកថាខណ្ឌក្នុងមួយបន្ទាត់។'
-            : 'Enter one paragraph per line. Changes stay in the admin demo.'}
+            : 'Enter one paragraph per line.'}
         </p>
 
-        <div className="mt-5 space-y-5">
+        <div id="cf-items" tabIndex={-1} className="mt-5 space-y-5">
           {sections.map((section, index) => (
             <section
               key={section.id}
@@ -332,7 +193,7 @@ export function LessonEditor({
                 <label className="text-sm">
                   {km ? 'ចំណងជើងជាភាសាអង់គ្លេស' : 'Title (English)'} *
                   <input
-                    required
+                    id={`cf-section-${section.id}-title`}
                     maxLength={200}
                     value={section.title}
                     onChange={(event) =>
@@ -347,6 +208,7 @@ export function LessonEditor({
                 <label className="text-sm">
                   {km ? 'ចំណងជើងជាភាសាខ្មែរ' : 'Title (Khmer)'}
                   <input
+                    id={`cf-section-${section.id}-kmTitle`}
                     maxLength={250}
                     value={section.kmTitle ?? ''}
                     onChange={(event) =>
@@ -361,6 +223,7 @@ export function LessonEditor({
                 <label className="text-sm">
                   {km ? 'អត្ថបទជាភាសាអង់គ្លេស' : 'Paragraphs (English)'}
                   <textarea
+                    id={`cf-section-${section.id}-paragraphs`}
                     key={`paragraphs-en-${section.id}`}
                     rows={5}
                     defaultValue={section.paragraphs.join('\n')}
@@ -423,7 +286,7 @@ export function LessonEditor({
                     <label className="text-sm">
                       {km ? 'សំណួរជាភាសាអង់គ្លេស' : 'Question (English)'} *
                       <input
-                        required
+                        id={`cf-section-${section.id}-quiz-question`}
                         value={section.quiz.question}
                         onChange={(event) =>
                           updateQuiz(section, {
@@ -448,7 +311,10 @@ export function LessonEditor({
                     </label>
                   </div>
 
-                  <fieldset className="mt-5 space-y-3">
+                  <fieldset
+                    id={`cf-section-${section.id}-quiz-options`}
+                    tabIndex={-1}
+                    className="mt-5 space-y-3">
                     <legend className="text-sm font-medium">
                       {km ? 'ជម្រើសចម្លើយ' : 'Answer options'}
                     </legend>
@@ -480,7 +346,6 @@ export function LessonEditor({
                           <label className="text-xs">
                             English *
                             <input
-                              required
                               value={option.text}
                               onChange={(event) =>
                                 updateQuiz(section, {
@@ -553,7 +418,7 @@ export function LessonEditor({
                       {km ? 'ការពន្យល់ជាភាសាអង់គ្លេស' : 'Explanation (English)'}{' '}
                       *
                       <textarea
-                        required
+                        id={`cf-section-${section.id}-quiz-explanation`}
                         rows={3}
                         value={section.quiz.explanation}
                         onChange={(event) =>
@@ -621,12 +486,13 @@ export function LessonEditor({
           {references.map((reference) => (
             <div
               key={reference.id}
+              id={`cf-reference-${reference.id}`}
+              tabIndex={-1}
               className="mt-4 rounded-xl border border-arom-border p-4">
               <div className="grid gap-3 sm:grid-cols-2">
                 <label className="text-sm">
                   {km ? 'ស្លាកយោង' : 'Citation label'} *
                   <input
-                    required
                     placeholder="[1]"
                     value={reference.citation}
                     onChange={(event) =>
@@ -641,7 +507,6 @@ export function LessonEditor({
                 <label className="text-sm">
                   {km ? 'ប្រភព' : 'Source'} *
                   <input
-                    required
                     value={reference.source}
                     onChange={(event) =>
                       updateReference(reference.id, {
@@ -655,7 +520,6 @@ export function LessonEditor({
                 <label className="text-sm sm:col-span-2">
                   {km ? 'ចំណងជើង' : 'Title'} *
                   <input
-                    required
                     value={reference.title}
                     onChange={(event) =>
                       updateReference(reference.id, {
@@ -725,27 +589,6 @@ export function LessonEditor({
           </button>
         </section>
 
-        {error && (
-          <p role="alert" className="mt-5 text-sm text-arom-danger">
-            {error}
-          </p>
-        )}
-
-        <footer className="mt-6 flex justify-end gap-3 border-t border-arom-border pt-5">
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-full border border-arom-border px-5 py-2.5 text-sm">
-            {km ? 'បោះបង់' : 'Cancel'}
-          </button>
-
-          <button
-            type="submit"
-            className="rounded-full bg-arom px-5 py-2.5 text-sm text-white hover:bg-arom-deep">
-            {km ? 'រក្សាទុកមេរៀន' : 'Save lesson'}
-          </button>
-        </footer>
-      </form>
-    </dialog>
+    </div>
   );
 }

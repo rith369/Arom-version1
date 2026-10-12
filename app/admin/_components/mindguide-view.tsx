@@ -11,7 +11,7 @@ import { useLanguage } from '../../_components/language-provider';
 import type { MindGuideTab } from '../_data/mindguide';
 
 export function MindGuideView({ initialTab }: { initialTab: MindGuideTab }) {
-  const { content, podcasts } = useAdmin();
+  const { contentRecords, podcasts } = useAdmin();
   const { language } = useLanguage();
   const km = language === 'km';
   const t = (kmText: string, enText: string) => (km ? kmText : enText);
@@ -57,7 +57,7 @@ export function MindGuideView({ initialTab }: { initialTab: MindGuideTab }) {
           const count =
             value === 'podcast'
               ? podcasts.length
-              : content.filter((item) => item.type === value).length;
+              : contentRecords.filter((item) => item.type === value).length;
 
           return (
             <button

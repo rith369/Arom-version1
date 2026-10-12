@@ -1,13 +1,9 @@
 'use client';
 
-import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { Plus, Trash2, ArrowUp, ArrowDown } from 'lucide-react';
 
-import { Plus, Trash2, ArrowUp, ArrowDown, X } from 'lucide-react';
-
-import { useAdmin } from './admin-provider';
 import { useLanguage } from '../../_components/language-provider';
 
-import type { AdminContent } from '../_data/content';
 import type {
   AdminPracticeDetails,
   PracticeInstruction,
@@ -27,48 +23,24 @@ type BreathingNumberField =
   | 'exhaleSeconds'
   | 'cycles';
 
-function emptyDetails(sourceId: string): AdminPracticeDetails {
-  return {
-    sourceId,
-    instructions: [],
-    breathing: {
-      enabled: false,
-      inhaleSeconds: 4,
-      holdSeconds: 0,
-      exhaleSeconds: 4,
-      cycles: 5,
-    },
-  };
-}
-
-export function PracticeEditor({
-  record,
-  onClose,
+// Practice instructions and breathing settings. Controlled by the MindGuide
+// editor page, which owns saving, publishing and checks.
+export function PracticeFields({
+  value,
+  onChange,
 }: {
-  record: AdminContent;
-  onClose: () => void;
+  value: AdminPracticeDetails;
+  onChange: (next: AdminPracticeDetails) => void;
 }) {
-  const { practiceDetails, savePracticeDetails } = useAdmin();
   const { language } = useLanguage();
-
   const km = language === 'km';
-  const dialogRef = useRef<HTMLDialogElement>(null);
+  const draft = value;
 
-  const [draft, setDraft] = useState<AdminPracticeDetails>(() => {
-    const existing = practiceDetails.find(
-      (item) => item.sourceId === record.sourceId,
-    );
-
-    return structuredClone(existing ?? emptyDetails(record.sourceId));
-  });
-
-  const [error, setError] = useState('');
-
-  useEffect(() => {
-    const dialog = dialogRef.current;
-    dialog?.showModal();
-    return () => dialog?.close();
-  }, []);
+  function setDraft(
+    update: (current: AdminPracticeDetails) => AdminPracticeDetails,
+  ) {
+    onChange(update(value));
+  }
 
   function updateInstruction(
     id: string,
@@ -80,7 +52,6 @@ export function PracticeEditor({
         item.id === id ? { ...item, ...changes } : item,
       ),
     }));
-    setError('');
   }
 
   function addInstruction() {
@@ -97,7 +68,6 @@ export function PracticeEditor({
         },
       ],
     }));
-    setError('');
   }
 
   function moveInstruction(index: number, direction: -1 | 1) {
@@ -127,64 +97,6 @@ export function PracticeEditor({
         [field]: value,
       },
     }));
-    setError('');
-  }
-
-  function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
-    if (
-      !draft.instructions.length ||
-      draft.instructions.some((item) => !item.title.trim() || !item.body.trim())
-    ) {
-      setError(
-        km
-          ? 'សូមបន្ថែមការណែនាំ ហើយបំពេញចំណងជើង និងអត្ថបទជាភាសាអង់គ្លេស។'
-          : 'Add at least one instruction with an English title and body.',
-      );
-      return;
-    }
-
-    if (draft.breathing.enabled) {
-      const { inhaleSeconds, holdSeconds, exhaleSeconds, cycles } =
-        draft.breathing;
-
-      const valid =
-        Number.isInteger(inhaleSeconds) &&
-        inhaleSeconds >= 1 &&
-        inhaleSeconds <= 30 &&
-        Number.isInteger(holdSeconds) &&
-        holdSeconds >= 0 &&
-        holdSeconds <= 30 &&
-        Number.isInteger(exhaleSeconds) &&
-        exhaleSeconds >= 1 &&
-        exhaleSeconds <= 30 &&
-        Number.isInteger(cycles) &&
-        cycles >= 1 &&
-        cycles <= 100;
-
-      if (!valid) {
-        setError(
-          km
-            ? 'សូមបញ្ចូលតម្លៃហាត់ដកដង្ហើមជាចំនួនគត់ក្នុងដែនកំណត់។'
-            : 'Enter whole numbers within the breathing settings limits.',
-        );
-        return;
-      }
-    }
-
-    savePracticeDetails({
-      ...draft,
-      instructions: draft.instructions.map((item) => ({
-        ...item,
-        title: item.title.trim(),
-        kmTitle: item.kmTitle.trim(),
-        body: item.body.trim(),
-        kmBody: item.kmBody.trim(),
-      })),
-    });
-
-    onClose();
   }
 
   const instructionFields: {
@@ -258,33 +170,8 @@ export function PracticeEditor({
     draft.breathing.cycles;
 
   return (
-    <dialog
-      ref={dialogRef}
-      onCancel={onClose}
-      aria-labelledby="practice-editor-title"
-      className="m-auto max-h-[90dvh] w-[calc(100%-2rem)] max-w-3xl overflow-y-auto rounded-3xl border border-arom-border bg-white p-6 text-ink shadow-card backdrop:bg-ink/35">
-      <header className="flex items-start justify-between gap-4">
-        <div>
-          <h2 id="practice-editor-title" className="text-xl font-semibold">
-            {km ? 'កែសម្រួលការអនុវត្ត' : 'Practice editor'}
-          </h2>
-
-          <p className="mt-2 text-sm text-ink-muted">
-            {km && record.kmTitle ? record.kmTitle : record.title}
-          </p>
-        </div>
-
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label={km ? 'បិទ' : 'Close'}
-          className={iconButtonClass}>
-          <X size={20} />
-        </button>
-      </header>
-
-      <form onSubmit={submit} className="mt-6">
-        <div className="space-y-5">
+    <div>
+        <div id="cf-items" tabIndex={-1} className="space-y-5">
           {draft.instructions.map((instruction, index) => (
             <section
               key={instruction.id}
@@ -336,7 +223,7 @@ export function PracticeEditor({
                     {field.label} {field.required ? '*' : ''}
                     {field.multiline ? (
                       <textarea
-                        required={field.required}
+                        id={`cf-instruction-${instruction.id}-${field.key}`}
                         rows={4}
                         maxLength={3000}
                         value={instruction[field.key]}
@@ -349,7 +236,7 @@ export function PracticeEditor({
                       />
                     ) : (
                       <input
-                        required={field.required}
+                        id={`cf-instruction-${instruction.id}-${field.key}`}
                         maxLength={200}
                         value={instruction[field.key]}
                         onChange={(event) =>
@@ -384,7 +271,7 @@ export function PracticeEditor({
         </button>
 
         <section className="mt-7 border-t border-arom-border pt-5">
-          <h3 className="text-lg font-semibold">
+          <h3 id="cf-breathing" tabIndex={-1} className="text-lg font-semibold">
             {km ? 'ការកំណត់ដកដង្ហើម' : 'Breathing settings'}
           </h3>
 
@@ -400,8 +287,7 @@ export function PracticeEditor({
                     enabled: event.target.checked,
                   },
                 }));
-                setError('');
-              }}
+                          }}
               className="accent-arom"
             />
             {km ? 'ប្រើវដ្តហាត់ដកដង្ហើម' : 'Enable breathing cycles'}
@@ -415,7 +301,6 @@ export function PracticeEditor({
                     {field.label} *
                     <input
                       type="number"
-                      required
                       min={field.min}
                       max={field.max}
                       step={1}
@@ -437,39 +322,12 @@ export function PracticeEditor({
                 {km ? 'រយៈពេលវដ្តសរុប' : 'Total cycle time'}:{' '}
                 {Number.isFinite(totalSeconds)
                   ? `${totalSeconds} ${km ? 'វិនាទី' : 'seconds'}`
-                  : '—'}
+                  : km ? 'មិនទាន់កំណត់' : 'Not set'}
               </p>
             </>
           )}
         </section>
 
-        <p className="mt-5 rounded-xl bg-arom-wash p-3 text-xs leading-5 text-ink-muted">
-          {km
-            ? 'ការកំណត់ទាំងនេះសម្រាប់ទិន្នន័យសាកល្បង។ មិនទាន់ភ្ជាប់ទៅការអនុវត្តសាធារណៈ។'
-            : 'These settings are for the admin demo. They do not change the public exercise or its listed duration yet.'}
-        </p>
-
-        {error && (
-          <p role="alert" className="mt-5 text-sm text-arom-danger">
-            {error}
-          </p>
-        )}
-
-        <footer className="mt-6 flex justify-end gap-3 border-t border-arom-border pt-5">
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-full border border-arom-border px-5 py-2.5 text-sm">
-            {km ? 'បោះបង់' : 'Cancel'}
-          </button>
-
-          <button
-            type="submit"
-            className="rounded-full bg-arom px-5 py-2.5 text-sm text-white hover:bg-arom-deep">
-            {km ? 'រក្សាទុកការអនុវត្ត' : 'Save practice'}
-          </button>
-        </footer>
-      </form>
-    </dialog>
+    </div>
   );
 }

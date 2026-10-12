@@ -7,6 +7,45 @@ A plain-language log of what changed in the app, written for the team rather tha
 
 Each entry lists the commit it landed in, so you can match it to a version of the site.
 
+## 13 Oct 2026: MindGuide Editor With Drafts, Publishing, Version History and Checks
+
+Commit pending. No migration yet. Frontend only, on mock data.
+
+**Why.** Lessons, tips and practices are written and designed by the team with Claude. Admins only need to fix mistakes, but before this change every save went straight to "live" with no history, no review and no way to undo. On a mental health app, a half finished or broken lesson must never reach users, and every live text needs a responsible admin.
+
+**What changed for users (admins):**
+- **One Edit button per item** in the MindGuide list, which opens a full editor page instead of three separate popups.
+- **Status chips:** Live, Live with a draft, Not published, Hidden. The list also shows the live version number and who changed it last and when.
+- **Edits are drafts first.** "Save draft" keeps work without users seeing it. "Undo changes" goes back to the last saved state.
+- **Publish with a confirm step** that lists exactly what will change (for example "Title (Khmer)" or "Sections: 1 edited") and the new version number.
+- **Checks panel.** Lists problems such as a missing title, a quiz without exactly one correct answer, or a step without instructions. Tapping a problem jumps to that field. Problems block Publish but not Save draft. Missing Khmer text shows as a warning that does not block.
+- **Version history** with who published each version and when, and "Restore as draft" on any old version.
+- **Hide from users and Discard draft** take two taps. Items that were never published can be deleted.
+- **Warning before leaving** the editor with unsaved changes (closing the tab, refreshing or clicking a link).
+- **New items** open straight in the editor as a draft.
+
+**What changed for the team:**
+- **New data model** in `app/admin/_data/content.ts`: `ContentRecord` with `versions` (never changed once published), one optional `draft`, and `liveVersion` (null means hidden or never published). Seed items that were available start as version 1 by "AROM team"; the rest start as drafts.
+- **Sokheng's three editors are now field panels** (`LessonFields`, `TipFields`, `PracticeFields`) plus `ContentMetaFields`. All fields stayed the same; the popup, Save button and validation moved to the editor page. `content-form.tsx` was removed.
+- **Publish rules** live in `content-checks.ts`; the change summary in `content-diff.ts`.
+- **No overwrite rule:** save and publish pass the draft time the editor loaded and refuse with `stale` if another admin saved in between.
+- **Lesson section ids are never reused,** so future "Report a problem" links to a section stay correct.
+- **`BACKEND-HANDOFF.md` section 9** describes tables, actions, hint codes and rules for Hok Chheng.
+- **Users still see the content from the code files.** Publishing changes the admin view only until the backend is connected.
+
+**What to re-test:**
+- Open MindGuide as admin and confirm status chips, version numbers and "Last change" show on Lessons, Tips and Practices;
+- Edit a live lesson title, confirm "Unsaved changes", try clicking the MindGuide back link and confirm the warning appears;
+- Save draft, confirm the chip becomes "Live, has draft"; press Publish and confirm the dialog lists "Title (English)" and version 2; publish and confirm the chip is "Live" and history shows version 2 by you;
+- Clear a section title and confirm Checks shows the problem, tapping it jumps to the field and Publish is disabled;
+- Open a practice (no instructions yet) and confirm Checks lists "Add at least one instruction";
+- In Version history restore version 1, confirm the fields change back and the item has a draft;
+- Hide a live item with two taps, confirm the chip is "Hidden", then show it again;
+- Add a new tip, confirm the editor opens, then delete it with two taps and confirm you return to the list;
+- Switch to Khmer and check the editor labels, checks and dialogs.
+
+---
+
 ## 12 Oct 2026: Admin Panel Link and Admins Land on the Admin Panel After Login
 
 Commit `bceb0cb`. No migration.

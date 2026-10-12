@@ -46,8 +46,9 @@ The yellow "Demo data on this page" banner is in `admin-shell.tsx`. Remove it fo
 | Admin users: list, details, roles, suspend | Done on mock data | Waiting for backend | 5 |
 | Admin professionals: review and moderation | Done on mock data | Waiting for backend | 6 |
 | Become a professional (user applies) | Done on mock data | Waiting for backend | 8 |
-| Professional edits own profile (`/pro`) | Not built yet | Not started | 9 |
-| Admin MindGuide: lessons, tips, practices and podcasts in one page (`/admin/mindguide?tab=lesson\|tip\|practice\|podcast`). Old `/admin/content` and `/admin/podcasts` redirect here | Built by Sokheng on mock data, merged into one page by Rith | Not started | not written yet |
+| Professional edits own profile (`/pro`) | Not built yet | Not started | 10 |
+| Admin MindGuide: lessons, tips and practices with drafts, versions, publish and checks (`/admin/mindguide`, editor at `/admin/mindguide/<type>/<sourceId>`) | Done on mock data | Waiting for backend | 9 |
+| Admin MindGuide podcasts tab | Built by Sokheng on mock data | Not started | not written yet |
 | Other admin pages (bookings, community, journal prompts, settings, audit log) | Built by Sokheng on mock data | Not started | not written yet |
 
 ## 5. Admin users page
@@ -204,7 +205,54 @@ Validation lives in `createApplicationSchema()` in `_data/application.ts`. Repea
 4. **Get own application** endpoint returning only the caller's rows.
 5. **Admin review** already exists (`POST /api/admin/applications/:id/review`). The admin Professionals page now also shows `phone` and `telegram` in the review panel, so include them in `GET /api/admin/applications`.
 
-## 9. Planned next (frontend not built yet)
+## 9. MindGuide content: drafts, versions and publishing
+
+**Files:** `app/admin/_data/content.ts` (types, seed, helpers), `_data/content-checks.ts` (publish rules), `_data/content-diff.ts` (change summary), `_components/content-editor.tsx` (editor page), `content-view.tsx` (list), field panels `content-meta-fields.tsx`, `lesson-editor.tsx` (`LessonFields`), `tip-editor.tsx` (`TipFields`), `practice-editor.tsx` (`PracticeFields`). Actions live in `admin-provider.tsx`.
+
+**Decided:** content is written and designed by the team with Claude and lives in fixed user screens. Admins only correct text in plain fields. No HTML, no styling, no AI button in the app. A new kind of block (new layout) is developer work in both the user screen and the editor.
+
+### Data shape
+
+One item is a `ContentRecord`:
+
+| Field | Meaning | Suggested database |
+|---|---|---|
+| `id` | `<type>:<sourceId>` | primary key (`kind`, `key`) of `content_items` |
+| `type` | `'lesson' \| 'tip' \| 'practice'` | `kind` |
+| `sourceId` | slug or uuid, used in the editor URL | `key` |
+| `liveVersion` | number shown to users, or `null` when never published or hidden | `content_items.version` |
+| `versions[]` | `{ version, body, publishedAt, publishedBy }`. Never changed once written | `content_versions` (`body jsonb`) |
+| `draft` | `{ body, baseVersion, updatedAt, updatedBy }` or `null`. At most one | `content_drafts` (`body jsonb`) |
+
+`body` is `ContentBody`: `{ type, meta, details }`. `meta` is `ContentMeta` (title, kmTitle, description, kmDescription, category, duration, difficulty, image). `details` is `AdminLessonDetails`, `AdminTipDetails` or `AdminPracticeDetails` from the `_data/*-details.ts` files. Keep these TypeScript types as the JSON contract.
+
+Status shown in the list comes from `getPublishState()`: `live`, `liveDraft` (live and has a draft), `notPublished` (no versions), `hidden` (has versions but `liveVersion` is null).
+
+**Ids are never reused.** Lesson section ids are numbers; a new section gets one more than the highest id in any version, the draft or the editor. Tip step and practice instruction ids are uuids. User reports will point at `<type>:<sourceId>#<id>`.
+
+### Actions (all admin only, all through `security definer` functions)
+
+| Frontend action | Meaning | Hint codes |
+|---|---|---|
+| `createContent(type)` | New item with an empty draft, then open the editor | none |
+| `saveContentDraft(id, body, expectedUpdatedAt)` | Save the draft. Light check only (unique ids), so half finished work can be saved | `stale`, `shape` |
+| `publishContent(id, expectedUpdatedAt)` | Run the full check in the database, write version N+1 from the saved draft, delete the draft, set it live | `stale`, `shape` |
+| `discardContentDraft(id)` | Delete the draft. Live version stays | none |
+| `deleteContent(id)` | Only for items that were never published | none |
+| `setContentHidden(id, hidden)` | Hide: set `liveVersion` to null. Show: set it to the newest version | none |
+| `restoreContentVersion(id, version)` | Copy that version into the draft. Returns the new draft `updatedAt` | none |
+
+The return type is `ContentActionResult`: `{ ok: true, updatedAt }` or `{ ok: false, code: 'stale' | 'shape' }`. Also return `not_admin` from the backend; the editor will show it as an error.
+
+**No overwrite rule.** Save and Publish send the draft `updatedAt` the editor loaded (`null` when there was no draft). If the database value differs, refuse with `stale` and change nothing.
+
+**Publish rules.** Publish publishes exactly the saved draft (the editor blocks Publish while there are unsaved changes). Repeat the rules of `checkForPublish()` in the database: errors block publishing, warnings (missing Khmer text) do not. Record `published_by` and `published_at` on every version and `updated_by` on drafts.
+
+### Still frontend only
+
+The user app still reads lessons, tips and practices from `app/_components/learn/learn-data.ts`, `tips/tips-data.ts` and `practice/practice-data.ts`. Publishing in the admin does not change what users see yet. When connected: download a small manifest of live items once per app open, download a body by (type, key, version) when opened, and cache published versions forever because they never change.
+
+## 10. Planned next (frontend not built yet)
 
 - **Professional profile editor under `/pro`.** Uses the pending changes rule in section 6.
 - **Make professional (Way 2):** phone is optional there because the admin already knows the person. Add an optional phone field to `ProfessionalPromotion` when the backend supports it.
