@@ -46,10 +46,10 @@ The yellow "Demo data on this page" banner is in `admin-shell.tsx`. Remove it fo
 | Admin users: list, details, roles, suspend | Done on mock data | Waiting for backend | 5 |
 | Admin professionals: review and moderation | Done on mock data | Waiting for backend | 6 |
 | Become a professional (user applies) | Done on mock data | Waiting for backend | 8 |
-| Professional edits own profile (`/pro`) | Not built yet | Not started | 11 |
+| Professional edits own profile (`/pro`) | Not built yet | Not started | 12 |
 | Admin MindGuide: lessons, tips and practices with drafts, versions, publish and checks (`/admin/mindguide`, editor at `/admin/mindguide/<type>/<sourceId>`) | Done on mock data | Waiting for backend | 9 |
 | Report a problem (users) and admin Reports page (`/admin/reports`) | Done on mock data | Waiting for backend | 10 |
-| Admin MindGuide podcasts tab | Built by Sokheng on mock data | Not started | not written yet |
+| MindGuide podcasts: user pages `/podcasts` and `/podcasts/<id>`, admin Podcasts tab | Done on mock data | Waiting for backend | 11 |
 | Other admin pages (bookings, community, journal prompts, settings, audit log) | Built by Sokheng on mock data | Not started | not written yet |
 
 ## 5. Admin users page
@@ -161,6 +161,7 @@ Do not change these without asking Rith.
 - **Professionals edit their own profile.** Admins review and moderate only.
 - **Admins never see private wellbeing content.** Counts only.
 - **AROM has no "Owner" role.** Only `user`, `professional`, `admin`.
+- **Two kinds of podcasts.** MindGuide podcasts are made by admins and shown in MindGuide. Professional podcasts are published by professionals themselves on their own profile so users can listen before booking. They are separate lists.
 
 ## 8. Become a professional (user applies)
 
@@ -285,7 +286,33 @@ The user app still reads lessons, tips and practices from `app/_components/learn
 - **Edit link** opens `/admin/mindguide/<type>/<sourceId>?part=<partId>` and jumps to that section.
 - **Mock today:** the user side only counts reports in the browser to show the daily limit message. Nothing reaches the admin page yet; the admin page uses its own mock reports.
 
-## 11. Planned next (frontend not built yet)
+## 11. MindGuide podcasts
+
+**Files:** user side `app/_components/podcasts/podcast-data.ts` (type, sample episodes), `podcast-player.tsx`, `podcasts-views.tsx`, routes `app/podcasts/page.tsx` and `app/podcasts/[id]/page.tsx`. The MindGuide home "Podcast" icon links to `/podcasts`. Admin side `app/admin/_data/podcasts.ts`, Sokheng's `podcasts-view.tsx` (MindGuide page, Podcasts tab).
+
+**Decided:** these are AROM team podcasts made by admins. They are not the professional podcasts in `lib/therapists.ts`, which professionals will manage from `/pro`.
+
+### Data shape (`MindGuidePodcast`)
+
+| Field | Type | Notes |
+|---|---|---|
+| `id` | slug | used in `/podcasts/<id>` |
+| `title`, `kmTitle`, `description`, `kmDescription`, `topic`, `kmTopic` | string | |
+| `durationSeconds` | number | the player uses the real file length once loaded |
+| `audioUrl` | HTTPS URL or empty | empty shows "audio coming soon" and the admin cannot publish |
+| `publishedDate` | `YYYY-MM-DD` | |
+| `guestProfessionalId` | professional slug or empty | optional; only verified, active professionals can be picked |
+| `takeaways` | `{ en, km }[]` | key points under the player |
+| `chapters` | `{ id, seconds, title, kmTitle }[]` | the admin form edits them as `MM:SS` text; convert to seconds |
+
+### Backend gaps
+
+1. **Table and storage** for MindGuide podcasts and their audio files (public bucket is fine for published audio; keep drafts private).
+2. **Only published episodes** are returned to users. Admin only writes.
+3. **Admin form fields not covered yet:** takeaways. Add them to the form when the backend exists.
+4. **Report a problem** is not on podcast pages yet; adding it needs `podcast` as a report target type.
+
+## 12. Planned next (frontend not built yet)
 
 - **Professional profile editor under `/pro`.** Uses the pending changes rule in section 6.
 - **Make professional (Way 2):** phone is optional there because the admin already knows the person. Add an optional phone field to `ProfessionalPromotion` when the backend supports it.

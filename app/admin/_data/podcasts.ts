@@ -1,10 +1,17 @@
-import { therapists } from '../../../lib/therapists';
+import {
+  MINDGUIDE_PODCASTS,
+  formatDuration,
+  formatTimestamp,
+} from '../../_components/podcasts/podcast-data';
 
+// MindGuide podcasts made by admins. Professional podcasts on profiles are
+// published by the professionals themselves and are not managed here.
 export type PodcastStatus = 'draft' | 'published' | 'archived';
 
 export type AdminPodcast = {
   id: string;
-  professionalId: string;
+  // Optional guest from the professional directory. Empty means no guest.
+  guestProfessionalId: string;
   title: string;
   kmTitle: string;
   description: string;
@@ -22,33 +29,23 @@ export type AdminPodcast = {
   }[];
 };
 
-export const initialPodcasts: AdminPodcast[] = therapists.flatMap(
-  (professional) => {
-    const podcast = professional.podcast;
-
-    if (!podcast) return [];
-
-    return [
-      {
-        id: podcast.id,
-        professionalId: professional.slug,
-        title: podcast.title,
-        kmTitle: podcast.kmTitle,
-        description: podcast.description,
-        kmDescription: podcast.kmDescription,
-        topic: podcast.topic,
-        duration: podcast.duration,
-        audioUrl: '',
-        // Existing display dates are not necessarily YYYY-MM-DD.
-        publishedDate: '',
-        status: 'draft',
-        chapters: podcast.chapters.map((chapter, index) => ({
-          id: `${podcast.id}-chapter-${index}`,
-          timestamp: chapter.timestamp,
-          title: chapter.title,
-          kmTitle: chapter.kmTitle,
-        })),
-      },
-    ];
-  },
-);
+export const initialPodcasts: AdminPodcast[] = MINDGUIDE_PODCASTS.map((podcast) => ({
+  id: podcast.id,
+  guestProfessionalId: podcast.guestProfessionalId,
+  title: podcast.title,
+  kmTitle: podcast.kmTitle,
+  description: podcast.description,
+  kmDescription: podcast.kmDescription,
+  topic: podcast.topic,
+  duration: formatDuration(podcast.durationSeconds, false),
+  audioUrl: podcast.audioUrl,
+  publishedDate: podcast.publishedDate,
+  // No audio file yet, so they cannot be published.
+  status: podcast.audioUrl ? 'published' : 'draft',
+  chapters: podcast.chapters.map((chapter) => ({
+    id: `${podcast.id}-${chapter.id}`,
+    timestamp: formatTimestamp(chapter.seconds),
+    title: chapter.title,
+    kmTitle: chapter.kmTitle,
+  })),
+}));

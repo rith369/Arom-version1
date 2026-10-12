@@ -577,6 +577,18 @@ export function MindGuideHome() {
                 );
               }
 
+              if (category.label === "Podcast") {
+                return (
+                  <Link
+                    key={category.label}
+                    href="/podcasts"
+                    className="group flex min-w-0 flex-col items-center rounded-2xl py-1 text-center focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-arom"
+                  >
+                    {categoryContent}
+                  </Link>
+                );
+              }
+
               if (category.label === "Tips") {
                 return (
                   <Link

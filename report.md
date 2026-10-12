@@ -7,6 +7,38 @@ A plain-language log of what changed in the app, written for the team rather tha
 
 Each entry lists the commit it landed in, so you can match it to a version of the site.
 
+## 13 Oct 2026: MindGuide Podcasts for Users, and Admin Podcasts Separate From Professional Podcasts
+
+Commit pending. No migration yet. Frontend only, on sample episodes.
+
+**Why.** AROM has two kinds of podcasts. Professionals publish their own on their profile so users can hear them before booking. The AROM team also makes general podcasts for MindGuide. Before this change the MindGuide "Podcast" icon went nowhere, and the admin Podcasts tab required every episode to belong to a professional.
+
+**What changed for users:**
+- **The MindGuide "Podcast" icon now opens a Podcasts page** (`/podcasts`) listing AROM team episodes with topic, length, guest and date.
+- **Episode page** with a calm audio player: play and pause, 15 seconds back and forward, a position slider, speed 1x, 1.25x and 1.5x, and a chapter list that jumps to each part.
+- **Key points** under the player, and a guest card that links to the professional's profile when a professional joined the episode.
+- **Before audio files are added,** the page says the audio is coming soon and the description, chapters and key points can still be read.
+- **Khmer and English** for every label and episode text.
+
+**What changed for admins:**
+- **MindGuide, Podcasts tab** now holds the AROM team episodes. "Professional" became an optional **"Guest professional"**, and only verified, active professionals can be picked.
+- **A note on the tab** explains that podcasts on professional profiles are managed by the professionals themselves.
+
+**What changed for the team:**
+- **New files:** `app/_components/podcasts/` (data, player, views) and routes `app/podcasts/`.
+- **`AdminPodcast.professionalId` is now `guestProfessionalId`** and can be empty. Admin podcasts are seeded from the same sample episodes users see.
+- **Three sample episodes** were written as placeholders. Replace them with real episodes and audio.
+- **`BACKEND-HANDOFF.md` section 11** has the data shape and backend gaps.
+
+**What to re-test:**
+- Open MindGuide and tap the Podcast icon; confirm three episodes show, newest first;
+- Open "Why stress shows up in your body"; confirm the "audio coming soon" note, chapters, key points and the guest card for Dr. Sopheap Chan with a working profile link;
+- In the admin, add a real HTTPS audio URL to an episode and confirm the form accepts it (users will hear it once the backend is connected);
+- In the admin Podcasts tab, open an episode and confirm the guest list only shows verified, active professionals and "No guest" is allowed;
+- Switch to Khmer on the podcasts list and an episode page.
+
+---
+
 ## 13 Oct 2026: Report a Problem on MindGuide Content and an Admin Reports Page
 
 Commit `b8b77d3`. No migration yet. Frontend only, on mock data.

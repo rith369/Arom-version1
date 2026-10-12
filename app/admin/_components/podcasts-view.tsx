@@ -39,6 +39,12 @@ function PodcastForm({
   const { language } = useLanguage();
   const km = language === 'km';
 
+  // Only professionals users can find in the directory can appear as guests.
+  const guestOptions = professionals.filter(
+    (item) =>
+      item.verificationStatus === 'verified' && item.accountStatus === 'active',
+  );
+
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [chapters, setChapters] = useState(
     record?.chapters.map((chapter) => ({ ...chapter })) ?? [],
@@ -71,7 +77,7 @@ function PodcastForm({
 
     const title = text('title');
     const description = text('description');
-    const professionalId = text('professionalId');
+    const guestProfessionalId = text('guestProfessionalId');
     const topic = text('topic');
     const duration = text('duration');
     const audioUrl = text('audioUrl');
@@ -90,12 +96,13 @@ function PodcastForm({
       !description ||
       !topic ||
       !duration ||
-      !professionals.some((item) => item.id === professionalId)
+      (guestProfessionalId &&
+        !professionals.some((item) => item.id === guestProfessionalId))
     ) {
       setError(
         km
           ? 'សូមបំពេញព័ត៌មានចាំបាច់ទាំងអស់។'
-          : 'Complete all required fields and choose a professional.',
+          : 'Complete all required fields.',
       );
       return;
     }
@@ -146,7 +153,7 @@ function PodcastForm({
 
     onSave({
       id: record?.id ?? crypto.randomUUID(),
-      professionalId,
+      guestProfessionalId,
       title,
       kmTitle: text('kmTitle'),
       description,
@@ -189,16 +196,15 @@ function PodcastForm({
 
         <div className="grid gap-5 p-6 sm:grid-cols-2">
           <label className="text-sm font-medium sm:col-span-2">
-            {km ? 'អ្នកជំនាញ' : 'Professional'} *
+            {km ? 'ភ្ញៀវជាអ្នកជំនាញ (ស្រេចចិត្ត)' : 'Guest professional (optional)'}
             <select
-              name="professionalId"
-              required
-              defaultValue={record?.professionalId ?? ''}
+              name="guestProfessionalId"
+              defaultValue={record?.guestProfessionalId ?? ''}
               className={fieldClass}>
               <option value="">
-                {km ? 'ជ្រើសរើសអ្នកជំនាញ' : 'Choose a professional'}
+                {km ? 'គ្មានភ្ញៀវ' : 'No guest'}
               </option>
-              {professionals.map((professional) => (
+              {guestOptions.map((professional) => (
                 <option key={professional.id} value={professional.id}>
                   {km && professional.kmName
                     ? professional.kmName
@@ -453,7 +459,7 @@ export function PodcastsView() {
   function professionalName(id: string) {
     const professional = professionals.find((item) => item.id === id);
 
-    if (!professional) return km ? 'មិនមានអ្នកជំនាញ' : 'Unassigned';
+    if (!professional) return km ? 'គ្មានភ្ញៀវ' : 'No guest';
 
     return km && professional.kmName ? professional.kmName : professional.name;
   }
@@ -463,7 +469,7 @@ export function PodcastsView() {
   const visible = podcasts.filter(
     (item) =>
       (status === 'all' || item.status === status) &&
-      `${item.title} ${item.kmTitle} ${item.topic} ${professionalName(item.professionalId)}`
+      `${item.title} ${item.kmTitle} ${item.topic} ${professionalName(item.guestProfessionalId)}`
         .toLocaleLowerCase()
         .includes(search),
   );
@@ -475,7 +481,12 @@ export function PodcastsView() {
 
   return (
     <>
-      <div className="flex justify-end">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p className="text-sm text-ink-muted">
+          {km
+            ? 'ផតខាសរបស់ក្រុម AROM បង្ហាញក្នុងមគ្គុទ្ទេសក៍ចិត្ត។ ផតខាសលើប្រវត្តិរូបអ្នកជំនាញ ត្រូវបានគ្រប់គ្រងដោយអ្នកជំនាញផ្ទាល់។'
+            : 'AROM team podcasts shown in MindGuide. Podcasts on professional profiles are managed by the professionals themselves.'}
+        </p>
         <button
           type="button"
           onClick={() => setEditor({ record: null })}
@@ -497,7 +508,7 @@ export function PodcastsView() {
               type="search"
               aria-label={km ? 'ស្វែងរកផតខាស' : 'Search podcasts'}
               placeholder={
-                km ? 'ស្វែងរកផតខាស...' : 'Search episodes or professionals...'
+                km ? 'ស្វែងរកផតខាស...' : 'Search episodes or guests...'
               }
               value={query}
               onChange={(event) => setQuery(event.target.value)}
@@ -529,8 +540,8 @@ export function PodcastsView() {
             <thead className="bg-arom-wash text-xs text-ink-muted">
               <tr>
                 {(km
-                  ? ['ភាគ', 'អ្នកជំនាញ', 'រយៈពេល', 'ស្ថានភាព', 'សកម្មភាព']
-                  : ['Episode', 'Professional', 'Duration', 'Status', 'Actions']
+                  ? ['ភាគ', 'ភ្ញៀវ', 'រយៈពេល', 'ស្ថានភាព', 'សកម្មភាព']
+                  : ['Episode', 'Guest', 'Duration', 'Status', 'Actions']
                 ).map((heading) => (
                   <th
                     key={heading}
@@ -556,7 +567,7 @@ export function PodcastsView() {
                   </td>
 
                   <td className="px-5 py-5 text-ink-muted">
-                    {professionalName(item.professionalId)}
+                    {professionalName(item.guestProfessionalId)}
                   </td>
 
                   <td className="px-5 py-5 text-ink-muted">{item.duration}</td>
