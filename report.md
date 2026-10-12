@@ -9,7 +9,7 @@ Each entry lists the commit it landed in, so you can match it to a version of th
 
 ## 13 Oct 2026: Report a Problem on MindGuide Content and an Admin Reports Page
 
-Commit pending. No migration yet. Frontend only, on mock data.
+Commit `b8b77d3`. No migration yet. Frontend only, on mock data.
 
 **Why.** Users are the first to notice a wrong fact, a broken button or wording that feels hurtful. On a mental health app the last one matters most. Users now have a calm way to tell the team, and admins have one place to see and fix what was reported, starting with anything upsetting or harmful.
 
