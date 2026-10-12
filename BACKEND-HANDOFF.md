@@ -46,8 +46,9 @@ The yellow "Demo data on this page" banner is in `admin-shell.tsx`. Remove it fo
 | Admin users: list, details, roles, suspend | Done on mock data | Waiting for backend | 5 |
 | Admin professionals: review and moderation | Done on mock data | Waiting for backend | 6 |
 | Become a professional (user applies) | Done on mock data | Waiting for backend | 8 |
-| Professional edits own profile (`/pro`) | Not built yet | Not started | 10 |
+| Professional edits own profile (`/pro`) | Not built yet | Not started | 11 |
 | Admin MindGuide: lessons, tips and practices with drafts, versions, publish and checks (`/admin/mindguide`, editor at `/admin/mindguide/<type>/<sourceId>`) | Done on mock data | Waiting for backend | 9 |
+| Report a problem (users) and admin Reports page (`/admin/reports`) | Done on mock data | Waiting for backend | 10 |
 | Admin MindGuide podcasts tab | Built by Sokheng on mock data | Not started | not written yet |
 | Other admin pages (bookings, community, journal prompts, settings, audit log) | Built by Sokheng on mock data | Not started | not written yet |
 
@@ -252,7 +253,39 @@ The return type is `ContentActionResult`: `{ ok: true, updatedAt }` or `{ ok: fa
 
 The user app still reads lessons, tips and practices from `app/_components/learn/learn-data.ts`, `tips/tips-data.ts` and `practice/practice-data.ts`. Publishing in the admin does not change what users see yet. When connected: download a small manifest of live items once per app open, download a body by (type, key, version) when opened, and cache published versions forever because they never change.
 
-## 10. Planned next (frontend not built yet)
+## 10. Report a problem and admin Reports
+
+**Files:** user side `app/_components/report-problem.tsx` (button and dialog), `app/_components/content-reports.ts` (types and mock submit). Admin side `app/admin/_data/reports.ts`, `_components/reports-view.tsx`, route `/admin/reports`, actions `reports` and `resolveReports` in `admin-provider.tsx`.
+
+**Where users see it:** a quiet "Report a problem" link at the end of the lesson overview, inside every lesson section (reports that section), the tip overview, the tip steps page and the practice overview. Hidden in the admin preview.
+
+### Data shape
+
+| Field | Type | Notes |
+|---|---|---|
+| `target` | `{ type: 'lesson' \| 'tip' \| 'practice', sourceId, partId? }` | A reference only, never a copy of the text. Written as `lesson:learn-about-stress#3` by `reportTargetKey()`. `partId` is a lesson section id (never reused, see section 9) |
+| `reason` | `'wrong_info' \| 'harmful' \| 'broken' \| 'other'` | |
+| `note` | string, up to 500 characters, optional | The form asks users not to write personal or health details |
+| `createdAt` | ISO string | |
+| `status` | `'open' \| 'fixed' \| 'not_a_problem'` | |
+| `resolvedAt`, `resolvedBy` | set when closed | `resolvedBy` is the admin's name |
+
+### Actions
+
+| Frontend action | Meaning | Suggested backend |
+|---|---|---|
+| `submitContentReport({ target, reason, note })` | User sends a report. Returns `'sent'` or `'daily_limit'` | `security definer` function that checks the target exists, caps each user at 5 reports per day, and stores the reporter id only for that limit |
+| `reports` | Admin list | admin only read. Never return the reporter id to the admin UI |
+| `resolveReports(itemId, 'fixed' \| 'not_a_problem')` | Closes every open report on one item | admin only, writes `resolved_by`, `resolved_at`, and an audit log entry |
+
+### Rules
+
+- **Privacy:** no reporter identity in admin screens, no copy of content, no personal mental health data requested.
+- **Order on the admin page:** items with any "upsetting or harmful" report first, then most reports, then newest.
+- **Edit link** opens `/admin/mindguide/<type>/<sourceId>?part=<partId>` and jumps to that section.
+- **Mock today:** the user side only counts reports in the browser to show the daily limit message. Nothing reaches the admin page yet; the admin page uses its own mock reports.
+
+## 11. Planned next (frontend not built yet)
 
 - **Professional profile editor under `/pro`.** Uses the pending changes rule in section 6.
 - **Make professional (Way 2):** phone is optional there because the admin already knows the person. Add an optional phone field to `ProfessionalPromotion` when the backend supports it.

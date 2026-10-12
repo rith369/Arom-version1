@@ -21,6 +21,7 @@ import {
   toggleCustomPlanItem,
 } from "../daily-plan-store";
 import { useLanguage } from "../language-provider";
+import { ReportProblemButton } from "../report-problem";
 import {
   getLessonProgress,
   isLessonBookmarked,
@@ -367,6 +368,15 @@ export function LessonDetailView({
             </span>
           </button>
         </motion.div>
+
+        {!preview && (
+          <div className="mt-8 flex justify-center">
+            <ReportProblemButton
+              target={{ type: "lesson", sourceId: lesson.id }}
+              itemTitle={km && lesson.kmTitle ? lesson.kmTitle : lesson.title}
+            />
+          </div>
+        )}
       </main>
 
       {/* Toast Alert */}

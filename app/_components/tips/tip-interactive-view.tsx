@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { useLanguage } from "../language-provider";
+import { ReportProblemButton } from "../report-problem";
 import {
   getPlanTryNowItems,
   isTipBookmarked,
@@ -301,6 +302,15 @@ export function TipInteractiveView({
             <ArrowRight aria-hidden="true" size={18} />
           </button>
         </div>
+
+        {!preview && (
+          <div className="mt-6 flex justify-center">
+            <ReportProblemButton
+              target={{ type: "tip", sourceId: tip.id }}
+              itemTitle={km ? tip.kmTitle : tip.title}
+            />
+          </div>
+        )}
       </div>
 
       {/* Floating Confirmation Toast */}

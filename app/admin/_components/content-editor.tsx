@@ -214,7 +214,25 @@ function PublishDialog({
   );
 }
 
-function ContentEditor({ record }: { record: ContentRecord }) {
+// Field to open at when the editor is reached from a report about one part.
+function partFieldId(type: ContentType, part: string) {
+  const prefix = type === 'lesson' ? 'section' : type === 'tip' ? 'step' : 'instruction';
+  return `cf-${prefix}-${part}-title`;
+}
+
+function focusField(fieldId: string) {
+  const element = document.getElementById(fieldId);
+  element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  element?.focus({ preventScroll: true });
+}
+
+function ContentEditor({
+  record,
+  focusPart,
+}: {
+  record: ContentRecord;
+  focusPart?: string;
+}) {
   const router = useRouter();
   const {
     saveContentDraft,
@@ -389,12 +407,17 @@ function ContentEditor({ record }: { record: ContentRecord }) {
   function jumpTo(fieldId: string) {
     setView('edit');
     // Wait one frame so the fields are on screen after leaving the preview.
-    window.requestAnimationFrame(() => {
-      const element = document.getElementById(fieldId);
-      element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      element?.focus({ preventScroll: true });
-    });
+    window.requestAnimationFrame(() => focusField(fieldId));
   }
+
+  // Opened from a report: go straight to the reported section or step.
+  useEffect(() => {
+    if (!focusPart) return;
+    const frame = window.requestAnimationFrame(() =>
+      focusField(partFieldId(record.type, focusPart)),
+    );
+    return () => window.cancelAnimationFrame(frame);
+  }, [focusPart, record.type]);
 
 
 
@@ -679,9 +702,11 @@ function ContentEditor({ record }: { record: ContentRecord }) {
 export function ContentEditorPage({
   type,
   sourceId,
+  focusPart,
 }: {
   type: ContentType;
   sourceId: string;
+  focusPart?: string;
 }) {
   const { contentRecords } = useAdmin();
   const { language } = useLanguage();
@@ -705,5 +730,5 @@ export function ContentEditorPage({
     );
   }
 
-  return <ContentEditor key={record.id} record={record} />;
+  return <ContentEditor key={record.id} record={record} focusPart={focusPart} />;
 }

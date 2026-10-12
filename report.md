@@ -7,6 +7,45 @@ A plain-language log of what changed in the app, written for the team rather tha
 
 Each entry lists the commit it landed in, so you can match it to a version of the site.
 
+## 13 Oct 2026: Report a Problem on MindGuide Content and an Admin Reports Page
+
+Commit pending. No migration yet. Frontend only, on mock data.
+
+**Why.** Users are the first to notice a wrong fact, a broken button or wording that feels hurtful. On a mental health app the last one matters most. Users now have a calm way to tell the team, and admins have one place to see and fix what was reported, starting with anything upsetting or harmful.
+
+**What changed for users:**
+- **Quiet "Report a problem" link** at the end of the lesson overview, inside every lesson section, on the tip overview and steps page, and on the practice overview.
+- **Short form:** pick wrong information, upsetting or harmful, something broken, or other, and optionally add a note. The form asks not to write personal or health details and says it goes to the content team, not a counselor.
+- **Gentle support line** when "upsetting or harmful" is chosen, with a link to talk to a professional.
+- **Limit of 5 reports a day** with a friendly message.
+- **Inside a lesson, the report points at that exact section.**
+
+**What changed for admins:**
+- **New "Reports" page** in the admin sidebar with a count of open reports.
+- **One card per item,** with "upsetting or harmful" items first and outlined in red, then the items with the most reports.
+- **Each card shows** the reasons with counts, and every report with its section, date and note. Reporters are never shown.
+- **Edit** opens the item in the MindGuide editor and jumps to the reported section. **Fixed** and **Not a problem** close all open reports on that item, recording who closed them and when.
+- **Closed tab** shows past reports and how they were closed.
+- **The MindGuide sidebar link stays highlighted** while editing an item.
+
+**What changed for the team:**
+- **`ReportProblemButton`** in `app/_components/report-problem.tsx` and types plus mock submit in `app/_components/content-reports.ts`.
+- **Admin:** `app/admin/_data/reports.ts`, `reports-view.tsx`, `/admin/reports`, provider `reports` and `resolveReports`.
+- **Editor accepts `?part=`** to open at a section or step.
+- **`BACKEND-HANDOFF.md` section 10** lists the data shape, daily limit and privacy rules.
+- **Mock today:** user reports do not reach the admin page yet; the admin page uses sample reports.
+
+**What to re-test:**
+- Open a lesson, go to section 2 and press "Report a problem"; confirm the dialog shows "Section 2", needs a reason, and shows the support line for "Upsetting or harmful";
+- Send a report and confirm the thank you message; send five more today and confirm the daily limit message;
+- Open a tip and a practice and confirm the link is at the bottom; open the admin preview and confirm the link is hidden there;
+- As admin open Reports; confirm the stress lesson is first with a red outline and the badge in the sidebar shows the open count;
+- Press Edit on the stress lesson and confirm the editor opens at Section 3;
+- Press Fixed on the tip card and confirm it moves to the Closed tab with your name;
+- Switch to Khmer and check the dialog and the Reports page.
+
+---
+
 ## 13 Oct 2026: Live Preview in the MindGuide Editor Using the Real User Screens
 
 Commit `bbeb916`. No migration.

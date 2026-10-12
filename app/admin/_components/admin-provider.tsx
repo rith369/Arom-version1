@@ -44,6 +44,12 @@ import {
 
 import { initialSettings, type AdminSettings } from '../_data/settings';
 
+import {
+  initialReports,
+  type AdminContentReport,
+  type ReportStatus,
+} from '../_data/reports';
+
 
 
 type AdminState = {
@@ -88,6 +94,10 @@ type AdminState = {
   setContentHidden: (id: string, hidden: boolean) => void;
   restoreContentVersion: (id: string, version: number) => string;
   deleteContent: (id: string) => void;
+
+  reports: AdminContentReport[];
+  // Closes every open report on one item, e.g. "lesson:learn-about-stress".
+  resolveReports: (itemId: string, status: Exclude<ReportStatus, 'open'>) => void;
 
   podcasts: AdminPodcast[];
   savePodcast: (record: AdminPodcast) => void;
@@ -402,6 +412,21 @@ export function AdminProvider({ children }: { children: ReactNode }) {
     return updatedAt;
   }
 
+  const [reports, setReports] = useState<AdminContentReport[]>(initialReports);
+
+  function resolveReports(itemId: string, status: Exclude<ReportStatus, 'open'>) {
+    const resolvedAt = new Date().toISOString();
+
+    setReports((current) =>
+      current.map((item) =>
+        item.status === 'open' &&
+        `${item.target.type}:${item.target.sourceId}` === itemId
+          ? { ...item, status, resolvedAt, resolvedBy: currentAdminName }
+          : item,
+      ),
+    );
+  }
+
   // Only items that were never published can be deleted. Published ones are hidden instead.
   function deleteContent(id: string) {
     setContentRecords((current) =>
@@ -511,6 +536,8 @@ export function AdminProvider({ children }: { children: ReactNode }) {
         setContentHidden,
         restoreContentVersion,
         deleteContent,
+        reports,
+        resolveReports,
         podcasts,
         savePodcast,
         setPodcastStatus,

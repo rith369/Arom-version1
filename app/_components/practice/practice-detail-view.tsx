@@ -19,6 +19,7 @@ import {
   toggleCustomPlanItem,
 } from "../daily-plan-store";
 import { useLanguage } from "../language-provider";
+import { ReportProblemButton } from "../report-problem";
 import {
   isPracticeBookmarked,
   PRACTICE_CATEGORIES,
@@ -310,6 +311,15 @@ export function PracticeDetailView({
             </span>
           </button>
         </motion.div>
+
+        {!preview && (
+          <div className="mt-8 flex justify-center">
+            <ReportProblemButton
+              target={{ type: "practice", sourceId: practice.id }}
+              itemTitle={km && practice.kmTitle ? practice.kmTitle : practice.title}
+            />
+          </div>
+        )}
       </main>
 
       {/* Toast Alert */}

@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { useLanguage } from "../language-provider";
+import { ReportProblemButton } from "../report-problem";
 import {
   isTipBookmarked,
   toggleTipBookmark,
@@ -155,6 +156,15 @@ export function TipDetailView({
                 <span>{km ? "ចាប់ផ្តើមអានគន្លឹះ (Start Reading)" : "Start Reading Tips"}</span>
               </button>
             </div>
+
+            {!preview && (
+              <div className="mt-6 flex justify-center">
+                <ReportProblemButton
+                  target={{ type: "tip", sourceId: tip.id }}
+                  itemTitle={km ? tip.kmTitle : tip.title}
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>

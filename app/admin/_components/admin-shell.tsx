@@ -14,8 +14,10 @@ import {
   NotebookPen,
   Settings2,
   ClipboardList,
+  Flag,
 } from 'lucide-react';
 import type { ReactNode } from 'react';
+import { useAdmin } from './admin-provider';
 import {
   LanguageSwitcher,
   useLanguage,
@@ -24,7 +26,14 @@ export function AdminShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const { language } = useLanguage();
   const km = language === 'km';
-  const links = [
+  const { reports } = useAdmin();
+  const openReports = reports.filter((item) => item.status === 'open').length;
+  const links: {
+    href: string;
+    label: string;
+    icon: typeof Flag;
+    badge?: number;
+  }[] = [
     {
       href: '/admin',
       label: km ? 'ទិដ្ឋភាពទូទៅ' : 'Overview',
@@ -39,6 +48,12 @@ export function AdminShell({ children }: { children: ReactNode }) {
       href: '/admin/mindguide',
       label: km ? 'មគ្គុទ្ទេសក៍ចិត្ត' : 'MindGuide',
       icon: BookOpen,
+    },
+    {
+      href: '/admin/reports',
+      label: km ? 'របាយការណ៍បញ្ហា' : 'Reports',
+      icon: Flag,
+      badge: openReports,
     },
     {
       href: '/admin/bookings',
@@ -89,16 +104,30 @@ export function AdminShell({ children }: { children: ReactNode }) {
         <nav
           aria-label="Admin navigation"
           className="mt-4 flex gap-2 lg:flex-col">
-          {links.map(({ href, label, icon: Icon }) => (
-            <Link
-              key={href}
-              href={href}
-              aria-current={pathname === href ? 'page' : undefined}
-              className={`flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium ${pathname === href ? 'bg-arom text-white shadow-sm' : 'text-ink-muted hover:bg-arom-wash hover:text-arom'}`}>
-              <Icon size={19} />
-              {label}
-            </Link>
-          ))}
+          {links.map(({ href, label, icon: Icon, badge }) => {
+            // Sub pages (for example the MindGuide editor) keep their section highlighted.
+            const isActive =
+              pathname === href ||
+              (href !== '/admin' && pathname.startsWith(`${href}/`));
+
+            return (
+              <Link
+                key={href}
+                href={href}
+                aria-current={isActive ? 'page' : undefined}
+                className={`flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium ${isActive ? 'bg-arom text-white shadow-sm' : 'text-ink-muted hover:bg-arom-wash hover:text-arom'}`}>
+                <Icon size={19} />
+                {label}
+                {Boolean(badge) && (
+                  <span
+                    aria-label={km ? `${badge} បើក` : `${badge} open`}
+                    className={`ml-auto rounded-full px-2 py-0.5 text-xs font-semibold ${isActive ? 'bg-white/20 text-white' : 'bg-arom-danger-soft text-arom-danger'}`}>
+                    {badge}
+                  </span>
+                )}
+              </Link>
+            );
+          })}
         </nav>
         <div className="mt-10 hidden rounded-2xl bg-arom-wash p-5 lg:block">
           <HeartHandshake className="text-arom" size={26} />

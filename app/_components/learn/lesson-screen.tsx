@@ -16,6 +16,7 @@ import {
 import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
 import { useLanguage } from "../language-provider";
+import { ReportProblemButton } from "../report-problem";
 import {
   saveLessonProgress,
   type Lesson,
@@ -369,14 +370,23 @@ export function LessonScreen({
 
             {/* References preview accordion */}
             <div className="border-t border-arom-border pt-4 text-xs text-ink-muted">
-              <button
-                type="button"
-                onClick={() => setShowReferences(!showReferences)}
-                className="inline-flex items-center gap-1.5 font-semibold text-arom hover:text-arom-deep"
-              >
-                <Info size={13} />
-                <span>{km ? "មើលឯកសារយោង [1] ដល់ [6] (References)" : "View Citations & References [1] to [6]"}</span>
-              </button>
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowReferences(!showReferences)}
+                  className="inline-flex items-center gap-1.5 font-semibold text-arom hover:text-arom-deep"
+                >
+                  <Info size={13} />
+                  <span>{km ? "មើលឯកសារយោង [1] ដល់ [6] (References)" : "View Citations & References [1] to [6]"}</span>
+                </button>
+                {!preview && (
+                  <ReportProblemButton
+                    target={{ type: "lesson", sourceId: lesson.id, partId: String(currentSection.id) }}
+                    itemTitle={km && lesson.kmTitle ? lesson.kmTitle : lesson.title}
+                    partLabel={`${km ? "ផ្នែកទី" : "Section"} ${sectionNumber}`}
+                  />
+                )}
+              </div>
               {showReferences && (
                 <ul className="mt-2.5 space-y-1 rounded-xl border border-arom-border bg-white p-3 text-[0.75rem] text-ink shadow-sm">
                   {lesson.references.map((ref) => (
