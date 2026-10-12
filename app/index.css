@@ -11,6 +11,11 @@
   --arom-border: #dcebe7;
   --arom-danger: #b5474d;
   --arom-danger-soft: #fff2f2;
+  --arom-warning: #8a5a00;
+  --arom-warning-soft: #fbf0d9;
+  --arom-grid: #e8f0ee;
+  --arom-line: #cfdcd8;
+  --admin-canvas: #ebf1ef;
   --ink: #14221f;
   --ink-muted: #667a75;
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
@@ -28,6 +33,12 @@
   --color-arom-border: var(--arom-border);
   --color-arom-danger: var(--arom-danger);
   --color-arom-danger-soft: var(--arom-danger-soft);
+  --color-arom-warning: var(--arom-warning);
+  --color-arom-warning-soft: var(--arom-warning-soft);
+  --color-arom-grid: var(--arom-grid);
+  --color-arom-line: var(--arom-line);
+  --color-admin-canvas: var(--admin-canvas);
+  --shadow-panel: 0 1px 2px rgba(20, 34, 31, 0.06), 0 2px 8px rgba(20, 34, 31, 0.04);
   --color-ink: var(--ink);
   --color-ink-muted: var(--ink-muted);
   --font-sans: var(--font-inter);
