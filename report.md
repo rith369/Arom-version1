@@ -7,6 +7,102 @@ A plain-language log of what changed in the app, written for the team rather tha
 
 Each entry lists the commit it landed in, so you can match it to a version of the site.
 
+## 12 Oct 2026: Become a Professional Application for Users
+
+Commit pending. No migration yet. Frontend only, using mock data in `app/profile/become-professional/_data/application.ts`.
+
+**Why.** Licensed therapists who sign up as normal users had no way to ask to become a professional on AROM. They now have a clear form and can see where their application stands. Admins get the details they need to verify a license, including a phone number and Telegram so they can follow up quickly.
+
+**What changed for users:**
+- **New "Become a Professional" link in Profile.** Only shown to normal users, not to professionals or admins.
+- **Application form** at `/profile/become-professional`: full name, phone number, "Same number on Telegram" (or a Telegram username), professional title, license number, issuing body, license photo or PDF, specialties, session languages, years of experience, an optional note on why they want to join, and a confirmation that the details are true.
+- **Clear privacy note.** Phone, Telegram and the license file are visible to the AROM team only and never appear on the public profile.
+- **Status page after submitting.** Pending (with the date and a 1 to 3 working days note), Approved (with a "Log out and log in again" button so the new role takes effect), or Rejected (showing the admin's reason and an "Apply again" button that refills the form).
+- **Bilingual.** Every label, hint, error message and status is in Khmer and English.
+
+**What changed for admins:**
+- **Phone and Telegram in the review panel** on `/admin/professionals`, with a tap to call link and a note that contact details are admin only.
+
+**What changed for the team:**
+- **New route** `app/profile/become-professional/` with its page, component and data file. It sits under `/profile`, so the existing login guard covers it.
+- **Form uses `react-hook-form` and `zod`** like the login and signup forms. `createApplicationSchema(km)` holds every validation rule with Khmer and English messages.
+- **Demo bar** on the page previews each status (Not applied, Pending, Approved, Rejected). Remove it when the backend is connected.
+- **`Professional` type now has `phone` and `telegram`.**
+- **`BACKEND-HANDOFF.md` section 8** lists the data shape, validation rules, endpoints, new `phone` and `telegram` columns and private license upload that Hok Chheng needs to build.
+
+**What to re-test:**
+- Log in as a normal user, open Profile and confirm "Become a Professional" shows; log in as admin and confirm it does not;
+- Open `/profile/become-professional` and submit an empty form; confirm each required field shows an error;
+- Enter `12345` as the phone and confirm the Cambodian number error; enter `012 345 678` and confirm it passes;
+- Untick "Same number on Telegram" and confirm the Telegram field appears;
+- Attach a file over 5 MB or a `.docx` and confirm the file error;
+- Submit a valid form and confirm the Pending status shows your details;
+- Use the demo bar to view Approved and Rejected; on Rejected press "Apply again" and confirm the form is refilled and the reason is shown above it;
+- Switch to Khmer and check every label and message;
+- Open `/admin/professionals`, review Vanna Keo and confirm phone and Telegram show.
+
+---
+
+## 12 Oct 2026: Admin Users Page With Account Details and Role Changes
+
+Commit pending. No migration yet. Frontend only, using mock data in `app/admin/_data/users.ts`.
+
+**Why.** Admins need one place to look up an account and change what that person can do. Sometimes the team already knows a therapist personally, so an admin should be able to make them a professional directly instead of waiting for an application. Admins also need a safe way to add or remove other admins.
+
+**What changed for users (admins):**
+- **Expandable account cards.** Each account shows name, email, role badge (Admin, Professional), a "You" badge on your own account, and when they were last seen. Tap a card to open the details.
+- **Safe details only.** Joined date, last seen, language, status, days active in the last 30 days, check in count and booking count. Counts only, with a note that admins cannot read journals, moods or session notes.
+- **Make professional.** For people you know. You must still enter their title, license number and issuing body. They then show on the Professionals page as "Promoted by admin" and fill in their own public profile.
+- **Make admin.** A confirm step with a required checkbox ("I understand this person will have full admin access").
+- **Remove professional role, remove admin access, suspend and restore.** Each has a confirm step. Removing a professional hides them from the directory.
+- **Built in safety.** You cannot change your own role or status, and the last admin cannot be removed.
+- **Role and status filters** next to search, and four summary cards: Total accounts, Professionals, Admins, Suspended.
+
+**What changed for the team:**
+- **`AdminUser` now has `role`, `lastSeenAt`, `daysActive30`, `checkInCount` and `bookingCount`.** `currentAdminId` stands in for the signed in admin until the backend provides it.
+- **New provider action `setUserRole(userId, role, promotion?)`** in `admin-provider.tsx`. Promoting to professional also creates or updates their entry on the Professionals page. `Professional` has a new `source` field (`application` or `admin`).
+- **Backend needed (Hok Chheng).** The database currently blocks granting or removing `admin` through the API on purpose. To support Make admin it needs an admin only path with an audit log entry and a "last admin" guard. `PATCH /api/admin/users/:id/role` also needs to accept and save the license number, issuing body and title when promoting to professional. The users list needs last seen and the activity counts.
+
+**What to re-test:**
+- Log in as admin and open `/admin/users`; tap a card to open it and tap again to close;
+- Open your own card (marked "You") and confirm there are no action buttons;
+- Make Sok Dara a professional with a license number; confirm the Professional badge, then find them on `/admin/professionals` marked "Promoted by admin";
+- Try Make admin without ticking the checkbox and confirm it will not submit;
+- Remove admin access from Neou Sokheng and confirm they become a regular user;
+- Suspend and restore an account;
+- Filter by role and by status, and switch to Khmer to check every label and dialog.
+
+---
+
+## 12 Oct 2026: Admin Professionals Page Becomes a Review and Moderation Page
+
+Commit pending. No migration. Frontend only, using mock data in `app/admin/_data/professionals.ts`.
+
+**Why.** Admins were typing and editing therapist profiles by hand. That does not scale, and therapists know their own details best. Professionals will now edit their own profiles, and the admin's job is to check licenses, approve or reject applications, and control who appears in the directory.
+
+**What changed for users (admins):**
+- **No more add or edit form.** The admin Professionals page no longer lets admins write profiles.
+- **Review queue.** Cards for Needs review, Live in directory, Suspended and Rejected. New applications and profile changes are listed first.
+- **Review panel.** Opening a professional shows their license number, issuing body, license document name, profile, and any changes waiting for review (old value crossed out, new value next to it).
+- **Clear actions with a confirm step.** Approve or reject an application, approve or decline profile changes, suspend or reinstate. Reject, decline and suspend need a written reason, which the professional will see.
+- **Safety rule.** A change to name, title, license number or issuing body waits for admin review. The public profile keeps the old details until then.
+
+**What changed for the team:**
+- **New mock data shape.** `Professional` now has `verificationStatus` (`pending`, `verified`, `rejected`) and `accountStatus` (`active`, `suspended`), matching `professional_profiles.verification_status` and `profiles.account_status`. It also has `credential`, `pendingChanges` and `reviewNote`. The old `status` (published, draft, archived) is gone.
+- **New provider actions.** `save` was replaced by `reviewApplication`, `reviewProfileChanges` and `setProfessionalAccess` in `admin-provider.tsx`. The backend can swap each one for an API call without touching the page.
+- **Backend still needed (Hok Chheng).** A table or column for pending profile changes, a review endpoint for those changes, a suspend and reinstate endpoint, and a signed URL for the private license document.
+- **Removed `professional-form.tsx`.** The profile editing form will be rebuilt for professionals under `/pro`.
+
+**What to re-test:**
+- Log in as admin and open `/admin/professionals`; confirm the four cards show 3, 3, 1 and 1;
+- Open Vanna Keo, approve, and confirm the status becomes Live;
+- Open Dara Lim, click Reject with an empty reason, and confirm it asks for a reason;
+- Open Dr. Ratanak Pich, approve changes, and confirm the title and license number update;
+- Suspend a live professional, then reinstate them;
+- Switch to Khmer and confirm all labels, buttons and dialogs read correctly.
+
+---
+
 ## 8 Oct 2026: Admin Overview with Live Data, Needs Attention Queue and Sign Up Graph
 
 Commit `e6819e1`. No migration. Uses `admin_stats()` and existing tables. New dependency: `recharts`.

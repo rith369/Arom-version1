@@ -17,12 +17,14 @@ import {
   LogOut,
   Moon,
   Shield,
+  Stethoscope,
   UserRound,
   Volume2,
 } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
 import { useState } from "react";
 import { AromBrand, DesktopNavigation, MobileNavigation } from "./app-navigation";
+import { useAuth } from "./auth-provider";
 import { LanguageSwitcher, useLanguage, type Language } from "./language-provider";
 import { ProfileSummary } from "./profile-summary";
 
@@ -30,6 +32,7 @@ const easeOut = [0.23, 1, 0.32, 1] as const;
 
 export function ProfileSettings() {
   const { language, setLanguage } = useLanguage();
+  const { user } = useAuth();
   const shouldReduceMotion = useReducedMotion();
   const km = language === "km";
 
@@ -377,6 +380,33 @@ export function ProfileSettings() {
                   className="text-ink-muted transition-transform duration-150 group-hover:translate-x-0.5 group-hover:text-arom"
                 />
               </Link>
+
+              {user?.role === "user" && (
+                <Link
+                  href="/profile/become-professional"
+                  className="group flex items-center justify-between py-3.5 text-ink transition-colors duration-150 hover:text-arom"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="flex size-9 items-center justify-center rounded-xl bg-arom-soft text-arom">
+                      <Stethoscope size={18} />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold">
+                        {km ? "ក្លាយជាអ្នកជំនាញ (Become a Professional)" : "Become a Professional"}
+                      </p>
+                      <p className="text-xs text-ink-muted">
+                        {km
+                          ? "ដាក់ពាក្យផ្តល់ការពិគ្រោះលើ AROM សម្រាប់អ្នកមានអាជ្ញាប័ណ្ណ"
+                          : "Licensed therapist? Apply to offer sessions on AROM"}
+                      </p>
+                    </div>
+                  </div>
+                  <ChevronRight
+                    size={18}
+                    className="text-ink-muted transition-transform duration-150 group-hover:translate-x-0.5 group-hover:text-arom"
+                  />
+                </Link>
+              )}
 
               <Link
                 href="/mindguide"

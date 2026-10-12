@@ -4,10 +4,16 @@ import { createContext, useContext, useState, type ReactNode } from 'react';
 
 import {
   initialProfessionals,
+  type AccountStatus,
   type Professional,
 } from '../_data/professionals';
 
-import { initialUsers, type AdminUser, type UserStatus } from '../_data/users';
+import {
+  initialUsers,
+  type AdminUser,
+  type UserRole,
+  type UserStatus,
+} from '../_data/users';
 
 import {
   initialContent,
@@ -48,10 +54,29 @@ import {
 
 type AdminState = {
   professionals: Professional[];
-  save: (record: Professional) => void;
+  reviewApplication: (
+    id: string,
+    decision: ReviewDecision,
+    note: string,
+  ) => void;
+  reviewProfileChanges: (
+    id: string,
+    decision: ReviewDecision,
+    note: string,
+  ) => void;
+  setProfessionalAccess: (
+    id: string,
+    status: AccountStatus,
+    note: string,
+  ) => void;
 
   users: AdminUser[];
   setUserStatus: (userId: string, status: UserStatus) => void;
+  setUserRole: (
+    userId: string,
+    role: UserRole,
+    promotion?: ProfessionalPromotion,
+  ) => void;
 
   content: AdminContent[];
   saveContent: (record: AdminContent) => void;
@@ -88,6 +113,16 @@ type AdminState = {
   savePracticeDetails: (record: AdminPracticeDetails) => void;
 };
 
+export type ReviewDecision = 'approve' | 'reject';
+
+// License details an admin records when promoting someone they already know.
+export type ProfessionalPromotion = {
+  title: string;
+  licenseNumber: string;
+  issuingBody: string;
+  note: string;
+};
+
 const AdminContext = createContext<AdminState | null>(null);
 
 export function AdminProvider({ children }: { children: ReactNode }) {
@@ -98,20 +133,138 @@ export function AdminProvider({ children }: { children: ReactNode }) {
 
   const [content, setContent] = useState<AdminContent[]>(initialContent);
 
-  function save(record: Professional) {
-    setProfessionals((current) => {
-      const exists = current.some((item) => item.id === record.id);
+  function updateProfessional(
+    id: string,
+    update: (record: Professional) => Professional,
+  ) {
+    setProfessionals((current) =>
+      current.map((item) => (item.id === id ? update(item) : item)),
+    );
+  }
 
-      return exists
-        ? current.map((item) => (item.id === record.id ? record : item))
-        : [...current, record];
+  function reviewApplication(
+    id: string,
+    decision: ReviewDecision,
+    note: string,
+  ) {
+    updateProfessional(id, (item) => ({
+      ...item,
+      verificationStatus: decision === 'approve' ? 'verified' : 'rejected',
+      reviewNote: note,
+    }));
+  }
+
+  function reviewProfileChanges(
+    id: string,
+    decision: ReviewDecision,
+    note: string,
+  ) {
+    updateProfessional(id, (item) => {
+      if (decision === 'reject') {
+        return { ...item, pendingChanges: [], reviewNote: note };
+      }
+
+      const approved = { ...item, pendingChanges: [], reviewNote: note };
+
+      for (const change of item.pendingChanges) {
+        if (change.field === 'licenseNumber' || change.field === 'issuingBody') {
+          approved.credential = {
+            ...approved.credential,
+            [change.field]: change.to,
+          };
+        } else {
+          approved[change.field] = change.to;
+        }
+      }
+
+      return approved;
     });
+  }
+
+  function setProfessionalAccess(
+    id: string,
+    status: AccountStatus,
+    note: string,
+  ) {
+    updateProfessional(id, (item) => ({
+      ...item,
+      accountStatus: status,
+      reviewNote: note,
+    }));
   }
 
   function setUserStatus(userId: string, status: UserStatus) {
     setUsers((current) =>
       current.map((user) => (user.id === userId ? { ...user, status } : user)),
     );
+  }
+
+  function setUserRole(
+    userId: string,
+    role: UserRole,
+    promotion?: ProfessionalPromotion,
+  ) {
+    const user = users.find((item) => item.id === userId);
+
+    if (!user || user.role === role) return;
+
+    setUsers((current) =>
+      current.map((item) => (item.id === userId ? { ...item, role } : item)),
+    );
+
+    if (role === 'professional' && promotion) {
+      const today = new Date().toISOString().slice(0, 10);
+      const promoted = {
+        role: promotion.title,
+        verificationStatus: 'verified',
+        accountStatus: 'active',
+        credential: {
+          licenseNumber: promotion.licenseNumber,
+          issuingBody: promotion.issuingBody,
+          documentName: '',
+          submittedAt: today,
+        },
+        pendingChanges: [],
+        reviewNote: promotion.note,
+        source: 'admin',
+      } satisfies Partial<Professional>;
+
+      setProfessionals((current) =>
+        current.some((item) => item.id === userId)
+          ? current.map((item) =>
+              item.id === userId ? { ...item, ...promoted } : item,
+            )
+          : [
+              ...current,
+              {
+                id: userId,
+                name: user.fullName,
+                kmName: '',
+                kmRole: '',
+                specialties: [],
+                languages: [user.preferredLanguage === 'km' ? 'Khmer' : 'English'],
+                experience: '',
+                about: '',
+                kmAbout: '',
+                image: '',
+                session: 'Online',
+                phone: '',
+                telegram: '',
+                joinedAt: today,
+                ...promoted,
+              },
+            ],
+      );
+    }
+
+    // Matches set_user_role(): a former professional leaves the public directory.
+    if (user.role === 'professional') {
+      updateProfessional(userId, (item) => ({
+        ...item,
+        verificationStatus: 'rejected',
+        reviewNote: 'Professional role removed by an admin.',
+      }));
+    }
   }
 
   function saveContent(record: AdminContent) {
@@ -255,9 +408,12 @@ export function AdminProvider({ children }: { children: ReactNode }) {
     <AdminContext.Provider
       value={{
         professionals,
-        save,
+        reviewApplication,
+        reviewProfileChanges,
+        setProfessionalAccess,
         users,
         setUserStatus,
+        setUserRole,
         content,
         saveContent,
         setContentStatus,
