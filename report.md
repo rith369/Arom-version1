@@ -7,6 +7,39 @@ A plain-language log of what changed in the app, written for the team rather tha
 
 Each entry lists the commit it landed in, so you can match it to a version of the site.
 
+## 13 Oct 2026: Live Preview in the MindGuide Editor Using the Real User Screens
+
+Commit pending. No migration.
+
+**Why.** Admins fix text, but they also need to see how it will actually look to users before publishing. A preview that copies the design would drift from the real app, so the editor now shows the exact screens users get.
+
+**What changed for users (admins):**
+- **Edit and Preview switch** at the top of the MindGuide editor.
+- **The preview is the real user screen** (lesson overview and lesson sections, tip overview and steps, practice overview), drawn from the current edits, including unsaved ones, and updated while typing.
+- **Phone and Desktop toggle.** Phone shows a real 390px phone layout, not a squeezed desktop page.
+- **Language follows the switch at the top,** so admins can check Khmer and English.
+- **Start over** returns the preview to the overview screen.
+- **Nothing is saved while previewing.** Bookmarks, "add to plan" and lesson progress do nothing in the preview, so admins do not change their own data.
+- **Tapping a problem in Checks** switches back to Edit and jumps to the field.
+- **A half finished draft cannot break the editor.** If a screen cannot draw it yet, the preview says to fix the problems in Checks.
+
+**What changed for the team:**
+- **New page `/content-preview`** that only draws what the editor sends it (same site messages only) and is hidden from search engines. It lives outside `/admin` so the admin sidebar does not wrap it.
+- **`preview` prop** on `LessonDetailView`, `LessonScreen`, `TipDetailView`, `TipInteractiveView` and `PracticeDetailView` turns off saving to the browser. Normal use is unchanged.
+- **`app/admin/_data/content-preview.ts`** converts an editor body into the objects the user screens take.
+- **Known gap:** practice instructions and breathing settings are edited in the admin but the user app does not show them yet, and the preview says so.
+
+**What to re-test:**
+- Open a lesson in the editor, switch to Preview and confirm it looks like `/mindguide/learn`; press Start and step through sections;
+- Change a section title in Edit, switch to Preview and confirm the new text shows without saving;
+- Switch Phone and Desktop and confirm the layout changes like a real phone and a real computer;
+- Switch the language at the top and confirm the preview changes language;
+- Bookmark or add to plan inside the preview, then check your own Saved and Home plan are unchanged;
+- Remove all sections from a draft lesson and confirm the preview shows a calm message instead of an error;
+- Tap a Checks problem while in Preview and confirm it jumps to the field in Edit.
+
+---
+
 ## 13 Oct 2026: MindGuide Editor With Drafts, Publishing, Version History and Checks
 
 Commit `ab0a85e`. No migration yet. Frontend only, on mock data.

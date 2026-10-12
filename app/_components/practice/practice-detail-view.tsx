@@ -30,12 +30,15 @@ type PracticeDetailViewProps = {
   practice: PracticeItem;
   onBack: () => void;
   onStartPractice: () => void;
+  /** Admin preview: nothing is saved to this browser. */
+  preview?: boolean;
 };
 
 export function PracticeDetailView({
   practice,
   onBack,
   onStartPractice,
+  preview = false,
 }: PracticeDetailViewProps) {
   const { language } = useLanguage();
   const km = language === "km";
@@ -67,11 +70,13 @@ export function PracticeDetailView({
     : practice.category;
 
   const handleBookmarkToggle = () => {
+    if (preview) return;
     const newState = togglePracticeBookmark(practice.id);
     setBookmarked(newState);
   };
 
   const handleTogglePlan = () => {
+    if (preview) return;
     const isAdded = toggleCustomPlanItem({
       id: practice.id,
       source: "practice",

@@ -22,18 +22,22 @@ type TipDetailViewProps = {
   tip: TipItem;
   onBack: () => void;
   onStartTips: () => void;
+  /** Admin preview: nothing is saved to this browser. */
+  preview?: boolean;
 };
 
 export function TipDetailView({
   tip,
   onBack,
   onStartTips,
+  preview = false,
 }: TipDetailViewProps) {
   const { language } = useLanguage();
   const km = language === "km";
   const [bookmarked, setBookmarked] = useState(() => isTipBookmarked(tip.id));
 
   const handleToggleBookmark = () => {
+    if (preview) return;
     const newState = toggleTipBookmark(tip.id);
     setBookmarked(newState);
   };

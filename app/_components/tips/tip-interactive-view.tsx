@@ -30,6 +30,8 @@ type TipInteractiveViewProps = {
   onComplete: () => void;
   onOpenBreathing?: () => void;
   onOpenProfessional?: () => void;
+  /** Admin preview: nothing is saved to this browser. */
+  preview?: boolean;
 };
 
 export function TipInteractiveView({
@@ -38,6 +40,7 @@ export function TipInteractiveView({
   onComplete,
   onOpenBreathing,
   onOpenProfessional,
+  preview = false,
 }: TipInteractiveViewProps) {
   const { language } = useLanguage();
   const km = language === "km";
@@ -49,6 +52,7 @@ export function TipInteractiveView({
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const handleToggleBookmark = () => {
+    if (preview) return;
     const newState = toggleTipBookmark(tip.id);
     setBookmarked(newState);
   };
@@ -62,6 +66,7 @@ export function TipInteractiveView({
   };
 
   const handleTogglePlan = (step: TipStep) => {
+    if (preview) return;
     const added = toggleTryNowInPlan(step, tip);
     setPlanStepNumbers((prev) =>
       added ? [...prev, step.number] : prev.filter((n) => n !== step.number)

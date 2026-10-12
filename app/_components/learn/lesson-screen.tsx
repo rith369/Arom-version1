@@ -29,6 +29,8 @@ type LessonScreenProps = {
   onComplete: () => void;
   onOpenExercise?: () => void;
   onOpenProfessional?: () => void;
+  /** Admin preview: nothing is saved to this browser. */
+  preview?: boolean;
 };
 
 export function LessonScreen({
@@ -38,6 +40,7 @@ export function LessonScreen({
   onComplete,
   onOpenExercise,
   onOpenProfessional,
+  preview = false,
 }: LessonScreenProps) {
   const { language } = useLanguage();
   const km = language === "km";
@@ -57,7 +60,7 @@ export function LessonScreen({
 
   const handleNext = () => {
     // Save progress
-    saveLessonProgress(lesson.id, {
+    if (!preview) saveLessonProgress(lesson.id, {
       completedSections: Math.max(sectionNumber, currentSectionIndex + 1),
       totalSections,
       isComplete: sectionNumber >= totalSections,
@@ -70,14 +73,14 @@ export function LessonScreen({
       onComplete();
     } else {
       setCurrentSectionIndex((prev) => prev + 1);
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      if (!preview) window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
   const handlePrev = () => {
     if (currentSectionIndex > 0) {
       setCurrentSectionIndex((prev) => prev - 1);
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      if (!preview) window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 

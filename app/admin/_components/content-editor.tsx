@@ -10,6 +10,7 @@ import {
   Eye,
   EyeOff,
   History,
+  Pencil,
   RotateCcw,
   Save,
   Send,
@@ -20,6 +21,7 @@ import {
 
 import { useAdmin } from './admin-provider';
 import { ContentMetaFields } from './content-meta-fields';
+import { ContentPreview } from './content-preview';
 import { PublishStateChip } from './content-status';
 import { LessonFields } from './lesson-editor';
 import { PracticeFields } from './practice-editor';
@@ -238,6 +240,7 @@ function ContentEditor({ record }: { record: ContentRecord }) {
   const [notice, setNotice] = useState<{ tone: 'ok' | 'error'; text: string } | null>(null);
   const [isPublishing, setIsPublishing] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
+  const [view, setView] = useState<'edit' | 'preview'>('edit');
 
   const isDirty = !sameBody(working, loaded.body);
   const state = getPublishState(record);
@@ -384,10 +387,16 @@ function ContentEditor({ record }: { record: ContentRecord }) {
   }
 
   function jumpTo(fieldId: string) {
-    const element = document.getElementById(fieldId);
-    element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    element?.focus({ preventScroll: true });
+    setView('edit');
+    // Wait one frame so the fields are on screen after leaving the preview.
+    window.requestAnimationFrame(() => {
+      const element = document.getElementById(fieldId);
+      element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      element?.focus({ preventScroll: true });
+    });
   }
+
+
 
   const publishBlockedReason = !record.draft
     ? t('គ្មានសេចក្តីព្រាងដើម្បីផ្សព្វផ្សាយ', 'Nothing new to publish')
@@ -470,6 +479,34 @@ function ContentEditor({ record }: { record: ContentRecord }) {
 
       <div className="mt-3 grid gap-6 xl:grid-cols-[minmax(0,1fr)_20rem]">
         <div key={revision} className="min-w-0 space-y-6">
+          <div
+            role="tablist"
+            aria-label={t('របៀបមើល', 'View')}
+            className="flex w-fit gap-1 rounded-full border border-arom-border bg-white p-1">
+            {(['edit', 'preview'] as const).map((value) => (
+              <button
+                key={value}
+                type="button"
+                role="tab"
+                aria-selected={view === value}
+                onClick={() => setView(value)}
+                className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium ${
+                  view === value ? 'bg-arom text-white' : 'text-ink-muted hover:bg-arom-wash'
+                }`}>
+                {value === 'edit' ? (
+                  <Pencil size={16} aria-hidden="true" />
+                ) : (
+                  <Eye size={16} aria-hidden="true" />
+                )}
+                {value === 'edit' ? t('កែសម្រួល', 'Edit') : t('មើលជាមុន', 'Preview')}
+              </button>
+            ))}
+          </div>
+
+          {view === 'preview' ? (
+            <ContentPreview body={working} />
+          ) : (
+          <>
           <Card title={t('ព័ត៌មានមូលដ្ឋាន', 'Basic information')}>
             <ContentMetaFields
               value={working.meta}
@@ -498,6 +535,8 @@ function ContentEditor({ record }: { record: ContentRecord }) {
               />
             )}
           </Card>
+          </>
+          )}
         </div>
 
         <aside className="space-y-6 xl:sticky xl:top-20 xl:self-start">

@@ -33,12 +33,15 @@ type LessonDetailViewProps = {
   lesson: Lesson;
   onBack: () => void;
   onStartLesson: (startSection?: number) => void;
+  /** Admin preview: nothing is saved to this browser. */
+  preview?: boolean;
 };
 
 export function LessonDetailView({
   lesson,
   onBack,
   onStartLesson,
+  preview = false,
 }: LessonDetailViewProps) {
   const { language } = useLanguage();
   const km = language === "km";
@@ -70,11 +73,13 @@ export function LessonDetailView({
     : lesson.category;
 
   const handleBookmarkToggle = () => {
+    if (preview) return;
     const newState = toggleLessonBookmark(lesson.id);
     setBookmarked(newState);
   };
 
   const handleTogglePlan = () => {
+    if (preview) return;
     const isAdded = toggleCustomPlanItem({
       id: lesson.id,
       source: "learn",
