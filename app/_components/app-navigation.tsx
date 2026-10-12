@@ -13,7 +13,7 @@ import {
 import { useLanguage } from "./language-provider";
 import { useDetection } from "./detection-provider";
 
-import { NAVIGATION_SECTIONS, type NavItem } from "./navigation-config";
+import { sectionsForRole, type NavItem } from "./navigation-config";
 import { UserAvatar } from "./user-avatar";
 import { useAuth } from "./auth-provider";
 
@@ -78,7 +78,7 @@ export function DesktopNavigation({ active }: { active: NavigationLabel }) {
         aria-label="Primary"
         className="mt-6 flex-1 overflow-y-auto pr-1 space-y-4 scrollbar-thin scrollbar-thumb-arom-border"
       >
-        {NAVIGATION_SECTIONS.map((section) => {
+        {sectionsForRole(user?.role).map((section) => {
           const activeItems = section.items.filter((item) => !item.isComingSoon);
           const comingSoonItems = section.items.filter((item) => item.isComingSoon);
 

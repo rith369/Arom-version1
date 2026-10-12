@@ -1,10 +1,6 @@
-import type { Metadata } from 'next';
-import { PodcastsView } from '../_components/podcasts-view';
+import { redirect } from 'next/navigation';
 
-export const metadata: Metadata = {
-  title: 'Podcast management',
-};
-
+// Podcasts now live on the MindGuide page. Kept so old links still work.
 export default function PodcastsPage() {
-  return <PodcastsView />;
+  redirect('/admin/mindguide?tab=podcast');
 }

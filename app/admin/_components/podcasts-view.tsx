@@ -430,6 +430,7 @@ function PodcastForm({
   );
 }
 
+// Podcasts tab of the MindGuide page, which owns the header and tabs.
 export function PodcastsView() {
   const { podcasts, professionals, savePodcast, setPodcastStatus } = useAdmin();
 
@@ -474,31 +475,17 @@ export function PodcastsView() {
 
   return (
     <>
-      <div className="flex flex-wrap items-end justify-between gap-5">
-        <div>
-          <p className="text-sm font-medium text-arom">
-            {km ? 'ស្តាប់ និងស្វែងយល់' : 'Listen and learn'}
-          </p>
-          <h1 className="mt-2 text-3xl font-semibold">
-            {km ? 'ផតខាស' : 'Podcasts'}
-          </h1>
-          <p className="mt-3 text-sm text-ink-muted">
-            {km
-              ? 'គ្រប់គ្រងភាគ អ្នកជំនាញ និងជំពូក។'
-              : 'Manage episodes, professionals, and chapter information.'}
-          </p>
-        </div>
-
+      <div className="flex justify-end">
         <button
           type="button"
           onClick={() => setEditor({ record: null })}
-          className="flex items-center gap-2 rounded-full bg-arom px-5 py-3 text-sm text-white hover:bg-arom-deep">
-          <Plus size={18} />
+          className="flex items-center gap-2 rounded-full bg-arom px-5 py-3 text-sm font-medium text-white hover:bg-arom-deep">
+          <Plus size={18} aria-hidden="true" />
           {km ? 'បន្ថែមផតខាស' : 'Add podcast'}
         </button>
       </div>
 
-      <section className="mt-8 overflow-hidden rounded-3xl border border-arom-border bg-white shadow-sm">
+      <section className="mt-4 overflow-hidden rounded-3xl border border-arom-border bg-white shadow-sm">
         <div className="flex flex-wrap gap-3 border-b border-arom-border p-5">
           <div className="relative min-w-48 flex-1">
             <Search

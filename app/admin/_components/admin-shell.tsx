@@ -9,7 +9,6 @@ import {
   ArrowUpRight,
   HeartHandshake,
   BookOpen,
-  Headphones,
   Calendar,
   MessagesSquare,
   NotebookPen,
@@ -37,14 +36,9 @@ export function AdminShell({ children }: { children: ReactNode }) {
       icon: BadgeCheck,
     },
     {
-      href: '/admin/content',
-      label: km ? 'មាតិកា' : 'Content',
+      href: '/admin/mindguide',
+      label: km ? 'មគ្គុទ្ទេសក៍ចិត្ត' : 'MindGuide',
       icon: BookOpen,
-    },
-    {
-      href: '/admin/podcasts',
-      label: km ? 'ផតខាស' : 'Podcasts',
-      icon: Headphones,
     },
     {
       href: '/admin/bookings',

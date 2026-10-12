@@ -12,7 +12,9 @@ import {
   loginSchema,
   type AuthErrorBody,
   type AuthErrorCode,
+  type LoginResponse,
   type LoginValues,
+  type UserRole,
 } from "@/lib/auth";
 import { AuthInput, FormAlert } from "./auth-input";
 import { useAuth } from "../auth-provider";
@@ -60,6 +62,7 @@ export function LoginForm() {
 
   const onSubmit = handleSubmit(async (values) => {
     setNotice(null);
+    let role: UserRole = "user";
 
     try {
       const response = await fetch("/api/auth/login", {
@@ -78,6 +81,9 @@ export function LoginForm() {
         });
         return;
       }
+
+      const body = (await response.json().catch(() => null)) as LoginResponse | null;
+      role = body?.user.role ?? "user";
     } catch {
       setError("root", {
         type: "network",
@@ -87,7 +93,9 @@ export function LoginForm() {
     }
 
     await refresh();
-    router.replace(safeNext(searchParams.get("next")));
+    // A page that sent them to log in wins. Otherwise admins start in the admin panel.
+    const next = searchParams.get("next");
+    router.replace(next ? safeNext(next) : role === "admin" ? "/admin" : "/");
     router.refresh();
   });
 

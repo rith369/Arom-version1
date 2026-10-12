@@ -27,13 +27,12 @@ import { PracticeEditor } from './practice-editor';
 
 type StatusFilter = ContentStatus | 'all';
 
-export function ContentView() {
+// One content type at a time. The MindGuide page owns the header and tabs.
+export function ContentView({ activeType }: { activeType: ContentType }) {
   const { content, saveContent, setContentStatus } = useAdmin();
   const { language } = useLanguage();
 
   const km = language === 'km';
-
-  const [activeType, setActiveType] = useState<ContentType>('lesson');
 
   const [query, setQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
@@ -56,11 +55,11 @@ export function ContentView() {
     archived: km ? 'បានទុកក្នុងបណ្ណសារ' : 'Archived',
   };
 
-  const typeOptions = [
-    { type: 'lesson', icon: BookOpen },
-    { type: 'tip', icon: Lightbulb },
-    { type: 'practice', icon: HeartHandshake },
-  ] as const;
+  const addLabels: Record<ContentType, string> = {
+    lesson: km ? 'បន្ថែមមេរៀន' : 'Add lesson',
+    tip: km ? 'បន្ថែមគន្លឹះ' : 'Add tip',
+    practice: km ? 'បន្ថែមការអនុវត្ត' : 'Add practice',
+  };
 
   const searchText = query.trim().toLocaleLowerCase();
 
@@ -84,12 +83,6 @@ export function ContentView() {
   function clearFilters() {
     setQuery('');
     setStatusFilter('all');
-  }
-
-  function changeType(type: ContentType) {
-    setActiveType(type);
-    clearFilters();
-    setNotice('');
   }
 
   function handleSave(record: AdminContent) {
@@ -120,67 +113,17 @@ export function ContentView() {
 
   return (
     <>
-      <div className="flex flex-wrap items-end justify-between gap-5">
-        <div>
-          <p className="text-sm font-medium text-arom">
-            {km ? 'មាតិកាថែទាំចិត្ត' : 'MindGuide library'}
-          </p>
-
-          <h1 className="mt-2 text-3xl font-semibold tracking-tight">
-            {km ? 'គ្រប់គ្រងមាតិកា' : 'Content'}
-          </h1>
-
-          <p className="mt-3 text-sm text-ink-muted">
-            {km
-              ? 'គ្រប់គ្រងមេរៀន គន្លឹះ និងការអនុវត្ត។'
-              : 'Manage lessons, practical tips, and guided practices.'}
-          </p>
-        </div>
-
+      <div className="flex justify-end">
         <button
           type="button"
           onClick={() => setEditor({ record: null })}
           className="flex items-center gap-2 rounded-full bg-arom px-5 py-3 text-sm font-medium text-white hover:bg-arom-deep">
           <Plus size={18} aria-hidden="true" />
-          {km ? 'បន្ថែមមាតិកា' : 'Add content'}
+          {addLabels[activeType]}
         </button>
       </div>
 
-      <div
-        role="group"
-        aria-label={km ? 'ប្រភេទមាតិកា' : 'Content type'}
-        className="mt-8 flex flex-wrap gap-2">
-        {typeOptions.map(({ type, icon: Icon }) => {
-          const selected = activeType === type;
-
-          const count = content.filter((item) => item.type === type).length;
-
-          return (
-            <button
-              key={type}
-              type="button"
-              aria-pressed={selected}
-              onClick={() => changeType(type)}
-              className={`flex items-center gap-2 rounded-full border px-5 py-3 text-sm font-medium ${
-                selected
-                  ? 'border-arom bg-arom text-white'
-                  : 'border-arom-border bg-white text-ink-muted hover:bg-arom-wash'
-              }`}>
-              <Icon size={18} aria-hidden="true" />
-              {typeLabels[type]}
-
-              <span
-                className={`rounded-full px-2 py-0.5 text-xs ${
-                  selected ? 'bg-white/15' : 'bg-arom-wash text-arom'
-                }`}>
-                {count}
-              </span>
-            </button>
-          );
-        })}
-      </div>
-
-      <section className="mt-6 overflow-hidden rounded-3xl border border-arom-border bg-white shadow-sm">
+      <section className="mt-4 overflow-hidden rounded-3xl border border-arom-border bg-white shadow-sm">
         <div className="flex flex-wrap items-center gap-3 border-b border-arom-border p-5">
           <div className="relative min-w-48 flex-1">
             <Search

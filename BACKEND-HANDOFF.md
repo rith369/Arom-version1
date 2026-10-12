@@ -47,7 +47,8 @@ The yellow "Demo data on this page" banner is in `admin-shell.tsx`. Remove it fo
 | Admin professionals: review and moderation | Done on mock data | Waiting for backend | 6 |
 | Become a professional (user applies) | Done on mock data | Waiting for backend | 8 |
 | Professional edits own profile (`/pro`) | Not built yet | Not started | 9 |
-| Other admin pages (content, podcasts, bookings, community, journal prompts, settings, audit log) | Built by Sokheng on mock data | Not started | not written yet |
+| Admin MindGuide: lessons, tips, practices and podcasts in one page (`/admin/mindguide?tab=lesson\|tip\|practice\|podcast`). Old `/admin/content` and `/admin/podcasts` redirect here | Built by Sokheng on mock data, merged into one page by Rith | Not started | not written yet |
+| Other admin pages (bookings, community, journal prompts, settings, audit log) | Built by Sokheng on mock data | Not started | not written yet |
 
 ## 5. Admin users page
 
@@ -175,7 +176,8 @@ The page keeps its state in React only and has a yellow demo bar to preview each
 | `licenseNumber` | string | `license_number` | Yes |
 | `issuingBody` | string | `issuing_body` | Yes |
 | `documentName` | string | file name from `document_path` | Column yes, upload flow **No** |
-| `specialties`, `languages` | string[] | same names | Yes |
+| `specialties` | string[]. Chosen chips plus free text typed under "Other" (up to 5 extra, 40 characters each, duplicates removed) | `specialties` | Yes. Free text values are not from a fixed list, so do not use an enum |
+| `languages` | string[] | `languages` | Yes |
 | `yearsExperience` | number | `years_experience` | Yes |
 | `phone` | string, Cambodian number, spaces removed, for example `012345678` | **new column `phone`** | **No** |
 | `telegram` | string. Equals `phone` when the user ticked "Same number on Telegram", otherwise a username or empty | **new column `telegram`** | **No** |
@@ -184,7 +186,7 @@ The page keeps its state in React only and has a yellow demo bar to preview each
 | `reviewNote` | string | `review_note` | Yes |
 | `createdAt` | ISO string | `created_at` | Yes |
 
-Validation lives in `createApplicationSchema()` in `_data/application.ts`. Repeat the same rules on the server: required fields, phone matches `^(?:\+?855|0)[1-9]\d{7,8}$` after removing spaces, Telegram username `^@?[A-Za-z0-9_]{5,32}$`, document PDF, JPG or PNG up to 5 MB, years 0 to 60, motivation up to 2000 characters.
+Validation lives in `createApplicationSchema()` in `_data/application.ts`. Repeat the same rules on the server: required fields, phone matches `^(?:\+?855|0)[1-9]\d{7,8}$` after removing spaces, Telegram username `^@?[A-Za-z0-9_]{5,32}$`, at least one specialty with up to 5 "Other" entries of 40 characters each, document PDF, JPG or PNG up to 5 MB, years 0 to 60, motivation up to 2000 characters.
 
 ### Actions
 

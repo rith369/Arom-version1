@@ -8,8 +8,10 @@ import {
   CalendarCheck,
   UsersRound,
   Layers,
+  ShieldCheck,
   type LucideIcon,
 } from "lucide-react";
+import type { UserRole } from "@/lib/auth";
 
 export type NavItem = {
   id: string;
@@ -27,9 +29,34 @@ export type NavSection = {
   enTitle: string;
   kmTitle: string;
   items: NavItem[];
+  /** Only these roles see the section. Leave out to show it to everyone. */
+  roles?: readonly UserRole[];
 };
 
+/** Sections the given role may see. The server still guards each page. */
+export function sectionsForRole(role: UserRole | undefined) {
+  return NAVIGATION_SECTIONS.filter(
+    (section) => !section.roles || (role !== undefined && section.roles.includes(role)),
+  );
+}
+
 export const NAVIGATION_SECTIONS: NavSection[] = [
+  {
+    id: "admin",
+    enTitle: "Admin",
+    kmTitle: "អ្នកគ្រប់គ្រង",
+    roles: ["admin"],
+    items: [
+      {
+        id: "admin-panel",
+        label: "AdminPanel",
+        enTitle: "Admin panel",
+        kmTitle: "ផ្ទាំងគ្រប់គ្រង (Admin panel)",
+        icon: ShieldCheck,
+        href: "/admin",
+      },
+    ],
+  },
   {
     id: "main",
     enTitle: "Main Page",

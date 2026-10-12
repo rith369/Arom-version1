@@ -1,10 +1,6 @@
-import type { Metadata } from 'next';
-import { ContentView } from '../_components/content-view';
+import { redirect } from 'next/navigation';
 
-export const metadata: Metadata = {
-  title: 'MindGuide content management',
-};
-
+// Content now lives on the MindGuide page. Kept so old links still work.
 export default function ContentPage() {
-  return <ContentView />;
+  redirect('/admin/mindguide');
 }

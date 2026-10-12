@@ -13,7 +13,7 @@ import { useSidebar } from "./sidebar-provider";
 import { useLanguage } from "./language-provider";
 import { useDetection } from "./detection-provider";
 import { AromBrand } from "./app-navigation";
-import { NAVIGATION_SECTIONS, type NavItem } from "./navigation-config";
+import { sectionsForRole, type NavItem } from "./navigation-config";
 import { UserAvatar } from "./user-avatar";
 import { useAuth } from "./auth-provider";
 
@@ -74,7 +74,7 @@ export function MobileSidebarDrawer() {
 
             {/* 3 Navigation Sections: Main Page, Professional, Community */}
             <nav aria-label="Mobile Primary" className="mt-3 flex-1 space-y-4 px-3">
-              {NAVIGATION_SECTIONS.map((section) => {
+              {sectionsForRole(user?.role).map((section) => {
                 const activeItems = section.items.filter((item) => !item.isComingSoon);
                 const comingSoonItems = section.items.filter((item) => item.isComingSoon);
 

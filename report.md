@@ -7,6 +7,84 @@ A plain-language log of what changed in the app, written for the team rather tha
 
 Each entry lists the commit it landed in, so you can match it to a version of the site.
 
+## 12 Oct 2026: Admin Panel Link and Admins Land on the Admin Panel After Login
+
+Commit pending. No migration.
+
+**Why.** Admins logged in and landed on the normal user home page with no way to reach the admin area except typing `/admin` by hand. It looked like their admin access was missing.
+
+**What changed for users:**
+- **New "Admin" section with an "Admin panel" link** at the top of the sidebar (desktop and the mobile drawer). Only admins see it. Normal users and professionals see no change.
+- **Admins go straight to `/admin` after logging in.** Normal users still go to the home page.
+- **Coming back to a page still works.** If someone was sent to log in from a specific page (the `?next=` link), they return to that page instead, admins included.
+
+**What changed for the team:**
+- **`NavSection` has an optional `roles` list** in `app/_components/navigation-config.ts`, and `sectionsForRole(role)` filters sections. Both `DesktopNavigation` and `MobileSidebarDrawer` use it. Hiding a link is only for convenience: `proxy.ts` and `requireRole` still guard the pages and APIs.
+- **`login-form.tsx` reads the role** from the `/api/auth/login` response to pick where to go.
+- **If an admin is sent back to home from `/admin`,** their login token has no `user_role` claim. Check that the Customize Access Token hook (`public.custom_access_token_hook`) is turned on in Supabase, then log out and in.
+
+**What to re-test:**
+- Log in as an admin and confirm you land on `/admin`;
+- Click "View website" in the admin panel, then confirm the sidebar shows the Admin section with "Admin panel", and that it opens `/admin`;
+- Open the mobile drawer on a phone size screen as an admin and confirm the same link;
+- Log in as a normal user and confirm you land on home and see no Admin section;
+- Log out, open `/profile`, log in as admin when asked, and confirm you return to `/profile`.
+
+---
+
+## 12 Oct 2026: Admin Content and Podcasts Merged Into One MindGuide Page
+
+Commit pending. No migration.
+
+**Why.** Lessons, tips, practices and podcasts are all part of MindGuide for users, but admins had to manage them on two separate pages (Content and Podcasts). One page with the same name users see makes the admin area simpler and easier to find things in.
+
+**What changed for users (admins):**
+- **One "MindGuide" item in the admin sidebar** replaces "Content" and "Podcasts".
+- **Four tabs on one page:** Lessons, Tips, Practices and Podcasts, each with a count. Search, filters and editors work the same as before.
+- **The add button matches the tab:** Add lesson, Add tip, Add practice or Add podcast.
+- **The tab is kept in the address** (for example `/admin/mindguide?tab=podcast`), so refreshing or sharing the link opens the same tab.
+- **Old links still work.** `/admin/content` opens the Lessons tab and `/admin/podcasts` opens the Podcasts tab.
+
+**What changed for the team:**
+- **New page** `app/admin/mindguide/page.tsx` and component `app/admin/_components/mindguide-view.tsx`, which owns the header and tabs.
+- **`ContentView` now takes `activeType`** and shows one content type. **`PodcastsView`** no longer has its own header. All editors (lesson, tip, practice, podcast) are unchanged.
+- **Tab list** lives in `app/admin/_data/mindguide.ts` (`MINDGUIDE_TABS`, `parseMindGuideTab`).
+- **`/admin/content` and `/admin/podcasts`** are now redirects.
+
+**What to re-test:**
+- Log in as admin and confirm the sidebar shows MindGuide and no longer shows Content or Podcasts;
+- Open MindGuide and switch between all four tabs; confirm counts, search, status filters and the add button label change with the tab;
+- Edit a lesson, a tip, a practice and a podcast to confirm each editor still opens and saves;
+- Open the Podcasts tab, refresh the page and confirm it stays on Podcasts;
+- Visit `/admin/content` and `/admin/podcasts` and confirm they land on the right tab;
+- Switch to Khmer and check the tab names and page title.
+
+---
+
+## 12 Oct 2026: "Other" Option for Specialties in the Professional Application
+
+Commit pending. No migration.
+
+**Why.** The application form only offered nine fixed specialties. Therapists who work in other areas, such as addiction or postpartum support, had no way to say so.
+
+**What changed for users:**
+- **New "Other" chip** at the end of the specialties list. Tapping it opens a text box where they type their own specialties, separated by commas (up to 5).
+- **They can mix both.** For example, tick Anxiety and Family, and type "Addiction" under Other. One chip or one typed specialty is enough to submit.
+- **Apply again keeps them.** When a rejected applicant applies again, their typed specialties come back in the Other box.
+
+**What changed for the team:**
+- **`createApplicationSchema` has two new fields,** `hasOtherSpecialty` and `otherSpecialties`. The schema merges them into one `specialties` list on submit, so the saved data shape did not change.
+- **`BACKEND-HANDOFF.md` section 8** notes that specialties can now be free text, so the backend must not treat them as a fixed list.
+
+**What to re-test:**
+- Tick only "Other", leave the box empty and submit; confirm "Type your specialty";
+- Type six specialties separated by commas; confirm the "up to 5" error;
+- Tick Anxiety and type "Addiction, Anxiety" under Other; submit and confirm Anxiety is listed once;
+- Use the demo bar to open Rejected, press "Apply again" and confirm "Addiction" is in the Other box and Anxiety and Students chips are ticked;
+- Switch to Khmer and check the Other chip, hint and errors.
+
+---
+
 ## 12 Oct 2026: Become a Professional Application for Users
 
 Commit `c2ed1c0`. No migration yet. Frontend only, using mock data in `app/profile/become-professional/_data/application.ts`.

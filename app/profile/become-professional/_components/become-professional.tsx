@@ -25,6 +25,7 @@ import { useAuth } from '../../../_components/auth-provider';
 import { useLanguage } from '../../../_components/language-provider';
 import {
   LANGUAGE_OPTIONS,
+  MAX_OTHER_SPECIALTIES,
   SPECIALTY_OPTIONS,
   createApplicationSchema,
   demoRejectedNote,
@@ -75,6 +76,15 @@ function ApplicationForm({
 
   const schema = useMemo(() => createApplicationSchema(km), [km]);
 
+  // When applying again, split the old list back into chips and "Other" text.
+  const listedValues: readonly string[] = SPECIALTY_OPTIONS.map((option) => option.value);
+  const previousListed = (previous?.specialties ?? []).filter((item) =>
+    listedValues.includes(item),
+  );
+  const previousOther = (previous?.specialties ?? []).filter(
+    (item) => !listedValues.includes(item),
+  );
+
   const {
     register,
     handleSubmit,
@@ -88,7 +98,9 @@ function ApplicationForm({
       title: previous?.title ?? '',
       licenseNumber: previous?.licenseNumber ?? '',
       issuingBody: previous?.issuingBody ?? 'Ministry of Health, Cambodia',
-      specialties: previous?.specialties ?? [],
+      specialties: previousListed,
+      hasOtherSpecialty: previousOther.length > 0,
+      otherSpecialties: previousOther.join(', '),
       languages: previous?.languages ?? [],
       yearsExperience: previous?.yearsExperience,
       phone: previous?.phone ?? '',
@@ -101,6 +113,7 @@ function ApplicationForm({
   });
 
   const sameTelegram = useWatch({ control, name: 'sameTelegram' });
+  const hasOtherSpecialty = useWatch({ control, name: 'hasOtherSpecialty' });
 
   const submit = handleSubmit((values) => {
     onSubmit(values, values.document[0]?.name ?? '');
@@ -263,8 +276,46 @@ function ApplicationForm({
                 {km ? option.km : option.value}
               </label>
             ))}
+            <label className={chipClass}>
+              <input
+                {...register('hasOtherSpecialty')}
+                type="checkbox"
+                className="sr-only"
+              />
+              {t('ផ្សេងទៀត', 'Other')}
+            </label>
           </div>
           <FieldError id="specialties-error" message={errors.specialties?.message} />
+
+          {hasOtherSpecialty && (
+            <label className="mt-4 block text-sm font-semibold text-ink">
+              {t('ជំនាញផ្សេងទៀត *', 'Other specialties *')}
+              <input
+                {...register('otherSpecialties')}
+                autoFocus
+                maxLength={250}
+                placeholder={t(
+                  'ឧ. ការញៀន, ការគាំទ្រក្រោយសម្រាលកូន',
+                  'For example, Addiction, Postpartum support',
+                )}
+                aria-invalid={Boolean(errors.otherSpecialties)}
+                aria-describedby="otherSpecialties-hint otherSpecialties-error"
+                className={inputClass(Boolean(errors.otherSpecialties))}
+              />
+              <span
+                id="otherSpecialties-hint"
+                className="mt-1.5 block text-xs font-normal text-ink-muted">
+                {t(
+                  `បំបែកដោយសញ្ញាក្បៀស (,)។ បញ្ចូលបានច្រើនបំផុត ${MAX_OTHER_SPECIALTIES}។`,
+                  `Separate with commas. Up to ${MAX_OTHER_SPECIALTIES}.`,
+                )}
+              </span>
+              <FieldError
+                id="otherSpecialties-error"
+                message={errors.otherSpecialties?.message}
+              />
+            </label>
+          )}
         </fieldset>
 
         <div className="mt-5 grid gap-4 sm:grid-cols-2">
@@ -540,7 +591,7 @@ export function BecomeProfessional() {
       licenseNumber: 'MOH CNS 2022 207',
       issuingBody: 'Ministry of Health, Cambodia',
       documentName: 'license.jpg',
-      specialties: ['Anxiety', 'Students'],
+      specialties: ['Anxiety', 'Students', 'Addiction'],
       languages: ['Khmer', 'English'],
       yearsExperience: 4,
       phone: '012345678',

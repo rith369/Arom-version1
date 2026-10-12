@@ -34,6 +34,17 @@ export const SPECIALTY_OPTIONS = [
   { value: 'Students', km: 'សិស្ស និស្សិត' },
 ] as const;
 
+// Free text specialties typed under "Other", separated by commas.
+export const MAX_OTHER_SPECIALTIES = 5;
+const MAX_SPECIALTY_LENGTH = 40;
+
+export function splitOtherSpecialties(text: string) {
+  return text
+    .split(/[,\n]/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
 export const LANGUAGE_OPTIONS = [
   { value: 'Khmer', km: 'ខ្មែរ' },
   { value: 'English', km: 'អង់គ្លេស' },
@@ -87,9 +98,9 @@ export function createApplicationSchema(km: boolean) {
           (files) => (files[0]?.size ?? 0) <= MAX_DOCUMENT_BYTES,
           t('ឯកសារត្រូវតូចជាង 5 MB', 'The file must be 5 MB or smaller'),
         ),
-      specialties: z
-        .array(z.string())
-        .min(1, t('សូមជ្រើសរើសយ៉ាងហោចណាស់មួយ', 'Choose at least one specialty')),
+      specialties: z.array(z.string()),
+      hasOtherSpecialty: z.boolean(),
+      otherSpecialties: z.string().trim(),
       languages: z
         .array(z.string())
         .min(1, t('សូមជ្រើសរើសយ៉ាងហោចណាស់មួយ', 'Choose at least one language')),
@@ -113,6 +124,44 @@ export function createApplicationSchema(km: boolean) {
       }),
     })
     .superRefine((values, context) => {
+      const others = values.hasOtherSpecialty
+        ? splitOtherSpecialties(values.otherSpecialties)
+        : [];
+
+      if (values.hasOtherSpecialty && others.length === 0) {
+        context.addIssue({
+          code: 'custom',
+          path: ['otherSpecialties'],
+          message: t('សូមសរសេរជំនាញរបស់អ្នក', 'Type your specialty'),
+        });
+      } else if (others.length > MAX_OTHER_SPECIALTIES) {
+        context.addIssue({
+          code: 'custom',
+          path: ['otherSpecialties'],
+          message: t(
+            `បញ្ចូលបានច្រើនបំផុត ${MAX_OTHER_SPECIALTIES}`,
+            `Add up to ${MAX_OTHER_SPECIALTIES} specialties`,
+          ),
+        });
+      } else if (others.some((item) => item.length > MAX_SPECIALTY_LENGTH)) {
+        context.addIssue({
+          code: 'custom',
+          path: ['otherSpecialties'],
+          message: t(
+            `ជំនាញនីមួយៗមិនលើស ${MAX_SPECIALTY_LENGTH} តួអក្សរ`,
+            `Keep each specialty under ${MAX_SPECIALTY_LENGTH} characters`,
+          ),
+        });
+      }
+
+      if (values.specialties.length === 0 && !values.hasOtherSpecialty) {
+        context.addIssue({
+          code: 'custom',
+          path: ['specialties'],
+          message: t('សូមជ្រើសរើសយ៉ាងហោចណាស់មួយ', 'Choose at least one specialty'),
+        });
+      }
+
       if (
         !values.sameTelegram &&
         values.telegram &&
@@ -124,7 +173,19 @@ export function createApplicationSchema(km: boolean) {
           message: t('ឈ្មោះ Telegram មិនត្រឹមត្រូវ ឧ. @sopheap', 'Enter a Telegram username, for example @sopheap'),
         });
       }
-    });
+    })
+    // Output one list: chosen chips plus anything typed under "Other", without duplicates.
+    .transform((values) => ({
+      ...values,
+      specialties: [
+        ...new Set([
+          ...values.specialties,
+          ...(values.hasOtherSpecialty
+            ? splitOtherSpecialties(values.otherSpecialties)
+            : []),
+        ]),
+      ],
+    }));
 }
 
 export type ApplicationFormInput = z.input<ReturnType<typeof createApplicationSchema>>;
