@@ -9,7 +9,7 @@ Each entry lists the commit it landed in, so you can match it to a version of th
 
 ## 13 Oct 2026: MindGuide Editor With Drafts, Publishing, Version History and Checks
 
-Commit pending. No migration yet. Frontend only, on mock data.
+Commit `ab0a85e`. No migration yet. Frontend only, on mock data.
 
 **Why.** Lessons, tips and practices are written and designed by the team with Claude. Admins only need to fix mistakes, but before this change every save went straight to "live" with no history, no review and no way to undo. On a mental health app, a half finished or broken lesson must never reach users, and every live text needs a responsible admin.
 
