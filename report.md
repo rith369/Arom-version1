@@ -9,7 +9,7 @@ Each entry lists the commit it landed in, so you can match it to a version of th
 
 ## 12 Oct 2026: Become a Professional Application for Users
 
-Commit pending. No migration yet. Frontend only, using mock data in `app/profile/become-professional/_data/application.ts`.
+Commit `c2ed1c0`. No migration yet. Frontend only, using mock data in `app/profile/become-professional/_data/application.ts`.
 
 **Why.** Licensed therapists who sign up as normal users had no way to ask to become a professional on AROM. They now have a clear form and can see where their application stands. Admins get the details they need to verify a license, including a phone number and Telegram so they can follow up quickly.
 
@@ -45,7 +45,7 @@ Commit pending. No migration yet. Frontend only, using mock data in `app/profile
 
 ## 12 Oct 2026: Admin Users Page With Account Details and Role Changes
 
-Commit pending. No migration yet. Frontend only, using mock data in `app/admin/_data/users.ts`.
+Commit `c2ed1c0`. No migration yet. Frontend only, using mock data in `app/admin/_data/users.ts`.
 
 **Why.** Admins need one place to look up an account and change what that person can do. Sometimes the team already knows a therapist personally, so an admin should be able to make them a professional directly instead of waiting for an application. Admins also need a safe way to add or remove other admins.
 
@@ -76,7 +76,7 @@ Commit pending. No migration yet. Frontend only, using mock data in `app/admin/_
 
 ## 12 Oct 2026: Admin Professionals Page Becomes a Review and Moderation Page
 
-Commit pending. No migration. Frontend only, using mock data in `app/admin/_data/professionals.ts`.
+Commit `c2ed1c0`. No migration. Frontend only, using mock data in `app/admin/_data/professionals.ts`.
 
 **Why.** Admins were typing and editing therapist profiles by hand. That does not scale, and therapists know their own details best. Professionals will now edit their own profiles, and the admin's job is to check licenses, approve or reject applications, and control who appears in the directory.
 
