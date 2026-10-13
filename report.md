@@ -9,7 +9,7 @@ Each entry lists the commit it landed in, so you can match it to a version of th
 
 ## 13 Oct 2026: Session Prices Shown to Users (Free, One Price or a Range), No Payment Taken
 
-Commit pending. No migration.
+Commit `c19be78`. No migration.
 
 **Why.** Users want to know what a session would cost before they book, even while AROM is in testing. Prices are now shown for information only: nobody pays, and a note says so.
 
