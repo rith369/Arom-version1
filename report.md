@@ -9,7 +9,7 @@ Each entry lists the commit it landed in, so you can match it to a version of th
 
 ## 13 Oct 2026: Bookings Chart on the Admin Bookings Page
 
-Commit pending. No migration. Frontend only, on sample bookings.
+Commit `1f3f976`. No migration. Frontend only, on sample bookings.
 
 **Why.** Admins could only see bookings as a long list, which made it hard to tell whether today is busier than yesterday or whether bookings are growing. A day by day chart makes that clear at a glance and helps the team spot busy days and cancellations early.
 
