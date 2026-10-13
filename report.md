@@ -9,7 +9,7 @@ Each entry lists the commit it landed in, so you can match it to a version of th
 
 ## 13 Oct 2026: Announcements From Admin Settings, Shown at the Top of Every Page
 
-Commit pending. No migration yet. Frontend only, on mock data.
+Commit `45bbbe4`. No migration yet. Frontend only, on mock data.
 
 **Why.** The team had no way to tell everyone something at once, for example a planned pause, a new lesson or an important change. Admins can now post a short message that every user sees until it ends.
 
