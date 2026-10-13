@@ -54,6 +54,7 @@ The yellow "Demo data on this page" banner is in `admin-shell.tsx`. Remove it fo
 | Care plan: professional gives tasks, client sees them in Your Plan For Today (`/pro/clients/<id>`, `/care-plan`, home) | Done on mock data | Waiting for backend | 18 |
 | Sessions: meeting links and Join, after session steps, suggest next session, repeating series, quick replies | Done on mock data | Waiting for backend | 19 |
 | Prepare view (`/pro/bookings/<id>`) and week calendar in My bookings | Done on mock data | Waiting for backend | 16 |
+| Professional Home dashboard (once the profile is complete) | Done on mock data | Waiting for backend | 16 |
 | Professional podcasts: `/pro/podcasts`, episodes on the public profile and podcast page | Done on mock data | Waiting for backend | 20 |
 | Admin MindGuide: lessons, tips and practices with drafts, versions, publish and checks (`/admin/mindguide`, editor at `/admin/mindguide/<type>/<sourceId>`) | Done on mock data | Waiting for backend | 9 |
 | Report a problem (users) and admin Reports page (`/admin/reports`) | Done on mock data | Waiting for backend | 10 |
@@ -501,6 +502,25 @@ The demo switch ("Established professional" or "Newly approved") and today's ses
 | `saveSessionNote(id, text)` | Up to 5000 characters | `session_notes`: readable and writable only by the professional who owns the appointment. No admin read, no client read |
 
 Clients see their name only to their own professional. The client list shows names, not emails or phone numbers.
+
+### Home dashboard (`/pro`, once the profile is complete)
+
+**Files:** `app/pro/_components/pro-home.tsx`, `pro-dashboard.tsx` (next session, tiles, needs attention, care plans), `weekly-sessions-chart.tsx`. While the profile is incomplete, Home still shows the checklist instead.
+
+Everything is counted from the professional's own data; nothing needs a new table. A backend may want one summary function (`pro_dashboard()`) to avoid loading every booking.
+
+| Block | How it is counted |
+|---|---|
+| Next session | first `booked` appointment that has not ended, with Join, Prepare and Message |
+| Sessions this week | appointments this Monday to Sunday (Cambodia time), not cancelled; compared with last week |
+| Next 7 days | `booked` appointments starting in the next 7 days |
+| Active clients | clients with any appointment, minus archived |
+| How full your week is | sessions this week divided by every slot the weekly hours offer this week (time off removed), capped at 100% |
+| Sessions per week, last 8 weeks | per Monday week: completed or booked, did not come, cancelled |
+| Needs your attention | sessions waiting for an outcome, unread messages, open suggestions, clients with a completed session but no active care task |
+| Care plans | clients who share progress out of active clients; done days out of due days in the last 7 days, only from clients who share |
+
+Not shown on purpose: money (no payments during testing), comparisons with other professionals, and clients' mood or symptom scores.
 
 ### Prepare view (`/pro/bookings/<bookingId>`) and week calendar
 

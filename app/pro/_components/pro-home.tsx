@@ -16,7 +16,9 @@ import {
 } from 'lucide-react';
 
 import { JoinButton } from '../../_components/sessions/join-button';
+import { CareGlance, NeedsAttention, NextSessionCard, StatTiles } from './pro-dashboard';
 import { usePro } from './pro-provider';
+import { WeeklySessionsChart } from './weekly-sessions-chart';
 import { useLanguage } from '../../_components/language-provider';
 import { profileChecklist, type ReviewedField } from '../_data/profile';
 
@@ -62,12 +64,34 @@ export function ProHome() {
       <h1 className="text-2xl font-bold tracking-tight text-ink sm:text-3xl">
         {t(`សួស្តី ${name}`, `Hello, ${name}`)}
       </h1>
-      <p className="mt-1 text-sm text-ink-muted">
-        {t('នេះជាកន្លែងគ្រប់គ្រងប្រវត្តិរូប និងការណាត់ជួបរបស់អ្នក។', 'This is where you manage your profile and sessions.')}
-      </p>
+      {isVisible ? (
+        <p className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-ink-muted">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-arom-soft px-2.5 py-0.5 text-xs font-semibold text-arom-deep">
+            <Eye size={13} aria-hidden="true" />
+            {t('ប្រវត្តិរូបរបស់អ្នកកំពុងបង្ហាញ', 'Your profile is live')}
+          </span>
+          {demoMode === 'established' && (
+            <Link href={`/professional/${profile.slug}`} className="inline-flex items-center gap-1 font-semibold text-arom hover:underline">
+              {t('មើលប្រវត្តិរូប', 'View profile')}
+              <ArrowRight size={14} aria-hidden="true" />
+            </Link>
+          )}
+        </p>
+      ) : (
+        <p className="mt-1 text-sm text-ink-muted">
+          {t('នេះជាកន្លែងគ្រប់គ្រងប្រវត្តិរូប និងការណាត់ជួបរបស់អ្នក។', 'This is where you manage your profile and sessions.')}
+        </p>
+      )}
 
       <div className="mt-6 grid gap-5 lg:grid-cols-[minmax(0,1fr)_20rem]">
-        <div className="space-y-5">
+        <div className="min-w-0 space-y-5">
+          {isVisible ? (
+            <>
+              <NextSessionCard now={now} km={km} />
+              <StatTiles now={now} km={km} />
+              <WeeklySessionsChart bookings={bookings} now={now} km={km} />
+            </>
+          ) : (
           <Card>
             <div className="flex items-start gap-4">
               <span className={`flex size-12 shrink-0 items-center justify-center rounded-2xl ${isVisible ? 'bg-arom-soft text-arom' : 'bg-arom-warning-soft text-arom-warning'}`}>
@@ -114,6 +138,7 @@ export function ProHome() {
               ))}
             </ul>
           </Card>
+          )}
 
           <Card>
             <h2 className="flex items-center gap-2 text-lg font-bold text-ink">
@@ -150,6 +175,12 @@ export function ProHome() {
         </div>
 
         <aside className="space-y-5">
+          {isVisible && (
+            <>
+              <NeedsAttention now={now} km={km} />
+              <CareGlance now={now} km={km} />
+            </>
+          )}
           {pendingChanges.length > 0 && (
             <Card className="border-arom-warning/30">
               <h2 className="text-base font-bold text-ink">{t('រង់ចាំអ្នកគ្រប់គ្រងពិនិត្យ', 'Waiting for admin review')}</h2>

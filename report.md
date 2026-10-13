@@ -7,6 +7,36 @@ A plain-language log of what changed in the app, written for the team rather tha
 
 Each entry lists the commit it landed in, so you can match it to a version of the site.
 
+## 13 Oct 2026: Professional Home Becomes a Dashboard Once the Profile Is Live
+
+Commit pending. No migration yet. Frontend only, on mock data.
+
+**Why.** After a professional finished setting up, Home kept showing a checklist that was all ticked. Now it shows what they need every day: the next session, a few numbers, how busy the last weeks were, and what is waiting for them.
+
+**What changed for professionals:**
+- **While the profile is incomplete,** Home still shows the setup checklist (unchanged).
+- **Once it is complete,** the checklist becomes a small "Your profile is live" line with View profile, and Home shows:
+- **Next session** with Join, Prepare and Message;
+- **Four numbers:** sessions this week (compared with last week), next 7 days, active clients, and **how full your week is** (booked out of open slots, with a bar);
+- **Sessions per week for the last 8 weeks:** completed or booked, did not come and cancelled, with hover details, a legend and a table view;
+- **Needs your attention:** sessions waiting for an outcome, unread messages, suggested times not picked yet, and clients with no care plan, each linking to the right place;
+- **Care plans:** how many clients share progress and the share of tasks done in the last 7 days.
+- **Khmer and English,** and it stacks on phones.
+
+**What changed for the team:**
+- **New files** `app/pro/_components/pro-dashboard.tsx` and `weekly-sessions-chart.tsx`; the chart reuses the admin bookings chart colours, which passed the colour blind check.
+- **`BACKEND-HANDOFF.md` section 16** lists how each number is counted. No new tables.
+
+**What to re-test:**
+- As Established professional, check the numbers match My bookings (this week, next 7 days) and My clients;
+- Hover the chart bars and open View as table;
+- Click each Needs your attention item and confirm it opens the right page;
+- Mark a session's outcome, then return to Home and confirm the count drops (without refreshing);
+- Switch to Newly approved and confirm the checklist shows instead;
+- Check on a phone and in Khmer.
+
+---
+
 ## 13 Oct 2026: Professional Podcasts Belong Only to the Professional
 
 Commit `e5de030`. No migration. Text and documentation only.
