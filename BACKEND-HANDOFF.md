@@ -49,6 +49,7 @@ The yellow "Demo data on this page" banner is in `admin-shell.tsx`. Remove it fo
 | Professional area `/pro`: shell, home, my profile with preview, login entry | Done on mock data | Waiting for backend | 16 |
 | Professional schedule (`/pro/schedule`) | Done on mock data | Waiting for backend | 16 |
 | Professional bookings (`/pro/bookings`) | Done on mock data | Waiting for backend | 16 |
+| Professional clients (`/pro/clients`, client file) | Done on mock data | Waiting for backend | 16 |
 | Professional podcasts (`/pro`) | Not built yet | Not started | 17 |
 | Admin MindGuide: lessons, tips and practices with drafts, versions, publish and checks (`/admin/mindguide`, editor at `/admin/mindguide/<type>/<sourceId>`) | Done on mock data | Waiting for backend | 9 |
 | Report a problem (users) and admin Reports page (`/admin/reports`) | Done on mock data | Waiting for backend | 10 |
@@ -491,6 +492,24 @@ The demo switch ("Established professional" or "Newly approved") and today's ses
 | `saveSessionNote(id, text)` | Up to 5000 characters | `session_notes`: readable and writable only by the professional who owns the appointment. No admin read, no client read |
 
 Clients see their name only to their own professional. The client list shows names, not emails or phone numbers.
+
+### My clients (`/pro/clients` and `/pro/clients/<clientId>`)
+
+**Files:** `app/pro/_data/clients.ts` (`clientsFrom`, `sharingFor`, sample shared data, labels), `app/pro/_components/clients-view.tsx`, `client-file.tsx`, provider `summaryNotes`, `saveSummaryNote`, `archivedClients`, `setClientArchived`. `ProBooking` now has `clientId`, `shareSurvey` and `shareSymptomChecks`.
+
+**Decided:** called "Clients", not "Patients". A professional only ever sees people who booked with them.
+
+| Part | Data | Backend |
+|---|---|---|
+| Client list | Built from the professional's appointments: name, first session, last session, next session, completed count. Filters: upcoming session, new, not seen in 30 days, past clients | a view or query over `appointments` for `professional_id = auth.uid()` |
+| Summary note | One pinned note per client (`summaryNotes[clientId]`), up to 5000 characters | new table, for example `client_summary_notes (professional_id, client_id, text, updated_at)`, readable and writable only by that professional |
+| Session notes | Same `session_notes` as My bookings, shown under each session and searchable | as section 16 above |
+| Archive | `archivedClients` | a per professional flag (for example `client_relationships.archived_at`); notes are kept |
+| Shared by the client | Survey and symptom checks, only when the client turned sharing on for a booked or completed session with this professional | already in the database: `appointments.share_survey`, `share_symptom_checks`, `client_shares_with_me()` and the RLS policies on `onboarding_surveys`, `mental_health_insights`, `symptom_checks` |
+
+**Privacy rules:** no email or phone; never journals, mood logs or detection answers unless shared; notes never readable by admins or clients. Still to decide with Rith: what happens to notes when a client deletes their account (record keeping rules).
+
+**Also found:** `guard_appointment_update()` stops professionals from changing `starts_at`, so "Reschedule" in My bookings needs a new `security definer` function that moves the appointment to another open slot.
 
 ### My schedule (`/pro/schedule`)
 

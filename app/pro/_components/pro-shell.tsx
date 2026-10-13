@@ -11,6 +11,7 @@ import {
   Headphones,
   Home,
   UserRound,
+  UsersRound,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -30,6 +31,7 @@ const LINKS: NavLink[] = [
   { href: '/pro/profile', en: 'My profile', km: 'ប្រវត្តិរូបរបស់ខ្ញុំ', icon: UserRound },
   { href: '/pro/schedule', en: 'My schedule', km: 'កាលវិភាគរបស់ខ្ញុំ', icon: CalendarClock },
   { href: '/pro/bookings', en: 'My bookings', km: 'ការកក់របស់ខ្ញុំ', icon: CalendarCheck },
+  { href: '/pro/clients', en: 'My clients', km: 'អតិថិជនរបស់ខ្ញុំ', icon: UsersRound },
   { href: '/pro/podcasts', en: 'My podcasts', km: 'ផតខាសរបស់ខ្ញុំ', icon: Headphones, soon: true },
 ];
 
@@ -60,7 +62,7 @@ export function ProShell({ children }: { children: ReactNode }) {
 
         <nav aria-label={t('ម៉ឺនុយអ្នកជំនាញ', 'Professional menu')} className="mt-5 flex gap-2 overflow-x-auto pb-1 lg:mt-8 lg:flex-col lg:overflow-visible">
           {LINKS.map(({ href, en, km: kmLabel, icon: Icon, soon }) => {
-            const isActive = pathname === href;
+            const isActive = pathname === href || (href !== '/pro' && pathname.startsWith(`${href}/`));
             const label = km ? kmLabel : en;
 
             if (soon) {

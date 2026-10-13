@@ -1,10 +1,12 @@
 'use client';
 
+import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import {
   CalendarClock,
   CheckCircle2,
   FileText,
+  FolderOpen,
   Lock,
   Monitor,
   NotebookPen,
@@ -38,7 +40,17 @@ function useFormats(km: boolean) {
 const textareaClass =
   'mt-2 w-full rounded-xl border border-arom/30 bg-arom-wash/60 px-3.5 py-2.5 text-sm text-ink outline-none focus:border-arom focus:bg-white focus:ring-4 focus:ring-arom/10';
 
-function BookingDialog({ booking, now, onClose }: { booking: ProBooking; now: number; onClose: () => void }) {
+export function BookingDialog({
+  booking,
+  now,
+  onClose,
+  showClientLink = true,
+}: {
+  booking: ProBooking;
+  now: number;
+  onClose: () => void;
+  showClientLink?: boolean;
+}) {
   const { bookings, schedule, sessionNotes, cancelBooking, rescheduleBooking, setBookingOutcome, saveSessionNote } = usePro();
   const { language } = useLanguage();
   const km = language === 'km';
@@ -109,6 +121,12 @@ function BookingDialog({ booking, now, onClose }: { booking: ProBooking; now: nu
           <p className="mt-1 text-sm text-ink-muted">
             {formats.day.format(start)}, {formats.time.format(start)} · {booking.durationMinutes} {t('នាទី', 'min')} · {typeLabel}
           </p>
+          {showClientLink && (
+            <Link href={`/pro/clients/${booking.clientId}`} className="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold text-arom hover:underline">
+              <FolderOpen size={15} aria-hidden="true" />
+              {t('បើកឯកសារអតិថិជន', 'Open client file')}
+            </Link>
+          )}
         </div>
         <button type="button" onClick={onClose} aria-label={t('បិទ', 'Close')} className="rounded-full p-2 hover:bg-arom-wash">
           <X size={20} />

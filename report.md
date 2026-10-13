@@ -7,6 +7,39 @@ A plain-language log of what changed in the app, written for the team rather tha
 
 Each entry lists the commit it landed in, so you can match it to a version of the site.
 
+## 13 Oct 2026: My Clients: One File per Client With a Summary Note, Session Notes and Shared Results
+
+Commit pending. No migration yet. Frontend only, on mock data.
+
+**Why.** Therapists think about the person, not the calendar. Before a session they need to find the client quickly, see their history and read what they wrote last time, without rewriting the background every time. AROM's database already lets clients share their survey and symptom checks with their professional, so the file shows those too, only when the client chose to share.
+
+**What changed for professionals:**
+- **New "My clients" page:** search by name, filters (upcoming session, new, not seen in 30 days, past clients) with counts, and each client's next session, last session and completed sessions.
+- **Client file:** client since, sessions completed, next session and preferred language at the top.
+- **Pinned summary note:** one note kept up to date (main concerns, goals, what helps, things to remember). Private.
+- **Sessions and notes:** every session with this client, newest first, with that session's private note under it, and a search box to find words in old notes. "Write a note" or "Open" opens the session.
+- **Shared by the client:** their symptom checks (type, score, level) and welcome survey, only when they turned sharing on, with "Not a diagnosis". Otherwise it says the client has not shared anything and that this is their choice.
+- **Latest intake answers** from their most recent booking.
+- **Archive client** when therapy has ended (notes kept), and **Restore**.
+- **"Open client file"** link inside every booking in My bookings.
+- **Khmer and English.**
+
+**What changed for the team:**
+- **New `app/pro/_data/clients.ts`, `clients-view.tsx`, `client-file.tsx`, `/pro/clients` and `/pro/clients/[clientId]`.** The booking window from My bookings is reused in the client file.
+- **Demo sharing:** Sok Dara shares both; Heng Rachana shares symptom checks only; others share nothing.
+- **`BACKEND-HANDOFF.md` section 16** lists the tables and rules, notes that sharing already exists in the database, and that professional reschedule needs a new function.
+
+**What to re-test:**
+- Open My clients; search "dara" and confirm only Sok Dara shows; try each filter;
+- Open Sok Dara; write a summary note, save, leave and come back, and confirm it is still there;
+- Open a past session from her file, write a note, save, and confirm it appears under that session and can be found with the note search;
+- Confirm "Shared by the client" shows her symptom checks and survey; open Heng Rachana and confirm only symptom checks; open Kim Vanna and confirm nothing is shared;
+- Archive a client and confirm they move to Past clients; restore them;
+- From My bookings, open a booking and use "Open client file";
+- Switch to Khmer and check the labels.
+
+---
+
 ## 13 Oct 2026: My Bookings for Professionals: Intake Answers, Reschedule, Cancel and Private Notes
 
 Commit `edc8203`. No migration yet. Frontend only, on mock data.

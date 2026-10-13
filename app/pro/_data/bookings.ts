@@ -12,6 +12,8 @@ export type IntakeAnswer = { question: { en: string; km: string }; answer: strin
 
 export type ProBooking = {
   id: string;
+  // The client's account id (appointments.user_id).
+  clientId: string;
   clientName: string;
   startsAt: string;
   durationMinutes: number;
@@ -25,6 +27,10 @@ export type ProBooking = {
   // Set when the professional moved the session; the client is told.
   rescheduledFrom: string | null;
   rescheduleReason: string;
+  // The client's choice for this booking (appointments.share_survey and
+  // share_symptom_checks). Off by default; only the client can change it.
+  shareSurvey: boolean;
+  shareSymptomChecks: boolean;
 };
 
 // Private to the professional who wrote it. Never shown to admins or clients.
@@ -62,6 +68,7 @@ export function sampleBookingsFor(slug: string): ProBooking[] {
       const intake = SAMPLE_INTAKES[index % SAMPLE_INTAKES.length];
       return {
         id: booking.id,
+        clientId: booking.userId,
         clientName: initialUsers.find((user) => user.id === booking.userId)?.fullName ?? 'Client',
         startsAt: booking.startsAt,
         durationMinutes: booking.durationMinutes,
@@ -79,6 +86,9 @@ export function sampleBookingsFor(slug: string): ProBooking[] {
         cancelReason: booking.status === 'cancelled' ? 'Something came up at work.' : '',
         rescheduledFrom: null,
         rescheduleReason: '',
+        // Demo: Sok Dara shares both, Heng Rachana shares symptom checks only.
+        shareSurvey: booking.userId === 'demo-user-001',
+        shareSymptomChecks: booking.userId === 'demo-user-001' || booking.userId === 'demo-user-005',
       };
     });
 }

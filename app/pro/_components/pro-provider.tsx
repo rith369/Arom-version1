@@ -47,6 +47,11 @@ type ProState = {
   rescheduleBooking: (id: string, startsAt: string, reason: string) => void;
   setBookingOutcome: (id: string, status: 'completed' | 'no_show') => void;
   saveSessionNote: (id: string, text: string) => void;
+  // One pinned summary per client, private to the professional.
+  summaryNotes: Record<string, SessionNote>;
+  saveSummaryNote: (clientId: string, text: string) => void;
+  archivedClients: string[];
+  setClientArchived: (clientId: string, archived: boolean) => void;
   freeDuringTesting: boolean;
   saveProfile: (next: ProProfile) => SaveResult;
   withdrawChange: (field: ReviewedField) => void;
@@ -64,6 +69,8 @@ export function ProProvider({ children }: { children: ReactNode }) {
   const [schedule, setSchedule] = useState<Schedule>(() => structuredClone(establishedSchedule));
   const [bookings, setBookings] = useState<ProBooking[]>(() => sampleBookingsFor(establishedProfile.slug));
   const [sessionNotes, setSessionNotes] = useState<Record<string, SessionNote>>({});
+  const [summaryNotes, setSummaryNotes] = useState<Record<string, SessionNote>>({});
+  const [archivedClients, setArchivedClients] = useState<string[]>([]);
 
   function updateBooking(id: string, change: Partial<ProBooking>) {
     setBookings((current) => current.map((item) => (item.id === id ? { ...item, ...change } : item)));
@@ -76,6 +83,8 @@ export function ProProvider({ children }: { children: ReactNode }) {
     setSchedule(structuredClone(mode === 'established' ? establishedSchedule : emptySchedule));
     setBookings(mode === 'established' ? sampleBookingsFor(establishedProfile.slug) : []);
     setSessionNotes({});
+    setSummaryNotes({});
+    setArchivedClients([]);
   }
 
   function saveProfile(next: ProProfile): SaveResult {
@@ -140,6 +149,14 @@ export function ProProvider({ children }: { children: ReactNode }) {
         setBookingOutcome: (id, status) => updateBooking(id, { status }),
         saveSessionNote: (id, text) =>
           setSessionNotes((current) => ({ ...current, [id]: { text, updatedAt: new Date().toISOString() } })),
+        summaryNotes,
+        saveSummaryNote: (clientId, text) =>
+          setSummaryNotes((current) => ({ ...current, [clientId]: { text, updatedAt: new Date().toISOString() } })),
+        archivedClients,
+        setClientArchived: (clientId, archived) =>
+          setArchivedClients((current) =>
+            archived ? [...new Set([...current, clientId])] : current.filter((id) => id !== clientId),
+          ),
         freeDuringTesting: FREE_DURING_TESTING,
         saveProfile,
         withdrawChange,
