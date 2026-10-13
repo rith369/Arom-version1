@@ -7,6 +7,23 @@ A plain-language log of what changed in the app, written for the team rather tha
 
 Each entry lists the commit it landed in, so you can match it to a version of the site.
 
+## 13 Oct 2026: Professional Podcasts Belong Only to the Professional
+
+Commit pending. No migration. Text and documentation only.
+
+**Why.** Professionals make their own episodes, so the product decision is that only they manage them: no reporting by users and no hiding or deleting by admins. The editor had promised that the AROM team could hide an episode, which was never going to be built.
+
+**What changed for professionals:**
+- **The checklist note in the episode editor** now says "Only you can hide or delete your episodes." instead of saying the AROM team can hide them.
+
+**What changed for the team:**
+- **`BACKEND-HANDOFF.md`** section 7 and section 20 now say there is no Report a problem on episodes and no admin hide, edit or delete; the planned "admin hide" item is removed.
+
+**What to re-test:**
+- Open My podcasts, New episode, and read the note under "Before it goes live" in English and Khmer.
+
+---
+
 ## 13 Oct 2026: My Podcasts, Professionals Publish Their Own Episodes
 
 Commit `511db19`. No migration yet. Frontend only, on mock data.

@@ -294,7 +294,7 @@ function EpisodeEditor({ episode, onClose }: { episode: ProEpisode; onClose: () 
             ))}
           </div>
           <p className="mt-3 text-xs text-ink-muted">
-            {t('អ្នកប្រើក៏ឃើញ "សម្រាប់ការសិក្សាប៉ុណ្ណោះ" នៅលើទំព័រផតខាសផងដែរ។ ក្រុម AROM អាចលាក់ភាគដែលមិនសមរម្យ។', 'Users also see "For learning only" on podcast pages. The AROM team can hide an episode that breaks these rules.')}
+            {t('អ្នកប្រើក៏ឃើញ "សម្រាប់ការសិក្សាប៉ុណ្ណោះ" នៅលើទំព័រផតខាសផងដែរ។ មានតែអ្នកទេដែលអាចលាក់ ឬលុបភាគរបស់អ្នក។', 'Users also see "For learning only" on podcast pages. Only you can hide or delete your episodes.')}
           </p>
         </section>
 

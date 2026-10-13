@@ -189,7 +189,7 @@ Do not change these without asking Rith.
 - **A professional appears to users only when their profile is complete:** photo, English bio (80+ characters), Khmer bio, at least one specialty, language and session type, a price choice (Free counts), and at least one open time. Today approval sets `verified` immediately; add the completeness check to the directory query.
 - **Session notes are private to the professional who wrote them.** Not admins, not other professionals.
 - **No payments yet, but prices are shown.** Each professional chooses Free, one price ("$20 a session") or a range ("$30 to $50 a session"). Users see it on the list, the profile and the booking review, with a "No payment during testing" note while the admin switch "No payments during testing" (Settings) is on. Nobody is charged.
-- **Professionals publish their own episodes without admin review,** after confirming three points: no client stories or identifying details, for learning only (not a diagnosis or treatment for any one person), and they own the recording with permission from anyone else in it. The AROM team can hide an episode that breaks these rules.
+- **Professionals publish their own episodes without admin review,** after confirming three points: no client stories or identifying details, for learning only (not a diagnosis or treatment for any one person), and they own the recording with permission from anyone else in it. Episodes belong to the professional: there is no Report a problem on them and admins cannot hide or delete them. Only the professional hides or deletes their own episodes.
 - **Two kinds of podcasts.** MindGuide podcasts are made by admins and shown in MindGuide. Professional podcasts are published by professionals themselves on their own profile so users can listen before booking. They are separate lists.
 
 ## 8. Become a professional (user applies)
@@ -656,16 +656,15 @@ Suggested table: `professional_episodes` (columns as above, `takeaways` and `cha
 ### Rules
 
 - **Who can write:** only the owning professional (approved, role `professional`). Insert and update through RLS on `professional_id = auth.uid()`.
-- **Who can read:** published episodes are public; drafts and hidden episodes only the owner (and admins).
+- **Who can read:** published episodes are public; drafts and hidden episodes only the owner.
 - **Publish** needs an audio file, a title, a short summary and the three confirmations (store the confirmation time on the row as `confirmed_at`).
-- **Admin hide** (`status = hidden` by an admin, with an audit log entry) is promised in the UI but has no admin screen yet. It should come from Reports, which needs `podcast_episode` as a report target type.
+- **No admin actions and no reports:** admins cannot hide, edit or delete an episode, and episodes are not a Report a problem target. Do not add an admin policy for updates or deletes.
 - The educational note ("For learning only") stays fixed app text on podcast pages.
 
 **Mock today:** episodes live in memory only and reset on refresh; an uploaded file is a temporary browser link, so it plays only in the same tab session.
 
 ## 21. Planned next (frontend not built yet)
 
-- **Admin:** hide a professional's podcast episode from Reports (see section 20).
 - **User side:** a page listing the user's own sessions (the sidebar "Appointments" item is still Soon). Today the next session and Join show at the top of the chat with that professional.
 - **Make professional (Way 2):** phone is optional there because the admin already knows the person. Add an optional phone field to `ProfessionalPromotion` when the backend supports it.
 
