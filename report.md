@@ -9,7 +9,7 @@ Each entry lists the commit it landed in, so you can match it to a version of th
 
 ## 13 Oct 2026: My Schedule for Professionals: Weekly Hours, Session Settings and Time Off
 
-Commit pending. No migration yet. Frontend only, on mock data.
+Commit `86226bc`. No migration yet. Frontend only, on mock data.
 
 **Why.** Booking at AROM is instant: users book any open time straight away. Professionals needed a way to say when they are free, and a new professional cannot appear to users until they have at least one open time.
 
