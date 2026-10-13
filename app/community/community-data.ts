@@ -30,7 +30,26 @@ export type SupportGroup = {
   mentorTitle?: string;
   mentorTitleKm?: string;
   isJoined?: boolean;
+  // Closed groups stay readable for their members but nobody can send.
+  status?: "active" | "closed";
+  createdBy?: "admin" | "professional";
 };
+
+// What a user can report inside Community. A report points at the item, it
+// never copies the content, and it never stores who sent it in admin screens.
+export type CommunityReportTarget =
+  | { kind: "member"; groupId: string; memberLabel: string; messageId?: string; memberId?: string }
+  | { kind: "message"; groupId: string; messageId: string }
+  | { kind: "image"; groupId: string; messageId: string }
+  | { kind: "group"; groupId: string };
+
+export type CommunityReportReason =
+  | "harassment"
+  | "spam"
+  | "harmful"
+  | "inappropriate_image"
+  | "safety_concern"
+  | "other";
 
 export const DEFAULT_GROUP_RULES = [
   "Respect other members",

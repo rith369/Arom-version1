@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useSyncExternalStore } from "react";
 import { DesktopNavigation } from "../_components/app-navigation";
 import { BottomNav } from "../components/bottom-nav";
 import { CommunityHomeView } from "./components/community-home-view";
@@ -9,6 +9,14 @@ import { GroupDetailView } from "./components/group-detail-view";
 import { JoinedSuccessModal } from "./components/joined-success-modal";
 import { GroupHubView } from "./components/group-hub-view";
 import { CommunityMenuModal } from "./components/community-menu-modal";
+import { CreateGroupView } from "./components/create-group-view";
+import {
+  getCommunitySnapshot,
+  getServerCommunitySnapshot,
+  readCreatedGroups,
+  saveCreatedGroup,
+  subscribeCommunityStore,
+} from "./community-store";
 import {
   INITIAL_GROUPS,
   INITIAL_MESSAGES,
@@ -27,7 +35,8 @@ type CommunityView =
   | "group-detail"
   | "joined-success"
   | "group-hub"
-  | "menu";
+  | "menu"
+  | "create-group";
 
 export default function CommunityPage() {
   const [view, setView] = useState<CommunityView>("home");
@@ -35,28 +44,27 @@ export default function CommunityPage() {
   const [selectedGroupId, setSelectedGroupId] = useState("stress-burnout");
 
   // Groups and messages state initialized with server-safe defaults, hydrated on mount
-  const [groups, setGroups] = useState<SupportGroup[]>(INITIAL_GROUPS);
+  const [savedGroups, setGroups] = useState<SupportGroup[]>(INITIAL_GROUPS);
   const [messages, setMessages] = useState<ChatMessage[]>(INITIAL_MESSAGES);
 
   useEffect(() => {
     try {
       const stored = localStorage.getItem("arom_community_groups");
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          // Merge with INITIAL_GROUPS so new groups like depression-support and updated rules are loaded
-          const merged = INITIAL_GROUPS.map((initial) => {
-            const existing = parsed.find((p: SupportGroup) => p.id === initial.id);
-            if (!existing) return initial;
-            return {
-              ...initial,
-              isJoined: existing.isJoined,
-              membersCount: existing.membersCount ?? initial.membersCount,
-            };
-          });
-          setGroups(merged);
-        }
-      }
+      const parsed: SupportGroup[] = stored ? JSON.parse(stored) : [];
+      const saved = Array.isArray(parsed) ? parsed : [];
+
+      // Merge with INITIAL_GROUPS so new groups like depression-support and updated rules are loaded,
+      // then add groups created by professionals and admins.
+      const merged = [...INITIAL_GROUPS, ...readCreatedGroups()].map((base) => {
+        const existing = saved.find((p) => p.id === base.id);
+        if (!existing) return base;
+        return {
+          ...base,
+          isJoined: existing.isJoined,
+          membersCount: existing.membersCount ?? base.membersCount,
+        };
+      });
+      setGroups(merged);
 
       const storedMessages = localStorage.getItem("arom_community_messages");
       if (storedMessages) {
@@ -70,6 +78,18 @@ export default function CommunityPage() {
     }
   }, []);
 
+  // Admins shut groups down from /admin/community. Read closures live so the
+  // closed notice shows without a reload.
+  const { closures } = useSyncExternalStore(
+    subscribeCommunityStore,
+    getCommunitySnapshot,
+    getServerCommunitySnapshot,
+  );
+  const groups: SupportGroup[] = savedGroups.map((group) => ({
+    ...group,
+    status: closures.some((item) => item.groupId === group.id) ? "closed" : "active",
+  }));
+
   const [activities, setActivities] = useState<GroupActivity[]>(INITIAL_ACTIVITIES);
   const [members, setMembers] = useState<GroupMember[]>(INITIAL_MEMBERS);
 
@@ -77,8 +97,11 @@ export default function CommunityPage() {
     groups.find((g) => g.id === selectedGroupId) || groups[0];
   const myGroup =
     groups.find((g) => g.isJoined) || groups[0];
+  const openGroups = groups.filter((g) => g.status !== "closed");
   const recommendedGroup =
-    groups.find((g) => g.id === "academic-stress") || groups[1] || groups[0];
+    openGroups.find((g) => g.id === "academic-stress") ||
+    openGroups.find((g) => !g.isJoined) ||
+    groups[0];
 
   function handleSelectGroup(groupId: string) {
     const grp = groups.find((g) => g.id === groupId);
@@ -95,6 +118,7 @@ export default function CommunityPage() {
   }
 
   function handleJoinGroup(groupId: string) {
+    if (groups.find((g) => g.id === groupId)?.status === "closed") return;
     setGroups((prev) => {
       const updated = prev.map((g) =>
         g.id === groupId
@@ -126,6 +150,7 @@ export default function CommunityPage() {
 
   function handleSendMessage(text: string, attachment?: ChatAttachment, targetGroupId?: string) {
     const gid = targetGroupId || selectedGroupId || activeGroup.id;
+    if (groups.find((g) => g.id === gid)?.status === "closed") return;
     const newMsg: ChatMessage = {
       id: `msg-${Date.now()}`,
       groupId: gid,
@@ -148,6 +173,21 @@ export default function CommunityPage() {
       }
       return updated;
     });
+  }
+
+  function handleCreateGroup(group: SupportGroup) {
+    saveCreatedGroup(group);
+    setGroups((prev) => {
+      const updated = [...prev, group];
+      try {
+        localStorage.setItem("arom_community_groups", JSON.stringify(updated));
+      } catch {
+        // ignore
+      }
+      return updated;
+    });
+    setSelectedGroupId(group.id);
+    setView("group-hub");
   }
 
   function handleToggleActivityJoin(activityId: string) {
@@ -173,12 +213,13 @@ export default function CommunityPage() {
               onSelectGroup={handleSelectGroup}
               onOpenAllGroups={() => setView("all-groups")}
               onOpenMenu={() => setView("menu")}
+              onCreateGroup={() => setView("create-group")}
             />
           )}
 
           {view === "all-groups" && (
             <AllGroupsView
-              groups={groups}
+              groups={openGroups}
               onBack={() => setView("home")}
               onSelectGroup={handleSelectGroup}
             />
@@ -217,6 +258,13 @@ export default function CommunityPage() {
               onBack={() => setView("home")}
               onSendMessage={handleSendMessage}
               onToggleActivityJoin={handleToggleActivityJoin}
+            />
+          )}
+
+          {view === "create-group" && (
+            <CreateGroupView
+              onBack={() => setView("home")}
+              onCreate={handleCreateGroup}
             />
           )}
 

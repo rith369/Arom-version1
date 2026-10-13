@@ -7,6 +7,41 @@ A plain-language log of what changed in the app, written for the team rather tha
 
 Each entry lists the commit it landed in, so you can match it to a version of the site.
 
+## 13 Oct 2026: Community Groups by Professionals, Admin Chat Review and Shut Down, User Reports
+
+Commit pending. No migration. Frontend only, on mock data in the browser.
+
+**Why.** Support groups need clear safety rules. Professionals should be able to start groups for the people they help, the AROM team needs to see what happens in a chat and close a group that goes wrong, and members need a simple way to flag a person, an image or a whole group that makes the space feel unsafe.
+
+**What changed for users:**
+- **"Create a group" on the Community home** for professionals and admins only. The form takes the name and description in English and Khmer, topic, maximum members (2 to 20), rules (filled with the default rules) and anonymous mode. The group goes live right away with the creator as its mentor.
+- **Report from inside a group.** The "..." button on each message offers "Report this person", "Report message" and "Report image" (for pictures). The Members tab has a flag on each member, and the group header has a flag to report the whole group. Users pick a reason, can add a short note, and see "Thank you. The AROM team will review this." There is a limit of 5 reports a day.
+- **Members are told the chat can be read.** The group guidelines and the group rules page now say "The AROM safety team can read this chat to keep it safe."
+- **Closed groups.** When an admin shuts a group down, members see "This group was closed by the AROM team.", can still read the history, but cannot send. The group disappears from Browse groups and cannot be joined.
+
+**What changed for users (admins):**
+- **View chat** on every group card opens the full chat, read only, with pictures and file names. A note says opening a chat is recorded in the audit log.
+- **Shut down** replaces Archive. It asks for a reason (only admins see it). Closed groups show a Closed badge, the reason, and a **Reopen** button.
+- **Groups made by professionals** appear in the list with "Created by professional: name". Groups an admin adds also appear on `/community`.
+- **Reports tab** shows what was reported (Person, Message, Image or Group), the reason, the reporter's note and the time, never who reported. Each report has **View chat** (the reported message is highlighted), and group reports have **Shut down group**.
+
+**What changed for the team:**
+- **New `app/community/community-store.ts`** keeps created groups, closures and reports in localStorage so the user page and the admin page see the same demo data in one browser. The backend replaces this file.
+- **`AdminGroup.status` is now `'active' | 'closed'`** (no more `archived`) with `closedReason`, `createdBy` and `creatorName`. `CommunityReport` gained `targetKind`, `targetLabel`, `messageId`, `note` and `createdAt`.
+- **Privacy rule updated:** admins may read support group chats, with an audit log entry every time and a notice to members. Written in `AGENTS.md` section 9 and `BACKEND-HANDOFF.md` sections 2 and 7.
+- **`BACKEND-HANDOFF.md` section 14** lists the data shapes, endpoints, RLS rules and gaps.
+- **New admin text is English only,** following the admin rule.
+
+**What to re-test:**
+- Log in as a user, open `/community`, and confirm there is no "Create a group" button;
+- Open a group, report a message, a person (from a message and from the Members tab), an image and the group; the sixth report in one day shows the limit message;
+- Log in as a professional, create a group in English and Khmer, and confirm it opens with you as mentor and shows in Browse groups;
+- As an admin at `/admin/community`, confirm the new group shows "Created by professional", View chat shows its messages, and the reports from the user appear without the reporter;
+- Shut down a group with a reason, then open `/community` and confirm the closed notice, no message box, no Join, and the group missing from Browse groups; Reopen it and confirm it works again;
+- Switch the user pages to Khmer and check the new text, and check the screens at phone width.
+
+---
+
 ## 13 Oct 2026: Admins No Longer Confirm or Reschedule Bookings
 
 Commit `0ad951c`. No migration.

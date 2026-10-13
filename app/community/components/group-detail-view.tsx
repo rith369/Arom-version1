@@ -19,6 +19,7 @@ export function GroupDetailView({
 }: GroupDetailViewProps) {
   const { language } = useLanguage();
   const km = language === "km";
+  const isClosed = group.status === "closed";
 
   const mentorName = group.mentor
     ? km
@@ -92,20 +93,22 @@ export function GroupDetailView({
       </div>
 
       {/* What You Can Expect matching Screenshot */}
-      <div className="mt-6">
-        <h2 className="text-base font-bold text-[#111827]">
-          {km ? "អ្វីដែលអ្នកអាចរំពឹងទុក (What to Expect)" : "What You Can Expect"}
-        </h2>
+      {expectations.length > 0 && (
+        <div className="mt-6">
+          <h2 className="text-base font-bold text-[#111827]">
+            {km ? "អ្វីដែលអ្នកអាចរំពឹងទុក (What to Expect)" : "What You Can Expect"}
+          </h2>
 
-        <ul className="mt-2.5 space-y-2">
-          {expectations.map((item, idx) => (
-            <li key={idx} className="flex items-start gap-2.5 text-sm text-[#374151]">
-              <span className="mt-2 size-1.5 shrink-0 rounded-full bg-[#1b5e4c]" />
-              <span className="leading-relaxed">{item}</span>
-            </li>
-          ))}
-        </ul>
-      </div>
+          <ul className="mt-2.5 space-y-2">
+            {expectations.map((item, idx) => (
+              <li key={idx} className="flex items-start gap-2.5 text-sm text-[#374151]">
+                <span className="mt-2 size-1.5 shrink-0 rounded-full bg-[#1b5e4c]" />
+                <span className="leading-relaxed">{item}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {/* Group Rules matching Screenshot */}
       <div className="mt-6">
@@ -121,24 +124,36 @@ export function GroupDetailView({
             </li>
           ))}
         </ul>
+        <p className="mt-3 rounded-[14px] bg-[#f2f9f6] p-3 text-xs text-[#2d6a54] leading-relaxed">
+          {km
+            ? "ក្រុមការងារសុវត្ថិភាព AROM អាចអានការសន្ទនានេះ ដើម្បីរក្សាសុវត្ថិភាព។"
+            : "The AROM safety team can read this chat to keep it safe."}
+        </p>
       </div>
 
       {/* Action Button: User reads info and touches Join */}
       <div className="mt-8 pt-2">
-        <button
-          onClick={() => {
-            if (group.isJoined) {
-              onOpenGroupHub(group.id);
-            } else {
-              onJoinGroup(group.id);
-            }
-          }}
-          className="w-full rounded-[18px] bg-[#1a5d4d] py-3.5 text-center text-sm sm:text-base font-bold text-white shadow-lg shadow-[#1a5d4d]/25 transition-all duration-200 hover:bg-[#144b3e] active:scale-[0.99]"
-        >
-          {group.isJoined
-            ? km ? "ចូលទៅកាន់ក្រុម (Enter Group)" : "Enter Group Hub"
-            : km ? "ចូលរួម (Join)" : "Join"}
-        </button>
+        {isClosed && (
+          <p className="mb-3 rounded-[14px] bg-gray-100 p-3 text-center text-sm text-[#4b5563]">
+            {km ? "ក្រុមនេះត្រូវបានបិទដោយក្រុមការងារ AROM។" : "This group was closed by the AROM team."}
+          </p>
+        )}
+        {(!isClosed || group.isJoined) && (
+          <button
+            onClick={() => {
+              if (group.isJoined) {
+                onOpenGroupHub(group.id);
+              } else {
+                onJoinGroup(group.id);
+              }
+            }}
+            className="w-full rounded-[18px] bg-[#1a5d4d] py-3.5 text-center text-sm sm:text-base font-bold text-white shadow-lg shadow-[#1a5d4d]/25 transition-all duration-200 hover:bg-[#144b3e] active:scale-[0.99]"
+          >
+            {group.isJoined
+              ? km ? "ចូលទៅកាន់ក្រុម (Enter Group)" : "Enter Group Hub"
+              : km ? "ចូលរួម (Join)" : "Join"}
+          </button>
+        )}
       </div>
     </div>
   );

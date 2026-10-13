@@ -8,7 +8,16 @@ import {
   type ReactNode,
 } from 'react';
 
-import { Plus, Search, Pencil, Archive, RotateCcw, X } from 'lucide-react';
+import {
+  Plus,
+  Search,
+  Pencil,
+  RotateCcw,
+  X,
+  MessagesSquare,
+  Ban,
+  FileText,
+} from 'lucide-react';
 
 import { useAdmin } from './admin-provider';
 import { useLanguage } from '../../_components/language-provider';
@@ -75,7 +84,7 @@ function GroupForm({
   record: AdminGroup | null;
   onClose: () => void;
 }) {
-  const { professionals, saveGroup } = useAdmin();
+  const { professionals, saveGroup, currentAdminName } = useAdmin();
   const { language } = useLanguage();
   const km = language === 'km';
   const [error, setError] = useState('');
@@ -121,6 +130,8 @@ function GroupForm({
         .map((rule) => rule.trim())
         .filter(Boolean),
       status: record?.status ?? 'active',
+      createdBy: record?.createdBy ?? 'admin',
+      creatorName: record?.creatorName ?? currentAdminName,
     });
 
     onClose();
@@ -363,10 +374,158 @@ function ActivityForm({ onClose }: { onClose: () => void }) {
   );
 }
 
+function ChatViewer({
+  group,
+  highlightMessageId,
+  onClose,
+}: {
+  group: AdminGroup;
+  highlightMessageId?: string;
+  onClose: () => void;
+}) {
+  const { communityMessages } = useAdmin();
+  const messages = communityMessages.filter(
+    (message) => message.groupId === group.id,
+  );
+
+  return (
+    <Modal title={`Chat: ${group.name}`} onClose={onClose}>
+      <p className="rounded-xl bg-arom-wash p-3 text-xs text-ink-muted">
+        Read only. Opening a chat is recorded in the audit log. Members are
+        told in the group guidelines that the AROM safety team can read it.
+      </p>
+
+      {messages.length === 0 ? (
+        <p className="mt-5 text-center text-sm text-ink-muted">
+          No messages in this group yet.
+        </p>
+      ) : (
+        <ol className="mt-4 space-y-3">
+          {messages.map((message) => (
+            <li
+              key={message.id}
+              className={`rounded-2xl border p-3 text-sm ${
+                message.id === highlightMessageId
+                  ? 'border-arom-danger/40 bg-arom-danger/5'
+                  : 'border-arom-border'
+              }`}>
+              <div className="flex flex-wrap items-baseline justify-between gap-2">
+                <span className="font-medium">
+                  {message.senderName}
+                  {message.isMentor && (
+                    <span className="ml-2 rounded-full bg-arom-wash px-2 py-0.5 text-xs text-arom">
+                      Mentor
+                    </span>
+                  )}
+                </span>
+                <span className="text-xs text-ink-muted">{message.time}</span>
+              </div>
+
+              {message.text && (
+                <p className="mt-1.5 leading-6 text-ink">{message.text}</p>
+              )}
+
+              {message.attachment?.type === 'image' && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={message.attachment.url}
+                  alt={message.attachment.name}
+                  className="mt-2 max-h-56 rounded-xl border border-arom-border"
+                />
+              )}
+
+              {message.attachment?.type === 'file' && (
+                <p className="mt-2 flex items-center gap-2 text-xs text-ink-muted">
+                  <FileText size={15} aria-hidden="true" />
+                  {message.attachment.name}
+                </p>
+              )}
+
+              {message.id === highlightMessageId && (
+                <p className="mt-2 text-xs text-arom-danger">Reported</p>
+              )}
+            </li>
+          ))}
+        </ol>
+      )}
+    </Modal>
+  );
+}
+
+function ShutDownDialog({
+  group,
+  onConfirm,
+  onClose,
+}: {
+  group: AdminGroup;
+  onConfirm: (reason: string) => void;
+  onClose: () => void;
+}) {
+  const [reason, setReason] = useState('');
+  const [error, setError] = useState('');
+
+  function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!reason.trim()) {
+      setError('Write a reason for the AROM team.');
+      return;
+    }
+    onConfirm(reason);
+  }
+
+  return (
+    <Modal title={`Shut down ${group.name}?`} onClose={onClose}>
+      <form onSubmit={submit} className="space-y-4">
+        <p className="text-sm text-ink-muted">
+          Members will see &quot;This group was closed by the AROM team.&quot;
+          They can still read past messages, but nobody can send, join or find
+          the group in Browse groups. You can reopen it later.
+        </p>
+
+        <label className="block text-sm">
+          Reason (admins only, members do not see it) *
+          <textarea
+            value={reason}
+            onChange={(event) => setReason(event.target.value)}
+            rows={3}
+            maxLength={500}
+            className={fieldClass}
+          />
+        </label>
+
+        {error && (
+          <p role="alert" className="text-sm text-arom-danger">
+            {error}
+          </p>
+        )}
+
+        <div className="flex justify-end gap-3">
+          <button type="button" onClick={onClose} className={buttonClass}>
+            Cancel
+          </button>
+          <button
+            type="submit"
+            className="rounded-full bg-arom-danger px-5 py-2.5 text-sm text-white">
+            Shut down group
+          </button>
+        </div>
+      </form>
+    </Modal>
+  );
+}
+
+const reportKindLabels: Record<CommunityReport['targetKind'], string> = {
+  member: 'Person',
+  message: 'Message',
+  image: 'Image',
+  group: 'Group',
+};
+
 export function CommunityView() {
   const {
     groups,
-    saveGroup,
+    shutDownGroup,
+    reopenGroup,
     professionals,
     groupActivities,
     saveGroupActivity,
@@ -390,6 +549,13 @@ export function CommunityView() {
     status: 'dismissed' | 'removed';
   } | null>(null);
   const [notice, setNotice] = useState('');
+  const [chat, setChat] = useState<{
+    group: AdminGroup;
+    highlightMessageId?: string;
+  } | null>(null);
+  const [shutDownTarget, setShutDownTarget] = useState<AdminGroup | null>(
+    null,
+  );
 
   const search = query.trim().toLocaleLowerCase();
 
@@ -426,7 +592,7 @@ export function CommunityView() {
   );
 
   const visibleReports = communityReports.filter((report) =>
-    `${report.reason} ${report.messagePreview} ${groupName(report.groupId)}`
+    `${report.reason} ${report.targetLabel} ${report.note} ${report.messagePreview} ${groupName(report.groupId)}`
       .toLocaleLowerCase()
       .includes(search),
   );
@@ -522,15 +688,15 @@ export function CommunityView() {
                 <h2 className="text-lg font-semibold">
                   {km && group.kmName ? group.kmName : group.name}
                 </h2>
-                <span className="rounded-full bg-arom-wash px-3 py-1 text-xs text-arom">
-                  {group.status === 'active'
-                    ? km
-                      ? 'សកម្ម'
-                      : 'Active'
-                    : km
-                      ? 'បណ្ណសារ'
-                      : 'Archived'}
-                </span>
+                {group.status === 'active' ? (
+                  <span className="rounded-full bg-arom-wash px-3 py-1 text-xs text-arom">
+                    {km ? 'សកម្ម' : 'Active'}
+                  </span>
+                ) : (
+                  <span className="rounded-full bg-arom-danger/10 px-3 py-1 text-xs text-arom-danger">
+                    Closed
+                  </span>
+                )}
               </div>
 
               <p className="mt-3 line-clamp-3 text-sm leading-6 text-ink-muted">
@@ -554,8 +720,18 @@ export function CommunityView() {
                     ? 'ប្រើឈ្មោះគណនី'
                     : 'Account names displayed'}
               </p>
+              <p className="mt-2 text-xs text-ink-muted">
+                {group.createdBy === 'professional'
+                  ? `Created by professional: ${group.creatorName || 'Unknown'}`
+                  : `Created by admin${group.creatorName ? `: ${group.creatorName}` : ''}`}
+              </p>
+              {group.status === 'closed' && group.closedReason && (
+                <p className="mt-2 text-xs text-arom-danger">
+                  Closed: {group.closedReason}
+                </p>
+              )}
 
-              <div className="mt-5 flex gap-2">
+              <div className="mt-5 flex flex-wrap gap-2">
                 <button
                   type="button"
                   aria-label={`${km ? 'កែសម្រួល' : 'Edit'}: ${group.name}`}
@@ -565,25 +741,31 @@ export function CommunityView() {
                 </button>
                 <button
                   type="button"
-                  aria-label={`${group.status === 'active' ? 'Archive' : 'Restore'}: ${group.name}`}
-                  onClick={() => {
-                    saveGroup({
-                      ...group,
-                      status: group.status === 'active' ? 'archived' : 'active',
-                    });
-                    setNotice(
-                      km
-                        ? 'បានធ្វើបច្ចុប្បន្នភាពក្រុម។'
-                        : 'Group status updated.',
-                    );
-                  }}
-                  className="rounded-lg border border-arom-border p-2 text-ink-muted">
-                  {group.status === 'active' ? (
-                    <Archive size={17} />
-                  ) : (
-                    <RotateCcw size={17} />
-                  )}
+                  onClick={() => setChat({ group })}
+                  className="flex items-center gap-1.5 rounded-lg border border-arom-border px-3 py-2 text-sm text-arom">
+                  <MessagesSquare size={17} aria-hidden="true" />
+                  View chat
                 </button>
+                {group.status === 'active' ? (
+                  <button
+                    type="button"
+                    onClick={() => setShutDownTarget(group)}
+                    className="flex items-center gap-1.5 rounded-lg border border-arom-danger/20 px-3 py-2 text-sm text-arom-danger">
+                    <Ban size={17} aria-hidden="true" />
+                    Shut down
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      reopenGroup(group.id);
+                      setNotice('Group reopened.');
+                    }}
+                    className="flex items-center gap-1.5 rounded-lg border border-arom-border px-3 py-2 text-sm text-ink-muted">
+                    <RotateCcw size={17} aria-hidden="true" />
+                    Reopen
+                  </button>
+                )}
               </div>
             </article>
           ))}
@@ -644,11 +826,34 @@ export function CommunityView() {
             <article
               key={report.id}
               className="rounded-2xl border border-arom-border bg-white p-5">
-              <h2 className="font-medium">{groupName(report.groupId)}</h2>
-              <p className="mt-2 text-sm text-ink-muted">{report.reason}</p>
-              <blockquote className="mt-3 rounded-xl bg-arom-wash p-3 text-sm">
-                {report.messagePreview}
-              </blockquote>
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="rounded-full bg-arom-wash px-2.5 py-0.5 text-xs text-arom">
+                  {reportKindLabels[report.targetKind]}
+                </span>
+                <h2 className="font-medium">{groupName(report.groupId)}</h2>
+              </div>
+              {report.targetKind === 'member' && (
+                <p className="mt-2 text-sm">Reported person: {report.targetLabel}</p>
+              )}
+              <p className="mt-2 text-sm text-ink-muted">
+                {report.reason}
+                {report.createdAt &&
+                  ` · ${new Date(report.createdAt).toLocaleString('en-GB', {
+                    timeZone: 'Asia/Phnom_Penh',
+                    dateStyle: 'medium',
+                    timeStyle: 'short',
+                  })}`}
+              </p>
+              {report.messagePreview && (
+                <blockquote className="mt-3 rounded-xl bg-arom-wash p-3 text-sm">
+                  {report.messagePreview}
+                </blockquote>
+              )}
+              {report.note && (
+                <p className="mt-3 text-sm text-ink-muted">
+                  Note from reporter: {report.note}
+                </p>
+              )}
 
               <p className="mt-3 text-xs text-ink-muted">
                 {report.status === 'pending'
@@ -684,6 +889,43 @@ export function CommunityView() {
                   </button>
                 </div>
               )}
+
+              {groups.some((group) => group.id === report.groupId) && (
+                <div className="mt-3 flex flex-wrap gap-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const group = groups.find(
+                        (item) => item.id === report.groupId,
+                      );
+                      if (group)
+                        setChat({
+                          group,
+                          highlightMessageId: report.messageId,
+                        });
+                    }}
+                    className={`${buttonClass} flex items-center gap-1.5`}>
+                    <MessagesSquare size={16} aria-hidden="true" />
+                    View chat
+                  </button>
+                  {report.targetKind === 'group' &&
+                    groups.find((group) => group.id === report.groupId)
+                      ?.status === 'active' && (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setShutDownTarget(
+                            groups.find((group) => group.id === report.groupId) ??
+                              null,
+                          )
+                        }
+                        className="flex items-center gap-1.5 rounded-full border border-arom-danger/20 px-4 py-2 text-sm text-arom-danger">
+                        <Ban size={16} aria-hidden="true" />
+                        Shut down group
+                      </button>
+                    )}
+                </div>
+              )}
             </article>
           ))}
         </div>
@@ -711,6 +953,26 @@ export function CommunityView() {
       )}
 
       {activityOpen && <ActivityForm onClose={() => setActivityOpen(false)} />}
+
+      {chat && (
+        <ChatViewer
+          group={chat.group}
+          highlightMessageId={chat.highlightMessageId}
+          onClose={() => setChat(null)}
+        />
+      )}
+
+      {shutDownTarget && (
+        <ShutDownDialog
+          group={shutDownTarget}
+          onClose={() => setShutDownTarget(null)}
+          onConfirm={(reason) => {
+            shutDownGroup(shutDownTarget.id, reason);
+            setShutDownTarget(null);
+            setNotice('Group shut down. Members now see it as closed.');
+          }}
+        />
+      )}
 
       {reportAction && (
         <Modal

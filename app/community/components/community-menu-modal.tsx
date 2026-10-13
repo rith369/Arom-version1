@@ -31,7 +31,7 @@ export function CommunityMenuModal({
   const [reportSent, setReportSent] = useState(false);
 
   const myGroups = groups.filter((g) => g.isJoined);
-  const recommended = groups.filter((g) => !g.isJoined);
+  const recommended = groups.filter((g) => !g.isJoined && g.status !== "closed");
 
   function toggle(section: string) {
     setExpanded(expanded === section ? null : section);
@@ -100,9 +100,15 @@ export function CommunityMenuModal({
                     className="flex w-full items-center justify-between rounded-xl bg-white p-3 text-xs font-semibold text-[#111827] shadow-sm hover:border-[#1f6f5b] transition-all"
                   >
                     <span>{km ? g.nameKm : g.name}</span>
-                    <span className="text-[#1f6f5b]">
-                      {g.membersCount}/{g.maxMembers}
-                    </span>
+                    {g.status === "closed" ? (
+                      <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[11px] text-gray-600">
+                        {km ? "បានបិទ (Closed)" : "Closed"}
+                      </span>
+                    ) : (
+                      <span className="text-[#1f6f5b]">
+                        {g.membersCount}/{g.maxMembers}
+                      </span>
+                    )}
                   </button>
                 ))
               )}

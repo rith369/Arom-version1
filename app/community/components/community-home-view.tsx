@@ -1,9 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Plus } from "lucide-react";
 import { MaskIcon, StressLightningIcon } from "./community-icons";
 import { useLanguage } from "../../_components/language-provider";
+import { useAuth } from "../../_components/auth-provider";
 import { SupportGroup } from "../community-data";
 import { TopHeader } from "../../components/top-header";
 
@@ -13,6 +14,7 @@ type CommunityHomeViewProps = {
   onSelectGroup: (groupId: string) => void;
   onOpenAllGroups: () => void;
   onOpenMenu: () => void;
+  onCreateGroup: () => void;
 };
 
 export function CommunityHomeView({
@@ -21,9 +23,12 @@ export function CommunityHomeView({
   onSelectGroup,
   onOpenAllGroups,
   onOpenMenu,
+  onCreateGroup,
 }: CommunityHomeViewProps) {
   const { language } = useLanguage();
+  const { user } = useAuth();
   const km = language === "km";
+  const canCreateGroup = user?.role === "professional" || user?.role === "admin";
 
   return (
     <div className="w-full max-w-lg mx-auto pb-28 px-4 pt-3">
@@ -41,6 +46,18 @@ export function CommunityHomeView({
             : "A safe and anonymous space to share, learn, and grow together."}
         </p>
       </div>
+
+      {/* Professionals and admins can start a new support group */}
+      {canCreateGroup && (
+        <button
+          type="button"
+          onClick={onCreateGroup}
+          className="mt-5 flex w-full items-center justify-center gap-2 rounded-[18px] border border-[#1a5d4d]/30 bg-white py-3 text-sm font-bold text-[#1a5d4d] shadow-sm transition-colors hover:bg-[#eaf5f1]"
+        >
+          <Plus size={18} />
+          {km ? "បង្កើតក្រុម (Create a group)" : "Create a group"}
+        </button>
+      )}
 
       {/* Anonymous Banner Card matching Figma Screen 1 */}
       <div className="mt-5 flex items-center gap-3.5 rounded-[22px] bg-[#dff2ec] p-4 text-[#1b4332] shadow-sm">

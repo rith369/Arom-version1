@@ -19,7 +19,7 @@ These come from `AGENTS.md` sections 9 and 10. They are not optional.
 
 - **Server checks every permission.** Every admin endpoint starts with `requireRole("admin")` from `lib/controllers/role-controller.ts`. Never trust a role sent by the browser.
 - **RLS on every table.** Users can only read and change their own rows. Admin access goes through role checked policies or `security definer` functions.
-- **No private content in admin responses.** Admins see counts only, never journal text, mood entries, detection answers or session notes.
+- **No private content in admin responses.** Admins see counts only, never journal text, mood entries, detection answers or session notes. One exception: admins may read support group chats for safety (section 14). Every opening of a chat writes an audit log entry, and members are told in the group guidelines.
 - **Audit log** (`admin_audit_log`) for every role change, suspension, approval and rejection.
 - **No service role key in browser code.** If a feature needs it (for example reading emails from `auth.users`), it stays in a server handler.
 - **Data minimization.** Only return the fields the page actually shows.
@@ -51,7 +51,8 @@ The yellow "Demo data on this page" banner is in `admin-shell.tsx`. Remove it fo
 | Report a problem (users) and admin Reports page (`/admin/reports`) | Done on mock data | Waiting for backend | 10 |
 | Admin bookings chart: sessions per day and new bookings per day (`/admin/bookings`) | Done on mock data | Waiting for backend | 12 |
 | MindGuide podcasts: user pages `/podcasts` and `/podcasts/<id>`, admin Podcasts tab | Done on mock data | Waiting for backend | 11 |
-| Other admin pages (bookings, community, journal prompts, settings, audit log) | Built by Sokheng on mock data | Not started | not written yet |
+| Community: professionals and admins create groups, admins read chats and shut groups down, users report a person, image, message or group (`/community`, `/admin/community`) | Done on mock data | Waiting for backend | 14 |
+| Other admin pages (bookings, journal prompts, settings, audit log) | Built by Sokheng on mock data | Not started | not written yet |
 
 ## 5. Admin users page
 
@@ -160,7 +161,11 @@ Do not change these without asking Rith.
 - **Nobody is promoted automatically by the system.**
 - **Admins can make other admins** from the Users page, with a confirm checkbox, never on themselves, and never removing the last admin.
 - **Professionals edit their own profile.** Admins review and moderate only.
-- **Admins never see private wellbeing content.** Counts only.
+- **Admins never see private wellbeing content.** Counts only. Exception: support group chats, see the next rules.
+- **Professionals and admins create support groups.** A professional's group goes live right away, with the creator as its mentor. Admins can shut it down later.
+- **Admins can read every support group chat** for safety. Each time an admin opens a chat it is written to the audit log, and every group's guidelines say "The AROM safety team can read this chat to keep it safe."
+- **Shutting down a group closes it, it is not deleted.** Members keep the group in their list with "This group was closed by the AROM team." and can read the history, but nobody can send or join, and it is hidden from Browse groups. Admins can reopen it. The reason is for admins only.
+- **Users can report a person, a message, an image or a whole group.** The admin never sees who reported.
 - **AROM has no "Owner" role.** Only `user`, `professional`, `admin`.
 - **Educational note is fixed app text.** Every lesson, tip, practice and podcast screen shows "For learning only. This is not a diagnosis or treatment." from `app/_components/educational-note.tsx`. It is not stored as content, so no admin edit can remove it.
 - **No crisis helpline card on content screens.** Users find helpline information in Settings.
@@ -354,6 +359,61 @@ The chart only needs counts, never names. Suggested endpoint, admin only:
 
 - **Professional profile editor under `/pro`.** Uses the pending changes rule in section 6.
 - **Make professional (Way 2):** phone is optional there because the admin already knows the person. Add an optional phone field to `ProfessionalPromotion` when the backend supports it.
+
+## 14. Community: groups, chat moderation and reports
+
+**Files:** user side `app/community/page.tsx`, `community-data.ts` (types), `community-store.ts` (mock store in localStorage, shared with admin), `components/create-group-view.tsx`, `components/report-dialog.tsx`, `components/group-hub-view.tsx` (report entry points, closed state). Admin side `app/admin/_data/community.ts`, `_components/community-view.tsx` (View chat, Shut down, Reopen, reports), actions in `admin-provider.tsx`.
+
+**Mock today:** `community-store.ts` keeps created groups, closures and reports in this browser's localStorage, and both `/community` and the admin provider read it with `useSyncExternalStore`. So in one browser a professional can create a group, the admin sees it, shuts it down, and `/community` shows it closed. Replace every function in `community-store.ts` with API calls; the components should not need to change. Admin edits to an existing group still stay in admin state only.
+
+### Data shape
+
+`SupportGroup` (user side) gains:
+
+| Field | Type | Notes |
+|---|---|---|
+| `status` | `'active' \| 'closed'` | derived from closures |
+| `createdBy` | `'admin' \| 'professional'` | new column on groups |
+
+`AdminGroup` gains `status: 'active' | 'closed'` (replaces the old `archived`), `closedReason?`, `createdBy`, `creatorName`.
+
+A closure: `{ groupId, reason, closedAt }`. Suggested columns on the groups table: `closed_at`, `closed_by`, `closed_reason` (reason is admin only, never returned to members).
+
+A report sent by a user (`StoredCommunityReport`):
+
+| Field | Type | Notes |
+|---|---|---|
+| `target` | `{ kind: 'member', groupId, memberLabel, memberId?, messageId? }`, `{ kind: 'message' \| 'image', groupId, messageId }` or `{ kind: 'group', groupId }` | A reference, never a copy of the content. A member report from a chat message carries `messageId` so the backend can find the real sender |
+| `reason` | `'harassment' \| 'spam' \| 'harmful' \| 'inappropriate_image' \| 'safety_concern' \| 'other'` | Which reasons show depends on `kind` |
+| `note` | string, up to 300 characters, optional | The form asks users not to write personal or health details |
+| `createdAt` | ISO string | |
+
+The admin list uses `CommunityReport`: `id, groupId, targetKind, targetLabel, messageId?, messagePreview, reason (label), note, createdAt, status ('pending' | 'dismissed' | 'removed')`.
+
+### Actions
+
+| Frontend action | Who | Meaning | Suggested backend |
+|---|---|---|---|
+| `saveCreatedGroup(group)` from the Community "Create a group" button | `professional`, `admin` | Create a live group; the creator becomes mentor and member | `POST /api/community/groups`. Check the role on the server; set `created_by` and the mentor from the session, never from the body |
+| admin `saveGroup` (new record) | `admin` | Admin "Add group" also publishes to users | same endpoint |
+| `shutDownGroup(id, reason)` | `admin` | Close the group, reason required | `POST /api/admin/community/groups/:id/close`, audit log entry |
+| `reopenGroup(id)` | `admin` | Reopen | `POST /api/admin/community/groups/:id/reopen`, audit log entry |
+| `communityMessages` (View chat) | `admin` | Read every message of one group, read only, including images and file names | `GET /api/admin/community/groups/:id/messages`. **Write an audit log entry on every call** (who, which group, when) |
+| `submitCommunityReport({ target, reason, note })` | signed in member of that group | Returns `'sent'` or `'daily_limit'` | `security definer` function: checks the target exists and the reporter is a member, 5 reports per user per day, keeps the reporter id only for that limit |
+| `resolveCommunityReport(id, 'dismissed' \| 'removed')` | `admin` | Close a report | admin only, audit log entry |
+
+### Rules for the backend
+
+- **RLS:** members read and send messages only in groups they joined; nobody can send to a closed group (check it in the insert policy, not only in the UI); only admins read any group's messages, through the audited endpoint.
+- **Never return the reporter id** to the admin UI.
+- **Anonymous names stay anonymous** in member screens. The server can link a report to the real account for moderation (for example suspending), but the admin UI shows the anonymous label today.
+- **Closed groups** are left out of browse and search, and joining one is refused.
+
+### Backend gaps
+
+1. Groups, members, messages and attachments tables do not exist yet. Chat images need a private storage bucket readable by members of that group and by admins.
+2. "Mark for removal" on a report only changes the queue today; it should hide that message or image for everyone.
+3. Professionals have no "My groups" list yet; it belongs in `/pro`.
 
 ## Template for a new feature section
 

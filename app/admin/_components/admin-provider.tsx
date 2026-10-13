@@ -1,6 +1,13 @@
 'use client';
 
-import { createContext, useContext, useState, type ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  useMemo,
+  useState,
+  useSyncExternalStore,
+  type ReactNode,
+} from 'react';
 
 import {
   initialProfessionals,
@@ -33,10 +40,25 @@ import {
   initialGroups,
   initialGroupActivities,
   initialCommunityReports,
+  reportReasonLabels,
+  toAdminGroup,
   type AdminGroup,
   type AdminGroupActivity,
   type CommunityReport,
 } from '../_data/community';
+import {
+  closeGroup,
+  getCommunitySnapshot,
+  getServerCommunitySnapshot,
+  reopenGroup as reopenStoredGroup,
+  saveCreatedGroup,
+  subscribeCommunityStore,
+} from '../../community/community-store';
+import {
+  DEFAULT_GROUP_RULES,
+  DEFAULT_GROUP_RULES_KM,
+  type ChatMessage,
+} from '../../community/community-data';
 import {
   initialJournalPrompts,
   type AdminJournalPrompt,
@@ -107,6 +129,11 @@ type AdminState = {
   saveBooking: (record: AdminBooking) => void;
   groups: AdminGroup[];
   saveGroup: (record: AdminGroup) => void;
+  shutDownGroup: (id: string, reason: string) => void;
+  reopenGroup: (id: string) => void;
+  // Every message in every group. Admins may read chats for safety; the
+  // backend writes an audit log entry each time a chat is opened.
+  communityMessages: ChatMessage[];
 
   groupActivities: AdminGroupActivity[];
   saveGroupActivity: (record: AdminGroupActivity) => void;
@@ -458,22 +485,134 @@ export function AdminProvider({ children }: { children: ReactNode }) {
     );
   }
 
-  const [groups, setGroups] = useState<AdminGroup[]>(initialGroups);
+  const [groupEdits, setGroupEdits] = useState<AdminGroup[]>(initialGroups);
+  const [reportDecisions, setReportDecisions] = useState<
+    Record<string, 'dismissed' | 'removed'>
+  >({});
+
+  // Groups, closures, reports and messages made on /community in this browser.
+  const communityStore = useSyncExternalStore(
+    subscribeCommunityStore,
+    getCommunitySnapshot,
+    getServerCommunitySnapshot,
+  );
+
+  const groups = useMemo(() => {
+    const closures = new Map(
+      communityStore.closures.map((item) => [item.groupId, item.reason]),
+    );
+    const created = communityStore.createdGroups
+      .filter((group) => !groupEdits.some((item) => item.id === group.id))
+      .map(toAdminGroup);
+
+    return [...groupEdits, ...created].map((group) => ({
+      ...group,
+      status: closures.has(group.id) ? ('closed' as const) : ('active' as const),
+      closedReason: closures.get(group.id),
+    }));
+  }, [communityStore, groupEdits]);
+
+  const communityMessages = communityStore.messages;
 
   const [groupActivities, setGroupActivities] = useState<AdminGroupActivity[]>(
     initialGroupActivities,
   );
 
-  const [communityReports, setCommunityReports] = useState<CommunityReport[]>(
-    initialCommunityReports,
-  );
+  const communityReports = useMemo(() => {
+    const sent: CommunityReport[] = communityStore.reports.map((report) => {
+      const target = report.target;
+      const message =
+        'messageId' in target && target.messageId
+          ? communityStore.messages.find((item) => item.id === target.messageId)
+          : undefined;
+      const group = groups.find((item) => item.id === target.groupId);
+
+      return {
+        id: report.id,
+        groupId: target.groupId,
+        targetKind: target.kind,
+        targetLabel:
+          target.kind === 'member'
+            ? target.memberLabel
+            : target.kind === 'group'
+              ? (group?.name ?? 'Group')
+              : target.kind === 'image'
+                ? 'Image'
+                : 'Message',
+        messageId: message?.id,
+        messagePreview:
+          target.kind === 'image'
+            ? `Image: ${message?.attachment?.name ?? 'removed'}`
+            : (message?.text ?? ''),
+        reason: reportReasonLabels[report.reason],
+        note: report.note,
+        createdAt: report.createdAt,
+        status: 'pending',
+      };
+    });
+
+    return [...initialCommunityReports, ...sent].map((report) => ({
+      ...report,
+      status: reportDecisions[report.id] ?? report.status,
+    }));
+  }, [communityStore, groups, reportDecisions]);
 
   function saveGroup(record: AdminGroup) {
-    setGroups((current) =>
+    const isNew = !groups.some((item) => item.id === record.id);
+
+    setGroupEdits((current) =>
       current.some((item) => item.id === record.id)
         ? current.map((item) => (item.id === record.id ? record : item))
         : [...current, record],
     );
+
+    // New groups made here also show on /community in this browser.
+    if (isNew) {
+      const mentor = professionals.find((item) => item.id === record.mentorId);
+      const usesDefaultRules =
+        record.rules.length === 0 ||
+        record.rules.join('\n') === DEFAULT_GROUP_RULES.join('\n');
+
+      saveCreatedGroup({
+        id: record.id,
+        name: record.name,
+        nameKm: record.kmName || record.name,
+        about: record.about,
+        aboutKm: record.kmAbout || record.about,
+        membersCount: record.membersCount,
+        maxMembers: record.maxMembers,
+        iconType: 'stress',
+        isAnonymous: record.isAnonymous,
+        expectations: [],
+        expectationsKm: [],
+        rules: usesDefaultRules ? DEFAULT_GROUP_RULES : record.rules,
+        rulesKm: usesDefaultRules ? DEFAULT_GROUP_RULES_KM : record.rules,
+        mentor: mentor
+          ? {
+              name: mentor.name,
+              nameKm: mentor.kmName || mentor.name,
+              role: mentor.role,
+              roleKm: mentor.kmRole || mentor.role,
+              experience: mentor.experience,
+              experienceKm: mentor.experience,
+              avatarUrl: mentor.image || undefined,
+              badge: 'Group Mentor',
+              badgeKm: 'អ្នកណែនាំក្រុម',
+            }
+          : undefined,
+        isJoined: false,
+        status: 'active',
+        createdBy: 'admin',
+      });
+    }
+  }
+
+  function shutDownGroup(id: string, reason: string) {
+    closeGroup(id, reason.trim());
+  }
+
+  function reopenGroup(id: string) {
+    reopenStoredGroup(id);
   }
 
   function saveGroupActivity(record: AdminGroupActivity) {
@@ -485,12 +624,8 @@ export function AdminProvider({ children }: { children: ReactNode }) {
   }
 
   function resolveCommunityReport(id: string, status: 'dismissed' | 'removed') {
-    setCommunityReports((current) =>
-      current.map((item) =>
-        item.id === id && item.status === 'pending'
-          ? { ...item, status }
-          : item,
-      ),
+    setReportDecisions((current) =>
+      current[id] ? current : { ...current, [id]: status },
     );
   }
   const [journalPrompts, setJournalPrompts] = useState<AdminJournalPrompt[]>(
@@ -545,6 +680,9 @@ export function AdminProvider({ children }: { children: ReactNode }) {
         saveBooking,
         groups,
         saveGroup,
+        shutDownGroup,
+        reopenGroup,
+        communityMessages,
         groupActivities,
         saveGroupActivity,
         communityReports,
