@@ -7,6 +7,23 @@ A plain-language log of what changed in the app, written for the team rather tha
 
 Each entry lists the commit it landed in, so you can match it to a version of the site.
 
+## 13 Oct 2026: Crashes Card Keeps Only "Copy for Developer"
+
+Commit pending. No migration.
+
+**Why.** The team shares bugs on Telegram, so the "Email developer" button on the crashes card was not needed. One button keeps the card simpler.
+
+**What changed for users (admins):**
+- **"Email developer" was removed** from "Most frequent crashes, last 7 days". **"Copy for developer"** still copies the top 5 crashes as text to paste into Telegram or GitHub.
+
+**What changed for the team:**
+- **`crash-report-card.tsx`** no longer builds an email link. `BACKEND-HANDOFF.md` section 14 updated.
+
+**What to re-test:**
+- Open the admin Overview, confirm only "Copy for developer" shows on the crashes card, press it and paste the text into Telegram.
+
+---
+
 ## 13 Oct 2026: Crash Tracking, Friendly Error Screen and a Crashes Card on the Admin Overview
 
 Commit `fcc3366`. No migration yet. Admin card is on mock data.

@@ -408,7 +408,7 @@ The user page reads the empty lists in `support-contacts.ts`, so admin edits do 
 1. **`POST /api/crash-reports`** accepting `CrashReport`, sent with `navigator.sendBeacon`. Allow signed out visitors. Rate limit per IP and per user. Store the reporter id only to count distinct people, never return it.
 2. **Table** of crash events with RLS: insert through the endpoint only, read by admins only. Keep 30 days.
 3. **`GET /api/admin/crashes?days=7`** returning groups (`CrashGroup`): `id`, `kind`, `message`, `count`, `people` (distinct accounts), `lastSeenAt`, `route`, `release`, sorted by `count`. Group by `kind` + `message` + `route`.
-4. **Optional, "send the top ones to the developer":** a daily job that emails or Telegrams the top 5 groups to the developer. Today the admin card has Copy for developer and Email developer buttons that build the same text by hand.
+4. **Optional, "send the top ones to the developer":** a daily job that emails or Telegrams the top 5 groups to the developer. Today the admin card has a Copy for developer button that builds the same text by hand.
 5. Then replace the body of `reportCrash()` with the send, and change the error screen text to say the team has been told (it does not say so yet, because nothing is sent).
 
 ## 15. Planned next (frontend not built yet)

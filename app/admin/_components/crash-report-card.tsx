@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Copy, Info, Mail } from 'lucide-react';
+import { Copy, Info } from 'lucide-react';
 
 import { initialCrashGroups, type CrashGroup } from '../_data/crashes';
 
@@ -24,7 +24,7 @@ function people(count: number) {
   return count === 1 ? '1 person' : `${count} people`;
 }
 
-// Plain text a developer can paste into Telegram, GitHub or an email.
+// Plain text a developer can paste into Telegram or GitHub.
 function developerReport(crashes: CrashGroup[]) {
   const lines = crashes.map((crash, index) =>
     [
@@ -54,7 +54,7 @@ export function CrashReportCard({
       await navigator.clipboard.writeText(report);
       setNotice('Copied. Paste it to the developer.');
     } catch {
-      setNotice('Could not copy. Use Email developer instead.');
+      setNotice('Could not copy. Your browser blocked the clipboard.');
     }
   }
 
@@ -93,12 +93,6 @@ export function CrashReportCard({
               <Copy size={14} aria-hidden="true" />
               Copy for developer
             </button>
-            <a
-              href={`mailto:?subject=${encodeURIComponent('AROM: top crashes, last 7 days')}&body=${encodeURIComponent(report)}`}
-              className="inline-flex items-center gap-1.5 rounded-full border border-arom-border px-3.5 py-1.5 text-xs font-medium text-arom hover:bg-arom-wash">
-              <Mail size={14} aria-hidden="true" />
-              Email developer
-            </a>
           </div>
         )}
       </header>
