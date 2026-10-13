@@ -27,39 +27,8 @@ function clinicDate(value: string) {
   return `${get('year')}-${get('month')}-${get('day')}`;
 }
 
-function clinicTime(value: string) {
-  return new Intl.DateTimeFormat('en-GB', {
-    timeZone: 'Asia/Phnom_Penh',
-    hour: '2-digit',
-    minute: '2-digit',
-    hourCycle: 'h23',
-  }).format(new Date(value));
-}
-
 function isActive(booking: AdminBooking) {
   return booking.status === 'pending' || booking.status === 'confirmed';
-}
-
-function hasConflict(candidate: AdminBooking, bookings: AdminBooking[]) {
-  const start = Date.parse(candidate.startsAt);
-  const end = start + candidate.durationMinutes * 60_000;
-
-  return bookings.some((other) => {
-    if (other.id === candidate.id || !isActive(other)) {
-      return false;
-    }
-
-    const sharesParticipant =
-      other.professionalId === candidate.professionalId ||
-      other.userId === candidate.userId;
-
-    if (!sharesParticipant) return false;
-
-    const otherStart = Date.parse(other.startsAt);
-    const otherEnd = otherStart + other.durationMinutes * 60_000;
-
-    return start < otherEnd && end > otherStart;
-  });
 }
 
 function BookingDialog({
@@ -69,23 +38,26 @@ function BookingDialog({
   booking: AdminBooking;
   onClose: () => void;
 }) {
-  const { users, professionals, bookings, saveBooking } = useAdmin();
+  const { users, professionals, saveBooking } = useAdmin();
   const { language } = useLanguage();
   const km = language === 'km';
 
   const dialogRef = useRef<HTMLDialogElement>(null);
-  const [date, setDate] = useState(clinicDate(booking.startsAt));
-  const [time, setTime] = useState(clinicTime(booking.startsAt));
+  const [isCancelling, setIsCancelling] = useState(false);
+  const [reason, setReason] = useState('');
   const [error, setError] = useState('');
-  const [cancelRequested, setCancelRequested] = useState(false);
 
   const user = users.find((item) => item.id === booking.userId);
   const professional = professionals.find(
     (item) => item.id === booking.professionalId,
   );
 
-  const canManage = isActive(booking);
-  const hasParticipants = Boolean(user && professional);
+  // Read the clock once when the popup opens, not on every render.
+  const [openedAt] = useState(() => Date.now());
+
+  // Admins only step in for upcoming sessions that are still going ahead.
+  const canEmergencyCancel =
+    isActive(booking) && Date.parse(booking.startsAt) > openedAt;
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -93,73 +65,20 @@ function BookingDialog({
     return () => dialog?.close();
   }, []);
 
-  function confirmBooking() {
-    if (!hasParticipants) {
-      setError(
-        km
-          ? 'រកមិនឃើញអ្នកប្រើប្រាស់ ឬអ្នកជំនាញ។'
-          : 'The user or professional record is missing.',
-      );
-      return;
-    }
-
-    if (
-      Date.parse(booking.startsAt) <= Date.now() ||
-      hasConflict(booking, bookings)
-    ) {
-      setError(
-        km
-          ? 'ពេលវេលានេះកន្លងផុត ឬជាន់គ្នាជាមួយការកក់ផ្សេង។'
-          : 'This appointment is in the past or overlaps another booking.',
-      );
-      return;
-    }
-
-    saveBooking({ ...booking, status: 'confirmed' });
-    onClose();
-  }
-
-  function reschedule(event: FormEvent<HTMLFormElement>) {
+  function emergencyCancel(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    const startsAt = `${date}T${time}:00+07:00`;
-    const timestamp = Date.parse(startsAt);
-
-    if (!hasParticipants || !Number.isFinite(timestamp)) {
-      setError(
-        km
-          ? 'សូមពិនិត្យព័ត៌មាន និងពេលវេលា។'
-          : 'Check the participant records and appointment time.',
-      );
+    if (!reason.trim()) {
+      setError('Write the reason. The user and the professional will see it.');
       return;
     }
 
-    if (timestamp <= Date.now()) {
-      setError(
-        km
-          ? 'សូមជ្រើសរើសពេលវេលានាពេលអនាគត។'
-          : 'Choose a future appointment time.',
-      );
-      return;
-    }
-
-    const updated: AdminBooking = {
+    saveBooking({
       ...booking,
-      startsAt,
-      // A changed appointment needs confirmation again.
-      status: 'pending',
-    };
-
-    if (hasConflict(updated, bookings)) {
-      setError(
-        km
-          ? 'អ្នកប្រើប្រាស់ ឬអ្នកជំនាញមានការកក់ជាន់គ្នា។'
-          : 'The user or professional has an overlapping appointment.',
-      );
-      return;
-    }
-
-    saveBooking(updated);
+      status: 'cancelled',
+      cancelledBy: 'admin',
+      cancelReason: reason.trim(),
+    });
     onClose();
   }
 
@@ -242,99 +161,71 @@ function BookingDialog({
         </div>
       </dl>
 
-      {canManage && (
-        <>
-          <form
-            onSubmit={reschedule}
-            className="mt-6 border-t border-arom-border pt-5">
-            <h3 className="font-medium">
-              {km ? 'ប្តូរពេលវេលា' : 'Reschedule'}
-            </h3>
+      {booking.status === 'cancelled' && booking.cancelledBy === 'admin' && (
+        <div className="mt-4 rounded-2xl bg-arom-danger-soft p-4 text-sm">
+          <p className="text-xs font-medium text-arom-danger">Cancelled by an admin</p>
+          <p className="mt-1 text-ink">{booking.cancelReason}</p>
+        </div>
+      )}
 
-            <p className="mt-1 text-xs text-ink-muted">
-              {km
-                ? 'ពេលវេលាតាមតំបន់ភ្នំពេញ។ ត្រូវបញ្ជាក់ម្តងទៀតបន្ទាប់ពីប្តូរ។'
-                : 'Phnom Penh time. Rescheduling returns the booking to pending.'}
-            </p>
+      <p className="mt-5 rounded-2xl border border-arom-border p-4 text-sm leading-6 text-ink-muted">
+        Only the user and the professional confirm, reschedule or cancel
+        their own booking. Admins can only cancel in an emergency, for
+        example when a professional is suspended.
+      </p>
 
-            <div className="mt-4 grid gap-4 sm:grid-cols-2">
-              <label className="text-sm">
-                {km ? 'កាលបរិច្ឆេទ' : 'Date'}
-                <input
-                  type="date"
-                  required
-                  value={date}
-                  onChange={(event) => setDate(event.target.value)}
-                  className={fieldClass}
-                />
-              </label>
+      {canEmergencyCancel && !isCancelling && (
+        <button
+          type="button"
+          onClick={() => setIsCancelling(true)}
+          className="mt-4 rounded-full border border-arom-danger/20 px-4 py-2.5 text-sm text-arom-danger hover:bg-arom-danger-soft">
+          Emergency cancel
+        </button>
+      )}
 
-              <label className="text-sm">
-                {km ? 'ម៉ោង' : 'Time'}
-                <input
-                  type="time"
-                  required
-                  value={time}
-                  onChange={(event) => setTime(event.target.value)}
-                  className={fieldClass}
-                />
-              </label>
-            </div>
-
+      {canEmergencyCancel && isCancelling && (
+        <form
+          onSubmit={emergencyCancel}
+          className="mt-4 rounded-2xl bg-arom-danger-soft p-4">
+          <h3 className="text-sm font-semibold text-arom-danger">
+            Cancel this booking?
+          </h3>
+          <p className="mt-1 text-xs leading-5 text-ink-muted">
+            The user and the professional will both be told, and the
+            cancellation is recorded in the audit log with your name.
+          </p>
+          <label className="mt-3 block text-sm font-medium text-ink">
+            Reason *
+            <textarea
+              value={reason}
+              onChange={(event) => {
+                setReason(event.target.value);
+                setError('');
+              }}
+              rows={3}
+              maxLength={500}
+              placeholder="For example, the professional's account is suspended."
+              className={`${fieldClass} bg-white`}
+            />
+          </label>
+          <div className="mt-3 flex flex-wrap gap-3">
             <button
               type="submit"
-              className="mt-4 rounded-full border border-arom-border px-4 py-2.5 text-sm text-arom hover:bg-arom-wash">
-              {km ? 'រក្សាទុកពេលវេលា' : 'Save new time'}
+              className="rounded-full bg-arom-danger px-4 py-2 text-xs font-medium text-white hover:opacity-90">
+              Cancel booking and tell both
             </button>
-          </form>
-
-          <div className="mt-6 flex flex-wrap gap-3 border-t border-arom-border pt-5">
-            {booking.status === 'pending' && (
-              <button
-                type="button"
-                onClick={confirmBooking}
-                className="rounded-full bg-arom px-4 py-2.5 text-sm text-white hover:bg-arom-deep">
-                {km ? 'បញ្ជាក់ការកក់' : 'Confirm booking'}
-              </button>
-            )}
-
             <button
               type="button"
-              onClick={() => setCancelRequested(true)}
-              className="rounded-full border border-arom-danger/20 px-4 py-2.5 text-sm text-arom-danger">
-              {km ? 'បោះបង់ការកក់' : 'Cancel booking'}
+              onClick={() => {
+                setIsCancelling(false);
+                setReason('');
+                setError('');
+              }}
+              className="rounded-full border border-arom-border bg-white px-4 py-2 text-xs">
+              Keep booking
             </button>
           </div>
-
-          {cancelRequested && (
-            <div className="mt-4 rounded-xl bg-arom-danger-soft p-4">
-              <p className="text-sm text-arom-danger">
-                {km
-                  ? 'តើអ្នកចង់បោះបង់ការកក់នេះមែនទេ?'
-                  : 'Are you sure you want to cancel this booking?'}
-              </p>
-
-              <div className="mt-3 flex gap-3">
-                <button
-                  type="button"
-                  onClick={() => {
-                    saveBooking({ ...booking, status: 'cancelled' });
-                    onClose();
-                  }}
-                  className="rounded-full bg-arom-danger px-4 py-2 text-xs text-white">
-                  {km ? 'បញ្ជាក់ការបោះបង់' : 'Yes, cancel booking'}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setCancelRequested(false)}
-                  className="rounded-full border border-arom-border bg-white px-4 py-2 text-xs">
-                  {km ? 'រក្សាការកក់' : 'Keep booking'}
-                </button>
-              </div>
-            </div>
-          )}
-        </>
+        </form>
       )}
 
       {error && (
@@ -426,9 +317,8 @@ export function BookingsView() {
       </h1>
 
       <p className="mt-3 text-sm text-ink-muted">
-        {km
-          ? 'មើលការកក់ បញ្ជាក់ និងប្តូរពេលវេលា។'
-          : 'Review appointment requests, confirm bookings, and manage changes.'}
+        See every appointment. Users and professionals manage their own
+        bookings.
       </p>
 
       <div className="mt-8 grid gap-4 sm:grid-cols-3">

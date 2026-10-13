@@ -164,6 +164,7 @@ Do not change these without asking Rith.
 - **AROM has no "Owner" role.** Only `user`, `professional`, `admin`.
 - **Educational note is fixed app text.** Every lesson, tip, practice and podcast screen shows "For learning only. This is not a diagnosis or treatment." from `app/_components/educational-note.tsx`. It is not stored as content, so no admin edit can remove it.
 - **No crisis helpline card on content screens.** Users find helpline information in Settings.
+- **Bookings belong to the user and the professional.** Only they confirm, reschedule or cancel. Admins see bookings read only and can only make an emergency cancel with a written reason (see section 12).
 - **Two kinds of podcasts.** MindGuide podcasts are made by admins and shown in MindGuide. Professional podcasts are published by professionals themselves on their own profile so users can listen before booking. They are separate lists.
 
 ## 8. Become a professional (user applies)
@@ -324,6 +325,16 @@ The user app still reads lessons, tips and practices from `app/_components/learn
 - **New bookings per day** by the day the booking was made (`createdAt`). Ranges: last 7 and last 30 days.
 
 It also shows the total for the range, the difference from the same number of days before, and the busiest day. Days use Cambodia time (`Asia/Phnom_Penh`). Clicking a day in "Sessions per day" filters the bookings table below to that date.
+
+### Admin actions on a booking
+
+The booking popup is read only, with one exception:
+
+| Frontend action | Meaning | Suggested backend |
+|---|---|---|
+| `saveBooking({ ...booking, status: 'cancelled', cancelledBy: 'admin', cancelReason })` | Emergency cancel of an upcoming pending or confirmed booking, for example when a professional is suspended | Admin only `security definer` function. Set `appointments.status = 'cancelled'`, `cancelled_by` (the admin), `cancelled_at`, `cancel_reason` (required, up to 500 characters), free the slot, write `admin_audit_log`, and notify the user and the professional |
+
+Confirming and rescheduling are not admin actions. They belong in the user booking pages and the `/pro` area.
 
 ### Backend needs
 

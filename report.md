@@ -7,6 +7,33 @@ A plain-language log of what changed in the app, written for the team rather tha
 
 Each entry lists the commit it landed in, so you can match it to a version of the site.
 
+## 13 Oct 2026: Admins No Longer Confirm or Reschedule Bookings
+
+Commit pending. No migration.
+
+**Why.** A therapy booking is an agreement between the user and the professional. Admins could confirm, move and cancel any booking, which could clash with a professional's real schedule, touches private arrangements, and makes it unclear who changed what. Now only the user and the professional manage their own bookings, and admins only step in for emergencies.
+
+**What changed for users (admins):**
+- **The booking popup is read only.** "Confirm booking" and the "Reschedule" section are gone.
+- **A short note** explains that only the user and the professional confirm, reschedule or cancel.
+- **"Emergency cancel"** stays for upcoming pending or confirmed bookings, for example when a professional is suspended. It needs a written reason and a confirm step, and says both people will be told and the audit log records it.
+- **Cancelled by an admin** bookings show the reason in the popup.
+- **Page subtitle** now says users and professionals manage their own bookings.
+
+**What changed for the team:**
+- **`AdminBooking` has optional `cancelledBy` and `cancelReason`.** They match the existing `cancelled_by` and `cancel_reason` columns on `appointments`.
+- **Removed** the admin reschedule and confirm logic (and its clash check) from `bookings-view.tsx`. Confirming and rescheduling move to the `/pro` area.
+- **New text in the popup is English only,** following the admin rule.
+- **`BACKEND-HANDOFF.md`:** new product decision in section 7 and the emergency cancel contract in section 12.
+
+**What to re-test:**
+- Open `/admin/bookings`, open an upcoming confirmed booking, and confirm there is no Confirm or Reschedule, only the note and "Emergency cancel";
+- Press "Emergency cancel" and submit with no reason; confirm it asks for one;
+- Cancel with a reason and confirm the booking shows as cancelled, the chart updates, and reopening it shows "Cancelled by an admin" with the reason;
+- Open a past or already cancelled booking and confirm there is no cancel button.
+
+---
+
 ## 13 Oct 2026: Bookings Chart on the Admin Bookings Page
 
 Commit `1f3f976`. No migration. Frontend only, on sample bookings.

@@ -9,6 +9,10 @@ export type AdminBooking = {
   meetingType: 'Online' | 'In-person';
   status: BookingStatus;
   createdAt: string;
+  // Set when an admin cancels in an emergency. Users and professionals
+  // confirm, reschedule and cancel their own bookings outside the admin.
+  cancelledBy?: 'user' | 'professional' | 'admin';
+  cancelReason?: string;
 };
 
 const initialBookingsBase: AdminBooking[] = [
