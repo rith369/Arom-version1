@@ -15,6 +15,7 @@ import { useCallback, useEffect, useState, type ReactNode } from "react";
 import type { AuthErrorBody } from "@/lib/auth";
 import type { AdminOverview, OpenFlag, OverviewRange, PendingApplication } from "@/lib/admin-overview";
 import { useLanguage } from "../../_components/language-provider";
+import { CrashReportCard } from "./crash-report-card";
 import { SignupsChart } from "./signups-chart";
 
 type LoadState =
@@ -508,6 +509,11 @@ export function Dashboard() {
             )}
           </Panel>
         </aside>
+      </div>
+
+      {/* Added by Rith: crash tracking (mock data until the backend stores reports). */}
+      <div className="mt-6">
+        <CrashReportCard />
       </div>
     </div>
   );

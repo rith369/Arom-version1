@@ -7,6 +7,35 @@ A plain-language log of what changed in the app, written for the team rather tha
 
 Each entry lists the commit it landed in, so you can match it to a version of the site.
 
+## 13 Oct 2026: Crash Tracking, Friendly Error Screen and a Crashes Card on the Admin Overview
+
+Commit pending. No migration yet. Admin card is on mock data.
+
+**Why.** When a page broke, people saw the default error page and the team never found out. A crash is an error that broke a screen for someone, and on a wellbeing app a broken screen at the wrong moment matters. The team now has a calm error screen for users and one place to see which crashes happen most, so the developer can fix the worst ones first.
+
+**What changed for users:**
+- **A calm error screen** when a page breaks: "Something went wrong on this screen. This is not your fault." with **Try again** and **Go to home**, in Khmer and English.
+- **After an app update,** "Try again" reloads the page, which fixes the "failed to fetch module" kind of crash.
+- **A simple bilingual fallback** if the whole app fails to load.
+
+**What changed for admins:**
+- **New card at the bottom of the Overview:** "Most frequent crashes, last 7 days". Each crash shows the error, how many times it happened, how many different people hit it, when it last happened, the page, and the app version. The ⓘ explains what a crash is.
+- **Copy for developer** and **Email developer** build a ready to paste report of the top 5 crashes.
+
+**What changed for the team:**
+- **New `app/error.tsx` and `app/global-error.tsx`** using the Next.js 16 `retry` prop, and `app/_components/crash-reporting.ts` that builds a privacy safe report (no query strings, no user content).
+- **Hok Chheng's `dashboard.tsx`:** 6 lines added to show the card. Nothing removed.
+- **Mock today:** reports are built but not sent, and the card shows sample crashes. `BACKEND-HANDOFF.md` section 14 lists the endpoint, table and optional daily email to the developer.
+
+**What to re-test:**
+- Log in as admin, open the Overview and confirm the crashes card is at the bottom with 4 sample crashes, most frequent first;
+- Tap the ⓘ and confirm the explanation shows;
+- Press Copy for developer and paste somewhere; confirm the text lists each crash with times, people, last seen, page and version;
+- Press Email developer and confirm an email draft opens with the same text;
+- Ask a developer to break a page on purpose (throw an error in a test page) and confirm the calm error screen shows with Try again and Go to home, in both languages.
+
+---
+
 ## 13 Oct 2026: Crisis Helplines in Admin Settings and "Get Help Now" for Users
 
 Commit `0ac7f04`. No migration (uses the existing `crisis_resources` table later).

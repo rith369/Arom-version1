@@ -46,9 +46,10 @@ The yellow "Demo data on this page" banner is in `admin-shell.tsx`. Remove it fo
 | Admin users: list, details, roles, suspend | Done on mock data | Waiting for backend | 5 |
 | Admin professionals: review and moderation | Done on mock data | Waiting for backend | 6 |
 | Become a professional (user applies) | Done on mock data | Waiting for backend | 8 |
-| Professional edits own profile (`/pro`) | Not built yet | Not started | 14 |
+| Professional edits own profile (`/pro`) | Not built yet | Not started | 15 |
 | Admin MindGuide: lessons, tips and practices with drafts, versions, publish and checks (`/admin/mindguide`, editor at `/admin/mindguide/<type>/<sourceId>`) | Done on mock data | Waiting for backend | 9 |
 | Report a problem (users) and admin Reports page (`/admin/reports`) | Done on mock data | Waiting for backend | 10 |
+| Crash tracking: error screens catch crashes, admin Overview card "Most frequent crashes, last 7 days" | Done on mock data | Waiting for backend | 14 |
 | Crisis helplines and support contact: admin Settings, user "Get help now" in Profile and Settings | Done on mock data | Waiting for backend | 13 |
 | Admin bookings chart: sessions per day and new bookings per day (`/admin/bookings`) | Done on mock data | Waiting for backend | 12 |
 | MindGuide podcasts: user pages `/podcasts` and `/podcasts/<id>`, admin Podcasts tab | Done on mock data | Waiting for backend | 11 |
@@ -383,7 +384,34 @@ Users get only active helplines with a phone or website, ordered by `sortOrder`.
 
 The user page reads the empty lists in `support-contacts.ts`, so admin edits do not reach users until this is connected. The admin dashboard "No crisis hotlines added yet" warning already reads `crisis_resources`.
 
-## 14. Planned next (frontend not built yet)
+## 14. Crash tracking
+
+**Files:** `app/_components/crash-reporting.ts` (report shape, `reportCrash`), `app/error.tsx` and `app/global-error.tsx` (catch crashes), admin `app/admin/_data/crashes.ts` and `_components/crash-report-card.tsx`, added at the bottom of Hok Chheng's `dashboard.tsx` (6 added lines, nothing removed).
+
+**Definition:** a crash is an error that broke a screen for someone. `app/error.tsx` catches crashes inside pages (`kind: 'render'`); `app/global-error.tsx` catches the rare case where the root layout breaks (`kind: 'app'`).
+
+### Report sent by the browser (`CrashReport`)
+
+| Field | Notes |
+|---|---|
+| `kind` | `'render'` or `'app'` |
+| `message` | error message, cut to 300 characters, query strings removed from any URL |
+| `route` | `window.location.pathname` only, never the query string or hash |
+| `release` | first 7 characters of `NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA`, `local` otherwise |
+| `digest` | Next.js error digest for server errors, to match server logs |
+| `occurredAt` | ISO time |
+
+**Privacy:** no journal text, mood answers, form contents, names or user ids in the report. Do not add them.
+
+### Backend needs
+
+1. **`POST /api/crash-reports`** accepting `CrashReport`, sent with `navigator.sendBeacon`. Allow signed out visitors. Rate limit per IP and per user. Store the reporter id only to count distinct people, never return it.
+2. **Table** of crash events with RLS: insert through the endpoint only, read by admins only. Keep 30 days.
+3. **`GET /api/admin/crashes?days=7`** returning groups (`CrashGroup`): `id`, `kind`, `message`, `count`, `people` (distinct accounts), `lastSeenAt`, `route`, `release`, sorted by `count`. Group by `kind` + `message` + `route`.
+4. **Optional, "send the top ones to the developer":** a daily job that emails or Telegrams the top 5 groups to the developer. Today the admin card has Copy for developer and Email developer buttons that build the same text by hand.
+5. Then replace the body of `reportCrash()` with the send, and change the error screen text to say the team has been told (it does not say so yet, because nothing is sent).
+
+## 15. Planned next (frontend not built yet)
 
 - **Professional profile editor under `/pro`.** Uses the pending changes rule in section 6.
 - **Make professional (Way 2):** phone is optional there because the admin already knows the person. Add an optional phone field to `ProfessionalPromotion` when the backend supports it.
