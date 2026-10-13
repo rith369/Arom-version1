@@ -9,7 +9,7 @@ Each entry lists the commit it landed in, so you can match it to a version of th
 
 ## 13 Oct 2026: Admins No Longer Confirm or Reschedule Bookings
 
-Commit pending. No migration.
+Commit `0ad951c`. No migration.
 
 **Why.** A therapy booking is an agreement between the user and the professional. Admins could confirm, move and cancel any booking, which could clash with a professional's real schedule, touches private arrangements, and makes it unclear who changed what. Now only the user and the professional manage their own bookings, and admins only step in for emergencies.
 
