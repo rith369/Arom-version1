@@ -9,7 +9,7 @@ Each entry lists the commit it landed in, so you can match it to a version of th
 
 ## 13 Oct 2026: My Podcasts, Professionals Publish Their Own Episodes
 
-Commit pending. No migration yet. Frontend only, on mock data.
+Commit `511db19`. No migration yet. Frontend only, on mock data.
 
 **Why.** Hearing a professional's voice helps people feel safe enough to book, especially for a first session. Each sample professional had one fixed episode in code; now professionals record and manage their own episodes, and they appear on their public profile.
 
