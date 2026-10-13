@@ -350,7 +350,7 @@ function CrisisHelplinesSection() {
   );
 }
 
-// While AROM is in testing, sessions are free and prices stay hidden.
+// While AROM is in testing, prices are shown but nothing is paid.
 function PricingSection() {
   const { freeDuringTesting, setFreeDuringTesting } = useAdmin();
 
@@ -360,11 +360,11 @@ function PricingSection() {
         <div className="flex items-center gap-3">
           <Gift size={38} aria-hidden="true" className="shrink-0 rounded-xl bg-arom-soft p-2 text-arom" />
           <div>
-            <h2 className="text-lg font-semibold">Sessions are free during testing</h2>
+            <h2 className="text-lg font-semibold">No payments during testing</h2>
             <p className="mt-0.5 max-w-xl text-sm text-ink-muted">
               {freeDuringTesting
-                ? 'On: users see "Free during testing" on profiles and when booking. Prices professionals save stay hidden.'
-                : "Off: users see each professional's price. There is no payment system yet, so only turn this off once one exists."}
+                ? 'On: users see each professional\'s price with a note that nothing is paid during testing.'
+                : 'Off: the note is hidden. Only turn this off once a payment system exists.'}
             </p>
           </div>
         </div>
@@ -372,7 +372,7 @@ function PricingSection() {
           type="button"
           role="switch"
           aria-checked={freeDuringTesting}
-          aria-label="Sessions are free during testing"
+          aria-label="No payments during testing"
           onClick={() => setFreeDuringTesting(!freeDuringTesting)}
           className={`relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition-colors ${freeDuringTesting ? 'bg-arom' : 'bg-gray-300'}`}>
           <span className={`inline-block size-5 rounded-full bg-white shadow transition-transform ${freeDuringTesting ? 'translate-x-6' : 'translate-x-1'}`} />

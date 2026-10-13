@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import {
+  Banknote,
   CalendarDays,
   ChevronLeft,
   Clock3,
@@ -30,7 +31,7 @@ import {
 import { DesktopNavigation } from "./app-navigation";
 import { BookingComplete } from "./booking-complete";
 import { useLanguage } from "./language-provider";
-import { FREE_DURING_TESTING } from "./pricing";
+import { FREE_DURING_TESTING, formatPrice, noPaymentNote } from "@/lib/pricing";
 
 type Step = "meeting" | "time" | "review";
 
@@ -363,6 +364,9 @@ export function TherapistBooking({ therapist, days }: { therapist: Therapist; da
       label: km ? "ទម្រង់នៃការប្រឹក្សា" : "Session Type",
       value: getMeetingTypeLabel(meeting, km),
     },
+    ...(therapist.price
+      ? [{ icon: Banknote, label: km ? "តម្លៃ" : "Price", value: formatPrice(therapist.price, km) }]
+      : []),
   ];
 
   const completeDetails = [
@@ -511,9 +515,7 @@ export function TherapistBooking({ therapist, days }: { therapist: Therapist; da
                   )}
                   {step.id === "review" && FREE_DURING_TESTING && (
                     <p className="mt-2 text-center text-xs font-medium text-ink-muted">
-                      {km
-                        ? "ការពិគ្រោះនេះឥតគិតថ្លៃក្នុងអំឡុងពេលសាកល្បង (Free during testing)"
-                        : "This session is free during testing."}
+                      {noPaymentNote(km)}
                     </p>
                   )}
                 </div>

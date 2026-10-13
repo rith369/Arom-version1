@@ -30,6 +30,8 @@ export type TherapistPodcast = {
   chapters: PodcastChapter[];
 };
 
+import type { SessionPrice } from './pricing';
+
 export type Therapist = {
   slug: string;
   name: string;
@@ -49,6 +51,8 @@ export type Therapist = {
   kmAbout?: string;
   languages: string[];
   sessionOptions: SessionOption[];
+  // Shown to users for information only. AROM takes no payments yet.
+  price?: SessionPrice;
   podcast?: TherapistPodcast;
 };
 
@@ -143,6 +147,7 @@ export const therapists: Therapist[] = [
       "លោកស្រីវេជ្ជបណ្ឌិត សុភាព មានបទពិសោធន៍ជាង ៨ ឆ្នាំ ក្នុងការជួយអតិថិជនដោះស្រាយការថប់បារម្ភ ការបាក់ទឹកចិត្ត និងភាពតានតឹងប្រចាំថ្ងៃ ដោយប្រើវិធីសាស្ត្រផ្តោតលើបុគ្គល និងការយល់ចិត្តគ្នា។",
     languages: ["Khmer", "English"],
     sessionOptions: ["Online", "In-person", "Both"],
+    price: { kind: 'fixed', amount: 20 },
     podcast: {
       id: "pod-sopheap-anxiety",
       episodeNumber: "Episode 12",
@@ -207,6 +212,7 @@ export const therapists: Therapist[] = [
       "លោកវេជ្ជបណ្ឌិត រតនៈ ផ្តល់ការប្រឹក្សាគាំទ្រដល់បុគ្គល និងគូស្នេហ៍ ក្នុងការដោះស្រាយបញ្ហាថប់បារម្ភ ឧបសគ្គនៃការប្រាស្រ័យទាក់ទង និងការផ្លាស់ប្តូរជីវិតសំខាន់ៗ ប្រកបដោយការអនុវត្តជាក់ស្តែង និងក្តីមេត្តា។",
     languages: ["Khmer", "English", "French"],
     sessionOptions: ["Online", "In-person", "Both"],
+    price: { kind: 'range', min: 30, max: 50 },
     podcast: {
       id: "pod-ratanak-relationships",
       episodeNumber: "Episode 08",
@@ -271,6 +277,7 @@ export const therapists: Therapist[] = [
       "លោកស្រីវេជ្ជបណ្ឌិត ម៉ាលីកា ធ្វើការជាមួយមនុស្សពេញវ័យដែលជួបប្រទះការពិបាកក្នុងដំណេក ភាពហត់នឿយ (Burnout) និងភាពតានតឹងរ៉ាំរ៉ៃ ដោយរួមបញ្ចូលការវាយតម្លៃយ៉ាងម៉ត់ចត់ ជាមួយនឹងផែនការព្យាបាលច្បាស់លាស់ និងសហការគ្នា។",
     languages: ["Khmer", "English"],
     sessionOptions: ["Online", "In-person"],
+    price: { kind: 'free' },
     podcast: {
       id: "pod-malika-sleep-burnout",
       episodeNumber: "Episode 15",

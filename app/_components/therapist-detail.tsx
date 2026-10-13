@@ -32,7 +32,7 @@ import {
 } from "@/lib/therapists";
 import { DesktopNavigation, MobileNavigation } from "./app-navigation";
 import { useLanguage } from "./language-provider";
-import { FREE_DURING_TESTING } from "./pricing";
+import { FREE_DURING_TESTING, formatPrice, noPaymentNote } from "@/lib/pricing";
 
 const sessionIcons: Record<SessionOption, LucideIcon> = {
   Online: Monitor,
@@ -121,9 +121,14 @@ export function TherapistDetail({ therapist }: { therapist: Therapist }) {
                 >
                   {km ? "កក់ការណាត់ជួប (Book Appointment)" : "Book Appointment"}
                 </Link>
+                {therapist.price && (
+                  <p className="mt-3 text-center text-sm font-bold text-white">
+                    {formatPrice(therapist.price, km)}
+                  </p>
+                )}
                 {FREE_DURING_TESTING && (
-                  <p className="mt-3 text-center text-xs font-semibold text-white/85">
-                    {km ? "ឥតគិតថ្លៃក្នុងអំឡុងពេលសាកល្បង (Free during testing)" : "Free during testing"}
+                  <p className="mt-1 text-center text-xs font-medium text-white/80">
+                    {noPaymentNote(km)}
                   </p>
                 )}
               </div>

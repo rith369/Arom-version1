@@ -175,9 +175,9 @@ Do not change these without asking Rith.
 - **No crisis helpline card on content screens.** Users find crisis helplines in Profile and Settings under "Get help now" (see section 13). If none are active, a built in message tells users to contact local emergency services. Never invent a number.
 - **Bookings belong to the user and the professional.** Only they confirm, reschedule or cancel. Admins see bookings read only and can only make an emergency cancel with a written reason (see section 12).
 - **Instant booking.** A user picking one of a professional's open times is booked straight away (`appointments.status = 'booked'`, as the database already does). Professionals can still cancel or reschedule with a reason. An optional per professional "review new clients first" setting may come later; the frontend "pending" status is reserved for it.
-- **A professional appears to users only when their profile is complete:** photo, English bio (80+ characters), Khmer bio, at least one specialty, language and session type, and at least one open time. A price is also required once "free during testing" is off. Today approval sets `verified` immediately; add the completeness check to the directory query.
+- **A professional appears to users only when their profile is complete:** photo, English bio (80+ characters), Khmer bio, at least one specialty, language and session type, a price choice (Free counts), and at least one open time. Today approval sets `verified` immediately; add the completeness check to the directory query.
 - **Session notes are private to the professional who wrote them.** Not admins, not other professionals.
-- **No payments yet. Sessions are free during testing.** Users see "Free during testing" instead of a price. Professionals may save a price (`price_usd`) that stays hidden until an admin turns the switch off in Settings.
+- **No payments yet, but prices are shown.** Each professional chooses Free, one price ("$20 a session") or a range ("$30 to $50 a session"). Users see it on the list, the profile and the booking review, with a "No payment during testing" note while the admin switch "No payments during testing" (Settings) is on. Nobody is charged.
 - **Two kinds of podcasts.** MindGuide podcasts are made by admins and shown in MindGuide. Professional podcasts are published by professionals themselves on their own profile so users can listen before booking. They are separate lists.
 
 ## 8. Become a professional (user applies)
@@ -446,7 +446,7 @@ The user page reads the empty lists in `support-contacts.ts`, so admin edits do 
 
 ## 16. Professional area (`/pro`)
 
-**Files:** `app/pro/layout.tsx`, `app/pro/page.tsx` (home), `app/pro/profile/page.tsx`; components in `app/pro/_components/` (`pro-provider.tsx`, `pro-shell.tsx`, `pro-home.tsx`, `profile-editor.tsx`, `profile-preview.tsx`); data and rules in `app/pro/_data/profile.ts`. Shared flag `app/_components/pricing.ts`. Bilingual (not English only, unlike the admin).
+**Files:** `app/pro/layout.tsx`, `app/pro/page.tsx` (home), `app/pro/profile/page.tsx`; components in `app/pro/_components/` (`pro-provider.tsx`, `pro-shell.tsx`, `pro-home.tsx`, `profile-editor.tsx`, `profile-preview.tsx`); data and rules in `app/pro/_data/profile.ts`. Prices and the testing flag in `lib/pricing.ts`; `Therapist.price` in `lib/therapists.ts`. Bilingual (not English only, unlike the admin).
 
 **Entry:** after login, professionals go to `/pro` (`login-form.tsx`), and a "Professional area" sidebar link shows only for the `professional` role. `/pro` is already guarded for professionals and admins by `proxy.ts`.
 
@@ -461,7 +461,7 @@ The user page reads the empty lists in `support-contacts.ts`, so admin edits do 
 | `photoUrl` | `photo_url` (upload to a storage bucket; the mock keeps a data URL) |
 | `specialties`, `languages` | same names |
 | `sessionTypes` | `session_types` (`online`, `in_person`) |
-| `priceUsd` | `price_usd` (hidden while free during testing) |
+| `price` | `SessionPrice` from `lib/pricing.ts`: `{ kind: 'free' }`, `{ kind: 'fixed', amount }` or `{ kind: 'range', min, max }` in USD, 1 to 500, min below max. Store as `price_kind` plus `price_usd` and `price_max_usd` (or jsonb). Display only |
 | `yearsExperience` | add a column (only in applications today) |
 | `licenseNumber`, `issuingBody` | `professional_credentials` (reviewed, never public) |
 

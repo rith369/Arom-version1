@@ -9,6 +9,7 @@ import { ProfilePreview } from './profile-preview';
 import { reviewedFieldLabels } from './pro-home';
 import { useLanguage } from '../../_components/language-provider';
 import { getTherapist } from '@/lib/therapists';
+import { MAX_PRICE_USD, formatPrice, isValidPrice, type SessionPrice } from '@/lib/pricing';
 import {
   LANGUAGE_OPTIONS,
   PLACEHOLDER_PHOTO,
@@ -48,6 +49,22 @@ export function ProfileEditor() {
   const [notice, setNotice] = useState<{ tone: 'ok' | 'error'; text: string } | null>(null);
 
   const isDirty = !sameProfile(draft, profile);
+  const priceKind = draft.price?.kind ?? null;
+
+  function setPriceKind(kind: SessionPrice['kind']) {
+    const current = draft.price;
+    const amount = current?.kind === 'fixed' ? current.amount : current?.kind === 'range' ? current.min : 20;
+    set(
+      'price',
+      kind === 'free'
+        ? { kind }
+        : kind === 'fixed'
+          ? { kind, amount }
+          : { kind, min: amount, max: current?.kind === 'range' ? current.max : amount + 20 },
+    );
+  }
+
+  const numberValue = (value: string) => (value === '' ? Number.NaN : Number(value));
   const pendingFor = (field: ReviewedField) => pendingChanges.find((change) => change.field === field);
   const specialtyChoices = [...new Set([...SPECIALTY_OPTIONS, ...profile.specialties])];
 
@@ -114,8 +131,14 @@ export function ProfileEditor() {
       setNotice({ tone: 'error', text: t('ត្រូវការឈ្មោះ និងមុខតំណែងជាភាសាអង់គ្លេស។', 'Your name and title in English are required.') });
       return;
     }
-    if (draft.priceUsd !== null && (!Number.isFinite(draft.priceUsd) || draft.priceUsd < 0 || draft.priceUsd > 500)) {
-      setNotice({ tone: 'error', text: t('សូមពិនិត្យតម្លៃ (0 ដល់ 500 ដុល្លារ)។', 'Check the price (0 to 500 USD).') });
+    if (draft.price && !isValidPrice(draft.price)) {
+      setNotice({
+        tone: 'error',
+        text: t(
+          `សូមពិនិត្យតម្លៃ (1 ដល់ ${MAX_PRICE_USD} ដុល្លារ ហើយតម្លៃទាបត្រូវតិចជាងតម្លៃខ្ពស់)។`,
+          `Check the price (1 to ${MAX_PRICE_USD} USD, and the lowest must be below the highest).`,
+        ),
+      });
       return;
     }
     if (draft.yearsExperience !== null && (!Number.isInteger(draft.yearsExperience) || draft.yearsExperience < 0 || draft.yearsExperience > 60)) {
@@ -354,21 +377,70 @@ export function ProfileEditor() {
             title={t('តម្លៃការពិគ្រោះ', 'Session price')}
             hint={
               freeDuringTesting
-                ? t('ការពិគ្រោះឥតគិតថ្លៃក្នុងអំឡុងពេលសាកល្បង។ តម្លៃរបស់អ្នកត្រូវបានរក្សាទុក ហើយអ្នកប្រើមិនទាន់ឃើញទេ។', 'Sessions are free during testing. Your price is saved, and users do not see it yet.')
-                : t('តម្លៃសម្រាប់ការពិគ្រោះមួយដង។', 'The price for one session.')
+                ? t('អ្នកប្រើឃើញតម្លៃនេះលើប្រវត្តិរូបរបស់អ្នក។ មិនទាន់មាននរណាបង់ប្រាក់ទេ ខណៈ AROM កំពុងសាកល្បង។', 'Users see this on your profile. Nobody pays while AROM is in testing.')
+                : t('អ្នកប្រើឃើញតម្លៃនេះលើប្រវត្តិរូបរបស់អ្នក។', 'Users see this on your profile.')
             }>
-            <label className="block max-w-xs text-sm font-medium text-ink">
-              {t('តម្លៃ (ដុល្លារ)', 'Price (USD)')}
-              <input
-                type="number"
-                inputMode="decimal"
-                min={0}
-                max={500}
-                value={draft.priceUsd ?? ''}
-                onChange={(event) => set('priceUsd', event.target.value === '' ? null : event.target.valueAsNumber)}
-                className={fieldClass}
-              />
-            </label>
+            <div className="flex flex-wrap gap-2">
+              {([
+                { value: 'free', label: t('ឥតគិតថ្លៃ', 'Free') },
+                { value: 'fixed', label: t('តម្លៃមួយ', 'One price') },
+                { value: 'range', label: t('ចន្លោះតម្លៃ', 'Price range') },
+              ] as { value: SessionPrice['kind']; label: string }[]).map((option) => (
+                <button key={option.value} type="button" aria-pressed={priceKind === option.value} onClick={() => setPriceKind(option.value)} className={chip(priceKind === option.value)}>
+                  {option.label}
+                </button>
+              ))}
+            </div>
+
+            {draft.price?.kind === 'fixed' && (
+              <label className="mt-4 block max-w-xs text-sm font-medium text-ink">
+                {t('តម្លៃក្នុងមួយវគ្គ (ដុល្លារ)', 'Price a session (USD)')}
+                <input
+                  type="number"
+                  inputMode="decimal"
+                  min={1}
+                  max={MAX_PRICE_USD}
+                  value={Number.isNaN(draft.price.amount) ? '' : draft.price.amount}
+                  onChange={(event) => set('price', { kind: 'fixed', amount: numberValue(event.target.value) })}
+                  className={fieldClass}
+                />
+              </label>
+            )}
+
+            {draft.price?.kind === 'range' && (
+              <div className="mt-4 grid max-w-md grid-cols-2 gap-3">
+                <label className="block text-sm font-medium text-ink">
+                  {t('ទាបបំផុត (ដុល្លារ)', 'From (USD)')}
+                  <input
+                    type="number"
+                    inputMode="decimal"
+                    min={1}
+                    max={MAX_PRICE_USD}
+                    value={Number.isNaN(draft.price.min) ? '' : draft.price.min}
+                    onChange={(event) => draft.price?.kind === 'range' && set('price', { ...draft.price, min: numberValue(event.target.value) })}
+                    className={fieldClass}
+                  />
+                </label>
+                <label className="block text-sm font-medium text-ink">
+                  {t('ខ្ពស់បំផុត (ដុល្លារ)', 'To (USD)')}
+                  <input
+                    type="number"
+                    inputMode="decimal"
+                    min={1}
+                    max={MAX_PRICE_USD}
+                    value={Number.isNaN(draft.price.max) ? '' : draft.price.max}
+                    onChange={(event) => draft.price?.kind === 'range' && set('price', { ...draft.price, max: numberValue(event.target.value) })}
+                    className={fieldClass}
+                  />
+                </label>
+              </div>
+            )}
+
+            {draft.price && isValidPrice(draft.price) && (
+              <p className="mt-3 text-sm text-ink-muted">
+                {t('អ្នកប្រើនឹងឃើញ:', 'Users will see:')} <strong className="font-semibold text-ink">{formatPrice(draft.price, km)}</strong>
+              </p>
+            )}
           </Section>
 
           <Section title={t('អាជ្ញាប័ណ្ណ', 'License')} hint={t('មិនបង្ហាញលើប្រវត្តិរូបសាធារណៈទេ។ ការផ្លាស់ប្តូរត្រូវរង់ចាំអ្នកគ្រប់គ្រងពិនិត្យ។', 'Not shown on your public profile. Changes wait for an admin to check them.')}>

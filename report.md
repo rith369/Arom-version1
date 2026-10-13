@@ -7,6 +7,36 @@ A plain-language log of what changed in the app, written for the team rather tha
 
 Each entry lists the commit it landed in, so you can match it to a version of the site.
 
+## 13 Oct 2026: Session Prices Shown to Users (Free, One Price or a Range), No Payment Taken
+
+Commit pending. No migration.
+
+**Why.** Users want to know what a session would cost before they book, even while AROM is in testing. Prices are now shown for information only: nobody pays, and a note says so.
+
+**What changed for users:**
+- **Each professional shows a price:** "Free", "$20 a session" or "$30 to $50 a session". It appears on the professional list cards, under Book Appointment on the profile, and as a Price row on the booking review step.
+- **"No payment during testing"** shows under the price on the profile and the booking review.
+- **Sample prices:** Dr. Sopheap Chan $20, Dr. Ratanak Pich $30 to $50, Dr. Malika Sok free.
+
+**What changed for professionals:**
+- **My profile, Session price:** choose Free, One price or Price range, enter the amounts (1 to 500 USD, the lowest below the highest), and see exactly what users will see.
+- **Choosing a price (Free counts) is now a step** before the profile becomes visible.
+
+**What changed for admins:**
+- **The Settings switch is now "No payments during testing".** On: users see prices with the no payment note. Off: the note is hidden, meant for when a payment system exists.
+
+**What changed for the team:**
+- **New `lib/pricing.ts`** (`SessionPrice`, `formatPrice`, `noPaymentNote`, `isValidPrice`, `FREE_DURING_TESTING`) replaces `app/_components/pricing.ts`. `Therapist` has an optional `price`.
+- **`BACKEND-HANDOFF.md` sections 7 and 16** updated with the price rules and storage.
+
+**What to re-test:**
+- Open the professionals list and confirm each card shows its price;
+- Open a profile and the booking review step and confirm the price and "No payment during testing";
+- In `/pro`, My profile, switch between Free, One price and Price range; try 0, 600, or a range where From is above To and confirm Save refuses it;
+- Switch the app to Khmer and check the price wording.
+
+---
+
 ## 13 Oct 2026: Professional Area With Home and My Profile, and Free During Testing
 
 Commit `82b7e91`. No migration yet. Frontend only, on mock data.

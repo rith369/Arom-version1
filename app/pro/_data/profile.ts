@@ -1,4 +1,5 @@
 import { getTherapist, type SessionOption, type Therapist } from '@/lib/therapists';
+import type { SessionPrice } from '@/lib/pricing';
 
 // The signed in professional's own profile. Mirrors professional_profiles
 // and professional_credentials. Mock until the backend is connected.
@@ -17,8 +18,8 @@ export type ProProfile = {
   specialties: string[];
   languages: string[];
   sessionTypes: SessionType[];
-  // Saved for later. Users only see it once "free during testing" is off.
-  priceUsd: number | null;
+  // Shown to users for information only; nobody pays yet. null = not chosen.
+  price: SessionPrice | null;
   yearsExperience: number | null;
   licenseNumber: string;
   issuingBody: string;
@@ -75,7 +76,7 @@ export type ChecklistItem = {
 // What a new professional must finish before users can see them.
 export function profileChecklist(
   profile: ProProfile,
-  options: { hasSchedule: boolean; freeDuringTesting: boolean },
+  options: { hasSchedule: boolean },
 ): ChecklistItem[] {
   const items: ChecklistItem[] = [
     { key: 'photo', done: Boolean(profile.photoUrl), label: { en: 'Add a clear photo of yourself', km: 'បន្ថែមរូបថតច្បាស់របស់អ្នក' }, href: '/pro/profile#pro-photo' },
@@ -85,11 +86,8 @@ export function profileChecklist(
     { key: 'languages', done: profile.languages.length > 0, label: { en: 'Choose your session languages', km: 'ជ្រើសរើសភាសាពិគ្រោះ' }, href: '/pro/profile#pro-languages' },
     { key: 'sessions', done: profile.sessionTypes.length > 0, label: { en: 'Choose online, in person or both', km: 'ជ្រើសរើសអនឡាញ ជួបផ្ទាល់ ឬទាំងពីរ' }, href: '/pro/profile#pro-sessions' },
     { key: 'schedule', done: options.hasSchedule, label: { en: 'Open times in your schedule', km: 'បើកម៉ោងក្នុងកាលវិភាគរបស់អ្នក' }, href: '/pro' },
+    { key: 'price', done: profile.price !== null, label: { en: 'Choose your price, or Free', km: 'ជ្រើសរើសតម្លៃ ឬឥតគិតថ្លៃ' }, href: '/pro/profile#pro-price' },
   ];
-
-  if (!options.freeDuringTesting) {
-    items.push({ key: 'price', done: profile.priceUsd !== null, label: { en: 'Set your session price', km: 'កំណត់តម្លៃពិគ្រោះ' }, href: '/pro/profile#pro-price' });
-  }
 
   return items;
 }
@@ -119,6 +117,7 @@ export function toPublicTherapist(profile: ProProfile, base?: Therapist): Therap
     specialties: profile.specialties,
     languages: profile.languages,
     sessionOptions,
+    price: profile.price ?? undefined,
     experience: years === null ? '' : `${years}+ years of experience`,
     kmExperience: years === null ? undefined : `បទពិសោធន៍ ${years}+ ឆ្នាំ`,
   };
@@ -139,7 +138,7 @@ export const establishedProfile: ProProfile = {
   specialties: [...(sopheap?.specialties ?? [])],
   languages: [...(sopheap?.languages ?? [])],
   sessionTypes: ['online', 'in_person'],
-  priceUsd: 25,
+  price: sopheap?.price ?? { kind: 'fixed', amount: 20 },
   yearsExperience: 8,
   licenseNumber: 'MOH PSY 2019 041',
   issuingBody: 'Ministry of Health, Cambodia',
@@ -158,7 +157,7 @@ export const newProfile: ProProfile = {
   specialties: ['Anxiety', 'Students'],
   languages: ['Khmer', 'English'],
   sessionTypes: [],
-  priceUsd: null,
+  price: null,
   yearsExperience: 4,
   licenseNumber: 'MOH CNS 2022 207',
   issuingBody: 'Ministry of Health, Cambodia',

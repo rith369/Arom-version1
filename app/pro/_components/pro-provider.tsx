@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, type ReactNode } from 'react';
 
-import { FREE_DURING_TESTING } from '../../_components/pricing';
+import { FREE_DURING_TESTING } from '@/lib/pricing';
 import {
   REVIEWED_FIELDS,
   establishedProfile,

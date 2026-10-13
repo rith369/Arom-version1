@@ -47,7 +47,7 @@ export function ProHome() {
   const t = (kmText: string, enText: string) => (km ? kmText : enText);
   const [today] = useState(() => dayKey(new Date()));
 
-  const checklist = profileChecklist(profile, { hasSchedule, freeDuringTesting });
+  const checklist = profileChecklist(profile, { hasSchedule });
   const remaining = checklist.filter((item) => !item.done);
   const isVisible = remaining.length === 0;
   const name = (km && profile.kmDisplayName) || profile.displayName;
@@ -182,12 +182,12 @@ export function ProHome() {
             <Card>
               <h2 className="flex items-center gap-2 text-base font-bold text-ink">
                 <Gift size={18} aria-hidden="true" className="text-arom" />
-                {t('ឥតគិតថ្លៃក្នុងអំឡុងពេលសាកល្បង', 'Free during testing')}
+                {t('មិនទាន់គិតប្រាក់ក្នុងអំឡុងពេលសាកល្បង', 'No payments during testing')}
               </h2>
               <p className="mt-2 text-sm leading-6 text-ink-muted">
                 {t(
-                  'ខណៈ AROM កំពុងសាកល្បង អ្នកប្រើមិនបង់ប្រាក់សម្រាប់ការពិគ្រោះទេ។ តម្លៃរបស់អ្នកត្រូវបានរក្សាទុកសម្រាប់ពេលក្រោយ។',
-                  'While AROM is in testing, users do not pay for sessions. Your price is saved for later.',
+                  'អ្នកប្រើឃើញតម្លៃរបស់អ្នក ប៉ុន្តែមិនទាន់មាននរណាបង់ប្រាក់ទេ ខណៈ AROM កំពុងសាកល្បង។',
+                  'Users see your price, but nobody pays while AROM is in testing.',
                 )}
               </p>
             </Card>

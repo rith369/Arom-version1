@@ -76,7 +76,7 @@ import {
   ANNOUNCEMENTS,
   type Announcement,
 } from '../../_components/announcements';
-import { FREE_DURING_TESTING } from '../../_components/pricing';
+import { FREE_DURING_TESTING } from '@/lib/pricing';
 
 import {
   initialReports,

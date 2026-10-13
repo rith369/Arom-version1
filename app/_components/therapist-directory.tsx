@@ -17,6 +17,7 @@ import {
   type Therapist,
   type TherapistFilters,
 } from "@/lib/therapists";
+import { formatPrice } from "@/lib/pricing";
 import { AromBrand, DesktopNavigation, MobileNavigation } from "./app-navigation";
 import { useLanguage } from "./language-provider";
 import { TherapistFilter } from "./therapist-filter";
@@ -81,6 +82,11 @@ function TherapistCard({ therapist }: { therapist: Therapist }) {
           <span aria-hidden="true" className="size-2.5 rounded-full bg-arom-accent" />
           {availability}
         </p>
+        {therapist.price && (
+          <p className="mt-1 text-[0.7rem] font-semibold text-ink sm:text-xs">
+            {formatPrice(therapist.price, km)}
+          </p>
+        )}
       </div>
       </Link>
     </article>
