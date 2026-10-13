@@ -34,7 +34,33 @@ export type Schedule = {
   bookingWindowWeeks: 2 | 4 | 8;
   minNoticeHours: 2 | 12 | 24;
   timeOff: TimeOff[];
+  // Default room for online sessions (Google Meet, Zoom...). Copied onto each
+  // online booking; the professional can change it per session.
+  meetingUrl: string;
 };
+
+// Demo only. Not a real meeting room.
+export const DEMO_MEETING_URL = 'https://meet.google.com/arm-demo-room';
+
+// A meeting link must be a full https address.
+export function isMeetingUrl(value: string) {
+  try {
+    const url = new URL(value.trim());
+    return url.protocol === 'https:' && url.hostname.includes('.');
+  } catch {
+    return false;
+  }
+}
+
+// The Join button opens this many minutes before the start, until the end.
+export const JOIN_OPENS_MINUTES = 10;
+
+export function joinState(booking: { startsAt: string; durationMinutes: number; status: string }, now: number) {
+  const start = Date.parse(booking.startsAt);
+  const end = start + booking.durationMinutes * 60_000;
+  if (booking.status !== 'booked' || now >= end) return 'ended' as const;
+  return now >= start - JOIN_OPENS_MINUTES * 60_000 ? ('open' as const) : ('early' as const);
+}
 
 export type OpenSlot = {
   date: string;
@@ -169,6 +195,7 @@ export const establishedSchedule: Schedule = {
   bookingWindowWeeks: 4,
   minNoticeHours: 12,
   timeOff: [],
+  meetingUrl: DEMO_MEETING_URL,
 };
 
 // Demo: a newly approved professional has not opened any times yet.
@@ -179,4 +206,5 @@ export const emptySchedule: Schedule = {
   bookingWindowWeeks: 4,
   minNoticeHours: 24,
   timeOff: [],
+  meetingUrl: '',
 };

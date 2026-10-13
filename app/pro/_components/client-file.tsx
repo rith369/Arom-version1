@@ -2,10 +2,11 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { Archive, ArchiveRestore, ArrowLeft, FileText, Lock, MessageCircle, Monitor, NotebookPen, Pin, Search, Share2, UserRound } from 'lucide-react';
+import { Archive, ArchiveRestore, ArrowLeft, CalendarCheck, FileText, Lock, MessageCircle, Monitor, NotebookPen, Pin, Search, Share2, UserRound } from 'lucide-react';
 
 import { BookingDialog } from './bookings-view';
 import { CarePlanCard } from './care-plan-card';
+import { SuggestSessionDialog } from './suggest-session-dialog';
 import { usePro } from './pro-provider';
 import { useLanguage } from '../../_components/language-provider';
 import { MAX_NOTE, type ProBooking } from '../_data/bookings';
@@ -55,6 +56,7 @@ export function ClientFile({ clientId }: { clientId: string }) {
   const [summaryStatus, setSummaryStatus] = useState('');
   const [noteSearch, setNoteSearch] = useState('');
   const [openId, setOpenId] = useState<string | null>(null);
+  const [suggesting, setSuggesting] = useState(false);
 
   const client = clientsFrom(bookings, now).find((item) => item.id === clientId);
   const sessions = bookings
@@ -136,6 +138,15 @@ export function ClientFile({ clientId }: { clientId: string }) {
           <MessageCircle size={16} aria-hidden="true" />
           {t('ផ្ញើសារ', 'Message')}
         </Link>
+        {!archived && (
+          <button
+            type="button"
+            onClick={() => setSuggesting(true)}
+            className="flex items-center gap-2 rounded-full border border-arom-border bg-white px-4 py-2 text-sm font-medium text-arom hover:bg-arom-wash">
+            <CalendarCheck size={16} aria-hidden="true" />
+            {t('ណែនាំវគ្គ', 'Suggest a session')}
+          </button>
+        )}
         <button
           type="button"
           onClick={() => setClientArchived(clientId, !archived)}
@@ -329,6 +340,15 @@ export function ClientFile({ clientId }: { clientId: string }) {
           )}
         </aside>
       </div>
+
+      {suggesting && (
+        <SuggestSessionDialog
+          clientId={clientId}
+          clientName={client.name}
+          defaultType={sessions[0]?.sessionType ?? 'online'}
+          onClose={() => setSuggesting(false)}
+        />
+      )}
 
       {openBooking && (
         <BookingDialog key={openBooking.id} booking={openBooking} now={now} showClientLink={false} onClose={() => setOpenId(null)} />

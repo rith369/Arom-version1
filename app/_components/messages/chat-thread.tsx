@@ -1,11 +1,16 @@
 "use client";
 
-import { Mic, Pause, Play, Send, Square, Trash2 } from "lucide-react";
+import { MessageSquareText, Mic, Pause, Play, Plus, Send, Square, Trash2, X } from "lucide-react";
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
+import { SuggestionCard } from "../sessions/suggestion-card";
 import {
+  MAX_QUICK_REPLIES,
+  MAX_QUICK_REPLY,
   MAX_TEXT,
   MAX_VOICE_SECONDS,
+  fillQuickReply,
   markRead,
+  saveQuickReplies,
   sendMessage,
   useMessageStore,
   type ChatMessage,
@@ -82,14 +87,21 @@ export function ChatThread({
   viewer,
   km,
   closedNote,
+  quickReplyValues,
 }: {
   conversation: Conversation;
   viewer: Sender;
   km: boolean;
   // When set, the chat is read only and this explains why.
   closedNote?: string;
+  // Professionals only: turns on saved quick replies and fills {name}, {link}, {next}.
+  quickReplyValues?: { name: string; link: string; next: string };
 }) {
-  const { messages } = useMessageStore();
+  const { messages, quickReplies } = useMessageStore();
+  const replies = quickReplies[conversation.professionalId] ?? [];
+  const [repliesOpen, setRepliesOpen] = useState(false);
+  const [managing, setManaging] = useState(false);
+  const [newReply, setNewReply] = useState("");
   const t = (kmText: string, enText: string) => (km ? kmText : enText);
   const thread = messages
     .filter((item) => item.conversationId === conversation.id)
@@ -205,6 +217,12 @@ export function ChatThread({
                 <p className="py-2 text-center text-xs font-medium text-ink-muted">{dayLabel(message.createdAt)}</p>
               )}
               <div className={`flex ${mine ? "justify-end" : "justify-start"}`}>
+                {message.kind === "suggestion" ? (
+                  <div className="w-full max-w-sm">
+                    <SuggestionCard suggestionId={message.suggestionId} viewer={viewer} km={km} readOnly={Boolean(closedNote)} />
+                    <p className={`mt-1 text-[0.68rem] text-ink-muted ${mine ? "text-right" : ""}`}>{timeLabel(message.createdAt)}</p>
+                  </div>
+                ) : (
                 <div
                   className={`max-w-[80%] rounded-2xl px-3.5 py-2.5 text-sm leading-6 shadow-sm ${
                     mine ? "rounded-br-md bg-arom text-white" : "rounded-bl-md border border-arom-border bg-white text-ink"
@@ -220,6 +238,7 @@ export function ChatThread({
                     {mine && message.id === lastMine?.id && message.readAt && ` · ${t("បានឃើញ", "Seen")}`}
                   </p>
                 </div>
+                )}
               </div>
             </div>
           );
@@ -281,8 +300,95 @@ export function ChatThread({
             </div>
           )}
 
+          {recorder.phase === "idle" && quickReplyValues && repliesOpen && (
+            <div className="mb-2 rounded-2xl border border-arom-border bg-white p-3 shadow-card">
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-xs font-semibold text-ink">{t("ចម្លើយរហ័ស", "Quick replies")}</p>
+                <div className="flex items-center gap-1">
+                  <button type="button" onClick={() => setManaging(!managing)} className="rounded-full px-2.5 py-1 text-xs font-semibold text-arom hover:bg-arom-wash">
+                    {managing ? t("រួចរាល់", "Done") : t("កែសម្រួល", "Edit")}
+                  </button>
+                  <button type="button" onClick={() => setRepliesOpen(false)} aria-label={t("បិទ", "Close")} className="rounded-full p-1 text-ink-muted hover:bg-arom-wash">
+                    <X size={15} />
+                  </button>
+                </div>
+              </div>
+              {replies.length === 0 && <p className="mt-2 text-xs text-ink-muted">{t("មិនទាន់មានចម្លើយរហ័ស។", "No quick replies yet.")}</p>}
+              <ul className="mt-2 max-h-48 space-y-1 overflow-y-auto">
+                {replies.map((reply) => (
+                  <li key={reply.id} className="flex items-start gap-1">
+                    <button
+                      type="button"
+                      disabled={managing}
+                      onClick={() => {
+                        const filled = fillQuickReply(reply.text, quickReplyValues);
+                        setText((current) => (current.trim() ? `${current.trimEnd()} ${filled}` : filled).slice(0, MAX_TEXT));
+                        setRepliesOpen(false);
+                      }}
+                      className="min-w-0 flex-1 rounded-xl px-2.5 py-1.5 text-left text-sm text-ink hover:bg-arom-wash disabled:hover:bg-transparent"
+                    >
+                      {reply.text}
+                    </button>
+                    {managing && (
+                      <button
+                        type="button"
+                        onClick={() => saveQuickReplies(conversation.professionalId, replies.filter((item) => item.id !== reply.id))}
+                        aria-label={t("លុបចម្លើយនេះ", "Delete this reply")}
+                        className="rounded-full p-1.5 text-arom-danger hover:bg-arom-danger-soft"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    )}
+                  </li>
+                ))}
+              </ul>
+              {managing && (
+                <div className="mt-2 border-t border-arom-border pt-2">
+                  <div className="flex items-end gap-2">
+                    <textarea
+                      value={newReply}
+                      onChange={(event) => setNewReply(event.target.value)}
+                      rows={2}
+                      maxLength={MAX_QUICK_REPLY}
+                      aria-label={t("ចម្លើយរហ័សថ្មី", "New quick reply")}
+                      placeholder={t("សរសេរចម្លើយថ្មី...", "Write a new reply...")}
+                      className="min-w-0 flex-1 resize-none rounded-xl border border-arom-border px-3 py-2 text-sm outline-none focus:border-arom"
+                    />
+                    <button
+                      type="button"
+                      disabled={!newReply.trim() || replies.length >= MAX_QUICK_REPLIES}
+                      onClick={() => {
+                        saveQuickReplies(conversation.professionalId, [...replies, { id: `qr-${Date.now()}`, text: newReply.trim() }]);
+                        setNewReply("");
+                      }}
+                      className="flex items-center gap-1 rounded-full bg-arom px-3 py-2 text-xs font-semibold text-white disabled:opacity-40"
+                    >
+                      <Plus size={14} aria-hidden="true" />
+                      {t("បន្ថែម", "Add")}
+                    </button>
+                  </div>
+                  <p className="mt-1 text-[0.7rem] text-ink-muted">
+                    {t("ប្រើ {name} សម្រាប់ឈ្មោះ {link} សម្រាប់តំណប្រជុំ និង {next} សម្រាប់វគ្គបន្ទាប់។", "Use {name} for their name, {link} for the meeting link and {next} for the next session.")}
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+
           {recorder.phase === "idle" && (
             <div className="flex items-end gap-2">
+              {quickReplyValues && (
+                <button
+                  type="button"
+                  onClick={() => setRepliesOpen(!repliesOpen)}
+                  aria-expanded={repliesOpen}
+                  aria-label={t("ចម្លើយរហ័ស", "Quick replies")}
+                  title={t("ចម្លើយរហ័ស", "Quick replies")}
+                  className={`flex size-11 shrink-0 items-center justify-center rounded-full border border-arom-border hover:bg-arom-wash ${repliesOpen ? "bg-arom-wash text-arom-deep" : "text-arom"}`}
+                >
+                  <MessageSquareText size={19} />
+                </button>
+              )}
               <textarea
                 value={text}
                 onChange={(event) => setText(event.target.value)}

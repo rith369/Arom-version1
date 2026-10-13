@@ -17,11 +17,8 @@ import {
   hasOpenTimes,
   type Schedule,
 } from '../_data/schedule';
-import {
-  sampleBookingsFor,
-  type ProBooking,
-  type SessionNote,
-} from '../_data/bookings';
+import type { ProBooking, SessionNote } from '../_data/bookings';
+import { moveUpcomingToRoom, updateBooking, useSessionStore } from '../../_components/sessions/session-store';
 
 export type DemoMode = 'established' | 'new';
 
@@ -67,13 +64,17 @@ export function ProProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<ProProfile>(() => structuredClone(establishedProfile));
   const [pendingChanges, setPendingChanges] = useState<PendingChange[]>([]);
   const [schedule, setSchedule] = useState<Schedule>(() => structuredClone(establishedSchedule));
-  const [bookings, setBookings] = useState<ProBooking[]>(() => sampleBookingsFor(establishedProfile.slug));
   const [sessionNotes, setSessionNotes] = useState<Record<string, SessionNote>>({});
   const [summaryNotes, setSummaryNotes] = useState<Record<string, SessionNote>>({});
   const [archivedClients, setArchivedClients] = useState<string[]>([]);
 
-  function updateBooking(id: string, change: Partial<ProBooking>) {
-    setBookings((current) => current.map((item) => (item.id === id ? { ...item, ...change } : item)));
+  // Bookings live in the shared session store, so the user side sees changes too.
+  const sessionStore = useSessionStore();
+  const bookings = sessionStore.bookings.filter((item) => item.professionalId === profile.slug);
+
+  function saveSchedule(next: Schedule) {
+    if (next.meetingUrl !== schedule.meetingUrl) moveUpcomingToRoom(profile.slug, schedule.meetingUrl, next.meetingUrl, Date.now());
+    setSchedule(structuredClone(next));
   }
 
   function switchDemo(mode: DemoMode) {
@@ -81,7 +82,6 @@ export function ProProvider({ children }: { children: ReactNode }) {
     setProfile(structuredClone(mode === 'established' ? establishedProfile : newProfile));
     setPendingChanges([]);
     setSchedule(structuredClone(mode === 'established' ? establishedSchedule : emptySchedule));
-    setBookings(mode === 'established' ? sampleBookingsFor(establishedProfile.slug) : []);
     setSessionNotes({});
     setSummaryNotes({});
     setArchivedClients([]);
@@ -132,7 +132,7 @@ export function ProProvider({ children }: { children: ReactNode }) {
         pendingChanges,
         hasSchedule: hasOpenTimes(schedule),
         schedule,
-        saveSchedule: (next: Schedule) => setSchedule(structuredClone(next)),
+        saveSchedule,
         bookings,
         sessionNotes,
         // The client is told by the backend; the reason is shown to them.

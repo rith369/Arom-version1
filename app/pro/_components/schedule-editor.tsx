@@ -8,11 +8,12 @@ import { usePro } from './pro-provider';
 import { useLanguage } from '../../_components/language-provider';
 import type { SessionType } from '../_data/profile';
 import {
-  WEEKDAYS,
   addDays,
   cambodiaDate,
   checkDay,
+  isMeetingUrl,
   openSlots,
+  WEEKDAYS,
   type DayHours,
   type Schedule,
   type TimeRange,
@@ -147,7 +148,12 @@ export function ScheduleEditor() {
       document.getElementById(`range-${problems[0].rangeId}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
     }
-    saveSchedule(draft);
+    if (draft.meetingUrl.trim() && !isMeetingUrl(draft.meetingUrl)) {
+      setNotice({ tone: 'error', text: t('តំណប្រជុំត្រូវតែចាប់ផ្តើមដោយ https://', 'The meeting link must start with https://') });
+      document.getElementById('meeting-link')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+    saveSchedule({ ...draft, meetingUrl: draft.meetingUrl.trim() });
     setNotice({ tone: 'ok', text: t('បានរក្សាទុកកាលវិភាគ។', 'Schedule saved.') });
   }
 
@@ -337,6 +343,31 @@ export function ScheduleEditor() {
               ))}
             </div>
           </Section>
+
+          {offered.includes('online') && (
+            <Section
+              id="meeting-link"
+              title={t('តំណប្រជុំសម្រាប់វគ្គអនឡាញ', 'Meeting link for online sessions')}
+              hint={t(
+                'បន្ទប់ប្រជុំផ្ទាល់ខ្លួនរបស់អ្នក (Google Meet, Zoom ឬ Jitsi)។ វាត្រូវបានបន្ថែមទៅវគ្គអនឡាញនីមួយៗ ហើយអតិថិជនចុច "ចូលរួមវគ្គ" ១០ នាទីមុនម៉ោងចាប់ផ្តើម។ អ្នកអាចប្តូរវាសម្រាប់វគ្គមួយៗក្នុងការកក់របស់ខ្ញុំ។',
+                'Your own meeting room (Google Meet, Zoom or Jitsi). It is added to each online session, and the client taps "Join session" 10 minutes before the start. You can change it for one session in My bookings.',
+              )}>
+              <input
+                type="url"
+                value={draft.meetingUrl}
+                onChange={(event) => update({ meetingUrl: event.target.value })}
+                placeholder="https://meet.google.com/..."
+                aria-label={t('តំណប្រជុំ', 'Meeting link')}
+                className="w-full rounded-xl border border-arom-border px-3.5 py-2.5 text-sm outline-none focus:border-arom focus:ring-4 focus:ring-arom/10"
+              />
+              <p className="mt-2 text-xs leading-5 text-ink-muted">
+                {t(
+                  'ពេលអ្នកប្តូរតំណនេះ វគ្គអនឡាញខាងមុខដែលប្រើតំណចាស់នឹងប្រើតំណថ្មី។ កុំប្រើតំណដែលអ្នកដទៃក៏ប្រើដែរ។',
+                  'When you change it, upcoming online sessions that used the old link move to the new one. Use a room only you control.',
+                )}
+              </p>
+            </Section>
+          )}
 
           <Section title={t('ថ្ងៃឈប់សម្រាក', 'Time off')} hint={t('ថ្ងៃដែលអ្នកមិនទំនេរ ដូចជាថ្ងៃបុណ្យ ឬការធ្វើដំណើរ។ ការណាត់ជួបដែលមានស្រាប់មិនត្រូវបានលុបទេ។', 'Days you are away, such as holidays or trips. Sessions already booked are not removed.')}>
             {draft.timeOff.length > 0 && (

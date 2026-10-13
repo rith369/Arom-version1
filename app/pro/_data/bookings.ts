@@ -1,6 +1,7 @@
 import { initialBookings } from '../../admin/_data/bookings';
 import { initialUsers } from '../../admin/_data/users';
 import type { SessionType } from './profile';
+import { DEMO_MEETING_URL } from './schedule';
 
 // The professional's own sessions. Mirrors appointments (status booked,
 // completed, cancelled, no_show) plus intake answers. Booking is instant,
@@ -12,6 +13,8 @@ export type IntakeAnswer = { question: { en: string; km: string }; answer: strin
 
 export type ProBooking = {
   id: string;
+  // appointments.professional_id (the professional's public slug in the mock).
+  professionalId: string;
   // The client's account id (appointments.user_id).
   clientId: string;
   clientName: string;
@@ -31,6 +34,10 @@ export type ProBooking = {
   // share_symptom_checks). Off by default; only the client can change it.
   shareSurvey: boolean;
   shareSymptomChecks: boolean;
+  // Online sessions only (appointments.meeting_url). Null for in person.
+  meetingUrl: string | null;
+  // Set when the client booked a repeating series from a suggestion.
+  seriesId: string | null;
 };
 
 // Private to the professional who wrote it. Never shown to admins or clients.
@@ -68,6 +75,7 @@ export function sampleBookingsFor(slug: string): ProBooking[] {
       const intake = SAMPLE_INTAKES[index % SAMPLE_INTAKES.length];
       return {
         id: booking.id,
+        professionalId: slug,
         clientId: booking.userId,
         clientName: initialUsers.find((user) => user.id === booking.userId)?.fullName ?? 'Client',
         startsAt: booking.startsAt,
@@ -89,6 +97,8 @@ export function sampleBookingsFor(slug: string): ProBooking[] {
         // Demo: Sok Dara shares both, Heng Rachana shares symptom checks only.
         shareSurvey: booking.userId === 'demo-user-001',
         shareSymptomChecks: booking.userId === 'demo-user-001' || booking.userId === 'demo-user-005',
+        meetingUrl: booking.meetingType === 'Online' ? DEMO_MEETING_URL : null,
+        seriesId: null,
       };
     });
 }

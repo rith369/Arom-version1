@@ -2,12 +2,14 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, LifeBuoy, Lock, MessageCircle, Mic } from "lucide-react";
+import { useState } from "react";
+import { ArrowLeft, CalendarCheck, LifeBuoy, Lock, MessageCircle, Mic, Monitor, Repeat, UserRound } from "lucide-react";
 import { getTherapist, getTherapistName } from "@/lib/therapists";
-import { initialBookings } from "../../admin/_data/bookings";
 import { DesktopNavigation, MobileNavigation } from "../app-navigation";
 import { useLanguage } from "../language-provider";
 import { DEMO_CLIENT } from "../demo-client";
+import { JoinButton } from "../sessions/join-button";
+import { useSessionStore } from "../sessions/session-store";
 import { ChatThread } from "./chat-thread";
 import {
   REPLY_TIME_LABELS,
@@ -34,15 +36,12 @@ export function UserMessages({ professionalId }: { professionalId?: string }) {
   const km = language === "km";
   const t = (kmText: string, enText: string) => (km ? kmText : enText);
   const { messages, replyTimes } = useMessageStore();
+  const { bookings } = useSessionStore();
+  const [now] = useState(() => Date.now());
 
   // Only professionals this person has booked with can be messaged.
-  const professionalIds = [
-    ...new Set(
-      initialBookings
-        .filter((booking) => booking.userId === DEMO_CLIENT.id && booking.status !== "cancelled")
-        .map((booking) => booking.professionalId),
-    ),
-  ];
+  const mine = bookings.filter((booking) => booking.clientId === DEMO_CLIENT.id && booking.status !== "cancelled");
+  const professionalIds = [...new Set(mine.map((booking) => booking.professionalId))];
   const conversations: Conversation[] = professionalIds
     .map((id) => getTherapist(id))
     .filter((therapist) => therapist !== undefined)
@@ -59,6 +58,12 @@ export function UserMessages({ professionalId }: { professionalId?: string }) {
   const sorted = [...conversations].sort((a, b) => (lastFor(b.id)?.createdAt ?? "").localeCompare(lastFor(a.id)?.createdAt ?? ""));
   const selected = conversations.find((item) => item.professionalId === professionalId);
   const selectedTherapist = selected ? getTherapist(selected.professionalId) : undefined;
+  const nextSession = selected
+    ? mine
+        .filter((booking) => booking.professionalId === selected.professionalId && booking.status === "booked" && Date.parse(booking.startsAt) + booking.durationMinutes * 60_000 > now)
+        .sort((a, b) => a.startsAt.localeCompare(b.startsAt))[0]
+    : undefined;
+  const sessionTime = new Intl.DateTimeFormat(km ? "km-KH" : "en-GB", { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", hourCycle: "h23", timeZone: "Asia/Phnom_Penh" });
   const date = new Intl.DateTimeFormat(km ? "km-KH" : "en-GB", { day: "numeric", month: "short", timeZone: "Asia/Phnom_Penh" });
 
   return (
@@ -111,7 +116,9 @@ export function UserMessages({ professionalId }: { professionalId?: string }) {
                           <span className="truncate">
                             {!last
                               ? t("មិនទាន់មានសារ", "No messages yet")
-                              : last.kind === "voice"
+                              : last.kind === "suggestion"
+                                ? t("ម៉ោងសម្រាប់វគ្គបន្ទាប់របស់អ្នក", "Times for your next session")
+                                : last.kind === "voice"
                                 ? t("សារសំឡេង", "Voice message")
                                 : `${last.sender === "client" ? t("អ្នក: ", "You: ") : ""}${last.text}`}
                           </span>
@@ -145,6 +152,30 @@ export function UserMessages({ professionalId }: { professionalId?: string }) {
                   {t("ប្រវត្តិរូប", "Profile")}
                 </Link>
               </header>
+              {nextSession && (
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-2 border-b border-arom-border bg-arom-wash/60 px-4 py-2.5 text-sm sm:px-6">
+                  <CalendarCheck size={16} aria-hidden="true" className="text-arom" />
+                  <span className="min-w-0 flex-1">
+                    <span className="font-semibold text-ink">{t("វគ្គបន្ទាប់: ", "Next session: ")}</span>
+                    <span className="text-ink">{sessionTime.format(new Date(nextSession.startsAt))}</span>
+                    <span className="ml-2 inline-flex items-center gap-1 text-xs text-ink-muted">
+                      {nextSession.sessionType === "online" ? <Monitor size={12} aria-hidden="true" /> : <UserRound size={12} aria-hidden="true" />}
+                      {nextSession.sessionType === "online" ? t("អនឡាញ", "Online") : t("ជួបផ្ទាល់", "In person")}
+                    </span>
+                    {nextSession.seriesId && (
+                      <span className="ml-2 inline-flex items-center gap-1 text-xs text-ink-muted">
+                        <Repeat size={12} aria-hidden="true" />
+                        {t("ធ្វើម្តងទៀត", "Repeating")}
+                      </span>
+                    )}
+                  </span>
+                  {nextSession.sessionType === "online" && !nextSession.meetingUrl ? (
+                    <span className="text-xs text-ink-muted">{t("តំណប្រជុំនឹងមកដល់ពីអ្នកជំនាញ", "Your professional will add the meeting link")}</span>
+                  ) : (
+                    <JoinButton booking={nextSession} now={now} km={km} />
+                  )}
+                </div>
+              )}
               <p className="flex items-start gap-2 border-b border-arom-warning/20 bg-arom-warning-soft px-4 py-2.5 text-xs leading-5 text-arom-warning sm:px-6">
                 <LifeBuoy size={15} aria-hidden="true" className="mt-0.5 shrink-0" />
                 <span>

@@ -52,6 +52,7 @@ The yellow "Demo data on this page" banner is in `admin-shell.tsx`. Remove it fo
 | Professional clients (`/pro/clients`, client file) | Done on mock data | Waiting for backend | 16 |
 | Messages between client and professional (text and voice): `/pro/messages`, `/messages` | Done on mock data | Waiting for backend | 17 |
 | Care plan: professional gives tasks, client sees them in Your Plan For Today (`/pro/clients/<id>`, `/care-plan`, home) | Done on mock data | Waiting for backend | 18 |
+| Sessions: meeting links and Join, after session steps, suggest next session, repeating series, quick replies | Done on mock data | Waiting for backend | 19 |
 | Professional podcasts (`/pro`) | Not built yet | Not started | 19 |
 | Admin MindGuide: lessons, tips and practices with drafts, versions, publish and checks (`/admin/mindguide`, editor at `/admin/mindguide/<type>/<sourceId>`) | Done on mock data | Waiting for backend | 9 |
 | Report a problem (users) and admin Reports page (`/admin/reports`) | Done on mock data | Waiting for backend | 10 |
@@ -179,6 +180,8 @@ Do not change these without asking Rith.
 - **Educational note is fixed app text.** Every lesson, tip, practice and podcast screen shows "For learning only. This is not a diagnosis or treatment." from `app/_components/educational-note.tsx`. It is not stored as content, so no admin edit can remove it.
 - **No crisis helpline card on content screens.** Users find crisis helplines in Profile and Settings under "Get help now" (see section 13). If none are active, a built in message tells users to contact local emergency services. Never invent a number.
 - **Care plan tasks come only from the client's own professional, after a booking.** Four kinds: MindGuide item (only published ones), mission, goal and reminder. Reminders about medicine are only for medicine their doctor prescribed; AROM does not prescribe. The client chooses whether the professional sees their progress (off unless they turn it on), and it covers only ticks on those tasks, never journals, mood or detection answers. Reminder messages are sent by the Telegram bot built separately, not by the app.
+- **Next sessions are suggested, the client books.** After a session the professional can offer up to 3 times (optionally repeating: every week for 4 or 8 sessions, or every 2 weeks for 4). The client picks one in Messages and it is booked instantly, the whole series at once. The professional never books for the client. A follow up starts with sharing off (survey and symptom checks), because sharing is the client's choice per booking.
+- **Online sessions use the professional's own meeting room** (Google Meet, Zoom or Jitsi), set once in My schedule and changeable per session. Join opens 10 minutes before the start for both sides. No built in video.
 - **Messages only after a booking.** A user can message a professional only once they have booked with them. Text and voice messages (up to 2 minutes). Admins cannot read these chats (unlike community group chats). Not for emergencies: the user chat always links to Get help now. Archived clients' chats are read only. Calls use a meeting link (Google Meet or Zoom), not built in calls. Automatic reminders are a Telegram bot built separately.
 - **Bookings belong to the user and the professional.** Only they confirm, reschedule or cancel. Admins see bookings read only and can only make an emergency cancel with a written reason (see section 12).
 - **Instant booking.** A user picking one of a professional's open times is booked straight away (`appointments.status = 'booked'`, as the database already does). Professionals can still cancel or reschedule with a reason. An optional per professional "review new clients first" setting may come later; the frontend "pending" status is reserved for it.
@@ -486,7 +489,7 @@ The demo switch ("Established professional" or "Newly approved") and today's ses
 
 **Files:** `app/pro/_data/bookings.ts` (types, sample data), `app/pro/_components/bookings-view.tsx`, provider `bookings`, `sessionNotes`, `cancelBooking`, `rescheduleBooking`, `setBookingOutcome`, `saveSessionNote`. Home "Today's sessions" and the schedule preview read the same bookings.
 
-`ProBooking`: `id`, `clientName`, `startsAt`, `durationMinutes`, `sessionType` (`online`, `in_person`), `status` (`booked`, `completed`, `cancelled`, `no_show`, as in `appointments`; no pending, booking is instant), `intakeNote` (`appointments.intake_note`), `intakeAnswers` (`intake_answers` with their `intake_questions`), `cancelledBy`, `cancelReason`, `rescheduledFrom`, `rescheduleReason`.
+`ProBooking`: `id`, `professionalId`, `clientName`, `startsAt`, `durationMinutes`, `sessionType` (`online`, `in_person`), `status` (`booked`, `completed`, `cancelled`, `no_show`, as in `appointments`; no pending, booking is instant), `intakeNote` (`appointments.intake_note`), `intakeAnswers` (`intake_answers` with their `intake_questions`), `cancelledBy`, `cancelReason`, `rescheduledFrom`, `rescheduleReason`, `meetingUrl` (`appointments.meeting_url`), `seriesId` (see section 19).
 
 | Frontend action | Rule | Backend |
 |---|---|---|
@@ -580,9 +583,38 @@ The bot needs, for each active task with a `reminderTime`: client id (to find th
 
 **Mock today:** the store lives in memory only (nothing saved in the browser), so it resets on refresh. Tasks given in `/pro` show on the home page and `/care-plan` while the app stays open. The user side views as Sok Dara (`app/_components/demo-client.ts`, shared with Messages). Only one lesson, one tip and one practice are published today, so the picker lists those three.
 
-## 19. Planned next (frontend not built yet)
+## 19. Sessions: meeting links, after the session, suggested and repeating sessions, quick replies
 
-- **`/pro` next steps, in order:** booking improvements (Join session meeting link, quick replies, after session note plus outcome plus suggest next session plus care tasks, repeat sessions), a Prepare view and week calendar, then My podcasts (their own episodes on their profile).
+**Files:** `app/_components/sessions/session-store.ts` (shared bookings and suggestions, in memory mock store), `join-button.tsx`, `suggestion-card.tsx` (shown in the chat); `app/pro/_components/suggest-session-dialog.tsx`; changes in `bookings-view.tsx` (meeting link, After the session, series label, Join in rows), `schedule-editor.tsx` (meeting link), `pro-home.tsx` (Join), `client-file.tsx` and `messages-view.tsx` ("Suggest a session"), `app/_components/messages/chat-thread.tsx` (quick replies, suggestion messages), `user-messages.tsx` (Next session strip with Join).
+
+**Bookings are now shared:** `pro-provider.tsx` reads bookings from `session-store.ts` (filtered by `professionalId`) instead of its own state, and the user side reads the same store. Replace the store functions with API calls; the components should not need to change.
+
+### Data shape
+
+| Type | Fields | Suggested table |
+|---|---|---|
+| `Schedule.meetingUrl` | the professional's default room, `https://` only | a column on `professional_profiles` (or the schedule settings) |
+| `ProBooking.meetingUrl` | copied from the default when booked, editable per session | `appointments.meeting_url` (exists) |
+| `ProBooking.seriesId` | shared by every session of a repeating series | `appointments.series_id` (nullable) |
+| `SessionSuggestion` | `id`, `professionalId`, `clientId`, `sessionType`, `durationMinutes`, `times` (1 to 3 starts), `repeat` (`{ everyWeeks: 1 or 2, count }`), `note` (up to 300), `meetingUrl`, `createdAt`, `status` (`open`, `booked`, `withdrawn`), `chosenTime`, `bookingIds` | `session_suggestions` |
+| `ChatMessage.kind = 'suggestion'` + `suggestionId` | the chat message that carries a suggestion | `messages.suggestion_id` (nullable) |
+| `QuickReply` | `id`, `text` (up to 500), up to 20 per professional; `{name}`, `{link}`, `{next}` are filled in the browser before sending | `quick_replies (professional_id, text, position)`, readable only by that professional |
+
+### Rules
+
+- **Join:** a session's link is readable only by its client and professional. The Join button opens 10 minutes before the start until the end (`joinState` in `app/pro/_data/schedule.ts`). Changing the default room moves upcoming online sessions that used the old room (or had none).
+- **Suggest:** only the client's own professional, only times that are open in their schedule and free for every session of the series, at most 3 times. The client can see the suggestion only in that conversation.
+- **Accept** (`acceptSuggestion`): a `security definer` function that, in one transaction, checks the suggestion is open, the time is one of its times and every session of the series is still free, then creates all the appointments with the same `series_id` and marks the suggestion booked. If any time is taken, nothing is booked and the client sees "That time was just taken".
+- **Withdraw:** the professional can withdraw an open suggestion.
+- **After the session:** outcome first (completed or did not come), then the next steps (care task for completed sessions, suggest the next session), then the private note. Hidden for archived clients.
+- **Series:** each session in a series can be cancelled or moved on its own. Cancelling the whole series is not built.
+
+**Mock today:** bookings and suggestions live in memory only and reset on refresh. Admin Bookings still reads its own sample list, so follow ups booked from suggestions do not appear in the admin chart.
+
+## 20. Planned next (frontend not built yet)
+
+- **`/pro` next steps, in order:** a Prepare view and week calendar, then My podcasts (their own episodes on their profile).
+- **User side:** a page listing the user's own sessions (the sidebar "Appointments" item is still Soon). Today the next session and Join show at the top of the chat with that professional.
 - **Make professional (Way 2):** phone is optional there because the admin already knows the person. Add an optional phone field to `ProfessionalPromotion` when the backend supports it.
 
 ## 14. Community: groups, chat moderation and reports

@@ -15,6 +15,7 @@ import {
   UserRound,
 } from 'lucide-react';
 
+import { JoinButton } from '../../_components/sessions/join-button';
 import { usePro } from './pro-provider';
 import { useLanguage } from '../../_components/language-provider';
 import { profileChecklist, type ReviewedField } from '../_data/profile';
@@ -44,6 +45,7 @@ export function ProHome() {
   const km = language === 'km';
   const t = (kmText: string, enText: string) => (km ? kmText : enText);
   const [today] = useState(() => dayKey(new Date()));
+  const [now] = useState(() => Date.now());
 
   const checklist = profileChecklist(profile, { hasSchedule });
   const remaining = checklist.filter((item) => !item.done);
@@ -133,13 +135,14 @@ export function ProHome() {
                       {session.sessionType === 'online' ? <Monitor size={14} aria-hidden="true" /> : <UserRound size={14} aria-hidden="true" />}
                       {session.sessionType === 'online' ? t('អនឡាញ', 'Online') : t('ជួបផ្ទាល់', 'In person')}
                     </span>
+                    <JoinButton booking={session} now={now} km={km} size="sm" />
                   </li>
                 ))}
               </ul>
             )}
-            <p className="mt-3 text-xs text-ink-muted">
-              {t('ទំព័រ "ការកក់របស់ខ្ញុំ" នឹងមកដល់ឆាប់ៗ៖ មើលចម្លើយមុនការពិគ្រោះ ប្តូរពេល និងកំណត់ចំណាំឯកជន។', 'My bookings is coming next: intake answers, rescheduling and private session notes.')}
-            </p>
+            <Link href="/pro/bookings" className="mt-3 inline-block text-sm font-semibold text-arom hover:underline">
+              {t('មើលការកក់ទាំងអស់', 'See all bookings')}
+            </Link>
           </Card>
         </div>
 

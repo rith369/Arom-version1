@@ -7,6 +7,45 @@ A plain-language log of what changed in the app, written for the team rather tha
 
 Each entry lists the commit it landed in, so you can match it to a version of the site.
 
+## 13 Oct 2026: Join Session Links, After Session Steps, Suggested and Repeating Sessions, Quick Replies
+
+Commit pending. No migration yet. Frontend only, on mock data.
+
+**Why.** Online sessions had no way to actually meet, and after a session the professional had to remember several separate steps. Booking the next session meant the client starting from scratch. Now the meeting link travels with the booking, the booking window walks the professional through what to do after a session, and the client books the next session (or a weekly series) with one tap in the chat.
+
+**What changed for users:**
+- **"Next session" at the top of the chat** with your professional, with a **Join session** button that opens 10 minutes before the start.
+- **Suggested times in Messages:** your professional can send up to 3 times for your next session, sometimes repeating (for example every week, 4 sessions). Tap a time, see all the dates, and book. "No payment during testing" is shown.
+- **If a time was just taken,** you are told and nothing is booked.
+
+**What changed for professionals:**
+- **Meeting link in My schedule:** your own Google Meet, Zoom or Jitsi room, added to every online session. Changing it moves upcoming sessions to the new room. You can also change the link for one session.
+- **Join session** in the booking window, in My bookings rows and on Home, from 10 minutes before the start.
+- **"After the session" in the booking window:** step 1 outcome (completed or did not come), then next steps: give a care task, suggest the next session, and write the private note.
+- **"Suggest a session"** from the booking window, the client file and the chat: choose online or in person, how it repeats, up to 3 times (only times free for the whole series), and a note. You see when the client books, or you can withdraw it.
+- **Repeating series:** each session shows "Session 2 of 4 in a repeating series" and a repeat icon in the list.
+- **Quick replies in Messages:** saved replies you can add and delete, with {name}, {link} and {next} filled in for you.
+- **Home "Today's sessions"** now links to My bookings (the old "coming next" note is gone).
+- **Khmer and English** everywhere.
+
+**What changed for the team:**
+- **Bookings moved into a shared store** (`app/_components/sessions/session-store.ts`) used by `/pro` and the user side; `ProBooking` gained `professionalId`, `meetingUrl` and `seriesId`, and `Schedule` gained `meetingUrl`.
+- **Chat messages can carry a suggestion** (`kind: 'suggestion'`), and the chat supports quick replies for professionals.
+- **`BACKEND-HANDOFF.md` section 19** lists the new tables and the accept function that books a whole series in one transaction; decisions recorded in section 7.
+- **Mock only:** everything resets on refresh. Admin Bookings does not show follow ups booked from suggestions yet.
+
+**What to re-test:**
+- In My schedule, change the meeting link to something without https and save: confirm the error; then save a valid link and confirm an upcoming online booking uses it;
+- Open an online session starting within 10 minutes (or change a sample time) and confirm Join session opens the link in a new tab; earlier it says "Join opens 10 min before";
+- Open a past session that needs an outcome; mark Completed and confirm the next steps appear; give a care task from there;
+- Suggest the next session with "Every week, 4 sessions" and two times; open the user Messages without refreshing, pick a time, check the dates list, and book;
+- Back in My bookings confirm four new sessions marked as a series, and the chat card says Booked;
+- Suggest again and Withdraw; confirm the user card says it was withdrawn;
+- In the chat, open Quick replies, insert one with {name} and {link}, add a new reply and delete one;
+- Switch to Khmer on both sides.
+
+---
+
 ## 13 Oct 2026: Care Plan, Tasks From Your Professional in Your Plan For Today
 
 Commit `5637b57`. No migration yet. Frontend only, on mock data.

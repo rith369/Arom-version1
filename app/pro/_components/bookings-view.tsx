@@ -2,12 +2,17 @@
 
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
-import { CalendarClock, CheckCircle2, ClipboardList, FileText, FolderOpen, Lock, MessageCircle, Monitor, NotebookPen, UserRound, UserX, X, XCircle } from 'lucide-react';
+import { CalendarCheck, CalendarClock, CheckCircle2, ClipboardList, FileText, FolderOpen, Link2, Lock, MessageCircle, Monitor, NotebookPen, Repeat, UserRound, UserX, X, XCircle } from 'lucide-react';
 
+import { AddTaskDialog } from './care-plan-card';
 import { usePro } from './pro-provider';
+import { SuggestSessionDialog } from './suggest-session-dialog';
+import { cambodiaToday } from '../../_components/care/care-store';
 import { useLanguage } from '../../_components/language-provider';
+import { JoinButton } from '../../_components/sessions/join-button';
+import { seriesPosition, updateBooking } from '../../_components/sessions/session-store';
 import { MAX_NOTE, MAX_REASON, type ProBooking } from '../_data/bookings';
-import { cambodiaDate, openSlots } from '../_data/schedule';
+import { JOIN_OPENS_MINUTES, cambodiaDate, isMeetingUrl, openSlots } from '../_data/schedule';
 
 type Tab = 'upcoming' | 'past';
 type Action = 'reschedule' | 'cancel' | null;
@@ -39,7 +44,7 @@ export function BookingDialog({
   onClose: () => void;
   showClientLink?: boolean;
 }) {
-  const { bookings, schedule, sessionNotes, cancelBooking, rescheduleBooking, setBookingOutcome, saveSessionNote } = usePro();
+  const { bookings, schedule, sessionNotes, cancelBooking, rescheduleBooking, setBookingOutcome, saveSessionNote, archivedClients } = usePro();
   const { language } = useLanguage();
   const km = language === 'km';
   const t = (kmText: string, enText: string) => (km ? kmText : enText);
@@ -52,6 +57,10 @@ export function BookingDialog({
   const [error, setError] = useState('');
   const [note, setNote] = useState(sessionNotes[booking.id]?.text ?? '');
   const [noteSaved, setNoteSaved] = useState('');
+  const [link, setLink] = useState(booking.meetingUrl ?? '');
+  const [linkStatus, setLinkStatus] = useState('');
+  const [nextStep, setNextStep] = useState<'task' | 'suggest' | null>(null);
+  const [today] = useState(() => cambodiaToday(Date.now()));
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -62,6 +71,19 @@ export function BookingDialog({
   const isUpcoming = booking.status === 'booked' && endOf(booking) > now;
   const needsOutcome = booking.status === 'booked' && endOf(booking) <= now;
   const savedNote = sessionNotes[booking.id];
+  const ended = booking.status !== 'cancelled' && endOf(booking) <= now;
+  const series = seriesPosition(bookings, booking);
+  const archived = archivedClients.includes(booking.clientId);
+
+  function saveLink() {
+    const value = link.trim();
+    if (value && !isMeetingUrl(value)) {
+      setLinkStatus(t('សូមបញ្ចូលតំណពេញ ចាប់ផ្តើមដោយ https://', 'Enter a full link that starts with https://'));
+      return;
+    }
+    updateBooking(booking.id, { meetingUrl: value || null });
+    setLinkStatus(t('បានរក្សាទុក។ អតិថិជនឃើញតំណនេះ។', 'Saved. The client sees this link.'));
+  }
 
   // Open times that fit this session's type, leaving out every other booking.
   const slots = openSlots(schedule, {
@@ -109,6 +131,12 @@ export function BookingDialog({
           <p className="mt-1 text-sm text-ink-muted">
             {formats.day.format(start)}, {formats.time.format(start)} · {booking.durationMinutes} {t('នាទី', 'min')} · {typeLabel}
           </p>
+          {series && (
+            <p className="mt-1 flex items-center gap-1.5 text-xs font-medium text-arom-deep">
+              <Repeat size={13} aria-hidden="true" />
+              {t(`វគ្គទី ${series.index} ក្នុងចំណោម ${series.total} ដែលធ្វើម្តងទៀត`, `Session ${series.index} of ${series.total} in a repeating series`)}
+            </p>
+          )}
           <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1">
             {showClientLink && (
               <Link href={`/pro/clients/${booking.clientId}`} className="inline-flex items-center gap-1.5 text-sm font-semibold text-arom hover:underline">
@@ -120,12 +148,6 @@ export function BookingDialog({
               <MessageCircle size={15} aria-hidden="true" />
               {t('ផ្ញើសារ', 'Message client')}
             </Link>
-            {showClientLink && (booking.status === 'completed' || needsOutcome) && (
-              <Link href={`/pro/clients/${booking.clientId}#care-plan`} className="inline-flex items-center gap-1.5 text-sm font-semibold text-arom hover:underline">
-                <ClipboardList size={15} aria-hidden="true" />
-                {t('ផ្ដល់កិច្ចការថែទាំ', 'Give care tasks')}
-              </Link>
-            )}
           </div>
         </div>
         <button type="button" onClick={onClose} aria-label={t('បិទ', 'Close')} className="rounded-full p-2 hover:bg-arom-wash">
@@ -154,12 +176,102 @@ export function BookingDialog({
           </p>
         )}
 
+        {booking.sessionType === 'online' && booking.status === 'booked' && !ended && (
+          <section className="rounded-2xl border border-arom-border p-4">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <h3 className="flex items-center gap-2 text-sm font-bold text-ink">
+                <Link2 size={16} aria-hidden="true" className="text-arom" />
+                {t('តំណប្រជុំ', 'Meeting link')}
+              </h3>
+              <JoinButton booking={booking} now={now} km={km} />
+            </div>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <input
+                type="url"
+                value={link}
+                onChange={(event) => {
+                  setLink(event.target.value);
+                  setLinkStatus('');
+                }}
+                placeholder="https://meet.google.com/..."
+                aria-label={t('តំណប្រជុំសម្រាប់វគ្គនេះ', 'Meeting link for this session')}
+                className="min-w-0 flex-1 rounded-xl border border-arom-border px-3 py-2 text-sm outline-none focus:border-arom focus:ring-4 focus:ring-arom/10"
+              />
+              <button
+                type="button"
+                disabled={link.trim() === (booking.meetingUrl ?? '')}
+                onClick={saveLink}
+                className="rounded-full border border-arom-border px-4 py-2 text-sm font-medium text-arom hover:bg-arom-wash disabled:opacity-40">
+                {t('រក្សាទុក', 'Save')}
+              </button>
+            </div>
+            <p role="status" aria-live="polite" className="mt-1.5 text-xs text-ink-muted">
+              {linkStatus ||
+                (booking.meetingUrl
+                  ? t(`អតិថិជនអាចចូលរួម ${JOIN_OPENS_MINUTES} នាទីមុនម៉ោងចាប់ផ្តើម។`, `The client can join from ${JOIN_OPENS_MINUTES} minutes before the start.`)
+                  : t('មិនទាន់មានតំណ។ អតិថិជនមិនអាចចូលរួមបានទេ រហូតដល់អ្នកបន្ថែមតំណ។', 'No link yet. The client cannot join until you add one.'))}
+            </p>
+          </section>
+        )}
+
+        {ended && booking.status !== 'cancelled' && (
+          <section className="rounded-2xl bg-arom-wash/70 p-4">
+            <h3 className="text-sm font-bold text-ink">{t('ក្រោយវគ្គ', 'After the session')}</h3>
+            {needsOutcome ? (
+              <>
+                <p className="mt-1 text-xs text-ink-muted">{t('ជំហានទី ១: វគ្គនេះយ៉ាងម៉េចដែរ?', 'Step 1: how did this session go?')}</p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <button type="button" onClick={() => setBookingOutcome(booking.id, 'completed')} className="flex items-center gap-2 rounded-full bg-arom px-4 py-2 text-sm font-semibold text-white hover:bg-arom-deep">
+                    <CheckCircle2 size={16} aria-hidden="true" />
+                    {t('បានបញ្ចប់', 'Completed')}
+                  </button>
+                  <button type="button" onClick={() => setBookingOutcome(booking.id, 'no_show')} className="flex items-center gap-2 rounded-full border border-arom-border bg-white px-4 py-2 text-sm font-medium text-ink hover:bg-arom-wash">
+                    <UserX size={16} aria-hidden="true" />
+                    {t('អតិថិជនមិនបានមក', 'Client did not come')}
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <p className="mt-1 flex items-center gap-1.5 text-xs text-ink-muted">
+                  <CheckCircle2 size={13} aria-hidden="true" className="text-arom" />
+                  {booking.status === 'completed' ? t('បានកត់ថាបានបញ្ចប់។', 'Marked as completed.') : t('បានកត់ថាអតិថិជនមិនបានមក។', 'Marked as did not come.')}
+                </p>
+                {archived ? (
+                  <p className="mt-2 text-xs text-ink-muted">{t('អតិថិជននេះត្រូវបានដាក់ជាអតិថិជនចាស់។', 'This client is archived.')}</p>
+                ) : (
+                  <>
+                    <p className="mt-3 text-xs font-semibold text-ink">{t('ជំហានបន្ទាប់', 'Next steps')}</p>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {booking.status === 'completed' && (
+                        <button type="button" onClick={() => setNextStep('task')} className="flex items-center gap-2 rounded-full border border-arom-border bg-white px-4 py-2 text-sm font-medium text-arom hover:bg-arom-wash">
+                          <ClipboardList size={16} aria-hidden="true" />
+                          {t('ផ្ដល់កិច្ចការថែទាំ', 'Give a care task')}
+                        </button>
+                      )}
+                      <button type="button" onClick={() => setNextStep('suggest')} className="flex items-center gap-2 rounded-full border border-arom-border bg-white px-4 py-2 text-sm font-medium text-arom hover:bg-arom-wash">
+                        <CalendarCheck size={16} aria-hidden="true" />
+                        {t('ណែនាំវគ្គបន្ទាប់', 'Suggest the next session')}
+                      </button>
+                    </div>
+                    <p className="mt-2 text-xs text-ink-muted">{t('ហើយសរសេរកំណត់ចំណាំឯកជនខាងក្រោម។', 'Then write your private note below.')}</p>
+                  </>
+                )}
+              </>
+            )}
+          </section>
+        )}
+
         <section>
           <h3 className="flex items-center gap-2 text-sm font-bold text-ink">
             <FileText size={16} aria-hidden="true" className="text-arom" />
             {t('មុនការពិគ្រោះ', 'Before the session')}
           </h3>
-          <p className="mt-1 text-xs text-ink-muted">{t('អតិថិជនបានចែករំលែកព័ត៌មាននេះសម្រាប់វគ្គនេះតែប៉ុណ្ណោះ។', 'The client shared this for this session only.')}</p>
+          {booking.intakeAnswers.length === 0 && !booking.intakeNote ? (
+            <p className="mt-1 text-xs text-ink-muted">{t('វគ្គតាមដាន ដែលកក់ពីការណែនាំរបស់អ្នក។ គ្មានចម្លើយថ្មីទេ។', 'A follow up booked from your suggestion. No new answers.')}</p>
+          ) : (
+            <p className="mt-1 text-xs text-ink-muted">{t('អតិថិជនបានចែករំលែកព័ត៌មាននេះសម្រាប់វគ្គនេះតែប៉ុណ្ណោះ។', 'The client shared this for this session only.')}</p>
+          )}
           {booking.intakeNote && (
             <p className="mt-3 rounded-2xl bg-arom-wash/70 p-3.5 text-sm leading-6 text-ink">&ldquo;{booking.intakeNote}&rdquo;</p>
           )}
@@ -271,22 +383,6 @@ export function BookingDialog({
           </section>
         )}
 
-        {needsOutcome && (
-          <section className="border-t border-arom-border pt-5">
-            <h3 className="text-sm font-bold text-ink">{t('វគ្គនេះយ៉ាងម៉េចដែរ?', 'How did this session go?')}</h3>
-            <div className="mt-3 flex flex-wrap gap-2">
-              <button type="button" onClick={() => setBookingOutcome(booking.id, 'completed')} className="flex items-center gap-2 rounded-full bg-arom px-4 py-2 text-sm font-semibold text-white hover:bg-arom-deep">
-                <CheckCircle2 size={16} aria-hidden="true" />
-                {t('បានបញ្ចប់', 'Completed')}
-              </button>
-              <button type="button" onClick={() => setBookingOutcome(booking.id, 'no_show')} className="flex items-center gap-2 rounded-full border border-arom-border px-4 py-2 text-sm font-medium text-ink hover:bg-arom-wash">
-                <UserX size={16} aria-hidden="true" />
-                {t('អតិថិជនមិនបានមក', 'Client did not come')}
-              </button>
-            </div>
-          </section>
-        )}
-
         <section className="border-t border-arom-border pt-5">
           <h3 className="flex items-center gap-2 text-sm font-bold text-ink">
             <NotebookPen size={16} aria-hidden="true" className="text-arom" />
@@ -323,6 +419,13 @@ export function BookingDialog({
           </div>
         </section>
       </div>
+
+      {nextStep === 'task' && (
+        <AddTaskDialog clientId={booking.clientId} clientName={booking.clientName} bookingId={booking.id} today={today} onClose={() => setNextStep(null)} />
+      )}
+      {nextStep === 'suggest' && (
+        <SuggestSessionDialog clientId={booking.clientId} clientName={booking.clientName} defaultType={booking.sessionType} onClose={() => setNextStep(null)} />
+      )}
     </dialog>
   );
 }
@@ -407,11 +510,11 @@ export function ProBookingsView() {
                   const chip = statusChip(booking);
                   const start = new Date(booking.startsAt);
                   return (
-                    <li key={booking.id}>
+                    <li key={booking.id} className="flex items-center gap-2">
                       <button
                         type="button"
                         onClick={() => setOpenId(booking.id)}
-                        className="flex w-full flex-wrap items-center gap-x-4 gap-y-2 rounded-2xl border border-arom-border bg-white px-4 py-3.5 text-left shadow-sm hover:border-arom/40 hover:bg-arom-wash/40">
+                        className="flex min-w-0 flex-1 flex-wrap items-center gap-x-4 gap-y-2 rounded-2xl border border-arom-border bg-white px-4 py-3.5 text-left shadow-sm hover:border-arom/40 hover:bg-arom-wash/40">
                         <span className="w-24 text-sm font-semibold tabular-nums text-ink">
                           {formats.time.format(start)}
                           <span className="font-normal text-ink-muted"> · {booking.durationMinutes}{t('នាទី', 'm')}</span>
@@ -424,8 +527,10 @@ export function ProBookingsView() {
                         {sessionNotes[booking.id]?.text && (
                           <NotebookPen size={15} aria-label={t('មានកំណត់ចំណាំ', 'Has notes')} className="text-arom" />
                         )}
+                        {booking.seriesId && <Repeat size={14} aria-label={t('វគ្គធ្វើម្តងទៀត', 'Repeating series')} className="text-arom" />}
                         <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${chip.style}`}>{chip.label}</span>
                       </button>
+                      <JoinButton booking={booking} now={now} km={km} size="sm" />
                     </li>
                   );
                 })}

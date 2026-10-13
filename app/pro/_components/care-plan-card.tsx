@@ -78,7 +78,7 @@ function Progress({ task, checkIns, today, km, format }: { task: CareTask; check
   );
 }
 
-function AddTaskDialog({ clientId, clientName, bookingId, today, onClose }: { clientId: string; clientName: string; bookingId: string | null; today: string; onClose: () => void }) {
+export function AddTaskDialog({ clientId, clientName, bookingId, today, onClose }: { clientId: string; clientName: string; bookingId: string | null; today: string; onClose: () => void }) {
   const { profile } = usePro();
   const { language } = useLanguage();
   const km = language === 'km';

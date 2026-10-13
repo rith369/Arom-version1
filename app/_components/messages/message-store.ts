@@ -12,14 +12,21 @@ export type ChatMessage = {
   id: string;
   conversationId: string;
   sender: Sender;
-  kind: 'text' | 'voice';
+  // suggestion: times for the next session (see sessions/session-store.ts).
+  kind: 'text' | 'voice' | 'suggestion';
   text: string;
   // Voice only. Empty for sample voice messages that have no audio.
   audioUrl: string;
   durationSeconds: number;
+  suggestionId: string;
   createdAt: string;
   readAt: string | null;
 };
+
+// A professional's saved reply. {name}, {link} and {next} are filled in when inserted.
+export type QuickReply = { id: string; text: string };
+export const MAX_QUICK_REPLIES = 20;
+export const MAX_QUICK_REPLY = 500;
 
 export type Conversation = {
   id: string; // `${professionalId}:${clientId}`
@@ -36,6 +43,7 @@ type State = {
   conversations: Conversation[];
   messages: ChatMessage[];
   replyTimes: Record<string, ReplyTime>;
+  quickReplies: Record<string, QuickReply[]>;
 };
 
 export const MAX_VOICE_SECONDS = 120;
@@ -56,6 +64,7 @@ function seed(): State {
     text,
     audioUrl: '',
     durationSeconds: 0,
+    suggestionId: '',
     createdAt,
     readAt: read ? createdAt : null,
   });
@@ -76,6 +85,7 @@ function seed(): State {
         text: '',
         audioUrl: '',
         durationSeconds: 34,
+        suggestionId: '',
         createdAt: '2026-10-13T01:05:00Z',
         readAt: null,
       },
@@ -84,6 +94,15 @@ function seed(): State {
       message('m6', rachana, 'professional', '2026-10-11T11:02:00Z', 'Of course. Turn it on only when you feel ready.'),
     ],
     replyTimes: { 'sopheap-chan': 'one_day' },
+    quickReplies: {
+      'sopheap-chan': [
+        { id: 'qr1', text: 'Thank you for your message, {name}. I will reply properly before our next session.' },
+        { id: 'qr2', text: 'I am running 5 minutes late. Please stay in the meeting room, I am coming.' },
+        { id: 'qr3', text: 'Here is the link for our session: {link}' },
+        { id: 'qr4', text: 'See you on {next}. Take care until then.' },
+        { id: 'qr5', text: 'សូមអរគុណសម្រាប់សាររបស់អ្នក {name}។ ខ្ញុំនឹងឆ្លើយតបមុនវគ្គបន្ទាប់របស់យើង។' },
+      ],
+    },
   };
 }
 
@@ -113,7 +132,10 @@ function ensureConversation(conversation: Conversation) {
 export function sendMessage(
   conversation: Conversation,
   sender: Sender,
-  content: { kind: 'text'; text: string } | { kind: 'voice'; audioUrl: string; durationSeconds: number },
+  content:
+    | { kind: 'text'; text: string }
+    | { kind: 'voice'; audioUrl: string; durationSeconds: number }
+    | { kind: 'suggestion'; suggestionId: string },
 ) {
   const now = new Date().toISOString();
   setState({
@@ -129,6 +151,7 @@ export function sendMessage(
         text: content.kind === 'text' ? content.text.slice(0, MAX_TEXT) : '',
         audioUrl: content.kind === 'voice' ? content.audioUrl : '',
         durationSeconds: content.kind === 'voice' ? content.durationSeconds : 0,
+        suggestionId: content.kind === 'suggestion' ? content.suggestionId : '',
         createdAt: now,
         readAt: null,
       },
@@ -150,6 +173,21 @@ export function markRead(id: string, viewer: Sender) {
 
 export function setReplyTime(professionalId: string, value: ReplyTime) {
   setState({ ...state, replyTimes: { ...state.replyTimes, [professionalId]: value } });
+}
+
+export function saveQuickReplies(professionalId: string, replies: QuickReply[]) {
+  setState({
+    ...state,
+    quickReplies: {
+      ...state.quickReplies,
+      [professionalId]: replies.slice(0, MAX_QUICK_REPLIES).map((item) => ({ ...item, text: item.text.slice(0, MAX_QUICK_REPLY) })),
+    },
+  });
+}
+
+// Fills {name}, {link} and {next}. Unknown values are left empty.
+export function fillQuickReply(text: string, values: { name: string; link: string; next: string }) {
+  return text.replaceAll('{name}', values.name).replaceAll('{link}', values.link).replaceAll('{next}', values.next);
 }
 
 export function unreadCount(messages: ChatMessage[], id: string, viewer: Sender) {

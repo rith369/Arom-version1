@@ -2,9 +2,10 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { ArrowLeft, FolderOpen, Lock, MessageCircle, Mic, Search } from 'lucide-react';
+import { ArrowLeft, CalendarCheck, FolderOpen, Lock, MessageCircle, Mic, Search } from 'lucide-react';
 
 import { usePro } from './pro-provider';
+import { SuggestSessionDialog } from './suggest-session-dialog';
 import { ChatThread } from '../../_components/messages/chat-thread';
 import {
   REPLY_TIME_LABELS,
@@ -19,7 +20,7 @@ import { useLanguage } from '../../_components/language-provider';
 import { clientsFrom } from '../_data/clients';
 
 export function ProMessagesView({ clientId }: { clientId?: string }) {
-  const { bookings, profile, archivedClients } = usePro();
+  const { bookings, profile, archivedClients, schedule } = usePro();
   const { messages, replyTimes } = useMessageStore();
   const { language } = useLanguage();
   const km = language === 'km';
@@ -27,6 +28,7 @@ export function ProMessagesView({ clientId }: { clientId?: string }) {
 
   const [now] = useState(() => Date.now());
   const [query, setQuery] = useState('');
+  const [suggesting, setSuggesting] = useState(false);
 
   // Only people who booked with this professional can be messaged.
   const clients = clientsFrom(bookings, now);
@@ -54,6 +56,13 @@ export function ProMessagesView({ clientId }: { clientId?: string }) {
     .sort((a, b) => b.unread - a.unread || (b.last?.createdAt ?? '').localeCompare(a.last?.createdAt ?? '') || a.client.name.localeCompare(b.client.name));
 
   const selected = clients.find((client) => client.id === clientId);
+  // Values for quick replies: {name}, {link} and {next}.
+  const nextSession = bookings
+    .filter((item) => item.clientId === clientId && item.status === 'booked' && Date.parse(item.startsAt) > now)
+    .sort((a, b) => a.startsAt.localeCompare(b.startsAt))[0];
+  const nextLabel = nextSession
+    ? new Intl.DateTimeFormat(km ? 'km-KH' : 'en-GB', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit', hourCycle: 'h23', timeZone: 'Asia/Phnom_Penh' }).format(new Date(nextSession.startsAt))
+    : '';
   const replyTime: ReplyTime = replyTimes[profile.slug] ?? 'one_day';
   const time = new Intl.DateTimeFormat(km ? 'km-KH' : 'en-GB', { day: 'numeric', month: 'short', timeZone: 'Asia/Phnom_Penh' });
 
@@ -121,7 +130,9 @@ export function ProMessagesView({ clientId }: { clientId?: string }) {
                         <span className="truncate">
                           {!last
                             ? t('មិនទាន់មានសារ', 'No messages yet')
-                            : last.kind === 'voice'
+                            : last.kind === 'suggestion'
+                              ? t('អ្នកបានណែនាំម៉ោងវគ្គបន្ទាប់', 'You suggested times for the next session')
+                              : last.kind === 'voice'
                               ? t('សារសំឡេង', 'Voice message')
                               : `${last.sender === 'professional' ? t('អ្នក: ', 'You: ') : ''}${last.text}`}
                         </span>
@@ -150,6 +161,12 @@ export function ProMessagesView({ clientId }: { clientId?: string }) {
                   <p className="truncate font-bold text-ink">{selected.name}</p>
                   <p className="text-xs text-ink-muted">{km ? REPLY_TIME_LABELS[replyTime].km : REPLY_TIME_LABELS[replyTime].en}</p>
                 </div>
+                {!archivedClients.includes(selected.id) && (
+                  <button type="button" onClick={() => setSuggesting(true)} className="flex items-center gap-1.5 text-sm font-semibold text-arom hover:underline">
+                    <CalendarCheck size={15} aria-hidden="true" />
+                    {t('ណែនាំវគ្គ', 'Suggest a session')}
+                  </button>
+                )}
                 <Link href={`/pro/clients/${selected.id}`} className="flex items-center gap-1.5 text-sm font-semibold text-arom hover:underline">
                   <FolderOpen size={15} aria-hidden="true" />
                   {t('ឯកសារអតិថិជន', 'Client file')}
@@ -160,6 +177,11 @@ export function ProMessagesView({ clientId }: { clientId?: string }) {
                   conversation={conversationFor(selected.id, selected.name)}
                   viewer="professional"
                   km={km}
+                  quickReplyValues={{
+                    name: selected.name,
+                    link: nextSession?.meetingUrl ?? schedule.meetingUrl,
+                    next: nextLabel,
+                  }}
                   closedNote={
                     archivedClients.includes(selected.id)
                       ? t('អតិថិជននេះត្រូវបានដាក់ជាអតិថិជនចាស់។ សារត្រូវបានរក្សាទុក ប៉ុន្តែមិនអាចផ្ញើសារថ្មីបានទេ។', 'This client is archived. Messages are kept, but no new messages can be sent.')
@@ -176,6 +198,15 @@ export function ProMessagesView({ clientId }: { clientId?: string }) {
           )}
         </section>
       </div>
+
+      {suggesting && selected && (
+        <SuggestSessionDialog
+          clientId={selected.id}
+          clientName={selected.name}
+          defaultType={bookings.find((item) => item.clientId === selected.id)?.sessionType ?? 'online'}
+          onClose={() => setSuggesting(false)}
+        />
+      )}
     </>
   );
 }
