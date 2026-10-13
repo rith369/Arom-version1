@@ -9,7 +9,7 @@ Each entry lists the commit it landed in, so you can match it to a version of th
 
 ## 13 Oct 2026: No Add Button for Lessons, Tips and Practices in Admin MindGuide
 
-Commit pending. No migration.
+Commit `e86bef6`. No migration.
 
 **Why.** Lessons, tips and practices are written by the team with AI; admins only check, correct and publish them. The admin page had Add lesson, Add tip and Add practice buttons that let an admin start an empty item by hand, which goes against that rule.
 
