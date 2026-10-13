@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { BellRing, BookOpen, Check, ClipboardList, Footprints, Lock, Plus, Target, X } from 'lucide-react';
 
 import { usePro } from './pro-provider';
@@ -93,6 +93,9 @@ export function AddTaskDialog({ clientId, clientName, bookingId, today, onClose 
   const [endDate, setEndDate] = useState(shiftDate(today, 14));
   const [reminderTime, setReminderTime] = useState('');
   const [error, setError] = useState('');
+  // Titles given while this window stayed open ("Give and add another").
+  const [given, setGiven] = useState<string[]>([]);
+  const panelRef = useRef<HTMLDivElement>(null);
 
   const chooseKind = (next: CareTaskKind) => {
     setKind(next);
@@ -102,7 +105,7 @@ export function AddTaskDialog({ clientId, clientName, bookingId, today, onClose 
     setEndDate(shiftDate(today, next === 'goal' ? 28 : 14));
   };
 
-  const save = () => {
+  const save = (addAnother: boolean) => {
     const option = MINDGUIDE_OPTIONS.find((item) => `${item.type}:${item.id}` === itemKey);
     if (kind === 'mindguide' && !option) return setError(t('សូមជ្រើសរើសមាតិកា MindGuide។', 'Choose a MindGuide item.'));
     if (kind !== 'mindguide' && !title.trim()) return setError(t('សូមសរសេរអ្វីដែលអតិថិជនត្រូវធ្វើ។', 'Write what the client should do.'));
@@ -125,12 +128,21 @@ export function AddTaskDialog({ clientId, clientName, bookingId, today, onClose 
         reminderTime: kind === 'goal' ? null : reminderTime || null,
       },
     ]);
-    onClose();
+    if (!addAnother) {
+      onClose();
+      return;
+    }
+    // Keep the type and schedule (often the same), clear what the task says.
+    setGiven([...given, kind === 'mindguide' && option ? (km ? option.kmTitle : option.title) : title.trim()]);
+    setTitle('');
+    setNote('');
+    setError('');
+    panelRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-ink/40 p-0 sm:items-center sm:p-4" role="dialog" aria-modal="true" aria-labelledby="care-task-title">
-      <div className="max-h-[92vh] w-full max-w-xl overflow-y-auto rounded-t-3xl bg-white p-5 shadow-xl sm:rounded-3xl sm:p-6">
+      <div ref={panelRef} className="max-h-[92vh] w-full max-w-xl overflow-y-auto rounded-t-3xl bg-white p-5 shadow-xl sm:rounded-3xl sm:p-6">
         <div className="flex items-start justify-between gap-3">
           <div>
             <h2 id="care-task-title" className="text-lg font-bold text-ink">{t('ផ្ដល់កិច្ចការថែទាំ', 'Give a care task')}</h2>
@@ -142,6 +154,20 @@ export function AddTaskDialog({ clientId, clientName, bookingId, today, onClose 
             <X size={20} />
           </button>
         </div>
+
+        {given.length > 0 && (
+          <div role="status" aria-live="polite" className="mt-4 rounded-2xl bg-arom-wash px-4 py-3 text-sm text-ink">
+            <p className="flex items-center gap-1.5 font-semibold text-arom-deep">
+              <Check size={15} aria-hidden="true" />
+              {t(`បានផ្ដល់ ${given.length} កិច្ចការទៅ ${clientName}`, `${given.length} ${given.length === 1 ? 'task' : 'tasks'} given to ${clientName}`)}
+            </p>
+            <ul className="mt-1 list-inside list-disc text-xs text-ink-muted">
+              {given.map((item, index) => (
+                <li key={`${item}-${index}`}>{item}</li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         <fieldset className="mt-5">
           <legend className="text-sm font-semibold text-ink">{t('ប្រភេទ', 'Type')}</legend>
@@ -304,9 +330,12 @@ export function AddTaskDialog({ clientId, clientName, bookingId, today, onClose 
 
         <div className="mt-6 flex flex-wrap justify-end gap-2">
           <button type="button" onClick={onClose} className="rounded-full border border-arom-border px-4 py-2 text-sm font-medium text-ink hover:bg-arom-wash">
-            {t('បោះបង់', 'Cancel')}
+            {given.length > 0 ? t('រួចរាល់', 'Done') : t('បោះបង់', 'Cancel')}
           </button>
-          <button type="button" onClick={save} className="rounded-full bg-arom px-5 py-2 text-sm font-semibold text-white hover:bg-arom-deep">
+          <button type="button" onClick={() => save(true)} className="rounded-full border border-arom bg-white px-4 py-2 text-sm font-semibold text-arom hover:bg-arom-wash">
+            {t('ផ្ដល់ ហើយបន្ថែមមួយទៀត', 'Give and add another')}
+          </button>
+          <button type="button" onClick={() => save(false)} className="rounded-full bg-arom px-5 py-2 text-sm font-semibold text-white hover:bg-arom-deep">
             {t('ផ្ដល់កិច្ចការ', 'Give task')}
           </button>
         </div>

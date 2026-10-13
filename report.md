@@ -7,6 +7,31 @@ A plain-language log of what changed in the app, written for the team rather tha
 
 Each entry lists the commit it landed in, so you can match it to a version of the site.
 
+## 13 Oct 2026: Give Several Care Tasks in One Go
+
+Commit pending. No migration. Frontend only.
+
+**Why.** After a session a professional often wants to give more than one thing (for example two goals and a practice). Each task closed the window, so they had to reopen it every time.
+
+**What changed for professionals:**
+- **New "Give and add another" button** in the Give a care task window. It saves the task, keeps the type, schedule and dates, clears the text, and stays open.
+- **A green box lists what was given so far,** for example "2 tasks given to Chan Sreyneang", with each title.
+- **Cancel becomes Done** once at least one task was given. "Give task" still saves and closes.
+- **Khmer and English.**
+
+**What changed for the team:**
+- **Frontend only** in `app/pro/_components/care-plan-card.tsx`; each task is still saved one by one with `addCareTasks`, so the backend shape is unchanged.
+
+**What to re-test:**
+- Open a client file, Give a task, choose Goal, write one, click Give and add another; write a second goal and click Give and add another again;
+- Confirm the box lists both, then click Done and see both goals in the Care plan card;
+- Mix types: give a MindGuide item, then switch to Reminder and give one;
+- Try Give and add another with an empty goal and confirm the error;
+- From a finished session in My bookings, use Give a care task and repeat the steps;
+- Switch to Khmer.
+
+---
+
 ## 13 Oct 2026: No Add Button for Lessons, Tips and Practices in Admin MindGuide
 
 Commit `e86bef6`. No migration.
