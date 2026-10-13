@@ -7,6 +7,26 @@ A plain-language log of what changed in the app, written for the team rather tha
 
 Each entry lists the commit it landed in, so you can match it to a version of the site.
 
+## 13 Oct 2026: Backend Handoff Section Numbers Fixed
+
+Commit `24798d9`. No migration. Documentation only.
+
+**Why.** `BACKEND-HANDOFF.md` had two sections numbered 14 (Crash tracking and Community), and Community sat after "Planned next" at the bottom. The status board sent readers looking for Community to the Crash tracking section. One status board row also still said bookings and settings were "not started", even though they now have their own sections. Hok Chheng and his AI assistant use this file to decide what to build, so wrong pointers cost them time.
+
+**What changed for users:**
+- **Nothing.** No app screens changed.
+
+**What changed for the team:**
+- **Community is now section 21,** placed after Professional podcasts, and "Planned next" is section 22.
+- **Links updated:** the privacy rule in section 2 and the Community row on the status board now point at section 21.
+- **"Other admin pages" row** now lists only journal prompts and audit log. Bookings (section 12) and settings (sections 13 and 15) are covered elsewhere.
+- **No content changed;** only numbering, order and the one status row.
+
+**What to re-test:**
+1. Open `BACKEND-HANDOFF.md` and check the section headings run 1 to 22 with no repeats.
+2. Follow the Community row on the status board to section 21 and confirm it is the Community section.
+3. Check section 2 says "(section 21)" for support group chats.
+
 ## 13 Oct 2026: Browse MindGuide When Giving a Care Task
 
 Commit `eacfa97`. No migration. Frontend only.
