@@ -7,6 +7,33 @@ A plain-language log of what changed in the app, written for the team rather tha
 
 Each entry lists the commit it landed in, so you can match it to a version of the site.
 
+## 13 Oct 2026: Prepare Before a Session, and a Week Calendar for Bookings
+
+Commit pending. No migration yet. Frontend only, on mock data.
+
+**Why.** Before each session a professional had to open the client file, the last booking, the chat and the care plan one by one. Now one page gathers what matters for the next few minutes. Bookings were also only a list, which made it hard to see how full a week is.
+
+**What changed for professionals:**
+- **New "Prepare" page for each session** (from the booking window or Home "Today's sessions"): time, type, "Session 5 with you", Join, a private **Plan for this session**, the **last session** with its note, **care plan progress since then** (only if the client shares it), this booking's answers, the summary note, **messages since the last session** (count and unread) and shared symptom checks.
+- **Week calendar in My bookings:** switch between List and Week. Monday to Sunday, open hours shaded, time off marked, sessions colored by state (booked, add outcome, completed, did not come), a line for now. Tap a session to open it. Phones show one day at a time with day buttons.
+- **Sample notes for Sok Dara** so the Prepare page and client file show something in the demo.
+- **Khmer and English.**
+
+**What changed for the team:**
+- **New route** `/pro/bookings/<id>` (Prepare) and `?open=<id>` on My bookings.
+- **New private note per booking** (`prepNotes`), documented in `BACKEND-HANDOFF.md` section 16 with where each Prepare block reads from.
+
+**What to re-test:**
+- On Home, click Prepare on a session (or open a booking and click Prepare); write a plan, save, leave and come back without refreshing;
+- Check the last session note, care plan counts and message count match the client file and the chat;
+- Turn off "Share my progress" on the user Care plan page and confirm Prepare no longer shows counts;
+- Click "Open the booking" and confirm the booking window opens;
+- In My bookings switch to Week; move to next and previous weeks and back to This week; click a session;
+- On a phone, check the day buttons and that only one day shows;
+- Switch to Khmer.
+
+---
+
 ## 13 Oct 2026: Join Session Links, After Session Steps, Suggested and Repeating Sessions, Quick Replies
 
 Commit `5b5d618`. No migration yet. Frontend only, on mock data.

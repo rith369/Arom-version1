@@ -231,6 +231,24 @@ export function recentProgress(task: CareTask, checkIns: CareCheckIn[], today: s
   return result;
 }
 
+// Due and done days between two dates (inclusive), for repeating tasks.
+export function progressBetween(task: CareTask, checkIns: CareCheckIn[], from: string, to: string) {
+  if (task.repeat.type === 'once') return null;
+  let due = 0;
+  let done = 0;
+  for (let date = from; date <= to; date = shiftDate(date, 1)) {
+    const isDue =
+      date >= task.startDate &&
+      (task.endDate === null || date <= task.endDate) &&
+      (!task.stoppedAt || date <= task.stoppedAt.slice(0, 10)) &&
+      task.repeat.days.includes(weekdayOfDate(date));
+    if (!isDue) continue;
+    due += 1;
+    if (doneOn(task, checkIns, date)) done += 1;
+  }
+  return { due, done };
+}
+
 // ---------- Mock store ----------
 
 type State = {

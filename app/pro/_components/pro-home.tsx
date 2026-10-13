@@ -136,6 +136,9 @@ export function ProHome() {
                       {session.sessionType === 'online' ? t('អនឡាញ', 'Online') : t('ជួបផ្ទាល់', 'In person')}
                     </span>
                     <JoinButton booking={session} now={now} km={km} size="sm" />
+                    <Link href={`/pro/bookings/${session.id}`} className="text-xs font-semibold text-arom hover:underline">
+                      {t('រៀបចំ', 'Prepare')}
+                    </Link>
                   </li>
                 ))}
               </ul>

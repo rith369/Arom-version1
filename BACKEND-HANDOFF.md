@@ -53,6 +53,7 @@ The yellow "Demo data on this page" banner is in `admin-shell.tsx`. Remove it fo
 | Messages between client and professional (text and voice): `/pro/messages`, `/messages` | Done on mock data | Waiting for backend | 17 |
 | Care plan: professional gives tasks, client sees them in Your Plan For Today (`/pro/clients/<id>`, `/care-plan`, home) | Done on mock data | Waiting for backend | 18 |
 | Sessions: meeting links and Join, after session steps, suggest next session, repeating series, quick replies | Done on mock data | Waiting for backend | 19 |
+| Prepare view (`/pro/bookings/<id>`) and week calendar in My bookings | Done on mock data | Waiting for backend | 16 |
 | Professional podcasts (`/pro`) | Not built yet | Not started | 19 |
 | Admin MindGuide: lessons, tips and practices with drafts, versions, publish and checks (`/admin/mindguide`, editor at `/admin/mindguide/<type>/<sourceId>`) | Done on mock data | Waiting for backend | 9 |
 | Report a problem (users) and admin Reports page (`/admin/reports`) | Done on mock data | Waiting for backend | 10 |
@@ -500,6 +501,26 @@ The demo switch ("Established professional" or "Newly approved") and today's ses
 
 Clients see their name only to their own professional. The client list shows names, not emails or phone numbers.
 
+### Prepare view (`/pro/bookings/<bookingId>`) and week calendar
+
+**Files:** `app/pro/_components/prepare-view.tsx`, route `app/pro/bookings/[bookingId]/page.tsx`, `app/pro/_components/week-calendar.tsx` (List or Week switch in `bookings-view.tsx`). "Prepare" links: the booking window and Home "Today's sessions". `/pro/bookings?open=<id>` opens one booking's window.
+
+**Prepare** is one private page to read before a session. It only reads data that already exists, plus one new note:
+
+| Block | Source |
+|---|---|
+| Plan for this session (new, private, up to 5000) | provider `prepNotes` / `savePrepNote(bookingId, text)`. Suggested: a `plan` column on `session_notes` (same owner only rules), or its own table with the same RLS |
+| Last session (date, outcome, private note) | `appointments` and `session_notes` of this client with this professional |
+| Care plan since the last session | `care_tasks` and `care_check_ins` (section 18); check ins only while the client shares progress |
+| Answers for this booking | `appointments.intake_note`, `intake_answers` |
+| Summary note | the pinned client note (My clients) |
+| Messages since the last session | count and unread count from `messages` of that conversation, no message text |
+| Shared by the client | symptom checks, only if the client shares them for a booked or completed appointment |
+
+**Week calendar:** Monday to Sunday in Cambodia time, open hours from the schedule shaded, time off shown, sessions placed by start time and length, cancelled sessions hidden, red line for now. Phones show one day at a time. No new data.
+
+**Demo:** the provider starts with a sample summary note and last session note for Sok Dara so these pages are not empty.
+
 ### My clients (`/pro/clients` and `/pro/clients/<clientId>`)
 
 **Files:** `app/pro/_data/clients.ts` (`clientsFrom`, `sharingFor`, sample shared data, labels), `app/pro/_components/clients-view.tsx`, `client-file.tsx`, provider `summaryNotes`, `saveSummaryNote`, `archivedClients`, `setClientArchived`. `ProBooking` now has `clientId`, `shareSurvey` and `shareSymptomChecks`.
@@ -613,7 +634,7 @@ The bot needs, for each active task with a `reminderTime`: client id (to find th
 
 ## 20. Planned next (frontend not built yet)
 
-- **`/pro` next steps, in order:** a Prepare view and week calendar, then My podcasts (their own episodes on their profile).
+- **`/pro` next steps:** My podcasts (their own episodes on their profile).
 - **User side:** a page listing the user's own sessions (the sidebar "Appointments" item is still Soon). Today the next session and Join show at the top of the chat with that professional.
 - **Make professional (Way 2):** phone is optional there because the admin already knows the person. Add an optional phone field to `ProfessionalPromotion` when the backend supports it.
 

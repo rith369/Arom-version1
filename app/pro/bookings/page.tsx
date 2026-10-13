@@ -5,6 +5,11 @@ export const metadata: Metadata = {
   title: "My bookings",
 };
 
-export default function ProBookingsPage() {
-  return <ProBookingsView />;
+export default async function ProBookingsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ open?: string | string[] }>;
+}) {
+  const { open } = await searchParams;
+  return <ProBookingsView initialOpenId={typeof open === "string" ? open : undefined} />;
 }

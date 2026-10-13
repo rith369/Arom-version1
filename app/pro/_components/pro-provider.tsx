@@ -17,7 +17,7 @@ import {
   hasOpenTimes,
   type Schedule,
 } from '../_data/schedule';
-import type { ProBooking, SessionNote } from '../_data/bookings';
+import { sampleBookingsFor, type ProBooking, type SessionNote } from '../_data/bookings';
 import { moveUpcomingToRoom, updateBooking, useSessionStore } from '../../_components/sessions/session-store';
 
 export type DemoMode = 'established' | 'new';
@@ -44,6 +44,9 @@ type ProState = {
   rescheduleBooking: (id: string, startsAt: string, reason: string) => void;
   setBookingOutcome: (id: string, status: 'completed' | 'no_show') => void;
   saveSessionNote: (id: string, text: string) => void;
+  // A private plan written before a session ("things to bring up").
+  prepNotes: Record<string, SessionNote>;
+  savePrepNote: (id: string, text: string) => void;
   // One pinned summary per client, private to the professional.
   summaryNotes: Record<string, SessionNote>;
   saveSummaryNote: (clientId: string, text: string) => void;
@@ -56,6 +59,20 @@ type ProState = {
 
 const ProContext = createContext<ProState | null>(null);
 
+// Demo: notes so the client file and Prepare view are not empty for Sok Dara.
+function demoNotes(slug: string) {
+  const dara = sampleBookingsFor(slug)
+    .filter((item) => item.clientId === 'demo-user-001' && item.status === 'completed')
+    .sort((a, b) => b.startsAt.localeCompare(a.startsAt))[0];
+  const at = '2026-10-12T05:00:00Z';
+  return {
+    session: dara
+      ? { [dara.id]: { text: 'Work stress is still high, mostly deadlines. Sleep a little better since starting breathing at night. Wants to talk about her manager next time.', updatedAt: at } }
+      : {},
+    summary: { 'demo-user-001': { text: 'Prefers Khmer. Goal: sleep better and feel calmer at work. Breathing exercises help. Gets anxious before exams and deadlines.', updatedAt: at } },
+  };
+}
+
 const isReviewed = (key: keyof ProProfile): key is ReviewedField =>
   (REVIEWED_FIELDS as readonly string[]).includes(key);
 
@@ -64,8 +81,9 @@ export function ProProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<ProProfile>(() => structuredClone(establishedProfile));
   const [pendingChanges, setPendingChanges] = useState<PendingChange[]>([]);
   const [schedule, setSchedule] = useState<Schedule>(() => structuredClone(establishedSchedule));
-  const [sessionNotes, setSessionNotes] = useState<Record<string, SessionNote>>({});
-  const [summaryNotes, setSummaryNotes] = useState<Record<string, SessionNote>>({});
+  const [sessionNotes, setSessionNotes] = useState<Record<string, SessionNote>>(() => demoNotes(establishedProfile.slug).session);
+  const [summaryNotes, setSummaryNotes] = useState<Record<string, SessionNote>>(() => demoNotes(establishedProfile.slug).summary);
+  const [prepNotes, setPrepNotes] = useState<Record<string, SessionNote>>({});
   const [archivedClients, setArchivedClients] = useState<string[]>([]);
 
   // Bookings live in the shared session store, so the user side sees changes too.
@@ -82,8 +100,9 @@ export function ProProvider({ children }: { children: ReactNode }) {
     setProfile(structuredClone(mode === 'established' ? establishedProfile : newProfile));
     setPendingChanges([]);
     setSchedule(structuredClone(mode === 'established' ? establishedSchedule : emptySchedule));
-    setSessionNotes({});
-    setSummaryNotes({});
+    setSessionNotes(mode === 'established' ? demoNotes(establishedProfile.slug).session : {});
+    setSummaryNotes(mode === 'established' ? demoNotes(establishedProfile.slug).summary : {});
+    setPrepNotes({});
     setArchivedClients([]);
   }
 
@@ -149,6 +168,9 @@ export function ProProvider({ children }: { children: ReactNode }) {
         setBookingOutcome: (id, status) => updateBooking(id, { status }),
         saveSessionNote: (id, text) =>
           setSessionNotes((current) => ({ ...current, [id]: { text, updatedAt: new Date().toISOString() } })),
+        prepNotes,
+        savePrepNote: (id, text) =>
+          setPrepNotes((current) => ({ ...current, [id]: { text, updatedAt: new Date().toISOString() } })),
         summaryNotes,
         saveSummaryNote: (clientId, text) =>
           setSummaryNotes((current) => ({ ...current, [clientId]: { text, updatedAt: new Date().toISOString() } })),

@@ -2,11 +2,12 @@
 
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
-import { CalendarCheck, CalendarClock, CheckCircle2, ClipboardList, FileText, FolderOpen, Link2, Lock, MessageCircle, Monitor, NotebookPen, Repeat, UserRound, UserX, X, XCircle } from 'lucide-react';
+import { CalendarCheck, CalendarClock, CalendarDays, CheckCircle2, ClipboardList, FileText, FolderOpen, List, Link2, Lock, MessageCircle, Monitor, NotebookPen, Repeat, Target, UserRound, UserX, X, XCircle } from 'lucide-react';
 
 import { AddTaskDialog } from './care-plan-card';
 import { usePro } from './pro-provider';
 import { SuggestSessionDialog } from './suggest-session-dialog';
+import { WeekCalendar } from './week-calendar';
 import { cambodiaToday } from '../../_components/care/care-store';
 import { useLanguage } from '../../_components/language-provider';
 import { JoinButton } from '../../_components/sessions/join-button';
@@ -148,6 +149,12 @@ export function BookingDialog({
               <MessageCircle size={15} aria-hidden="true" />
               {t('ផ្ញើសារ', 'Message client')}
             </Link>
+            {booking.status !== 'cancelled' && (
+              <Link href={`/pro/bookings/${booking.id}`} className="inline-flex items-center gap-1.5 text-sm font-semibold text-arom hover:underline">
+                <Target size={15} aria-hidden="true" />
+                {t('រៀបចំ', 'Prepare')}
+              </Link>
+            )}
           </div>
         </div>
         <button type="button" onClick={onClose} aria-label={t('បិទ', 'Close')} className="rounded-full p-2 hover:bg-arom-wash">
@@ -430,8 +437,8 @@ export function BookingDialog({
   );
 }
 
-export function ProBookingsView() {
-  const { bookings, sessionNotes } = usePro();
+export function ProBookingsView({ initialOpenId }: { initialOpenId?: string }) {
+  const { bookings, sessionNotes, schedule } = usePro();
   const { language } = useLanguage();
   const km = language === 'km';
   const t = (kmText: string, enText: string) => (km ? kmText : enText);
@@ -439,7 +446,8 @@ export function ProBookingsView() {
 
   const [now] = useState(() => Date.now());
   const [tab, setTab] = useState<Tab>('upcoming');
-  const [openId, setOpenId] = useState<string | null>(null);
+  const [view, setView] = useState<'list' | 'week'>('list');
+  const [openId, setOpenId] = useState<string | null>(initialOpenId ?? null);
 
   const upcoming = bookings
     .filter((item) => item.status === 'booked' && endOf(item) > now)
@@ -473,7 +481,8 @@ export function ProBookingsView() {
         {t('ការពិគ្រោះជាមួយអតិថិជនរបស់អ្នក ម៉ោងកម្ពុជា។', 'Your sessions with clients, in Cambodia time.')}
       </p>
 
-      <div role="tablist" aria-label={t('ការកក់', 'Bookings')} className="mt-6 flex gap-2">
+      <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
+      <div role="tablist" aria-label={t('ការកក់', 'Bookings')} className={`flex gap-2 ${view === 'week' ? 'invisible' : ''}`}>
         {(['upcoming', 'past'] as const).map((value) => (
           <button
             key={value}
@@ -489,8 +498,29 @@ export function ProBookingsView() {
           </button>
         ))}
       </div>
+      <div className="flex rounded-full border border-arom-border bg-white p-1" role="group" aria-label={t('របៀបមើល', 'View')}>
+        {([
+          ['list', List, t('បញ្ជី', 'List')],
+          ['week', CalendarDays, t('សប្តាហ៍', 'Week')],
+        ] as const).map(([value, Icon, label]) => (
+          <button
+            key={value}
+            type="button"
+            aria-pressed={view === value}
+            onClick={() => setView(value)}
+            className={`flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-medium ${view === value ? 'bg-arom text-white' : 'text-ink-muted hover:bg-arom-wash'}`}>
+            <Icon size={15} aria-hidden="true" />
+            {label}
+          </button>
+        ))}
+      </div>
+      </div>
 
-      {groups.length === 0 ? (
+      {view === 'week' ? (
+        <div className="mt-6">
+          <WeekCalendar bookings={bookings} schedule={schedule} now={now} km={km} onOpen={setOpenId} />
+        </div>
+      ) : groups.length === 0 ? (
         <div className="mt-6 rounded-3xl border border-arom-border bg-white p-10 text-center">
           <CalendarClock size={30} aria-hidden="true" className="mx-auto text-ink-muted" />
           <p className="mt-3 font-medium text-ink">
