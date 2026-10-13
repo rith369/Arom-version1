@@ -19,7 +19,7 @@ These come from `AGENTS.md` sections 9 and 10. They are not optional.
 
 - **Server checks every permission.** Every admin endpoint starts with `requireRole("admin")` from `lib/controllers/role-controller.ts`. Never trust a role sent by the browser.
 - **RLS on every table.** Users can only read and change their own rows. Admin access goes through role checked policies or `security definer` functions.
-- **No private content in admin responses.** Admins see counts only, never journal text, mood entries, detection answers or session notes. One exception: admins may read support group chats for safety (section 14). Every opening of a chat writes an audit log entry, and members are told in the group guidelines.
+- **No private content in admin responses.** Admins see counts only, never journal text, mood entries, detection answers or session notes. One exception: admins may read support group chats for safety (section 21). Every opening of a chat writes an audit log entry, and members are told in the group guidelines.
 - **Audit log** (`admin_audit_log`) for every role change, suspension, approval and rejection.
 - **No service role key in browser code.** If a feature needs it (for example reading emails from `auth.users`), it stays in a server handler.
 - **Data minimization.** Only return the fields the page actually shows.
@@ -63,8 +63,8 @@ The yellow "Demo data on this page" banner is in `admin-shell.tsx`. Remove it fo
 | Crisis helplines and support contact: admin Settings, user "Get help now" in Profile and Settings | Done on mock data | Waiting for backend | 13 |
 | Admin bookings chart: sessions per day and new bookings per day (`/admin/bookings`) | Done on mock data | Waiting for backend | 12 |
 | MindGuide podcasts: user pages `/podcasts` and `/podcasts/<id>`, admin Podcasts tab | Done on mock data | Waiting for backend | 11 |
-| Community: professionals and admins create groups, admins read chats and shut groups down, users report a person, image, message or group (`/community`, `/admin/community`) | Done on mock data | Waiting for backend | 14 |
-| Other admin pages (bookings, journal prompts, settings, audit log) | Built by Sokheng on mock data | Not started | not written yet |
+| Community: professionals and admins create groups, admins read chats and shut groups down, users report a person, image, message or group (`/community`, `/admin/community`) | Done on mock data | Waiting for backend | 21 |
+| Other admin pages (journal prompts, audit log) | Built by Sokheng on mock data | Not started | not written yet |
 
 ## 5. Admin users page
 
@@ -682,12 +682,7 @@ Suggested table: `professional_episodes` (columns as above, `takeaways` and `cha
 
 **Mock today:** episodes live in memory only and reset on refresh; an uploaded file is a temporary browser link, so it plays only in the same tab session.
 
-## 21. Planned next (frontend not built yet)
-
-- **User side:** a page listing the user's own sessions (the sidebar "Appointments" item is still Soon). Today the next session and Join show at the top of the chat with that professional.
-- **Make professional (Way 2):** phone is optional there because the admin already knows the person. Add an optional phone field to `ProfessionalPromotion` when the backend supports it.
-
-## 14. Community: groups, chat moderation and reports
+## 21. Community: groups, chat moderation and reports
 
 **Files:** user side `app/community/page.tsx`, `community-data.ts` (types), `community-store.ts` (mock store in localStorage, shared with admin), `components/create-group-view.tsx`, `components/report-dialog.tsx`, `components/group-hub-view.tsx` (report entry points, closed state). Admin side `app/admin/_data/community.ts`, `_components/community-view.tsx` (View chat, Shut down, Reopen, reports), actions in `admin-provider.tsx`.
 
@@ -746,6 +741,11 @@ The admin list uses `CommunityReport`: `id, groupId, targetKind, targetLabel, me
 1. Groups, members, messages and attachments tables do not exist yet. Chat images need a private storage bucket readable by members of that group and by admins.
 2. Professionals have no "My groups" list yet; it belongs in `/pro`.
 3. Admin edits to an existing group (name, description, rules) do not reach `/community` in the mock. With one database this goes away; no frontend change is needed.
+
+## 22. Planned next (frontend not built yet)
+
+- **User side:** a page listing the user's own sessions (the sidebar "Appointments" item is still Soon). Today the next session and Join show at the top of the chat with that professional.
+- **Make professional (Way 2):** phone is optional there because the admin already knows the person. Add an optional phone field to `ProfessionalPromotion` when the backend supports it.
 
 ## Template for a new feature section
 
