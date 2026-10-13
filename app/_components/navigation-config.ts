@@ -9,6 +9,7 @@ import {
   UsersRound,
   Layers,
   ShieldCheck,
+  Stethoscope,
   type LucideIcon,
 } from "lucide-react";
 import type { UserRole } from "@/lib/auth";
@@ -54,6 +55,22 @@ export const NAVIGATION_SECTIONS: NavSection[] = [
         kmTitle: "ផ្ទាំងគ្រប់គ្រង (Admin panel)",
         icon: ShieldCheck,
         href: "/admin",
+      },
+    ],
+  },
+  {
+    id: "professional-area",
+    enTitle: "My practice",
+    kmTitle: "ការងាររបស់ខ្ញុំ",
+    roles: ["professional"],
+    items: [
+      {
+        id: "professional-area",
+        label: "ProfessionalArea",
+        enTitle: "Professional area",
+        kmTitle: "ផ្នែកអ្នកជំនាញ (Professional area)",
+        icon: Stethoscope,
+        href: "/pro",
       },
     ],
   },

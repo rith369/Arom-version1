@@ -93,9 +93,11 @@ export function LoginForm() {
     }
 
     await refresh();
-    // A page that sent them to log in wins. Otherwise admins start in the admin panel.
+    // A page that sent them to log in wins. Otherwise admins start in the admin
+    // panel and professionals in their professional area.
     const next = searchParams.get("next");
-    router.replace(next ? safeNext(next) : role === "admin" ? "/admin" : "/");
+    const home = role === "admin" ? "/admin" : role === "professional" ? "/pro" : "/";
+    router.replace(next ? safeNext(next) : home);
     router.refresh();
   });
 

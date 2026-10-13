@@ -46,7 +46,8 @@ The yellow "Demo data on this page" banner is in `admin-shell.tsx`. Remove it fo
 | Admin users: list, details, roles, suspend | Done on mock data | Waiting for backend | 5 |
 | Admin professionals: review and moderation | Done on mock data | Waiting for backend | 6 |
 | Become a professional (user applies) | Done on mock data | Waiting for backend | 8 |
-| Professional edits own profile (`/pro`) | Not built yet | Not started | 16 |
+| Professional area `/pro`: shell, home, my profile with preview, login entry | Done on mock data | Waiting for backend | 16 |
+| Professional schedule, bookings, podcasts (`/pro`) | Not built yet | Not started | 17 |
 | Admin MindGuide: lessons, tips and practices with drafts, versions, publish and checks (`/admin/mindguide`, editor at `/admin/mindguide/<type>/<sourceId>`) | Done on mock data | Waiting for backend | 9 |
 | Report a problem (users) and admin Reports page (`/admin/reports`) | Done on mock data | Waiting for backend | 10 |
 | Announcements: admin Settings section, banner at the top of every user page | Done on mock data | Waiting for backend | 15 |
@@ -173,6 +174,10 @@ Do not change these without asking Rith.
 - **Educational note is fixed app text.** Every lesson, tip, practice and podcast screen shows "For learning only. This is not a diagnosis or treatment." from `app/_components/educational-note.tsx`. It is not stored as content, so no admin edit can remove it.
 - **No crisis helpline card on content screens.** Users find crisis helplines in Profile and Settings under "Get help now" (see section 13). If none are active, a built in message tells users to contact local emergency services. Never invent a number.
 - **Bookings belong to the user and the professional.** Only they confirm, reschedule or cancel. Admins see bookings read only and can only make an emergency cancel with a written reason (see section 12).
+- **Instant booking.** A user picking one of a professional's open times is booked straight away (`appointments.status = 'booked'`, as the database already does). Professionals can still cancel or reschedule with a reason. An optional per professional "review new clients first" setting may come later; the frontend "pending" status is reserved for it.
+- **A professional appears to users only when their profile is complete:** photo, English bio (80+ characters), Khmer bio, at least one specialty, language and session type, and at least one open time. A price is also required once "free during testing" is off. Today approval sets `verified` immediately; add the completeness check to the directory query.
+- **Session notes are private to the professional who wrote them.** Not admins, not other professionals.
+- **No payments yet. Sessions are free during testing.** Users see "Free during testing" instead of a price. Professionals may save a price (`price_usd`) that stays hidden until an admin turns the switch off in Settings.
 - **Two kinds of podcasts.** MindGuide podcasts are made by admins and shown in MindGuide. Professional podcasts are published by professionals themselves on their own profile so users can listen before booking. They are separate lists.
 
 ## 8. Become a professional (user applies)
@@ -439,9 +444,40 @@ The user page reads the empty lists in `support-contacts.ts`, so admin edits do 
 
 `GET /api/announcements/current` (public, returns one or none) and admin only `GET /api/admin/announcements`, `POST /api/admin/announcements`, `POST /api/admin/announcements/:id/end`. Until then the user banner reads the empty list and admin edits are mock.
 
-## 16. Planned next (frontend not built yet)
+## 16. Professional area (`/pro`)
 
-- **Professional profile editor under `/pro`.** Uses the pending changes rule in section 6.
+**Files:** `app/pro/layout.tsx`, `app/pro/page.tsx` (home), `app/pro/profile/page.tsx`; components in `app/pro/_components/` (`pro-provider.tsx`, `pro-shell.tsx`, `pro-home.tsx`, `profile-editor.tsx`, `profile-preview.tsx`); data and rules in `app/pro/_data/profile.ts`. Shared flag `app/_components/pricing.ts`. Bilingual (not English only, unlike the admin).
+
+**Entry:** after login, professionals go to `/pro` (`login-form.tsx`), and a "Professional area" sidebar link shows only for the `professional` role. `/pro` is already guarded for professionals and admins by `proxy.ts`.
+
+### Data shape (`ProProfile`)
+
+| Field | Database |
+|---|---|
+| `slug` | `professional_profiles.slug` |
+| `displayName`, `kmDisplayName` | `display_name`, `display_name_km` (reviewed) |
+| `title`, `kmTitle` | `title`, `title_km` (reviewed) |
+| `bio`, `kmBio` | `bio`, `bio_km` |
+| `photoUrl` | `photo_url` (upload to a storage bucket; the mock keeps a data URL) |
+| `specialties`, `languages` | same names |
+| `sessionTypes` | `session_types` (`online`, `in_person`) |
+| `priceUsd` | `price_usd` (hidden while free during testing) |
+| `yearsExperience` | add a column (only in applications today) |
+| `licenseNumber`, `issuingBody` | `professional_credentials` (reviewed, never public) |
+
+### Actions
+
+| Frontend action | Meaning | Backend |
+|---|---|---|
+| `saveProfile(next)` | Non reviewed fields update the profile at once. Changed reviewed fields become pending changes; the public profile keeps the live value | `PATCH /api/pro/profile` for normal fields; reviewed fields go to the pending changes table from section 6 |
+| `withdrawChange(field)` | Cancel a waiting change | delete the pending change |
+| `profileChecklist()` | What is missing before the profile is visible | same rule in the directory query |
+
+The demo switch ("Established professional" or "Newly approved") and today's sessions (from the admin sample bookings) are mock only. Remove them when connected.
+
+## 17. Planned next (frontend not built yet)
+
+- **`/pro` next steps:** My schedule (open times, `availability_slots`), My bookings (upcoming and past sessions, intake answers, reschedule or cancel with a reason, private session notes), My podcasts (their own episodes on their profile).
 - **Make professional (Way 2):** phone is optional there because the admin already knows the person. Add an optional phone field to `ProfessionalPromotion` when the backend supports it.
 
 ## 14. Community: groups, chat moderation and reports

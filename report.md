@@ -7,6 +7,44 @@ A plain-language log of what changed in the app, written for the team rather tha
 
 Each entry lists the commit it landed in, so you can match it to a version of the site.
 
+## 13 Oct 2026: Professional Area With Home and My Profile, and Free During Testing
+
+Commit pending. No migration yet. Frontend only, on mock data.
+
+**Why.** Approved professionals had nowhere to manage themselves: admins were not meant to write their profiles, and nothing told a new professional what was missing before users could find them. During testing, sessions with real professionals are free, but nothing told users that either.
+
+**What changed for users:**
+- **"Free during testing"** shows under Book Appointment on every professional's profile and on the booking review step.
+
+**What changed for professionals:**
+- **They land on `/pro` after logging in,** and a "Professional area" link appears in their sidebar.
+- **Home** shows whether users can see their profile, a checklist of what is missing (photo, bios, specialties, languages, how they meet clients, open times), changes waiting for admin review, today's sessions, and a "Free during testing" note.
+- **My profile:** upload a photo, edit name and title in both languages, bios in English and Khmer with minimum lengths, years of experience, what they help with, session languages, online or in person, a price saved for later, and license details.
+- **Name, title and license changes wait for an admin.** The public profile keeps the current details, and the waiting value shows under the field with a Withdraw link.
+- **Preview** shows their real public profile page at phone or desktop size, updated while they type.
+- **Save changes and Undo,** with a warning before leaving with unsaved changes.
+- **Khmer and English** throughout. My schedule, My bookings and My podcasts show as coming soon.
+
+**What changed for admins:**
+- **New switch in Settings: "Sessions are free during testing"** (on). Turning it off is meant for when a payment system exists.
+
+**What changed for the team:**
+- **Decisions recorded in `BACKEND-HANDOFF.md` section 7:** instant booking, professionals appear only when their profile is complete, session notes private to the professional, no payments yet.
+- **New `app/pro/`** (layout, home, profile, provider, preview) and `app/_components/pricing.ts`. The admin preview frame also draws a professional profile.
+- **`BACKEND-HANDOFF.md` section 16** maps every field to `professional_profiles` and `professional_credentials`.
+- **Mock today:** a demo switch shows an established or a newly approved professional; nothing is saved after a refresh.
+
+**What to re-test:**
+- Log in as a professional and confirm you land on `/pro` and see "Professional area" in the sidebar; log in as a normal user and confirm you do not;
+- On Home, switch the demo to "Newly approved" and confirm "Users cannot see your profile yet" with the missing steps, each linking to the right field;
+- In My profile, upload a photo, write both bios and choose online; save and confirm the checklist updates on Home;
+- Change your English title, save, and confirm it shows "Waiting for review" with Withdraw, and the Preview still shows the old title;
+- Open Preview, switch Phone and Desktop, and switch the language at the top;
+- Edit something and click Home before saving; confirm the unsaved changes warning;
+- Open any professional profile and the booking review step as a user and confirm "Free during testing".
+
+---
+
 ## 13 Oct 2026: Dashboard Hotline Warning Links to Settings
 
 Commit `8c58ac2`. No migration.

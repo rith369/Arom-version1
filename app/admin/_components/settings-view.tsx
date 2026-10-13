@@ -7,6 +7,7 @@ import {
   ArrowUp,
   Eye,
   EyeOff,
+  Gift,
   Globe,
   LifeBuoy,
   Mail,
@@ -349,6 +350,38 @@ function CrisisHelplinesSection() {
   );
 }
 
+// While AROM is in testing, sessions are free and prices stay hidden.
+function PricingSection() {
+  const { freeDuringTesting, setFreeDuringTesting } = useAdmin();
+
+  return (
+    <section className="rounded-3xl border border-arom-border bg-white p-6">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <Gift size={38} aria-hidden="true" className="shrink-0 rounded-xl bg-arom-soft p-2 text-arom" />
+          <div>
+            <h2 className="text-lg font-semibold">Sessions are free during testing</h2>
+            <p className="mt-0.5 max-w-xl text-sm text-ink-muted">
+              {freeDuringTesting
+                ? 'On: users see "Free during testing" on profiles and when booking. Prices professionals save stay hidden.'
+                : "Off: users see each professional's price. There is no payment system yet, so only turn this off once one exists."}
+            </p>
+          </div>
+        </div>
+        <button
+          type="button"
+          role="switch"
+          aria-checked={freeDuringTesting}
+          aria-label="Sessions are free during testing"
+          onClick={() => setFreeDuringTesting(!freeDuringTesting)}
+          className={`relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition-colors ${freeDuringTesting ? 'bg-arom' : 'bg-gray-300'}`}>
+          <span className={`inline-block size-5 rounded-full bg-white shadow transition-transform ${freeDuringTesting ? 'translate-x-6' : 'translate-x-1'}`} />
+        </button>
+      </div>
+    </section>
+  );
+}
+
 export function SettingsView() {
   const { settings, saveSettings } = useAdmin();
   const { language } = useLanguage();
@@ -405,6 +438,8 @@ export function SettingsView() {
 
       <div className="mt-8 space-y-6">
         <AnnouncementsSection />
+
+        <PricingSection />
 
         <CrisisHelplinesSection />
 

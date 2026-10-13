@@ -76,6 +76,7 @@ import {
   ANNOUNCEMENTS,
   type Announcement,
 } from '../../_components/announcements';
+import { FREE_DURING_TESTING } from '../../_components/pricing';
 
 import {
   initialReports,
@@ -162,6 +163,9 @@ type AdminState = {
 
   crisisHelplines: CrisisHelpline[];
   saveCrisisHelplines: (list: CrisisHelpline[]) => void;
+
+  freeDuringTesting: boolean;
+  setFreeDuringTesting: (value: boolean) => void;
 
   announcements: Announcement[];
   publishAnnouncement: (
@@ -703,6 +707,8 @@ export function AdminProvider({ children }: { children: ReactNode }) {
     initialCrisisHelplines,
   );
 
+  const [freeDuringTesting, setFreeDuringTesting] = useState(FREE_DURING_TESTING);
+
   const [announcements, setAnnouncements] = useState<Announcement[]>(() =>
     ANNOUNCEMENTS.map((item) => ({ ...item })),
   );
@@ -782,6 +788,8 @@ export function AdminProvider({ children }: { children: ReactNode }) {
         saveSettings,
         crisisHelplines,
         saveCrisisHelplines,
+        freeDuringTesting,
+        setFreeDuringTesting,
         announcements,
         publishAnnouncement,
         endAnnouncement,

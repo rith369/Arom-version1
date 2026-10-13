@@ -7,6 +7,8 @@ import { LessonScreen } from '../../_components/learn/lesson-screen';
 import { PracticeDetailView } from '../../_components/practice/practice-detail-view';
 import { TipDetailView } from '../../_components/tips/tip-detail-view';
 import { TipInteractiveView } from '../../_components/tips/tip-interactive-view';
+import { TherapistDetail } from '../../_components/therapist-detail';
+import type { Therapist } from '@/lib/therapists';
 import { useLanguage, type Language } from '../../_components/language-provider';
 
 import type { ContentBody } from '../_data/content';
@@ -19,6 +21,8 @@ import {
 // Messages between the admin editor and this frame. Same origin only.
 export type PreviewMessage =
   | { kind: 'arom-preview'; body: ContentBody; language: Language; restart: boolean }
+  // A professional's public profile, sent from the /pro profile editor.
+  | { kind: 'arom-preview-profile'; therapist: Therapist; language: Language }
   | { kind: 'arom-preview-ready' };
 
 type Screen = 'overview' | 'inside' | 'finished';
@@ -63,6 +67,7 @@ export function ContentPreviewFrame() {
   const t = (kmText: string, enText: string) => (km ? kmText : enText);
 
   const [body, setBody] = useState<ContentBody | null>(null);
+  const [therapist, setTherapist] = useState<Therapist | null>(null);
   const [screen, setScreen] = useState<Screen>('overview');
   // Changes on every update so a draft that failed to draw can recover once fixed.
   const [updateCount, setUpdateCount] = useState(0);
@@ -70,6 +75,12 @@ export function ContentPreviewFrame() {
   useEffect(() => {
     function onMessage(event: MessageEvent<PreviewMessage>) {
       if (event.origin !== window.location.origin) return;
+      if (event.data?.kind === 'arom-preview-profile') {
+        setTherapist(event.data.therapist);
+        setLanguage(event.data.language);
+        setUpdateCount((current) => current + 1);
+        return;
+      }
       if (event.data?.kind !== 'arom-preview') return;
 
       setBody(event.data.body);
@@ -86,6 +97,22 @@ export function ContentPreviewFrame() {
 
     return () => window.removeEventListener('message', onMessage);
   }, [setLanguage]);
+
+  if (therapist) {
+    return (
+      // Links inside the preview do nothing, so the frame stays on the profile.
+      <div
+        onClickCapture={(event) => {
+          if ((event.target as Element).closest('a')) event.preventDefault();
+        }}>
+        <PreviewBoundary
+          resetKey={updateCount}
+          fallback={<Notice>{t('មិនអាចបង្ហាញប្រវត្តិរូបបានទេ។', 'The profile cannot be shown yet.')}</Notice>}>
+          <TherapistDetail therapist={therapist} />
+        </PreviewBoundary>
+      </div>
+    );
+  }
 
   if (!body) {
     return <Notice>{t('កំពុងផ្ទុក...', 'Loading preview...')}</Notice>;

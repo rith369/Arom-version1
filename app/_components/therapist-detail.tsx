@@ -32,6 +32,7 @@ import {
 } from "@/lib/therapists";
 import { DesktopNavigation, MobileNavigation } from "./app-navigation";
 import { useLanguage } from "./language-provider";
+import { FREE_DURING_TESTING } from "./pricing";
 
 const sessionIcons: Record<SessionOption, LucideIcon> = {
   Online: Monitor,
@@ -120,6 +121,11 @@ export function TherapistDetail({ therapist }: { therapist: Therapist }) {
                 >
                   {km ? "កក់ការណាត់ជួប (Book Appointment)" : "Book Appointment"}
                 </Link>
+                {FREE_DURING_TESTING && (
+                  <p className="mt-3 text-center text-xs font-semibold text-white/85">
+                    {km ? "ឥតគិតថ្លៃក្នុងអំឡុងពេលសាកល្បង (Free during testing)" : "Free during testing"}
+                  </p>
+                )}
               </div>
             </div>
 
