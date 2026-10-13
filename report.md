@@ -9,7 +9,7 @@ Each entry lists the commit it landed in, so you can match it to a version of th
 
 ## 13 Oct 2026: Care Plan, Tasks From Your Professional in Your Plan For Today
 
-Commit pending. No migration yet. Frontend only, on mock data.
+Commit `5637b57`. No migration yet. Frontend only, on mock data.
 
 **Why.** After a session, clients often forget what they agreed to try, and professionals had no way to give practice between sessions or see whether it helped. Now the professional gives small tasks, they appear in the client's daily plan, and the client decides whether their progress is shared.
 
