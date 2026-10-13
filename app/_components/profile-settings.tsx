@@ -25,6 +25,7 @@ import { motion, useReducedMotion } from "motion/react";
 import { useState } from "react";
 import { AromBrand, DesktopNavigation, MobileNavigation } from "./app-navigation";
 import { useAuth } from "./auth-provider";
+import { GetHelpSection } from "./get-help-section";
 import { LanguageSwitcher, useLanguage, type Language } from "./language-provider";
 import { ProfileSummary } from "./profile-summary";
 
@@ -346,6 +347,11 @@ export function ProfileSettings() {
               </div>
             </div>
           </motion.section>
+
+          {/* GET HELP NOW: crisis helplines and AROM support */}
+          <motion.div variants={itemVariants}>
+            <GetHelpSection />
+          </motion.div>
 
           {/* QUICK LINKS & APP NAVIGATION */}
           <motion.section

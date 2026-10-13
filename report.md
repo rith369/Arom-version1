@@ -7,6 +7,38 @@ A plain-language log of what changed in the app, written for the team rather tha
 
 Each entry lists the commit it landed in, so you can match it to a version of the site.
 
+## 13 Oct 2026: Crisis Helplines in Admin Settings and "Get Help Now" for Users
+
+Commit pending. No migration (uses the existing `crisis_resources` table later).
+
+**Why.** We decided content screens would not carry a crisis card because users can find helplines in Settings, but no helplines existed anywhere in the app, and admins had no page to add them even though the admin dashboard flags "No crisis hotlines added yet" as urgent. On a mental health app, help must always be easy to find. The admin Settings page also held a support contact users never saw, plus two settings that no longer made sense.
+
+**What changed for users:**
+- **New "Get help now" section in Profile and Settings.** It always shows a calm message to contact local emergency services if someone is in danger.
+- **Crisis helplines added by the team appear there,** each with Call, Text and Website buttons, hours, and names in Khmer and English.
+- **"AROM support"** (email and phone for app questions, clearly not for emergencies) appears there once the team fills it in.
+
+**What changed for admins:**
+- **New "Crisis helplines" section** at the top of Admin, Settings: add, edit, reorder, hide or delete (two taps). A warning shows while no helpline is visible to users.
+- **Stricter checks for helplines:** English and Khmer name, a phone or website, valid number and `https://` website, and a required "I checked this number myself" tick on every save.
+- **Support contact** now checks the email and phone and explains where users see it.
+- **Removed** "Platform name" and "Admin language". New text on the page is English only.
+
+**What changed for the team:**
+- **New `app/_components/support-contacts.ts`** shared by the user section and the admin page. Helpline and support lists start empty; no number was invented.
+- **`AdminSettings` is now the support contact only.** Provider has `crisisHelplines` and `saveCrisisHelplines`.
+- **`BACKEND-HANDOFF.md` section 13** maps everything to `crisis_resources` and lists the rules to enforce in the database.
+- **Mock today:** what admins type resets on refresh and does not reach users until the backend is connected.
+
+**What to re-test:**
+- Open Profile and Settings as a user; confirm "Get help now" shows the emergency message and no support block while nothing is set;
+- In Admin, Settings, confirm the yellow warning, then add a helpline: try saving without a Khmer name, without phone and website, with "12" as the phone, with an `http://` website, and without the tick; confirm each is refused with a clear message;
+- Save a valid helpline, reorder it, hide and show it, then delete it with two taps;
+- Enter an invalid support email and confirm it is refused;
+- Switch the user app to Khmer and check "Get help now".
+
+---
+
 ## 13 Oct 2026: Removing a Reported Message, Image or Person Now Works
 
 Commit `f668534`. No migration. Frontend only, on mock data in the browser.

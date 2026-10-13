@@ -46,9 +46,10 @@ The yellow "Demo data on this page" banner is in `admin-shell.tsx`. Remove it fo
 | Admin users: list, details, roles, suspend | Done on mock data | Waiting for backend | 5 |
 | Admin professionals: review and moderation | Done on mock data | Waiting for backend | 6 |
 | Become a professional (user applies) | Done on mock data | Waiting for backend | 8 |
-| Professional edits own profile (`/pro`) | Not built yet | Not started | 13 |
+| Professional edits own profile (`/pro`) | Not built yet | Not started | 14 |
 | Admin MindGuide: lessons, tips and practices with drafts, versions, publish and checks (`/admin/mindguide`, editor at `/admin/mindguide/<type>/<sourceId>`) | Done on mock data | Waiting for backend | 9 |
 | Report a problem (users) and admin Reports page (`/admin/reports`) | Done on mock data | Waiting for backend | 10 |
+| Crisis helplines and support contact: admin Settings, user "Get help now" in Profile and Settings | Done on mock data | Waiting for backend | 13 |
 | Admin bookings chart: sessions per day and new bookings per day (`/admin/bookings`) | Done on mock data | Waiting for backend | 12 |
 | MindGuide podcasts: user pages `/podcasts` and `/podcasts/<id>`, admin Podcasts tab | Done on mock data | Waiting for backend | 11 |
 | Community: professionals and admins create groups, admins read chats and shut groups down, users report a person, image, message or group (`/community`, `/admin/community`) | Done on mock data | Waiting for backend | 14 |
@@ -168,7 +169,7 @@ Do not change these without asking Rith.
 - **Users can report a person, a message, an image or a whole group.** The admin never sees who reported.
 - **AROM has no "Owner" role.** Only `user`, `professional`, `admin`.
 - **Educational note is fixed app text.** Every lesson, tip, practice and podcast screen shows "For learning only. This is not a diagnosis or treatment." from `app/_components/educational-note.tsx`. It is not stored as content, so no admin edit can remove it.
-- **No crisis helpline card on content screens.** Users find helpline information in Settings.
+- **No crisis helpline card on content screens.** Users find crisis helplines in Profile and Settings under "Get help now" (see section 13). If none are active, a built in message tells users to contact local emergency services. Never invent a number.
 - **Bookings belong to the user and the professional.** Only they confirm, reschedule or cancel. Admins see bookings read only and can only make an emergency cancel with a written reason (see section 12).
 - **Two kinds of podcasts.** MindGuide podcasts are made by admins and shown in MindGuide. Professional podcasts are published by professionals themselves on their own profile so users can listen before booking. They are separate lists.
 
@@ -355,7 +356,34 @@ The chart only needs counts, never names. Suggested endpoint, admin only:
 - Group by the Cambodia calendar day of `starts_at` for sessions and of `created_at` for `created`.
 - Return every day in the range, including zero days, so the comparison with the previous period is easy (the frontend asks for both ranges).
 
-## 13. Planned next (frontend not built yet)
+## 13. Crisis helplines and AROM support contact
+
+**Files:** shared `app/_components/support-contacts.ts` (types, empty lists, checks), user `app/_components/get-help-section.tsx` (placed in `profile-settings.tsx`), admin `app/admin/_data/settings.ts` and `_components/settings-view.tsx`, provider `crisisHelplines` and `saveCrisisHelplines`.
+
+**Removed from admin Settings:** platform name (AROM is fixed) and admin language (admin is English only). `AdminSettings` is now just the support contact.
+
+### Crisis helpline (`CrisisHelpline`)
+
+Matches the existing `crisis_resources` table: `name`, `kmName` (`name_km`), `description`, `kmDescription`, `phone`, `sms`, `website`, `hours`, `kmHours` (`available_hours`, `available_hours_km`), `isActive` (`is_active`), `sortOrder` (`sort_order`). `country_code` stays `KH`.
+
+Rules the admin form enforces, repeat them in the database:
+- English and Khmer name required.
+- A phone number or a website is required.
+- Phone and SMS: 3 to 15 digits (short codes allowed), spaces and `+` allowed.
+- Website must be `https://`.
+- Every save needs the admin to confirm they checked the number themselves. Record who changed it in `admin_audit_log`.
+
+Users get only active helplines with a phone or website, ordered by `sortOrder`. Everyone (even signed out) may read active rows; only admins write.
+
+### Support contact (`SupportContact`)
+
+`email`, `phone`, `hours`, `kmHours`. Shown to users as "AROM support" for app questions, not emergencies, only when an email or phone is set. Suggested storage: a single row settings table, admin write, public read.
+
+### Still mock
+
+The user page reads the empty lists in `support-contacts.ts`, so admin edits do not reach users until this is connected. The admin dashboard "No crisis hotlines added yet" warning already reads `crisis_resources`.
+
+## 14. Planned next (frontend not built yet)
 
 - **Professional profile editor under `/pro`.** Uses the pending changes rule in section 6.
 - **Make professional (Way 2):** phone is optional there because the admin already knows the person. Add an optional phone field to `ProfessionalPromotion` when the backend supports it.

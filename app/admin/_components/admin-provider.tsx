@@ -66,7 +66,12 @@ import {
   type AdminJournalPrompt,
 } from '../_data/journal-prompts';
 
-import { initialSettings, type AdminSettings } from '../_data/settings';
+import {
+  initialCrisisHelplines,
+  initialSettings,
+  type AdminSettings,
+} from '../_data/settings';
+import type { CrisisHelpline } from '../../_components/support-contacts';
 
 import {
   initialReports,
@@ -150,6 +155,9 @@ type AdminState = {
 
   settings: AdminSettings;
   saveSettings: (record: AdminSettings) => void;
+
+  crisisHelplines: CrisisHelpline[];
+  saveCrisisHelplines: (list: CrisisHelpline[]) => void;
 
 };
 
@@ -681,6 +689,15 @@ export function AdminProvider({ children }: { children: ReactNode }) {
   }
   const [settings, setSettings] = useState<AdminSettings>(initialSettings);
 
+  const [crisisHelplines, setCrisisHelplines] = useState<CrisisHelpline[]>(
+    initialCrisisHelplines,
+  );
+
+  // Keeps the order numbers in step with the list order.
+  function saveCrisisHelplines(list: CrisisHelpline[]) {
+    setCrisisHelplines(list.map((item, index) => ({ ...item, sortOrder: index })));
+  }
+
   function saveSettings(record: AdminSettings) {
     setSettings(record);
   }
@@ -727,6 +744,8 @@ export function AdminProvider({ children }: { children: ReactNode }) {
         setJournalPromptActive,
         settings,
         saveSettings,
+        crisisHelplines,
+        saveCrisisHelplines,
       }}>
       {children}
     </AdminContext.Provider>
