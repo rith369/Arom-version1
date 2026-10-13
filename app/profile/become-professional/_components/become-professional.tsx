@@ -13,7 +13,7 @@ import {
   XCircle,
 } from 'lucide-react';
 import Link from 'next/link';
-import { useMemo, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 
 import {
@@ -28,13 +28,39 @@ import {
   MAX_OTHER_SPECIALTIES,
   SPECIALTY_OPTIONS,
   createApplicationSchema,
-  demoRejectedNote,
-  initialApplication,
   type ApplicationFormInput,
   type ApplicationFormValues,
-  type ApplicationStatus,
   type ProfessionalApplication,
 } from '../_data/application';
+
+type SubmitResult = 'sent' | 'already_pending' | 'failed';
+
+async function sendApplication(
+  values: ApplicationFormValues,
+): Promise<{ result: SubmitResult; application?: ProfessionalApplication }> {
+  const body = new FormData();
+  body.set('fullName', values.fullName);
+  body.set('title', values.title);
+  body.set('licenseNumber', values.licenseNumber);
+  body.set('issuingBody', values.issuingBody);
+  body.set('specialties', JSON.stringify(values.specialties));
+  body.set('languages', JSON.stringify(values.languages));
+  body.set('yearsExperience', String(values.yearsExperience));
+  body.set('phone', values.phone);
+  body.set('telegram', values.sameTelegram ? values.phone : values.telegram);
+  body.set('motivation', values.motivation);
+  body.set('document', values.document[0]);
+
+  try {
+    const response = await fetch('/api/professional/application', { method: 'POST', body });
+    if (response.status === 409) return { result: 'already_pending' };
+    if (!response.ok) return { result: 'failed' };
+    const data = (await response.json()) as { application: ProfessionalApplication };
+    return { result: 'sent', application: data.application };
+  } catch {
+    return { result: 'failed' };
+  }
+}
 
 const inputClass = (hasError: boolean) =>
   `mt-2 h-12 w-full rounded-xl border bg-arom-wash/75 px-4 text-[0.94rem] text-ink outline-none transition-[border-color,box-shadow,background-color] duration-150 placeholder:text-ink-muted/72 focus:bg-white focus:ring-4 ${
@@ -67,7 +93,7 @@ function ApplicationForm({
   onSubmit,
 }: {
   previous: ProfessionalApplication | null;
-  onSubmit: (values: ApplicationFormValues, documentName: string) => void;
+  onSubmit: (values: ApplicationFormValues) => Promise<SubmitResult>;
 }) {
   const { language } = useLanguage();
   const { user } = useAuth();
@@ -115,8 +141,12 @@ function ApplicationForm({
   const sameTelegram = useWatch({ control, name: 'sameTelegram' });
   const hasOtherSpecialty = useWatch({ control, name: 'hasOtherSpecialty' });
 
-  const submit = handleSubmit((values) => {
-    onSubmit(values, values.document[0]?.name ?? '');
+  const [submitError, setSubmitError] = useState<SubmitResult | null>(null);
+
+  const submit = handleSubmit(async (values) => {
+    setSubmitError(null);
+    const result = await onSubmit(values);
+    if (result !== 'sent') setSubmitError(result);
   });
 
   const chipClass =
@@ -384,11 +414,27 @@ function ApplicationForm({
         </label>
         <FieldError id="confirm-error" message={errors.confirm?.message} />
 
+        {submitError && (
+          <p role="alert" className="mt-4 rounded-xl bg-arom-danger-soft/60 px-4 py-3 text-sm text-arom-danger">
+            {submitError === 'already_pending'
+              ? t(
+                  'អ្នកមានពាក្យស្នើសុំមួយកំពុងរង់ចាំការពិនិត្យរួចហើយ។',
+                  'You already have an application waiting for review.',
+                )
+              : t(
+                  'មិនអាចផ្ញើពាក្យស្នើសុំបានទេ។ សូមព្យាយាមម្តងទៀត។',
+                  'We could not send your application. Please try again.',
+                )}
+          </p>
+        )}
+
         <button
           type="submit"
           disabled={isSubmitting}
           className="mt-5 w-full rounded-full bg-arom px-6 py-3.5 text-sm font-bold text-white shadow-sm transition-colors duration-150 hover:bg-arom-deep disabled:opacity-60 sm:w-auto">
-          {t('ដាក់ពាក្យស្នើសុំ', 'Submit application')}
+          {isSubmitting
+            ? t('កំពុងផ្ញើ...', 'Sending...')
+            : t('ដាក់ពាក្យស្នើសុំ', 'Submit application')}
         </button>
       </Card>
     </form>
@@ -543,73 +589,40 @@ export function BecomeProfessional() {
   const km = language === 'km';
   const t = (kmText: string, enText: string) => (km ? kmText : enText);
 
-  const [application, setApplication] = useState<ProfessionalApplication | null>(
-    initialApplication,
-  );
+  const [application, setApplication] = useState<ProfessionalApplication | null>(null);
+  const [loadState, setLoadState] = useState<'loading' | 'ready' | 'error'>('loading');
   const [isApplyingAgain, setIsApplyingAgain] = useState(false);
-  const [isPreviewing, setIsPreviewing] = useState(false);
 
   const alreadyProfessional = user?.role === 'professional' || user?.role === 'admin';
   const showForm = !application || isApplyingAgain;
 
-  function submitApplication(values: ApplicationFormValues, documentName: string) {
-    setApplication({
-      id: crypto.randomUUID(),
-      fullName: values.fullName,
-      title: values.title,
-      licenseNumber: values.licenseNumber,
-      issuingBody: values.issuingBody,
-      documentName,
-      specialties: values.specialties,
-      languages: values.languages,
-      yearsExperience: values.yearsExperience,
-      phone: values.phone,
-      telegram: values.sameTelegram ? values.phone : values.telegram,
-      motivation: values.motivation,
-      status: 'pending',
-      reviewNote: '',
-      createdAt: new Date().toISOString(),
-    });
-    setIsApplyingAgain(false);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
+  useEffect(() => {
+    let active = true;
+    fetch('/api/professional/application', { cache: 'no-store' })
+      .then(async (response) => {
+        if (!response.ok) throw new Error('load failed');
+        const data = (await response.json()) as { application: ProfessionalApplication | null };
+        if (!active) return;
+        setApplication(data.application);
+        setLoadState('ready');
+      })
+      .catch(() => {
+        if (active) setLoadState('error');
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
-  // Demo only: lets the team preview every status before the backend exists.
-  function previewStatus(status: ApplicationStatus | 'none') {
-    setIsApplyingAgain(false);
-    setIsPreviewing(true);
-
-    if (status === 'none') {
-      setApplication(null);
-      return;
+  async function submitApplication(values: ApplicationFormValues): Promise<SubmitResult> {
+    const { result, application: saved } = await sendApplication(values);
+    if (result === 'sent' && saved) {
+      setApplication(saved);
+      setIsApplyingAgain(false);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-
-    setApplication({
-      id: 'demo-application',
-      fullName: user?.fullName ?? 'Vanna Keo',
-      title: 'Licensed Counselor',
-      licenseNumber: 'MOH CNS 2022 207',
-      issuingBody: 'Ministry of Health, Cambodia',
-      documentName: 'license.jpg',
-      specialties: ['Anxiety', 'Students', 'Addiction'],
-      languages: ['Khmer', 'English'],
-      yearsExperience: 4,
-      phone: '012345678',
-      telegram: '012345678',
-      motivation: '',
-      status,
-      reviewNote: status === 'rejected' ? demoRejectedNote : '',
-      createdAt: '2026-10-09T03:00:00Z',
-    });
+    return result;
   }
-
-  const demoOptions: { value: ApplicationStatus | 'none'; label: string }[] = [
-    { value: 'none', label: t('មិនទាន់ដាក់', 'Not applied') },
-    { value: 'pending', label: t('កំពុងពិនិត្យ', 'Pending') },
-    { value: 'approved', label: t('បានអនុម័ត', 'Approved') },
-    { value: 'rejected', label: t('បានបដិសេធ', 'Rejected') },
-  ];
-  const currentPreview = isApplyingAgain ? 'none' : (application?.status ?? 'none');
 
   return (
     <div className="min-h-screen bg-canvas lg:grid lg:grid-cols-[19rem_minmax(0,1fr)]">
@@ -646,32 +659,7 @@ export function BecomeProfessional() {
             </div>
           </header>
 
-          <div className="mt-6 rounded-2xl border border-arom-warning/25 bg-arom-warning-soft px-4 py-3 text-xs text-arom-warning">
-            <p>
-              {t(
-                'ទិន្នន័យសាកល្បង។ មិនទាន់ផ្ញើទៅក្រុម AROM នៅឡើយទេ។ មើលស្ថានភាពនីមួយៗ:',
-                'Demo data. Nothing is sent to the AROM team yet. Preview each status:',
-              )}
-            </p>
-            <div className="mt-2 flex flex-wrap gap-2">
-              {demoOptions.map(({ value, label }) => (
-                <button
-                  key={value}
-                  type="button"
-                  onClick={() => previewStatus(value)}
-                  aria-pressed={currentPreview === value}
-                  className={`rounded-full border px-3 py-1 font-semibold ${
-                    currentPreview === value
-                      ? 'border-arom-warning bg-arom-warning text-white'
-                      : 'border-arom-warning/40 bg-white/60'
-                  }`}>
-                  {label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {alreadyProfessional && !isPreviewing ? (
+          {alreadyProfessional ? (
             <Card className="mt-6">
               <div className="flex items-start gap-4">
                 <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-arom-soft text-arom">
@@ -689,6 +677,21 @@ export function BecomeProfessional() {
                   </p>
                 </div>
               </div>
+            </Card>
+          ) : loadState === 'loading' ? (
+            <Card className="mt-6">
+              <p role="status" className="text-sm text-ink-muted">
+                {t('កំពុងផ្ទុក...', 'Loading...')}
+              </p>
+            </Card>
+          ) : loadState === 'error' ? (
+            <Card className="mt-6">
+              <p role="alert" className="text-sm text-arom-danger">
+                {t(
+                  'មិនអាចផ្ទុកពាក្យស្នើសុំរបស់អ្នកបានទេ។ សូមផ្ទុកទំព័រម្តងទៀត។',
+                  'We could not load your application. Please reload the page.',
+                )}
+              </p>
             </Card>
           ) : showForm ? (
             <>

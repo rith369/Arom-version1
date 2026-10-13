@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 
 import { usePro, type DemoMode } from './pro-provider';
+import { AccountMenu } from '../../_components/account-menu';
 import { LanguageSwitcher, useLanguage } from '../../_components/language-provider';
 
 type NavLink = {
@@ -124,7 +125,10 @@ export function ProShell({ children }: { children: ReactNode }) {
               </button>
             ))}
           </div>
-          <LanguageSwitcher />
+          <div className="flex items-center gap-3">
+            <LanguageSwitcher />
+            <AccountMenu />
+          </div>
         </div>
 
         <div className="mt-6">{children}</div>

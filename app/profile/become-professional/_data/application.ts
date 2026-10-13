@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
-// Mirrors professional_applications. phone and telegram are new columns the
-// backend still needs to add (see BACKEND-HANDOFF.md section 8).
+// Mirrors professional_applications. The server returns this shape from
+// GET and POST /api/professional/application (BACKEND-HANDOFF.md section 8).
 export type ApplicationStatus = 'pending' | 'approved' | 'rejected';
 
 export type ProfessionalApplication = {
@@ -190,9 +190,3 @@ export function createApplicationSchema(km: boolean) {
 
 export type ApplicationFormInput = z.input<ReturnType<typeof createApplicationSchema>>;
 export type ApplicationFormValues = z.output<ReturnType<typeof createApplicationSchema>>;
-
-// Demo only: the latest application of the signed in user, or null if they never applied.
-export const initialApplication: ProfessionalApplication | null = null;
-
-export const demoRejectedNote =
-  'The license photo is too blurry to read the number. Please upload a clearer photo.';

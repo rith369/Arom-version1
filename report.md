@@ -7,6 +7,38 @@ A plain-language log of what changed in the app, written for the team rather tha
 
 Each entry lists the commit it landed in, so you can match it to a version of the site.
 
+## 14 Oct 2026: Become a Professional Sends Real Applications
+
+Commit `PENDING`. Migration `20261014000100_professional_applications.sql` must be run in Supabase before this works.
+
+**Why.** The "Become a Professional" page only pretended to send. Nothing reached the AROM team, so no one could actually apply. This is the first step of the professional journey: apply, admin approves, then the professional sets up their profile.
+
+**What changed for users:**
+- **Applications are really sent.** The form and the license file go to AROM, and the page shows "We're reviewing your application" after a reload or on another device.
+- **One application at a time.** Sending a second one while the first waits shows "You already have an application waiting for review."
+- **Clear errors** if sending fails, in English and Khmer.
+- **The yellow demo bar is gone.**
+
+**What changed for admins:**
+- **Applications list now includes phone, Telegram and the license file name.**
+- **Rejecting needs a reason,** so the applicant knows what to fix.
+
+**What changed for the team:**
+- **New endpoint** `GET` and `POST /api/professional/application` (`lib/controllers/application-controller.ts`). The server repeats every form rule and checks the file really is a PDF, JPG or PNG.
+- **License files** go to a new private `licenses` storage bucket. Only the owner can upload into their own folder, only admins can read, nobody can change or delete.
+- **Phone and Telegram** are copied on approval into a new private `professional_contacts` table, never into the public profile.
+- **No service role key used.** Everything runs as the signed in user, so RLS applies.
+
+**What to re-test (after running the migration):**
+- Sign in as a normal user, open Profile, Become a Professional, fill the form with a PDF license and submit; confirm the pending card shows;
+- Reload the page and confirm the pending card is still there;
+- In Supabase, confirm the row in `professional_applications` and the file in `licenses/<user id>/`;
+- Approve it with `POST /api/admin/applications/<id>/review` and confirm `professional_contacts` has the phone;
+- Reject another application with no note and confirm it is refused;
+- Switch to Khmer.
+
+---
+
 ## 13 Oct 2026: Browse MindGuide When Giving a Care Task
 
 Commit `eacfa97`. No migration. Frontend only.

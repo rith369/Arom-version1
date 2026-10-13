@@ -45,7 +45,7 @@ The yellow "Demo data on this page" banner is in `admin-shell.tsx`. Remove it fo
 | Admin overview (dashboard) | Done | Connected (`/api/admin/overview`) | none |
 | Admin users: list, details, roles, suspend | Done on mock data | Waiting for backend | 5 |
 | Admin professionals: review and moderation | Done on mock data | Waiting for backend | 6 |
-| Become a professional (user applies) | Done on mock data | Waiting for backend | 8 |
+| Become a professional (user applies) | Done | Connected (`/api/professional/application`), migration `20261014000100` not yet applied to Supabase | 8 |
 | Professional area `/pro`: shell, home, my profile with preview, login entry | Done on mock data | Waiting for backend | 16 |
 | Professional schedule (`/pro/schedule`) | Done on mock data | Waiting for backend | 16 |
 | Professional bookings (`/pro/bookings`) | Done on mock data | Waiting for backend | 16 |
@@ -197,7 +197,7 @@ Do not change these without asking Rith.
 
 **Files:** `app/profile/become-professional/page.tsx`, `_components/become-professional.tsx`, `_data/application.ts` (type, zod schema, mock). Entry point: "Become a Professional" link in Profile, shown only when `user.role === 'user'`. The route sits under `/profile`, so `proxy.ts` already requires login.
 
-The page keeps its state in React only and has a yellow demo bar to preview each status (Not applied, Pending, Approved, Rejected). Remove the demo bar and `previewStatus` when connected.
+**Connected (14 Oct 2026).** The page loads the caller's latest application from `GET /api/professional/application` and submits with `POST` (multipart). The demo bar and `previewStatus` are removed. Backend: `lib/controllers/application-controller.ts`, rules in `lib/professional-application.ts`, migration `supabase/migrations/20261014000100_professional_applications.sql`.
 
 ### Data shape the page expects (`ProfessionalApplication`)
 
@@ -229,7 +229,11 @@ Validation lives in `createApplicationSchema()` in `_data/application.ts`. Repea
 | `submitApplication(values, documentName)` | Submit or resubmit | `POST /api/professional/application` (multipart, or upload first then JSON with `documentPath`) | **No** |
 | "Log out and log in again" | Refresh the role in the token after approval | existing `POST /api/auth/logout` | Yes |
 
-### Backend gaps
+### Backend gaps (all done in migration `20261014000100`)
+
+Done: `phone`, `telegram` and `document_name` columns with the same checks as the form; only role `user` may insert; private `professional_contacts` table filled on approval (owner and admins read); private `licenses` bucket (5 MB, PDF, JPG, PNG; owner uploads into `<user_id>/`, admins read, nobody changes or deletes); rejecting now requires a note; `GET /api/admin/applications` returns `documentName`, `phone`, `telegram`. The row is saved before the file, and removed again if the upload fails. Still open: a signed URL endpoint for admins to open the license (section 6 gap 3).
+
+Original list:
 
 1. **Add `phone` and `telegram` columns** to `professional_applications`, and copy them to the professional's private record when approved (for example `professional_credentials` or a new private contact table). RLS: the applicant and admins only. Never in `professional_profiles` or any public view.
 2. **Submit endpoint.** Caller must be `user` role and active. The unique index already blocks a second pending application. A rejected applicant may submit a new one.

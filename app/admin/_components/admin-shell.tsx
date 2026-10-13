@@ -17,6 +17,7 @@ import {
   Flag,
 } from 'lucide-react';
 import type { ReactNode } from 'react';
+import { AccountMenu } from '../../_components/account-menu';
 import { useAdmin } from './admin-provider';
 import {
   LanguageSwitcher,
@@ -156,8 +157,9 @@ export function AdminShell({ children }: { children: ReactNode }) {
         </div>
       </aside>
       <main id="admin-main" className="mx-auto max-w-7xl p-5 sm:p-8 lg:p-10">
-        <div className="mb-5 flex justify-end">
+        <div className="mb-5 flex items-center justify-end gap-3">
           <LanguageSwitcher />
+          <AccountMenu englishOnly />
         </div>
         {pathname !== '/admin' && (
           <div className="mb-7 rounded-xl border border-arom-warning/25 bg-arom-warning-soft px-4 py-3 text-xs text-arom-warning">

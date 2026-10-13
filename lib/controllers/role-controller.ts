@@ -120,7 +120,7 @@ export async function listApplications(request: NextRequest) {
   const { data, error } = await guard.supabase
     .from("professional_applications")
     .select(
-      "id, user_id, full_name, title, license_number, issuing_body, specialties, languages, years_experience, motivation, status, review_note, created_at",
+      "id, user_id, full_name, title, license_number, issuing_body, document_name, specialties, languages, years_experience, phone, telegram, motivation, status, review_note, created_at",
     )
     .eq("status", query.data.status)
     .order("created_at", { ascending: true })
@@ -134,9 +134,12 @@ export async function listApplications(request: NextRequest) {
     title: row.title,
     licenseNumber: row.license_number,
     issuingBody: row.issuing_body,
+    documentName: row.document_name,
     specialties: row.specialties ?? [],
     languages: row.languages ?? [],
     yearsExperience: row.years_experience,
+    phone: row.phone,
+    telegram: row.telegram,
     motivation: row.motivation,
     status: row.status,
     reviewNote: row.review_note,
