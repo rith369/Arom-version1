@@ -9,7 +9,7 @@ Each entry lists the commit it landed in, so you can match it to a version of th
 
 ## 13 Oct 2026: Professional Area With Home and My Profile, and Free During Testing
 
-Commit pending. No migration yet. Frontend only, on mock data.
+Commit `82b7e91`. No migration yet. Frontend only, on mock data.
 
 **Why.** Approved professionals had nowhere to manage themselves: admins were not meant to write their profiles, and nothing told a new professional what was missing before users could find them. During testing, sessions with real professionals are free, but nothing told users that either.
 
