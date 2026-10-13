@@ -56,6 +56,15 @@ export const NAVIGATION_SECTIONS: NavSection[] = [
         icon: ShieldCheck,
         href: "/admin",
       },
+      {
+        // Admins can open the professional area to check how it works.
+        id: "admin-professional-area",
+        label: "ProfessionalArea",
+        enTitle: "Professional area",
+        kmTitle: "ផ្នែកអ្នកជំនាញ (Professional area)",
+        icon: Stethoscope,
+        href: "/pro",
+      },
     ],
   },
   {

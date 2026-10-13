@@ -7,6 +7,26 @@ A plain-language log of what changed in the app, written for the team rather tha
 
 Each entry lists the commit it landed in, so you can match it to a version of the site.
 
+## 13 Oct 2026: One Click Into the Professional Area for Admins
+
+Commit pending. No migration.
+
+**Why.** Admins can open the professional area to check how it works, but they had to type `/pro` into the address bar. There are no real professional accounts yet, so admins are the main way to see it.
+
+**What changed for users (admins):**
+- **"Professional area" under Admin** in the app sidebar and the phone menu, below "Admin panel".
+- **"Professional area" link at the bottom of the admin sidebar,** next to "View website".
+
+**What changed for the team:**
+- **`navigation-config.ts`:** a second item in the admin only section. **`admin-shell.tsx`:** one added link (English only). Professionals keep their own "Professional area" link.
+
+**What to re-test:**
+- Log in as admin, open the app sidebar and the phone menu, and confirm "Professional area" opens `/pro`;
+- In the admin panel, confirm the link at the bottom of the sidebar opens `/pro`;
+- Log in as a normal user and confirm neither link shows.
+
+---
+
 ## 13 Oct 2026: Session Prices Shown to Users (Free, One Price or a Range), No Payment Taken
 
 Commit `c19be78`. No migration.

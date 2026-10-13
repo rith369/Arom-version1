@@ -140,12 +140,20 @@ export function AdminShell({ children }: { children: ReactNode }) {
               : 'Keep our wellness space thoughtful, helpful, and welcoming.'}
           </p>
         </div>
-        <Link
-          href="/"
-          className="mt-6 flex items-center gap-2 text-sm text-ink-muted lg:absolute lg:bottom-8">
-          {km ? 'មើលគេហទំព័រ' : 'View website'}
-          <ArrowUpRight size={16} />
-        </Link>
+        <div className="mt-6 flex flex-wrap gap-x-5 gap-y-2 lg:absolute lg:bottom-8 lg:flex-col">
+          <Link
+            href="/pro"
+            className="flex items-center gap-2 text-sm text-ink-muted hover:text-arom">
+            Professional area
+            <ArrowUpRight size={16} />
+          </Link>
+          <Link
+            href="/"
+            className="flex items-center gap-2 text-sm text-ink-muted hover:text-arom">
+            {km ? 'មើលគេហទំព័រ' : 'View website'}
+            <ArrowUpRight size={16} />
+          </Link>
+        </div>
       </aside>
       <main id="admin-main" className="mx-auto max-w-7xl p-5 sm:p-8 lg:p-10">
         <div className="mb-5 flex justify-end">
