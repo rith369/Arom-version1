@@ -17,8 +17,6 @@ import {
 
 import { usePro } from './pro-provider';
 import { useLanguage } from '../../_components/language-provider';
-import { initialBookings } from '../../admin/_data/bookings';
-import { initialUsers } from '../../admin/_data/users';
 import { profileChecklist, type ReviewedField } from '../_data/profile';
 
 const TIME_ZONE = 'Asia/Phnom_Penh';
@@ -41,7 +39,7 @@ function Card({ children, className = '' }: { children: React.ReactNode; classNa
 }
 
 export function ProHome() {
-  const { profile, pendingChanges, hasSchedule, freeDuringTesting, demoMode } = usePro();
+  const { profile, pendingChanges, hasSchedule, freeDuringTesting, demoMode, bookings } = usePro();
   const { language } = useLanguage();
   const km = language === 'km';
   const t = (kmText: string, enText: string) => (km ? kmText : enText);
@@ -52,17 +50,10 @@ export function ProHome() {
   const isVisible = remaining.length === 0;
   const name = (km && profile.kmDisplayName) || profile.displayName;
 
-  // Demo: today's sessions come from the admin sample bookings.
-  const todaySessions = initialBookings
-    .filter(
-      (booking) =>
-        booking.professionalId === profile.slug &&
-        booking.status !== 'cancelled' &&
-        dayKey(booking.startsAt) === today,
-    )
+  const todaySessions = bookings
+    .filter((booking) => booking.status !== 'cancelled' && dayKey(booking.startsAt) === today)
     .sort((a, b) => a.startsAt.localeCompare(b.startsAt));
   const timeFormat = new Intl.DateTimeFormat(km ? 'km-KH' : 'en-GB', { hour: '2-digit', minute: '2-digit', hourCycle: 'h23', timeZone: TIME_ZONE });
-  const clientName = (id: string) => initialUsers.find((user) => user.id === id)?.fullName.split(' ')[0] ?? t('អតិថិជន', 'Client');
 
   return (
     <>
@@ -137,10 +128,10 @@ export function ProHome() {
                       <Clock size={15} aria-hidden="true" className="text-arom" />
                       {timeFormat.format(new Date(session.startsAt))}
                     </span>
-                    <span className="min-w-0 flex-1 truncate text-ink">{clientName(session.userId)}</span>
+                    <span className="min-w-0 flex-1 truncate text-ink">{session.clientName}</span>
                     <span className="flex items-center gap-1.5 text-xs text-ink-muted">
-                      {session.meetingType === 'Online' ? <Monitor size={14} aria-hidden="true" /> : <UserRound size={14} aria-hidden="true" />}
-                      {session.meetingType === 'Online' ? t('អនឡាញ', 'Online') : t('ជួបផ្ទាល់', 'In person')}
+                      {session.sessionType === 'online' ? <Monitor size={14} aria-hidden="true" /> : <UserRound size={14} aria-hidden="true" />}
+                      {session.sessionType === 'online' ? t('អនឡាញ', 'Online') : t('ជួបផ្ទាល់', 'In person')}
                     </span>
                   </li>
                 ))}

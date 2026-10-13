@@ -6,7 +6,6 @@ import { CalendarOff, Copy, Plus, Save, Trash2, Undo2 } from 'lucide-react';
 
 import { usePro } from './pro-provider';
 import { useLanguage } from '../../_components/language-provider';
-import { initialBookings } from '../../admin/_data/bookings';
 import type { SessionType } from '../_data/profile';
 import {
   WEEKDAYS,
@@ -36,7 +35,7 @@ function Section({ title, hint, children, id }: { title: string; hint?: string; 
 const sameSchedule = (a: Schedule, b: Schedule) => JSON.stringify(a) === JSON.stringify(b);
 
 export function ScheduleEditor() {
-  const { schedule, saveSchedule, profile } = usePro();
+  const { schedule, saveSchedule, profile, bookings } = usePro();
   const { language } = useLanguage();
   const km = language === 'km';
   const t = (kmText: string, enText: string) => (km ? kmText : enText);
@@ -54,7 +53,7 @@ export function ScheduleEditor() {
   const today = cambodiaDate(now);
 
   // What users would see: the next 7 days, minus sessions already booked.
-  const booked = initialBookings.filter((item) => item.professionalId === profile.slug && item.status !== 'cancelled');
+  const booked = bookings.filter((item) => item.status !== 'cancelled');
   const preview = openSlots(draft, { fromDate: today, days: 7, now, booked });
   const weekSlots = openSlots(draft, { fromDate: today, days: 7, now, booked: [] }).length;
 

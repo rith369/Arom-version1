@@ -17,6 +17,11 @@ import {
   hasOpenTimes,
   type Schedule,
 } from '../_data/schedule';
+import {
+  sampleBookingsFor,
+  type ProBooking,
+  type SessionNote,
+} from '../_data/bookings';
 
 export type DemoMode = 'established' | 'new';
 
@@ -36,6 +41,12 @@ type ProState = {
   hasSchedule: boolean;
   schedule: Schedule;
   saveSchedule: (next: Schedule) => void;
+  bookings: ProBooking[];
+  sessionNotes: Record<string, SessionNote>;
+  cancelBooking: (id: string, reason: string) => void;
+  rescheduleBooking: (id: string, startsAt: string, reason: string) => void;
+  setBookingOutcome: (id: string, status: 'completed' | 'no_show') => void;
+  saveSessionNote: (id: string, text: string) => void;
   freeDuringTesting: boolean;
   saveProfile: (next: ProProfile) => SaveResult;
   withdrawChange: (field: ReviewedField) => void;
@@ -51,12 +62,20 @@ export function ProProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<ProProfile>(() => structuredClone(establishedProfile));
   const [pendingChanges, setPendingChanges] = useState<PendingChange[]>([]);
   const [schedule, setSchedule] = useState<Schedule>(() => structuredClone(establishedSchedule));
+  const [bookings, setBookings] = useState<ProBooking[]>(() => sampleBookingsFor(establishedProfile.slug));
+  const [sessionNotes, setSessionNotes] = useState<Record<string, SessionNote>>({});
+
+  function updateBooking(id: string, change: Partial<ProBooking>) {
+    setBookings((current) => current.map((item) => (item.id === id ? { ...item, ...change } : item)));
+  }
 
   function switchDemo(mode: DemoMode) {
     setDemoMode(mode);
     setProfile(structuredClone(mode === 'established' ? establishedProfile : newProfile));
     setPendingChanges([]);
     setSchedule(structuredClone(mode === 'established' ? establishedSchedule : emptySchedule));
+    setBookings(mode === 'established' ? sampleBookingsFor(establishedProfile.slug) : []);
+    setSessionNotes({});
   }
 
   function saveProfile(next: ProProfile): SaveResult {
@@ -105,6 +124,22 @@ export function ProProvider({ children }: { children: ReactNode }) {
         hasSchedule: hasOpenTimes(schedule),
         schedule,
         saveSchedule: (next: Schedule) => setSchedule(structuredClone(next)),
+        bookings,
+        sessionNotes,
+        // The client is told by the backend; the reason is shown to them.
+        cancelBooking: (id, reason) =>
+          updateBooking(id, { status: 'cancelled', cancelledBy: 'professional', cancelReason: reason }),
+        rescheduleBooking: (id, startsAt, reason) => {
+          const booking = bookings.find((item) => item.id === id);
+          updateBooking(id, {
+            startsAt,
+            rescheduledFrom: booking?.rescheduledFrom ?? booking?.startsAt ?? null,
+            rescheduleReason: reason,
+          });
+        },
+        setBookingOutcome: (id, status) => updateBooking(id, { status }),
+        saveSessionNote: (id, text) =>
+          setSessionNotes((current) => ({ ...current, [id]: { text, updatedAt: new Date().toISOString() } })),
         freeDuringTesting: FREE_DURING_TESTING,
         saveProfile,
         withdrawChange,

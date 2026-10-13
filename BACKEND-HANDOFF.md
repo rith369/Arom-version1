@@ -48,7 +48,8 @@ The yellow "Demo data on this page" banner is in `admin-shell.tsx`. Remove it fo
 | Become a professional (user applies) | Done on mock data | Waiting for backend | 8 |
 | Professional area `/pro`: shell, home, my profile with preview, login entry | Done on mock data | Waiting for backend | 16 |
 | Professional schedule (`/pro/schedule`) | Done on mock data | Waiting for backend | 16 |
-| Professional bookings and podcasts (`/pro`) | Not built yet | Not started | 17 |
+| Professional bookings (`/pro/bookings`) | Done on mock data | Waiting for backend | 16 |
+| Professional podcasts (`/pro`) | Not built yet | Not started | 17 |
 | Admin MindGuide: lessons, tips and practices with drafts, versions, publish and checks (`/admin/mindguide`, editor at `/admin/mindguide/<type>/<sourceId>`) | Done on mock data | Waiting for backend | 9 |
 | Report a problem (users) and admin Reports page (`/admin/reports`) | Done on mock data | Waiting for backend | 10 |
 | Announcements: admin Settings section, banner at the top of every user page | Done on mock data | Waiting for backend | 15 |
@@ -476,6 +477,21 @@ The user page reads the empty lists in `support-contacts.ts`, so admin edits do 
 
 The demo switch ("Established professional" or "Newly approved") and today's sessions (from the admin sample bookings) are mock only. Remove them when connected.
 
+### My bookings (`/pro/bookings`)
+
+**Files:** `app/pro/_data/bookings.ts` (types, sample data), `app/pro/_components/bookings-view.tsx`, provider `bookings`, `sessionNotes`, `cancelBooking`, `rescheduleBooking`, `setBookingOutcome`, `saveSessionNote`. Home "Today's sessions" and the schedule preview read the same bookings.
+
+`ProBooking`: `id`, `clientName`, `startsAt`, `durationMinutes`, `sessionType` (`online`, `in_person`), `status` (`booked`, `completed`, `cancelled`, `no_show`, as in `appointments`; no pending, booking is instant), `intakeNote` (`appointments.intake_note`), `intakeAnswers` (`intake_answers` with their `intake_questions`), `cancelledBy`, `cancelReason`, `rescheduledFrom`, `rescheduleReason`.
+
+| Frontend action | Rule | Backend |
+|---|---|---|
+| `cancelBooking(id, reason)` | Upcoming sessions only, reason required (up to 300), shown to the client | `cancel_appointment` already exists; record `cancelled_by` (the professional) and `cancel_reason`, free the slot, notify the client |
+| `rescheduleBooking(id, startsAt, reason)` | New time must be an open slot of the same session type, not the current time; reason required | new function: move the appointment to the new slot, free the old one, keep the original time, notify the client, who can cancel |
+| `setBookingOutcome(id, 'completed' \| 'no_show')` | Only after the session has ended | update `appointments.status` |
+| `saveSessionNote(id, text)` | Up to 5000 characters | `session_notes`: readable and writable only by the professional who owns the appointment. No admin read, no client read |
+
+Clients see their name only to their own professional. The client list shows names, not emails or phone numbers.
+
 ### My schedule (`/pro/schedule`)
 
 **Files:** `app/pro/_data/schedule.ts` (types, rules, `openSlots`), `app/pro/_components/schedule-editor.tsx`, provider `schedule` and `saveSchedule`.
@@ -493,7 +509,7 @@ Backend needs: store the weekly hours, settings and time off (a `professional_sc
 
 ## 17. Planned next (frontend not built yet)
 
-- **`/pro` next steps:** My bookings (upcoming and past sessions, intake answers, reschedule or cancel with a reason, private session notes), My podcasts (their own episodes on their profile).
+- **`/pro` next steps:** My podcasts (their own episodes on their profile).
 - **Make professional (Way 2):** phone is optional there because the admin already knows the person. Add an optional phone field to `ProfessionalPromotion` when the backend supports it.
 
 ## 14. Community: groups, chat moderation and reports

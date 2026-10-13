@@ -7,6 +7,37 @@ A plain-language log of what changed in the app, written for the team rather tha
 
 Each entry lists the commit it landed in, so you can match it to a version of the site.
 
+## 13 Oct 2026: My Bookings for Professionals: Intake Answers, Reschedule, Cancel and Private Notes
+
+Commit pending. No migration yet. Frontend only, on mock data.
+
+**Why.** We decided only the client and the professional manage a booking, not admins. Professionals now have their own page to prepare for sessions, move or cancel them with a reason the client sees, record how a session went, and keep private notes.
+
+**What changed for professionals:**
+- **New "My bookings" page** (no longer "Soon") with **Upcoming** and **Past** tabs, grouped by day, showing time, length, client name, online or in person, and status.
+- **Before the session:** each booking shows the client's note and intake answers (what they want help with, whether they have seen a counselor before, what would help).
+- **Reschedule:** choose a new open time from your schedule (same session type, booked times left out) and write a reason. The client is told and can cancel if it does not suit them.
+- **Cancel:** write a reason the client sees, then confirm.
+- **After the session:** "Add outcome" asks whether it was Completed or the client did not come.
+- **Private session notes** on every booking, with "Only you can see these. Not admins, not the client." and a last saved time.
+- **Home "Today's sessions" and the schedule preview** now use the same bookings, so a cancelled or moved session updates everywhere.
+- **Khmer and English.**
+
+**What changed for the team:**
+- **New `app/pro/_data/bookings.ts`, `bookings-view.tsx` and `/pro/bookings`.** The provider holds bookings and notes and resets them with the demo switch.
+- **Sample bookings** come from the admin samples for Dr. Sopheap Chan, with "pending" shown as "booked" because booking is instant. A few fall on weekends, as if booked before the schedule changed.
+- **`BACKEND-HANDOFF.md` section 16** lists every action, rule and the private notes policy for `session_notes`.
+
+**What to re-test:**
+- Open My bookings as the established professional; confirm Upcoming and Past counts and day groups;
+- Open an upcoming booking; confirm the intake answers; press Reschedule, pick a time, try without a reason, then with one; confirm the session moves and shows "Moved from";
+- Cancel another session with a reason and confirm it moves to Past as cancelled, and disappears from Home today if it was today;
+- Open a past session marked "Add outcome" and choose Completed;
+- Write a private note, save, reopen the booking and confirm it is still there with the saved time;
+- Switch the demo to "Newly approved" and confirm the empty states; switch to Khmer.
+
+---
+
 ## 13 Oct 2026: My Schedule for Professionals: Weekly Hours, Session Settings and Time Off
 
 Commit `86226bc`. No migration yet. Frontend only, on mock data.
