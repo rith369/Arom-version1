@@ -9,7 +9,7 @@ Each entry lists the commit it landed in, so you can match it to a version of th
 
 ## 13 Oct 2026: Professional Podcasts Belong Only to the Professional
 
-Commit pending. No migration. Text and documentation only.
+Commit `e5de030`. No migration. Text and documentation only.
 
 **Why.** Professionals make their own episodes, so the product decision is that only they manage them: no reporting by users and no hiding or deleting by admins. The editor had promised that the AROM team could hide an episode, which was never going to be built.
 
