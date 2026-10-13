@@ -9,7 +9,7 @@ Each entry lists the commit it landed in, so you can match it to a version of th
 
 ## 13 Oct 2026: Professional Home Becomes a Dashboard Once the Profile Is Live
 
-Commit pending. No migration yet. Frontend only, on mock data.
+Commit `67318f3`. No migration yet. Frontend only, on mock data.
 
 **Why.** After a professional finished setting up, Home kept showing a checklist that was all ticked. Now it shows what they need every day: the next session, a few numbers, how busy the last weeks were, and what is waiting for them.
 
