@@ -50,6 +50,8 @@ import {
   closeGroup,
   getCommunitySnapshot,
   getServerCommunitySnapshot,
+  removeMember,
+  removeMessage,
   reopenGroup as reopenStoredGroup,
   saveCreatedGroup,
   subscribeCommunityStore,
@@ -134,6 +136,8 @@ type AdminState = {
   // Every message in every group. Admins may read chats for safety; the
   // backend writes an audit log entry each time a chat is opened.
   communityMessages: ChatMessage[];
+  // Message ids an admin removed. View chat still shows them, marked Removed.
+  removedMessageIds: string[];
 
   groupActivities: AdminGroupActivity[];
   saveGroupActivity: (record: AdminGroupActivity) => void;
@@ -487,7 +491,7 @@ export function AdminProvider({ children }: { children: ReactNode }) {
 
   const [groupEdits, setGroupEdits] = useState<AdminGroup[]>(initialGroups);
   const [reportDecisions, setReportDecisions] = useState<
-    Record<string, 'dismissed' | 'removed'>
+    Partial<Record<string, 'dismissed' | 'removed'>>
   >({});
 
   // Groups, closures, reports and messages made on /community in this browser.
@@ -513,12 +517,16 @@ export function AdminProvider({ children }: { children: ReactNode }) {
   }, [communityStore, groupEdits]);
 
   const communityMessages = communityStore.messages;
+  const removedMessageIds = useMemo(
+    () => communityStore.removedMessages.map((item) => item.messageId),
+    [communityStore],
+  );
 
   const [groupActivities, setGroupActivities] = useState<AdminGroupActivity[]>(
     initialGroupActivities,
   );
 
-  const communityReports = useMemo(() => {
+  const communityReports = useMemo((): CommunityReport[] => {
     const sent: CommunityReport[] = communityStore.reports.map((report) => {
       const target = report.target;
       const message =
@@ -551,9 +559,24 @@ export function AdminProvider({ children }: { children: ReactNode }) {
       };
     });
 
+    // A removal is saved in the store, so it survives a reload.
+    const isRemoved = (report: CommunityReport) =>
+      report.targetKind === 'member'
+        ? communityStore.removedMembers.some(
+            (item) =>
+              item.groupId === report.groupId &&
+              item.memberLabel === report.targetLabel,
+          )
+        : Boolean(report.messageId) &&
+          communityStore.removedMessages.some(
+            (item) => item.messageId === report.messageId,
+          );
+
     return [...initialCommunityReports, ...sent].map((report) => ({
       ...report,
-      status: reportDecisions[report.id] ?? report.status,
+      status:
+        reportDecisions[report.id] ??
+        (isRemoved(report) ? 'removed' : report.status),
     }));
   }, [communityStore, groups, reportDecisions]);
 
@@ -624,9 +647,20 @@ export function AdminProvider({ children }: { children: ReactNode }) {
   }
 
   function resolveCommunityReport(id: string, status: 'dismissed' | 'removed') {
-    setReportDecisions((current) =>
-      current[id] ? current : { ...current, [id]: status },
-    );
+    const report = communityReports.find((item) => item.id === id);
+    if (!report || report.status !== 'pending') return;
+
+    // Removing a message or image hides it for every member. Removing a
+    // person takes them out of that group; their past messages stay.
+    if (status === 'removed') {
+      if (report.targetKind === 'member') {
+        removeMember(report.groupId, report.targetLabel);
+      } else if (report.messageId) {
+        removeMessage(report.messageId);
+      }
+    }
+
+    setReportDecisions((current) => ({ ...current, [id]: status }));
   }
   const [journalPrompts, setJournalPrompts] = useState<AdminJournalPrompt[]>(
     initialJournalPrompts,
@@ -683,6 +717,7 @@ export function AdminProvider({ children }: { children: ReactNode }) {
         shutDownGroup,
         reopenGroup,
         communityMessages,
+        removedMessageIds,
         groupActivities,
         saveGroupActivity,
         communityReports,

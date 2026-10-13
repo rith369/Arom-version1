@@ -16,6 +16,8 @@ const CLOSED_KEY = "arom_community_closed_groups";
 const MESSAGES_KEY = "arom_community_messages";
 const REPORTS_KEY = "arom_community_reports";
 const REPORT_COUNT_KEY = "arom_community_reports_today";
+const REMOVED_MESSAGES_KEY = "arom_community_removed_messages";
+const REMOVED_MEMBERS_KEY = "arom_community_removed_members";
 
 export const COMMUNITY_REPORT_NOTE_MAX = 300;
 const DAILY_REPORT_LIMIT = 5;
@@ -24,6 +26,21 @@ export type GroupClosure = {
   groupId: string;
   reason: string;
   closedAt: string;
+};
+
+// A message or image an admin removed after a report. Members see a
+// placeholder; admins still see the original in View chat.
+export type RemovedMessage = {
+  messageId: string;
+  removedAt: string;
+};
+
+// A person an admin removed from one group. Their past messages stay.
+export type RemovedMember = {
+  groupId: string;
+  memberLabel: string;
+  memberId?: string;
+  removedAt: string;
 };
 
 export type StoredCommunityReport = {
@@ -59,6 +76,8 @@ export type CommunitySnapshot = {
   closures: GroupClosure[];
   reports: StoredCommunityReport[];
   messages: ChatMessage[];
+  removedMessages: RemovedMessage[];
+  removedMembers: RemovedMember[];
 };
 
 const SERVER_SNAPSHOT: CommunitySnapshot = {
@@ -66,6 +85,8 @@ const SERVER_SNAPSHOT: CommunitySnapshot = {
   closures: [],
   reports: [],
   messages: INITIAL_MESSAGES,
+  removedMessages: [],
+  removedMembers: [],
 };
 
 let cachedKey = "";
@@ -84,7 +105,14 @@ export function subscribeCommunityStore(onChange: () => void) {
 export function getCommunitySnapshot(): CommunitySnapshot {
   let key = "";
   try {
-    key = [CREATED_KEY, CLOSED_KEY, REPORTS_KEY, MESSAGES_KEY]
+    key = [
+      CREATED_KEY,
+      CLOSED_KEY,
+      REPORTS_KEY,
+      MESSAGES_KEY,
+      REMOVED_MESSAGES_KEY,
+      REMOVED_MEMBERS_KEY,
+    ]
       .map((item) => window.localStorage.getItem(item) ?? "")
       .join("\n");
   } catch {
@@ -98,6 +126,8 @@ export function getCommunitySnapshot(): CommunitySnapshot {
       closures: readClosedGroups(),
       reports: readCommunityReports(),
       messages: readMessages(),
+      removedMessages: readList<RemovedMessage>(REMOVED_MESSAGES_KEY),
+      removedMembers: readList<RemovedMember>(REMOVED_MEMBERS_KEY),
     };
   }
   return cachedSnapshot;
@@ -138,6 +168,28 @@ export function reopenGroup(groupId: string) {
 export function readMessages(): ChatMessage[] {
   const messages = read<ChatMessage[]>(MESSAGES_KEY, []);
   return Array.isArray(messages) && messages.length > 0 ? messages : INITIAL_MESSAGES;
+}
+
+function readList<T>(key: string): T[] {
+  const items = read<T[]>(key, []);
+  return Array.isArray(items) ? items : [];
+}
+
+export function removeMessage(messageId: string) {
+  const others = readList<RemovedMessage>(REMOVED_MESSAGES_KEY).filter(
+    (item) => item.messageId !== messageId,
+  );
+  write(REMOVED_MESSAGES_KEY, [...others, { messageId, removedAt: new Date().toISOString() }]);
+}
+
+export function removeMember(groupId: string, memberLabel: string, memberId?: string) {
+  const others = readList<RemovedMember>(REMOVED_MEMBERS_KEY).filter(
+    (item) => !(item.groupId === groupId && item.memberLabel === memberLabel),
+  );
+  write(REMOVED_MEMBERS_KEY, [
+    ...others,
+    { groupId, memberLabel, memberId, removedAt: new Date().toISOString() },
+  ]);
 }
 
 export function readCommunityReports(): StoredCommunityReport[] {

@@ -89,6 +89,8 @@ export type ChatMessage = {
   timeKm?: string;
   avatarType: "mask" | "mentor" | "user";
   attachment?: ChatAttachment;
+  // Removed by an admin after a report. Members see a placeholder instead.
+  removed?: boolean;
 };
 
 export type GroupActivity = {

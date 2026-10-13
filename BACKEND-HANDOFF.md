@@ -377,6 +377,8 @@ The chart only needs counts, never names. Suggested endpoint, admin only:
 
 `AdminGroup` gains `status: 'active' | 'closed'` (replaces the old `archived`), `closedReason?`, `createdBy`, `creatorName`.
 
+Removals: `{ messageId, removedAt }` for messages and images, `{ groupId, memberLabel, memberId?, removedAt }` for people. In the mock, people are matched by their display label inside the group; the backend should use the real user id.
+
 A closure: `{ groupId, reason, closedAt }`. Suggested columns on the groups table: `closed_at`, `closed_by`, `closed_reason` (reason is admin only, never returned to members).
 
 A report sent by a user (`StoredCommunityReport`):
@@ -400,7 +402,10 @@ The admin list uses `CommunityReport`: `id, groupId, targetKind, targetLabel, me
 | `reopenGroup(id)` | `admin` | Reopen | `POST /api/admin/community/groups/:id/reopen`, audit log entry |
 | `communityMessages` (View chat) | `admin` | Read every message of one group, read only, including images and file names | `GET /api/admin/community/groups/:id/messages`. **Write an audit log entry on every call** (who, which group, when) |
 | `submitCommunityReport({ target, reason, note })` | signed in member of that group | Returns `'sent'` or `'daily_limit'` | `security definer` function: checks the target exists and the reporter is a member, 5 reports per user per day, keeps the reporter id only for that limit |
-| `resolveCommunityReport(id, 'dismissed' \| 'removed')` | `admin` | Close a report | admin only, audit log entry |
+| `resolveCommunityReport(id, 'dismissed')` | `admin` | Close a report, nothing changes in the group | admin only, audit log entry |
+| `resolveCommunityReport(id, 'removed')` on a message or image report (`removeMessage`) | `admin` | Hide that message for every member. Members see "This message was removed by the AROM team."; admins still see the original in View chat, marked Removed | `POST /api/admin/community/messages/:id/remove`: set `removed_at`, `removed_by` on the message (keep the row for moderation), audit log entry. Member reads must return the placeholder flag only, never the removed text or image URL |
+| `resolveCommunityReport(id, 'removed')` on a person report (`removeMember`) | `admin` | Take that person out of the group. They disappear from the member list; their past messages stay | `POST /api/admin/community/groups/:id/members/:userId/remove`, audit log entry. Resolve the real user from the reported message's sender on the server. They cannot rejoin unless an admin allows it |
+| group reports | `admin` | No remove button; use Shut down | none |
 
 ### Rules for the backend
 
@@ -412,8 +417,8 @@ The admin list uses `CommunityReport`: `id, groupId, targetKind, targetLabel, me
 ### Backend gaps
 
 1. Groups, members, messages and attachments tables do not exist yet. Chat images need a private storage bucket readable by members of that group and by admins.
-2. "Mark for removal" on a report only changes the queue today; it should hide that message or image for everyone.
-3. Professionals have no "My groups" list yet; it belongs in `/pro`.
+2. Professionals have no "My groups" list yet; it belongs in `/pro`.
+3. Admin edits to an existing group (name, description, rules) do not reach `/community` in the mock. With one database this goes away; no frontend change is needed.
 
 ## Template for a new feature section
 

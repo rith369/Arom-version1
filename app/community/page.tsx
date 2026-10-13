@@ -80,7 +80,7 @@ export default function CommunityPage() {
 
   // Admins shut groups down from /admin/community. Read closures live so the
   // closed notice shows without a reload.
-  const { closures } = useSyncExternalStore(
+  const { closures, removedMessages, removedMembers } = useSyncExternalStore(
     subscribeCommunityStore,
     getCommunitySnapshot,
     getServerCommunitySnapshot,
@@ -252,9 +252,21 @@ export default function CommunityPage() {
           {view === "group-hub" && (
             <GroupHubView
               group={activeGroup}
-              messages={messages.filter((m) => m.groupId === selectedGroupId)}
+              messages={messages
+                .filter((m) => m.groupId === selectedGroupId)
+                .map((m) =>
+                  removedMessages.some((item) => item.messageId === m.id)
+                    ? { ...m, removed: true }
+                    : m
+                )}
               activities={activities.filter((a) => a.groupId === selectedGroupId)}
-              members={members.filter((m) => m.groupId === selectedGroupId)}
+              members={members.filter(
+                (m) =>
+                  m.groupId === selectedGroupId &&
+                  !removedMembers.some(
+                    (item) => item.groupId === m.groupId && item.memberLabel === m.name
+                  )
+              )}
               onBack={() => setView("home")}
               onSendMessage={handleSendMessage}
               onToggleActivityJoin={handleToggleActivityJoin}

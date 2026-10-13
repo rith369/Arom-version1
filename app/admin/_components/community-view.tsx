@@ -383,7 +383,7 @@ function ChatViewer({
   highlightMessageId?: string;
   onClose: () => void;
 }) {
-  const { communityMessages } = useAdmin();
+  const { communityMessages, removedMessageIds } = useAdmin();
   const messages = communityMessages.filter(
     (message) => message.groupId === group.id,
   );
@@ -418,8 +418,22 @@ function ChatViewer({
                     </span>
                   )}
                 </span>
-                <span className="text-xs text-ink-muted">{message.time}</span>
+                <span className="text-xs text-ink-muted">
+                  {removedMessageIds.includes(message.id) && (
+                    <span className="mr-2 rounded-full bg-arom-danger/10 px-2 py-0.5 text-arom-danger">
+                      Removed
+                    </span>
+                  )}
+                  {message.time}
+                </span>
               </div>
+
+              {removedMessageIds.includes(message.id) && (
+                <p className="mt-1.5 text-xs text-ink-muted">
+                  Members see &quot;This message was removed by the AROM
+                  team.&quot; Only admins see the original below.
+                </p>
+              )}
 
               {message.text && (
                 <p className="mt-1.5 leading-6 text-ink">{message.text}</p>
@@ -520,6 +534,34 @@ const reportKindLabels: Record<CommunityReport['targetKind'], string> = {
   image: 'Image',
   group: 'Group',
 };
+
+// What "remove" does depends on what was reported. A whole group is handled
+// with Shut down instead.
+const removalLabels: Record<
+  Exclude<CommunityReport['targetKind'], 'group'>,
+  string
+> = {
+  member: 'Remove from group',
+  message: 'Remove message',
+  image: 'Remove image',
+};
+
+const removedStatusLabels: Record<CommunityReport['targetKind'], string> = {
+  member: 'Removed from group',
+  message: 'Message removed for everyone',
+  image: 'Image removed for everyone',
+  group: 'Marked for removal',
+};
+
+function removalExplanation(report: CommunityReport) {
+  if (report.targetKind === 'member') {
+    return `${report.targetLabel} loses access to this group and disappears from its member list. Their past messages stay.`;
+  }
+  if (!report.messageId) {
+    return 'This demo report is not linked to a real message, so only the report closes.';
+  }
+  return `Members will see "This message was removed by the AROM team." instead of the ${report.targetKind === 'image' ? 'image' : 'message'}. Admins can still see it in View chat.`;
+}
 
 export function CommunityView() {
   const {
@@ -866,7 +908,7 @@ export function CommunityView() {
                       : 'Report dismissed'
                     : km
                       ? 'បានកំណត់ថាត្រូវលុប'
-                      : 'Marked for removal'}
+                      : removedStatusLabels[report.targetKind]}
               </p>
 
               {report.status === 'pending' && (
@@ -879,14 +921,18 @@ export function CommunityView() {
                     className={buttonClass}>
                     {km ? 'បដិសេធរបាយការណ៍' : 'Dismiss report'}
                   </button>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setReportAction({ report, status: 'removed' })
-                    }
-                    className="rounded-full border border-arom-danger/20 px-4 py-2 text-sm text-arom-danger">
-                    {km ? 'កំណត់ថាត្រូវលុប' : 'Mark for removal'}
-                  </button>
+                  {report.targetKind !== 'group' && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setReportAction({ report, status: 'removed' })
+                      }
+                      className="rounded-full border border-arom-danger/20 px-4 py-2 text-sm text-arom-danger">
+                      {km
+                        ? 'កំណត់ថាត្រូវលុប'
+                        : removalLabels[report.targetKind]}
+                    </button>
+                  )}
                 </div>
               )}
 
@@ -985,12 +1031,16 @@ export function CommunityView() {
                 : 'Dismiss this report?'
               : km
                 ? 'កំណត់របាយការណ៍នេះថាត្រូវលុប?'
-                : 'Mark this report for removal?'}
+                : reportAction.report.targetKind === 'group'
+                  ? 'Mark this report for removal?'
+                  : `${removalLabels[reportAction.report.targetKind]}?`}
           </p>
           <p className="mt-2 text-xs text-ink-muted">
-            {km
-              ? 'ការផ្លាស់ប្តូរនេះប៉ះពាល់តែបញ្ជីសាកល្បង។'
-              : 'This changes the mock queue and does not delete public messages.'}
+            {reportAction.status === 'dismissed'
+              ? km
+                ? 'ការផ្លាស់ប្តូរនេះប៉ះពាល់តែបញ្ជីសាកល្បង។'
+                : 'The report closes. Nothing changes in the group.'
+              : removalExplanation(reportAction.report)}
           </p>
 
           <div className="mt-5 flex justify-end gap-3">

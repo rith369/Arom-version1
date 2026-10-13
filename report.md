@@ -7,6 +7,38 @@ A plain-language log of what changed in the app, written for the team rather tha
 
 Each entry lists the commit it landed in, so you can match it to a version of the site.
 
+## 13 Oct 2026: Removing a Reported Message, Image or Person Now Works
+
+Commit pending. No migration. Frontend only, on mock data in the browser.
+
+**Why.** In the Reports tab, "Mark for removal" only changed the report's label. The harmful message or picture stayed in the chat for every member, so an admin could believe it was gone when it was not. On a mental health platform that is a safety gap.
+
+**What changed for users:**
+- **A removed message or picture is replaced** with "This message was removed by the AROM team." (in English or Khmer). The report menu is no longer offered on it.
+- **A person removed from a group** disappears from that group's Members list. Their past messages stay.
+
+**What changed for users (admins):**
+- **The remove button now says what it does:** "Remove message", "Remove image" or "Remove from group", depending on what was reported. Group reports have no remove button; use "Shut down group".
+- **The confirm step explains the result**, for example that members will see the removed placeholder, or that the person loses access to the group.
+- **View chat marks removed messages** with a "Removed" tag and still shows the original to admins.
+- **The report status** reads "Message removed for everyone", "Image removed for everyone" or "Removed from group", and stays that way after a reload.
+- The sample reports that are not linked to a real message say so in the confirm step, and only the report closes.
+
+**What changed for the team:**
+- **`community-store.ts`** gained `removeMessage` and `removeMember`; removals live in localStorage next to closures.
+- **`ChatMessage.removed`** flags a removed message for the user page. Admin provider exposes `removedMessageIds`.
+- **`BACKEND-HANDOFF.md` section 14:** the removal endpoints and rules (members never receive removed text or image links), and the remaining gap about admin group edits.
+
+**What to re-test:**
+- As a user, report a message and an image in a group, and report a person from the Members tab;
+- As an admin, open each report, press the remove button, read the confirm text, and confirm;
+- Open View chat and confirm the message shows "Removed" but the original is visible;
+- Back on `/community`, confirm the message and image show the removed placeholder, and the person is gone from Members;
+- Reload `/admin/community` and confirm those reports still show as removed;
+- Dismiss a different report and confirm nothing changes in the chat.
+
+---
+
 ## 13 Oct 2026: Community Groups by Professionals, Admin Chat Review and Shut Down, User Reports
 
 Commit `70f03fa`. No migration. Frontend only, on mock data in the browser.

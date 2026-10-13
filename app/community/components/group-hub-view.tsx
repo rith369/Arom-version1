@@ -247,7 +247,7 @@ export function GroupHubView({
                           <span className="text-[11px] text-gray-400">
                             {displayTime}
                           </span>
-                          {!isOwn && (
+                          {!isOwn && !msg.removed && (
                             <div className="relative">
                               <button
                                 type="button"
@@ -297,14 +297,20 @@ export function GroupHubView({
                           )}
                         </div>
                       </div>
-                      {displayText && (
+                      {msg.removed && (
+                        <p className="mt-1 text-xs sm:text-sm italic text-[#9ca3af] leading-relaxed">
+                          {km ? "សារនេះត្រូវបានលុបដោយក្រុមការងារ AROM។" : "This message was removed by the AROM team."}
+                        </p>
+                      )}
+
+                      {displayText && !msg.removed && (
                         <p className="mt-1 text-xs sm:text-sm text-[#374151] leading-relaxed">
                           {displayText}
                         </p>
                       )}
 
                       {/* Attached File or Image */}
-                      {msg.attachment && (
+                      {msg.attachment && !msg.removed && (
                         <div className="mt-2.5">
                           {msg.attachment.type === "image" ? (
                             <div className="overflow-hidden rounded-xl border border-gray-200/80 max-w-[260px] shadow-xs">
