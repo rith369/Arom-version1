@@ -7,6 +7,37 @@ A plain-language log of what changed in the app, written for the team rather tha
 
 Each entry lists the commit it landed in, so you can match it to a version of the site.
 
+## 13 Oct 2026: Bookings Chart on the Admin Bookings Page
+
+Commit pending. No migration. Frontend only, on sample bookings.
+
+**Why.** Admins could only see bookings as a long list, which made it hard to tell whether today is busier than yesterday or whether bookings are growing. A day by day chart makes that clear at a glance and helps the team spot busy days and cancellations early.
+
+**What changed for users (admins):**
+- **New chart at the top of `/admin/bookings`** with one column per day.
+- **Switch between "Sessions per day"** (when sessions happen, split into completed or confirmed, pending and cancelled) **and "New bookings per day"** (when people booked).
+- **Ranges:** last 7 days, last 30 days, and next 14 days for upcoming sessions.
+- **Quick comparison above the chart:** the total for the range, how many more or fewer than the same number of days before (with a percentage), and the busiest day.
+- **Hover a day** to see its exact numbers. **Click a day** (in Sessions per day) to filter the bookings list below to that date.
+- **"View as table"** shows the same numbers day by day, with a "Show bookings" link per day.
+- **English only,** following the new admin rule.
+
+**What changed for the team:**
+- **New `bookings-chart.tsx`** (Recharts columns, 24px wide, rounded tops, 2px gaps between stacked parts). Colours were checked with the dataviz palette validator: green and amber pass the colour blind checks, cancelled uses a quiet gray on purpose, and the legend plus table view carry the values.
+- **No grow in animation:** with the custom column shape it could stall at zero height.
+- **Sample data:** `app/admin/_data/bookings.ts` now generates about 105 extra demo bookings around 13 Oct 2026, with no double bookings.
+- **`BACKEND-HANDOFF.md` section 12** suggests a counts only daily endpoint for Hok Chheng.
+
+**What to re-test:**
+- Open `/admin/bookings`; confirm the chart shows 7 columns ending with "Today" and the total, comparison and busiest day above it;
+- Hover a column and confirm the tooltip numbers match "View as table";
+- Click a column and confirm the list below jumps to that date;
+- Switch to "Last 30 days" and "Next 14 days" and confirm the columns and comparison update;
+- Switch to "New bookings per day" and confirm "Next 14 days" disappears and clicking a column does nothing;
+- Check the page on a phone width and confirm the chart fits without sideways scrolling.
+
+---
+
 ## 13 Oct 2026: Rule Added, New Admin Screens Are English Only
 
 Commit `a2c4a9c`. No migration.

@@ -5,6 +5,7 @@ import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { Calendar, Search, X } from 'lucide-react';
 
 import { useAdmin } from './admin-provider';
+import { BookingsChart } from './bookings-chart';
 import { useLanguage } from '../../_components/language-provider';
 
 import type { AdminBooking, BookingStatus } from '../_data/bookings';
@@ -443,7 +444,23 @@ export function BookingsView() {
         ))}
       </div>
 
-      <section className="mt-6 overflow-hidden rounded-3xl border border-arom-border bg-white shadow-sm">
+      <div className="mt-6">
+        <BookingsChart
+          bookings={bookings}
+          onSelectDay={(day) => {
+            setQuery('');
+            setStatus('all');
+            setDate(day);
+            document
+              .getElementById('bookings-table')
+              ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }}
+        />
+      </div>
+
+      <section
+        id="bookings-table"
+        className="mt-6 scroll-mt-6 overflow-hidden rounded-3xl border border-arom-border bg-white shadow-sm">
         <div className="flex flex-wrap gap-3 border-b border-arom-border p-5">
           <div className="relative min-w-48 flex-1">
             <Search

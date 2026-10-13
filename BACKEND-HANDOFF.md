@@ -46,9 +46,10 @@ The yellow "Demo data on this page" banner is in `admin-shell.tsx`. Remove it fo
 | Admin users: list, details, roles, suspend | Done on mock data | Waiting for backend | 5 |
 | Admin professionals: review and moderation | Done on mock data | Waiting for backend | 6 |
 | Become a professional (user applies) | Done on mock data | Waiting for backend | 8 |
-| Professional edits own profile (`/pro`) | Not built yet | Not started | 12 |
+| Professional edits own profile (`/pro`) | Not built yet | Not started | 13 |
 | Admin MindGuide: lessons, tips and practices with drafts, versions, publish and checks (`/admin/mindguide`, editor at `/admin/mindguide/<type>/<sourceId>`) | Done on mock data | Waiting for backend | 9 |
 | Report a problem (users) and admin Reports page (`/admin/reports`) | Done on mock data | Waiting for backend | 10 |
+| Admin bookings chart: sessions per day and new bookings per day (`/admin/bookings`) | Done on mock data | Waiting for backend | 12 |
 | MindGuide podcasts: user pages `/podcasts` and `/podcasts/<id>`, admin Podcasts tab | Done on mock data | Waiting for backend | 11 |
 | Other admin pages (bookings, community, journal prompts, settings, audit log) | Built by Sokheng on mock data | Not started | not written yet |
 
@@ -314,7 +315,31 @@ The user app still reads lessons, tips and practices from `app/_components/learn
 3. **Admin form fields not covered yet:** takeaways. Add them to the form when the backend exists.
 4. **Report a problem** is not on podcast pages yet; adding it needs `podcast` as a report target type.
 
-## 12. Planned next (frontend not built yet)
+## 12. Admin bookings chart
+
+**Files:** `app/admin/_components/bookings-chart.tsx`, placed at the top of Sokheng's `bookings-view.tsx`. Sample data: `app/admin/_data/bookings.ts` now generates about 105 deterministic demo bookings around 13 Oct 2026 (no double bookings) on top of the original four.
+
+**What it shows:** columns per day, with a switch between:
+- **Sessions per day** by session date (`startsAt`), stacked as completed or confirmed, pending, cancelled. Ranges: last 7 days, last 30 days, next 14 days.
+- **New bookings per day** by the day the booking was made (`createdAt`). Ranges: last 7 and last 30 days.
+
+It also shows the total for the range, the difference from the same number of days before, and the busiest day. Days use Cambodia time (`Asia/Phnom_Penh`). Clicking a day in "Sessions per day" filters the bookings table below to that date.
+
+### Backend needs
+
+The chart only needs counts, never names. Suggested endpoint, admin only:
+
+`GET /api/admin/bookings/daily?from=YYYY-MM-DD&to=YYYY-MM-DD` returning
+
+```json
+{ "days": [{ "date": "2026-10-13", "going": 3, "pending": 0, "cancelled": 1, "created": 4 }] }
+```
+
+- `going` counts `appointments.status` in (`booked`, `completed`); `pending` maps to the frontend "pending" state if the backend adds one, otherwise 0; `cancelled` counts `cancelled` and `no_show`. Tell Rith if the mapping should differ.
+- Group by the Cambodia calendar day of `starts_at` for sessions and of `created_at` for `created`.
+- Return every day in the range, including zero days, so the comparison with the previous period is easy (the frontend asks for both ranges).
+
+## 13. Planned next (frontend not built yet)
 
 - **Professional profile editor under `/pro`.** Uses the pending changes rule in section 6.
 - **Make professional (Way 2):** phone is optional there because the admin already knows the person. Add an optional phone field to `ProfessionalPromotion` when the backend supports it.
