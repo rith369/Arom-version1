@@ -241,7 +241,7 @@ Validation lives in `createApplicationSchema()` in `_data/application.ts`. Repea
 
 **Files:** `app/admin/_data/content.ts` (types, seed, helpers), `_data/content-checks.ts` (publish rules), `_data/content-diff.ts` (change summary), `_components/content-editor.tsx` (editor page), `content-view.tsx` (list), field panels `content-meta-fields.tsx`, `lesson-editor.tsx` (`LessonFields`), `tip-editor.tsx` (`TipFields`), `practice-editor.tsx` (`PracticeFields`). Actions live in `admin-provider.tsx`.
 
-**Decided:** content is written and designed by the team with Claude and lives in fixed user screens. Admins only correct text in plain fields. No HTML, no styling, no AI button in the app. A new kind of block (new layout) is developer work in both the user screen and the editor.
+**Decided:** content is written and designed by the team with Claude and lives in fixed user screens. Admins only correct text in plain fields. No HTML, no styling, no AI button in the app. There is no Add button for lessons, tips or practices: new items are written by the team with AI and inserted as drafts (for example by a seed script or migration), then admins check, fix and publish them. Podcasts are different: admins create them fully, so Podcasts keeps its Add button. A new kind of block (new layout) is developer work in both the user screen and the editor.
 
 ### Data shape
 
@@ -266,7 +266,6 @@ Status shown in the list comes from `getPublishState()`: `live`, `liveDraft` (li
 
 | Frontend action | Meaning | Hint codes |
 |---|---|---|
-| `createContent(type)` | New item with an empty draft, then open the editor | none |
 | `saveContentDraft(id, body, expectedUpdatedAt)` | Save the draft. Light check only (unique ids), so half finished work can be saved | `stale`, `shape` |
 | `publishContent(id, expectedUpdatedAt)` | Run the full check in the database, write version N+1 from the saved draft, delete the draft, set it live | `stale`, `shape` |
 | `discardContentDraft(id)` | Delete the draft. Live version stays | none |

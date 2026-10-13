@@ -24,11 +24,9 @@ import {
 } from '../_data/users';
 
 import {
-  emptyBody,
   initialContentRecords,
   type ContentBody,
   type ContentRecord,
-  type ContentType,
 } from '../_data/content';
 import {
   initialPodcasts,
@@ -114,7 +112,6 @@ type AdminState = {
 
   contentRecords: ContentRecord[];
   currentAdminName: string;
-  createContent: (type: ContentType) => ContentRecord;
   saveContentDraft: (
     id: string,
     body: ContentBody,
@@ -347,27 +344,6 @@ export function AdminProvider({ children }: { children: ReactNode }) {
     setContentRecords((current) =>
       current.map((item) => (item.id === id ? update(item) : item)),
     );
-  }
-
-  function createContent(type: ContentType) {
-    const sourceId = crypto.randomUUID();
-    const record: ContentRecord = {
-      id: `${type}:${sourceId}`,
-      sourceId,
-      type,
-      liveVersion: null,
-      versions: [],
-      draft: {
-        body: emptyBody(type, sourceId),
-        baseVersion: null,
-        updatedAt: new Date().toISOString(),
-        updatedBy: currentAdminName,
-      },
-    };
-
-    setContentRecords((current) => [...current, record]);
-
-    return record;
   }
 
   function saveContentDraft(
@@ -757,7 +733,6 @@ export function AdminProvider({ children }: { children: ReactNode }) {
         setUserRole,
         contentRecords,
         currentAdminName,
-        createContent,
         saveContentDraft,
         publishContent,
         discardContentDraft,

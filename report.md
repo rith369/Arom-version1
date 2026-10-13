@@ -7,6 +7,27 @@ A plain-language log of what changed in the app, written for the team rather tha
 
 Each entry lists the commit it landed in, so you can match it to a version of the site.
 
+## 13 Oct 2026: No Add Button for Lessons, Tips and Practices in Admin MindGuide
+
+Commit pending. No migration.
+
+**Why.** Lessons, tips and practices are written by the team with AI; admins only check, correct and publish them. The admin page had Add lesson, Add tip and Add practice buttons that let an admin start an empty item by hand, which goes against that rule.
+
+**What changed for admins:**
+- **The Add lesson, Add tip and Add practice buttons are gone.** A line explains that new items arrive as drafts to check, fix and publish.
+- **Editing, drafts, publishing and history are unchanged.**
+- **Podcasts keep Add podcast,** because admins create podcasts fully.
+
+**What changed for the team:**
+- **`createContent` was removed** from `admin-provider.tsx`, and `BACKEND-HANDOFF.md` section 9 now says new items are inserted as drafts by the team (for example with a seed script or migration), not created in the app.
+
+**What to re-test:**
+- Open Admin, MindGuide, and check the Lessons, Tips and Practices tabs have no Add button and the new line shows;
+- Edit an item, save a draft and publish, as before;
+- Open the Podcasts tab and confirm Add podcast is still there.
+
+---
+
 ## 13 Oct 2026: Professional Home Becomes a Dashboard Once the Profile Is Live
 
 Commit `67318f3`. No migration yet. Frontend only, on mock data.

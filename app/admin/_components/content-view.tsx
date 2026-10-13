@@ -1,9 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { BookOpen, Pencil, Plus, Search } from 'lucide-react';
+import { BookOpen, Pencil, Search } from 'lucide-react';
 
 import { useAdmin } from './admin-provider';
 import { PublishStateChip, usePublishStateLabels } from './content-status';
@@ -20,8 +19,7 @@ type StatusFilter = PublishState | 'all';
 
 // One content type at a time. The MindGuide page owns the header and tabs.
 export function ContentView({ activeType }: { activeType: ContentType }) {
-  const router = useRouter();
-  const { contentRecords, createContent } = useAdmin();
+  const { contentRecords } = useAdmin();
   const { language } = useLanguage();
   const km = language === 'km';
   const t = (kmText: string, enText: string) => (km ? kmText : enText);
@@ -34,12 +32,6 @@ export function ContentView({ activeType }: { activeType: ContentType }) {
     lesson: t('មេរៀន', 'Lessons'),
     tip: t('គន្លឹះ', 'Tips'),
     practice: t('ការអនុវត្ត', 'Practices'),
-  };
-
-  const addLabels: Record<ContentType, string> = {
-    lesson: t('បន្ថែមមេរៀន', 'Add lesson'),
-    tip: t('បន្ថែមគន្លឹះ', 'Add tip'),
-    practice: t('បន្ថែមការអនុវត្ត', 'Add practice'),
   };
 
   const dateFormatter = new Intl.DateTimeFormat(km ? 'km-KH' : 'en-GB', {
@@ -73,11 +65,6 @@ export function ContentView({ activeType }: { activeType: ContentType }) {
 
   const totalOfType = contentRecords.filter((record) => record.type === activeType).length;
 
-  function addContent() {
-    const record = createContent(activeType);
-    router.push(`/admin/mindguide/${record.type}/${record.sourceId}`);
-  }
-
   function clearFilters() {
     setQuery('');
     setStatusFilter('all');
@@ -85,20 +72,16 @@ export function ContentView({ activeType }: { activeType: ContentType }) {
 
   return (
     <>
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="space-y-1">
         <p className="text-sm text-ink-muted">
           {t(
             'ការកែប្រែត្រូវបានរក្សាទុកជាសេចក្តីព្រាង ហើយអ្នកប្រើឃើញតែបន្ទាប់ពីផ្សព្វផ្សាយ។',
             'Edits are saved as drafts. Users only see them after you publish.',
           )}
         </p>
-        <button
-          type="button"
-          onClick={addContent}
-          className="flex items-center gap-2 rounded-full bg-arom px-5 py-3 text-sm font-medium text-white hover:bg-arom-deep">
-          <Plus size={18} aria-hidden="true" />
-          {addLabels[activeType]}
-        </button>
+        <p className="text-sm text-ink-muted">
+          New items are written by the team with AI and arrive here as drafts to check, fix and publish.
+        </p>
       </div>
 
       <section className="mt-4 overflow-hidden rounded-3xl border border-arom-border bg-white shadow-sm">
