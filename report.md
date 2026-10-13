@@ -9,7 +9,7 @@ Each entry lists the commit it landed in, so you can match it to a version of th
 
 ## 13 Oct 2026: Crisis Helplines in Admin Settings and "Get Help Now" for Users
 
-Commit pending. No migration (uses the existing `crisis_resources` table later).
+Commit `0ac7f04`. No migration (uses the existing `crisis_resources` table later).
 
 **Why.** We decided content screens would not carry a crisis card because users can find helplines in Settings, but no helplines existed anywhere in the app, and admins had no page to add them even though the admin dashboard flags "No crisis hotlines added yet" as urgent. On a mental health app, help must always be easy to find. The admin Settings page also held a support contact users never saw, plus two settings that no longer made sense.
 
