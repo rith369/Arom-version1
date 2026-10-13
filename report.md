@@ -9,7 +9,7 @@ Each entry lists the commit it landed in, so you can match it to a version of th
 
 ## 13 Oct 2026: Rule Added, New Admin Screens Are English Only
 
-Commit pending. No migration.
+Commit `a2c4a9c`. No migration.
 
 **Why.** The admin area is used only by the AROM team, and everyone on the team reads English. Translating every admin label into Khmer takes time and adds code without helping anyone. User facing pages are not affected.
 
