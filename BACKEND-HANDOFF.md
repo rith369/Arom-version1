@@ -46,9 +46,10 @@ The yellow "Demo data on this page" banner is in `admin-shell.tsx`. Remove it fo
 | Admin users: list, details, roles, suspend | Done on mock data | Waiting for backend | 5 |
 | Admin professionals: review and moderation | Done on mock data | Waiting for backend | 6 |
 | Become a professional (user applies) | Done on mock data | Waiting for backend | 8 |
-| Professional edits own profile (`/pro`) | Not built yet | Not started | 15 |
+| Professional edits own profile (`/pro`) | Not built yet | Not started | 16 |
 | Admin MindGuide: lessons, tips and practices with drafts, versions, publish and checks (`/admin/mindguide`, editor at `/admin/mindguide/<type>/<sourceId>`) | Done on mock data | Waiting for backend | 9 |
 | Report a problem (users) and admin Reports page (`/admin/reports`) | Done on mock data | Waiting for backend | 10 |
+| Announcements: admin Settings section, banner at the top of every user page | Done on mock data | Waiting for backend | 15 |
 | Crash tracking: error screens catch crashes, admin Overview card "Most frequent crashes, last 7 days" | Done on mock data | Waiting for backend | 14 |
 | Crisis helplines and support contact: admin Settings, user "Get help now" in Profile and Settings | Done on mock data | Waiting for backend | 13 |
 | Admin bookings chart: sessions per day and new bookings per day (`/admin/bookings`) | Done on mock data | Waiting for backend | 12 |
@@ -411,7 +412,34 @@ The user page reads the empty lists in `support-contacts.ts`, so admin edits do 
 4. **Optional, "send the top ones to the developer":** a daily job that emails or Telegrams the top 5 groups to the developer. Today the admin card has a Copy for developer button that builds the same text by hand.
 5. Then replace the body of `reportCrash()` with the send, and change the error screen text to say the team has been told (it does not say so yet, because nothing is sent).
 
-## 15. Planned next (frontend not built yet)
+## 15. Announcements
+
+**Files:** shared `app/_components/announcements.ts` (type, empty list, rules), user banner `app/_components/announcement-banner.tsx` (in `app/layout.tsx`, hidden on `/admin` and `/content-preview`), admin `app/admin/_components/announcements-section.tsx` (top of Settings), provider `announcements`, `publishAnnouncement`, `endAnnouncement`.
+
+### Data shape (`Announcement`)
+
+| Field | Notes |
+|---|---|
+| `id` | uuid |
+| `kmText` | required, up to 300 characters |
+| `enText` | optional, up to 300; English readers see `kmText` when empty |
+| `tone` | `'info' \| 'good' \| 'important'` |
+| `link` | optional path inside AROM, must match `^/(?!/)[A-Za-z0-9-._~/]*$` (no outside websites) |
+| `createdAt`, `createdBy` | admin name |
+| `endsAt` | ISO time, or null for "until an admin ends it" |
+| `endedAt` | set by "End now" |
+
+### Rules
+
+- **Only one shows:** the newest one that has not ended (`endedAt` null and `endsAt` null or in the future).
+- **Everyone can read the current one,** signed out visitors included. Only admins publish or end. Log both in `admin_audit_log`.
+- **Users can close the banner** for that announcement; the closed id is kept in the browser only (`arom-dismissed-announcement`), nothing is sent.
+
+### Backend needs
+
+`GET /api/announcements/current` (public, returns one or none) and admin only `GET /api/admin/announcements`, `POST /api/admin/announcements`, `POST /api/admin/announcements/:id/end`. Until then the user banner reads the empty list and admin edits are mock.
+
+## 16. Planned next (frontend not built yet)
 
 - **Professional profile editor under `/pro`.** Uses the pending changes rule in section 6.
 - **Make professional (Way 2):** phone is optional there because the admin already knows the person. Add an optional phone field to `ProfessionalPromotion` when the backend supports it.

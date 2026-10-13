@@ -6,6 +6,7 @@ import { AuthProvider } from "./_components/auth-provider";
 import { DetectionProvider } from "./_components/detection-provider";
 import { SidebarProvider } from "./_components/sidebar-provider";
 import { MobileSidebarDrawer } from "./_components/mobile-sidebar-drawer";
+import { AnnouncementBanner } from "./_components/announcement-banner";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -43,6 +44,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <AuthProvider>
             <DetectionProvider>
               <SidebarProvider>
+                <AnnouncementBanner />
                 {children}
                 <MobileSidebarDrawer />
               </SidebarProvider>

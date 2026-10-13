@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 
 import { useAdmin } from './admin-provider';
+import { AnnouncementsSection } from './announcements-section';
 import { useLanguage } from '../../_components/language-provider';
 
 import type { AdminSettings } from '../_data/settings';
@@ -399,10 +400,12 @@ export function SettingsView() {
       <p className="text-sm font-medium text-arom">Platform preferences</p>
       <h1 className="mt-2 text-3xl font-semibold">Settings</h1>
       <p className="mt-3 text-sm text-ink-muted">
-        Manage crisis helplines and how users contact AROM support.
+        Manage announcements, crisis helplines and how users contact AROM support.
       </p>
 
       <div className="mt-8 space-y-6">
+        <AnnouncementsSection />
+
         <CrisisHelplinesSection />
 
         <form onSubmit={submit} noValidate className="rounded-3xl border border-arom-border bg-white p-6">

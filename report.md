@@ -7,6 +7,39 @@ A plain-language log of what changed in the app, written for the team rather tha
 
 Each entry lists the commit it landed in, so you can match it to a version of the site.
 
+## 13 Oct 2026: Announcements From Admin Settings, Shown at the Top of Every Page
+
+Commit pending. No migration yet. Frontend only, on mock data.
+
+**Why.** The team had no way to tell everyone something at once, for example a planned pause, a new lesson or an important change. Admins can now post a short message that every user sees until it ends.
+
+**What changed for users:**
+- **A slim banner at the top of every page,** guests included, in one of three calm colours: Information, Good news or Important.
+- **Khmer and English.** English readers see the English text, or the Khmer when no English was written.
+- **An optional "Open" button** that goes to a page inside AROM.
+- **A close button.** Closing hides that announcement on this device; a new announcement shows again.
+
+**What changed for admins:**
+- **New "Announcements" section at the top of Admin, Settings:** Khmer text (required, 300 characters with a counter), English text (optional), colour, optional link inside the app, and when it ends (1 day, 7 days, 30 days, or when you end it).
+- **Live preview** of the banner in Khmer and English before publishing.
+- **"All announcements"** lists each one with Showing, "Not showing, a newer one is" or Ended, who published it and when it ends, and an **End now** button.
+- **One shows at a time:** the newest that is still running. New admin text is English only.
+
+**What changed for the team:**
+- **New `app/_components/announcements.ts`** and `announcement-banner.tsx`, added once in `app/layout.tsx` and hidden on `/admin` and the admin preview frame.
+- **Admin:** `announcements-section.tsx` and provider `announcements`, `publishAnnouncement`, `endAnnouncement`.
+- **`BACKEND-HANDOFF.md` section 15** lists the data shape, rules and endpoints.
+- **Mock today:** what admins publish resets on refresh and does not reach users until the backend is connected.
+
+**What to re-test:**
+- In Admin, Settings, type Khmer text and confirm the counter and the Khmer and English previews update;
+- Try a link like `https://google.com` or `mindguide` without the slash and confirm it is refused;
+- Publish one, then publish another, and confirm the older one says "Not showing, a newer one is";
+- Press End now and confirm it shows Ended;
+- Confirm Publish stays disabled while the Khmer text is empty.
+
+---
+
 ## 13 Oct 2026: Crashes Card Keeps Only "Copy for Developer"
 
 Commit `b11dd9a`. No migration.

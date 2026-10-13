@@ -72,6 +72,10 @@ import {
   type AdminSettings,
 } from '../_data/settings';
 import type { CrisisHelpline } from '../../_components/support-contacts';
+import {
+  ANNOUNCEMENTS,
+  type Announcement,
+} from '../../_components/announcements';
 
 import {
   initialReports,
@@ -158,6 +162,12 @@ type AdminState = {
 
   crisisHelplines: CrisisHelpline[];
   saveCrisisHelplines: (list: CrisisHelpline[]) => void;
+
+  announcements: Announcement[];
+  publishAnnouncement: (
+    draft: Pick<Announcement, 'kmText' | 'enText' | 'tone' | 'link' | 'endsAt'>,
+  ) => void;
+  endAnnouncement: (id: string) => void;
 
 };
 
@@ -693,6 +703,32 @@ export function AdminProvider({ children }: { children: ReactNode }) {
     initialCrisisHelplines,
   );
 
+  const [announcements, setAnnouncements] = useState<Announcement[]>(() =>
+    ANNOUNCEMENTS.map((item) => ({ ...item })),
+  );
+
+  function publishAnnouncement(
+    draft: Pick<Announcement, 'kmText' | 'enText' | 'tone' | 'link' | 'endsAt'>,
+  ) {
+    setAnnouncements((current) => [
+      {
+        ...draft,
+        id: crypto.randomUUID(),
+        createdAt: new Date().toISOString(),
+        createdBy: currentAdminName,
+        endedAt: null,
+      },
+      ...current,
+    ]);
+  }
+
+  function endAnnouncement(id: string) {
+    const endedAt = new Date().toISOString();
+    setAnnouncements((current) =>
+      current.map((item) => (item.id === id && !item.endedAt ? { ...item, endedAt } : item)),
+    );
+  }
+
   // Keeps the order numbers in step with the list order.
   function saveCrisisHelplines(list: CrisisHelpline[]) {
     setCrisisHelplines(list.map((item, index) => ({ ...item, sortOrder: index })));
@@ -746,6 +782,9 @@ export function AdminProvider({ children }: { children: ReactNode }) {
         saveSettings,
         crisisHelplines,
         saveCrisisHelplines,
+        announcements,
+        publishAnnouncement,
+        endAnnouncement,
       }}>
       {children}
     </AdminContext.Provider>
