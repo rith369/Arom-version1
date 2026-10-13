@@ -9,7 +9,7 @@ Each entry lists the commit it landed in, so you can match it to a version of th
 
 ## 13 Oct 2026: Browse MindGuide When Giving a Care Task
 
-Commit pending. No migration. Frontend only.
+Commit `eacfa97`. No migration. Frontend only.
 
 **Why.** The Give a care task window listed MindGuide items in a short plain list. That works for three items, but MindGuide will grow to many lessons, practices and tips, and professionals need to read an item before giving it.
 
