@@ -9,7 +9,7 @@ Each entry lists the commit it landed in, so you can match it to a version of th
 
 ## 13 Oct 2026: Dashboard Hotline Warning Links to Settings
 
-Commit pending. No migration.
+Commit `8c58ac2`. No migration.
 
 **Why.** The Overview warns "No crisis hotlines added yet", and helplines are added in Admin, Settings, but there was no way to get from one to the other. The warning and the Settings section do different jobs (a reminder and the place to fix it), so both stay and are now connected.
 
