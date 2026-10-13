@@ -9,7 +9,7 @@ Each entry lists the commit it landed in, so you can match it to a version of th
 
 ## 13 Oct 2026: Crashes Card Keeps Only "Copy for Developer"
 
-Commit pending. No migration.
+Commit `b11dd9a`. No migration.
 
 **Why.** The team shares bugs on Telegram, so the "Email developer" button on the crashes card was not needed. One button keeps the card simpler.
 
