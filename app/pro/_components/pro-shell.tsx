@@ -34,7 +34,7 @@ const LINKS: NavLink[] = [
   { href: '/pro/bookings', en: 'My bookings', km: 'ការកក់របស់ខ្ញុំ', icon: CalendarCheck },
   { href: '/pro/clients', en: 'My clients', km: 'អតិថិជនរបស់ខ្ញុំ', icon: UsersRound },
   { href: '/pro/messages', en: 'Messages', km: 'សារ', icon: MessageCircle },
-  { href: '/pro/podcasts', en: 'My podcasts', km: 'ផតខាសរបស់ខ្ញុំ', icon: Headphones, soon: true },
+  { href: '/pro/podcasts', en: 'My podcasts', km: 'ផតខាសរបស់ខ្ញុំ', icon: Headphones },
 ];
 
 export function ProShell({ children }: { children: ReactNode }) {

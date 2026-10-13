@@ -28,20 +28,27 @@ function formatSeconds(totalSecs: number): string {
   return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
 }
 
-export function TherapistPodcastPlayer({ therapist }: { therapist: Therapist }) {
-  const podcast = therapist.podcast;
+type PlayerPodcast = NonNullable<Therapist["podcast"]> & { audioUrl?: string };
+
+export function TherapistPodcastPlayer({ therapist }: { therapist: Therapist & { podcast?: PlayerPodcast } }) {
+  if (!therapist.podcast) return null;
+  return <PodcastConsole therapist={therapist} podcast={therapist.podcast} />;
+}
+
+// Split from the wrapper so every hook runs on every render.
+function PodcastConsole({ therapist, podcast }: { therapist: Therapist; podcast: PlayerPodcast }) {
+  // Uploaded episodes play their real audio file; sample episodes keep the demo tone.
+  const audioUrl = podcast.audioUrl ?? "";
+  const realAudioRef = useRef<HTMLAudioElement>(null);
   const { language } = useLanguage();
   const shouldReduceMotion = useReducedMotion();
   const sliderId = useId();
-
-  if (!podcast) return null;
 
   const totalDuration = podcast.durationSeconds;
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [playbackSpeed, setPlaybackSpeed] = useState<1 | 1.25 | 1.5 | 2>(1);
   const [isMuted, setIsMuted] = useState(false);
-  const [activeChapterIndex, setActiveChapterIndex] = useState(0);
 
   // Audio Context Ref for synthesized calming ambient tone
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -122,8 +129,19 @@ export function TherapistPodcastPlayer({ therapist }: { therapist: Therapist }) 
     }
   };
 
+  // Real audio: the element drives the time; the demo ticker below is skipped.
+  useEffect(() => {
+    const audio = realAudioRef.current;
+    if (!audioUrl || !audio) return;
+    audio.playbackRate = playbackSpeed;
+    audio.muted = isMuted;
+    if (isPlaying) void audio.play().catch(() => setIsPlaying(false));
+    else audio.pause();
+  }, [audioUrl, isPlaying, playbackSpeed, isMuted]);
+
   // Playback timer ticker
   useEffect(() => {
+    if (audioUrl) return;
     if (!isPlaying) {
       stopSynthAudio();
       return;
@@ -146,33 +164,25 @@ export function TherapistPodcastPlayer({ therapist }: { therapist: Therapist }) 
       clearInterval(interval);
       stopSynthAudio();
     };
-  }, [isPlaying, playbackSpeed, totalDuration, isMuted]);
+  }, [audioUrl, isPlaying, playbackSpeed, totalDuration, isMuted]);
 
-  // Update active chapter based on currentTime
-  useEffect(() => {
-    const chapters = podcast.chapters;
-    let found = 0;
-    for (let i = 0; i < chapters.length; i++) {
-      if (currentTime >= chapters[i].seconds) {
-        found = i;
-      }
-    }
-    setActiveChapterIndex(found);
-  }, [currentTime, podcast.chapters]);
+  // The chapter playing now: the last one that started before currentTime.
+  const activeChapterIndex = podcast.chapters.reduce((found, chapter, index) => (currentTime >= chapter.seconds ? index : found), 0);
 
   const togglePlay = () => {
     setIsPlaying((prev) => !prev);
   };
 
   const seekRelative = (deltaSeconds: number) => {
-    setCurrentTime((prev) => {
-      const next = Math.max(0, Math.min(totalDuration, prev + deltaSeconds));
-      return next;
-    });
+    const next = Math.max(0, Math.min(totalDuration, currentTime + deltaSeconds));
+    if (audioUrl && realAudioRef.current) realAudioRef.current.currentTime = next;
+    setCurrentTime(next);
   };
 
   const seekTo = (seconds: number) => {
-    setCurrentTime(Math.max(0, Math.min(totalDuration, seconds)));
+    const next = Math.max(0, Math.min(totalDuration, seconds));
+    if (audioUrl && realAudioRef.current) realAudioRef.current.currentTime = next;
+    setCurrentTime(next);
   };
 
   const cycleSpeed = () => {
@@ -183,6 +193,10 @@ export function TherapistPodcastPlayer({ therapist }: { therapist: Therapist }) 
   };
 
   const toggleMute = () => {
+    if (audioUrl) {
+      setIsMuted(!isMuted);
+      return;
+    }
     if (isMuted) {
       setIsMuted(false);
       if (isPlaying) {
@@ -222,6 +236,18 @@ export function TherapistPodcastPlayer({ therapist }: { therapist: Therapist }) 
       aria-labelledby="podcast-heading"
       className="mt-12 rounded-3xl border border-arom-border bg-gradient-to-b from-white via-arom-wash/50 to-arom-soft/30 p-5 shadow-card sm:p-7 lg:mt-16 lg:p-9"
     >
+      {audioUrl && (
+        <audio
+          ref={realAudioRef}
+          src={audioUrl}
+          preload="metadata"
+          onTimeUpdate={(event) => setCurrentTime(event.currentTarget.currentTime)}
+          onEnded={() => {
+            setIsPlaying(false);
+            setCurrentTime(0);
+          }}
+        />
+      )}
       {/* Header Tag & Section Title */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">

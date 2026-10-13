@@ -5,6 +5,7 @@ import { getTherapist, therapists } from "@/lib/therapists";
 
 type PodcastPageProps = {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ episode?: string | string[] }>;
 };
 
 export const dynamicParams = false;
@@ -17,19 +18,21 @@ export async function generateMetadata({ params }: PodcastPageProps): Promise<Me
   const { slug } = await params;
   const therapist = getTherapist(slug);
 
-  if (!therapist || !therapist.podcast) return {};
+  if (!therapist) return {};
 
+  // Episodes are managed by the professional, so the title stays general here.
   return {
-    title: `${therapist.podcast.title} · ${therapist.name}`,
-    description: therapist.podcast.description,
+    title: `Podcast · ${therapist.name}`,
+    description: `Listen to ${therapist.name} before you book.`,
   };
 }
 
-export default async function ProfessionalPodcastPage({ params }: PodcastPageProps) {
+export default async function ProfessionalPodcastPage({ params, searchParams }: PodcastPageProps) {
   const { slug } = await params;
+  const { episode } = await searchParams;
   const therapist = getTherapist(slug);
 
-  if (!therapist || !therapist.podcast) notFound();
+  if (!therapist) notFound();
 
-  return <TherapistPodcastPageView therapist={therapist} />;
+  return <TherapistPodcastPageView therapist={therapist} episodeId={typeof episode === "string" ? episode : undefined} />;
 }

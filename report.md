@@ -7,6 +7,39 @@ A plain-language log of what changed in the app, written for the team rather tha
 
 Each entry lists the commit it landed in, so you can match it to a version of the site.
 
+## 13 Oct 2026: My Podcasts, Professionals Publish Their Own Episodes
+
+Commit pending. No migration yet. Frontend only, on mock data.
+
+**Why.** Hearing a professional's voice helps people feel safe enough to book, especially for a first session. Each sample professional had one fixed episode in code; now professionals record and manage their own episodes, and they appear on their public profile.
+
+**What changed for professionals:**
+- **"My podcasts" is open** in the professional area (it said Soon before): a list of episodes with Draft, On your profile or Hidden, plus Edit, View as a user, Hide from profile, Show again and Delete.
+- **New episode editor:** upload an audio file (MP3, M4A or WAV, up to 100 MB and 60 minutes) and listen back, title, short summary, topic, description and quote in English and Khmer, up to 4 key points and up to 10 chapters.
+- **"Before it goes live" checklist:** no client stories or identifying details, for learning only, and I own this recording. Publishing needs all three.
+- **Episode numbers continue on their own** (for example Episode 13 after Episode 12).
+- **Khmer and English.**
+
+**What changed for users:**
+- **The profile shows the newest episode** with up to 5 more under it, and the podcast page opens the chosen one.
+- **Uploaded episodes play their real audio** in the same player (sample episodes keep the calm demo tone).
+- **A professional with no episodes** shows a friendly "No podcast episodes" page instead of an error.
+
+**What changed for the team:**
+- **New shared store** `app/_components/podcasts/pro-podcast-store.ts`, seeded from the sample episodes in `lib/therapists.ts`.
+- **Podcast player cleanup:** the player no longer calls hooks after an early return (13 lint errors fixed), and the current chapter is calculated instead of copied in an effect.
+- **`BACKEND-HANDOFF.md` section 20** lists the table, storage, limits and rules; decision recorded in section 7. Admin hiding of an episode is still to build.
+
+**What to re-test:**
+- As admin, open Professional area, My podcasts; create a New episode with a real MP3, play it back, add a key point and a chapter;
+- Try Publish without ticking the checklist and confirm the message; tick all three and publish;
+- Click View as a user and confirm the new episode plays real audio, chapters jump, and the profile shows it first with Episode 12 below;
+- Hide it and confirm the profile goes back to Episode 12; Show again; Delete a draft;
+- Switch to Newly approved and confirm the empty state; open a podcast page for a professional with none;
+- Switch to Khmer.
+
+---
+
 ## 13 Oct 2026: Prepare Before a Session, and a Week Calendar for Bookings
 
 Commit `e85a17d`. No migration yet. Frontend only, on mock data.

@@ -12,17 +12,35 @@ import {
 } from "@/lib/therapists";
 import { DesktopNavigation, MobileNavigation } from "./app-navigation";
 import { useLanguage } from "./language-provider";
+import { publishedEpisodes, useProPodcasts } from "./podcasts/pro-podcast-store";
 import { TherapistPodcastPlayer } from "./therapist-podcast-player";
 
-export function TherapistPodcastPageView({ therapist }: { therapist: Therapist }) {
+export function TherapistPodcastPageView({ therapist, episodeId }: { therapist: Therapist; episodeId?: string }) {
   const { language } = useLanguage();
   const km = language === "km";
   const name = getTherapistName(therapist, km);
   const role = getTherapistRole(therapist, km);
   const shouldReduceMotion = useReducedMotion();
-  const podcast = therapist.podcast;
+  const episodes = publishedEpisodes(useProPodcasts().episodes, therapist.slug);
+  const podcast = episodes.find((item) => item.id === episodeId) ?? episodes[0];
 
-  if (!podcast) return null;
+  if (!podcast) {
+    return (
+      <div className="min-h-screen bg-canvas lg:grid lg:grid-cols-[19rem_minmax(0,1fr)]">
+        <DesktopNavigation active="Professional" />
+        <main className="min-w-0 px-4 pb-28 pt-5 sm:px-8 lg:px-10 lg:py-8">
+          <div className="mx-auto mt-10 max-w-md rounded-3xl border border-arom-border bg-white p-8 text-center">
+            <Headphones size={28} aria-hidden="true" className="mx-auto text-ink-muted" />
+            <p className="mt-3 font-medium text-ink">{km ? "មិនមានភាគផតខាសទេ" : "No podcast episodes"}</p>
+            <Link href={`/professional/${therapist.slug}`} className="mt-4 inline-block text-sm font-semibold text-arom underline">
+              {km ? `ត្រឡប់ទៅ ${name}` : `Back to ${therapist.name}'s profile`}
+            </Link>
+          </div>
+        </main>
+        <MobileNavigation active="Professional" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-canvas lg:grid lg:grid-cols-[19rem_minmax(0,1fr)]">
@@ -108,7 +126,7 @@ export function TherapistPodcastPageView({ therapist }: { therapist: Therapist }
           </motion.div>
 
           {/* Full Interactive Podcast Player Console & Content */}
-          <TherapistPodcastPlayer therapist={therapist} />
+          <TherapistPodcastPlayer key={podcast.id} therapist={{ ...therapist, podcast }} />
         </div>
       </main>
 

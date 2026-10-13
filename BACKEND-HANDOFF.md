@@ -54,7 +54,7 @@ The yellow "Demo data on this page" banner is in `admin-shell.tsx`. Remove it fo
 | Care plan: professional gives tasks, client sees them in Your Plan For Today (`/pro/clients/<id>`, `/care-plan`, home) | Done on mock data | Waiting for backend | 18 |
 | Sessions: meeting links and Join, after session steps, suggest next session, repeating series, quick replies | Done on mock data | Waiting for backend | 19 |
 | Prepare view (`/pro/bookings/<id>`) and week calendar in My bookings | Done on mock data | Waiting for backend | 16 |
-| Professional podcasts (`/pro`) | Not built yet | Not started | 19 |
+| Professional podcasts: `/pro/podcasts`, episodes on the public profile and podcast page | Done on mock data | Waiting for backend | 20 |
 | Admin MindGuide: lessons, tips and practices with drafts, versions, publish and checks (`/admin/mindguide`, editor at `/admin/mindguide/<type>/<sourceId>`) | Done on mock data | Waiting for backend | 9 |
 | Report a problem (users) and admin Reports page (`/admin/reports`) | Done on mock data | Waiting for backend | 10 |
 | Announcements: admin Settings section, banner at the top of every user page | Done on mock data | Waiting for backend | 15 |
@@ -189,6 +189,7 @@ Do not change these without asking Rith.
 - **A professional appears to users only when their profile is complete:** photo, English bio (80+ characters), Khmer bio, at least one specialty, language and session type, a price choice (Free counts), and at least one open time. Today approval sets `verified` immediately; add the completeness check to the directory query.
 - **Session notes are private to the professional who wrote them.** Not admins, not other professionals.
 - **No payments yet, but prices are shown.** Each professional chooses Free, one price ("$20 a session") or a range ("$30 to $50 a session"). Users see it on the list, the profile and the booking review, with a "No payment during testing" note while the admin switch "No payments during testing" (Settings) is on. Nobody is charged.
+- **Professionals publish their own episodes without admin review,** after confirming three points: no client stories or identifying details, for learning only (not a diagnosis or treatment for any one person), and they own the recording with permission from anyone else in it. The AROM team can hide an episode that breaks these rules.
 - **Two kinds of podcasts.** MindGuide podcasts are made by admins and shown in MindGuide. Professional podcasts are published by professionals themselves on their own profile so users can listen before booking. They are separate lists.
 
 ## 8. Become a professional (user applies)
@@ -632,9 +633,39 @@ The bot needs, for each active task with a `reminderTime`: client id (to find th
 
 **Mock today:** bookings and suggestions live in memory only and reset on refresh. Admin Bookings still reads its own sample list, so follow ups booked from suggestions do not appear in the admin chart.
 
-## 20. Planned next (frontend not built yet)
+## 20. Professional podcasts (`/pro/podcasts`)
 
-- **`/pro` next steps:** My podcasts (their own episodes on their profile).
+**Files:** `app/_components/podcasts/pro-podcast-store.ts` (type, rules, in memory mock store seeded from the sample episodes in `lib/therapists.ts`), `app/pro/_components/podcasts-view.tsx` (list and editor), route `app/pro/podcasts/page.tsx`. User side: `therapist-detail.tsx` shows the newest published episode plus up to 5 more; `therapist-podcast-page-view.tsx` and `app/professional/[slug]/podcast/page.tsx` accept `?episode=<id>` (no 404 when a professional has none); `therapist-podcast-player.tsx` plays the real file when an episode has `audioUrl` and keeps the demo tone for the samples.
+
+### Data shape
+
+`ProEpisode` is `TherapistPodcast` (`lib/therapists.ts`) plus:
+
+| Field | Notes |
+|---|---|
+| `professionalId` | owner |
+| `status` | `draft`, `published`, `hidden` |
+| `audioUrl`, `audioName` | file in storage; MP3, M4A, AAC, WAV, OGG or WebM, up to 100 MB and 60 minutes. Duration is read from the file |
+| `updatedAt`, `publishedAt` | |
+| `episodeNumber`, `kmEpisodeNumber` | given on first publish, continuing the professional's numbering |
+
+Text limits: title 120, short summary 200, topic 60, description 1500, quote 200, key points up to 4 of 160, chapters up to 10 (title 80, start time before the end). Each text has English and Khmer; an empty language is filled from the other on save. Up to 20 episodes per professional.
+
+Suggested table: `professional_episodes` (columns as above, `takeaways` and `chapters` as `jsonb`), audio in a storage bucket where drafts are private to the owner and published files are readable by everyone.
+
+### Rules
+
+- **Who can write:** only the owning professional (approved, role `professional`). Insert and update through RLS on `professional_id = auth.uid()`.
+- **Who can read:** published episodes are public; drafts and hidden episodes only the owner (and admins).
+- **Publish** needs an audio file, a title, a short summary and the three confirmations (store the confirmation time on the row as `confirmed_at`).
+- **Admin hide** (`status = hidden` by an admin, with an audit log entry) is promised in the UI but has no admin screen yet. It should come from Reports, which needs `podcast_episode` as a report target type.
+- The educational note ("For learning only") stays fixed app text on podcast pages.
+
+**Mock today:** episodes live in memory only and reset on refresh; an uploaded file is a temporary browser link, so it plays only in the same tab session.
+
+## 21. Planned next (frontend not built yet)
+
+- **Admin:** hide a professional's podcast episode from Reports (see section 20).
 - **User side:** a page listing the user's own sessions (the sidebar "Appointments" item is still Soon). Today the next session and Join show at the top of the chat with that professional.
 - **Make professional (Way 2):** phone is optional there because the admin already knows the person. Add an optional phone field to `ProfessionalPromotion` when the backend supports it.
 
