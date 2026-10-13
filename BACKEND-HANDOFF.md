@@ -47,7 +47,8 @@ The yellow "Demo data on this page" banner is in `admin-shell.tsx`. Remove it fo
 | Admin professionals: review and moderation | Done on mock data | Waiting for backend | 6 |
 | Become a professional (user applies) | Done on mock data | Waiting for backend | 8 |
 | Professional area `/pro`: shell, home, my profile with preview, login entry | Done on mock data | Waiting for backend | 16 |
-| Professional schedule, bookings, podcasts (`/pro`) | Not built yet | Not started | 17 |
+| Professional schedule (`/pro/schedule`) | Done on mock data | Waiting for backend | 16 |
+| Professional bookings and podcasts (`/pro`) | Not built yet | Not started | 17 |
 | Admin MindGuide: lessons, tips and practices with drafts, versions, publish and checks (`/admin/mindguide`, editor at `/admin/mindguide/<type>/<sourceId>`) | Done on mock data | Waiting for backend | 9 |
 | Report a problem (users) and admin Reports page (`/admin/reports`) | Done on mock data | Waiting for backend | 10 |
 | Announcements: admin Settings section, banner at the top of every user page | Done on mock data | Waiting for backend | 15 |
@@ -475,9 +476,24 @@ The user page reads the empty lists in `support-contacts.ts`, so admin edits do 
 
 The demo switch ("Established professional" or "Newly approved") and today's sessions (from the admin sample bookings) are mock only. Remove them when connected.
 
+### My schedule (`/pro/schedule`)
+
+**Files:** `app/pro/_data/schedule.ts` (types, rules, `openSlots`), `app/pro/_components/schedule-editor.tsx`, provider `schedule` and `saveSchedule`.
+
+`Schedule` = weekly hours (`week`: per weekday, `enabled` and `ranges` of `{ start, end, sessionTypes }` in `HH:MM`, Cambodia time), `sessionMinutes` (45, 60, 90), `breakMinutes` (0, 10, 15), `bookingWindowWeeks` (2, 4, 8), `minNoticeHours` (2, 12, 24), and `timeOff` (`{ from, to, note }` dates, inclusive).
+
+Rules the editor enforces, repeat them on the server:
+- Ranges between 06:00 and 22:00, at least one session long, no overlaps on the same day.
+- A range's session types must be ones the profile offers.
+- Open times = each range cut into `sessionMinutes` steps plus `breakMinutes`, for the booking window, minus time off, minus booked slots, minus anything inside `minNoticeHours`. See `openSlots()`.
+- Saving the schedule never cancels sessions already booked.
+
+Backend needs: store the weekly hours, settings and time off (a `professional_schedules` table or jsonb on `professional_profiles`), and keep `availability_slots` filled for the booking window from them (a function run on save and daily). Users book from `availability_slots` (instant booking). "Has open times" is the schedule step of the visibility checklist. The user booking page still shows its own sample days and times until it reads `availability_slots`.
+
+
 ## 17. Planned next (frontend not built yet)
 
-- **`/pro` next steps:** My schedule (open times, `availability_slots`), My bookings (upcoming and past sessions, intake answers, reschedule or cancel with a reason, private session notes), My podcasts (their own episodes on their profile).
+- **`/pro` next steps:** My bookings (upcoming and past sessions, intake answers, reschedule or cancel with a reason, private session notes), My podcasts (their own episodes on their profile).
 - **Make professional (Way 2):** phone is optional there because the admin already knows the person. Add an optional phone field to `ProfessionalPromotion` when the backend supports it.
 
 ## 14. Community: groups, chat moderation and reports

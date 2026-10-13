@@ -106,13 +106,6 @@ export function ProHome() {
             <ul className="mt-5 space-y-2">
               {checklist.map((item) => (
                 <li key={item.key}>
-                  {item.key === 'schedule' && !item.done ? (
-                    <span className="flex items-center gap-3 rounded-2xl bg-arom-wash/60 px-3.5 py-2.5 text-sm text-ink-muted">
-                      <Circle size={18} aria-hidden="true" className="shrink-0" />
-                      {km ? item.label.km : item.label.en}
-                      <span className="ml-auto rounded-full bg-white px-2 py-0.5 text-[0.65rem] font-semibold text-arom">{t('ឆាប់ៗ', 'Soon')}</span>
-                    </span>
-                  ) : (
                     <Link
                       href={item.href}
                       className={`flex items-center gap-3 rounded-2xl px-3.5 py-2.5 text-sm ${item.done ? 'text-ink-muted' : 'bg-arom-wash/60 font-medium text-ink hover:bg-arom-wash'}`}>
@@ -124,7 +117,6 @@ export function ProHome() {
                       <span className={item.done ? 'line-through decoration-ink-muted/40' : ''}>{km ? item.label.km : item.label.en}</span>
                       {!item.done && <ArrowRight size={15} aria-hidden="true" className="ml-auto text-arom" />}
                     </Link>
-                  )}
                 </li>
               ))}
             </ul>

@@ -11,6 +11,12 @@ import {
   type ProProfile,
   type ReviewedField,
 } from '../_data/profile';
+import {
+  emptySchedule,
+  establishedSchedule,
+  hasOpenTimes,
+  type Schedule,
+} from '../_data/schedule';
 
 export type DemoMode = 'established' | 'new';
 
@@ -28,6 +34,8 @@ type ProState = {
   profile: ProProfile;
   pendingChanges: PendingChange[];
   hasSchedule: boolean;
+  schedule: Schedule;
+  saveSchedule: (next: Schedule) => void;
   freeDuringTesting: boolean;
   saveProfile: (next: ProProfile) => SaveResult;
   withdrawChange: (field: ReviewedField) => void;
@@ -42,11 +50,13 @@ export function ProProvider({ children }: { children: ReactNode }) {
   const [demoMode, setDemoMode] = useState<DemoMode>('established');
   const [profile, setProfile] = useState<ProProfile>(() => structuredClone(establishedProfile));
   const [pendingChanges, setPendingChanges] = useState<PendingChange[]>([]);
+  const [schedule, setSchedule] = useState<Schedule>(() => structuredClone(establishedSchedule));
 
   function switchDemo(mode: DemoMode) {
     setDemoMode(mode);
     setProfile(structuredClone(mode === 'established' ? establishedProfile : newProfile));
     setPendingChanges([]);
+    setSchedule(structuredClone(mode === 'established' ? establishedSchedule : emptySchedule));
   }
 
   function saveProfile(next: ProProfile): SaveResult {
@@ -92,8 +102,9 @@ export function ProProvider({ children }: { children: ReactNode }) {
         switchDemo,
         profile,
         pendingChanges,
-        // Demo: the established professional already has open times.
-        hasSchedule: demoMode === 'established',
+        hasSchedule: hasOpenTimes(schedule),
+        schedule,
+        saveSchedule: (next: Schedule) => setSchedule(structuredClone(next)),
         freeDuringTesting: FREE_DURING_TESTING,
         saveProfile,
         withdrawChange,

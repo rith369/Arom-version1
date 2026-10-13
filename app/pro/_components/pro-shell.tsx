@@ -28,7 +28,7 @@ type NavLink = {
 const LINKS: NavLink[] = [
   { href: '/pro', en: 'Home', km: 'ទំព័រដើម', icon: Home },
   { href: '/pro/profile', en: 'My profile', km: 'ប្រវត្តិរូបរបស់ខ្ញុំ', icon: UserRound },
-  { href: '/pro/schedule', en: 'My schedule', km: 'កាលវិភាគរបស់ខ្ញុំ', icon: CalendarClock, soon: true },
+  { href: '/pro/schedule', en: 'My schedule', km: 'កាលវិភាគរបស់ខ្ញុំ', icon: CalendarClock },
   { href: '/pro/bookings', en: 'My bookings', km: 'ការកក់របស់ខ្ញុំ', icon: CalendarCheck, soon: true },
   { href: '/pro/podcasts', en: 'My podcasts', km: 'ផតខាសរបស់ខ្ញុំ', icon: Headphones, soon: true },
 ];

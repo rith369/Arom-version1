@@ -85,7 +85,7 @@ export function profileChecklist(
     { key: 'specialties', done: profile.specialties.length > 0, label: { en: 'Choose what you help with', km: 'ជ្រើសរើសអ្វីដែលអ្នកជួយ' }, href: '/pro/profile#pro-specialties' },
     { key: 'languages', done: profile.languages.length > 0, label: { en: 'Choose your session languages', km: 'ជ្រើសរើសភាសាពិគ្រោះ' }, href: '/pro/profile#pro-languages' },
     { key: 'sessions', done: profile.sessionTypes.length > 0, label: { en: 'Choose online, in person or both', km: 'ជ្រើសរើសអនឡាញ ជួបផ្ទាល់ ឬទាំងពីរ' }, href: '/pro/profile#pro-sessions' },
-    { key: 'schedule', done: options.hasSchedule, label: { en: 'Open times in your schedule', km: 'បើកម៉ោងក្នុងកាលវិភាគរបស់អ្នក' }, href: '/pro' },
+    { key: 'schedule', done: options.hasSchedule, label: { en: 'Open times in your schedule', km: 'បើកម៉ោងក្នុងកាលវិភាគរបស់អ្នក' }, href: '/pro/schedule' },
     { key: 'price', done: profile.price !== null, label: { en: 'Choose your price, or Free', km: 'ជ្រើសរើសតម្លៃ ឬឥតគិតថ្លៃ' }, href: '/pro/profile#pro-price' },
   ];
 

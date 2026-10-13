@@ -7,6 +7,37 @@ A plain-language log of what changed in the app, written for the team rather tha
 
 Each entry lists the commit it landed in, so you can match it to a version of the site.
 
+## 13 Oct 2026: My Schedule for Professionals: Weekly Hours, Session Settings and Time Off
+
+Commit pending. No migration yet. Frontend only, on mock data.
+
+**Why.** Booking at AROM is instant: users book any open time straight away. Professionals needed a way to say when they are free, and a new professional cannot appear to users until they have at least one open time.
+
+**What changed for professionals:**
+- **New "My schedule" page** in the professional area (no longer "Soon").
+- **Weekly hours:** turn each day on or off and add one or more blocks of time, for example 09:00 to 12:00 and 14:00 to 17:00, each marked online, in person or both. "Copy Monday to Tuesday to Friday" fills a work week in one tap.
+- **Session settings:** session length (45, 60 or 90 minutes), break between sessions (none, 10 or 15 minutes), how far ahead people can book (2, 4 or 8 weeks) and minimum notice (2, 12 or 24 hours).
+- **Time off:** add days away, such as Pchum Ben or a trip. Sessions already booked are not removed.
+- **"What people will see":** the exact open times for the next 7 days, with already booked times left out, updated while editing.
+- **Clear problems:** overlapping blocks, blocks shorter than one session, times outside 06:00 to 22:00, or a session type the profile does not offer are marked in red, and Save explains what to fix.
+- **Save and Undo,** with a warning before leaving with unsaved changes. Khmer and English.
+- **Home checklist:** "Open times in your schedule" now links here and ticks once a day has open hours.
+
+**What changed for the team:**
+- **New `app/pro/_data/schedule.ts`** with the rules and `openSlots()`, `schedule-editor.tsx`, and the `/pro/schedule` route. The provider now works out "has open times" from the schedule.
+- **`BACKEND-HANDOFF.md` section 16** describes how to store the schedule and keep `availability_slots` filled.
+- **Mock today:** the user booking page still shows its own sample times until it reads real open slots.
+
+**What to re-test:**
+- Open My schedule as the established professional; confirm weekday hours and the 7 day preview, with weekends closed and booked times missing;
+- Change session length to 90 minutes and confirm the preview times change;
+- Add a block that overlaps another and one shorter than a session; confirm red messages and that Save refuses;
+- Add time off for two days and confirm those days show "No open times";
+- Switch the demo to "Newly approved"; confirm a note asks to choose online or in person in My profile first; after choosing it there, open a day here, save, and confirm the Home checklist ticks the schedule step;
+- Switch to Khmer and check the day names and labels.
+
+---
+
 ## 13 Oct 2026: One Click Into the Professional Area for Admins
 
 Commit `3f7e215`. No migration.
