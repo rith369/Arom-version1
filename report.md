@@ -9,7 +9,7 @@ Each entry lists the commit it landed in, so you can match it to a version of th
 
 ## 13 Oct 2026: Crash Tracking, Friendly Error Screen and a Crashes Card on the Admin Overview
 
-Commit pending. No migration yet. Admin card is on mock data.
+Commit `fcc3366`. No migration yet. Admin card is on mock data.
 
 **Why.** When a page broke, people saw the default error page and the team never found out. A crash is an error that broke a screen for someone, and on a wellbeing app a broken screen at the wrong moment matters. The team now has a calm error screen for users and one place to see which crashes happen most, so the developer can fix the worst ones first.
 
