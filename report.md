@@ -9,7 +9,7 @@ Each entry lists the commit it landed in, so you can match it to a version of th
 
 ## 13 Oct 2026: Messages Between Clients and Professionals, With Voice Messages
 
-Commit pending. No migration yet. Frontend only, on mock data.
+Commit `59ff819`. No migration yet. Frontend only, on mock data.
 
 **Why.** Clients and professionals had no way to talk between sessions, for example to share how a practice went or ask a quick question. Many people in Cambodia find it easier to speak than type, especially in Khmer, so voice messages are included from the start.
 
