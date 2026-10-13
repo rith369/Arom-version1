@@ -7,6 +7,25 @@ A plain-language log of what changed in the app, written for the team rather tha
 
 Each entry lists the commit it landed in, so you can match it to a version of the site.
 
+## 13 Oct 2026: Dashboard Hotline Warning Links to Settings
+
+Commit pending. No migration.
+
+**Why.** The Overview warns "No crisis hotlines added yet", and helplines are added in Admin, Settings, but there was no way to get from one to the other. The warning and the Settings section do different jobs (a reminder and the place to fix it), so both stay and are now connected.
+
+**What changed for users (admins):**
+- **The hotline warning in "Needs attention" is now a link,** and an "Add helplines" link sits next to the Urgent label. Both open Admin, Settings and jump to Crisis helplines.
+
+**What changed for the team:**
+- **`dashboard.tsx`:** `AttentionItem` has an optional `href`; the two hotline items use it. Nothing removed. New link text is English only.
+- **`settings-view.tsx`:** the Crisis helplines section has `id="crisis-helplines"`.
+- **Note:** the warning reads the real database, while Settings is still mock, so adding a helpline in Settings does not clear the warning until the backend is connected.
+
+**What to re-test:**
+- Open the Overview with no hotlines in the database and confirm the warning title and "Add helplines" both open Settings at the Crisis helplines section.
+
+---
+
 ## 13 Oct 2026: Announcements From Admin Settings, Shown at the Top of Every Page
 
 Commit `45bbbe4`. No migration yet. Frontend only, on mock data.

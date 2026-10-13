@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import {
   AlertTriangle,
   CheckCircle2,
@@ -32,6 +33,8 @@ type AttentionItem = {
   title: string;
   meta: string;
   application?: PendingApplication;
+  /** Page where the admin can fix this item. */
+  href?: string;
 };
 
 const RANGES: OverviewRange[] = [7, 30, 90];
@@ -201,6 +204,7 @@ export function Dashboard() {
           icon: Phone,
           title: t("មិនទាន់មានលេខជំនួយបន្ទាន់ (No crisis hotlines yet)", "No crisis hotlines added yet"),
           meta: t("អ្នកប្រើឃើញលេខទាំងនេះមុនគេពេលមានវិបត្តិ", "People in crisis see these first. Add verified numbers."),
+          href: "/admin/settings#crisis-helplines",
         }]
       : data.hotlines.missingPhone > 0
         ? [{
@@ -212,6 +216,7 @@ export function Dashboard() {
               `${data.hotlines.missingPhone} of ${data.hotlines.active} crisis hotlines have no phone number`,
             ),
             meta: t("អ្នកប្រើឃើញលេខទាំងនេះមុនគេពេលមានវិបត្តិ", "People in crisis see these first."),
+            href: "/admin/settings#crisis-helplines",
           }]
         : []),
     ...data.applications.map((application): AttentionItem => ({
@@ -308,7 +313,13 @@ export function Dashboard() {
                       <div className="min-w-[11rem] flex-1">
                         <p className="text-sm font-medium text-ink sm:truncate">
                           {item.severity === "critical" && <span className="sr-only">{t("បន្ទាន់: ", "Urgent: ")}</span>}
-                          {item.title}
+                          {item.href ? (
+                            <Link href={item.href} className="hover:text-arom hover:underline focus-visible:outline-2 focus-visible:outline-arom">
+                              {item.title}
+                            </Link>
+                          ) : (
+                            item.title
+                          )}
                         </p>
                         <p className="mt-0.5 text-xs text-ink-muted sm:truncate">{item.meta}</p>
                       </div>
@@ -356,8 +367,15 @@ export function Dashboard() {
                           )}
                         </div>
                       ) : (
+                        <span className="flex items-center gap-2">
+                        {item.href && (
+                          <Link href={item.href} className="text-xs font-semibold text-arom hover:underline focus-visible:outline-2 focus-visible:outline-arom">
+                            Add helplines
+                          </Link>
+                        )}
                         <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${style.chip}`}>
                           {item.severity === "critical" ? t("បន្ទាន់", "Urgent") : t("ពិនិត្យ", "Review")}
+                        </span>
                         </span>
                       )}
                     </li>
