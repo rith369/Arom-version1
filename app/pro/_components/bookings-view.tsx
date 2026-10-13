@@ -8,6 +8,7 @@ import {
   FileText,
   FolderOpen,
   Lock,
+  MessageCircle,
   Monitor,
   NotebookPen,
   UserRound,
@@ -121,12 +122,18 @@ export function BookingDialog({
           <p className="mt-1 text-sm text-ink-muted">
             {formats.day.format(start)}, {formats.time.format(start)} · {booking.durationMinutes} {t('នាទី', 'min')} · {typeLabel}
           </p>
-          {showClientLink && (
-            <Link href={`/pro/clients/${booking.clientId}`} className="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold text-arom hover:underline">
-              <FolderOpen size={15} aria-hidden="true" />
-              {t('បើកឯកសារអតិថិជន', 'Open client file')}
+          <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1">
+            {showClientLink && (
+              <Link href={`/pro/clients/${booking.clientId}`} className="inline-flex items-center gap-1.5 text-sm font-semibold text-arom hover:underline">
+                <FolderOpen size={15} aria-hidden="true" />
+                {t('បើកឯកសារអតិថិជន', 'Open client file')}
+              </Link>
+            )}
+            <Link href={`/pro/messages/${booking.clientId}`} className="inline-flex items-center gap-1.5 text-sm font-semibold text-arom hover:underline">
+              <MessageCircle size={15} aria-hidden="true" />
+              {t('ផ្ញើសារ', 'Message client')}
             </Link>
-          )}
+          </div>
         </div>
         <button type="button" onClick={onClose} aria-label={t('បិទ', 'Close')} className="rounded-full p-2 hover:bg-arom-wash">
           <X size={20} />

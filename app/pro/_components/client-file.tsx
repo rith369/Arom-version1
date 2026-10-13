@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { Archive, ArchiveRestore, ArrowLeft, FileText, Lock, Monitor, NotebookPen, Pin, Search, Share2, UserRound } from 'lucide-react';
+import { Archive, ArchiveRestore, ArrowLeft, FileText, Lock, MessageCircle, Monitor, NotebookPen, Pin, Search, Share2, UserRound } from 'lucide-react';
 
 import { BookingDialog } from './bookings-view';
 import { usePro } from './pro-provider';
@@ -127,6 +127,13 @@ export function ClientFile({ clientId }: { clientId: string }) {
             </div>
           </dl>
         </div>
+        <div className="flex flex-wrap gap-2">
+        <Link
+          href={`/pro/messages/${clientId}`}
+          className="flex items-center gap-2 rounded-full bg-arom px-4 py-2 text-sm font-semibold text-white hover:bg-arom-deep">
+          <MessageCircle size={16} aria-hidden="true" />
+          {t('ផ្ញើសារ', 'Message')}
+        </Link>
         <button
           type="button"
           onClick={() => setClientArchived(clientId, !archived)}
@@ -134,6 +141,7 @@ export function ClientFile({ clientId }: { clientId: string }) {
           {archived ? <ArchiveRestore size={16} aria-hidden="true" /> : <Archive size={16} aria-hidden="true" />}
           {archived ? t('ស្ដារជាអតិថិជនសកម្ម', 'Restore client') : t('ដាក់ជាអតិថិជនចាស់', 'Archive client')}
         </button>
+        </div>
       </header>
       {!archived && (
         <p className="mt-2 text-xs text-ink-muted">

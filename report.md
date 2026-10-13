@@ -7,6 +7,39 @@ A plain-language log of what changed in the app, written for the team rather tha
 
 Each entry lists the commit it landed in, so you can match it to a version of the site.
 
+## 13 Oct 2026: Messages Between Clients and Professionals, With Voice Messages
+
+Commit pending. No migration yet. Frontend only, on mock data.
+
+**Why.** Clients and professionals had no way to talk between sessions, for example to share how a practice went or ask a quick question. Many people in Cambodia find it easier to speak than type, especially in Khmer, so voice messages are included from the start.
+
+**What changed for users:**
+- **New "Messages" in the sidebar** (under Professional). It lists the professionals you have booked with; you cannot message anyone before booking.
+- **Chat with text and voice messages:** tap the microphone, record up to 2 minutes, listen back, then send or discard. Enter sends, Shift and Enter adds a new line.
+- **"Messages are not for emergencies"** banner in every chat, linking to Get help now.
+- **Each professional's reply time** shows at the top, for example "Usually replies within 1 working day", and "Seen" shows when they have read your message.
+
+**What changed for professionals:**
+- **New "Messages" inbox in the professional area:** unread first, search by client, last message preview, and the reply time clients see.
+- **"Message" on the client file and "Message client" in every booking.**
+- **Private:** "Admins cannot read them". Chats with archived clients become read only.
+- **Khmer and English** on both sides.
+
+**What changed for the team:**
+- **New shared chat** in `app/_components/messages/` used by both sides, routes `/messages` and `/pro/messages`, and `/messages` added to the login protected pages in `lib/supabase/proxy.ts`.
+- **Mock store in memory only:** messages are never saved in the browser and reset on refresh. The user side views as Sok Dara.
+- **`BACKEND-HANDOFF.md` section 17** lists the tables, voice storage, who can read and write, and that admins have no access. Decisions recorded in section 7 (messages only after booking, meeting links for calls, Telegram reminders built separately).
+
+**What to re-test:**
+- As admin, open Professional area, Messages; open Sok Dara and confirm her unread messages become read; send a text and a voice message (allow the microphone);
+- Without refreshing, go to Messages in the app sidebar, open Dr. Sopheap Chan, and confirm the new messages are there; reply, then go back to the professional inbox and confirm the unread badge;
+- Confirm the emergency banner link opens Get help now in Profile;
+- Archive Sok Dara in her client file and confirm the chat becomes read only;
+- Record for 2 minutes and confirm it stops by itself; deny the microphone and confirm the friendly message;
+- Switch to Khmer on both sides.
+
+---
+
 ## 13 Oct 2026: My Clients: One File per Client With a Summary Note, Session Notes and Shared Results
 
 Commit `8a43f31`. No migration yet. Frontend only, on mock data.

@@ -27,6 +27,7 @@ export type NavigationLabel =
   | "ClinicHospital"
   | "Appointments"
   | "Community"
+  | "Messages"
   | "PlayCards"
   | "Profile";
 

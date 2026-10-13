@@ -10,6 +10,7 @@ import {
   Layers,
   ShieldCheck,
   Stethoscope,
+  MessageCircle,
   type LucideIcon,
 } from "lucide-react";
 import type { UserRole } from "@/lib/auth";
@@ -134,6 +135,14 @@ export const NAVIGATION_SECTIONS: NavSection[] = [
         kmTitle: "អ្នកជំនាញ",
         icon: Heart,
         href: "/professional",
+      },
+      {
+        id: "messages",
+        label: "Messages",
+        enTitle: "Messages",
+        kmTitle: "សារ",
+        icon: MessageCircle,
+        href: "/messages",
       },
       {
         id: "clinic-hospital",

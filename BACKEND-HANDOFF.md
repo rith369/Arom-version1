@@ -50,7 +50,8 @@ The yellow "Demo data on this page" banner is in `admin-shell.tsx`. Remove it fo
 | Professional schedule (`/pro/schedule`) | Done on mock data | Waiting for backend | 16 |
 | Professional bookings (`/pro/bookings`) | Done on mock data | Waiting for backend | 16 |
 | Professional clients (`/pro/clients`, client file) | Done on mock data | Waiting for backend | 16 |
-| Professional podcasts (`/pro`) | Not built yet | Not started | 17 |
+| Messages between client and professional (text and voice): `/pro/messages`, `/messages` | Done on mock data | Waiting for backend | 17 |
+| Professional podcasts (`/pro`) | Not built yet | Not started | 18 |
 | Admin MindGuide: lessons, tips and practices with drafts, versions, publish and checks (`/admin/mindguide`, editor at `/admin/mindguide/<type>/<sourceId>`) | Done on mock data | Waiting for backend | 9 |
 | Report a problem (users) and admin Reports page (`/admin/reports`) | Done on mock data | Waiting for backend | 10 |
 | Announcements: admin Settings section, banner at the top of every user page | Done on mock data | Waiting for backend | 15 |
@@ -176,6 +177,7 @@ Do not change these without asking Rith.
 - **AROM has no "Owner" role.** Only `user`, `professional`, `admin`.
 - **Educational note is fixed app text.** Every lesson, tip, practice and podcast screen shows "For learning only. This is not a diagnosis or treatment." from `app/_components/educational-note.tsx`. It is not stored as content, so no admin edit can remove it.
 - **No crisis helpline card on content screens.** Users find crisis helplines in Profile and Settings under "Get help now" (see section 13). If none are active, a built in message tells users to contact local emergency services. Never invent a number.
+- **Messages only after a booking.** A user can message a professional only once they have booked with them. Text and voice messages (up to 2 minutes). Admins cannot read these chats (unlike community group chats). Not for emergencies: the user chat always links to Get help now. Archived clients' chats are read only. Calls use a meeting link (Google Meet or Zoom), not built in calls. Automatic reminders are a Telegram bot built separately.
 - **Bookings belong to the user and the professional.** Only they confirm, reschedule or cancel. Admins see bookings read only and can only make an emergency cancel with a written reason (see section 12).
 - **Instant booking.** A user picking one of a professional's open times is booked straight away (`appointments.status = 'booked'`, as the database already does). Professionals can still cancel or reschedule with a reason. An optional per professional "review new clients first" setting may come later; the frontend "pending" status is reserved for it.
 - **A professional appears to users only when their profile is complete:** photo, English bio (80+ characters), Khmer bio, at least one specialty, language and session type, a price choice (Free counts), and at least one open time. Today approval sets `verified` immediately; add the completeness check to the directory query.
@@ -526,7 +528,30 @@ Rules the editor enforces, repeat them on the server:
 Backend needs: store the weekly hours, settings and time off (a `professional_schedules` table or jsonb on `professional_profiles`), and keep `availability_slots` filled for the booking window from them (a function run on save and daily). Users book from `availability_slots` (instant booking). "Has open times" is the schedule step of the visibility checklist. The user booking page still shows its own sample days and times until it reads `availability_slots`.
 
 
-## 17. Planned next (frontend not built yet)
+## 17. Messages (client and professional)
+
+**Files:** `app/_components/messages/message-store.ts` (types, in memory mock store, actions), `chat-thread.tsx` (shared chat with voice recorder), `user-messages.tsx` (user side), routes `app/messages/` and `app/messages/[professionalId]`; professional side `app/pro/_components/messages-view.tsx`, routes `app/pro/messages/` and `[clientId]`. Links: sidebar "Messages" (users), `/pro` menu, client file "Message", booking window "Message client". `/messages` is added to `PROTECTED_PREFIXES` in `lib/supabase/proxy.ts`.
+
+### Data shape
+
+| Type | Fields | Suggested table |
+|---|---|---|
+| `Conversation` | `id` (`<professionalId>:<clientId>`), `professionalId`, `clientId`, names | `conversations (id, professional_id, client_id, created_at, closed_at)`, unique pair |
+| `ChatMessage` | `id`, `conversationId`, `sender` (`client`, `professional`), `kind` (`text`, `voice`), `text` (up to 2000), `audioUrl`, `durationSeconds` (up to 120), `createdAt`, `readAt` | `messages`; voice files in a private storage bucket, served with short lived signed URLs |
+| Reply time | `few_hours`, `one_day`, `two_days` per professional | a column on `professional_profiles` |
+
+### Rules
+
+- **Who can write:** the client and the professional of a conversation, and only if the client has a booked or completed appointment with that professional. Insert through a `security definer` function that checks this.
+- **Who can read:** only those two people. No admin read policy (only community group chats are admin readable, see `AGENTS.md` section 9).
+- **Closed:** when the professional archives the client, the conversation is read only (`closed_at`).
+- **Read receipts:** `markRead` sets `readAt` on the other person's messages when a chat is opened.
+- **Never log message text or audio.** Realtime delivery can use Supabase Realtime on `messages` filtered by conversation.
+- **Report or block** for abuse is planned, not built.
+
+**Mock today:** the store lives in memory only (nothing saved in the browser), so it resets on refresh. Messages sent on one side show on the other while the app stays open. The user side views as Sok Dara.
+
+## 18. Planned next (frontend not built yet)
 
 - **`/pro` next steps:** My podcasts (their own episodes on their profile).
 - **Make professional (Way 2):** phone is optional there because the admin already knows the person. Add an optional phone field to `ProfessionalPromotion` when the backend supports it.
