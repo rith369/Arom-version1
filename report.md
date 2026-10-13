@@ -9,7 +9,7 @@ Each entry lists the commit it landed in, so you can match it to a version of th
 
 ## 13 Oct 2026: Prepare Before a Session, and a Week Calendar for Bookings
 
-Commit pending. No migration yet. Frontend only, on mock data.
+Commit `e85a17d`. No migration yet. Frontend only, on mock data.
 
 **Why.** Before each session a professional had to open the client file, the last booking, the chat and the care plan one by one. Now one page gathers what matters for the next few minutes. Bookings were also only a list, which made it hard to see how full a week is.
 
