@@ -9,7 +9,7 @@ Each entry lists the commit it landed in, so you can match it to a version of th
 
 ## 13 Oct 2026: One Click Into the Professional Area for Admins
 
-Commit pending. No migration.
+Commit `3f7e215`. No migration.
 
 **Why.** Admins can open the professional area to check how it works, but they had to type `/pro` into the address bar. There are no real professional accounts yet, so admins are the main way to see it.
 
