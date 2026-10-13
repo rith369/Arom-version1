@@ -7,6 +7,35 @@ A plain-language log of what changed in the app, written for the team rather tha
 
 Each entry lists the commit it landed in, so you can match it to a version of the site.
 
+## 13 Oct 2026: Browse MindGuide When Giving a Care Task
+
+Commit pending. No migration. Frontend only.
+
+**Why.** The Give a care task window listed MindGuide items in a short plain list. That works for three items, but MindGuide will grow to many lessons, practices and tips, and professionals need to read an item before giving it.
+
+**What changed for professionals:**
+- **"Browse MindGuide" button** in Give a care task (MindGuide type). It opens MindGuide on top of the window, so the half filled form is kept.
+- **The same screens users see:** Lessons, Practices and Tips tabs, with search, categories, cards and the full item page.
+- **"Choose for <client>"** replaces the user's "Add to plan" buttons in this mode, on the item page and on the list cards. Choosing returns to the form with the item filled in, and a Change link to pick another.
+- **Only published items can be chosen;** coming soon items stay locked.
+- **Works with Give and add another,** which clears the chosen item for the next task.
+
+**What changed for users:**
+- **Nothing.** MindGuide looks and works the same; the choose mode only exists inside the professional area.
+
+**What changed for the team:**
+- **New** `app/_components/mindguide-pick.tsx` (choose mode) and `app/pro/_components/mindguide-picker.tsx` (the overlay).
+- **MindGuide screens** (learn, practice and tips containers, list and detail views) check choose mode: no app sidebar, "Back to MindGuide" closes the browser, and plan buttons choose instead. Lint shows no new problems in these files.
+
+**What to re-test:**
+- In a client file, Give a task, MindGuide, Browse MindGuide; switch between Lessons, Practices and Tips and search;
+- Open a lesson, read it, tap Choose for <client>, and confirm the form shows it; use Change to pick a practice instead and confirm How often becomes Every day;
+- Use Give and add another and confirm the item is cleared;
+- Open the normal user MindGuide and confirm Add to plan still works there;
+- Switch to Khmer.
+
+---
+
 ## 13 Oct 2026: Give Several Care Tasks in One Go
 
 Commit `eb1eebf`. No migration. Frontend only.

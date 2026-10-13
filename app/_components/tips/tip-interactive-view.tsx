@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { useLanguage } from "../language-provider";
+import { chooseLabel, useMindGuidePick } from "../mindguide-pick";
 import { EducationalNote } from "../educational-note";
 import { ReportProblemButton } from "../report-problem";
 import {
@@ -46,6 +47,7 @@ export function TipInteractiveView({
 }: TipInteractiveViewProps) {
   const { language } = useLanguage();
   const km = language === "km";
+  const pick = useMindGuidePick();
   const [bookmarked, setBookmarked] = useState(() => isTipBookmarked(tip.id));
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const [planStepNumbers, setPlanStepNumbers] = useState<number[]>(() => {
@@ -204,6 +206,7 @@ export function TipInteractiveView({
                     {/* Action Bar: Add to Plan + Mark as tried */}
                     <div className="mt-3.5 flex flex-wrap items-center gap-2 pt-1">
                       {/* Add to Home Plan Button */}
+                      {!pick && (
                       <button
                         type="button"
                         onClick={() => handleTogglePlan(step)}
@@ -228,6 +231,7 @@ export function TipInteractiveView({
                             : "Add to Plan at Home Screen"}
                         </span>
                       </button>
+                      )}
 
                       {/* Mark as tried Checkbox Tracker */}
                       <button

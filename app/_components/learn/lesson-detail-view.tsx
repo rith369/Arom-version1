@@ -21,6 +21,7 @@ import {
   toggleCustomPlanItem,
 } from "../daily-plan-store";
 import { useLanguage } from "../language-provider";
+import { chooseLabel, useMindGuidePick } from "../mindguide-pick";
 import { EducationalNote } from "../educational-note";
 import { ReportProblemButton } from "../report-problem";
 import {
@@ -47,6 +48,7 @@ export function LessonDetailView({
 }: LessonDetailViewProps) {
   const { language } = useLanguage();
   const km = language === "km";
+  const pick = useMindGuidePick();
   const [bookmarked, setBookmarked] = useState(() => isLessonBookmarked(lesson.id));
   const [inPlan, setInPlan] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -134,6 +136,7 @@ export function LessonDetailView({
 
         <div className="flex items-center gap-2">
           {/* Add to Daily Plan Header Button */}
+          {!pick && (
           <button
             type="button"
             onClick={handleTogglePlan}
@@ -163,6 +166,7 @@ export function LessonDetailView({
           >
             {inPlan ? <CalendarCheck size={18} /> : <CalendarPlus size={18} />}
           </button>
+          )}
 
           {/* Bookmark Button */}
           <button
@@ -344,6 +348,16 @@ export function LessonDetailView({
             </span>
           </button>
 
+          {pick ? (
+            <button
+              type="button"
+              onClick={() => pick.choose("lesson", lesson.id)}
+              className="flex h-14 items-center justify-center gap-2.5 rounded-2xl bg-arom px-6 text-sm font-semibold text-white shadow-sm transition-all duration-150 hover:bg-arom-deep active:scale-[0.98]"
+            >
+              <CheckCircle2 size={18} aria-hidden="true" />
+              <span>{chooseLabel(pick.clientName, km)}</span>
+            </button>
+          ) : (
           <button
             type="button"
             onClick={handleTogglePlan}
@@ -368,6 +382,7 @@ export function LessonDetailView({
                 : "Add to Daily Plan at Home Screen"}
             </span>
           </button>
+          )}
         </motion.div>
 
         <EducationalNote className="mt-8" />

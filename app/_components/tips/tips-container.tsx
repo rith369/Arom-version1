@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { DesktopNavigation, MobileNavigation } from "../app-navigation";
+import { useMindGuidePick } from "../mindguide-pick";
 import { BreathingExperience } from "../breathing-session";
 import {
   ALL_TIPS,
@@ -34,6 +35,8 @@ export function TipsContainer({
   initialItemId,
 }: TipsContainerProps) {
   const router = useRouter();
+  // Set when a professional browses MindGuide to give a care task.
+  const pick = useMindGuidePick();
   const initialTip = ALL_TIPS.find((tip) => tip.id === initialItemId && tip.isAvailable);
   const [mode, setMode] = useState<TipsScreenMode>(initialTip ? "detail" : initialMode);
   const [selectedTip, setSelectedTip] = useState<TipItem>(initialTip ?? TIP_CONTROL_STRESS);
@@ -65,9 +68,9 @@ export function TipsContainer({
   }
 
   return (
-    <div className="min-h-screen bg-canvas lg:grid lg:grid-cols-[19rem_minmax(0,1fr)]">
+    <div className={pick ? "bg-canvas" : "min-h-screen bg-canvas lg:grid lg:grid-cols-[19rem_minmax(0,1fr)]"}>
       {/* Desktop Navigation Sidebar */}
-      <DesktopNavigation active="MindGuide" />
+      {!pick && <DesktopNavigation active="MindGuide" />}
 
       {/* Main View Area */}
       <div className="min-w-0">
@@ -75,7 +78,7 @@ export function TipsContainer({
           <TipsHomeView
             onSelectTip={handleSelectTip}
             onOpenSaved={() => setMode("saved")}
-            onBackToMindGuide={() => router.push("/mindguide")}
+            onBackToMindGuide={() => (pick ? pick.close() : router.push("/mindguide"))}
           />
         )}
 
@@ -93,7 +96,7 @@ export function TipsContainer({
             onBack={() => setMode("detail")}
             onComplete={handleComplete}
             onOpenBreathing={() => setMode("breathing")}
-            onOpenProfessional={() => router.push("/professional")}
+            onOpenProfessional={() => (pick ? undefined : router.push("/professional"))}
           />
         )}
 
@@ -118,7 +121,7 @@ export function TipsContainer({
       </div>
 
       {/* Mobile Bottom Navigation */}
-      <MobileNavigation active="MindGuide" />
+      {!pick && <MobileNavigation active="MindGuide" />}
     </div>
   );
 }

@@ -13,6 +13,7 @@ import {
 import { useState } from "react";
 import { useLanguage } from "../language-provider";
 import { EducationalNote } from "../educational-note";
+import { chooseLabel, useMindGuidePick } from "../mindguide-pick";
 import { ReportProblemButton } from "../report-problem";
 import {
   isTipBookmarked,
@@ -36,6 +37,7 @@ export function TipDetailView({
 }: TipDetailViewProps) {
   const { language } = useLanguage();
   const km = language === "km";
+  const pick = useMindGuidePick();
   const [bookmarked, setBookmarked] = useState(() => isTipBookmarked(tip.id));
 
   const handleToggleBookmark = () => {
@@ -149,7 +151,17 @@ export function TipDetailView({
             <EducationalNote className="mt-4" />
 
             {/* Primary Action Button */}
-            <div className="mt-8">
+            <div className="mt-8 space-y-3">
+              {pick && (
+                <button
+                  type="button"
+                  onClick={() => pick.choose("tip", tip.id)}
+                  className="flex h-13 w-full items-center justify-center gap-2 rounded-2xl bg-arom text-base font-semibold text-white shadow-sm transition-all hover:bg-arom-deep active:scale-[0.98]"
+                >
+                  <CheckCircle2 aria-hidden="true" size={18} />
+                  <span>{chooseLabel(pick.clientName, km)}</span>
+                </button>
+              )}
               <button
                 type="button"
                 onClick={onStartTips}

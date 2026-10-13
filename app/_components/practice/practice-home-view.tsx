@@ -23,6 +23,7 @@ import {
   toggleCustomPlanItem,
 } from "../daily-plan-store";
 import { useLanguage } from "../language-provider";
+import { chooseLabel, useMindGuidePick } from "../mindguide-pick";
 import {
   ALL_PRACTICES,
   PRACTICE_BREATHING,
@@ -44,6 +45,7 @@ export function PracticeHomeView({
 }: PracticeHomeViewProps) {
   const { language } = useLanguage();
   const km = language === "km";
+  const pick = useMindGuidePick();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<PracticeCategory>("All");
@@ -68,6 +70,11 @@ export function PracticeHomeView({
   }, [toastMessage]);
 
   const handleTogglePlan = (practice: PracticeItem) => {
+    // Choose mode (professional giving a care task): choose instead of adding to my plan.
+    if (pick) {
+      pick.choose("practice", practice.id);
+      return;
+    }
     const categoryLabel = km
       ? PRACTICE_CATEGORIES.find((c) => c.id === practice.category)?.kmLabel || practice.category
       : practice.category;
@@ -254,7 +261,7 @@ export function PracticeHomeView({
                   type="button"
                   onClick={() => handleTogglePlan(PRACTICE_BREATHING)}
                   title={
-                    planIds.includes(PRACTICE_BREATHING.id)
+                    (!pick && planIds.includes(PRACTICE_BREATHING.id))
                       ? km
                         ? "លុបចេញពីផែនការទំព័រដើម"
                         : "Remove from Home Daily Plan"
@@ -263,12 +270,12 @@ export function PracticeHomeView({
                       : "Add to Home Daily Plan"
                   }
                   className={`flex size-12 shrink-0 items-center justify-center rounded-2xl border transition-all duration-150 cursor-pointer sm:size-14 ${
-                    planIds.includes(PRACTICE_BREATHING.id)
+                    (!pick && planIds.includes(PRACTICE_BREATHING.id))
                       ? "border-arom bg-arom text-white shadow-md"
                       : "border-arom-border bg-white text-arom hover:border-arom hover:bg-arom-wash shadow-sm"
                   }`}
                 >
-                  {planIds.includes(PRACTICE_BREATHING.id) ? (
+                  {(!pick && planIds.includes(PRACTICE_BREATHING.id)) ? (
                     <CalendarCheck size={22} />
                   ) : (
                     <CalendarPlus size={22} />
@@ -310,7 +317,7 @@ export function PracticeHomeView({
           <div className="mt-4 space-y-3">
             {filteredPractices.map((practice) => {
               const isAvailable = practice.isAvailable;
-              const inPlan = planIds.includes(practice.id);
+              const inPlan = !pick && planIds.includes(practice.id);
               const categoryLabel = km
                 ? PRACTICE_CATEGORIES.find((c) => c.id === practice.category)?.kmLabel || practice.category
                 : practice.category;
@@ -389,7 +396,9 @@ export function PracticeHomeView({
                           handleTogglePlan(practice);
                         }}
                         title={
-                          inPlan
+                          pick
+                            ? chooseLabel(pick.clientName, km)
+                            : inPlan
                             ? km
                               ? "លុបចេញពីផែនការទំព័រដើម"
                               : "Remove from Home Daily Plan"

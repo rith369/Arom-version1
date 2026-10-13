@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { DesktopNavigation, MobileNavigation } from "../app-navigation";
+import { useMindGuidePick } from "../mindguide-pick";
 import { BreathingExperience } from "../breathing-session";
 import {
   ALL_PRACTICES,
@@ -32,6 +33,8 @@ export function PracticeContainer({
   initialItemId,
 }: PracticeContainerProps) {
   const router = useRouter();
+  // Set when a professional browses MindGuide to give a care task.
+  const pick = useMindGuidePick();
   const initialPractice = ALL_PRACTICES.find((practice) => practice.id === initialItemId && practice.isAvailable);
   const [mode, setMode] = useState<PracticeScreenMode>(initialPractice ? "detail" : initialMode);
   const [selectedPractice, setSelectedPractice] =
@@ -63,9 +66,9 @@ export function PracticeContainer({
   }
 
   return (
-    <div className="min-h-screen bg-canvas lg:grid lg:grid-cols-[19rem_minmax(0,1fr)]">
+    <div className={pick ? "bg-canvas" : "min-h-screen bg-canvas lg:grid lg:grid-cols-[19rem_minmax(0,1fr)]"}>
       {/* Desktop Sidebar Navigation */}
-      <DesktopNavigation active="MindGuide" />
+      {!pick && <DesktopNavigation active="MindGuide" />}
 
       {/* Main View Area */}
       <div className="min-w-0">
@@ -73,7 +76,7 @@ export function PracticeContainer({
           <PracticeHomeView
             onSelectPractice={handleSelectPractice}
             onOpenSaved={() => setMode("saved")}
-            onBackToMindGuide={() => router.push("/mindguide")}
+            onBackToMindGuide={() => (pick ? pick.close() : router.push("/mindguide"))}
           />
         )}
 
@@ -89,7 +92,7 @@ export function PracticeContainer({
           <PracticeCompleteView
             practice={selectedPractice}
             onPracticeAgain={() => setMode("exercise")}
-            onGoToLearn={() => router.push("/learn")}
+            onGoToLearn={() => (pick ? pick.goTo("lesson") : router.push("/learn"))}
             onBackToPractices={() => setMode("home")}
           />
         )}
@@ -106,7 +109,7 @@ export function PracticeContainer({
       </div>
 
       {/* Mobile Bottom Navigation */}
-      <MobileNavigation active="MindGuide" />
+      {!pick && <MobileNavigation active="MindGuide" />}
     </div>
   );
 }

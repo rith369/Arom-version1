@@ -23,6 +23,7 @@ import {
   toggleCustomPlanItem,
 } from "../daily-plan-store";
 import { useLanguage } from "../language-provider";
+import { chooseLabel, useMindGuidePick } from "../mindguide-pick";
 import {
   ALL_LESSONS,
   LESSON_ABOUT_STRESS,
@@ -45,6 +46,7 @@ export function LearnHomeView({
 }: LearnHomeViewProps) {
   const { language } = useLanguage();
   const km = language === "km";
+  const pick = useMindGuidePick();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<TopicCategory>("All");
@@ -72,6 +74,11 @@ export function LearnHomeView({
   }, [toastMessage]);
 
   const handleTogglePlan = (lesson: Lesson) => {
+    // Choose mode (professional giving a care task): choose instead of adding to my plan.
+    if (pick) {
+      pick.choose("lesson", lesson.id);
+      return;
+    }
     const isAdded = toggleCustomPlanItem({
       id: lesson.id,
       source: "learn",
@@ -255,7 +262,7 @@ export function LearnHomeView({
                   type="button"
                   onClick={() => handleTogglePlan(LESSON_ABOUT_STRESS)}
                   title={
-                    planIds.includes(LESSON_ABOUT_STRESS.id)
+                    (!pick && planIds.includes(LESSON_ABOUT_STRESS.id))
                       ? km
                         ? "លុបចេញពីផែនការទំព័រដើម"
                         : "Remove from Home Daily Plan"
@@ -264,12 +271,12 @@ export function LearnHomeView({
                       : "Add to Home Daily Plan"
                   }
                   className={`flex size-12 shrink-0 items-center justify-center rounded-2xl border transition-all duration-150 cursor-pointer sm:size-14 ${
-                    planIds.includes(LESSON_ABOUT_STRESS.id)
+                    (!pick && planIds.includes(LESSON_ABOUT_STRESS.id))
                       ? "border-arom bg-arom text-white shadow-md"
                       : "border-arom-border bg-white text-arom hover:border-arom hover:bg-arom-wash shadow-sm"
                   }`}
                 >
-                  {planIds.includes(LESSON_ABOUT_STRESS.id) ? (
+                  {(!pick && planIds.includes(LESSON_ABOUT_STRESS.id)) ? (
                     <CalendarCheck size={22} />
                   ) : (
                     <CalendarPlus size={22} />
@@ -355,7 +362,7 @@ export function LearnHomeView({
           <div className="mt-4 space-y-3">
             {filteredLessons.map((lesson) => {
               const isAvailable = lesson.isAvailable;
-              const inPlan = planIds.includes(lesson.id);
+              const inPlan = !pick && planIds.includes(lesson.id);
 
               return (
                 <motion.div
@@ -431,7 +438,9 @@ export function LearnHomeView({
                           handleTogglePlan(lesson);
                         }}
                         title={
-                          inPlan
+                          pick
+                            ? chooseLabel(pick.clientName, km)
+                            : inPlan
                             ? km
                               ? "លុបចេញពីផែនការទំព័រដើម"
                               : "Remove from Home Daily Plan"

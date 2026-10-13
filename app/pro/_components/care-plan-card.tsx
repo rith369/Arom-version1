@@ -1,8 +1,9 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import { BellRing, BookOpen, Check, ClipboardList, Footprints, Lock, Plus, Target, X } from 'lucide-react';
+import { BellRing, BookOpen, Check, ClipboardList, Compass, Footprints, Lock, Plus, Target, X } from 'lucide-react';
 
+import { MindGuidePicker } from './mindguide-picker';
 import { usePro } from './pro-provider';
 import { useLanguage } from '../../_components/language-provider';
 import {
@@ -85,7 +86,9 @@ export function AddTaskDialog({ clientId, clientName, bookingId, today, onClose 
   const t = (kmText: string, enText: string) => (km ? kmText : enText);
 
   const [kind, setKind] = useState<CareTaskKind>('mindguide');
-  const [itemKey, setItemKey] = useState(MINDGUIDE_OPTIONS[0] ? `${MINDGUIDE_OPTIONS[0].type}:${MINDGUIDE_OPTIONS[0].id}` : '');
+  // Chosen in the MindGuide browser, as "type:id".
+  const [itemKey, setItemKey] = useState('');
+  const [browsing, setBrowsing] = useState(false);
   const [title, setTitle] = useState('');
   const [note, setNote] = useState('');
   const [repeat, setRepeat] = useState<Repeat>('once');
@@ -96,6 +99,8 @@ export function AddTaskDialog({ clientId, clientName, bookingId, today, onClose 
   // Titles given while this window stayed open ("Give and add another").
   const [given, setGiven] = useState<string[]>([]);
   const panelRef = useRef<HTMLDivElement>(null);
+
+  const selectedOption = MINDGUIDE_OPTIONS.find((item) => `${item.type}:${item.id}` === itemKey);
 
   const chooseKind = (next: CareTaskKind) => {
     setKind(next);
@@ -136,6 +141,7 @@ export function AddTaskDialog({ clientId, clientName, bookingId, today, onClose 
     setGiven([...given, kind === 'mindguide' && option ? (km ? option.kmTitle : option.title) : title.trim()]);
     setTitle('');
     setNote('');
+    setItemKey('');
     setError('');
     panelRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -192,40 +198,34 @@ export function AddTaskDialog({ clientId, clientName, bookingId, today, onClose 
         </fieldset>
 
         {kind === 'mindguide' ? (
-          <fieldset className="mt-5">
-            <legend className="text-sm font-semibold text-ink">{t('មាតិកា MindGuide', 'MindGuide item')}</legend>
-            {MINDGUIDE_OPTIONS.length === 0 ? (
-              <p className="mt-2 text-sm text-ink-muted">{t('មិនទាន់មានមាតិកាដែលបានផ្សព្វផ្សាយ។', 'No published items yet.')}</p>
+          <div className="mt-5">
+            <p className="text-sm font-semibold text-ink">{t('មាតិកា MindGuide', 'MindGuide item')}</p>
+            {selectedOption ? (
+              <div className="mt-2 flex items-center gap-3 rounded-2xl border border-arom bg-arom-wash px-3.5 py-3">
+                <BookOpen size={18} aria-hidden="true" className="shrink-0 text-arom" />
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-sm font-medium text-ink">{km ? selectedOption.kmTitle : selectedOption.title}</span>
+                  <span className="text-xs text-ink-muted">
+                    {km ? MINDGUIDE_TYPE_LABELS[selectedOption.type].km : MINDGUIDE_TYPE_LABELS[selectedOption.type].en} · {km ? selectedOption.kmDuration : selectedOption.duration}
+                  </span>
+                </span>
+                <button type="button" onClick={() => setBrowsing(true)} className="shrink-0 text-sm font-semibold text-arom hover:underline">
+                  {t('ប្តូរ', 'Change')}
+                </button>
+              </div>
             ) : (
-              <ul className="mt-2 space-y-2">
-                {MINDGUIDE_OPTIONS.map((option) => {
-                  const key = `${option.type}:${option.id}`;
-                  return (
-                    <li key={key}>
-                      <label className={`flex cursor-pointer items-center gap-3 rounded-2xl border px-3.5 py-2.5 ${itemKey === key ? 'border-arom bg-arom-wash' : 'border-arom-border hover:bg-arom-wash/50'}`}>
-                        <input
-                          type="radio"
-                          name="care-item"
-                          checked={itemKey === key}
-                          onChange={() => {
-                            setItemKey(key);
-                            setRepeat(option.type === 'practice' ? 'daily' : 'once');
-                          }}
-                          className="accent-arom"
-                        />
-                        <span className="min-w-0 flex-1">
-                          <span className="block truncate text-sm font-medium text-ink">{km ? option.kmTitle : option.title}</span>
-                          <span className="text-xs text-ink-muted">
-                            {km ? MINDGUIDE_TYPE_LABELS[option.type].km : MINDGUIDE_TYPE_LABELS[option.type].en} · {km ? option.kmDuration : option.duration}
-                          </span>
-                        </span>
-                      </label>
-                    </li>
-                  );
-                })}
-              </ul>
+              <button
+                type="button"
+                onClick={() => setBrowsing(true)}
+                className="mt-2 flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-arom/50 bg-arom-wash/50 px-4 py-4 text-sm font-semibold text-arom hover:bg-arom-wash">
+                <Compass size={18} aria-hidden="true" />
+                {t('រុករក MindGuide', 'Browse MindGuide')}
+              </button>
             )}
-          </fieldset>
+            <p className="mt-1.5 text-xs text-ink-muted">
+              {t('មើលមេរៀន លំហាត់ និងគន្លឹះ ដូចអ្នកប្រើឃើញ។ មានតែមាតិកាដែលបានផ្សព្វផ្សាយប៉ុណ្ណោះ។', 'See lessons, practices and tips the way users do. Only published items can be chosen.')}
+            </p>
+          </div>
         ) : (
           <label className="mt-5 block text-sm font-semibold text-ink">
             {kind === 'goal' ? t('គោលដៅ', 'Goal') : kind === 'reminder' ? t('រំលឹកអំពីអ្វី', 'Reminder') : t('បេសកកម្ម', 'Mission')}
@@ -340,6 +340,21 @@ export function AddTaskDialog({ clientId, clientName, bookingId, today, onClose 
           </button>
         </div>
       </div>
+
+      {browsing && (
+        <MindGuidePicker
+          clientName={clientName}
+          onClose={() => setBrowsing(false)}
+          onChoose={(type, id) => {
+            if (!MINDGUIDE_OPTIONS.some((item) => item.type === type && item.id === id)) return;
+            setItemKey(`${type}:${id}`);
+            // A practice usually repeats; a lesson or tip is done once.
+            setRepeat(type === 'practice' ? 'daily' : 'once');
+            setError('');
+            setBrowsing(false);
+          }}
+        />
+      )}
     </div>
   );
 }

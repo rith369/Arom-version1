@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { DesktopNavigation, MobileNavigation } from "../app-navigation";
+import { useMindGuidePick } from "../mindguide-pick";
 import { BreathingExperience } from "../breathing-session";
 import {
   ALL_LESSONS,
@@ -31,6 +32,8 @@ type LearnContainerProps = {
 
 export function LearnContainer({ initialMode = "home", initialItemId }: LearnContainerProps) {
   const router = useRouter();
+  // Set when a professional browses MindGuide to give a care task.
+  const pick = useMindGuidePick();
   const initialLesson = ALL_LESSONS.find((lesson) => lesson.id === initialItemId && lesson.isAvailable);
   const [mode, setMode] = useState<LearnScreenMode>(initialLesson ? "detail" : initialMode);
   const [selectedLesson, setSelectedLesson] = useState<Lesson>(initialLesson ?? LESSON_ABOUT_STRESS);
@@ -72,15 +75,15 @@ export function LearnContainer({ initialMode = "home", initialItemId }: LearnCon
         onExit={() => setMode("detail")}
         onComplete={handleLessonComplete}
         onOpenExercise={() => setMode("exercise")}
-        onOpenProfessional={() => router.push("/professional")}
+        onOpenProfessional={() => (pick ? undefined : router.push("/professional"))}
       />
     );
   }
 
   return (
-    <div className="min-h-screen bg-canvas lg:grid lg:grid-cols-[19rem_minmax(0,1fr)]">
+    <div className={pick ? "bg-canvas" : "min-h-screen bg-canvas lg:grid lg:grid-cols-[19rem_minmax(0,1fr)]"}>
       {/* Desktop Sidebar Navigation */}
-      <DesktopNavigation active="MindGuide" />
+      {!pick && <DesktopNavigation active="MindGuide" />}
 
       {/* Main View Area */}
       <div className="min-w-0">
@@ -88,7 +91,7 @@ export function LearnContainer({ initialMode = "home", initialItemId }: LearnCon
           <LearnHomeView
             onSelectLesson={handleSelectLesson}
             onOpenSaved={() => setMode("saved")}
-            onBackToMindGuide={() => router.push("/mindguide")}
+            onBackToMindGuide={() => (pick ? pick.close() : router.push("/mindguide"))}
           />
         )}
 
@@ -123,7 +126,7 @@ export function LearnContainer({ initialMode = "home", initialItemId }: LearnCon
       </div>
 
       {/* Mobile Navigation bar */}
-      <MobileNavigation active="MindGuide" />
+      {!pick && <MobileNavigation active="MindGuide" />}
     </div>
   );
 }
