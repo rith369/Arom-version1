@@ -35,6 +35,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
   - Shared global components & providers reside in `app/_components/` (e.g., `language-provider.tsx`, `detection-provider.tsx`).
   - Route-specific components are grouped within feature subdirectories.
 - **Bilingual & Localization:** Always support or consider English and Khmer text rendering with proper font classes (`font-sans`, Kantumruy Pro).
+- **Admin area is English only:** New UI text in the admin area (`/admin`: labels, buttons, headings, messages) is written in English only, with no Khmer translation, because only the AROM team uses it. Do not remove the Khmer that already exists there. Keep Khmer input fields for user facing content (for example "Title (Khmer)"), because users read that content.
 - **TypeScript:** Strict typing — avoid `any`. Use descriptive interfaces and prop types.
 - **Styling Rules:** Ensure mobile responsiveness and accessible contrast suitable for a calming wellness aesthetic.
 

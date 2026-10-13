@@ -7,6 +7,26 @@ A plain-language log of what changed in the app, written for the team rather tha
 
 Each entry lists the commit it landed in, so you can match it to a version of the site.
 
+## 13 Oct 2026: Rule Added, New Admin Screens Are English Only
+
+Commit pending. No migration.
+
+**Why.** The admin area is used only by the AROM team, and everyone on the team reads English. Translating every admin label into Khmer takes time and adds code without helping anyone. User facing pages are not affected.
+
+**What changed for users:**
+- **Nothing.** Seekers and professionals see the same bilingual app as before.
+
+**What changed for the team:**
+- **New rule in `AGENTS.md` section 4:** new admin labels, buttons, headings and messages are English only.
+- **Existing Khmer in the admin stays.** Nothing was removed.
+- **Khmer content fields stay,** for example "Title (Khmer)" in the MindGuide editor, because users read that content.
+- **AI assistants** on every teammate's machine read `AGENTS.md`, so they follow the same rule.
+
+**What to re-test:**
+- Nothing to test in the app. Check that the next admin screen built uses English labels only and still has Khmer fields for user facing content.
+
+---
+
 ## 13 Oct 2026: "For Learning Only, Not a Diagnosis" Note on Every MindGuide Screen
 
 Commit `52f54f5`. No migration.
