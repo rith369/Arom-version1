@@ -9,7 +9,7 @@ Each entry lists the commit it landed in, so you can match it to a version of th
 
 ## 13 Oct 2026: Give Several Care Tasks in One Go
 
-Commit pending. No migration. Frontend only.
+Commit `eb1eebf`. No migration. Frontend only.
 
 **Why.** After a session a professional often wants to give more than one thing (for example two goals and a practice). Each task closed the window, so they had to reopen it every time.
 
