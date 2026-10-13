@@ -9,7 +9,7 @@ Each entry lists the commit it landed in, so you can match it to a version of th
 
 ## 13 Oct 2026: My Bookings for Professionals: Intake Answers, Reschedule, Cancel and Private Notes
 
-Commit pending. No migration yet. Frontend only, on mock data.
+Commit `edc8203`. No migration yet. Frontend only, on mock data.
 
 **Why.** We decided only the client and the professional manage a booking, not admins. Professionals now have their own page to prepare for sessions, move or cancel them with a reason the client sees, record how a session went, and keep private notes.
 
