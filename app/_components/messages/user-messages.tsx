@@ -7,6 +7,7 @@ import { getTherapist, getTherapistName } from "@/lib/therapists";
 import { initialBookings } from "../../admin/_data/bookings";
 import { DesktopNavigation, MobileNavigation } from "../app-navigation";
 import { useLanguage } from "../language-provider";
+import { DEMO_CLIENT } from "../demo-client";
 import { ChatThread } from "./chat-thread";
 import {
   REPLY_TIME_LABELS,
@@ -15,9 +16,6 @@ import {
   useMessageStore,
   type Conversation,
 } from "./message-store";
-
-// Demo: the signed in user is shown as Sok Dara until the backend knows who it is.
-const DEMO_CLIENT = { id: "demo-user-001", name: "Sok Dara" };
 
 function Shell({ children }: { children: React.ReactNode }) {
   return (

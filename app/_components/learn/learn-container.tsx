@@ -5,6 +5,7 @@ import { useState } from "react";
 import { DesktopNavigation, MobileNavigation } from "../app-navigation";
 import { BreathingExperience } from "../breathing-session";
 import {
+  ALL_LESSONS,
   LESSON_ABOUT_STRESS,
   type Lesson,
 } from "./learn-data";
@@ -24,12 +25,15 @@ export type LearnScreenMode =
 
 type LearnContainerProps = {
   initialMode?: LearnScreenMode;
+  // Opens one lesson directly, for example from a professional's care task.
+  initialItemId?: string;
 };
 
-export function LearnContainer({ initialMode = "home" }: LearnContainerProps) {
+export function LearnContainer({ initialMode = "home", initialItemId }: LearnContainerProps) {
   const router = useRouter();
-  const [mode, setMode] = useState<LearnScreenMode>(initialMode);
-  const [selectedLesson, setSelectedLesson] = useState<Lesson>(LESSON_ABOUT_STRESS);
+  const initialLesson = ALL_LESSONS.find((lesson) => lesson.id === initialItemId && lesson.isAvailable);
+  const [mode, setMode] = useState<LearnScreenMode>(initialLesson ? "detail" : initialMode);
+  const [selectedLesson, setSelectedLesson] = useState<Lesson>(initialLesson ?? LESSON_ABOUT_STRESS);
   const [lessonStartSection, setLessonStartSection] = useState<number>(1);
 
   const handleSelectLesson = (lesson: Lesson) => {

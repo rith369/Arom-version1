@@ -7,6 +7,11 @@ export const metadata: Metadata = {
     "Explore practical everyday psychological tips for stress control, sleep, and emotional balance.",
 };
 
-export default function MindGuideTipsPage() {
-  return <TipsContainer initialMode="home" />;
+export default async function MindGuideTipsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ open?: string | string[] }>;
+}) {
+  const { open } = await searchParams;
+  return <TipsContainer initialMode="home" initialItemId={typeof open === "string" ? open : undefined} />;
 }

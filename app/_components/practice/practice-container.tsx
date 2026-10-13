@@ -5,6 +5,7 @@ import { useState } from "react";
 import { DesktopNavigation, MobileNavigation } from "../app-navigation";
 import { BreathingExperience } from "../breathing-session";
 import {
+  ALL_PRACTICES,
   PRACTICE_BREATHING,
   type PracticeItem,
 } from "./practice-data";
@@ -22,15 +23,19 @@ export type PracticeScreenMode =
 
 type PracticeContainerProps = {
   initialMode?: PracticeScreenMode;
+  // Opens one practice directly, for example from a professional's care task.
+  initialItemId?: string;
 };
 
 export function PracticeContainer({
   initialMode = "home",
+  initialItemId,
 }: PracticeContainerProps) {
   const router = useRouter();
-  const [mode, setMode] = useState<PracticeScreenMode>(initialMode);
+  const initialPractice = ALL_PRACTICES.find((practice) => practice.id === initialItemId && practice.isAvailable);
+  const [mode, setMode] = useState<PracticeScreenMode>(initialPractice ? "detail" : initialMode);
   const [selectedPractice, setSelectedPractice] =
-    useState<PracticeItem>(PRACTICE_BREATHING);
+    useState<PracticeItem>(initialPractice ?? PRACTICE_BREATHING);
 
   const handleSelectPractice = (practice: PracticeItem) => {
     setSelectedPractice(practice);

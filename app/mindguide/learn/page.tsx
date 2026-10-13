@@ -7,6 +7,11 @@ export const metadata: Metadata = {
     "Understand your mind, one step at a time. Explore evidence-based mental health topics, interactive lessons, and stress recovery tools.",
 };
 
-export default function MindGuideLearnPage() {
-  return <LearnContainer initialMode="home" />;
+export default async function MindGuideLearnPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ open?: string | string[] }>;
+}) {
+  const { open } = await searchParams;
+  return <LearnContainer initialMode="home" initialItemId={typeof open === "string" ? open : undefined} />;
 }

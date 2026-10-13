@@ -7,6 +7,44 @@ A plain-language log of what changed in the app, written for the team rather tha
 
 Each entry lists the commit it landed in, so you can match it to a version of the site.
 
+## 13 Oct 2026: Care Plan, Tasks From Your Professional in Your Plan For Today
+
+Commit pending. No migration yet. Frontend only, on mock data.
+
+**Why.** After a session, clients often forget what they agreed to try, and professionals had no way to give practice between sessions or see whether it helped. Now the professional gives small tasks, they appear in the client's daily plan, and the client decides whether their progress is shared.
+
+**What changed for users:**
+- **Tasks from your professional in "Your Plan For Today"** on the home page, marked "From Dr. ...". Tick them off like any other item; MindGuide tasks open the right lesson, tip or practice directly.
+- **New "Your care plan" page** (`/care-plan`, linked from the home plan) with all tasks from each professional, what is due today, and past tasks.
+- **"Share my progress" switch** per professional. When on, they see only which tasks you ticked, never your journal, mood or other answers. You can turn it off at any time.
+- **Medicine reminders say "Only take medicine as prescribed by your doctor."**
+
+**What changed for professionals:**
+- **New "Care plan" card in each client file** with a "Give a task" window: MindGuide item, mission, goal or reminder, a note to the client, how often (once, every day or some days), an end date and an optional reminder time.
+- **Progress dots for the last 7 days** when the client shares progress; otherwise "has not shared their progress. That is their choice."
+- **Stop a task** at any time; stopped and ended tasks move to "Past tasks".
+- **"Give care tasks" link** in the booking window after a session.
+- **Khmer and English** on both sides.
+
+**What changed for the team:**
+- **New shared store** `app/_components/care/care-store.ts` used by `/pro`, the home plan and `/care-plan`; `/care-plan` added to the login protected pages in `lib/supabase/proxy.ts`.
+- **MindGuide pages accept `?open=<id>`** to open one item directly (learn, tips, practice).
+- **The demo user (Sok Dara)** now lives in `app/_components/demo-client.ts`, shared with Messages.
+- **Mock store in memory only:** nothing is saved in the browser; it resets on refresh.
+- **`BACKEND-HANDOFF.md` section 18** lists the tables, who can read and tick, the sharing rule, and the data the Telegram bot needs for reminders. Decision recorded in section 7.
+
+**What to re-test:**
+- As admin, open Professional area, My clients, Sok Dara; confirm the Care plan card shows four tasks and progress dots;
+- Give a task of each kind; try saving a mission with no text, a goal with no date, and "Some days" with no day, and confirm the messages;
+- Without refreshing, open Home and confirm today's new tasks show "From Dr. Sopheap Chan"; tick one, then return to the client file and confirm the dot for today;
+- Open "See your care plan", turn sharing off, and confirm the client file says Sok Dara has not shared progress;
+- Stop a task and confirm it leaves the home plan and moves to Past tasks;
+- Open a MindGuide task from the plan and confirm the right item opens;
+- In My bookings, open an ended session and use "Give care tasks";
+- Switch to Khmer on both sides.
+
+---
+
 ## 13 Oct 2026: Messages Between Clients and Professionals, With Voice Messages
 
 Commit `59ff819`. No migration yet. Frontend only, on mock data.

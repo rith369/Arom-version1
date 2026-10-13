@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { Archive, ArchiveRestore, ArrowLeft, FileText, Lock, MessageCircle, Monitor, NotebookPen, Pin, Search, Share2, UserRound } from 'lucide-react';
 
 import { BookingDialog } from './bookings-view';
+import { CarePlanCard } from './care-plan-card';
 import { usePro } from './pro-provider';
 import { useLanguage } from '../../_components/language-provider';
 import { MAX_NOTE, type ProBooking } from '../_data/bookings';
@@ -65,6 +66,7 @@ export function ClientFile({ clientId }: { clientId: string }) {
   const latestIntake = [...sessions].sort((a, b) => b.startsAt.localeCompare(a.startsAt))[0];
   const openBooking = sessions.find((item) => item.id === openId) ?? null;
   const savedSummary = summaryNotes[clientId];
+  const latestEnded = sessions.find((item) => item.status !== 'cancelled' && endOf(item) <= now);
 
   const day = new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'short', year: 'numeric', timeZone: TIME_ZONE });
   const dayTime = new Intl.DateTimeFormat(locale, { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hourCycle: 'h23', timeZone: TIME_ZONE });
@@ -186,6 +188,8 @@ export function ClientFile({ clientId }: { clientId: string }) {
               </span>
             </div>
           </Card>
+
+          <CarePlanCard clientId={clientId} clientName={client.name} archived={archived} latestSessionId={latestEnded?.id ?? null} />
 
           <Card title={t('ប្រវត្តិការពិគ្រោះ និងកំណត់ចំណាំ', 'Sessions and notes')} icon={NotebookPen}>
             <div className="relative">

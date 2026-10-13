@@ -2,20 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
-import {
-  CalendarClock,
-  CheckCircle2,
-  FileText,
-  FolderOpen,
-  Lock,
-  MessageCircle,
-  Monitor,
-  NotebookPen,
-  UserRound,
-  UserX,
-  X,
-  XCircle,
-} from 'lucide-react';
+import { CalendarClock, CheckCircle2, ClipboardList, FileText, FolderOpen, Lock, MessageCircle, Monitor, NotebookPen, UserRound, UserX, X, XCircle } from 'lucide-react';
 
 import { usePro } from './pro-provider';
 import { useLanguage } from '../../_components/language-provider';
@@ -133,6 +120,12 @@ export function BookingDialog({
               <MessageCircle size={15} aria-hidden="true" />
               {t('ផ្ញើសារ', 'Message client')}
             </Link>
+            {showClientLink && (booking.status === 'completed' || needsOutcome) && (
+              <Link href={`/pro/clients/${booking.clientId}#care-plan`} className="inline-flex items-center gap-1.5 text-sm font-semibold text-arom hover:underline">
+                <ClipboardList size={15} aria-hidden="true" />
+                {t('ផ្ដល់កិច្ចការថែទាំ', 'Give care tasks')}
+              </Link>
+            )}
           </div>
         </div>
         <button type="button" onClick={onClose} aria-label={t('បិទ', 'Close')} className="rounded-full p-2 hover:bg-arom-wash">

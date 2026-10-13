@@ -17,6 +17,19 @@ import {
   toggleCustomPlanItemComplete,
   type DailyPlanCustomItem,
 } from "../_components/daily-plan-store";
+import { DEMO_CLIENT } from "../_components/demo-client";
+import {
+  cambodiaToday,
+  isDoneToday,
+  isDueToday,
+  mindguideOption,
+  taskHref,
+  taskTitle,
+  toggleCheckIn,
+  useCareStore,
+  type CareTask,
+} from "../_components/care/care-store";
+import { getTherapist, getTherapistName } from "@/lib/therapists";
 
 type PlanActivity = {
   id: string;
@@ -32,7 +45,17 @@ type PlanActivity = {
   isCustom?: boolean;
   badge?: string;
   badgeKm?: string;
+  // Given by the client's professional (Care plan).
+  careTask?: CareTask;
 };
+
+// Icon for a task from the professional, matching the plan's other rows.
+function careIcon(task: CareTask) {
+  const type = mindguideOption(task)?.type;
+  if (type === "practice") return "hugeicons_yoga-03";
+  if (type === "lesson") return "ant-design_play-circle-filled";
+  return "boxicons_note-filled";
+}
 
 const baseMoodActivity: PlanActivity = {
   id: "mood",
@@ -84,6 +107,8 @@ export function DailyPlanCard() {
   const [tryNowItems, setTryNowItems] = useState<PlanTryNowItem[]>([]);
   const [customItems, setCustomItems] = useState<DailyPlanCustomItem[]>([]);
   const [isCuratorOpen, setIsCuratorOpen] = useState(false);
+  const care = useCareStore();
+  const [today] = useState(() => cambodiaToday(Date.now()));
 
   useEffect(() => {
     setTryNowItems(getPlanTryNowItems());
@@ -109,6 +134,34 @@ export function DailyPlanCard() {
     e.stopPropagation();
     toggleCustomPlanItemComplete(id);
   };
+
+  const handleToggleCare = (e: React.MouseEvent, task: CareTask) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleCheckIn(task, today);
+  };
+
+  // Tasks from the user's professionals that are due today.
+  const careActivities: PlanActivity[] = care.tasks
+    .filter((task) => task.clientId === DEMO_CLIENT.id && isDueToday(task, care.checkIns, today))
+    .map((task) => {
+      const therapist = getTherapist(task.professionalId);
+      const from = therapist ? getTherapistName(therapist, false) : "your professional";
+      const fromKm = therapist ? getTherapistName(therapist, true) : "អ្នកជំនាញរបស់អ្នក";
+      return {
+        id: task.id,
+        title: taskTitle(task, false),
+        titleKm: taskTitle(task, true),
+        subtitle: task.note || (task.kind === "goal" ? "Goal, tick it when you reach it" : "From your care plan"),
+        subtitleKm: task.note || (task.kind === "goal" ? "គោលដៅ ចុចពេលអ្នកសម្រេចបាន" : "ពីផែនការថែទាំរបស់អ្នក"),
+        icon: careIcon(task),
+        href: taskHref(task),
+        completed: isDoneToday(task, care.checkIns, today),
+        badge: `From ${from}`,
+        badgeKm: `ពី ${fromKm}`,
+        careTask: task,
+      };
+    });
 
   const handleRemoveCustom = (e: React.MouseEvent, id: string) => {
     e.preventDefault();
@@ -177,6 +230,7 @@ export function DailyPlanCard() {
 
   const allActivities: PlanActivity[] = [
     baseMoodActivity,
+    ...careActivities,
     ...mindguideOrCustomItems,
     ...tryNowActivities,
     baseCommunityActivity,
@@ -238,7 +292,24 @@ export function DailyPlanCard() {
             className="group flex items-center gap-3 py-2.5 transition-colors duration-150 hover:bg-white/5 rounded-xl px-1.5 focus-visible:outline-2 focus-visible:outline-white"
           >
             {/* Interactive check button for Try Now and Custom MindGuide items */}
-            {item.isTryNow && item.stepNumber !== undefined ? (
+            {item.careTask ? (
+              <button
+                type="button"
+                onClick={(e) => handleToggleCare(e, item.careTask!)}
+                aria-label={item.completed ? "Mark incomplete" : "Mark complete"}
+                className={`flex size-7 items-center justify-center rounded-full shrink-0 border transition-colors ${
+                  item.completed
+                    ? "border-[#23aa89] bg-[#23aa89] text-white shadow-sm"
+                    : "border-white/40 bg-white/10 text-white/60 hover:border-white hover:text-white"
+                }`}
+              >
+                {item.completed ? (
+                  <Check size={16} strokeWidth={2.5} />
+                ) : (
+                  <FigmaIcon name={item.icon} size={16} className="text-white" />
+                )}
+              </button>
+            ) : item.isTryNow && item.stepNumber !== undefined ? (
               <button
                 type="button"
                 onClick={(e) => handleToggleTryNow(e, item.stepNumber!)}
@@ -319,6 +390,16 @@ export function DailyPlanCard() {
           </Link>
         ))}
       </div>
+
+      {careActivities.length > 0 && (
+        <Link
+          href="/care-plan"
+          className="mt-2 flex items-center justify-end gap-1 text-[11px] font-semibold text-[#a3edd9] hover:text-white"
+        >
+          {km ? "មើលផែនការថែទាំរបស់អ្នក" : "See your care plan"}
+          <ChevronRight aria-hidden="true" className="size-3.5" />
+        </Link>
+      )}
 
       {/* Bottom launcher for Daily Flow Curator */}
       <button

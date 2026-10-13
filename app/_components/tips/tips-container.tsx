@@ -5,6 +5,7 @@ import { useState } from "react";
 import { DesktopNavigation, MobileNavigation } from "../app-navigation";
 import { BreathingExperience } from "../breathing-session";
 import {
+  ALL_TIPS,
   TIP_CONTROL_STRESS,
   type TipItem,
 } from "./tips-data";
@@ -24,14 +25,18 @@ export type TipsScreenMode =
 
 type TipsContainerProps = {
   initialMode?: TipsScreenMode;
+  // Opens one tip directly, for example from a professional's care task.
+  initialItemId?: string;
 };
 
 export function TipsContainer({
   initialMode = "home",
+  initialItemId,
 }: TipsContainerProps) {
   const router = useRouter();
-  const [mode, setMode] = useState<TipsScreenMode>(initialMode);
-  const [selectedTip, setSelectedTip] = useState<TipItem>(TIP_CONTROL_STRESS);
+  const initialTip = ALL_TIPS.find((tip) => tip.id === initialItemId && tip.isAvailable);
+  const [mode, setMode] = useState<TipsScreenMode>(initialTip ? "detail" : initialMode);
+  const [selectedTip, setSelectedTip] = useState<TipItem>(initialTip ?? TIP_CONTROL_STRESS);
 
   const handleSelectTip = (tip: TipItem) => {
     setSelectedTip(tip);

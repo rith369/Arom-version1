@@ -51,7 +51,8 @@ The yellow "Demo data on this page" banner is in `admin-shell.tsx`. Remove it fo
 | Professional bookings (`/pro/bookings`) | Done on mock data | Waiting for backend | 16 |
 | Professional clients (`/pro/clients`, client file) | Done on mock data | Waiting for backend | 16 |
 | Messages between client and professional (text and voice): `/pro/messages`, `/messages` | Done on mock data | Waiting for backend | 17 |
-| Professional podcasts (`/pro`) | Not built yet | Not started | 18 |
+| Care plan: professional gives tasks, client sees them in Your Plan For Today (`/pro/clients/<id>`, `/care-plan`, home) | Done on mock data | Waiting for backend | 18 |
+| Professional podcasts (`/pro`) | Not built yet | Not started | 19 |
 | Admin MindGuide: lessons, tips and practices with drafts, versions, publish and checks (`/admin/mindguide`, editor at `/admin/mindguide/<type>/<sourceId>`) | Done on mock data | Waiting for backend | 9 |
 | Report a problem (users) and admin Reports page (`/admin/reports`) | Done on mock data | Waiting for backend | 10 |
 | Announcements: admin Settings section, banner at the top of every user page | Done on mock data | Waiting for backend | 15 |
@@ -177,6 +178,7 @@ Do not change these without asking Rith.
 - **AROM has no "Owner" role.** Only `user`, `professional`, `admin`.
 - **Educational note is fixed app text.** Every lesson, tip, practice and podcast screen shows "For learning only. This is not a diagnosis or treatment." from `app/_components/educational-note.tsx`. It is not stored as content, so no admin edit can remove it.
 - **No crisis helpline card on content screens.** Users find crisis helplines in Profile and Settings under "Get help now" (see section 13). If none are active, a built in message tells users to contact local emergency services. Never invent a number.
+- **Care plan tasks come only from the client's own professional, after a booking.** Four kinds: MindGuide item (only published ones), mission, goal and reminder. Reminders about medicine are only for medicine their doctor prescribed; AROM does not prescribe. The client chooses whether the professional sees their progress (off unless they turn it on), and it covers only ticks on those tasks, never journals, mood or detection answers. Reminder messages are sent by the Telegram bot built separately, not by the app.
 - **Messages only after a booking.** A user can message a professional only once they have booked with them. Text and voice messages (up to 2 minutes). Admins cannot read these chats (unlike community group chats). Not for emergencies: the user chat always links to Get help now. Archived clients' chats are read only. Calls use a meeting link (Google Meet or Zoom), not built in calls. Automatic reminders are a Telegram bot built separately.
 - **Bookings belong to the user and the professional.** Only they confirm, reschedule or cancel. Admins see bookings read only and can only make an emergency cancel with a written reason (see section 12).
 - **Instant booking.** A user picking one of a professional's open times is booked straight away (`appointments.status = 'booked'`, as the database already does). Professionals can still cancel or reschedule with a reason. An optional per professional "review new clients first" setting may come later; the frontend "pending" status is reserved for it.
@@ -551,9 +553,36 @@ Backend needs: store the weekly hours, settings and time off (a `professional_sc
 
 **Mock today:** the store lives in memory only (nothing saved in the browser), so it resets on refresh. Messages sent on one side show on the other while the app stays open. The user side views as Sok Dara.
 
-## 18. Planned next (frontend not built yet)
+## 18. Care plan (tasks between sessions)
 
-- **`/pro` next steps:** My podcasts (their own episodes on their profile).
+**Files:** `app/_components/care/care-store.ts` (types, rules, in memory mock store, actions), `user-care-plan.tsx` and route `app/care-plan/` (user page), `app/components/daily-plan-card.tsx` (home "Your Plan For Today" shows today's tasks), `app/pro/_components/care-plan-card.tsx` (Care plan card and "Give a care task" window in the client file). The booking window in `/pro/bookings` links "Give care tasks" for ended sessions. `/care-plan` is added to `PROTECTED_PREFIXES` in `lib/supabase/proxy.ts`. MindGuide pages accept `?open=<id>` (`/mindguide/learn`, `/mindguide/tips`, `/mindguide/practice`) so a task opens the item directly.
+
+### Data shape
+
+| Type | Fields | Suggested table |
+|---|---|---|
+| `CareTask` | `id`, `professionalId`, `clientId`, `bookingId` (session it was given after, nullable), `kind` (`mindguide`, `mission`, `goal`, `reminder`), `mindguide` (`{ type: lesson, tip or practice, itemId }`, only for kind mindguide), `title` (up to 120, empty for MindGuide), `note` (up to 300), `repeat` (`{ type: 'once' }` or `{ type: 'days', days: 1..7 }`, 1 is Monday), `startDate`, `endDate` (nullable; for a goal it is "reach by"), `reminderTime` (`HH:MM` Cambodia time, nullable, never for goals), `createdAt`, `stoppedAt` | `care_tasks`; `days` as `smallint[]` |
+| `CareCheckIn` | `taskId`, `date` (Cambodia date), `doneAt` | `care_check_ins`, unique `(task_id, date)`. A one time task or goal has at most one row |
+| Progress sharing | per professional and client, boolean, default off | `care_sharing (professional_id, client_id, share_progress, updated_at)` |
+
+### Rules
+
+- **Who can create or stop a task:** only a professional who has a booked or completed appointment with that client, and not after the client is archived. Insert through a `security definer` function that checks this and that a MindGuide item is published.
+- **Who can read tasks:** the client and that professional. No admin read policy.
+- **Who can tick:** only the client, only on dates the task is due, never in the future.
+- **Who can read check ins:** the client always; the professional only while `share_progress` is on (check it in the RLS policy, not only in the UI). Turning sharing off hides past check ins too.
+- **What is due today** (`isDueToday` in `care-store.ts`): active (not stopped, between start and end date); repeating tasks on their weekdays; one time tasks and goals until ticked, and on the day they were ticked.
+- **Never log task titles, notes or check ins.**
+
+### Reminders for the Telegram bot (built separately)
+
+The bot needs, for each active task with a `reminderTime`: client id (to find their linked Telegram chat), task title (or the MindGuide item title), `reminderTime`, `repeat`, `startDate`, `endDate`, `stoppedAt`. Send only on due days, skip if already ticked that day, and stop when the task is stopped or ended. The app only stores the time; it sends nothing.
+
+**Mock today:** the store lives in memory only (nothing saved in the browser), so it resets on refresh. Tasks given in `/pro` show on the home page and `/care-plan` while the app stays open. The user side views as Sok Dara (`app/_components/demo-client.ts`, shared with Messages). Only one lesson, one tip and one practice are published today, so the picker lists those three.
+
+## 19. Planned next (frontend not built yet)
+
+- **`/pro` next steps, in order:** booking improvements (Join session meeting link, quick replies, after session note plus outcome plus suggest next session plus care tasks, repeat sessions), a Prepare view and week calendar, then My podcasts (their own episodes on their profile).
 - **Make professional (Way 2):** phone is optional there because the admin already knows the person. Add an optional phone field to `ProfessionalPromotion` when the backend supports it.
 
 ## 14. Community: groups, chat moderation and reports
