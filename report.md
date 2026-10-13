@@ -9,7 +9,7 @@ Each entry lists the commit it landed in, so you can match it to a version of th
 
 ## 13 Oct 2026: Community Groups by Professionals, Admin Chat Review and Shut Down, User Reports
 
-Commit pending. No migration. Frontend only, on mock data in the browser.
+Commit `70f03fa`. No migration. Frontend only, on mock data in the browser.
 
 **Why.** Support groups need clear safety rules. Professionals should be able to start groups for the people they help, the AROM team needs to see what happens in a chat and close a group that goes wrong, and members need a simple way to flag a person, an image or a whole group that makes the space feel unsafe.
 
