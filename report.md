@@ -9,7 +9,7 @@ Each entry lists the commit it landed in, so you can match it to a version of th
 
 ## 13 Oct 2026: My Clients: One File per Client With a Summary Note, Session Notes and Shared Results
 
-Commit pending. No migration yet. Frontend only, on mock data.
+Commit `8a43f31`. No migration yet. Frontend only, on mock data.
 
 **Why.** Therapists think about the person, not the calendar. Before a session they need to find the client quickly, see their history and read what they wrote last time, without rewriting the background every time. AROM's database already lets clients share their survey and symptom checks with their professional, so the file shows those too, only when the client chose to share.
 
