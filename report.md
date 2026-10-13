@@ -9,7 +9,7 @@ Each entry lists the commit it landed in, so you can match it to a version of th
 
 ## 13 Oct 2026: Removing a Reported Message, Image or Person Now Works
 
-Commit pending. No migration. Frontend only, on mock data in the browser.
+Commit `f668534`. No migration. Frontend only, on mock data in the browser.
 
 **Why.** In the Reports tab, "Mark for removal" only changed the report's label. The harmful message or picture stayed in the chat for every member, so an admin could believe it was gone when it was not. On a mental health platform that is a safety gap.
 
