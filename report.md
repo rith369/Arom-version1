@@ -9,7 +9,7 @@ Each entry lists the commit it landed in, so you can match it to a version of th
 
 ## 13 Oct 2026: Join Session Links, After Session Steps, Suggested and Repeating Sessions, Quick Replies
 
-Commit pending. No migration yet. Frontend only, on mock data.
+Commit `5b5d618`. No migration yet. Frontend only, on mock data.
 
 **Why.** Online sessions had no way to actually meet, and after a session the professional had to remember several separate steps. Booking the next session meant the client starting from scratch. Now the meeting link travels with the booking, the booking window walks the professional through what to do after a session, and the client books the next session (or a weekly series) with one tap in the chat.
 
