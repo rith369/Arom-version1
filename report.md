@@ -1,4 +1,4 @@
-# AROM: Change Report
+﻿# AROM: Change Report
 
 A plain-language log of what changed in the app, written for the team rather than for developers. Newest entries first.
 
@@ -9,7 +9,7 @@ Each entry lists the commit it landed in, so you can match it to a version of th
 
 ## 14 Oct 2026: Brand Header on Home, Detection, Journal and Community
 
-Commit `PENDING`. No database changes.
+Commit `b54ad45`. No database changes.
 
 **Why.** The top of these pages showed a level, XP bar, streak and coins that are not real yet. That felt like a game more than a calm wellness space. The header now matches MindGuide and Find a professional: the AROM logo with its tagline, a menu button and the profile picture.
 
