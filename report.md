@@ -7,6 +7,96 @@ A plain-language log of what changed in the app, written for the team rather tha
 
 Each entry lists the commit it landed in, so you can match it to a version of the site.
 
+## 15 Oct 2026: Real Private Notes, Real Shared Results, No More Yellow Note in /pro
+
+Commit `PENDING`. Migration `20261015000300_pro_private_notes.sql` must be run in Supabase (after the earlier 14 and 15 Oct migrations).
+
+**Why.** The last parts of the professional area that were not saved were the plan written before a session and the pinned summary per client. "Shared by the client" also showed sample results instead of what the client really shared. And professionals could read every column of their clients' profile rows, more than they need.
+
+**What changed for professionals:**
+- **Plan for this session** (Prepare page) and **Summary note** (client file) are saved, private to you. If saving fails, you are told.
+- **Shared by the client** now shows the client's real latest survey and symptom check scores, only while they share them. Scores and levels only, never their answers.
+- **Client language** in the client file is the client's real app language.
+- **Clients in Anonymous Mode** show as "Client" instead of their name.
+- **The yellow note at the top of `/pro` is gone.** Everything in `/pro` is saved, except My podcasts.
+
+**What changed for the team:**
+- New tables `session_prep_notes` and `client_summary_notes` (owner only RLS, no admin read). Dropped the policy "Professionals read their clients' profiles". `my_client_names()` now returns `language` and respects Anonymous Mode.
+- `POST /api/pro/bookings/:id` accepts `{ action: "prep", text }`. `/api/pro/clients/:clientId` now has `GET` (shared results) and `POST { summaryNote }` next to `{ archived }` (moved to `pro-controller.ts`). `ProBooking.clientLanguage` added.
+- Removed unused demo code: `sampleBookingsFor`, demo profiles and schedule, `DEMO_MEETING_URL`, `SAMPLE_SHARED`.
+- Tested on a local Postgres: notes saved, note refused for someone who never booked, client of a note cannot be changed, other professionals, the client and admins see no notes, shared symptom checks visible and unshared survey hidden, profile row no longer readable, Anonymous Mode hides the name.
+
+**What to re-test (after running the migration):**
+- Open a booking's Prepare page, write a plan, save, refresh: it stays;
+- Open a client file, write a summary note, save, refresh: it stays;
+- As the client, turn on sharing of symptom checks for the booking and take a symptom check; as the professional, confirm the score shows in the client file and Prepare page; turn sharing off and confirm it disappears;
+- Confirm the yellow note is gone from `/pro`.
+
+---
+
+## 15 Oct 2026: Real Suggested Sessions, Repeating Series and Quick Replies
+
+Commit `PENDING`. Migration `20261015000200_sessions.sql` must be run in Supabase (after `20261014000700_messages.sql`).
+
+**Why.** "Suggest a session", repeating series and quick replies only worked in the professional's own browser and were lost on refresh, so clients never saw a suggestion. Booking a series also needs to be safe: either every session is booked or none is.
+
+**What changed for users:**
+- **Suggested times arrive in Messages** from your professional. Pick one and tap Book: every session of a repeating series is booked at once. If any of them was just taken, nothing is booked and you are told so.
+- **Repeating sessions are marked** "Repeating" in the Next session strip.
+
+**What changed for professionals:**
+- **Suggest a session is saved and sent** to the client's chat. Only times open in your schedule and free for the whole series can be sent. You can withdraw it while the client has not chosen.
+- **Booked series show in My bookings** as "Session 2 of 4" and so on. Home "Needs your attention" counts suggestions still waiting.
+- **Quick replies are saved** to your account. There are no sample replies any more; add your own with Edit.
+- **The yellow note** now reads "Not saved yet: podcasts, summary notes and session prep."
+
+**What changed for the team:**
+- New table `session_suggestions`, `appointments.series_id`, `messages.kind 'suggestion'` with `suggestion_id`, table `quick_replies`. Functions `suggest_session`, `withdraw_session_suggestion`, `accept_session_suggestion`, `save_quick_replies`.
+- **Open times can no longer overlap a booked session:** two triggers keep `availability_slots.is_booked` in line with booked sessions, including sessions booked past the booking window.
+- New `lib/sessions.ts`, `lib/controllers/sessions-controller.ts`, routes `/api/pro/suggestions` (+ `/:id/withdraw`), `/api/suggestions/:id/accept`, `/api/pro/quick-replies`. Chat threads return their suggestions.
+- Tested on a local Postgres (see BACKEND-HANDOFF.md section 19).
+
+**What to re-test (after running the migration):**
+- As a professional with a schedule, open a client's chat, Suggest a session with 2 times, "Every week, 4 sessions";
+- As the client, open Messages, confirm the card, pick a time and Book 4 sessions; confirm 4 sessions on `/appointments`;
+- As the professional, confirm My bookings shows "Session 1 of 4" and the card shows Booked;
+- Suggest again and Withdraw; confirm the client sees it was withdrawn;
+- Add a quick reply, refresh, confirm it is still there, then use it in a message.
+
+---
+
+## 15 Oct 2026: Real Care Plans
+
+Commit `PENDING`. Migration `20261015000100_care_plans.sql` must be run in Supabase (after `20261014000700_messages.sql`, which it uses for archived clients).
+
+**Why.** Care tasks between sessions were sample data in the browser's memory, always shown as "Sok Dara", and lost on refresh. Professionals need to give real clients small steps between sessions, and clients need to see and tick them, with progress private unless they choose to share it.
+
+**What changed for users:**
+- **Your care plan is real.** Tasks from your professional show on `/care-plan` and today's ones in Your Plan For Today on the home page, with their real name and photo.
+- **Ticks are saved.** You can tick a task on the days it is due. A one time task or goal is ticked once.
+- **Sharing is your choice and is saved.** Off by default. While it is off, your professional cannot see any of your ticks, including old ones.
+
+**What changed for professionals:**
+- **Give a task is saved** (MindGuide item, mission, goal or reminder), from the client file or after a session in My bookings. Errors show in the window.
+- **Stop a task** moves it to the client's past tasks.
+- **Progress** in the client file, Prepare page and Home appears only for clients who share it.
+- You cannot give tasks to an archived client, or to someone without a booked or completed session.
+- The yellow note now reads "Not saved yet: podcasts, quick replies, session suggestions, summary notes and session prep."
+
+**What changed for the team:**
+- New tables `care_tasks`, `care_check_ins`, `care_sharing` with RLS (no admin read), functions `give_care_task`, `stop_care_task`, `set_care_check_in`, `set_care_sharing`, `my_care_professionals`, `can_read_care_check_ins`, `care_task_due_on`, `cambodia_today`.
+- New `lib/care.ts` (types and rules shared by the browser and the API), `lib/controllers/care-controller.ts`, routes `/api/care-plan` (+ `/check-ins`, `/sharing`), `/api/pro/care` (+ `/:taskId/stop`). `useCareStore` now takes the side. `demo-client.ts` deleted.
+- Tested on a local Postgres (see BACKEND-HANDOFF.md section 18).
+
+**What to re-test (after running the migration):**
+- As a professional, open a client with a completed session, give a mission every day and a MindGuide lesson once;
+- As that client, confirm both show on `/care-plan` and today's in Your Plan For Today; tick one, refresh, confirm it stays ticked;
+- As the professional, confirm you see no progress; as the client, turn sharing on; as the professional, confirm the tick shows; turn sharing off and confirm it disappears;
+- Stop a task and confirm it moves to past tasks on both sides;
+- Archive the client and confirm Give a task is refused.
+
+---
+
 ## 14 Oct 2026: Phone Menu Labels No Longer Overlap
 
 Commit `PENDING`. No migration.
@@ -42,6 +132,7 @@ Commit `PENDING`. Migration `20261014000700_messages.sql` must be run in Supabas
 - **Reply time you choose is saved** and shown to clients.
 - **Archive client is saved.** It closes the chat for both of you (messages are kept). Restore client opens it again.
 - Quick replies and "Suggest a session" in the chat still work in this browser only (they are not connected yet).
+- **The yellow note at the top of `/pro`** now reads "Not saved yet: care plans, podcasts, quick replies, summary notes and session prep." Messages are no longer listed, and the note stays on the same line as the language switch and account menu.
 
 **What changed for the team:**
 - New tables `conversations` and `messages`, column `professional_profiles.reply_time`, private bucket `message-voice`. No admin read policy on any of them.

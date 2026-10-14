@@ -7,14 +7,13 @@ import { Archive, ArchiveRestore, ArrowLeft, CalendarCheck, FileText, Lock, Mess
 import { BookingDialog } from './bookings-view';
 import { CarePlanCard } from './care-plan-card';
 import { SuggestSessionDialog } from './suggest-session-dialog';
-import { usePro } from './pro-provider';
+import { usePro, useSharedByClient } from './pro-provider';
 import { useLanguage } from '../../_components/language-provider';
 import { MAX_NOTE, type ProBooking } from '../_data/bookings';
 import {
   FREQUENCY_LABELS,
   LEVEL_LABELS,
   PRIOR_SUPPORT_LABELS,
-  SAMPLE_SHARED,
   SYMPTOM_TYPE_LABELS,
   clientsFrom,
   sharingFor,
@@ -64,7 +63,7 @@ export function ClientFile({ clientId }: { clientId: string }) {
     .sort((a, b) => b.startsAt.localeCompare(a.startsAt));
   const archived = archivedClients.includes(clientId);
   const sharing = sharingFor(bookings, clientId);
-  const shared = SAMPLE_SHARED[clientId] ?? {};
+  const shared = useSharedByClient(clientId, sharing.survey || sharing.symptomChecks);
   const latestIntake = [...sessions].sort((a, b) => b.startsAt.localeCompare(a.startsAt))[0];
   const openBooking = sessions.find((item) => item.id === openId) ?? null;
   const savedSummary = summaryNotes[clientId];
@@ -186,9 +185,9 @@ export function ClientFile({ clientId }: { clientId: string }) {
               <button
                 type="button"
                 disabled={summary === (savedSummary?.text ?? '')}
-                onClick={() => {
-                  saveSummaryNote(clientId, summary);
-                  setSummaryStatus(t('បានរក្សាទុក។', 'Saved.'));
+                onClick={async () => {
+                  const result = await saveSummaryNote(clientId, summary);
+                  setSummaryStatus(result.ok ? t('បានរក្សាទុក។', 'Saved.') : t('មិនអាចរក្សាទុកបានទេ។ សូមព្យាយាមម្តងទៀត។', 'This could not be saved. Please try again.'));
                 }}
                 className="rounded-full bg-arom px-4 py-2 text-sm font-semibold text-white hover:bg-arom-deep disabled:opacity-40">
                 {t('រក្សាទុក', 'Save summary')}

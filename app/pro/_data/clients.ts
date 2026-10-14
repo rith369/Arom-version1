@@ -1,4 +1,3 @@
-import { initialUsers } from '../../admin/_data/users';
 import type { ProBooking } from './bookings';
 
 // A professional only ever sees people who booked with them, and only what
@@ -56,7 +55,7 @@ export function clientsFrom(bookings: ProBooking[], now: number): ClientSummary[
     return {
       id,
       name: sorted[0].clientName,
-      preferredLanguage: initialUsers.find((user) => user.id === id)?.preferredLanguage ?? 'km',
+      preferredLanguage: sorted[0].clientLanguage,
       firstSessionAt: sorted[0].startsAt,
       lastSessionAt: past.at(-1)?.startsAt ?? null,
       nextSessionAt: next?.startsAt ?? null,
@@ -77,31 +76,9 @@ export function sharingFor(bookings: ProBooking[], clientId: string) {
   };
 }
 
-// Demo shared results. Only shown when sharingFor() allows it.
-export const SAMPLE_SHARED: Record<string, { survey?: SharedSurvey; symptomChecks?: SharedSymptomCheck[] }> = {
-  'demo-user-001': {
-    survey: {
-      feelings: ['Stressed', 'Tired', 'Worried'],
-      frequency: 'several_days_week',
-      impact: 4,
-      challenges: ['Work', 'Sleep'],
-      priorSupport: 'first_time',
-      goals: ['Sleep better', 'Feel calmer at work'],
-      createdAt: '2026-09-18T03:10:00Z',
-    },
-    symptomChecks: [
-      { type: 'stress', score: 24, maxScore: 40, level: 'medium', createdAt: '2026-09-20T02:00:00Z' },
-      { type: 'sleep', score: 14, maxScore: 20, level: 'high', createdAt: '2026-10-01T13:00:00Z' },
-      { type: 'stress', score: 17, maxScore: 40, level: 'low', createdAt: '2026-10-11T03:30:00Z' },
-    ],
-  },
-  'demo-user-005': {
-    symptomChecks: [
-      { type: 'anxiety', score: 12, maxScore: 21, level: 'medium', createdAt: '2026-10-06T08:00:00Z' },
-      { type: 'anxiety', score: 9, maxScore: 21, level: 'medium', createdAt: '2026-10-12T09:00:00Z' },
-    ],
-  },
-};
+// What a client shares with this professional, from GET /api/pro/clients/<id>.
+// Empty unless sharingFor() allows it (the database checks this too).
+export type SharedByClient = { survey: SharedSurvey | null; symptomChecks: SharedSymptomCheck[] };
 
 export const SYMPTOM_TYPE_LABELS: Record<SymptomCheckType, { en: string; km: string }> = {
   general: { en: 'General wellbeing', km: 'សុខុមាលភាពទូទៅ' },

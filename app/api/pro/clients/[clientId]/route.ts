@@ -1,7 +1,14 @@
 import type { NextRequest } from "next/server";
-import { setClientArchived } from "@/lib/controllers/messages-controller";
+import { getSharedByClient, updateProClient } from "@/lib/controllers/pro-controller";
 
-export async function POST(request: NextRequest, { params }: { params: Promise<{ clientId: string }> }) {
+type Context = { params: Promise<{ clientId: string }> };
+
+export async function GET(_request: NextRequest, { params }: Context) {
   const { clientId } = await params;
-  return setClientArchived(request, clientId);
+  return getSharedByClient(clientId);
+}
+
+export async function POST(request: NextRequest, { params }: Context) {
+  const { clientId } = await params;
+  return updateProClient(request, clientId);
 }

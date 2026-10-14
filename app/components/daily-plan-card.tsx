@@ -17,7 +17,6 @@ import {
   toggleCustomPlanItemComplete,
   type DailyPlanCustomItem,
 } from "../_components/daily-plan-store";
-import { DEMO_CLIENT } from "../_components/demo-client";
 import {
   cambodiaToday,
   isDoneToday,
@@ -29,7 +28,6 @@ import {
   useCareStore,
   type CareTask,
 } from "../_components/care/care-store";
-import { getTherapist, getTherapistName } from "@/lib/therapists";
 
 type PlanActivity = {
   id: string;
@@ -107,7 +105,7 @@ export function DailyPlanCard() {
   const [tryNowItems, setTryNowItems] = useState<PlanTryNowItem[]>([]);
   const [customItems, setCustomItems] = useState<DailyPlanCustomItem[]>([]);
   const [isCuratorOpen, setIsCuratorOpen] = useState(false);
-  const care = useCareStore();
+  const care = useCareStore("client");
   const [today] = useState(() => cambodiaToday(Date.now()));
 
   useEffect(() => {
@@ -138,16 +136,16 @@ export function DailyPlanCard() {
   const handleToggleCare = (e: React.MouseEvent, task: CareTask) => {
     e.preventDefault();
     e.stopPropagation();
-    toggleCheckIn(task, today);
+    void toggleCheckIn(task, today);
   };
 
   // Tasks from the user's professionals that are due today.
   const careActivities: PlanActivity[] = care.tasks
-    .filter((task) => task.clientId === DEMO_CLIENT.id && isDueToday(task, care.checkIns, today))
+    .filter((task) => isDueToday(task, care.checkIns, today))
     .map((task) => {
-      const therapist = getTherapist(task.professionalId);
-      const from = therapist ? getTherapistName(therapist, false) : "your professional";
-      const fromKm = therapist ? getTherapistName(therapist, true) : "អ្នកជំនាញរបស់អ្នក";
+      const professional = care.professionals.find((item) => item.slug === task.professionalId);
+      const from = professional?.name || "your professional";
+      const fromKm = professional?.kmName || professional?.name || "អ្នកជំនាញរបស់អ្នក";
       return {
         id: task.id,
         title: taskTitle(task, false),

@@ -5,6 +5,8 @@
  * /api/pro/messages (professional side).
  */
 
+import type { SessionSuggestion } from "@/lib/sessions";
+
 export type Sender = "client" | "professional";
 
 export type ReplyTime = "few_hours" | "one_day" | "two_days";
@@ -17,11 +19,13 @@ export const MAX_VOICE_BYTES = 5 * 1024 * 1024;
 export interface ApiMessage {
   id: string;
   sender: Sender;
-  kind: "text" | "voice";
+  // suggestion: times for the next session (lib/sessions.ts).
+  kind: "text" | "voice" | "suggestion";
   text: string;
   // Voice only: a same site link that redirects to a short lived signed URL.
   audioUrl: string;
   durationSeconds: number;
+  suggestionId: string;
   createdAt: string;
   readAt: string | null;
 }
@@ -39,7 +43,7 @@ export interface ConversationSummary {
   closed: boolean;
   // False when closed, or when there is no booked or completed session.
   canWrite: boolean;
-  last: { kind: "text" | "voice"; mine: boolean; text: string; createdAt: string } | null;
+  last: { kind: "text" | "voice" | "suggestion"; mine: boolean; text: string; createdAt: string } | null;
   unread: number;
 }
 
@@ -50,6 +54,8 @@ export interface ConversationsResponse {
 export interface ThreadResponse {
   conversation: ConversationSummary;
   messages: ApiMessage[];
+  // The suggestions this thread's messages carry.
+  suggestions: SessionSuggestion[];
 }
 
 export interface SendResponse {

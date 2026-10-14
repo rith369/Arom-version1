@@ -269,11 +269,11 @@ export function ProfileEditor() {
             id="pro-photo"
             title={t('រូបថត', 'Photo')}
             hint={t('រូបថតច្បាស់ និងរួសរាយនៃមុខរបស់អ្នក។ អ្នកប្រើទុកចិត្តប្រវត្តិរូបដែលមានរូបថតពិត។', 'A clear, friendly photo of your face. People trust profiles with a real photo.')}>
-            <div className="flex flex-wrap items-center gap-5">
+            <div className="flex flex-col items-center gap-4 text-center">
               <div className="relative size-24 overflow-hidden rounded-full ring-4 ring-arom-soft">
                 <Image src={draft.photoUrl || PLACEHOLDER_PHOTO} alt="" fill sizes="96px" className="object-cover" />
               </div>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap justify-center gap-2">
                 <label className="flex cursor-pointer items-center gap-2 rounded-full bg-arom px-4 py-2 text-sm font-semibold text-white hover:bg-arom-deep focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-arom">
                   <ImageUp size={16} aria-hidden="true" />
                   {draft.photoUrl ? t('ប្តូររូបថត', 'Change photo') : t('ផ្ទុករូបថត', 'Upload photo')}
@@ -286,8 +286,8 @@ export function ProfileEditor() {
                   </button>
                 )}
               </div>
+              <p className="text-xs text-ink-muted">{t('JPG, PNG ឬ WebP មិនលើស 5 MB។', 'JPG, PNG or WebP, up to 5 MB.')}</p>
             </div>
-            <p className="mt-3 text-xs text-ink-muted">{t('JPG, PNG ឬ WebP មិនលើស 5 MB។', 'JPG, PNG or WebP, up to 5 MB.')}</p>
           </Section>
 
           <Section

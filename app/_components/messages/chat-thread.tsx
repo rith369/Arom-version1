@@ -10,10 +10,9 @@ import {
   MAX_VOICE_SECONDS,
   fillQuickReply,
   markRead,
-  quickRepliesFor,
   saveQuickReplies,
   sendMessage,
-  useMessageStore,
+  useQuickReplies,
   useThread,
   type ChatMessage,
   type Conversation,
@@ -100,9 +99,8 @@ export function ChatThread({
   // Professionals only: turns on saved quick replies and fills {name}, {link}, {next}.
   quickReplyValues?: { name: string; link: string; next: string };
 }) {
-  const store = useMessageStore();
   const { loaded, messages: thread, summary } = useThread(conversation, viewer);
-  const replies = quickRepliesFor(store, conversation.professionalId);
+  const replies = useQuickReplies(Boolean(quickReplyValues));
   const [repliesOpen, setRepliesOpen] = useState(false);
   const [managing, setManaging] = useState(false);
   const [newReply, setNewReply] = useState("");
@@ -374,7 +372,7 @@ export function ChatThread({
                     {managing && (
                       <button
                         type="button"
-                        onClick={() => saveQuickReplies(conversation.professionalId, replies.filter((item) => item.id !== reply.id))}
+                        onClick={() => void saveQuickReplies(replies.filter((item) => item.id !== reply.id))}
                         aria-label={t("លុបចម្លើយនេះ", "Delete this reply")}
                         className="rounded-full p-1.5 text-arom-danger hover:bg-arom-danger-soft"
                       >
@@ -400,7 +398,7 @@ export function ChatThread({
                       type="button"
                       disabled={!newReply.trim() || replies.length >= MAX_QUICK_REPLIES}
                       onClick={() => {
-                        saveQuickReplies(conversation.professionalId, [...replies, { id: `qr-${Date.now()}`, text: newReply.trim() }]);
+                        void saveQuickReplies([...replies, { id: `qr-${Date.now()}`, text: newReply.trim() }]);
                         setNewReply("");
                       }}
                       className="flex items-center gap-1 rounded-full bg-arom px-3 py-2 text-xs font-semibold text-white disabled:opacity-40"

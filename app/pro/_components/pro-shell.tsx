@@ -101,14 +101,8 @@ export function ProShell({ children }: { children: ReactNode }) {
       </aside>
 
       <main className="mx-auto max-w-5xl px-4 py-5 sm:px-8 lg:px-10 lg:py-8">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <p className="rounded-2xl border border-arom-warning/25 bg-arom-warning-soft px-3 py-2 text-xs text-arom-warning">
-            {t(
-              'ទិន្នន័យសាកល្បង៖ សារ ផែនការថែទាំ ផតខាស្ទ៍ កំណត់ចំណាំសង្ខេប និងការរៀបចំមុនវគ្គ មិនទាន់រក្សាទុកនៅឡើយ។',
-              'Demo only: messages, care plans, podcasts, client summary notes and session prep are not saved yet.',
-            )}
-          </p>
-          <div className="flex items-center gap-3">
+        <div className="flex items-center justify-end gap-3">
+          <div className="flex shrink-0 items-center gap-3">
             <LanguageSwitcher />
             <AccountMenu />
           </div>

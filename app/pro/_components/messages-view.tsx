@@ -128,7 +128,9 @@ export function ProMessagesView({ clientId }: { clientId?: string }) {
                         <span className="truncate">
                           {!last
                             ? t('មិនទាន់មានសារ', 'No messages yet')
-                            : last.kind === 'voice'
+                            : last.kind === 'suggestion'
+                              ? t('អ្នកបានណែនាំម៉ោងវគ្គបន្ទាប់', 'You suggested times for the next session')
+                              : last.kind === 'voice'
                               ? t('សារសំឡេង', 'Voice message')
                               : `${last.mine ? t('អ្នក: ', 'You: ') : ''}${last.text}`}
                         </span>

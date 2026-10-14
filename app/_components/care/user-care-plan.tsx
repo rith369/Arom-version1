@@ -4,9 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { Check, ChevronRight, ClipboardList, Lock } from "lucide-react";
-import { getTherapist, getTherapistName } from "@/lib/therapists";
 import { DesktopNavigation, MobileNavigation } from "../app-navigation";
-import { DEMO_CLIENT } from "../demo-client";
 import { useLanguage } from "../language-provider";
 import {
   KIND_LABELS,
@@ -30,11 +28,12 @@ export function UserCarePlan() {
   const { language } = useLanguage();
   const km = language === "km";
   const t = (kmText: string, enText: string) => (km ? kmText : enText);
-  const { tasks, checkIns, sharing } = useCareStore();
+  const { status, tasks, checkIns, sharing, professionals } = useCareStore("client");
   const [today] = useState(() => cambodiaToday(Date.now()));
 
   const doneDate = new Intl.DateTimeFormat(km ? "km-KH" : "en-GB", { day: "numeric", month: "short", timeZone: "UTC" });
-  const mine = tasks.filter((task) => task.clientId === DEMO_CLIENT.id);
+  // The API returns only the signed in person's own tasks.
+  const mine = tasks;
   const professionalIds = [...new Set(mine.map((task) => task.professionalId))];
 
   const taskRow = (task: CareTask, past: boolean) => {
@@ -47,7 +46,7 @@ export function UserCarePlan() {
         {due ? (
           <button
             type="button"
-            onClick={() => toggleCheckIn(task, today)}
+            onClick={() => void toggleCheckIn(task, today)}
             aria-pressed={done}
             aria-label={done ? t("សម្គាល់ថាមិនទាន់ធ្វើ", "Mark not done") : t("សម្គាល់ថាបានធ្វើ", "Mark done")}
             className={`mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full border transition-colors ${
@@ -115,11 +114,15 @@ export function UserCarePlan() {
               "Things your professional asked you to try between sessions. Today's tasks also show in Your Plan For Today.",
             )}
           </p>
-          <p className="mt-1 text-xs text-ink-muted">
-            {t(`ទិន្នន័យសាកល្បង: កំពុងមើលជា ${DEMO_CLIENT.name}`, `Demo: viewing as ${DEMO_CLIENT.name}`)}
-          </p>
-
-          {professionalIds.length === 0 ? (
+          {status === "loading" ? (
+            <p role="status" className="mt-6 text-sm text-ink-muted">
+              {t("កំពុងផ្ទុក...", "Loading...")}
+            </p>
+          ) : status === "error" ? (
+            <p role="alert" className="mt-6 text-sm text-arom-danger">
+              {t("មិនអាចផ្ទុកផែនការថែទាំរបស់អ្នកបានទេ។ សូមព្យាយាមម្តងទៀត។", "We could not load your care plan. Please try again.")}
+            </p>
+          ) : professionalIds.length === 0 ? (
             <div className="mt-6 rounded-3xl border border-arom-border bg-white p-8 text-center shadow-card">
               <p className="font-medium text-ink">{t("មិនទាន់មានផែនការថែទាំ", "No care plan yet")}</p>
               <p className="mt-1 text-sm text-ink-muted">
@@ -128,20 +131,23 @@ export function UserCarePlan() {
             </div>
           ) : (
             professionalIds.map((professionalId) => {
-              const therapist = getTherapist(professionalId);
-              const name = therapist ? getTherapistName(therapist, km) : professionalId;
+              const professional = professionals.find((item) => item.slug === professionalId);
+              const name = professional ? (km && professional.kmName ? professional.kmName : professional.name) : t("អ្នកជំនាញរបស់អ្នក", "Your professional");
               const theirs = mine.filter((task) => task.professionalId === professionalId).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
               const current = theirs.filter((task) => isActive(task, today));
               const past = theirs.filter((task) => !isActive(task, today));
-              const shares = sharing[sharingKey(professionalId, DEMO_CLIENT.id)] === true;
+              const clientId = theirs[0]?.clientId ?? "";
+              const shares = sharing[sharingKey(professionalId, clientId)] === true;
               return (
                 <section key={professionalId} className="mt-6 rounded-3xl border border-arom-border bg-white p-5 shadow-card sm:p-6">
                   <header className="flex items-center gap-3">
-                    {therapist && (
-                      <span className="relative size-12 shrink-0 overflow-hidden rounded-full bg-arom-soft">
-                        <Image src={therapist.image} alt="" fill sizes="48px" className="object-cover" style={{ objectPosition: therapist.imagePosition }} />
-                      </span>
-                    )}
+                    <span className="relative flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-arom-soft font-semibold text-arom">
+                      {professional?.photoUrl ? (
+                        <Image src={professional.photoUrl} alt="" fill sizes="48px" className="object-cover" />
+                      ) : (
+                        <span aria-hidden="true">{name.charAt(0)}</span>
+                      )}
+                    </span>
                     <div className="min-w-0 flex-1">
                       <p className="text-xs text-ink-muted">{t("ពី", "From")}</p>
                       <h2 className="truncate text-base font-bold text-ink">{name}</h2>
@@ -167,7 +173,7 @@ export function UserCarePlan() {
                       role="switch"
                       aria-checked={shares}
                       aria-label={t(`ចែករំលែកវឌ្ឍនភាពជាមួយ ${name}`, `Share my progress with ${name}`)}
-                      onClick={() => setProgressSharing(professionalId, DEMO_CLIENT.id, !shares)}
+                      onClick={() => void setProgressSharing(professionalId, clientId, !shares)}
                       className={`relative mt-0.5 h-6 w-11 shrink-0 rounded-full transition-colors ${shares ? "bg-arom" : "bg-gray-300"}`}
                     >
                       <span className={`absolute top-0.5 size-5 rounded-full bg-white shadow transition-all ${shares ? "left-[1.375rem]" : "left-0.5"}`} />

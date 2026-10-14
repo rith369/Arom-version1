@@ -2,6 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { NextRequest } from "next/server";
 import { z } from "zod";
 import type { ProBooking, SessionNote } from "@/app/pro/_data/bookings";
+import type { SharedByClient } from "@/app/pro/_data/clients";
 import {
   LANGUAGE_OPTIONS,
   REVIEWED_FIELDS,
@@ -19,7 +20,9 @@ import {
 import { isValidPrice, type SessionPrice } from "@/lib/pricing";
 import { toPrice } from "@/lib/professionals";
 import { supabaseUrl } from "@/lib/supabase/env";
+import type { SessionSuggestion } from "@/lib/sessions";
 import { loadArchivedClients } from "./messages-controller";
+import { SUGGESTION_COLUMNS, toSuggestion, type SuggestionRow } from "./sessions-controller";
 import { fail, invalidInput, json, readJson } from "./shared";
 import { requireRole } from "./role-controller";
 
@@ -37,11 +40,17 @@ export interface ProData {
   schedule: Schedule | null;
   bookings: ProBooking[];
   sessionNotes: Record<string, SessionNote>;
+  // Private plans written before a session, by booking id.
+  prepNotes: Record<string, SessionNote>;
+  // One pinned summary per client, by client id.
+  summaryNotes: Record<string, SessionNote>;
   listed: boolean;
   // An admin's test profile: only admins can find and book it.
   isTest: boolean;
   // Archived clients: their conversation is closed (section 17).
   archivedClients: string[];
+  // Suggestions still waiting for the client to choose (section 19).
+  openSuggestions: SessionSuggestion[];
 }
 
 const PROFILE_COLUMNS =
@@ -91,28 +100,30 @@ async function loadProfile(supabase: Supabase, userId: string): Promise<ProProfi
 }
 
 async function loadBookings(supabase: Supabase, userId: string, slug: string) {
-  const [appointments, names, notes] = await Promise.all([
+  const [appointments, names, notes, prep] = await Promise.all([
     supabase
       .from("appointments")
       .select(
-        "id, user_id, starts_at, ends_at, session_type, status, intake_note, cancelled_by, cancel_reason, rescheduled_from, reschedule_reason, share_survey, share_symptom_checks, meeting_url, intake_answers(question_snapshot, answer)",
+        "id, user_id, starts_at, ends_at, session_type, status, intake_note, cancelled_by, cancel_reason, rescheduled_from, reschedule_reason, share_survey, share_symptom_checks, meeting_url, series_id, intake_answers(question_snapshot, answer)",
       )
       .eq("professional_id", userId)
       .order("starts_at", { ascending: false })
       .limit(500),
     supabase.rpc("my_client_names"),
     supabase.from("session_notes").select("appointment_id, content, updated_at").eq("professional_id", userId),
+    supabase.from("session_prep_notes").select("appointment_id, content, updated_at").eq("professional_id", userId),
   ]);
 
-  const nameOf = new Map(
-    ((names.data ?? []) as { id: string; full_name: string | null }[]).map((row) => [row.id, row.full_name ?? "Client"]),
-  );
+  const clientRows = (names.data ?? []) as { id: string; full_name: string | null; language: string | null }[];
+  const nameOf = new Map(clientRows.map((row) => [row.id, row.full_name ?? "Client"]));
+  const languageOf = new Map(clientRows.map((row) => [row.id, row.language === "en" ? ("en" as const) : ("km" as const)]));
 
   const bookings: ProBooking[] = (appointments.data ?? []).map((row) => ({
     id: row.id,
     professionalId: slug,
     clientId: row.user_id,
     clientName: nameOf.get(row.user_id) ?? "Client",
+    clientLanguage: languageOf.get(row.user_id) ?? "km",
     startsAt: cambodiaIso(row.starts_at),
     durationMinutes: Math.round((Date.parse(row.ends_at) - Date.parse(row.starts_at)) / 60_000),
     sessionType: row.session_type,
@@ -136,7 +147,7 @@ async function loadBookings(supabase: Supabase, userId: string, slug: string) {
     shareSurvey: row.share_survey,
     shareSymptomChecks: row.share_symptom_checks,
     meetingUrl: row.session_type === "online" ? row.meeting_url : null,
-    seriesId: null,
+    seriesId: row.series_id,
   }));
 
   const sessionNotes: Record<string, SessionNote> = {};
@@ -144,7 +155,12 @@ async function loadBookings(supabase: Supabase, userId: string, slug: string) {
     sessionNotes[note.appointment_id] = { text: note.content, updatedAt: note.updated_at };
   }
 
-  return { bookings, sessionNotes };
+  const prepNotes: Record<string, SessionNote> = {};
+  for (const note of prep.data ?? []) {
+    prepNotes[note.appointment_id] = { text: note.content, updatedAt: note.updated_at };
+  }
+
+  return { bookings, sessionNotes, prepNotes };
 }
 
 /** Turns the weekly hours into concrete open times for the booking window. */
@@ -168,7 +184,7 @@ async function loadAll(supabase: Supabase, userId: string): Promise<ProData | nu
   const profile = await loadProfile(supabase, userId);
   if (!profile) return null;
 
-  const [changes, scheduleRow, bookingData, archivedClients] = await Promise.all([
+  const [changes, scheduleRow, bookingData, archivedClients, suggestionRows, summaryNotes] = await Promise.all([
     supabase
       .from("professional_profile_changes")
       .select("field, old_value, new_value, created_at")
@@ -177,6 +193,15 @@ async function loadAll(supabase: Supabase, userId: string): Promise<ProData | nu
     supabase.from("professional_schedules").select("schedule").eq("professional_id", userId).maybeSingle(),
     loadBookings(supabase, userId, profile.slug),
     loadArchivedClients(supabase, userId),
+    supabase
+      .from("session_suggestions")
+      .select(SUGGESTION_COLUMNS)
+      .eq("professional_id", userId)
+      .eq("status", "open")
+      .order("created_at", { ascending: false })
+      .limit(100)
+      .returns<SuggestionRow[]>(),
+    loadSummaryNotes(supabase, userId),
   ]);
 
   const schedule = (scheduleRow.data?.schedule as Schedule | undefined) ?? null;
@@ -202,6 +227,8 @@ async function loadAll(supabase: Supabase, userId: string): Promise<ProData | nu
     listed: listed === true,
     isTest: flags?.is_test === true,
     archivedClients,
+    summaryNotes,
+    openSuggestions: (suggestionRows.data ?? []).map((row) => toSuggestion(row, profile.slug, "")),
   };
 }
 
@@ -464,6 +491,7 @@ const bookingActionSchema = z.discriminatedUnion("action", [
   z.object({ action: z.literal("reschedule"), startsAt: z.string().min(10), reason: z.string().trim().min(1).max(300) }),
   z.object({ action: z.literal("outcome"), status: z.enum(["completed", "no_show"]) }),
   z.object({ action: z.literal("note"), text: z.string().max(5000) }),
+  z.object({ action: z.literal("prep"), text: z.string().max(5000) }),
   z.object({ action: z.literal("meeting"), meetingUrl: z.string().trim().max(500) }),
 ]);
 
@@ -507,6 +535,13 @@ export async function updateProBooking(request: NextRequest, appointmentId: stri
     }));
   } else if (input.action === "outcome") {
     ({ error } = await supabase.from("appointments").update({ status: input.status }).eq("id", id.data));
+  } else if (input.action === "prep") {
+    const text = input.text.trim();
+    ({ error } = text
+      ? await supabase
+          .from("session_prep_notes")
+          .upsert({ appointment_id: id.data, professional_id: userId, content: text }, { onConflict: "appointment_id" })
+      : await supabase.from("session_prep_notes").delete().eq("appointment_id", id.data));
   } else if (input.action === "note") {
     const text = input.text.trim();
     ({ error } = text
@@ -529,4 +564,106 @@ export async function updateProBooking(request: NextRequest, appointmentId: stri
   const profile = await loadProfile(supabase, userId);
   const data = await loadBookings(supabase, userId, profile?.slug ?? "");
   return json(data);
+}
+
+// ---------------------------------------------------------------------------
+// Clients: archive, summary note and what they share
+// ---------------------------------------------------------------------------
+
+async function loadSummaryNotes(supabase: Supabase, userId: string) {
+  const { data } = await supabase
+    .from("client_summary_notes")
+    .select("client_id, content, updated_at")
+    .eq("professional_id", userId);
+  const notes: Record<string, SessionNote> = {};
+  for (const row of data ?? []) notes[row.client_id] = { text: row.content, updatedAt: row.updated_at };
+  return notes;
+}
+
+const clientActionSchema = z.union([
+  z.object({ archived: z.boolean() }),
+  z.object({ summaryNote: z.string().max(5000) }),
+]);
+
+/**
+ * POST /api/pro/clients/:clientId
+ * `{ archived }`: archiving closes the conversation for both sides.
+ * `{ summaryNote }`: the pinned summary, private to the professional. Empty deletes it.
+ */
+export async function updateProClient(request: NextRequest, clientId: string) {
+  const guard = await requireRole("professional", "admin");
+  if (!guard.ok) return guard.response;
+  const { supabase, userId } = guard;
+
+  const id = z.string().uuid().safeParse(clientId);
+  const body = clientActionSchema.safeParse(await readJson(request));
+  if (!id.success || !body.success) return invalidInput();
+
+  if ("archived" in body.data) {
+    const { error } = await supabase.rpc("set_client_archived", { p_client_id: id.data, p_archived: body.data.archived });
+    if (error) return error.code === "PT404" ? fail("invalid_input", "Client not found.", 404) : fail("server_error", "That could not be saved.", 500);
+    return json({ archived: body.data.archived });
+  }
+
+  const text = body.data.summaryNote.trim();
+  // RLS allows a note only for someone who booked with this professional.
+  const { error } = text
+    ? await supabase
+        .from("client_summary_notes")
+        .upsert({ professional_id: userId, client_id: id.data, content: text }, { onConflict: "professional_id,client_id" })
+    : await supabase.from("client_summary_notes").delete().eq("professional_id", userId).eq("client_id", id.data);
+  if (error) return fail("invalid_input", "That could not be saved.", 400);
+  return json({ summaryNotes: await loadSummaryNotes(supabase, userId) });
+}
+
+/**
+ * GET /api/pro/clients/:clientId: what the client chose to share. RLS returns
+ * rows only while they share them on a booked or completed session with this
+ * professional (client_shares_with_me). Scores only, never the answers.
+ */
+export async function getSharedByClient(clientId: string) {
+  const guard = await requireRole("professional", "admin");
+  if (!guard.ok) return guard.response;
+  const { supabase } = guard;
+
+  const id = z.string().uuid().safeParse(clientId);
+  if (!id.success) return invalidInput();
+
+  const [survey, checks] = await Promise.all([
+    supabase
+      .from("onboarding_surveys")
+      .select("feelings, frequency, impact, challenges, prior_support, goals, created_at")
+      .eq("user_id", id.data)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+    supabase
+      .from("symptom_checks")
+      .select("check_type, score, max_score, level, created_at")
+      .eq("user_id", id.data)
+      .order("created_at", { ascending: false })
+      .limit(20),
+  ]);
+
+  const shared: SharedByClient = {
+    survey: survey.data
+      ? {
+          feelings: survey.data.feelings ?? [],
+          frequency: survey.data.frequency ?? "sometimes",
+          impact: survey.data.impact ?? 0,
+          challenges: survey.data.challenges ?? [],
+          priorSupport: survey.data.prior_support ?? "prefer_not_say",
+          goals: survey.data.goals ?? [],
+          createdAt: survey.data.created_at,
+        }
+      : null,
+    symptomChecks: (checks.data ?? []).map((row) => ({
+      type: row.check_type,
+      score: row.score ?? 0,
+      maxScore: row.max_score ?? 0,
+      level: row.level,
+      createdAt: row.created_at,
+    })),
+  };
+  return json<SharedByClient>(shared);
 }

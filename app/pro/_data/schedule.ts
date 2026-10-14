@@ -39,8 +39,6 @@ export type Schedule = {
   meetingUrl: string;
 };
 
-// Demo only. Not a real meeting room.
-export const DEMO_MEETING_URL = 'https://meet.google.com/arm-demo-room';
 
 // A meeting link must be a full https address.
 export function isMeetingUrl(value: string) {
@@ -178,27 +176,7 @@ export function openSlots(
   return slots;
 }
 
-const range = (id: string, start: string, end: string, sessionTypes: SessionType[]): TimeRange => ({ id, start, end, sessionTypes });
-
-// Demo: the established professional works weekday mornings and afternoons.
-export const establishedSchedule: Schedule = {
-  week: WEEKDAYS.map(({ day }) => ({
-    day,
-    enabled: day <= 5,
-    ranges:
-      day <= 5
-        ? [range(`d${day}-am`, '09:00', '12:00', ['online', 'in_person']), range(`d${day}-pm`, '14:00', '17:00', ['online'])]
-        : [],
-  })),
-  sessionMinutes: 60,
-  breakMinutes: 0,
-  bookingWindowWeeks: 4,
-  minNoticeHours: 12,
-  timeOff: [],
-  meetingUrl: DEMO_MEETING_URL,
-};
-
-// Demo: a newly approved professional has not opened any times yet.
+// No weekly hours yet.
 export const emptySchedule: Schedule = {
   week: WEEKDAYS.map(({ day }) => ({ day, enabled: false, ranges: [] })),
   sessionMinutes: 60,

@@ -1,8 +1,8 @@
-import { getTherapist, type SessionOption, type Therapist } from '@/lib/therapists';
+import { type SessionOption, type Therapist } from '@/lib/therapists';
 import type { SessionPrice } from '@/lib/pricing';
 
 // The signed in professional's own profile. Mirrors professional_profiles
-// and professional_credentials. Mock until the backend is connected.
+// and professional_credentials (loaded by /api/pro/me).
 
 export type SessionType = 'online' | 'in_person';
 
@@ -122,43 +122,3 @@ export function toPublicTherapist(profile: ProProfile, base?: Therapist): Therap
     kmExperience: years === null ? undefined : `បទពិសោធន៍ ${years}+ ឆ្នាំ`,
   };
 }
-
-// Demo: an established professional already visible to users.
-const sopheap = getTherapist('sopheap-chan');
-
-export const establishedProfile: ProProfile = {
-  slug: 'sopheap-chan',
-  displayName: sopheap?.name ?? 'Dr. Sopheap Chan',
-  kmDisplayName: sopheap?.kmName ?? '',
-  title: sopheap?.role ?? 'Clinical Psychologist',
-  kmTitle: sopheap?.kmRole ?? '',
-  bio: sopheap?.about ?? '',
-  kmBio: sopheap?.kmAbout ?? '',
-  photoUrl: sopheap?.image ?? '',
-  specialties: [...(sopheap?.specialties ?? [])],
-  languages: [...(sopheap?.languages ?? [])],
-  sessionTypes: ['online', 'in_person'],
-  price: sopheap?.price ?? { kind: 'fixed', amount: 20 },
-  yearsExperience: 8,
-  licenseNumber: 'MOH PSY 2019 041',
-  issuingBody: 'Ministry of Health, Cambodia',
-};
-
-// Demo: a professional who was just approved and has not finished yet.
-export const newProfile: ProProfile = {
-  slug: 'vanna-keo',
-  displayName: 'Vanna Keo',
-  kmDisplayName: 'កែវ វណ្ណា',
-  title: 'Licensed Counselor',
-  kmTitle: 'អ្នកប្រឹក្សាមានអាជ្ញាប័ណ្ណ',
-  bio: '',
-  kmBio: '',
-  photoUrl: '',
-  specialties: ['Anxiety', 'Students'],
-  languages: ['Khmer', 'English'],
-  sessionTypes: [],
-  price: null,
-  yearsExperience: 4,
-  licenseNumber: 'MOH CNS 2022 207',
-  issuingBody: 'Ministry of Health, Cambodia',
-};
