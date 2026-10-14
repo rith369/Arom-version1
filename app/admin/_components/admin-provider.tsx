@@ -2,7 +2,9 @@
 
 import {
   createContext,
+  useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
   useSyncExternalStore,
@@ -65,7 +67,6 @@ import {
 } from '../_data/journal-prompts';
 
 import {
-  initialCrisisHelplines,
   initialSettings,
   type AdminSettings,
 } from '../_data/settings';
@@ -85,22 +86,28 @@ import {
 
 
 type AdminState = {
+  // Sample professionals still used by the pages that run on demo data
+  // (bookings, community, podcasts). The Professionals page uses
+  // professionalRecords, which comes from the database.
   professionals: Professional[];
+  professionalRecords: Professional[];
+  professionalsLoad: LoadStatus;
+  reloadProfessionals: () => void;
   reviewApplication: (
     id: string,
     decision: ReviewDecision,
     note: string,
-  ) => void;
+  ) => Promise<ActionResult>;
   reviewProfileChanges: (
     id: string,
     decision: ReviewDecision,
     note: string,
-  ) => void;
+  ) => Promise<ActionResult>;
   setProfessionalAccess: (
     id: string,
     status: AccountStatus,
     note: string,
-  ) => void;
+  ) => Promise<ActionResult>;
 
   users: AdminUser[];
   setUserStatus: (userId: string, status: UserStatus) => void;
@@ -159,7 +166,8 @@ type AdminState = {
   saveSettings: (record: AdminSettings) => void;
 
   crisisHelplines: CrisisHelpline[];
-  saveCrisisHelplines: (list: CrisisHelpline[]) => void;
+  crisisHelplinesLoad: LoadStatus;
+  saveCrisisHelplines: (list: CrisisHelpline[]) => Promise<ActionResult>;
 
   freeDuringTesting: boolean;
   setFreeDuringTesting: (value: boolean) => void;
@@ -173,6 +181,26 @@ type AdminState = {
 };
 
 export type ReviewDecision = 'approve' | 'reject';
+export type LoadStatus = 'loading' | 'ready' | 'error';
+export type ActionResult = { ok: true } | { ok: false; message: string };
+
+/** Sends a JSON request and turns any failure into a message for the admin. */
+async function sendAdminRequest(url: string, method: 'POST' | 'PATCH', body: unknown): Promise<ActionResult> {
+  try {
+    const response = await fetch(url, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (response.ok) return { ok: true };
+    const data = (await response.json().catch(() => null)) as {
+      error?: { message?: string };
+    } | null;
+    return { ok: false, message: data?.error?.message ?? 'That change could not be saved.' };
+  } catch {
+    return { ok: false, message: 'Could not reach the server. Check your connection.' };
+  }
+}
 
 // Mirrors the hint codes the backend will return. `stale` means another admin
 // saved after this editor loaded the item, so nothing was overwritten.
@@ -209,55 +237,69 @@ export function AdminProvider({ children }: { children: ReactNode }) {
     );
   }
 
-  function reviewApplication(
+  const [professionalRecords, setProfessionalRecords] = useState<Professional[]>([]);
+  const [professionalsLoad, setProfessionalsLoad] = useState<LoadStatus>('loading');
+
+  const reloadProfessionals = useCallback(async () => {
+    try {
+      const response = await fetch('/api/admin/professionals', { cache: 'no-store' });
+      if (!response.ok) throw new Error('load failed');
+      const data = (await response.json()) as { professionals: Professional[] };
+      setProfessionalRecords(data.professionals);
+      setProfessionalsLoad('ready');
+    } catch {
+      setProfessionalsLoad('error');
+    }
+  }, []);
+
+  useEffect(() => {
+    // Loading from an external API on mount is what this effect is for.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void reloadProfessionals();
+  }, [reloadProfessionals]);
+
+  async function reviewApplication(
     id: string,
     decision: ReviewDecision,
     note: string,
-  ) {
-    updateProfessional(id, (item) => ({
-      ...item,
-      verificationStatus: decision === 'approve' ? 'verified' : 'rejected',
-      reviewNote: note,
-    }));
+  ): Promise<ActionResult> {
+    const applicationId = professionalRecords.find((item) => item.id === id)?.applicationId;
+    if (!applicationId) return { ok: false, message: 'Application not found. Refresh the page.' };
+
+    const result = await sendAdminRequest(
+      `/api/admin/applications/${applicationId}/review`,
+      'POST',
+      { approve: decision === 'approve', note: note || undefined },
+    );
+    if (result.ok) await reloadProfessionals();
+    return result;
   }
 
-  function reviewProfileChanges(
+  // Approves or declines every waiting change of one professional at once.
+  async function reviewProfileChanges(
     id: string,
     decision: ReviewDecision,
     note: string,
-  ) {
-    updateProfessional(id, (item) => {
-      if (decision === 'reject') {
-        return { ...item, pendingChanges: [], reviewNote: note };
-      }
-
-      const approved = { ...item, pendingChanges: [], reviewNote: note };
-
-      for (const change of item.pendingChanges) {
-        if (change.field === 'licenseNumber' || change.field === 'issuingBody') {
-          approved.credential = {
-            ...approved.credential,
-            [change.field]: change.to,
-          };
-        } else {
-          approved[change.field] = change.to;
-        }
-      }
-
-      return approved;
+  ): Promise<ActionResult> {
+    const result = await sendAdminRequest(`/api/admin/professionals/${id}/changes/review`, 'POST', {
+      approve: decision === 'approve',
+      note: note || undefined,
     });
+    if (result.ok) await reloadProfessionals();
+    return result;
   }
 
-  function setProfessionalAccess(
+  async function setProfessionalAccess(
     id: string,
     status: AccountStatus,
     note: string,
-  ) {
-    updateProfessional(id, (item) => ({
-      ...item,
-      accountStatus: status,
-      reviewNote: note,
-    }));
+  ): Promise<ActionResult> {
+    const result = await sendAdminRequest(`/api/admin/users/${id}/status`, 'PATCH', {
+      status,
+      reason: note || undefined,
+    });
+    if (result.ok) await reloadProfessionals();
+    return result;
   }
 
   function setUserStatus(userId: string, status: UserStatus) {
@@ -679,9 +721,26 @@ export function AdminProvider({ children }: { children: ReactNode }) {
   }
   const [settings, setSettings] = useState<AdminSettings>(initialSettings);
 
-  const [crisisHelplines, setCrisisHelplines] = useState<CrisisHelpline[]>(
-    initialCrisisHelplines,
-  );
+  const [crisisHelplines, setCrisisHelplines] = useState<CrisisHelpline[]>([]);
+  const [crisisHelplinesLoad, setCrisisHelplinesLoad] = useState<LoadStatus>('loading');
+
+  useEffect(() => {
+    let active = true;
+    fetch('/api/admin/crisis-resources', { cache: 'no-store' })
+      .then(async (response) => {
+        if (!response.ok) throw new Error('load failed');
+        const data = (await response.json()) as { helplines: CrisisHelpline[] };
+        if (!active) return;
+        setCrisisHelplines(data.helplines);
+        setCrisisHelplinesLoad('ready');
+      })
+      .catch(() => {
+        if (active) setCrisisHelplinesLoad('error');
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const [freeDuringTesting, setFreeDuringTesting] = useState(FREE_DURING_TESTING);
 
@@ -711,9 +770,27 @@ export function AdminProvider({ children }: { children: ReactNode }) {
     );
   }
 
-  // Keeps the order numbers in step with the list order.
-  function saveCrisisHelplines(list: CrisisHelpline[]) {
-    setCrisisHelplines(list.map((item, index) => ({ ...item, sortOrder: index })));
+  // Saves the whole list in this order. The database checks every row and
+  // saves nothing if one is invalid, so the screen only changes on success.
+  async function saveCrisisHelplines(list: CrisisHelpline[]): Promise<ActionResult> {
+    try {
+      const response = await fetch('/api/admin/crisis-resources', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ helplines: list }),
+      });
+      const data = (await response.json().catch(() => null)) as {
+        helplines?: CrisisHelpline[];
+        error?: { message?: string };
+      } | null;
+      if (!response.ok || !data?.helplines) {
+        return { ok: false, message: data?.error?.message ?? 'Helplines could not be saved.' };
+      }
+      setCrisisHelplines(data.helplines);
+      return { ok: true };
+    } catch {
+      return { ok: false, message: 'Could not reach the server. Check your connection.' };
+    }
   }
 
   function saveSettings(record: AdminSettings) {
@@ -725,6 +802,9 @@ export function AdminProvider({ children }: { children: ReactNode }) {
     <AdminContext.Provider
       value={{
         professionals,
+        professionalRecords,
+        professionalsLoad,
+        reloadProfessionals,
         reviewApplication,
         reviewProfileChanges,
         setProfessionalAccess,
@@ -762,6 +842,7 @@ export function AdminProvider({ children }: { children: ReactNode }) {
         settings,
         saveSettings,
         crisisHelplines,
+        crisisHelplinesLoad,
         saveCrisisHelplines,
         freeDuringTesting,
         setFreeDuringTesting,

@@ -44,23 +44,24 @@ The yellow "Demo data on this page" banner is in `admin-shell.tsx`. Remove it fo
 |---|---|---|---|
 | Admin overview (dashboard) | Done | Connected (`/api/admin/overview`) | none |
 | Admin users: list, details, roles, suspend | Done on mock data | Waiting for backend | 5 |
-| Admin professionals: review and moderation | Done on mock data | Waiting for backend | 6 |
+| Admin professionals: review and moderation | Done | Connected, including profile change review. Stored `source` column still open (derived for now). Migrations `20261014000200`, `20261014000400` | 6 |
 | Become a professional (user applies) | Done | Connected (`/api/professional/application`), migration `20261014000100` not yet applied to Supabase | 8 |
-| Professional area `/pro`: shell, home, my profile with preview, login entry | Done on mock data | Waiting for backend | 16 |
-| Professional schedule (`/pro/schedule`) | Done on mock data | Waiting for backend | 16 |
-| Professional bookings (`/pro/bookings`) | Done on mock data | Waiting for backend | 16 |
-| Professional clients (`/pro/clients`, client file) | Done on mock data | Waiting for backend | 16 |
+| Professional area `/pro`: shell, home, my profile with preview, login entry | Done | Connected (`/api/pro/me`, `/api/pro/profile`, `/api/pro/photo`), migration `20261014000400` | 16 |
+| Professional schedule (`/pro/schedule`) | Done | Connected (`/api/pro/schedule`, open times in `availability_slots`), migration `20261014000400` | 16 |
+| Professional bookings (`/pro/bookings`) | Done | Connected: list, cancel, reschedule, outcome, session notes, meeting link (`/api/pro/bookings/:id`), migration `20261014000400` | 16 |
+| Professional clients (`/pro/clients`, client file) | Done | Partly: list comes from real bookings. Summary notes and archive still memory only | 16 |
+| Public directory and booking (`/professional`, `/professional/<slug>`, `/professional/<slug>/book`) | Done | Connected: only listed professionals, real open times, instant booking (`/api/bookings`), migration `20261014000400` | 16 |
 | Messages between client and professional (text and voice): `/pro/messages`, `/messages` | Done on mock data | Waiting for backend | 17 |
 | Care plan: professional gives tasks, client sees them in Your Plan For Today (`/pro/clients/<id>`, `/care-plan`, home) | Done on mock data | Waiting for backend | 18 |
 | Sessions: meeting links and Join, after session steps, suggest next session, repeating series, quick replies | Done on mock data | Waiting for backend | 19 |
-| Prepare view (`/pro/bookings/<id>`) and week calendar in My bookings | Done on mock data | Waiting for backend | 16 |
-| Professional Home dashboard (once the profile is complete) | Done on mock data | Waiting for backend | 16 |
+| Prepare view (`/pro/bookings/<id>`) and week calendar in My bookings | Done | Partly: reads real bookings and notes. Prep plan note still memory only | 16 |
+| Professional Home dashboard (once the profile is complete) | Done | Connected (counts from real bookings and schedule). "Listed" comes from the database | 16 |
 | Professional podcasts: `/pro/podcasts`, episodes on the public profile and podcast page | Done on mock data | Waiting for backend | 20 |
 | Admin MindGuide: lessons, tips and practices with drafts, versions, publish and checks (`/admin/mindguide`, editor at `/admin/mindguide/<type>/<sourceId>`) | Done on mock data | Waiting for backend | 9 |
 | Report a problem (users) and admin Reports page (`/admin/reports`) | Done on mock data | Waiting for backend | 10 |
 | Announcements: admin Settings section, banner at the top of every user page | Done on mock data | Waiting for backend | 15 |
 | Crash tracking: error screens catch crashes, admin Overview card "Most frequent crashes, last 7 days" | Done on mock data | Waiting for backend | 14 |
-| Crisis helplines and support contact: admin Settings, user "Get help now" in Profile and Settings | Done on mock data | Waiting for backend | 13 |
+| Crisis helplines and support contact: admin Settings, user "Get help now" in Profile and Settings | Done | Helplines connected (`/api/crisis-resources`, `/api/admin/crisis-resources`, migration `20261014000300`). Support contact still mock | 13 |
 | Admin bookings chart: sessions per day and new bookings per day (`/admin/bookings`) | Done on mock data | Waiting for backend | 12 |
 | MindGuide podcasts: user pages `/podcasts` and `/podcasts/<id>`, admin Podcasts tab | Done on mock data | Waiting for backend | 11 |
 | Community: professionals and admins create groups, admins read chats and shut groups down, users report a person, image, message or group (`/community`, `/admin/community`) | Done on mock data | Waiting for backend | 14 |
@@ -120,6 +121,8 @@ The signed in admin is mocked as `currentAdminId`. Use the session user id inste
 ## 6. Admin professionals page
 
 **Files:** `app/admin/_data/professionals.ts`, `app/admin/_components/professionals-view.tsx`, actions in `admin-provider.tsx`.
+
+**Connected (14 Oct 2026):** `GET /api/admin/professionals` (one merged list), `GET /api/admin/applications/:id/license` (redirects to a 60 second signed link), approve and reject through the existing review endpoint, suspend and reinstate through `PATCH /api/admin/users/:id/status` (`set_account_status()` in migration `20261014000200`: admin only, never yourself, reason required to suspend, audit logged). Controller: `lib/controllers/professionals-controller.ts`. The page reads `professionalRecords` from the provider; the old mock `professionals` list stays only for the demo pages (bookings, community, podcasts) until they are connected. Pending applicants are merged into the list with the user id as `id` and the application id as `applicationId`. `source` is derived for now: `application` when an approved application exists, otherwise `admin`.
 
 **Decided:** professionals edit their own profile. Admins do not write profiles. Admins only approve, reject, suspend, reinstate and review changes to important fields.
 
@@ -402,9 +405,16 @@ Users get only active helplines with a phone or website, ordered by `sortOrder`.
 
 `email`, `phone`, `hours`, `kmHours`. Shown to users as "AROM support" for app questions, not emergencies, only when an email or phone is set. Suggested storage: a single row settings table, admin write, public read.
 
+### Connected (14 Oct 2026)
+
+- `GET /api/crisis-resources` (public, signed out visitors included): active helplines in the admin's order. Used by `get-help-section.tsx`.
+- `GET /api/admin/crisis-resources` and `PUT /api/admin/crisis-resources` body `{ helplines }` (the whole list in display order). Controller `lib/controllers/crisis-controller.ts`.
+- `save_crisis_resources(jsonb)` (migration `20261014000300`) replaces the list in one transaction: admin only, deletes rows left out, sets `sort_order` from the list order, and writes one `admin_audit_log` entry with the totals and the names of removed helplines. New table checks repeat the form rules (Khmer name, phone or website, 3 to 15 digits, `https://`), so an invalid row saves nothing.
+- The "I checked this number myself" confirmation is enforced in the form only; the audit log records who saved.
+
 ### Still mock
 
-The user page reads the empty lists in `support-contacts.ts`, so admin edits do not reach users until this is connected. The admin dashboard "No crisis hotlines added yet" warning already reads `crisis_resources`.
+The AROM support contact (`SupportContact`) still reads the empty placeholder in `support-contacts.ts`. It needs the single row settings table described above.
 
 ## 14. Crash tracking
 
@@ -461,6 +471,18 @@ The user page reads the empty lists in `support-contacts.ts`, so admin edits do 
 `GET /api/announcements/current` (public, returns one or none) and admin only `GET /api/admin/announcements`, `POST /api/admin/announcements`, `POST /api/admin/announcements/:id/end`. Until then the user banner reads the empty list and admin edits are mock.
 
 ## 16. Professional area (`/pro`)
+
+**Connected (14 Oct 2026), migration `20261014000400_pro_profile_booking.sql`:**
+
+- **Profile:** `GET /api/pro/me` loads everything the area needs (profile, waiting changes, schedule, bookings, session notes, `listed`). `PATCH /api/pro/profile` saves normal fields at once; name, title (both languages), license number and issuing body go to the new `professional_profile_changes` table, and the trigger stops professionals from changing them directly. `DELETE /api/pro/profile/changes?field=` withdraws one. Admins approve or decline all waiting changes with `POST /api/admin/professionals/:id/changes/review` (`review_profile_changes()`, audit logged).
+- **Photo:** `POST /api/pro/photo` uploads to the public `professional-photos` bucket at `<user_id>/<uuid>.<ext>` (JPG, PNG, WebP, 5 MB, content checked). The profile only accepts a photo URL from the professional's own folder. Old photos are not deleted yet.
+- **Price:** `price_kind` (`free`, `fixed`, `range`), `price_usd`, `price_max_usd` on `professional_profiles`.
+- **Schedule:** private table `professional_schedules` (the `Schedule` JSON, `meeting_url`, `min_notice_hours`), owner only. `PUT /api/pro/schedule` repeats the editor checks, saves, and calls `sync_availability_slots()`, which replaces the future open times and never touches booked ones. The window rolls forward each time the professional opens `/pro` (no scheduled job yet). Changing the default room moves upcoming online sessions that used the old room or had none. The clinic requirement for in person slots was dropped.
+- **Directory:** `is_listed_professional()` is the single rule (verified, active account, photo, English bio 80+, Khmer bio 40+, specialty, language, session type, price, and an open time). `list_public_professionals(slug?)` and `public_open_slots(slug)` return public fields only, signed out visitors included. Code: `lib/professionals.ts`. Sample profiles in `lib/therapists.ts` still open by URL for the demo features, but are not listed and cannot be booked.
+- **Booking:** `POST /api/bookings` calls `book_appointment()`, now limited to listed professionals, with the minimum notice and the professional's room link copied for online sessions.
+- **Bookings in `/pro`:** `POST /api/pro/bookings/:id` with `action` `cancel`, `reschedule` (new `reschedule_appointment()`, keeps `rescheduled_from` and `reschedule_reason`), `outcome` (only after the session ends, enforced by the trigger), `note` (one private note per session) or `meeting`. Client names come from `my_client_names()`.
+- **Still memory only:** prep plan notes, client summary notes, archived clients, messages, care plans, suggestions and podcasts. The user side "Next session" strip in Messages still reads the demo session store.
+- **Tested** on a local Postgres with stubbed `auth` and `storage` schemas: apply, approve, profile edit, name change review, open times, signed out directory, booking (too soon, double booking), reschedule, early outcome blocked, notes, cancel, suspension hides the profile.
 
 **Files:** `app/pro/layout.tsx`, `app/pro/page.tsx` (home), `app/pro/profile/page.tsx`; components in `app/pro/_components/` (`pro-provider.tsx`, `pro-shell.tsx`, `pro-home.tsx`, `profile-editor.tsx`, `profile-preview.tsx`); data and rules in `app/pro/_data/profile.ts`. Prices and the testing flag in `lib/pricing.ts`; `Therapist.price` in `lib/therapists.ts`. Bilingual (not English only, unlike the admin).
 

@@ -43,6 +43,7 @@ export function ScheduleEditor() {
 
   const [draft, setDraft] = useState<Schedule>(schedule);
   const [notice, setNotice] = useState<{ tone: 'ok' | 'error'; text: string } | null>(null);
+  const [saving, setSaving] = useState(false);
   const [now] = useState(() => Date.now());
   const [offFrom, setOffFrom] = useState('');
   const [offTo, setOffTo] = useState('');
@@ -142,7 +143,8 @@ export function ScheduleEditor() {
     setOffNote('');
   }
 
-  function save() {
+  async function save() {
+    if (saving) return;
     if (problems.length > 0) {
       setNotice({ tone: 'error', text: t('សូមកែម៉ោងដែលមានសញ្ញាក្រហមជាមុនសិន។', 'Fix the times marked in red first.') });
       document.getElementById(`range-${problems[0].rangeId}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -153,8 +155,14 @@ export function ScheduleEditor() {
       document.getElementById('meeting-link')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
     }
-    saveSchedule({ ...draft, meetingUrl: draft.meetingUrl.trim() });
-    setNotice({ tone: 'ok', text: t('បានរក្សាទុកកាលវិភាគ។', 'Schedule saved.') });
+    setSaving(true);
+    const result = await saveSchedule({ ...draft, meetingUrl: draft.meetingUrl.trim() });
+    setSaving(false);
+    setNotice(
+      result.ok
+        ? { tone: 'ok', text: t('បានរក្សាទុកកាលវិភាគ។ ម៉ោងទំនេរត្រូវបានធ្វើបច្ចុប្បន្នភាព។', 'Schedule saved. Your open times are updated.') }
+        : { tone: 'error', text: result.message },
+    );
   }
 
   const dateLabel = (date: string) =>
@@ -193,11 +201,11 @@ export function ScheduleEditor() {
           </button>
           <button
             type="button"
-            onClick={save}
-            disabled={!isDirty}
+            onClick={() => void save()}
+            disabled={!isDirty || saving}
             className="flex items-center gap-1.5 rounded-full bg-arom px-5 py-2 text-sm font-semibold text-white hover:bg-arom-deep disabled:opacity-40">
             <Save size={15} aria-hidden="true" />
-            {t('រក្សាទុក', 'Save schedule')}
+            {saving ? t('កំពុងរក្សាទុក...', 'Saving...') : t('រក្សាទុក', 'Save schedule')}
           </button>
         </div>
       </div>

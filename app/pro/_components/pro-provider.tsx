@@ -1,179 +1,232 @@
 'use client';
 
-import { createContext, useContext, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
 
 import { FREE_DURING_TESTING } from '@/lib/pricing';
+import type { ProData } from '@/lib/controllers/pro-controller';
 import {
   REVIEWED_FIELDS,
-  establishedProfile,
-  newProfile,
   type PendingChange,
   type ProProfile,
   type ReviewedField,
 } from '../_data/profile';
-import {
-  emptySchedule,
-  establishedSchedule,
-  hasOpenTimes,
-  type Schedule,
-} from '../_data/schedule';
-import { sampleBookingsFor, type ProBooking, type SessionNote } from '../_data/bookings';
-import { moveUpcomingToRoom, updateBooking, useSessionStore } from '../../_components/sessions/session-store';
+import { emptySchedule, hasOpenTimes, type Schedule } from '../_data/schedule';
+import type { ProBooking, SessionNote } from '../_data/bookings';
+import { useLanguage } from '../../_components/language-provider';
 
-export type DemoMode = 'established' | 'new';
+// The signed in professional's own data, from /api/pro/me (BACKEND-HANDOFF.md
+// section 16). Profile, schedule, bookings and session notes are saved in the
+// database. Prep notes, client summary notes and archived clients are still
+// kept in memory only.
 
-export type SaveResult = {
-  // Fields that changed on the public profile right away.
-  applied: (keyof ProProfile)[];
-  // Fields that now wait for an admin.
-  pending: ReviewedField[];
-};
+export type ActionResult = { ok: true } | { ok: false; message: string };
+
+export type SaveResult =
+  | {
+      ok: true;
+      // Fields that changed on the public profile right away.
+      applied: (keyof ProProfile)[];
+      // Fields that now wait for an admin.
+      pending: ReviewedField[];
+      // The saved profile (reviewed fields keep their live value).
+      profile: ProProfile;
+    }
+  | { ok: false; message: string };
 
 type ProState = {
-  demoMode: DemoMode;
-  switchDemo: (mode: DemoMode) => void;
   // What users see (or will see once the profile is complete).
   profile: ProProfile;
   pendingChanges: PendingChange[];
+  // True when users can find and book this professional.
+  listed: boolean;
   hasSchedule: boolean;
   schedule: Schedule;
-  saveSchedule: (next: Schedule) => void;
+  saveSchedule: (next: Schedule) => Promise<ActionResult>;
   bookings: ProBooking[];
   sessionNotes: Record<string, SessionNote>;
-  cancelBooking: (id: string, reason: string) => void;
-  rescheduleBooking: (id: string, startsAt: string, reason: string) => void;
-  setBookingOutcome: (id: string, status: 'completed' | 'no_show') => void;
-  saveSessionNote: (id: string, text: string) => void;
-  // A private plan written before a session ("things to bring up").
+  cancelBooking: (id: string, reason: string) => Promise<ActionResult>;
+  rescheduleBooking: (id: string, startsAt: string, reason: string) => Promise<ActionResult>;
+  setBookingOutcome: (id: string, status: 'completed' | 'no_show') => Promise<ActionResult>;
+  saveSessionNote: (id: string, text: string) => Promise<ActionResult>;
+  setMeetingLink: (id: string, meetingUrl: string) => Promise<ActionResult>;
+  // A private plan written before a session ("things to bring up"). Memory only.
   prepNotes: Record<string, SessionNote>;
   savePrepNote: (id: string, text: string) => void;
-  // One pinned summary per client, private to the professional.
+  // One pinned summary per client, private to the professional. Memory only.
   summaryNotes: Record<string, SessionNote>;
   saveSummaryNote: (clientId: string, text: string) => void;
   archivedClients: string[];
   setClientArchived: (clientId: string, archived: boolean) => void;
   freeDuringTesting: boolean;
-  saveProfile: (next: ProProfile) => SaveResult;
-  withdrawChange: (field: ReviewedField) => void;
+  saveProfile: (next: ProProfile) => Promise<SaveResult>;
+  withdrawChange: (field: ReviewedField) => Promise<void>;
+  // Changes when fresh data arrives, so editors can reset their drafts.
+  version: number;
 };
 
 const ProContext = createContext<ProState | null>(null);
 
-// Demo: notes so the client file and Prepare view are not empty for Sok Dara.
-function demoNotes(slug: string) {
-  const dara = sampleBookingsFor(slug)
-    .filter((item) => item.clientId === 'demo-user-001' && item.status === 'completed')
-    .sort((a, b) => b.startsAt.localeCompare(a.startsAt))[0];
-  const at = '2026-10-12T05:00:00Z';
-  return {
-    session: dara
-      ? { [dara.id]: { text: 'Work stress is still high, mostly deadlines. Sleep a little better since starting breathing at night. Wants to talk about her manager next time.', updatedAt: at } }
-      : {},
-    summary: { 'demo-user-001': { text: 'Prefers Khmer. Goal: sleep better and feel calmer at work. Breathing exercises help. Gets anxious before exams and deadlines.', updatedAt: at } },
-  };
+const NETWORK_ERROR = 'Could not reach the server. Check your connection.';
+
+async function request<T>(url: string, init?: RequestInit): Promise<{ ok: true; data: T } | { ok: false; message: string }> {
+  try {
+    const response = await fetch(url, { cache: 'no-store', ...init });
+    const data = (await response.json().catch(() => null)) as (T & { error?: { message?: string } }) | null;
+    if (!response.ok || data === null) {
+      return { ok: false, message: data?.error?.message ?? 'That could not be saved.' };
+    }
+    return { ok: true, data };
+  } catch {
+    return { ok: false, message: NETWORK_ERROR };
+  }
 }
 
-const isReviewed = (key: keyof ProProfile): key is ReviewedField =>
-  (REVIEWED_FIELDS as readonly string[]).includes(key);
+const jsonInit = (method: string, body: unknown): RequestInit => ({
+  method,
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify(body),
+});
+
+/** Uploads a photo chosen in the editor (a data URL) and returns its public URL. */
+async function uploadPhoto(dataUrl: string): Promise<string | null> {
+  try {
+    const blob = await (await fetch(dataUrl)).blob();
+    const body = new FormData();
+    body.set('photo', new File([blob], 'photo', { type: blob.type }));
+    const result = await request<{ url: string }>('/api/pro/photo', { method: 'POST', body });
+    return result.ok ? result.data.url : null;
+  } catch {
+    return null;
+  }
+}
 
 export function ProProvider({ children }: { children: ReactNode }) {
-  const [demoMode, setDemoMode] = useState<DemoMode>('established');
-  const [profile, setProfile] = useState<ProProfile>(() => structuredClone(establishedProfile));
-  const [pendingChanges, setPendingChanges] = useState<PendingChange[]>([]);
-  const [schedule, setSchedule] = useState<Schedule>(() => structuredClone(establishedSchedule));
-  const [sessionNotes, setSessionNotes] = useState<Record<string, SessionNote>>(() => demoNotes(establishedProfile.slug).session);
-  const [summaryNotes, setSummaryNotes] = useState<Record<string, SessionNote>>(() => demoNotes(establishedProfile.slug).summary);
+  const { language } = useLanguage();
+  const km = language === 'km';
+  const [data, setData] = useState<ProData | null>(null);
+  const [loadError, setLoadError] = useState(false);
+  const [version, setVersion] = useState(0);
   const [prepNotes, setPrepNotes] = useState<Record<string, SessionNote>>({});
+  const [summaryNotes, setSummaryNotes] = useState<Record<string, SessionNote>>({});
   const [archivedClients, setArchivedClients] = useState<string[]>([]);
 
-  // Bookings live in the shared session store, so the user side sees changes too.
-  const sessionStore = useSessionStore();
-  const bookings = sessionStore.bookings.filter((item) => item.professionalId === profile.slug);
+  const applyData = useCallback((next: ProData) => {
+    setData(next);
+    setVersion((value) => value + 1);
+  }, []);
 
-  function saveSchedule(next: Schedule) {
-    if (next.meetingUrl !== schedule.meetingUrl) moveUpcomingToRoom(profile.slug, schedule.meetingUrl, next.meetingUrl, Date.now());
-    setSchedule(structuredClone(next));
+  const load = useCallback(async () => {
+    const result = await request<ProData>('/api/pro/me');
+    if (result.ok) {
+      applyData(result.data);
+      setLoadError(false);
+    } else {
+      setLoadError(true);
+    }
+  }, [applyData]);
+
+  useEffect(() => {
+    // Loading from the API on mount is what this effect is for.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void load();
+  }, [load]);
+
+  if (!data) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-canvas p-6 text-center">
+        {loadError ? (
+          <div role="alert">
+            <p className="text-sm text-arom-danger">
+              {km ? 'មិនអាចផ្ទុកផ្នែកអ្នកជំនាញបានទេ។' : 'We could not load your professional area.'}
+            </p>
+            <button
+              type="button"
+              onClick={() => void load()}
+              className="mt-3 rounded-full bg-arom px-5 py-2 text-sm font-semibold text-white hover:bg-arom-deep">
+              {km ? 'ព្យាយាមម្តងទៀត' : 'Try again'}
+            </button>
+          </div>
+        ) : (
+          <p role="status" className="text-sm text-ink-muted">
+            {km ? 'កំពុងផ្ទុក...' : 'Loading...'}
+          </p>
+        )}
+      </div>
+    );
   }
 
-  function switchDemo(mode: DemoMode) {
-    setDemoMode(mode);
-    setProfile(structuredClone(mode === 'established' ? establishedProfile : newProfile));
-    setPendingChanges([]);
-    setSchedule(structuredClone(mode === 'established' ? establishedSchedule : emptySchedule));
-    setSessionNotes(mode === 'established' ? demoNotes(establishedProfile.slug).session : {});
-    setSummaryNotes(mode === 'established' ? demoNotes(establishedProfile.slug).summary : {});
-    setPrepNotes({});
-    setArchivedClients([]);
+  const profile = data.profile;
+  const schedule = data.schedule ?? emptySchedule;
+
+  async function bookingAction(id: string, body: Record<string, unknown>): Promise<ActionResult> {
+    const result = await request<Pick<ProData, 'bookings' | 'sessionNotes'>>(
+      `/api/pro/bookings/${id}`,
+      jsonInit('POST', body),
+    );
+    if (!result.ok) return result;
+    setData((current) => (current ? { ...current, ...result.data } : current));
+    return { ok: true };
   }
 
-  function saveProfile(next: ProProfile): SaveResult {
-    const applied: (keyof ProProfile)[] = [];
-    const pending: ReviewedField[] = [];
-    const updated = { ...profile };
-    let changes = [...pendingChanges];
-    const requestedAt = new Date().toISOString();
-
-    for (const key of Object.keys(next) as (keyof ProProfile)[]) {
-      if (JSON.stringify(next[key]) === JSON.stringify(profile[key])) {
-        // Back to the live value: drop any waiting change for it.
-        if (isReviewed(key)) changes = changes.filter((change) => change.field !== key);
-        continue;
-      }
-
-      if (isReviewed(key)) {
-        const to = String(next[key]).trim();
-        changes = [
-          ...changes.filter((change) => change.field !== key),
-          { field: key, from: String(profile[key]), to, requestedAt },
-        ];
-        pending.push(key);
-      } else {
-        (updated as Record<keyof ProProfile, unknown>)[key] = next[key];
-        applied.push(key);
-      }
+  async function saveProfile(next: ProProfile): Promise<SaveResult> {
+    let photoUrl = next.photoUrl;
+    if (photoUrl.startsWith('data:')) {
+      const uploaded = await uploadPhoto(photoUrl);
+      if (!uploaded) return { ok: false, message: km ? 'មិនអាចផ្ទុករូបថតបានទេ។' : 'We could not upload your photo.' };
+      photoUrl = uploaded;
     }
 
-    setProfile(updated);
-    setPendingChanges(changes);
-    return { applied, pending };
+    const result = await request<ProData>('/api/pro/profile', jsonInit('PATCH', { ...next, photoUrl }));
+    if (!result.ok) return result;
+
+    const applied = (Object.keys(next) as (keyof ProProfile)[]).filter(
+      (key) =>
+        !(REVIEWED_FIELDS as readonly string[]).includes(key) &&
+        JSON.stringify(next[key]) !== JSON.stringify(profile[key]),
+    );
+    const pending = result.data.pendingChanges
+      .map((change) => change.field)
+      .filter((field) => next[field].trim() !== profile[field].trim());
+    applyData(result.data);
+    return { ok: true, applied, pending, profile: result.data.profile };
   }
 
-  function withdrawChange(field: ReviewedField) {
-    setPendingChanges((current) => current.filter((change) => change.field !== field));
+  async function saveSchedule(next: Schedule): Promise<ActionResult> {
+    const result = await request<ProData>('/api/pro/schedule', jsonInit('PUT', next));
+    if (!result.ok) return result;
+    applyData(result.data);
+    return { ok: true };
   }
+
+  async function withdrawChange(field: ReviewedField) {
+    await request(`/api/pro/profile/changes?field=${field}`, { method: 'DELETE' });
+    await load();
+  }
+
+  const stamp = () => new Date().toISOString();
 
   return (
     <ProContext.Provider
       value={{
-        demoMode,
-        switchDemo,
         profile,
-        pendingChanges,
+        pendingChanges: data.pendingChanges,
+        listed: data.listed,
         hasSchedule: hasOpenTimes(schedule),
         schedule,
         saveSchedule,
-        bookings,
-        sessionNotes,
-        // The client is told by the backend; the reason is shown to them.
-        cancelBooking: (id, reason) =>
-          updateBooking(id, { status: 'cancelled', cancelledBy: 'professional', cancelReason: reason }),
-        rescheduleBooking: (id, startsAt, reason) => {
-          const booking = bookings.find((item) => item.id === id);
-          updateBooking(id, {
-            startsAt,
-            rescheduledFrom: booking?.rescheduledFrom ?? booking?.startsAt ?? null,
-            rescheduleReason: reason,
-          });
-        },
-        setBookingOutcome: (id, status) => updateBooking(id, { status }),
-        saveSessionNote: (id, text) =>
-          setSessionNotes((current) => ({ ...current, [id]: { text, updatedAt: new Date().toISOString() } })),
+        bookings: data.bookings,
+        sessionNotes: data.sessionNotes,
+        // The reason is shown to the client.
+        cancelBooking: (id, reason) => bookingAction(id, { action: 'cancel', reason }),
+        rescheduleBooking: (id, startsAt, reason) => bookingAction(id, { action: 'reschedule', startsAt, reason }),
+        setBookingOutcome: (id, status) => bookingAction(id, { action: 'outcome', status }),
+        saveSessionNote: (id, text) => bookingAction(id, { action: 'note', text }),
+        setMeetingLink: (id, meetingUrl) => bookingAction(id, { action: 'meeting', meetingUrl }),
         prepNotes,
-        savePrepNote: (id, text) =>
-          setPrepNotes((current) => ({ ...current, [id]: { text, updatedAt: new Date().toISOString() } })),
+        savePrepNote: (id, text) => setPrepNotes((current) => ({ ...current, [id]: { text, updatedAt: stamp() } })),
         summaryNotes,
         saveSummaryNote: (clientId, text) =>
-          setSummaryNotes((current) => ({ ...current, [clientId]: { text, updatedAt: new Date().toISOString() } })),
+          setSummaryNotes((current) => ({ ...current, [clientId]: { text, updatedAt: stamp() } })),
         archivedClients,
         setClientArchived: (clientId, archived) =>
           setArchivedClients((current) =>
@@ -182,6 +235,7 @@ export function ProProvider({ children }: { children: ReactNode }) {
         freeDuringTesting: FREE_DURING_TESTING,
         saveProfile,
         withdrawChange,
+        version,
       }}>
       {children}
     </ProContext.Provider>

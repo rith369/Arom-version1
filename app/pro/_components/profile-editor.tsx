@@ -47,6 +47,7 @@ export function ProfileEditor() {
   const [draft, setDraft] = useState<ProProfile>(profile);
   const [view, setView] = useState<'edit' | 'preview'>('edit');
   const [notice, setNotice] = useState<{ tone: 'ok' | 'error'; text: string } | null>(null);
+  const [saving, setSaving] = useState(false);
 
   const isDirty = !sameProfile(draft, profile);
   const priceKind = draft.price?.kind ?? null;
@@ -126,7 +127,8 @@ export function ProfileEditor() {
     reader.readAsDataURL(file);
   }
 
-  function save() {
+  async function save() {
+    if (saving) return;
     if (!draft.displayName.trim() || !draft.title.trim()) {
       setNotice({ tone: 'error', text: t('ត្រូវការឈ្មោះ និងមុខតំណែងជាភាសាអង់គ្លេស។', 'Your name and title in English are required.') });
       return;
@@ -146,16 +148,21 @@ export function ProfileEditor() {
       return;
     }
 
-    const result = saveProfile({
+    setSaving(true);
+    const result = await saveProfile({
       ...draft,
       bio: draft.bio.trim(),
       kmBio: draft.kmBio.trim(),
     });
+    setSaving(false);
+
+    if (!result.ok) {
+      setNotice({ tone: 'error', text: result.message });
+      return;
+    }
 
     // Reviewed fields go back to the live value; the waiting value shows under them.
-    const next = { ...draft, bio: draft.bio.trim(), kmBio: draft.kmBio.trim() };
-    for (const field of REVIEWED_FIELDS) next[field] = profile[field];
-    setDraft(next);
+    setDraft(result.profile);
 
     const parts = [];
     if (result.applied.length) parts.push(t('ការផ្លាស់ប្តូរត្រូវបានរក្សាទុក។', 'Changes saved.'));
@@ -239,11 +246,11 @@ export function ProfileEditor() {
           </button>
           <button
             type="button"
-            onClick={save}
-            disabled={!isDirty}
+            onClick={() => void save()}
+            disabled={!isDirty || saving}
             className="flex items-center gap-1.5 rounded-full bg-arom px-5 py-2 text-sm font-semibold text-white hover:bg-arom-deep disabled:opacity-40">
             <Save size={15} aria-hidden="true" />
-            {t('រក្សាទុក', 'Save changes')}
+            {saving ? t('កំពុងរក្សាទុក...', 'Saving...') : t('រក្សាទុក', 'Save changes')}
           </button>
         </div>
       </div>

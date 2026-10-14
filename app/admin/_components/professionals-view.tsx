@@ -111,6 +111,7 @@ function ReviewDialog({
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [action, setAction] = useState<ActionKind | null>(null);
   const [error, setError] = useState('');
+  const [busy, setBusy] = useState(false);
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -127,7 +128,9 @@ function ReviewDialog({
 
   const fieldLabels: Record<ReviewedField, string> = {
     name: t('ឈ្មោះ', 'Name'),
+    kmName: 'Name (Khmer)',
     role: t('មុខតំណែង', 'Title'),
+    kmRole: 'Title (Khmer)',
     licenseNumber: t('លេខអាជ្ញាប័ណ្ណ', 'License number'),
     issuingBody: t('ស្ថាប័នចេញអាជ្ញាប័ណ្ណ', 'Issuing body'),
   };
@@ -222,10 +225,10 @@ function ReviewDialog({
             ? ['reinstate']
             : [];
 
-  function confirm(event: FormEvent<HTMLFormElement>) {
+  async function confirm(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    if (!action) return;
+    if (!action || busy) return;
 
     const config = actions[action];
     const note = String(
@@ -237,20 +240,26 @@ function ReviewDialog({
       return;
     }
 
-    if (action === 'approve' || action === 'reject') {
-      reviewApplication(item.id, action, note);
-    } else if (action === 'approveChanges' || action === 'declineChanges') {
-      reviewProfileChanges(
-        item.id,
-        action === 'approveChanges' ? 'approve' : 'reject',
-        note,
-      );
-    } else {
-      setProfessionalAccess(
-        item.id,
-        action === 'suspend' ? 'suspended' : 'active',
-        note,
-      );
+    setBusy(true);
+    const result =
+      action === 'approve' || action === 'reject'
+        ? await reviewApplication(item.id, action, note)
+        : action === 'approveChanges' || action === 'declineChanges'
+          ? await reviewProfileChanges(
+              item.id,
+              action === 'approveChanges' ? 'approve' : 'reject',
+              note,
+            )
+          : await setProfessionalAccess(
+              item.id,
+              action === 'suspend' ? 'suspended' : 'active',
+              note,
+            );
+    setBusy(false);
+
+    if (!result.ok) {
+      setError(result.message);
+      return;
     }
 
     onDone(km ? `${displayName}: ${config.done}` : `${item.name}: ${config.done}`);
@@ -329,12 +338,13 @@ function ReviewDialog({
             </button>
             <button
               type="submit"
-              className={`rounded-full px-5 py-2.5 text-sm text-white ${
+              disabled={busy}
+              className={`rounded-full px-5 py-2.5 text-sm text-white disabled:opacity-60 ${
                 current.isDestructive
                   ? 'bg-arom-danger hover:opacity-90'
                   : 'bg-arom hover:bg-arom-deep'
               }`}>
-              {current.label}
+              {busy ? 'Saving...' : current.label}
             </button>
           </div>
         </form>
@@ -410,13 +420,14 @@ function ReviewDialog({
                   <dd className="mt-1 flex flex-wrap items-center gap-2">
                     <FileText size={16} className="text-ink-muted" />
                     {item.credential.documentName || t('មិនមាន', 'Not provided')}
-                    {item.credential.documentName && (
-                      <span className="text-xs text-ink-muted">
-                        {t(
-                          '(បើកពីឃ្លាំងឯកជន ពេលភ្ជាប់ backend)',
-                          '(opens from private storage once the backend is connected)',
-                        )}
-                      </span>
+                    {item.credential.documentName && item.applicationId && (
+                      <a
+                        href={`/api/admin/applications/${item.applicationId}/license`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs font-semibold text-arom underline hover:text-arom-deep">
+                        Open file
+                      </a>
                     )}
                   </dd>
                 </div>
@@ -528,7 +539,11 @@ function ReviewDialog({
 }
 
 export function ProfessionalsView() {
-  const { professionals } = useAdmin();
+  const {
+    professionalRecords: professionals,
+    professionalsLoad,
+    reloadProfessionals,
+  } = useAdmin();
   const { language } = useLanguage();
   const km = language === 'km';
   const t = (kmText: string, enText: string) => (km ? kmText : enText);
@@ -620,6 +635,28 @@ export function ProfessionalsView() {
           </button>
         ))}
       </div>
+
+      {professionalsLoad !== 'ready' && (
+        <div
+          role={professionalsLoad === 'error' ? 'alert' : 'status'}
+          className={`mt-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border p-4 text-sm ${
+            professionalsLoad === 'error'
+              ? 'border-arom-danger/25 bg-arom-danger-soft/50 text-arom-danger'
+              : 'border-arom-border bg-white text-ink-muted'
+          }`}>
+          {professionalsLoad === 'error'
+            ? 'Could not load professionals.'
+            : 'Loading professionals...'}
+          {professionalsLoad === 'error' && (
+            <button
+              type="button"
+              onClick={() => void reloadProfessionals()}
+              className="rounded-full border border-arom-danger/30 px-4 py-1.5 text-xs font-semibold hover:bg-white">
+              Try again
+            </button>
+          )}
+        </div>
+      )}
 
       <section className="mt-6 overflow-hidden rounded-3xl border border-arom-border bg-white shadow-sm">
         <div className="flex flex-wrap items-center gap-3 border-b border-arom-border p-5">

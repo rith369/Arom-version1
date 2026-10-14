@@ -16,7 +16,6 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 
-import { usePro, type DemoMode } from './pro-provider';
 import { AccountMenu } from '../../_components/account-menu';
 import { LanguageSwitcher, useLanguage } from '../../_components/language-provider';
 
@@ -41,14 +40,9 @@ const LINKS: NavLink[] = [
 export function ProShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const { language } = useLanguage();
-  const { demoMode, switchDemo } = usePro();
   const km = language === 'km';
   const t = (kmText: string, enText: string) => (km ? kmText : enText);
 
-  const demoOptions: { value: DemoMode; label: string }[] = [
-    { value: 'established', label: t('អ្នកជំនាញដែលមានស្រាប់', 'Established professional') },
-    { value: 'new', label: t('ទើបអនុម័តថ្មី', 'Newly approved') },
-  ];
 
   return (
     <div className={`min-h-screen bg-canvas lg:pl-64 ${km ? 'font-khmer' : ''}`}>
@@ -108,23 +102,12 @@ export function ProShell({ children }: { children: ReactNode }) {
 
       <main className="mx-auto max-w-5xl px-4 py-5 sm:px-8 lg:px-10 lg:py-8">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-arom-warning/25 bg-arom-warning-soft px-3 py-2 text-xs text-arom-warning">
-            <span>{t('ទិន្នន័យសាកល្បង។ មើលជា:', 'Demo data. View as:')}</span>
-            {demoOptions.map((option) => (
-              <button
-                key={option.value}
-                type="button"
-                aria-pressed={demoMode === option.value}
-                onClick={() => switchDemo(option.value)}
-                className={`rounded-full border px-2.5 py-0.5 font-semibold ${
-                  demoMode === option.value
-                    ? 'border-arom-warning bg-arom-warning text-white'
-                    : 'border-arom-warning/40 bg-white/60'
-                }`}>
-                {option.label}
-              </button>
-            ))}
-          </div>
+          <p className="rounded-2xl border border-arom-warning/25 bg-arom-warning-soft px-3 py-2 text-xs text-arom-warning">
+            {t(
+              'ទិន្នន័យសាកល្បង៖ សារ ផែនការថែទាំ ផតខាស្ទ៍ កំណត់ចំណាំសង្ខេប និងការរៀបចំមុនវគ្គ មិនទាន់រក្សាទុកនៅឡើយ។',
+              'Demo only: messages, care plans, podcasts, client summary notes and session prep are not saved yet.',
+            )}
+          </p>
           <div className="flex items-center gap-3">
             <LanguageSwitcher />
             <AccountMenu />

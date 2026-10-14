@@ -23,6 +23,9 @@ import {
   LanguageSwitcher,
   useLanguage,
 } from '../../_components/language-provider';
+// Pages that read real data from the backend. The demo banner is hidden on these.
+const REAL_DATA_PAGES = ['/admin', '/admin/professionals'];
+
 export function AdminShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const { language } = useLanguage();
@@ -161,7 +164,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
           <LanguageSwitcher />
           <AccountMenu englishOnly />
         </div>
-        {pathname !== '/admin' && (
+        {!REAL_DATA_PAGES.includes(pathname) && (
           <div className="mb-7 rounded-xl border border-arom-warning/25 bg-arom-warning-soft px-4 py-3 text-xs text-arom-warning">
             {km
               ? 'ទិន្នន័យសាកល្បង។ ការផ្លាស់ប្តូរនឹងត្រូវកំណត់ឡើងវិញនៅពេលផ្ទុកទំព័រឡើងវិញ។'

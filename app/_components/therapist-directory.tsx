@@ -13,7 +13,6 @@ import {
   getTherapistName,
   getTherapistRole,
   matchesFilters,
-  therapists,
   type Therapist,
   type TherapistFilters,
 } from "@/lib/therapists";
@@ -93,7 +92,9 @@ function TherapistCard({ therapist }: { therapist: Therapist }) {
   );
 }
 
-export function TherapistDirectory() {
+// `therapists` comes from the server: only listed professionals
+// (verified, active, complete profile, open times). See lib/professionals.ts.
+export function TherapistDirectory({ therapists }: { therapists: Therapist[] }) {
   const { language } = useLanguage();
   const sidebar = useSidebar();
   const km = language === "km";
@@ -122,7 +123,7 @@ export function TherapistDirectory() {
           .toLowerCase()
           .includes(normalizedQuery),
     );
-  }, [query, filters]);
+  }, [therapists, query, filters]);
 
   const clearAll = () => {
     setQuery("");
@@ -310,10 +311,21 @@ export function TherapistDirectory() {
             {filteredTherapists.length > 0 ? (
               <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3 xl:gap-5">
                 {filteredTherapists.map((therapist) => (
-                  <motion.div key={therapist.name} variants={itemVariants}>
+                  <motion.div key={therapist.slug} variants={itemVariants}>
                     <TherapistCard therapist={therapist} />
                   </motion.div>
                 ))}
+              </div>
+            ) : therapists.length === 0 ? (
+              <div className="mt-4 rounded-3xl border border-dashed border-arom/30 bg-white px-6 py-14 text-center">
+                <p className="font-semibold text-ink">
+                  {km ? "មិនទាន់មានអ្នកជំនាញទំនេរនៅឡើយទេ" : "No professionals are available yet"}
+                </p>
+                <p className="mt-1 text-sm text-ink-muted">
+                  {km
+                    ? "អ្នកជំនាញថ្មីកំពុងរៀបចំប្រវត្តិរូប។ សូមត្រឡប់មកវិញឆាប់ៗ។"
+                    : "New professionals are setting up their profiles. Please check back soon."}
+                </p>
               </div>
             ) : (
               <div className="mt-4 rounded-3xl border border-dashed border-arom/30 bg-white px-6 py-14 text-center">

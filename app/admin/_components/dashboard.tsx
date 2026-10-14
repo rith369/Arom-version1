@@ -75,6 +75,7 @@ export function Dashboard() {
   const [showTable, setShowTable] = useState(false);
   const [confirming, setConfirming] = useState<{ id: string; approve: boolean } | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [rejectNote, setRejectNote] = useState("");
   const [notice, setNotice] = useState("");
 
   const reload = useCallback(() => setReloadKey((key) => key + 1), []);
@@ -127,7 +128,7 @@ export function Dashboard() {
       const response = await fetch(`/api/admin/applications/${application.id}/review`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ approve }),
+        body: JSON.stringify(approve ? { approve } : { approve, note: rejectNote.trim() }),
       });
       if (!response.ok) {
         const body = (await response.json().catch(() => null)) as AuthErrorBody | null;
@@ -140,6 +141,7 @@ export function Dashboard() {
           : t(`បានបដិសេធពាក្យស្នើរបស់ ${application.fullName}។`, `${application.fullName}'s application was rejected.`),
       );
       setConfirming(null);
+      setRejectNote("");
       reload();
     } finally {
       setBusyId(null);
@@ -329,7 +331,7 @@ export function Dashboard() {
                             <>
                               <button
                                 type="button"
-                                disabled={busyId === app.id}
+                                disabled={busyId === app.id || (!confirming.approve && !rejectNote.trim())}
                                 onClick={() => review(app, confirming.approve)}
                                 className={`rounded-full px-4 py-2 text-xs font-semibold text-white disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-arom ${confirming.approve ? "bg-arom hover:bg-arom-deep" : "bg-arom-danger hover:opacity-90"}`}
                               >
@@ -341,7 +343,10 @@ export function Dashboard() {
                               </button>
                               <button
                                 type="button"
-                                onClick={() => setConfirming(null)}
+                                onClick={() => {
+                                  setConfirming(null);
+                                  setRejectNote("");
+                                }}
                                 className="rounded-full px-3 py-2 text-xs font-medium text-ink-muted hover:text-ink focus-visible:outline-2 focus-visible:outline-arom"
                               >
                                 {t("បោះបង់", "Cancel")}
@@ -358,7 +363,10 @@ export function Dashboard() {
                               </button>
                               <button
                                 type="button"
-                                onClick={() => setConfirming({ id: app.id, approve: false })}
+                                onClick={() => {
+                                  setConfirming({ id: app.id, approve: false });
+                                  setRejectNote("");
+                                }}
                                 className="rounded-full border border-arom-border px-4 py-2 text-xs font-semibold text-ink hover:bg-arom-wash focus-visible:outline-2 focus-visible:outline-arom"
                               >
                                 {t("បដិសេធ", "Reject")}
@@ -377,6 +385,20 @@ export function Dashboard() {
                           {item.severity === "critical" ? t("បន្ទាន់", "Urgent") : t("ពិនិត្យ", "Review")}
                         </span>
                         </span>
+                      )}
+                      {app && isConfirming && !confirming.approve && (
+                        <label className="w-full pl-[3.25rem] text-xs font-medium text-ink">
+                          Reason for the applicant (they will see this)
+                          <textarea
+                            value={rejectNote}
+                            onChange={(event) => setRejectNote(event.target.value)}
+                            rows={3}
+                            maxLength={1000}
+                            autoFocus
+                            placeholder="For example: The license photo is too blurry to read the number. Please upload a clearer photo."
+                            className="mt-1.5 block w-full rounded-xl border border-arom-border bg-white px-3 py-2 text-sm font-normal text-ink outline-none placeholder:text-ink-muted/70 focus:border-arom focus:ring-4 focus:ring-arom/10"
+                          />
+                        </label>
                       )}
                     </li>
                   );

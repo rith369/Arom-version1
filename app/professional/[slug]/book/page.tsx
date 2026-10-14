@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { connection } from "next/server";
 import { TherapistBooking } from "../../../_components/therapist-booking";
-import { getBookingDays } from "@/lib/booking";
+import { getOpenTimes, getPublicTherapist } from "@/lib/professionals";
 import { getTherapist } from "@/lib/therapists";
 
 type BookingPageProps = {
@@ -11,7 +10,7 @@ type BookingPageProps = {
 
 export async function generateMetadata({ params }: BookingPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const therapist = getTherapist(slug);
+  const therapist = (await getPublicTherapist(slug)) ?? getTherapist(slug);
 
   if (!therapist) return {};
 
@@ -23,13 +22,13 @@ export async function generateMetadata({ params }: BookingPageProps): Promise<Me
 
 export default async function BookingPage({ params }: BookingPageProps) {
   const { slug } = await params;
-  const therapist = getTherapist(slug);
+  const listed = await getPublicTherapist(slug);
+  // Sample profiles open, but have no open times, so they cannot be booked.
+  const therapist = listed ?? getTherapist(slug);
 
   if (!therapist) notFound();
 
-  // Dates depend on the current day, so render per request.
-  await connection();
-  const days = getBookingDays(new Date());
+  const openTimes = listed ? await getOpenTimes(slug) : [];
 
-  return <TherapistBooking therapist={therapist} days={days} />;
+  return <TherapistBooking therapist={therapist} openTimes={openTimes} />;
 }

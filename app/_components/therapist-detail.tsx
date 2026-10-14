@@ -146,13 +146,15 @@ export function TherapistDetail({ therapist }: { therapist: Therapist }) {
                   </h1>
                   <p className="mt-1 text-base text-ink-muted lg:text-lg">{role}</p>
                   <p className="mt-1 text-sm text-ink-muted">{experience}</p>
-                  <p className="mt-2 flex items-center gap-1.5 text-sm text-ink">
-                    <Star aria-hidden="true" size={18} className="fill-[#f6c445] text-[#f6c445]" />
-                    <span className="font-bold">{therapist.rating.toFixed(1)}</span>
-                    <span className="text-ink-muted">
-                      ({therapist.reviews} {km ? "ការវាយតម្លៃ" : "reviews"})
-                    </span>
-                  </p>
+                  {therapist.reviews > 0 && (
+                    <p className="mt-2 flex items-center gap-1.5 text-sm text-ink">
+                      <Star aria-hidden="true" size={18} className="fill-[#f6c445] text-[#f6c445]" />
+                      <span className="font-bold">{therapist.rating.toFixed(1)}</span>
+                      <span className="text-ink-muted">
+                        ({therapist.reviews} {km ? "ការវាយតម្លៃ" : "reviews"})
+                      </span>
+                    </p>
+                  )}
                   {podcast && (
                     <Link
                       href={podcastHref}
