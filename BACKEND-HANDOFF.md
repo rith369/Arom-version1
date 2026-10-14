@@ -66,6 +66,7 @@ The yellow "Demo data on this page" banner is in `admin-shell.tsx`. Remove it fo
 | Admin bookings chart: sessions per day and new bookings per day (`/admin/bookings`) | Done on mock data | Waiting for backend | 12 |
 | MindGuide podcasts: user pages `/podcasts` and `/podcasts/<id>`, admin Podcasts tab | Done on mock data | Waiting for backend | 11 |
 | Community: professionals and admins create groups, admins read chats and shut groups down, users report a person, image, message or group (`/community`, `/admin/community`) | Done on mock data | Waiting for backend | 14 |
+| Mood check in and Your Progress on Home (`/`, journal starts from today's mood) | Done | Connected (`POST /api/mood-checkins`, `GET /api/progress`), migration `20261015000400` not yet applied to Supabase | 22 |
 | Admin audit log (`/admin/audit-log`) | Done | Connected (`GET /api/admin/audit-log`). No migration | 5 |
 | Other admin pages (bookings, journal prompts, settings) | Built by Sokheng on mock data | Not started | not written yet |
 
@@ -817,6 +818,35 @@ The admin list uses `CommunityReport`: `id, groupId, targetKind, targetLabel, me
 1. Groups, members, messages and attachments tables do not exist yet. Chat images need a private storage bucket readable by members of that group and by admins.
 2. Professionals have no "My groups" list yet; it belongs in `/pro`.
 3. Admin edits to an existing group (name, description, rules) do not reach `/community` in the mock. With one database this goes away; no frontend change is needed.
+
+## 22. Mood check in and Your Progress (Home)
+
+**Files:** `lib/mood.ts` (types, labels, Cambodia day helpers, shared by the browser and the API), `lib/controllers/mood-controller.ts`, `app/api/mood-checkins/route.ts`, `app/api/progress/route.ts`, `app/_components/mood/mood-store.ts` (loads the week, saves today's mood), `app/components/mood-selector.tsx` (How are you feeling today?), `app/components/progress-dashboard.tsx` (Your Progress), `app/detection/journal/page.tsx` (starts from today's check in).
+
+### Data shape
+
+| Type | Fields | Table |
+|---|---|---|
+| `MoodLevel` | `very_low`, `low`, `okay`, `good`, `great` (the existing `mood_level` enum) | none |
+| `MoodDay` | `day` (Cambodia date), `mood` (`MoodLevel` or null on a day without a check in) | `mood_checkins` |
+| `MoodWeekResponse` | `days` (last 7 Cambodia days, oldest first, today last), `checkIns` (days with a check in) | read from `mood_checkins` |
+
+### Rules (decided, do not change)
+
+- **One mood per person per Cambodia day.** Tapping another mood the same day replaces the first. The day comes from `cambodia_today()` on the server, never from the browser.
+- **A mood is private health data.** It never goes in a URL, in browser storage or in a log. The old `arom_today_mood` key in `localStorage` is removed on the first visit. The journal reads today's mood from the API, not from `?mood=`.
+- **Nothing is preselected.** "Saved" shows only after the server confirms the save. A tap selects and saves; it never leaves the page.
+- **No made up data.** Signed out visitors see a card that asks them to log in. A new account sees an empty state. Missed days stay blank in the chart, never zero. The summary counts check ins and never says better or worse.
+- **Responses carry only the day and the mood**, never notes or emotions, and are sent with `Cache-Control: private, no-store`.
+- **No admin read.** Admin Overview may later show counts only.
+
+**Connected (15 Oct 2026), migration `20261015000400_mood_checkins_api.sql`:**
+
+- **Table:** existing `mood_checkins` (owner only RLS from `20261008000200`). The migration sets `checked_in_on` to default to `cambodia_today()`, keeps only the latest row of each day, and adds the unique index `mood_checkins_one_per_day (user_id, checked_in_on)`.
+- **Function:** `save_mood_checkin(p_mood, p_source)`, `security definer`, `search_path = ''`, owner from `auth.uid()`, execute for `authenticated` only. Upserts today's row and returns the Cambodia day. Errors: `PT403` (not signed in), `22023` (unknown source).
+- **API:** `POST /api/mood-checkins { mood, source? }` returns `{ day, mood }`; `GET /api/progress` returns `MoodWeekResponse`. Both answer 401 when signed out.
+- **Still open:** the journal itself (`journal_entries`) is still saved in the browser only (`arom_journal_entries` in `localStorage`). It needs its own API before real users write in it. The weekly range is the last 7 days only; the old This week and Last week switch is gone.
+- **Not tested yet** in the running app or against Supabase, only typecheck and lint.
 
 ## Template for a new feature section
 

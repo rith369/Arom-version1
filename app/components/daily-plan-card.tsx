@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { Check, ChevronRight, Plus, SlidersHorizontal, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { FigmaIcon } from "./figma-icon";
 import { DailyPlanCuratorModal } from "./daily-plan-curator-modal";
 import { useLanguage } from "../_components/language-provider";
@@ -98,6 +99,32 @@ const baseCommunityActivity: PlanActivity = {
   href: "/community",
   completed: false,
 };
+
+// The tick in a plan row. The check settles in when an item is ticked, but
+// not when the page loads. Reduced motion: fade only.
+function TickIcon({ done, children }: { done: boolean; children: ReactNode }) {
+  const reduce = useReducedMotion();
+  return (
+    <AnimatePresence initial={false} mode="popLayout">
+      {done ? (
+        <motion.span
+          key="done"
+          className="flex"
+          initial={reduce ? { opacity: 0 } : { opacity: 0, scale: 0.6 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, transition: { duration: 0 } }}
+          transition={{ duration: 0.18, ease: [0.23, 1, 0.32, 1] }}
+        >
+          <Check size={16} strokeWidth={2.5} />
+        </motion.span>
+      ) : (
+        <motion.span key="todo" className="flex" initial={false} exit={{ opacity: 0, transition: { duration: 0 } }}>
+          {children}
+        </motion.span>
+      )}
+    </AnimatePresence>
+  );
+}
 
 export function DailyPlanCard() {
   const { language } = useLanguage();
@@ -295,51 +322,45 @@ export function DailyPlanCard() {
                 type="button"
                 onClick={(e) => handleToggleCare(e, item.careTask!)}
                 aria-label={item.completed ? "Mark incomplete" : "Mark complete"}
-                className={`flex size-7 items-center justify-center rounded-full shrink-0 border transition-colors ${
+                className={`flex size-7 items-center justify-center rounded-full shrink-0 border transition-[transform,background-color,border-color,color] duration-[160ms] ease-[var(--ease-out)] active:scale-95 motion-reduce:active:scale-100 ${
                   item.completed
                     ? "border-[#23aa89] bg-[#23aa89] text-white shadow-sm"
                     : "border-white/40 bg-white/10 text-white/60 hover:border-white hover:text-white"
                 }`}
               >
-                {item.completed ? (
-                  <Check size={16} strokeWidth={2.5} />
-                ) : (
+                <TickIcon done={item.completed === true}>
                   <FigmaIcon name={item.icon} size={16} className="text-white" />
-                )}
+                </TickIcon>
               </button>
             ) : item.isTryNow && item.stepNumber !== undefined ? (
               <button
                 type="button"
                 onClick={(e) => handleToggleTryNow(e, item.stepNumber!)}
                 aria-label={item.completed ? "Mark incomplete" : "Mark complete"}
-                className={`flex size-7 items-center justify-center rounded-full shrink-0 border transition-colors ${
+                className={`flex size-7 items-center justify-center rounded-full shrink-0 border transition-[transform,background-color,border-color,color] duration-[160ms] ease-[var(--ease-out)] active:scale-95 motion-reduce:active:scale-100 ${
                   item.completed
                     ? "border-[#23aa89] bg-[#23aa89] text-white shadow-sm"
                     : "border-white/40 bg-white/10 text-white/60 hover:border-white hover:text-white"
                 }`}
               >
-                {item.completed ? (
-                  <Check size={16} strokeWidth={2.5} />
-                ) : (
+                <TickIcon done={item.completed === true}>
                   <FigmaIcon name="boxicons_note-filled" size={16} className="text-white" />
-                )}
+                </TickIcon>
               </button>
             ) : item.isCustom ? (
               <button
                 type="button"
                 onClick={(e) => handleToggleCustom(e, item.id)}
                 aria-label={item.completed ? "Mark incomplete" : "Mark complete"}
-                className={`flex size-7 items-center justify-center rounded-full shrink-0 border transition-colors ${
+                className={`flex size-7 items-center justify-center rounded-full shrink-0 border transition-[transform,background-color,border-color,color] duration-[160ms] ease-[var(--ease-out)] active:scale-95 motion-reduce:active:scale-100 ${
                   item.completed
                     ? "border-[#23aa89] bg-[#23aa89] text-white shadow-sm"
                     : "border-white/40 bg-white/10 text-white/60 hover:border-white hover:text-white"
                 }`}
               >
-                {item.completed ? (
-                  <Check size={16} strokeWidth={2.5} />
-                ) : (
+                <TickIcon done={item.completed === true}>
                   <FigmaIcon name={item.icon} size={16} className="text-white" />
-                )}
+                </TickIcon>
               </button>
             ) : (
               <div className="flex size-7 items-center justify-center shrink-0">

@@ -33,6 +33,7 @@ import { LESSON_ABOUT_STRESS } from "./learn/learn-data";
 import { LessonScreen } from "./learn/lesson-screen";
 import { useSidebar } from "./sidebar-provider";
 import { UserAvatar } from "./user-avatar";
+import { ProfileMenu } from "./account-menu";
 
 const easeOut = [0.23, 1, 0.32, 1] as const;
 
@@ -500,13 +501,9 @@ export function MindGuideHome() {
                   <line x1="4" y1="17" x2="20" y2="17" />
                 </svg>
               </button>
-              <Link
-                href="/profile"
-                aria-label="Open profile and settings"
-                className="rounded-full focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-arom"
-              >
+              <ProfileMenu className="rounded-full focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-arom">
                 <UserAvatar className="size-9 rounded-full ring-2 ring-white shadow-[0_5px_18px_rgba(20,75,63,0.15)] text-xs" />
-              </Link>
+              </ProfileMenu>
             </div>
           </motion.header>
 

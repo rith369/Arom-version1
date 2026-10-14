@@ -49,11 +49,16 @@ export function UserCarePlan() {
             onClick={() => void toggleCheckIn(task, today)}
             aria-pressed={done}
             aria-label={done ? t("សម្គាល់ថាមិនទាន់ធ្វើ", "Mark not done") : t("សម្គាល់ថាបានធ្វើ", "Mark done")}
-            className={`mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full border transition-colors ${
-              done ? "border-arom bg-arom text-white" : "border-arom-border bg-white text-transparent hover:border-arom"
+            className={`mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full border text-white transition-[transform,background-color,border-color] duration-[160ms] ease-[var(--ease-out)] active:scale-95 motion-reduce:active:scale-100 ${
+              done ? "border-arom bg-arom" : "border-arom-border bg-white hover:border-arom"
             }`}
           >
-            <Check size={15} strokeWidth={2.5} />
+            {/* Settles in when ticked. Reduced motion: fade only. */}
+            <Check
+              size={15}
+              strokeWidth={2.5}
+              className={`transition-[transform,opacity] duration-[180ms] ease-[var(--ease-out)] motion-reduce:scale-100 ${done ? "scale-100 opacity-100" : "scale-[0.6] opacity-0"}`}
+            />
           </button>
         ) : finished ? (
           <span className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full bg-arom text-white" aria-hidden="true">

@@ -7,6 +7,7 @@ import {
   BookOpen,
   Heart,
   Home,
+  ChevronUp,
   Settings,
   UsersRound,
 } from "lucide-react";
@@ -15,6 +16,7 @@ import { useDetection } from "./detection-provider";
 
 import { sectionsForRole, type NavItem } from "./navigation-config";
 import { UserAvatar } from "./user-avatar";
+import { ProfileMenu } from "./account-menu";
 import { useAuth } from "./auth-provider";
 
 export type NavigationLabel =
@@ -210,10 +212,9 @@ export function DesktopNavigation({ active }: { active: NavigationLabel }) {
 
       {/* Footer: User Profile */}
       <div className="mt-auto shrink-0 pt-3 border-t border-arom-border/60">
-        <Link
-          href="/profile"
-          aria-label="Profile and Settings"
-          className={`group flex items-center gap-3 rounded-2xl border p-2.5 transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-arom ${
+        <ProfileMenu
+          placement="up"
+          className={`group flex w-full items-center gap-3 rounded-2xl border p-2.5 text-left transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-arom ${
             active === "Profile"
               ? "border-arom/40 bg-arom-soft text-arom shadow-xs"
               : "border-arom-border bg-white text-ink hover:border-arom/30 hover:bg-arom-wash"
@@ -228,8 +229,12 @@ export function DesktopNavigation({ active }: { active: NavigationLabel }) {
               {isKm ? "ប្រវត្តិរូប និងការកំណត់ (Profile & Settings)" : "Profile & Settings"}
             </p>
           </div>
-          <Settings aria-hidden="true" size={16} className="text-ink-muted transition-transform duration-150 group-hover:rotate-45 group-hover:text-arom" />
-        </Link>
+          {user ? (
+            <ChevronUp aria-hidden="true" size={16} className="text-ink-muted transition-colors duration-150 group-hover:text-arom" />
+          ) : (
+            <Settings aria-hidden="true" size={16} className="text-ink-muted transition-transform duration-150 group-hover:rotate-45 group-hover:text-arom" />
+          )}
+        </ProfileMenu>
       </div>
     </aside>
   );

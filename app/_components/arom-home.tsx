@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import {
   Angry,
   CheckCircle2,
@@ -22,6 +21,7 @@ import { useState } from "react";
 import { AromBrand, DesktopNavigation, MobileNavigation } from "./app-navigation";
 import { useLanguage } from "./language-provider";
 import { UserAvatar } from "./user-avatar";
+import { ProfileMenu } from "./account-menu";
 import { useFirstName } from "./auth-provider";
 
 type PlanItem = {
@@ -263,13 +263,9 @@ export function AromHome() {
               </p>
             </div>
 
-            <Link
-              href="/profile"
-              aria-label="Open profile and settings"
-              className="rounded-full focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-arom"
-            >
+            <ProfileMenu className="rounded-full focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-arom">
               <UserAvatar className="size-11 rounded-full ring-2 ring-white shadow-[0_5px_18px_rgba(20,75,63,0.15)] text-xs" />
-            </Link>
+            </ProfileMenu>
           </motion.header>
 
           <motion.section

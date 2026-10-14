@@ -1,10 +1,10 @@
 "use client";
 
-import Link from "next/link";
 import { useLanguage } from "../_components/language-provider";
 import { useSidebar } from "../_components/sidebar-provider";
 import { AromBrand } from "../_components/app-navigation";
 import { UserAvatar } from "../_components/user-avatar";
+import { ProfileMenu } from "../_components/account-menu";
 
 export type TopHeaderProps = {
   onOpenSidebar?: () => void;
@@ -47,13 +47,9 @@ export function TopHeader({ onOpenSidebar }: TopHeaderProps) {
           </svg>
         </button>
 
-        <Link
-          href="/profile"
-          aria-label={km ? "ប្រវត្តិរូប និងការកំណត់" : "Profile and settings"}
-          className="rounded-full focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-arom"
-        >
+        <ProfileMenu className="rounded-full focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-arom">
           <UserAvatar className="size-11 rounded-full ring-2 ring-white shadow-[0_5px_18px_rgba(20,75,63,0.15)] text-xs" />
-        </Link>
+        </ProfileMenu>
       </div>
     </header>
   );

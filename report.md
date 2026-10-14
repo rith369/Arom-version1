@@ -1,11 +1,150 @@
 # AROM: Change Report
 
+## 15 Oct 2026: Reworked AROM Share Image
+
+Commit `PENDING`. No migration.
+
+**Why.** The previous share image felt generic and did not give AROM’s calm, human wellness experience a distinctive first impression.
+
+**What changed for users:**
+- **A more personal preview:** The share image now features a warm, editorial illustration of a Cambodian woman breathing calmly, framed by botanical forms in the AROM palette.
+- **Clearer brand and message:** The exact AROM mark and approved English copy sit in a spacious layout with a safe margin for social crops.
+
+**What changed for the team:**
+- **Updated image assets:** Replaced `app/opengraph-image.png` and `app/twitter-image.png` with matching 1200 by 630 PNGs. The generation prompt is embedded in both images. The existing metadata base remains in place.
+
+**What to re-test:**
+1. Confirm both image files are 1200 by 630 and under 5 MB.
+2. Share a deployed page in Facebook and LINE preview tools and confirm the Open Graph image appears without cropping the logo or copy.
+3. Share a deployed page on X and confirm the Twitter image appears with the same composition.
+
+## 15 Oct 2026: Honest Home: Real Mood Check In, Real Progress, Greeting by Time of Day
+
+Commit `PENDING`. Migration `20261015000400_mood_checkins_api.sql` must be run in Supabase. It runs on its own (it also creates `cambodia_today()`, the same as `20261015000100`).
+
+**Why.** Home showed every person, signed in or not, the same made up week of moods, a "Your mood is improving" headline and a fake streak. The mood check in started with "Good" already chosen, left the page as soon as you tapped, and kept the mood in browser storage where anyone on a shared phone could read it. The greeting said "Good morning" at any hour. In a mental health app these break trust. This is Phase 1 of the AROM Predictability Fix Plan.
+
+**What changed for users:**
+- **Mood check in that saves and stays:** nothing is chosen until you pick. A tap saves today's mood and shows "Saved" once the server confirms it, or "Could not save" with Try again. It no longer opens the journal; the "Write reflection in Journal" link does that. "low" now reads "Low".
+- **Changing your mind:** tapping another mood the same day replaces the first one. The day follows Cambodia time.
+- **Your Progress is real:** it shows your own last 7 days. Days without a check in stay blank. The summary counts check ins ("You checked in 3 times this week") instead of judging. The fake streak, statistics and the full progress window are gone.
+- **Clear states:** signed out visitors see "Keep track of your week" with Log in. A new account sees "Your week will show here". A loading or error state shows while the week loads or if it fails.
+- **Greeting by time of day:** Good morning, Good afternoon, Good evening, or Hello late at night, in English and Khmer.
+- **Journal starts from today's mood:** it reads your check in from the server. The mood is no longer in the page address.
+
+**What changed for the team:**
+- **New API:** `POST /api/mood-checkins` and `GET /api/progress`, through `lib/controllers/mood-controller.ts`. Shared types and Cambodia day helpers are in `lib/mood.ts`.
+- **New store:** `app/_components/mood/mood-store.ts` holds the week in memory only and removes the old `arom_today_mood` browser key.
+- **Migration:** one mood per person per day (unique index), `checked_in_on` defaults to Cambodia today, and a `security definer` function `save_mood_checkin()`.
+- **BACKEND-HANDOFF.md:** new section 22 and a status board row.
+- **Still open:** journal entries themselves are still saved only in browser storage (`arom_journal_entries`).
+
+**What to re-test:**
+1. Run the migration in Supabase.
+2. Signed out, open Home. Check that Your Progress shows "Keep track of your week" and that tapping a mood shows "Log in to save your mood".
+3. Sign in with a new account. Check that nothing is selected and that Your Progress shows "Your week will show here".
+4. Tap "Okay". Check that "Saved" appears, the page stays, and a refresh still shows "Okay". Then tap "Good" and refresh again.
+5. Check that Your Progress now shows today with one check in, and the other days blank.
+6. In the browser's developer tools, check that `localStorage` has no `arom_today_mood` key.
+7. Open the journal from the link. Check that it starts with today's mood and the address has no `?mood=`.
+8. Check the greeting at different hours (change the computer clock) in English and Khmer.
+9. Turn off the network and tap a mood. Check that "Could not save" and Try again appear.
+
+## 15 Oct 2026: Refined Mobile Journal Styling
+
+Commit `PENDING`. No migration.
+
+**Why.** The mobile journal screen needed a calmer, more consistent visual treatment while preserving the familiar check in flow and all of its existing controls.
+
+**What changed for users:**
+- **Clearer selections:** Mood and feeling choices use consistent AROM green styling, accessible focus outlines, and calm line icons.
+- **Balanced voice languages:** Khmer and English now have equal width in the voice language selector.
+- **More comfortable controls:** Journal inputs, voice controls, and key actions have clearer borders, improved text contrast, and larger touch targets.
+
+**What changed for the team:**
+- **Journal screen styling:** Refined the existing responsive styles in `app/detection/journal/page.tsx` without changing the section order or interaction flow.
+
+**What to re-test:**
+- Open Detection on a phone and confirm the original section order and bottom navigation remain in place.
+- Select each mood and feeling, then switch between Khmer and English voice input and confirm both options have equal width.
+- Enter text, use the voice controls, and save a journal in English and Khmer.
+
+---
+
+## 15 Oct 2026: Profile Picture Opens an Account Menu
+
+Commit `PENDING`. No migration.
+
+**Why.** Tapping the profile picture at the top of a page, or the profile card at the bottom of the sidebar, took signed in people straight to the profile page. Logging out took extra steps, and other apps have taught people to expect a small menu here. The professional and admin areas already had this menu, so the user pages now work the same way.
+
+**What changed for users:**
+- **Small menu on the profile picture:** signed in people who tap their picture on Home, MindGuide, the professional directory or any page with the top header now see their name, email and role, with "My profile" and "Log out". The menu is in English and Khmer.
+- **Same menu in the sidebar:** the profile card at the bottom of the desktop sidebar opens the same menu, above the card. Its icon is now a small arrow that points up, not a gear.
+- **Closes the usual ways:** tapping outside the menu or pressing Escape closes it. The menu fades in gently, or appears without movement when the device asks for reduced motion.
+- **Visitors who are not signed in:** nothing changes. The picture still links to the profile page, which shows them how to sign in.
+
+**What changed for the team:**
+- **One shared menu:** `app/_components/account-menu.tsx` now has a shared panel. `AccountMenu` (pro and admin) and the new `ProfileMenu` (any avatar or card) both use it. `ProfileMenu` takes `placement="up"` for buttons at the bottom of the screen.
+- **Sidebar clips overflow:** the sidebar uses `overflow: hidden`, so the menu that opens upward is exactly as wide as the card.
+
+**What to re-test:**
+1. Sign in as a user and open Home. Tap the profile picture at the top right. Check the menu shows "My profile" and "Log out".
+2. Tap "My profile" and check that `/profile` opens and the menu closes.
+3. Open the menu again and tap "Log out". Check that you are signed out.
+4. On a desktop window, click the profile card at the bottom of the sidebar. Check the menu opens above the card and is not cut off.
+5. Repeat step 1 on MindGuide and on the professional directory, and on a phone sized window.
+6. Switch to Khmer and check the menu text is in Khmer.
+7. Sign out and tap the profile picture. Check that it goes straight to `/profile`.
+
+## 15 Oct 2026: Open Graph Social Share Image
+
+Commit `PENDING`.
+
+**Why.** Shared links needed a clear, branded preview that reflects AROM’s calming wellness experience and works across social and messaging platforms.
+
+**What changed for users:**
+- **Branded link previews:** Open Graph and X previews now use the same AROM share image with the provided logo, headline, supporting text and a calm illustration.
+
+**What changed for the team:**
+- **Image metadata:** Added 1200 × 630 PNG assets at `app/opengraph-image.png` and `app/twitter-image.png`, plus `metadataBase` for absolute preview URLs.
+
+**What to re-test:**
+- Share a deployed page in a social preview debugger and confirm the Open Graph image resolves at 1200 × 630.
+- Share a deployed page on X and confirm the Twitter image resolves.
+- Confirm the image files remain under 5 MB.
+
+---
+
 A plain-language log of what changed in the app, written for the team rather than for developers. Newest entries first.
 
 - **This file** = what changed, why, and what you need to know or re-test.
 - **AGENTS.md** = the technical context file the AI coding assistant reads. Different audience, much more detail. You do not need to read it.
 
 Each entry lists the commit it landed in, so you can match it to a version of the site.
+
+## 15 Oct 2026: Gentle Motion for Two Windows and the Tick
+
+Commit `PENDING`. No migration.
+
+**Why.** The "Give a care task" and "Suggest a session" windows popped in and vanished with no transition, unlike the mobile menu, which slides. Ticking a care task, the client's main action between sessions, gave almost no feedback.
+
+**What changed for users:**
+- **Ticking a task** (Your Plan For Today and `/care-plan`): the circle presses in slightly, and the check settles in (160 to 180 ms). Nothing moves when the page loads.
+- With "Reduce motion" turned on in the device settings, the check only fades.
+
+**What changed for professionals:**
+- **Give a care task and Suggest a session** slide up from the bottom on phones (300 ms) and leave the same way. On larger screens they fade in from slightly smaller (200 ms). The MindGuide browser opened from Give a care task is not affected.
+
+**What changed for the team:**
+- New `app/pro/_components/sheet-dialog.tsx` (`SheetDialog`): bottom sheet on phones, modal from `sm`, plays the exit before the window is removed, honours reduced motion. Uses `motion/react`, `--ease-out` and the drawer curve `cubic-bezier(0.32, 0.72, 0, 1)`.
+- `TickIcon` in `daily-plan-card.tsx` (all three tick buttons there) and the tick in `user-care-plan.tsx`.
+
+**What to re-test:**
+- On a phone width, open Give a care task and Suggest a session, close them with Cancel, the X and after giving a task: each slides down before it disappears;
+- Tick and untick a task on the home page and `/care-plan`: the check settles in, and nothing animates on page load;
+- Turn on Reduce motion and repeat: fades only.
+
+---
 
 ## 15 Oct 2026: Real Private Notes, Real Shared Results, No More Yellow Note in /pro
 
@@ -24,6 +163,7 @@ Commit `PENDING`. Migration `20261015000300_pro_private_notes.sql` must be run i
 - New tables `session_prep_notes` and `client_summary_notes` (owner only RLS, no admin read). Dropped the policy "Professionals read their clients' profiles". `my_client_names()` now returns `language` and respects Anonymous Mode.
 - `POST /api/pro/bookings/:id` accepts `{ action: "prep", text }`. `/api/pro/clients/:clientId` now has `GET` (shared results) and `POST { summaryNote }` next to `{ archived }` (moved to `pro-controller.ts`). `ProBooking.clientLanguage` added.
 - Removed unused demo code: `sampleBookingsFor`, demo profiles and schedule, `DEMO_MEETING_URL`, `SAMPLE_SHARED`.
+- **Fix: admin Professionals said "Could not load professionals"** after the care plan migration. `care_sharing` and `client_summary_notes` link professionals to clients with a two column primary key, so the database API found a second path from `professional_profiles` to `profiles` and refused the embedded `profiles(...)`. The query now names the foreign key (`profiles!professional_profiles_id_fkey`). Any new embed between these two tables must do the same.
 - Tested on a local Postgres: notes saved, note refused for someone who never booked, client of a note cannot be changed, other professionals, the client and admins see no notes, shared symptom checks visible and unshared survey hidden, profile row no longer readable, Anonymous Mode hides the name.
 
 **What to re-test (after running the migration):**
