@@ -10,6 +10,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import {
   loginSchema,
+  safeNextPath,
   type AuthErrorBody,
   type AuthErrorCode,
   type LoginResponse,
@@ -25,10 +26,6 @@ const loginErrors: Partial<Record<AuthErrorCode, string>> = {
   rate_limited: "Too many attempts. Please wait a moment and try again.",
 };
 
-/** Only same site paths, so `?next=` cannot send users off AROM. */
-function safeNext(value: string | null) {
-  return value && value.startsWith("/") && !value.startsWith("//") ? value : "/";
-}
 
 function SocialMark({ src }: { src: string }) {
   return (
@@ -97,7 +94,7 @@ export function LoginForm() {
     // panel and professionals in their professional area.
     const next = searchParams.get("next");
     const home = role === "admin" ? "/admin" : role === "professional" ? "/pro" : "/";
-    router.replace(next ? safeNext(next) : home);
+    router.replace(next ? safeNextPath(next) : home);
     router.refresh();
   });
 
@@ -151,6 +148,13 @@ export function LoginForm() {
         </div>
 
         {errors.root?.message && <FormAlert tone="error">{errors.root.message}</FormAlert>}
+        {searchParams.get("confirmed") === "1" && !notice && !errors.root && !isSubmitSuccessful && (
+          <FormAlert tone="success">
+            <span className="flex items-center gap-2">
+              <CheckCircle2 aria-hidden="true" size={18} /> Your email is confirmed. Log in to continue.
+            </span>
+          </FormAlert>
+        )}
         {notice && <FormAlert tone="success">{notice}</FormAlert>}
         {isSubmitSuccessful && !errors.root && (
           <FormAlert tone="success">

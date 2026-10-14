@@ -1,8 +1,11 @@
 import { NextResponse, type NextRequest } from "next/server";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import {
   loginSchema,
   resendSchema,
+  safeNextPath,
   signupSchema,
+  verifyCodeSchema,
   type LoginResponse,
   type RegisterResponse,
   type SessionResponse,
@@ -26,12 +29,47 @@ import {
  *   3. Never log request bodies, passwords or tokens.
  */
 
+/**
+ * Someone signed up with an email that already has an account. If the
+ * password they typed is right, they own the account, so log them in. In
+ * every other case answer exactly like a new signup, so nobody can use this
+ * form to find out which emails have accounts.
+ */
+async function signInExistingAccount(
+  supabase: SupabaseClient,
+  email: string,
+  password: string,
+  origin: string,
+) {
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+  if (!error && data.user) {
+    return json<RegisterResponse>(
+      { needsConfirmation: false, user: await toAuthUser(supabase, data.user) },
+      200,
+    );
+  }
+  if (error && isRateLimited(error)) {
+    return fail("rate_limited", "Too many attempts. Please wait a moment and try again.", 429);
+  }
+  if (error?.code === "email_not_confirmed") {
+    // Their own account, not confirmed yet: send a fresh link.
+    await supabase.auth.resend({
+      type: "signup",
+      email,
+      options: { emailRedirectTo: `${origin}/auth/confirm` },
+    });
+  }
+  return json<RegisterResponse>({ needsConfirmation: true, user: null }, 201);
+}
+
 /** POST /api/auth/register */
 export async function register(request: NextRequest) {
   const parsed = signupSchema.safeParse(await readJson(request));
   if (!parsed.success) return invalidInput();
 
   const { email, password, fullName, language } = parsed.data;
+  const origin = request.nextUrl.origin;
   const supabase = await createClient();
 
   const { data, error } = await supabase.auth.signUp({
@@ -40,7 +78,7 @@ export async function register(request: NextRequest) {
     options: {
       // Role is not sent. The database trigger always creates new accounts as `user`.
       data: { full_name: fullName, language: language ?? "en" },
-      emailRedirectTo: `${request.nextUrl.origin}/auth/confirm`,
+      emailRedirectTo: `${origin}/auth/confirm`,
     },
   });
 
@@ -49,14 +87,19 @@ export async function register(request: NextRequest) {
       return fail("rate_limited", "Too many attempts. Please wait a moment and try again.", 429);
     }
     if (error.code === "weak_password") return invalidInput();
-    // Same answer for "already registered" and other failures, so emails cannot be probed.
     if (error.code === "user_already_exists" || error.code === "email_exists") {
-      return json<RegisterResponse>({ needsConfirmation: true, user: null }, 201);
+      return signInExistingAccount(supabase, email, password, origin);
     }
     return fail("server_error", "We could not create your account. Please try again.", 500);
   }
 
-  // With email confirmation on, Supabase returns no session until the link is opened.
+  // With email confirmation on, Supabase hides an existing confirmed account by
+  // returning a user with no identities and sending no email.
+  if (data.user && (data.user.identities?.length ?? 0) === 0) {
+    return signInExistingAccount(supabase, email, password, origin);
+  }
+
+  // A new account: no session until the email is confirmed.
   if (!data.session || !data.user) {
     return json<RegisterResponse>({ needsConfirmation: true, user: null }, 201);
   }
@@ -134,30 +177,73 @@ export async function me() {
   return json<SessionResponse>({ user: await toAuthUser(supabase, user) });
 }
 
-/** Only same site relative paths, so `next` cannot redirect off AROM. */
-function safeNext(value: string | null) {
-  return value && value.startsWith("/") && !value.startsWith("//") ? value : "/";
-}
-
-/** GET /auth/confirm. Handles both email template styles Supabase can send. */
+/**
+ * GET /auth/confirm. Opening the link from the confirmation email.
+ *
+ *   - Success: the person is signed in on this device and goes home.
+ *   - `code` that cannot be used here (usually the email was opened on
+ *     another device or browser): Supabase has already confirmed the email
+ *     before sending them back, so say so and ask them to log in. Never
+ *     "expired" for an account that is confirmed.
+ *   - Already signed in (the link was opened twice): just go home.
+ *   - Anything else (link expired or already used): the expired page, which
+ *     offers Log in first and a new link second.
+ */
 export async function confirmEmail(request: NextRequest) {
   const { searchParams } = request.nextUrl;
-  const next = safeNext(searchParams.get("next"));
+  const next = safeNextPath(searchParams.get("next"));
   const supabase = await createClient();
 
   const tokenHash = searchParams.get("token_hash");
   const type = searchParams.get("type");
   const code = searchParams.get("code");
+  const redirect = (target: string) =>
+    NextResponse.redirect(new URL(target, request.url), { headers: NO_STORE });
 
-  let ok = false;
   if (tokenHash && (type === "email" || type === "signup")) {
     const { error } = await supabase.auth.verifyOtp({ token_hash: tokenHash, type });
-    ok = !error;
+    if (!error) return redirect(next);
   } else if (code) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
-    ok = !error;
+    if (!error) return redirect(next);
   }
 
-  const target = ok ? next : "/signup/confirm?status=expired";
-  return NextResponse.redirect(new URL(target, request.url), { headers: NO_STORE });
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (user) return redirect(next);
+
+  // Supabase only hands out a code after confirming the email.
+  if (code && !searchParams.get("error")) {
+    return redirect(`/login?confirmed=1${next === "/" ? "" : `&next=${encodeURIComponent(next)}`}`);
+  }
+
+  return redirect("/signup/confirm?status=expired");
+}
+
+/**
+ * POST /api/auth/verify  body `{ email, code }`. The 6 digit code from the
+ * confirmation email, typed on the device that signed up. Signs them in.
+ */
+export async function verifyCode(request: NextRequest) {
+  const parsed = verifyCodeSchema.safeParse(await readJson(request));
+  if (!parsed.success) return invalidInput();
+
+  const supabase = await createClient();
+  const { email, code } = parsed.data;
+  let { data, error } = await supabase.auth.verifyOtp({ email, token: code, type: "email" });
+  // Older Supabase Auth versions only accept the signup type for this code.
+  if (error && !isRateLimited(error)) {
+    ({ data, error } = await supabase.auth.verifyOtp({ email, token: code, type: "signup" }));
+  }
+
+  if (error || !data.user) {
+    if (error && isRateLimited(error)) {
+      return fail("rate_limited", "Too many attempts. Please wait a moment and try again.", 429);
+    }
+    // Same answer for a wrong, used or expired code.
+    return fail("invalid_input", "That code is not right or has expired.", 400);
+  }
+
+  return json<LoginResponse>({ user: await toAuthUser(supabase, data.user) });
 }

@@ -12,7 +12,8 @@ export type AdminUser = {
   status: UserStatus;
   preferredLanguage: 'en' | 'km';
   createdAt: string;
-  lastSeenAt: string;
+  // Last sign in. Null for accounts that never signed in.
+  lastSeenAt: string | null;
   // Activity is counts only. Admins never see journal, mood or session content.
   daysActive30: number;
   checkInCount: number;

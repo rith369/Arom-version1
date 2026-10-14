@@ -505,7 +505,7 @@ export function TherapistBooking({ therapist, openTimes }: { therapist: Therapis
 
           {isComplete ? (
             <div className="mt-2 pb-[calc(2rem+env(safe-area-inset-bottom))] lg:mt-4 lg:rounded-3xl lg:bg-white lg:px-8 lg:py-10 lg:shadow-card">
-              <BookingComplete details={completeDetails} viewHref="/" />
+              <BookingComplete details={completeDetails} viewHref="/appointments" />
             </div>
           ) : (
             <div className="mt-4 grid flex-1 gap-8 lg:mt-8 lg:flex-none lg:grid-cols-[minmax(0,1fr)_19rem] lg:items-start xl:gap-12">
