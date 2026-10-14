@@ -80,7 +80,6 @@ function Progress({ task, checkIns, today, km, format }: { task: CareTask; check
 }
 
 export function AddTaskDialog({ clientId, clientName, bookingId, today, onClose }: { clientId: string; clientName: string; bookingId: string | null; today: string; onClose: () => void }) {
-  const { profile } = usePro();
   const { language } = useLanguage();
   const km = language === 'km';
   const t = (kmText: string, enText: string) => (km ? kmText : enText);
@@ -110,7 +109,10 @@ export function AddTaskDialog({ clientId, clientName, bookingId, today, onClose 
     setEndDate(shiftDate(today, next === 'goal' ? 28 : 14));
   };
 
-  const save = (addAnother: boolean) => {
+  const [saving, setSaving] = useState(false);
+
+  const save = async (addAnother: boolean) => {
+    if (saving) return;
     const option = MINDGUIDE_OPTIONS.find((item) => `${item.type}:${item.id}` === itemKey);
     if (kind === 'mindguide' && !option) return setError(t('សូមជ្រើសរើសមាតិកា MindGuide។', 'Choose a MindGuide item.'));
     if (kind !== 'mindguide' && !title.trim()) return setError(t('សូមសរសេរអ្វីដែលអតិថិជនត្រូវធ្វើ។', 'Write what the client should do.'));
@@ -118,9 +120,9 @@ export function AddTaskDialog({ clientId, clientName, bookingId, today, onClose 
     if (repeat === 'days' && days.length === 0) return setError(t('សូមជ្រើសរើសយ៉ាងហោចណាស់មួយថ្ងៃ។', 'Choose at least one day.'));
     if (endDate && endDate < today) return setError(t('ថ្ងៃបញ្ចប់មិនអាចនៅមុនថ្ងៃនេះទេ។', 'The end date cannot be before today.'));
 
-    addCareTasks([
+    setSaving(true);
+    const result = await addCareTasks([
       {
-        professionalId: profile.slug,
         clientId,
         bookingId,
         kind,
@@ -128,11 +130,12 @@ export function AddTaskDialog({ clientId, clientName, bookingId, today, onClose 
         title: kind === 'mindguide' ? '' : title.trim(),
         note: note.trim(),
         repeat: kind === 'goal' || repeat === 'once' ? { type: 'once' } : { type: 'days', days: repeat === 'daily' ? EVERY_DAY : [...days].sort((a, b) => a - b) },
-        startDate: today,
         endDate: endDate || null,
         reminderTime: kind === 'goal' ? null : reminderTime || null,
       },
     ]);
+    setSaving(false);
+    if (!result.ok) return setError(result.message);
     if (!addAnother) {
       onClose();
       return;
@@ -332,10 +335,10 @@ export function AddTaskDialog({ clientId, clientName, bookingId, today, onClose 
           <button type="button" onClick={onClose} className="rounded-full border border-arom-border px-4 py-2 text-sm font-medium text-ink hover:bg-arom-wash">
             {given.length > 0 ? t('រួចរាល់', 'Done') : t('បោះបង់', 'Cancel')}
           </button>
-          <button type="button" onClick={() => save(true)} className="rounded-full border border-arom bg-white px-4 py-2 text-sm font-semibold text-arom hover:bg-arom-wash">
+          <button type="button" disabled={saving} onClick={() => void save(true)} className="rounded-full border border-arom bg-white px-4 py-2 text-sm font-semibold text-arom hover:bg-arom-wash disabled:opacity-50">
             {t('ផ្ដល់ ហើយបន្ថែមមួយទៀត', 'Give and add another')}
           </button>
-          <button type="button" onClick={() => save(false)} className="rounded-full bg-arom px-5 py-2 text-sm font-semibold text-white hover:bg-arom-deep">
+          <button type="button" disabled={saving} onClick={() => void save(false)} className="rounded-full bg-arom px-5 py-2 text-sm font-semibold text-white hover:bg-arom-deep disabled:opacity-50">
             {t('ផ្ដល់កិច្ចការ', 'Give task')}
           </button>
         </div>
@@ -361,7 +364,7 @@ export function AddTaskDialog({ clientId, clientName, bookingId, today, onClose 
 
 export function CarePlanCard({ clientId, clientName, archived, latestSessionId }: { clientId: string; clientName: string; archived: boolean; latestSessionId: string | null }) {
   const { profile } = usePro();
-  const { tasks, checkIns, sharing } = useCareStore();
+  const { tasks, checkIns, sharing } = useCareStore('professional');
   const { language } = useLanguage();
   const km = language === 'km';
   const t = (kmText: string, enText: string) => (km ? kmText : enText);
@@ -411,7 +414,7 @@ export function CarePlanCard({ clientId, clientName, archived, latestSessionId }
             <button
               type="button"
               onClick={() => {
-                if (window.confirm(t('បញ្ឈប់កិច្ចការនេះ? វានឹងលែងបង្ហាញក្នុងផែនការរបស់អតិថិជន។', "Stop this task? It will no longer show in the client's plan."))) stopCareTask(task.id);
+                if (window.confirm(t('បញ្ឈប់កិច្ចការនេះ? វានឹងលែងបង្ហាញក្នុងផែនការរបស់អតិថិជន។', "Stop this task? It will no longer show in the client's plan."))) void stopCareTask(task.id);
               }}
               className="shrink-0 text-xs font-semibold text-ink-muted hover:text-arom-danger hover:underline">
               {t('បញ្ឈប់', 'Stop')}

@@ -16,7 +16,7 @@ import { fail, invalidInput, json, readJson, unauthorized } from "./shared";
  */
 
 const COLUMNS =
-  "id, user_id, starts_at, ends_at, session_type, status, meeting_url, intake_note, cancelled_by, cancel_reason, rescheduled_from, reschedule_reason, share_survey, share_symptom_checks, professional_id, professional:professional_profiles(slug, display_name, display_name_km, title, title_km, photo_url)";
+  "id, user_id, starts_at, ends_at, session_type, status, meeting_url, intake_note, cancelled_by, cancel_reason, rescheduled_from, reschedule_reason, share_survey, share_symptom_checks, series_id, professional_id, professional:professional_profiles(slug, display_name, display_name_km, title, title_km, photo_url)";
 
 interface ProfessionalRow {
   slug: string;
@@ -42,6 +42,7 @@ interface AppointmentRow {
   reschedule_reason: string | null;
   share_survey: boolean;
   share_symptom_checks: boolean;
+  series_id: string | null;
   professional_id: string;
   professional: ProfessionalRow | ProfessionalRow[] | null;
 }
@@ -70,6 +71,7 @@ function toAppointment(row: AppointmentRow): UserAppointment {
     rescheduleReason: row.reschedule_reason ?? "",
     shareSurvey: row.share_survey,
     shareSymptomChecks: row.share_symptom_checks,
+    seriesId: row.series_id,
     professional: professional
       ? {
           slug: professional.slug,

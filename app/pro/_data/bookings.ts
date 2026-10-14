@@ -1,7 +1,4 @@
-import { initialBookings } from '../../admin/_data/bookings';
-import { initialUsers } from '../../admin/_data/users';
 import type { SessionType } from './profile';
-import { DEMO_MEETING_URL } from './schedule';
 
 // The professional's own sessions. Mirrors appointments (status booked,
 // completed, cancelled, no_show) plus intake answers. Booking is instant,
@@ -13,11 +10,13 @@ export type IntakeAnswer = { question: { en: string; km: string }; answer: strin
 
 export type ProBooking = {
   id: string;
-  // appointments.professional_id (the professional's public slug in the mock).
+  // The professional's public slug.
   professionalId: string;
   // The client's account id (appointments.user_id).
   clientId: string;
   clientName: string;
+  // The client's app language (profiles.language).
+  clientLanguage: 'en' | 'km';
   startsAt: string;
   durationMinutes: number;
   sessionType: SessionType;
@@ -42,66 +41,6 @@ export type ProBooking = {
 
 // Private to the professional who wrote it. Never shown to admins or clients.
 export type SessionNote = { text: string; updatedAt: string };
-
-const QUESTIONS = {
-  focus: { en: 'What would you like help with?', km: 'តើអ្នកចង់បានជំនួយអំពីអ្វី?' },
-  before: { en: 'Have you talked to a counselor before?', km: 'តើអ្នកធ្លាប់និយាយជាមួយអ្នកប្រឹក្សាពីមុនទេ?' },
-  goal: { en: 'What would make this session helpful for you?', km: 'តើអ្វីនឹងធ្វើឱ្យវគ្គនេះមានប្រយោជន៍សម្រាប់អ្នក?' },
-};
-
-const SAMPLE_INTAKES: { note: string; answers: [string, string, string] }[] = [
-  {
-    note: 'I prefer to talk in Khmer if possible.',
-    answers: ['Stress from work and trouble sleeping.', 'No, this is my first time.', 'Some simple ways to calm down at night.'],
-  },
-  {
-    note: '',
-    answers: ['Worry about exams and my family expectations.', 'Once, at my university.', 'To understand why I feel anxious so often.'],
-  },
-  {
-    note: 'Online please, my camera may be off at first.',
-    answers: ['Feeling low for a few weeks.', 'No.', 'Someone to listen without judging.'],
-  },
-];
-
-const sessionType = (meetingType: 'Online' | 'In-person'): SessionType =>
-  meetingType === 'Online' ? 'online' : 'in_person';
-
-// Demo: built from the admin sample bookings for this professional.
-export function sampleBookingsFor(slug: string): ProBooking[] {
-  return initialBookings
-    .filter((booking) => booking.professionalId === slug)
-    .map((booking, index) => {
-      const intake = SAMPLE_INTAKES[index % SAMPLE_INTAKES.length];
-      return {
-        id: booking.id,
-        professionalId: slug,
-        clientId: booking.userId,
-        clientName: initialUsers.find((user) => user.id === booking.userId)?.fullName ?? 'Client',
-        startsAt: booking.startsAt,
-        durationMinutes: booking.durationMinutes,
-        sessionType: sessionType(booking.meetingType),
-        // Instant booking: pending and confirmed are both "booked" here.
-        status:
-          booking.status === 'completed' ? 'completed' : booking.status === 'cancelled' ? 'cancelled' : 'booked',
-        intakeNote: intake.note,
-        intakeAnswers: [
-          { question: QUESTIONS.focus, answer: intake.answers[0] },
-          { question: QUESTIONS.before, answer: intake.answers[1] },
-          { question: QUESTIONS.goal, answer: intake.answers[2] },
-        ],
-        cancelledBy: booking.status === 'cancelled' ? 'client' : null,
-        cancelReason: booking.status === 'cancelled' ? 'Something came up at work.' : '',
-        rescheduledFrom: null,
-        rescheduleReason: '',
-        // Demo: Sok Dara shares both, Heng Rachana shares symptom checks only.
-        shareSurvey: booking.userId === 'demo-user-001',
-        shareSymptomChecks: booking.userId === 'demo-user-001' || booking.userId === 'demo-user-005',
-        meetingUrl: booking.meetingType === 'Online' ? DEMO_MEETING_URL : null,
-        seriesId: null,
-      };
-    });
-}
 
 export const MAX_REASON = 300;
 export const MAX_NOTE = 5000;

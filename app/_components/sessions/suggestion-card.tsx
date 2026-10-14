@@ -29,8 +29,9 @@ export function SuggestionCard({
   const [now] = useState(() => Date.now());
   const [picked, setPicked] = useState<string | null>(null);
   const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
 
-  const suggestion = suggestions.find((item) => item.id === suggestionId);
+  const suggestion = suggestions[suggestionId];
   const locale = km ? "km-KH" : "en-GB";
   const when = new Intl.DateTimeFormat(locale, { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", hourCycle: "h23", timeZone: TIME_ZONE });
 
@@ -42,11 +43,22 @@ export function SuggestionCard({
   const future = suggestion.times.filter((time) => Date.parse(time) > now);
   const typeLabel = suggestion.sessionType === "online" ? t("អនឡាញ", "Online") : t("ជួបផ្ទាល់", "In person");
 
-  function book() {
-    if (!picked) return;
-    const result = acceptSuggestion(suggestion!.id, picked);
+  async function book() {
+    if (!picked || busy) return;
+    setBusy(true);
+    const result = await acceptSuggestion(suggestion!.id, picked);
+    setBusy(false);
     if (result === "taken") setError(t("ម៉ោងនេះទើបតែមានគេកក់។ សូមជ្រើសម៉ោងផ្សេង ឬផ្ញើសារ។", "That time was just taken. Choose another time or send a message."));
     else if (result === "closed") setError(t("ការណែនាំនេះលែងបើកទៀតហើយ។", "This suggestion is no longer open."));
+    else if (result === "failed") setError(t("មិនអាចកក់បានទេ។ សូមព្យាយាមម្តងទៀត។", "This could not be booked. Please try again."));
+  }
+
+  async function withdraw() {
+    if (busy) return;
+    setBusy(true);
+    const ok = await withdrawSuggestion(suggestion!.id);
+    setBusy(false);
+    if (!ok) setError(t("មិនអាចដកការណែនាំវិញបានទេ។ សូមព្យាយាមម្តងទៀត។", "This could not be withdrawn. Please try again."));
   }
 
   return (
@@ -89,9 +101,18 @@ export function SuggestionCard({
               <li key={time}>{when.format(new Date(time))}</li>
             ))}
           </ul>
-          <p className="mt-2 text-xs text-ink-muted">{t(`រង់ចាំ ${suggestion.clientName} ជ្រើសរើស។`, `Waiting for ${suggestion.clientName} to choose.`)}</p>
+          <p className="mt-2 text-xs text-ink-muted">
+            {suggestion.clientName
+              ? t(`រង់ចាំ ${suggestion.clientName} ជ្រើសរើស។`, `Waiting for ${suggestion.clientName} to choose.`)
+              : t("រង់ចាំអតិថិជនជ្រើសរើស។", "Waiting for the client to choose.")}
+          </p>
+          {error && (
+            <p role="alert" className="mt-2 text-xs font-medium text-arom-danger">
+              {error}
+            </p>
+          )}
           {!readOnly && (
-            <button type="button" onClick={() => withdrawSuggestion(suggestion.id)} className="mt-2 text-xs font-semibold text-arom-danger hover:underline">
+            <button type="button" disabled={busy} onClick={() => void withdraw()} className="mt-2 text-xs font-semibold text-arom-danger hover:underline disabled:opacity-50">
               {t("ដកការណែនាំវិញ", "Withdraw")}
             </button>
           )}
@@ -137,8 +158,8 @@ export function SuggestionCard({
               )}
               <button
                 type="button"
-                disabled={!picked || readOnly}
-                onClick={book}
+                disabled={!picked || readOnly || busy}
+                onClick={() => void book()}
                 className="mt-3 w-full rounded-full bg-arom px-4 py-2 text-sm font-semibold text-white hover:bg-arom-deep disabled:opacity-40"
               >
                 {suggestion.repeat.count > 1 ? t(`កក់ ${suggestion.repeat.count} វគ្គ`, `Book ${suggestion.repeat.count} sessions`) : t("កក់ម៉ោងនេះ", "Book this time")}

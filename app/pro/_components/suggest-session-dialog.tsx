@@ -6,11 +6,12 @@ import { CalendarCheck, CheckCircle2, X } from 'lucide-react';
 
 import { usePro } from './pro-provider';
 import { useLanguage } from '../../_components/language-provider';
-import { conversationId, sendMessage } from '../../_components/messages/message-store';
+import { conversationId, loadConversations, loadThread } from '../../_components/messages/message-store';
 import {
   MAX_SUGGESTED_TIMES,
   MAX_SUGGESTION_NOTE,
   REPEAT_OPTIONS,
+  SUGGEST_DAYS,
   createSuggestion,
   seriesTimes,
   type SessionRepeat,
@@ -19,8 +20,6 @@ import type { SessionType } from '../_data/profile';
 import { cambodiaDate, openSlots } from '../_data/schedule';
 
 const TIME_ZONE = 'Asia/Phnom_Penh';
-// Suggested first sessions fall within the next three weeks.
-const SUGGEST_DAYS = 21;
 
 // The professional offers up to three times; the client picks one in Messages.
 export function SuggestSessionDialog({
@@ -48,6 +47,7 @@ export function SuggestSessionDialog({
   const [note, setNote] = useState('');
   const [error, setError] = useState('');
   const [sent, setSent] = useState(false);
+  const [sending, setSending] = useState(false);
 
   const repeat: SessionRepeat = REPEAT_OPTIONS[repeatIndex].value;
   const lastOffset = (repeat.count - 1) * repeat.everyWeeks * 7;
@@ -77,23 +77,28 @@ export function SuggestSessionDialog({
     else setError(t(`អាចណែនាំបានច្រើនបំផុត ${MAX_SUGGESTED_TIMES} ម៉ោង។`, `You can suggest up to ${MAX_SUGGESTED_TIMES} times.`));
   }
 
-  function send() {
+  async function send() {
+    if (sending) return;
     if (times.length === 0) {
       setError(t('សូមជ្រើសរើសយ៉ាងហោចណាស់មួយម៉ោង។', 'Choose at least one time.'));
       return;
     }
-    const suggestion = createSuggestion({
-      professionalId: profile.slug,
+    setSending(true);
+    // Sent as a chat message by the server.
+    const result = await createSuggestion({
       clientId,
       clientName,
       sessionType,
-      durationMinutes: schedule.sessionMinutes,
       times: [...times].sort(),
       repeat,
       note: note.trim(),
-      meetingUrl: sessionType === 'online' ? schedule.meetingUrl || null : null,
     });
-    void sendMessage(
+    setSending(false);
+    if (!result.ok) {
+      setError(result.message);
+      return;
+    }
+    void loadThread(
       {
         id: conversationId(profile.slug, clientId),
         professionalId: profile.slug,
@@ -103,8 +108,8 @@ export function SuggestSessionDialog({
         clientName,
       },
       'professional',
-      { kind: 'suggestion', suggestionId: suggestion.id },
     );
+    void loadConversations('professional');
     setSent(true);
   }
 
@@ -255,7 +260,7 @@ export function SuggestSessionDialog({
               <button type="button" onClick={onClose} className="rounded-full border border-arom-border px-4 py-2 text-sm font-medium hover:bg-arom-wash">
                 {t('បោះបង់', 'Cancel')}
               </button>
-              <button type="button" onClick={send} className="rounded-full bg-arom px-5 py-2 text-sm font-semibold text-white hover:bg-arom-deep">
+              <button type="button" disabled={sending} onClick={() => void send()} className="rounded-full bg-arom px-5 py-2 text-sm font-semibold text-white hover:bg-arom-deep disabled:opacity-50">
                 {t('ផ្ញើទៅអតិថិជន', 'Send to the client')}
               </button>
             </div>

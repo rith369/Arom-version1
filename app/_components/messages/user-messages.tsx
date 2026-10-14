@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { ArrowLeft, CalendarCheck, LifeBuoy, Lock, MessageCircle, Mic, Monitor, UserRound } from "lucide-react";
+import { ArrowLeft, CalendarCheck, LifeBuoy, Lock, MessageCircle, Mic, Monitor, Repeat, UserRound } from "lucide-react";
 import type { AppointmentsResponse, UserAppointment } from "@/lib/appointments";
 import { DesktopNavigation, MobileNavigation } from "../app-navigation";
 import { useLanguage } from "../language-provider";
@@ -127,7 +127,9 @@ export function UserMessages({ professionalId }: { professionalId?: string }) {
                           <span className="truncate">
                             {!last
                               ? t("មិនទាន់មានសារ", "No messages yet")
-                              : last.kind === "voice"
+                              : last.kind === "suggestion"
+                                ? t("ម៉ោងសម្រាប់វគ្គបន្ទាប់របស់អ្នក", "Times for your next session")
+                                : last.kind === "voice"
                                 ? t("សារសំឡេង", "Voice message")
                                 : `${last.mine ? t("អ្នក: ", "You: ") : ""}${last.text}`}
                           </span>
@@ -171,6 +173,12 @@ export function UserMessages({ professionalId }: { professionalId?: string }) {
                       {nextSession.sessionType === "online" ? <Monitor size={12} aria-hidden="true" /> : <UserRound size={12} aria-hidden="true" />}
                       {nextSession.sessionType === "online" ? t("អនឡាញ", "Online") : t("ជួបផ្ទាល់", "In person")}
                     </span>
+                    {nextSession.seriesId && (
+                      <span className="ml-2 inline-flex items-center gap-1 text-xs text-ink-muted">
+                        <Repeat size={12} aria-hidden="true" />
+                        {t("ធ្វើម្តងទៀត", "Repeating")}
+                      </span>
+                    )}
                   </span>
                   {nextSession.sessionType === "online" && !nextSession.meetingUrl ? (
                     <span className="text-xs text-ink-muted">{t("តំណប្រជុំនឹងមកដល់ពីអ្នកជំនាញ", "Your professional will add the meeting link")}</span>

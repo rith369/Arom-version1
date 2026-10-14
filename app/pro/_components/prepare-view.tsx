@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { ArrowLeft, ClipboardList, FileText, FolderOpen, History, Lock, MessageCircle, Monitor, NotebookPen, Pin, Repeat, Share2, Target, UserRound } from 'lucide-react';
 
-import { usePro } from './pro-provider';
+import { usePro, useSharedByClient } from './pro-provider';
 import {
   cambodiaToday,
   isActive,
@@ -18,7 +18,7 @@ import { conversationId, useThread } from '../../_components/messages/message-st
 import { JoinButton } from '../../_components/sessions/join-button';
 import { seriesPosition } from '../../_components/sessions/session-store';
 import { MAX_NOTE, type ProBooking } from '../_data/bookings';
-import { LEVEL_LABELS, SAMPLE_SHARED, SYMPTOM_TYPE_LABELS, sharingFor, type SymptomLevel } from '../_data/clients';
+import { LEVEL_LABELS, SYMPTOM_TYPE_LABELS, sharingFor, type SymptomLevel } from '../_data/clients';
 
 const TIME_ZONE = 'Asia/Phnom_Penh';
 const endOf = (booking: ProBooking) => Date.parse(booking.startsAt) + booking.durationMinutes * 60_000;
@@ -48,7 +48,7 @@ function Block({ title, icon: Icon, children, action }: { title: string; icon: t
 // One page to read in the few minutes before a session. Private to the professional.
 export function PrepareView({ bookingId }: { bookingId: string }) {
   const { bookings, sessionNotes, summaryNotes, prepNotes, savePrepNote, profile } = usePro();
-  const care = useCareStore();
+  const care = useCareStore('professional');
   const { language } = useLanguage();
   const km = language === 'km';
   const t = (kmText: string, enText: string) => (km ? kmText : enText);
@@ -57,6 +57,7 @@ export function PrepareView({ bookingId }: { bookingId: string }) {
   const [now] = useState(() => Date.now());
   const [today] = useState(() => cambodiaToday(Date.now()));
   const booking = bookings.find((item) => item.id === bookingId);
+  const shared = useSharedByClient(booking?.clientId, booking ? sharingFor(bookings, booking.clientId).symptomChecks : false);
   const { messages: thread } = useThread(
     booking && {
       id: conversationId(profile.slug, booking.clientId),
@@ -102,7 +103,7 @@ export function PrepareView({ bookingId }: { bookingId: string }) {
 
   // Symptom checks the client chose to share.
   const sharing = sharingFor(bookings, booking.clientId);
-  const checks = sharing.symptomChecks ? [...(SAMPLE_SHARED[booking.clientId]?.symptomChecks ?? [])].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 3) : [];
+  const checks = sharing.symptomChecks ? [...shared.symptomChecks].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 3) : [];
 
   // Messages since the last session.
   const recent = lastSession ? thread.filter((item) => item.createdAt > lastSession.startsAt) : thread;
@@ -174,9 +175,9 @@ export function PrepareView({ bookingId }: { bookingId: string }) {
               <button
                 type="button"
                 disabled={plan === (prepNotes[bookingId]?.text ?? '')}
-                onClick={() => {
-                  savePrepNote(bookingId, plan);
-                  setPlanStatus(t('បានរក្សាទុក។', 'Saved.'));
+                onClick={async () => {
+                  const result = await savePrepNote(bookingId, plan);
+                  setPlanStatus(result.ok ? t('បានរក្សាទុក។', 'Saved.') : t('មិនអាចរក្សាទុកបានទេ។ សូមព្យាយាមម្តងទៀត។', 'This could not be saved. Please try again.'));
                 }}
                 className="rounded-full bg-arom px-4 py-2 text-sm font-semibold text-white hover:bg-arom-deep disabled:opacity-40">
                 {t('រក្សាទុកផែនការ', 'Save plan')}

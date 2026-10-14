@@ -13,12 +13,11 @@ import {
 } from '../_data/profile';
 import { emptySchedule, hasOpenTimes, type Schedule } from '../_data/schedule';
 import type { ProBooking, SessionNote } from '../_data/bookings';
+import type { SharedByClient } from '../_data/clients';
 import { useLanguage } from '../../_components/language-provider';
 
 // The signed in professional's own data, from /api/pro/me (BACKEND-HANDOFF.md
-// section 16). Profile, schedule, bookings, session notes and archived clients
-// are saved in the database. Prep notes and client summary notes are still
-// kept in memory only.
+// section 16). Everything here is saved in the database.
 
 export type ActionResult = { ok: true } | { ok: false; message: string };
 
@@ -52,14 +51,16 @@ type ProState = {
   setBookingOutcome: (id: string, status: 'completed' | 'no_show') => Promise<ActionResult>;
   saveSessionNote: (id: string, text: string) => Promise<ActionResult>;
   setMeetingLink: (id: string, meetingUrl: string) => Promise<ActionResult>;
-  // A private plan written before a session ("things to bring up"). Memory only.
+  // A private plan written before a session ("things to bring up").
   prepNotes: Record<string, SessionNote>;
-  savePrepNote: (id: string, text: string) => void;
-  // One pinned summary per client, private to the professional. Memory only.
+  savePrepNote: (id: string, text: string) => Promise<ActionResult>;
+  // One pinned summary per client, private to the professional.
   summaryNotes: Record<string, SessionNote>;
-  saveSummaryNote: (clientId: string, text: string) => void;
+  saveSummaryNote: (clientId: string, text: string) => Promise<ActionResult>;
   // Archiving closes the conversation with that client (read only for both).
   archivedClients: string[];
+  // Suggested sessions the client has not chosen yet.
+  openSuggestions: ProData['openSuggestions'];
   setClientArchived: (clientId: string, archived: boolean) => Promise<ActionResult>;
   freeDuringTesting: boolean;
   saveProfile: (next: ProProfile) => Promise<SaveResult>;
@@ -117,8 +118,6 @@ export function ProProvider({ children }: { children: ReactNode }) {
   const [data, setData] = useState<ProData | null>(null);
   const [loadError, setLoadError] = useState<LoadError | null>(null);
   const [version, setVersion] = useState(0);
-  const [prepNotes, setPrepNotes] = useState<Record<string, SessionNote>>({});
-  const [summaryNotes, setSummaryNotes] = useState<Record<string, SessionNote>>({});
 
   const applyData = useCallback((next: ProData) => {
     setData(next);
@@ -193,7 +192,7 @@ export function ProProvider({ children }: { children: ReactNode }) {
   const schedule = data.schedule ?? emptySchedule;
 
   async function bookingAction(id: string, body: Record<string, unknown>): Promise<ActionResult> {
-    const result = await request<Pick<ProData, 'bookings' | 'sessionNotes'>>(
+    const result = await request<Pick<ProData, 'bookings' | 'sessionNotes' | 'prepNotes'>>(
       `/api/pro/bookings/${id}`,
       jsonInit('POST', body),
     );
@@ -248,12 +247,17 @@ export function ProProvider({ children }: { children: ReactNode }) {
     return { ok: true };
   }
 
+  async function saveSummaryNote(clientId: string, text: string): Promise<ActionResult> {
+    const result = await request<Pick<ProData, 'summaryNotes'>>(`/api/pro/clients/${clientId}`, jsonInit('POST', { summaryNote: text }));
+    if (!result.ok) return result;
+    setData((current) => (current ? { ...current, summaryNotes: result.data.summaryNotes } : current));
+    return { ok: true };
+  }
+
   async function withdrawChange(field: ReviewedField) {
     await request(`/api/pro/profile/changes?field=${field}`, { method: 'DELETE' });
     await load();
   }
-
-  const stamp = () => new Date().toISOString();
 
   return (
     <ProContext.Provider
@@ -273,12 +277,12 @@ export function ProProvider({ children }: { children: ReactNode }) {
         setBookingOutcome: (id, status) => bookingAction(id, { action: 'outcome', status }),
         saveSessionNote: (id, text) => bookingAction(id, { action: 'note', text }),
         setMeetingLink: (id, meetingUrl) => bookingAction(id, { action: 'meeting', meetingUrl }),
-        prepNotes,
-        savePrepNote: (id, text) => setPrepNotes((current) => ({ ...current, [id]: { text, updatedAt: stamp() } })),
-        summaryNotes,
-        saveSummaryNote: (clientId, text) =>
-          setSummaryNotes((current) => ({ ...current, [clientId]: { text, updatedAt: stamp() } })),
+        prepNotes: data.prepNotes,
+        savePrepNote: (id, text) => bookingAction(id, { action: 'prep', text }),
+        summaryNotes: data.summaryNotes,
+        saveSummaryNote,
         archivedClients: data.archivedClients,
+        openSuggestions: data.openSuggestions,
         setClientArchived,
         freeDuringTesting: FREE_DURING_TESTING,
         saveProfile,
@@ -294,4 +298,25 @@ export function usePro() {
   const context = useContext(ProContext);
   if (!context) throw new Error('usePro must be used inside ProProvider');
   return context;
+}
+
+const NOTHING_SHARED: SharedByClient = { survey: null, symptomChecks: [] };
+
+/** What one client shares with this professional. Loads only while they share something. */
+export function useSharedByClient(clientId: string | undefined, sharing: boolean): SharedByClient {
+  const [shared, setShared] = useState<{ clientId: string; data: SharedByClient } | null>(null);
+  useEffect(() => {
+    if (!clientId || !sharing) return;
+    let active = true;
+    fetch(`/api/pro/clients/${clientId}`, { cache: 'no-store' })
+      .then((response) => (response.ok ? (response.json() as Promise<SharedByClient>) : null))
+      .then((data) => {
+        if (active && data) setShared({ clientId, data });
+      })
+      .catch(() => undefined);
+    return () => {
+      active = false;
+    };
+  }, [clientId, sharing]);
+  return shared && sharing && shared.clientId === clientId ? shared.data : NOTHING_SHARED;
 }

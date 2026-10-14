@@ -13,15 +13,23 @@ import {
   type Sender,
   type ThreadResponse,
 } from '@/lib/messages';
+import {
+  MAX_QUICK_REPLIES,
+  MAX_QUICK_REPLY,
+  type QuickRepliesResponse,
+  type QuickReply,
+} from '@/lib/sessions';
+import { mergeSuggestions } from '../sessions/session-store';
 
 // Private messages between one client and one professional, only after the
 // client has booked with them. Admins cannot read these. Conversations and
 // messages come from the API (BACKEND-HANDOFF.md section 17) and are checked
-// again every few seconds while a page is open. Session suggestions and
-// quick replies are still kept in memory only (section 19).
+// again every few seconds while a page is open. Suggestions arrive with each
+// thread and are kept in sessions/session-store.ts. Quick replies come from
+// /api/pro/quick-replies (section 19).
 
-export { MAX_TEXT, MAX_VOICE_SECONDS };
-export type { ConversationSummary, ReplyTime, Sender };
+export { MAX_QUICK_REPLIES, MAX_QUICK_REPLY, MAX_TEXT, MAX_VOICE_SECONDS };
+export type { ConversationSummary, QuickReply, ReplyTime, Sender };
 
 export type ChatMessage = {
   id: string;
@@ -38,11 +46,6 @@ export type ChatMessage = {
   readAt: string | null;
 };
 
-// A professional's saved reply. {name}, {link} and {next} are filled in when inserted.
-export type QuickReply = { id: string; text: string };
-export const MAX_QUICK_REPLIES = 20;
-export const MAX_QUICK_REPLY = 500;
-
 export type Conversation = {
   id: string; // `${professionalId}:${clientId}`
   professionalId: string; // slug
@@ -58,28 +61,18 @@ type State = {
   // One list per side, so a professional can also use /messages as a client.
   lists: Record<Sender, ListState>;
   threads: Record<string, ChatMessage[]>;
-  // Suggestion messages, until section 19 is connected.
-  localMessages: ChatMessage[];
   replyTimes: Record<string, ReplyTime>;
-  quickReplies: Record<string, QuickReply[]>;
+  // The signed in professional's own quick replies. Null until loaded.
+  quickReplies: QuickReply[] | null;
 };
 
 export const conversationId = conversationKey;
 
-const DEFAULT_QUICK_REPLIES: QuickReply[] = [
-  { id: 'qr1', text: 'Thank you for your message, {name}. I will reply properly before our next session.' },
-  { id: 'qr2', text: 'I am running 5 minutes late. Please stay in the meeting room, I am coming.' },
-  { id: 'qr3', text: 'Here is the link for our session: {link}' },
-  { id: 'qr4', text: 'See you on {next}. Take care until then.' },
-  { id: 'qr5', text: 'សូមអរគុណសម្រាប់សាររបស់អ្នក {name}។ ខ្ញុំនឹងឆ្លើយតបមុនវគ្គបន្ទាប់របស់យើង។' },
-];
-
 const initial: State = {
   lists: { client: { status: 'loading', conversations: [] }, professional: { status: 'loading', conversations: [] } },
   threads: {},
-  localMessages: [],
   replyTimes: {},
-  quickReplies: {},
+  quickReplies: null,
 };
 let state: State = initial;
 const listeners = new Set<() => void>();
@@ -118,7 +111,7 @@ async function getJson<T>(url: string, init?: RequestInit): Promise<{ ok: true; 
 }
 
 function toChatMessage(message: ApiMessage, key: string): ChatMessage {
-  return { ...message, conversationId: key, suggestionId: '' };
+  return { ...message, conversationId: key };
 }
 
 function withReplyTimes(conversations: ConversationSummary[]) {
@@ -161,7 +154,8 @@ export async function loadConversations(viewer: Sender) {
 export async function loadThread(conversation: Conversation, viewer: Sender) {
   const result = await getJson<ThreadResponse>(threadUrl(conversation, viewer));
   if (!result.ok) return;
-  const { conversation: summary, messages } = result.data;
+  const { conversation: summary, messages, suggestions } = result.data;
+  mergeSuggestions(suggestions);
   setState({
     ...state,
     lists: replaceSummary(viewer, summary),
@@ -200,10 +194,7 @@ export function useThread(conversation: Conversation | undefined, viewer: Sender
 
   if (!conversation) return { loaded: false, messages: [] as ChatMessage[], summary: undefined };
   const loaded = conversation.id in store.threads;
-  const messages = [
-    ...(store.threads[conversation.id] ?? []),
-    ...store.localMessages.filter((item) => item.conversationId === conversation.id),
-  ].sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+  const messages = store.threads[conversation.id] ?? [];
   const summary = store.lists[viewer].conversations.find((item) => item.key === conversation.id);
   return { loaded, messages, summary };
 }
@@ -219,32 +210,8 @@ export async function sendMessage(
   sender: Sender,
   content:
     | { kind: 'text'; text: string }
-    | { kind: 'voice'; audio: Blob; durationSeconds: number }
-    | { kind: 'suggestion'; suggestionId: string },
+    | { kind: 'voice'; audio: Blob; durationSeconds: number },
 ): Promise<SendResult> {
-  if (content.kind === 'suggestion') {
-    const now = new Date().toISOString();
-    setState({
-      ...state,
-      localMessages: [
-        ...state.localMessages,
-        {
-          id: crypto.randomUUID(),
-          conversationId: conversation.id,
-          sender,
-          kind: 'suggestion',
-          text: '',
-          audioUrl: '',
-          durationSeconds: 0,
-          suggestionId: content.suggestionId,
-          createdAt: now,
-          readAt: null,
-        },
-      ],
-    });
-    return { ok: true };
-  }
-
   let init: RequestInit;
   if (content.kind === 'text') {
     init = {
@@ -299,18 +266,30 @@ export async function setReplyTime(professionalId: string, value: ReplyTime) {
   if (!result.ok && previous) setState({ ...state, replyTimes: { ...state.replyTimes, [professionalId]: previous } });
 }
 
-export function quickRepliesFor(store: State, professionalId: string) {
-  return store.quickReplies[professionalId] ?? DEFAULT_QUICK_REPLIES;
+/** The professional's quick replies, loaded once when first needed. */
+export function useQuickReplies(enabled: boolean) {
+  const store = useMessageStore();
+  useEffect(() => {
+    if (!enabled || state.quickReplies !== null) return;
+    void getJson<QuickRepliesResponse>('/api/pro/quick-replies').then((result) => {
+      if (result.ok) setState({ ...state, quickReplies: result.data.quickReplies });
+    });
+  }, [enabled]);
+  return store.quickReplies ?? [];
 }
 
-export function saveQuickReplies(professionalId: string, replies: QuickReply[]) {
-  setState({
-    ...state,
-    quickReplies: {
-      ...state.quickReplies,
-      [professionalId]: replies.slice(0, MAX_QUICK_REPLIES).map((item) => ({ ...item, text: item.text.slice(0, MAX_QUICK_REPLY) })),
-    },
+/** Replaces the whole list. Shown at once, then saved. */
+export async function saveQuickReplies(replies: QuickReply[]) {
+  const previous = state.quickReplies;
+  const next = replies.slice(0, MAX_QUICK_REPLIES).map((item) => ({ ...item, text: item.text.slice(0, MAX_QUICK_REPLY) }));
+  setState({ ...state, quickReplies: next });
+  const result = await getJson<QuickRepliesResponse>('/api/pro/quick-replies', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ quickReplies: next.map((item) => ({ text: item.text })) }),
   });
+  setState({ ...state, quickReplies: result.ok ? result.data.quickReplies : previous });
+  return result.ok;
 }
 
 // Fills {name}, {link} and {next}. Unknown values are left empty.

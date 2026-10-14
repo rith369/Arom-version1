@@ -15,9 +15,11 @@ import {
   type Sender,
   type ThreadResponse,
 } from "@/lib/messages";
+import type { SessionSuggestion } from "@/lib/sessions";
 import { createClient } from "@/lib/supabase/server";
 import { NO_STORE, fail, invalidInput, json, readJson, unauthorized } from "./shared";
 import { requireRole } from "./role-controller";
+import { SUGGESTION_COLUMNS, toSuggestion, type SuggestionRow } from "./sessions-controller";
 
 /*
  * AROM messages controller (BACKEND-HANDOFF.md section 17). Runs as the
@@ -56,7 +58,7 @@ interface SummaryRow {
   client_id: string;
   closed: boolean | null;
   can_write: boolean | null;
-  last_kind: "text" | "voice" | null;
+  last_kind: "text" | "voice" | "suggestion" | null;
   last_mine: boolean | null;
   last_body: string | null;
   last_at: string | null;
@@ -138,14 +140,15 @@ function ruleError(error: PostgrestError) {
 interface MessageRow {
   id: string;
   sender_id: string;
-  kind: "text" | "voice";
+  kind: "text" | "voice" | "suggestion";
   body: string | null;
   duration_seconds: number | null;
+  suggestion_id: string | null;
   created_at: string;
   read_at: string | null;
 }
 
-const MESSAGE_COLUMNS = "id, sender_id, kind, body, duration_seconds, created_at, read_at";
+const MESSAGE_COLUMNS = "id, sender_id, kind, body, duration_seconds, suggestion_id, created_at, read_at";
 
 function toMessage(row: MessageRow, side: Sender, userId: string): ApiMessage {
   const mine = row.sender_id === userId;
@@ -157,6 +160,7 @@ function toMessage(row: MessageRow, side: Sender, userId: string): ApiMessage {
     text: row.body ?? "",
     audioUrl: row.kind === "voice" ? `/api/voice/${row.id}` : "",
     durationSeconds: row.duration_seconds ?? 0,
+    suggestionId: row.suggestion_id ?? "",
     createdAt: row.created_at,
     readAt: row.read_at,
   };
@@ -187,6 +191,7 @@ export async function getThread(side: Sender, other: string) {
   if (!found.pair) return notFound();
 
   let messages: ApiMessage[] = [];
+  let suggestions: SessionSuggestion[] = [];
   if (found.pair.conversationId) {
     const { data, error } = await supabase
       .from("messages")
@@ -197,9 +202,20 @@ export async function getThread(side: Sender, other: string) {
       .returns<MessageRow[]>();
     if (error) return fail("server_error", "We could not load your messages.", 500);
     messages = (data ?? []).reverse().map((row) => toMessage(row, side, userId));
+
+    const ids = messages.map((item) => item.suggestionId).filter(Boolean);
+    if (ids.length > 0) {
+      const [rows, names] = await Promise.all([
+        supabase.from("session_suggestions").select(SUGGESTION_COLUMNS).in("id", ids).returns<SuggestionRow[]>(),
+        side === "professional" ? supabase.rpc("my_client_names") : Promise.resolve({ data: [] }),
+      ]);
+      const clientName =
+        ((names.data ?? []) as { id: string; full_name: string | null }[]).find((row) => row.id === found.pair?.clientId)?.full_name ?? "";
+      suggestions = (rows.data ?? []).map((row) => toSuggestion(row, found.pair!.professionalId, clientName));
+    }
   }
 
-  return json<ThreadResponse>({ conversation: toSummary(found.pair), messages });
+  return json<ThreadResponse>({ conversation: toSummary(found.pair), messages, suggestions });
 }
 
 /** Recognises the recorded audio from its first bytes, not from the type the browser claims. */
@@ -353,25 +369,6 @@ export async function setReplyTime(request: NextRequest) {
     .maybeSingle<{ reply_time: string }>();
   if (error || !data) return fail("server_error", "That could not be saved.", 500);
   return json({ replyTime: toReplyTime(data.reply_time) });
-}
-
-const archiveSchema = z.object({ archived: z.boolean() });
-
-/** POST /api/pro/clients/:clientId `{ archived }`: archiving closes the conversation for both sides. */
-export async function setClientArchived(request: NextRequest, clientId: string) {
-  const guard = await requireRole("professional", "admin");
-  if (!guard.ok) return guard.response;
-
-  const id = z.string().uuid().safeParse(clientId);
-  const body = archiveSchema.safeParse(await readJson(request));
-  if (!id.success || !body.success) return invalidInput();
-
-  const { error } = await guard.supabase.rpc("set_client_archived", {
-    p_client_id: id.data,
-    p_archived: body.data.archived,
-  });
-  if (error) return error.code === "PT404" ? fail("invalid_input", "Client not found.", 404) : fail("server_error", "That could not be saved.", 500);
-  return json({ archived: body.data.archived });
 }
 
 /** Client ids the professional has archived. Used by GET /api/pro/me. */

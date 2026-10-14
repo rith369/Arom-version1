@@ -32,6 +32,8 @@ export interface UserAppointment {
   // The user's choice per booking. Off by default.
   shareSurvey: boolean;
   shareSymptomChecks: boolean;
+  // Shared by every session of a repeating series (section 19).
+  seriesId: string | null;
   // Null when the professional is no longer listed publicly.
   professional: AppointmentProfessional | null;
 }
