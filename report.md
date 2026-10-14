@@ -1,5 +1,22 @@
 # AROM: Change Report
 
+## 15 Oct 2026: Point Share Images at the Vercel Domain
+
+Commit `PENDING`. No migration.
+
+**Why.** The deployed page included Open Graph and Twitter image tags, but those tags pointed to `arom.app`, which did not return the image to the preview crawler. The app is currently shared from `arom-version1.vercel.app`.
+
+**What changed for users:**
+- **Image previews can load from the shared domain:** Share image URLs now resolve against `https://arom-version1.vercel.app`.
+
+**What changed for the team:**
+- **Metadata base:** Updated the root `metadataBase` value in `app/layout.tsx`. No image assets or page copy changed.
+
+**What to re-test:**
+1. Deploy the change to Vercel.
+2. Confirm the page HTML points `og:image` and `twitter:image` to `arom-version1.vercel.app`.
+3. Refresh the link preview and confirm the image appears when sharing the clean URL.
+
 ## 15 Oct 2026: Reworked AROM Share Image
 
 Commit `PENDING`. No migration.
