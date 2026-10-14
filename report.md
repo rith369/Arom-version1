@@ -7,9 +7,31 @@ A plain-language log of what changed in the app, written for the team rather tha
 
 Each entry lists the commit it landed in, so you can match it to a version of the site.
 
+## 14 Oct 2026: Admin Test Profile in the Professional Area
+
+Commit `PENDING`. Migration `20261014000500_admin_test_profile.sql` must be run in Supabase.
+
+**Why.** Admins open the professional area to test it, but an admin account had no professional profile, so the page failed with "We could not load your professional area."
+
+**What changed for admins:**
+- **Opening `/pro` creates your own test profile** the first time. You can fill in the profile, open times, and see bookings, exactly like a professional.
+- **Test profiles stay private:** only admins see them in Find a professional and only admins can book them. A note on the professional Home says so.
+- **Clear messages** when an account cannot use the area (for example a normal user), instead of a vague error.
+
+**What changed for the team:**
+- New column `professional_profiles.is_test` and function `ensure_admin_test_profile()`; `is_listed_professional`, `sync_availability_slots` and three policies now allow admins for their own test profile.
+- Tested on a local Postgres: real users and signed out visitors never see the test profile, a normal user cannot create one or book it, a second admin can book it.
+
+**What to re-test (after running the migration):**
+- As an admin, open `/pro`; confirm the test profile note and your name;
+- Complete the profile and open hours; confirm Find a professional shows you while signed in as admin, and not when signed out or as a normal user;
+- Book it from a second admin account and confirm it appears in My bookings.
+
+---
+
 ## 14 Oct 2026: Real Professionals, Real Schedules, Real Bookings
 
-Commit `PENDING`. Migration `20261014000400_pro_profile_booking.sql` must be run in Supabase (after `20261014000200` and `20261014000300`).
+Commit `ba16e09`. Migration `20261014000400_pro_profile_booking.sql` must be run in Supabase (after `20261014000200` and `20261014000300`).
 
 **Why.** AROM's main job is to let someone find a therapist and book a session. Until now every step was pretend: profiles, open times and bookings vanished on refresh, and the list of professionals was sample data. Now the whole path is real.
 
@@ -47,7 +69,7 @@ Commit `PENDING`. Migration `20261014000400_pro_profile_booking.sql` must be run
 
 ## 14 Oct 2026: Crisis Helplines Reach Users
 
-Commit `PENDING`. Migration `20261014000300_crisis_resources.sql` must be run in Supabase.
+Commit `ba16e09`. Migration `20261014000300_crisis_resources.sql` must be run in Supabase.
 
 **Why.** The Overview page warned "No crisis hotlines added yet" (real), but the Settings page that should fix it only saved in the browser, so users in crisis never saw a number. On a mental health app this is the most important thing to get right.
 
@@ -76,7 +98,7 @@ Commit `PENDING`. Migration `20261014000300_crisis_resources.sql` must be run in
 
 ## 14 Oct 2026: Admin Professionals Page Uses Real Data
 
-Commit `PENDING`. Migration `20261014000200_account_status.sql` must be run in Supabase.
+Commit `ba16e09`. Migration `20261014000200_account_status.sql` must be run in Supabase.
 
 **Why.** The Professionals page showed sample therapists, so admins could not review the real people who apply. Now it shows real applicants and professionals, and every decision is saved.
 

@@ -42,7 +42,7 @@ function Card({ children, className = '' }: { children: React.ReactNode; classNa
 }
 
 export function ProHome() {
-  const { profile, pendingChanges, hasSchedule, freeDuringTesting, listed, bookings } = usePro();
+  const { profile, pendingChanges, hasSchedule, freeDuringTesting, listed, isTest, bookings } = usePro();
   const { language } = useLanguage();
   const km = language === 'km';
   const t = (kmText: string, enText: string) => (km ? kmText : enText);
@@ -62,6 +62,14 @@ export function ProHome() {
 
   return (
     <>
+      {isTest && (
+        <p className="mb-4 rounded-2xl border border-arom-warning/25 bg-arom-warning-soft px-4 py-3 text-sm text-arom-warning">
+          {t(
+            'នេះជាប្រវត្តិរូបសាកល្បងរបស់អ្នកគ្រប់គ្រង។ មានតែអ្នកគ្រប់គ្រងទេដែលអាចរកឃើញ និងកក់វាបាន។ អ្នកប្រើពិតប្រាកដមិនឃើញវាទេ។',
+            'This is an admin test profile. Only admins can find and book it. Real users never see it.',
+          )}
+        </p>
+      )}
       <h1 className="text-2xl font-bold tracking-tight text-ink sm:text-3xl">
         {t(`សួស្តី ${name}`, `Hello, ${name}`)}
       </h1>
