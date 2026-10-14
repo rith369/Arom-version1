@@ -9,7 +9,7 @@ Each entry lists the commit it landed in, so you can match it to a version of th
 
 ## 14 Oct 2026: Admin Test Profile in the Professional Area
 
-Commit `PENDING`. Migration `20261014000500_admin_test_profile.sql` must be run in Supabase.
+Commit `bbcf651`. Migration `20261014000500_admin_test_profile.sql` must be run in Supabase.
 
 **Why.** Admins open the professional area to test it, but an admin account had no professional profile, so the page failed with "We could not load your professional area."
 
@@ -26,6 +26,29 @@ Commit `PENDING`. Migration `20261014000500_admin_test_profile.sql` must be run 
 - As an admin, open `/pro`; confirm the test profile note and your name;
 - Complete the profile and open hours; confirm Find a professional shows you while signed in as admin, and not when signed out or as a normal user;
 - Book it from a second admin account and confirm it appears in My bookings.
+
+---
+
+## 14 Oct 2026: Brand Header on Home, Detection, Journal and Community
+
+Commit `b54ad45`. No database changes.
+
+**Why.** The top of these pages showed a level, XP bar, streak and coins that are not real yet. That felt like a game more than a calm wellness space. The header now matches MindGuide and Find a professional: the AROM logo with its tagline, a menu button and the profile picture.
+
+**What changed for users:**
+- **New header on mobile:** AROM logo and "A calmer mind, a brighter you" on the left, the menu button and profile picture on the right.
+- **Level, XP, streak and coins are gone** from the top of Home, Detection, Journal and Community.
+- **On desktop** only the profile picture shows at the top right, because the sidebar already has the logo and menu.
+
+**What changed for the team:**
+- **`TopHeader` (`app/components/top-header.tsx`) no longer takes `level`, `currentXp`, `maxXp`, `streak` or `coins`.** It only takes an optional `onOpenSidebar`.
+
+**What to re-test:**
+1. On a phone, open Home, Detection, Detection Journal and Community. Check the logo, tagline, menu button and profile picture show in one row.
+2. Tap the menu button and check the side menu opens.
+3. Tap the profile picture and check it opens your profile.
+4. Switch to Khmer and check the tagline is in Khmer.
+5. On a laptop, check only the profile picture shows at the top right.
 
 ---
 
