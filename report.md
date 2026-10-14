@@ -7,6 +7,23 @@ A plain-language log of what changed in the app, written for the team rather tha
 
 Each entry lists the commit it landed in, so you can match it to a version of the site.
 
+## 14 Oct 2026: Phone Menu Labels No Longer Overlap
+
+Commit `PENDING`. No migration.
+
+**Why.** On narrow phones the bottom menu label "Professional" ran into "Community", so both were hard to read.
+
+**What changed for users:**
+- **Bottom menu labels fit** on phones as narrow as 320 pixels. Labels are slightly smaller below 380 pixels. A label that still does not fit (for example a long Khmer word) ends with "..." instead of covering its neighbour.
+
+**What changed for the team:**
+- `MobileNavigation` in `app/_components/app-navigation.tsx`: menu items get `min-w-0`, labels truncate, smaller text and side padding below 380 pixels.
+
+**What to re-test:**
+- Open any user page at 320 and 375 pixels wide, in English and Khmer, and confirm the five labels do not touch.
+
+---
+
 ## 14 Oct 2026: Real Messages Between Clients and Professionals
 
 Commit `PENDING`. Migration `20261014000700_messages.sql` must be run in Supabase (it also creates the private `message-voice` storage bucket).

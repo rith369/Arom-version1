@@ -265,7 +265,7 @@ export function MobileNavigation({
   return (
     <nav
       aria-label="Primary"
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-arom-border bg-white/96 px-3 pb-[calc(0.55rem+env(safe-area-inset-bottom))] pt-2 shadow-[0_-12px_35px_rgba(15,80,65,0.06)] backdrop-blur-xl lg:hidden"
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-arom-border bg-white/96 px-1 pb-[calc(0.55rem+env(safe-area-inset-bottom))] min-[380px]:px-3 pt-2 shadow-[0_-12px_35px_rgba(15,80,65,0.06)] backdrop-blur-xl lg:hidden"
     >
       <div className="mx-auto grid max-w-md grid-cols-5">
         {bottomNavItems.map(({ label, icon: Icon, href, km, emphasized }) => {
@@ -295,7 +295,7 @@ export function MobileNavigation({
                 />
               </span>
               <span
-                className={`transition-colors duration-150 ${
+                className={`block max-w-full truncate px-0.5 tracking-tight transition-colors duration-150 ${
                   emphasized ? "mt-7" : ""
                 } ${
                   isActive
@@ -315,7 +315,7 @@ export function MobileNavigation({
                 type="button"
                 onClick={handleOpenDetection}
                 aria-label={language === "km" ? km : label}
-                className="group relative flex min-h-[52px] flex-col items-center justify-end gap-1 rounded-xl text-[0.66rem] transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-arom cursor-pointer select-none"
+                className="group relative flex min-h-[52px] min-w-0 flex-col items-center justify-end gap-1 rounded-xl text-[0.62rem] min-[380px]:text-[0.66rem] transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-arom cursor-pointer select-none"
               >
                 {content}
               </button>
@@ -327,7 +327,7 @@ export function MobileNavigation({
               key={label}
               href={href}
               aria-current={isActive ? "page" : undefined}
-              className="group relative flex min-h-[52px] flex-col items-center justify-end gap-1 rounded-xl text-[0.66rem] transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-arom cursor-pointer select-none"
+              className="group relative flex min-h-[52px] min-w-0 flex-col items-center justify-end gap-1 rounded-xl text-[0.62rem] min-[380px]:text-[0.66rem] transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-arom cursor-pointer select-none"
             >
               {content}
             </Link>
