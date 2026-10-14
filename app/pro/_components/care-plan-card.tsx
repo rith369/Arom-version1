@@ -5,6 +5,7 @@ import { BellRing, BookOpen, Check, ClipboardList, Compass, Footprints, Lock, Pl
 
 import { MindGuidePicker } from './mindguide-picker';
 import { usePro } from './pro-provider';
+import { SheetDialog } from './sheet-dialog';
 import { useLanguage } from '../../_components/language-provider';
 import {
   EVERY_DAY,
@@ -98,6 +99,9 @@ export function AddTaskDialog({ clientId, clientName, bookingId, today, onClose 
   // Titles given while this window stayed open ("Give and add another").
   const [given, setGiven] = useState<string[]>([]);
   const panelRef = useRef<HTMLDivElement>(null);
+  // Plays the exit before the window is removed.
+  const [closing, setClosing] = useState(false);
+  const close = () => setClosing(true);
 
   const selectedOption = MINDGUIDE_OPTIONS.find((item) => `${item.type}:${item.id}` === itemKey);
 
@@ -137,7 +141,7 @@ export function AddTaskDialog({ clientId, clientName, bookingId, today, onClose 
     setSaving(false);
     if (!result.ok) return setError(result.message);
     if (!addAnother) {
-      onClose();
+      close();
       return;
     }
     // Keep the type and schedule (often the same), clear what the task says.
@@ -150,215 +154,219 @@ export function AddTaskDialog({ clientId, clientName, bookingId, today, onClose 
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-ink/40 p-0 sm:items-center sm:p-4" role="dialog" aria-modal="true" aria-labelledby="care-task-title">
-      <div ref={panelRef} className="max-h-[92vh] w-full max-w-xl overflow-y-auto rounded-t-3xl bg-white p-5 shadow-xl sm:rounded-3xl sm:p-6">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <h2 id="care-task-title" className="text-lg font-bold text-ink">{t('ផ្ដល់កិច្ចការថែទាំ', 'Give a care task')}</h2>
-            <p className="mt-0.5 text-sm text-ink-muted">
-              {t(`បង្ហាញក្នុង "ផែនការប្រចាំថ្ងៃ" របស់ ${clientName}`, `Shows in ${clientName}'s "Your Plan For Today"`)}
-            </p>
-          </div>
-          <button type="button" onClick={onClose} aria-label={t('បិទ', 'Close')} className="rounded-full p-2 hover:bg-arom-wash">
-            <X size={20} />
-          </button>
-        </div>
-
-        {given.length > 0 && (
-          <div role="status" aria-live="polite" className="mt-4 rounded-2xl bg-arom-wash px-4 py-3 text-sm text-ink">
-            <p className="flex items-center gap-1.5 font-semibold text-arom-deep">
-              <Check size={15} aria-hidden="true" />
-              {t(`បានផ្ដល់ ${given.length} កិច្ចការទៅ ${clientName}`, `${given.length} ${given.length === 1 ? 'task' : 'tasks'} given to ${clientName}`)}
-            </p>
-            <ul className="mt-1 list-inside list-disc text-xs text-ink-muted">
-              {given.map((item, index) => (
-                <li key={`${item}-${index}`}>{item}</li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        <fieldset className="mt-5">
-          <legend className="text-sm font-semibold text-ink">{t('ប្រភេទ', 'Type')}</legend>
-          <div className="mt-2 grid grid-cols-2 gap-2">
-            {(Object.keys(KIND_LABELS) as CareTaskKind[]).map((value) => {
-              const Icon = KIND_ICONS[value];
-              const selected = kind === value;
-              return (
-                <label
-                  key={value}
-                  className={`cursor-pointer rounded-2xl border p-3 transition-colors ${selected ? 'border-arom bg-arom-wash' : 'border-arom-border hover:bg-arom-wash/50'}`}>
-                  <input type="radio" name="care-kind" value={value} checked={selected} onChange={() => chooseKind(value)} className="sr-only" />
-                  <span className="flex items-center gap-2 text-sm font-semibold text-ink">
-                    <Icon size={16} aria-hidden="true" className="text-arom" />
-                    {km ? KIND_LABELS[value].km : KIND_LABELS[value].en}
-                  </span>
-                  <span className="mt-1 block text-xs leading-5 text-ink-muted">{km ? KIND_LABELS[value].kmHint : KIND_LABELS[value].hint}</span>
-                </label>
-              );
-            })}
-          </div>
-        </fieldset>
-
-        {kind === 'mindguide' ? (
-          <div className="mt-5">
-            <p className="text-sm font-semibold text-ink">{t('មាតិកា MindGuide', 'MindGuide item')}</p>
-            {selectedOption ? (
-              <div className="mt-2 flex items-center gap-3 rounded-2xl border border-arom bg-arom-wash px-3.5 py-3">
-                <BookOpen size={18} aria-hidden="true" className="shrink-0 text-arom" />
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate text-sm font-medium text-ink">{km ? selectedOption.kmTitle : selectedOption.title}</span>
-                  <span className="text-xs text-ink-muted">
-                    {km ? MINDGUIDE_TYPE_LABELS[selectedOption.type].km : MINDGUIDE_TYPE_LABELS[selectedOption.type].en} · {km ? selectedOption.kmDuration : selectedOption.duration}
-                  </span>
-                </span>
-                <button type="button" onClick={() => setBrowsing(true)} className="shrink-0 text-sm font-semibold text-arom hover:underline">
-                  {t('ប្តូរ', 'Change')}
-                </button>
-              </div>
-            ) : (
-              <button
-                type="button"
-                onClick={() => setBrowsing(true)}
-                className="mt-2 flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-arom/50 bg-arom-wash/50 px-4 py-4 text-sm font-semibold text-arom hover:bg-arom-wash">
-                <Compass size={18} aria-hidden="true" />
-                {t('រុករក MindGuide', 'Browse MindGuide')}
-              </button>
-            )}
-            <p className="mt-1.5 text-xs text-ink-muted">
-              {t('មើលមេរៀន លំហាត់ និងគន្លឹះ ដូចអ្នកប្រើឃើញ។ មានតែមាតិកាដែលបានផ្សព្វផ្សាយប៉ុណ្ណោះ។', 'See lessons, practices and tips the way users do. Only published items can be chosen.')}
-            </p>
-          </div>
-        ) : (
-          <label className="mt-5 block text-sm font-semibold text-ink">
-            {kind === 'goal' ? t('គោលដៅ', 'Goal') : kind === 'reminder' ? t('រំលឹកអំពីអ្វី', 'Reminder') : t('បេសកកម្ម', 'Mission')}
-            <input
-              value={title}
-              onChange={(event) => {
-                setTitle(event.target.value);
-                setError('');
-              }}
-              maxLength={MAX_TASK_TITLE}
-              placeholder={
-                kind === 'goal'
-                  ? t('ឧ. ចូលគេងមុនម៉ោង ១១ យប់ ភាគច្រើននៃយប់', 'For example: go to bed before 11 pm on most nights')
-                  : kind === 'reminder'
-                    ? t('ឧ. លេបថ្នាំតាមវេជ្ជបញ្ជារបស់វេជ្ជបណ្ឌិត', 'For example: take medicine as prescribed by your doctor')
-                    : t('ឧ. ដើរ ១០ នាទីក្រោយអាហារថ្ងៃត្រង់', 'For example: take a 10 minute walk after lunch')
-              }
-              className={`mt-1.5 font-normal ${inputClass}`}
-            />
-            {kind === 'reminder' && (
-              <span className="mt-1.5 block text-xs font-normal leading-5 text-ink-muted">
-                {t('AROM មិនចេញវេជ្ជបញ្ជាទេ។ សូមរំលឹកតែអ្វីដែលវេជ្ជបណ្ឌិតរបស់ពួកគេបានចេញវេជ្ជបញ្ជាប៉ុណ្ណោះ។', 'AROM does not prescribe. Only remind about medicine their doctor has prescribed.')}
-              </span>
-            )}
-          </label>
-        )}
-
-        <label className="mt-5 block text-sm font-semibold text-ink">
-          {t('កំណត់ចំណាំទៅអតិថិជន (ស្រេចចិត្ត)', 'Note to the client (optional)')}
-          <textarea
-            value={note}
-            onChange={(event) => setNote(event.target.value)}
-            maxLength={MAX_TASK_NOTE}
-            rows={2}
-            placeholder={t('ឧ. មុនចូលគេង ទោះបីតែ ២ នាទីក៏ដោយ។', 'For example: before bed, even if you only manage two minutes.')}
-            className={`mt-1.5 font-normal ${inputClass}`}
+    <SheetDialog
+      closing={closing}
+      onClosed={onClose}
+      labelledBy="care-task-title"
+      panelRef={panelRef}
+      panelClassName="max-h-[92vh] w-full max-w-xl overflow-y-auto rounded-t-3xl bg-white p-5 shadow-xl sm:rounded-3xl sm:p-6"
+      after={
+        browsing && (
+          <MindGuidePicker
+            clientName={clientName}
+            onClose={() => setBrowsing(false)}
+            onChoose={(type, id) => {
+              if (!MINDGUIDE_OPTIONS.some((item) => item.type === type && item.id === id)) return;
+              setItemKey(`${type}:${id}`);
+              // A practice usually repeats; a lesson or tip is done once.
+              setRepeat(type === 'practice' ? 'daily' : 'once');
+              setError('');
+              setBrowsing(false);
+            }}
           />
-          <span className="mt-1 block text-right text-xs font-normal text-ink-muted">
-            {note.length}/{MAX_TASK_NOTE}
-          </span>
-        </label>
-
-        {kind !== 'goal' && (
-          <fieldset className="mt-3">
-            <legend className="text-sm font-semibold text-ink">{t('ញឹកញាប់ប៉ុណ្ណា', 'How often')}</legend>
-            <div className="mt-2 flex flex-wrap gap-2">
-              {([
-                ['once', t('ម្តង', 'Once')],
-                ['daily', t('រៀងរាល់ថ្ងៃ', 'Every day')],
-                ['days', t('ជ្រើសរើសថ្ងៃ', 'Some days')],
-              ] as [Repeat, string][]).map(([value, label]) => (
-                <button
-                  key={value}
-                  type="button"
-                  aria-pressed={repeat === value}
-                  onClick={() => setRepeat(value)}
-                  className={`rounded-full border px-3.5 py-1.5 text-sm font-medium ${repeat === value ? 'border-arom bg-arom text-white' : 'border-arom-border bg-white text-ink hover:bg-arom-wash'}`}>
-                  {label}
-                </button>
-              ))}
-            </div>
-            {repeat === 'days' && (
-              <div className="mt-3 flex flex-wrap gap-1.5" role="group" aria-label={t('ថ្ងៃ', 'Days')}>
-                {EVERY_DAY.map((day) => {
-                  const on = days.includes(day);
-                  return (
-                    <button
-                      key={day}
-                      type="button"
-                      aria-pressed={on}
-                      onClick={() => setDays(on ? days.filter((item) => item !== day) : [...days, day])}
-                      className={`min-w-11 rounded-xl border px-2.5 py-1.5 text-xs font-semibold ${on ? 'border-arom bg-arom-soft text-arom-deep' : 'border-arom-border bg-white text-ink-muted'}`}>
-                      {km ? WEEKDAY_LABELS[day].km : WEEKDAY_LABELS[day].en}
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-          </fieldset>
-        )}
-
-        <div className="mt-5 grid gap-4 sm:grid-cols-2">
-          <label className="block text-sm font-semibold text-ink">
-            {kind === 'goal' ? t('សម្រេចមុនថ្ងៃ', 'Reach by') : t('បញ្ចប់នៅថ្ងៃ', 'Ends on')}
-            <input type="date" value={endDate} min={today} onChange={(event) => setEndDate(event.target.value)} className={`mt-1.5 font-normal ${inputClass}`} />
-            {kind !== 'goal' && <span className="mt-1 block text-xs font-normal text-ink-muted">{t('ទុកទទេ ដើម្បីបន្តរហូតដល់អ្នកបញ្ឈប់។', 'Leave empty to keep it until you stop it.')}</span>}
-          </label>
-          {kind !== 'goal' && (
-            <label className="block text-sm font-semibold text-ink">
-              {t('ម៉ោងរំលឹក (ស្រេចចិត្ត)', 'Reminder time (optional)')}
-              <input type="time" value={reminderTime} onChange={(event) => setReminderTime(event.target.value)} className={`mt-1.5 font-normal ${inputClass}`} />
-              <span className="mt-1 block text-xs font-normal text-ink-muted">{t('ផ្ញើតាម Telegram ពេលភ្ជាប់រួច។ មិនទាន់ផ្ញើពេលសាកល្បងទេ។', 'Sent on Telegram once connected. Not sent during testing.')}</span>
-            </label>
-          )}
-        </div>
-
-        {error && (
-          <p role="alert" className="mt-4 rounded-xl bg-arom-danger-soft px-3.5 py-2.5 text-sm text-arom-danger">
-            {error}
+        )
+      }>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h2 id="care-task-title" className="text-lg font-bold text-ink">{t('ផ្ដល់កិច្ចការថែទាំ', 'Give a care task')}</h2>
+          <p className="mt-0.5 text-sm text-ink-muted">
+            {t(`បង្ហាញក្នុង "ផែនការប្រចាំថ្ងៃ" របស់ ${clientName}`, `Shows in ${clientName}'s "Your Plan For Today"`)}
           </p>
-        )}
-
-        <div className="mt-6 flex flex-wrap justify-end gap-2">
-          <button type="button" onClick={onClose} className="rounded-full border border-arom-border px-4 py-2 text-sm font-medium text-ink hover:bg-arom-wash">
-            {given.length > 0 ? t('រួចរាល់', 'Done') : t('បោះបង់', 'Cancel')}
-          </button>
-          <button type="button" disabled={saving} onClick={() => void save(true)} className="rounded-full border border-arom bg-white px-4 py-2 text-sm font-semibold text-arom hover:bg-arom-wash disabled:opacity-50">
-            {t('ផ្ដល់ ហើយបន្ថែមមួយទៀត', 'Give and add another')}
-          </button>
-          <button type="button" disabled={saving} onClick={() => void save(false)} className="rounded-full bg-arom px-5 py-2 text-sm font-semibold text-white hover:bg-arom-deep disabled:opacity-50">
-            {t('ផ្ដល់កិច្ចការ', 'Give task')}
-          </button>
         </div>
+        <button type="button" onClick={close} aria-label={t('បិទ', 'Close')} className="rounded-full p-2 hover:bg-arom-wash">
+          <X size={20} />
+        </button>
       </div>
 
-      {browsing && (
-        <MindGuidePicker
-          clientName={clientName}
-          onClose={() => setBrowsing(false)}
-          onChoose={(type, id) => {
-            if (!MINDGUIDE_OPTIONS.some((item) => item.type === type && item.id === id)) return;
-            setItemKey(`${type}:${id}`);
-            // A practice usually repeats; a lesson or tip is done once.
-            setRepeat(type === 'practice' ? 'daily' : 'once');
-            setError('');
-            setBrowsing(false);
-          }}
-        />
+      {given.length > 0 && (
+        <div role="status" aria-live="polite" className="mt-4 rounded-2xl bg-arom-wash px-4 py-3 text-sm text-ink">
+          <p className="flex items-center gap-1.5 font-semibold text-arom-deep">
+            <Check size={15} aria-hidden="true" />
+            {t(`បានផ្ដល់ ${given.length} កិច្ចការទៅ ${clientName}`, `${given.length} ${given.length === 1 ? 'task' : 'tasks'} given to ${clientName}`)}
+          </p>
+          <ul className="mt-1 list-inside list-disc text-xs text-ink-muted">
+            {given.map((item, index) => (
+              <li key={`${item}-${index}`}>{item}</li>
+            ))}
+          </ul>
+        </div>
       )}
-    </div>
+
+      <fieldset className="mt-5">
+        <legend className="text-sm font-semibold text-ink">{t('ប្រភេទ', 'Type')}</legend>
+        <div className="mt-2 grid grid-cols-2 gap-2">
+          {(Object.keys(KIND_LABELS) as CareTaskKind[]).map((value) => {
+            const Icon = KIND_ICONS[value];
+            const selected = kind === value;
+            return (
+              <label
+                key={value}
+                className={`cursor-pointer rounded-2xl border p-3 transition-colors ${selected ? 'border-arom bg-arom-wash' : 'border-arom-border hover:bg-arom-wash/50'}`}>
+                <input type="radio" name="care-kind" value={value} checked={selected} onChange={() => chooseKind(value)} className="sr-only" />
+                <span className="flex items-center gap-2 text-sm font-semibold text-ink">
+                  <Icon size={16} aria-hidden="true" className="text-arom" />
+                  {km ? KIND_LABELS[value].km : KIND_LABELS[value].en}
+                </span>
+                <span className="mt-1 block text-xs leading-5 text-ink-muted">{km ? KIND_LABELS[value].kmHint : KIND_LABELS[value].hint}</span>
+              </label>
+            );
+          })}
+        </div>
+      </fieldset>
+
+      {kind === 'mindguide' ? (
+        <div className="mt-5">
+          <p className="text-sm font-semibold text-ink">{t('មាតិកា MindGuide', 'MindGuide item')}</p>
+          {selectedOption ? (
+            <div className="mt-2 flex items-center gap-3 rounded-2xl border border-arom bg-arom-wash px-3.5 py-3">
+              <BookOpen size={18} aria-hidden="true" className="shrink-0 text-arom" />
+              <span className="min-w-0 flex-1">
+                <span className="block truncate text-sm font-medium text-ink">{km ? selectedOption.kmTitle : selectedOption.title}</span>
+                <span className="text-xs text-ink-muted">
+                  {km ? MINDGUIDE_TYPE_LABELS[selectedOption.type].km : MINDGUIDE_TYPE_LABELS[selectedOption.type].en} · {km ? selectedOption.kmDuration : selectedOption.duration}
+                </span>
+              </span>
+              <button type="button" onClick={() => setBrowsing(true)} className="shrink-0 text-sm font-semibold text-arom hover:underline">
+                {t('ប្តូរ', 'Change')}
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setBrowsing(true)}
+              className="mt-2 flex w-full items-center justify-center gap-2 rounded-2xl border border-dashed border-arom/50 bg-arom-wash/50 px-4 py-4 text-sm font-semibold text-arom hover:bg-arom-wash">
+              <Compass size={18} aria-hidden="true" />
+              {t('រុករក MindGuide', 'Browse MindGuide')}
+            </button>
+          )}
+          <p className="mt-1.5 text-xs text-ink-muted">
+            {t('មើលមេរៀន លំហាត់ និងគន្លឹះ ដូចអ្នកប្រើឃើញ។ មានតែមាតិកាដែលបានផ្សព្វផ្សាយប៉ុណ្ណោះ។', 'See lessons, practices and tips the way users do. Only published items can be chosen.')}
+          </p>
+        </div>
+      ) : (
+        <label className="mt-5 block text-sm font-semibold text-ink">
+          {kind === 'goal' ? t('គោលដៅ', 'Goal') : kind === 'reminder' ? t('រំលឹកអំពីអ្វី', 'Reminder') : t('បេសកកម្ម', 'Mission')}
+          <input
+            value={title}
+            onChange={(event) => {
+              setTitle(event.target.value);
+              setError('');
+            }}
+            maxLength={MAX_TASK_TITLE}
+            placeholder={
+              kind === 'goal'
+                ? t('ឧ. ចូលគេងមុនម៉ោង ១១ យប់ ភាគច្រើននៃយប់', 'For example: go to bed before 11 pm on most nights')
+                : kind === 'reminder'
+                  ? t('ឧ. លេបថ្នាំតាមវេជ្ជបញ្ជារបស់វេជ្ជបណ្ឌិត', 'For example: take medicine as prescribed by your doctor')
+                  : t('ឧ. ដើរ ១០ នាទីក្រោយអាហារថ្ងៃត្រង់', 'For example: take a 10 minute walk after lunch')
+            }
+            className={`mt-1.5 font-normal ${inputClass}`}
+          />
+          {kind === 'reminder' && (
+            <span className="mt-1.5 block text-xs font-normal leading-5 text-ink-muted">
+              {t('AROM មិនចេញវេជ្ជបញ្ជាទេ។ សូមរំលឹកតែអ្វីដែលវេជ្ជបណ្ឌិតរបស់ពួកគេបានចេញវេជ្ជបញ្ជាប៉ុណ្ណោះ។', 'AROM does not prescribe. Only remind about medicine their doctor has prescribed.')}
+            </span>
+          )}
+        </label>
+      )}
+
+      <label className="mt-5 block text-sm font-semibold text-ink">
+        {t('កំណត់ចំណាំទៅអតិថិជន (ស្រេចចិត្ត)', 'Note to the client (optional)')}
+        <textarea
+          value={note}
+          onChange={(event) => setNote(event.target.value)}
+          maxLength={MAX_TASK_NOTE}
+          rows={2}
+          placeholder={t('ឧ. មុនចូលគេង ទោះបីតែ ២ នាទីក៏ដោយ។', 'For example: before bed, even if you only manage two minutes.')}
+          className={`mt-1.5 font-normal ${inputClass}`}
+        />
+        <span className="mt-1 block text-right text-xs font-normal text-ink-muted">
+          {note.length}/{MAX_TASK_NOTE}
+        </span>
+      </label>
+
+      {kind !== 'goal' && (
+        <fieldset className="mt-3">
+          <legend className="text-sm font-semibold text-ink">{t('ញឹកញាប់ប៉ុណ្ណា', 'How often')}</legend>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {([
+              ['once', t('ម្តង', 'Once')],
+              ['daily', t('រៀងរាល់ថ្ងៃ', 'Every day')],
+              ['days', t('ជ្រើសរើសថ្ងៃ', 'Some days')],
+            ] as [Repeat, string][]).map(([value, label]) => (
+              <button
+                key={value}
+                type="button"
+                aria-pressed={repeat === value}
+                onClick={() => setRepeat(value)}
+                className={`rounded-full border px-3.5 py-1.5 text-sm font-medium ${repeat === value ? 'border-arom bg-arom text-white' : 'border-arom-border bg-white text-ink hover:bg-arom-wash'}`}>
+                {label}
+              </button>
+            ))}
+          </div>
+          {repeat === 'days' && (
+            <div className="mt-3 flex flex-wrap gap-1.5" role="group" aria-label={t('ថ្ងៃ', 'Days')}>
+              {EVERY_DAY.map((day) => {
+                const on = days.includes(day);
+                return (
+                  <button
+                    key={day}
+                    type="button"
+                    aria-pressed={on}
+                    onClick={() => setDays(on ? days.filter((item) => item !== day) : [...days, day])}
+                    className={`min-w-11 rounded-xl border px-2.5 py-1.5 text-xs font-semibold ${on ? 'border-arom bg-arom-soft text-arom-deep' : 'border-arom-border bg-white text-ink-muted'}`}>
+                    {km ? WEEKDAY_LABELS[day].km : WEEKDAY_LABELS[day].en}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </fieldset>
+      )}
+
+      <div className="mt-5 grid gap-4 sm:grid-cols-2">
+        <label className="block text-sm font-semibold text-ink">
+          {kind === 'goal' ? t('សម្រេចមុនថ្ងៃ', 'Reach by') : t('បញ្ចប់នៅថ្ងៃ', 'Ends on')}
+          <input type="date" value={endDate} min={today} onChange={(event) => setEndDate(event.target.value)} className={`mt-1.5 font-normal ${inputClass}`} />
+          {kind !== 'goal' && <span className="mt-1 block text-xs font-normal text-ink-muted">{t('ទុកទទេ ដើម្បីបន្តរហូតដល់អ្នកបញ្ឈប់។', 'Leave empty to keep it until you stop it.')}</span>}
+        </label>
+        {kind !== 'goal' && (
+          <label className="block text-sm font-semibold text-ink">
+            {t('ម៉ោងរំលឹក (ស្រេចចិត្ត)', 'Reminder time (optional)')}
+            <input type="time" value={reminderTime} onChange={(event) => setReminderTime(event.target.value)} className={`mt-1.5 font-normal ${inputClass}`} />
+            <span className="mt-1 block text-xs font-normal text-ink-muted">{t('ផ្ញើតាម Telegram ពេលភ្ជាប់រួច។ មិនទាន់ផ្ញើពេលសាកល្បងទេ។', 'Sent on Telegram once connected. Not sent during testing.')}</span>
+          </label>
+        )}
+      </div>
+
+      {error && (
+        <p role="alert" className="mt-4 rounded-xl bg-arom-danger-soft px-3.5 py-2.5 text-sm text-arom-danger">
+          {error}
+        </p>
+      )}
+
+      <div className="mt-6 flex flex-wrap justify-end gap-2">
+        <button type="button" onClick={close} className="rounded-full border border-arom-border px-4 py-2 text-sm font-medium text-ink hover:bg-arom-wash">
+          {given.length > 0 ? t('រួចរាល់', 'Done') : t('បោះបង់', 'Cancel')}
+        </button>
+        <button type="button" disabled={saving} onClick={() => void save(true)} className="rounded-full border border-arom bg-white px-4 py-2 text-sm font-semibold text-arom hover:bg-arom-wash disabled:opacity-50">
+          {t('ផ្ដល់ ហើយបន្ថែមមួយទៀត', 'Give and add another')}
+        </button>
+        <button type="button" disabled={saving} onClick={() => void save(false)} className="rounded-full bg-arom px-5 py-2 text-sm font-semibold text-white hover:bg-arom-deep disabled:opacity-50">
+          {t('ផ្ដល់កិច្ចការ', 'Give task')}
+        </button>
+      </div>
+    </SheetDialog>
   );
 }
 

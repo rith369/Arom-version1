@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, Suspense } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -20,8 +20,24 @@ import {
   Check,
   MessageSquarePlus,
   Languages,
+  Activity,
+  Award,
+  Cloud,
+  CloudRain,
+  Flame,
+  Heart,
+  Leaf,
+  Moon,
+  Smile,
+  Sprout,
+  UserRound,
+  Waves,
+  Wind,
+  Zap,
+  type LucideIcon,
 } from "lucide-react";
 import { FigmaIcon } from "../../components/figma-icon";
+import { useMoodStore, type MoodLevel } from "../../_components/mood/mood-store";
 import { DesktopNavigation } from "../../_components/app-navigation";
 import { BottomNav } from "../../components/bottom-nav";
 import { TopHeader } from "../../components/top-header";
@@ -205,15 +221,33 @@ const EMOTIONS: EmotionOption[] = [
   { en: "Angry", km: "ខឹង (Angry)", emoji: "🔥", category: "reflective" },
 ];
 
-function mapMoodParam(param: string | null): string {
-  if (!param) return "Good";
-  const lower = param.toLowerCase().trim();
-  if (lower === "great") return "Great";
-  if (lower === "good") return "Good";
-  if (lower === "okay") return "Okay";
-  if (lower === "low" || lower === "not good") return "Not Good";
-  if (lower === "very low" || lower === "very difficult") return "Very difficult";
-  return "Good";
+const EMOTION_ICONS: Record<string, LucideIcon> = {
+  Happy: Smile,
+  Grateful: Heart,
+  Calm: Leaf,
+  Proud: Award,
+  Hopeful: Sprout,
+  Energetic: Zap,
+  Relaxed: Wind,
+  Tired: Moon,
+  Stressed: Activity,
+  Anxious: Cloud,
+  Sad: CloudRain,
+  Overwhelmed: Waves,
+  Lonely: UserRound,
+  Angry: Flame,
+};
+
+const JOURNAL_MOOD: Record<MoodLevel, string> = {
+  great: "Great",
+  good: "Good",
+  okay: "Okay",
+  low: "Not Good",
+  very_low: "Very difficult",
+};
+
+function journalMoodFor(mood: MoodLevel): string {
+  return JOURNAL_MOOD[mood];
 }
 
 function getDefaultEmotionsForMood(mood: string): string[] {
@@ -384,8 +418,11 @@ function formatSpeechTranscript(raw: string, isKhmer: boolean): string {
 
 function JournalContent() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const initialMood = mapMoodParam(searchParams.get("mood"));
+  // Start from today's check in, loaded through the API. The mood is never
+  // passed in the URL, because a URL ends up in browser history.
+  const moodStore = useMoodStore();
+  const initialMood = "Good";
+  const moodTouched = useRef(false);
 
   const { language } = useLanguage();
   const km = language === "km";
@@ -405,6 +442,13 @@ function JournalContent() {
   const [selectedEmotions, setSelectedEmotions] = useState<string[]>(() =>
     getDefaultEmotionsForMood(initialMood)
   );
+
+  useEffect(() => {
+    if (moodTouched.current || !moodStore.today) return;
+    const mood = journalMoodFor(moodStore.today);
+    setSelectedMood(mood);
+    setSelectedEmotions(getDefaultEmotionsForMood(mood));
+  }, [moodStore.today]);
 
   // Guided Questions State with default Happy & Difficult questions (matching user design)
   const [questions, setQuestions] = useState<JournalQuestionItem[]>(DEFAULT_QUESTIONS);
@@ -488,6 +532,7 @@ function JournalContent() {
   }, []);
 
   const handleSelectMood = (moodName: string) => {
+    moodTouched.current = true;
     setSelectedMood(moodName);
     setSelectedEmotions(getDefaultEmotionsForMood(moodName));
   };
@@ -885,7 +930,7 @@ function JournalContent() {
                 <button
                   type="button"
                   onClick={handleBack}
-                  className="inline-flex size-10 items-center justify-center rounded-full text-[#111827] hover:bg-gray-100 transition-colors"
+                  className="inline-flex size-11 items-center justify-center rounded-full text-[#165746] transition-colors hover:bg-[#e6f6f1] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1f6f5b]"
                   aria-label={km ? "ត្រឡប់ក្រោយ" : "Back"}
                 >
                   <ArrowLeft size={22} />
@@ -893,20 +938,20 @@ function JournalContent() {
                 <button
                   type="button"
                   onClick={() => setView("history")}
-                  className="text-xs sm:text-sm font-semibold text-[#1f6f5b] hover:underline"
+                  className="inline-flex min-h-11 items-center rounded-full px-3 text-xs font-semibold text-[#165746] transition-colors hover:bg-[#e6f6f1] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1f6f5b] sm:text-sm"
                 >
                   {km ? "មើលប្រវត្តិ (History)" : "View History"} ({entries.length})
                 </button>
               </div>
 
               {/* Title */}
-              <h1 className="mt-4 text-2xl sm:text-3xl font-bold tracking-tight text-[#111827]">
+              <h1 className="mt-4 text-[26px] font-bold tracking-[-0.025em] text-[#14221f] sm:text-3xl">
                 {km ? "តើអ្នកមានអារម្មណ៍យ៉ាងណាដែរថ្ងៃនេះ?" : "How are you feeling?"}
               </h1>
 
               {/* Section 1: Mood */}
               <div className="mt-6">
-                <label className="block text-sm font-medium text-[#4b5563]">
+                <label className="block text-sm font-semibold text-[#34443f]">
                   {km ? "កម្រិតអារម្មណ៍ (Mood)" : "Mood"}
                 </label>
                 <div className="mt-2.5 flex flex-wrap gap-2 sm:gap-2.5">
@@ -917,13 +962,13 @@ function JournalContent() {
                         key={m.en}
                         type="button"
                         onClick={() => handleSelectMood(m.en)}
-                        className={`inline-flex items-center gap-2 rounded-[14px] px-3.5 py-2 text-xs sm:text-sm font-medium transition-all duration-150 focus-visible:outline-2 focus-visible:outline-[#1f6f5b] ${
+                        className={`inline-flex min-h-11 items-center gap-2 rounded-xl border px-3.5 py-2 text-xs font-medium transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1f6f5b] sm:text-sm ${
                           isSelected
-                            ? "border border-[#1f6f5b] bg-[#dff3ee] text-[#1f6f5b] shadow-sm font-semibold"
-                            : "border border-gray-200 bg-white text-[#374151] hover:border-gray-300"
+                            ? "border-[#1f6f5b] bg-[#e0f3ee] text-[#165746] font-semibold"
+                            : "border-[#dcebe7] bg-white text-[#34443f] hover:border-[#a9c9bd] hover:bg-[#f0f8f6]"
                         }`}
                       >
-                        <span className={isSelected ? "opacity-100 scale-105 transition-transform" : "opacity-75"}>
+                        <span className={isSelected ? "text-[#1f6f5b]" : "text-[#668d80]"}>
                           <FigmaIcon name={m.icon} size={20} />
                         </span>
                         <span>{km ? m.km : m.en}</span>
@@ -935,29 +980,35 @@ function JournalContent() {
 
               {/* Section 2: What’s coming up for you? */}
               <div className="mt-6">
-                <div className="flex items-center justify-between">
-                  <label className="block text-sm font-medium text-[#4b5563]">
+                <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
+                  <label className="block text-sm font-semibold text-[#34443f]">
                     {km ? "តើអ្នកកំពុងមានអារម្មណ៍បែបណាខ្លះ? (Emotions)" : "What’s coming up for you?"}
                   </label>
-                  <span className="text-[11px] font-medium text-[#1f6f5b] bg-[#e6f6f1] px-2.5 py-0.5 rounded-full">
+                  <span className="rounded-full bg-[#e6f6f1] px-2.5 py-1 text-[11px] font-semibold text-[#165746]">
                     {km ? "អារម្មណ៍ និងការឆ្លុះបញ្ចាំង (Feelings & Reflection)" : "Feelings & reflection"}
                   </span>
                 </div>
                 <div className="mt-2.5 flex flex-wrap gap-2 sm:gap-2.5">
                   {EMOTIONS.map((e) => {
                     const isSelected = selectedEmotions.includes(e.en);
+                    const EmotionIcon = EMOTION_ICONS[e.en];
                     return (
                       <button
                         key={e.en}
                         type="button"
                         onClick={() => toggleEmotion(e.en)}
-                        className={`inline-flex items-center gap-1.5 rounded-[14px] px-3.5 py-2 text-xs sm:text-sm font-medium transition-all duration-150 focus-visible:outline-2 focus-visible:outline-[#1f6f5b] ${
+                        className={`inline-flex min-h-11 items-center gap-1.5 rounded-xl border px-3.5 py-2 text-xs font-medium transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1f6f5b] sm:text-sm ${
                           isSelected
-                            ? "border border-[#1f6f5b] bg-[#dff3ee] text-[#1f6f5b] shadow-sm font-semibold"
-                            : "border border-gray-200 bg-white text-[#374151] hover:border-gray-300"
+                            ? "border-[#1f6f5b] bg-[#e0f3ee] text-[#165746] font-semibold"
+                            : "border-[#dcebe7] bg-white text-[#34443f] hover:border-[#a9c9bd] hover:bg-[#f0f8f6]"
                         }`}
                       >
-                        <span className="text-sm leading-none">{e.emoji}</span>
+                        <EmotionIcon
+                          aria-hidden="true"
+                          size={16}
+                          strokeWidth={1.8}
+                          className={isSelected ? "text-[#1f6f5b]" : "text-[#668d80]"}
+                        />
                         <span>{km ? e.km : e.en}</span>
                       </button>
                     );
@@ -970,14 +1021,14 @@ function JournalContent() {
                 <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between">
                   <div>
                     <div className="flex items-center gap-2">
-                      <label className="block text-sm font-semibold text-[#374151]">
+                      <label className="block text-sm font-semibold text-[#34443f]">
                         {km ? "សំណួរឆ្លុះបញ្ចាំង និងកំណត់ត្រា (Guided Reflection)" : "Guided Reflection Questions"}
                       </label>
-                      <span className="text-[11px] font-medium text-[#1f6f5b] bg-[#e6f6f1] px-2.5 py-0.5 rounded-full">
+                      <span className="rounded-full bg-[#e6f6f1] px-2.5 py-1 text-[11px] font-semibold text-[#165746]">
                         {km ? "ឆ្លើយ ឬកត់ត្រាជាសំឡេង (Voice or Text)" : "Type or speak by voice"}
                       </span>
                     </div>
-                    <p className="mt-1 text-xs text-[#6b7280]">
+                    <p className="mt-1 text-[13px] leading-relaxed text-[#667a75]">
                       {km
                         ? "ចុចរូបមេក្រូហ្វូននៅតាមសំណួរនីមួយៗ ដើម្បីនិយាយចម្លើយម្តងមួយៗដោយងាយស្រួល"
                         : "Tap the microphone on each question to speak your answers one by one."}
@@ -985,9 +1036,9 @@ function JournalContent() {
                   </div>
 
                   {/* Voice Language Switcher (Moved Up for Easy Access) */}
-                  <div className="inline-flex items-center gap-1 self-start sm:self-auto rounded-xl border border-gray-200 bg-gray-50/90 p-1 text-xs font-semibold shadow-2xs">
-                    <div className="flex items-center gap-1 pl-1 text-[#6b7280]">
-                      <Languages size={13} className="text-[#1f6f5b]" />
+                  <div className="inline-flex w-full max-w-[280px] items-center gap-1 rounded-2xl border border-[#dcebe7] bg-[#f0f8f6] p-1 text-xs font-semibold sm:w-auto sm:max-w-none sm:self-auto sm:rounded-xl sm:bg-white sm:min-w-[360px]">
+                    <div className="hidden items-center gap-1 pl-1 text-[#667a75] sm:flex">
+                      <Languages size={14} className="text-[#1f6f5b]" />
                       <span className="hidden sm:inline text-[11px] font-medium text-gray-500">
                         {km ? "ភាសានិយាយ:" : "Voice:"}
                       </span>
@@ -995,10 +1046,10 @@ function JournalContent() {
                     <button
                       type="button"
                       onClick={() => handleSwitchSpeechLang("km")}
-                      className={`rounded-lg px-2.5 py-1 text-xs transition-all ${
+                      className={`flex min-h-10 min-w-0 flex-1 basis-0 items-center justify-center whitespace-nowrap rounded-xl px-1 text-[10px] transition-colors sm:px-2 sm:text-xs ${
                         speechLang === "km"
-                          ? "bg-white text-[#1f6f5b] shadow-xs font-bold ring-1 ring-black/5"
-                          : "text-gray-500 hover:text-gray-800"
+                          ? "bg-white text-[#165746] font-bold ring-1 ring-[#dcebe7]"
+                          : "text-[#667a75] hover:bg-white/70 hover:text-[#165746]"
                       }`}
                     >
                       🇰🇭 ភាសាខ្មែរ (Khmer)
@@ -1006,10 +1057,10 @@ function JournalContent() {
                     <button
                       type="button"
                       onClick={() => handleSwitchSpeechLang("en")}
-                      className={`rounded-lg px-2.5 py-1 text-xs transition-all ${
+                      className={`flex min-h-10 min-w-0 flex-1 basis-0 items-center justify-center whitespace-nowrap rounded-xl px-1 text-[10px] transition-colors sm:px-2 sm:text-xs ${
                         speechLang === "en"
-                          ? "bg-white text-[#1f6f5b] shadow-xs font-bold ring-1 ring-black/5"
-                          : "text-gray-500 hover:text-gray-800"
+                          ? "bg-white text-[#165746] font-bold ring-1 ring-[#dcebe7]"
+                          : "text-[#667a75] hover:bg-white/70 hover:text-[#165746]"
                       }`}
                     >
                       🇺🇸 English
@@ -1024,10 +1075,10 @@ function JournalContent() {
                     return (
                       <div
                         key={q.id}
-                        className={`group relative flex flex-col justify-between rounded-2xl border bg-white p-3.5 shadow-2xs transition-all duration-150 ${
+                        className={`group relative flex flex-col justify-between rounded-2xl border bg-white p-4 transition-colors duration-150 ${
                           isRecordingThis
                             ? "border-rose-400 ring-2 ring-rose-100"
-                            : "border-gray-200 focus-within:border-[#1f6f5b] focus-within:ring-2 focus-within:ring-[#1f6f5b]/10"
+                            : "border-[#dcebe7] focus-within:border-[#1f6f5b] focus-within:ring-2 focus-within:ring-[#1f6f5b]/10"
                         }`}
                       >
                         <div className="flex items-start justify-between gap-2">
@@ -1038,7 +1089,7 @@ function JournalContent() {
                             <button
                               type="button"
                               onClick={() => handleRemoveQuestion(q.id)}
-                              className="text-gray-400 hover:text-rose-600 transition-colors p-0.5"
+                            className="inline-flex size-9 items-center justify-center rounded-full text-[#7a8984] transition-colors hover:bg-rose-50 hover:text-rose-600 focus-visible:outline-2 focus-visible:outline-[#1f6f5b]"
                               title={km ? "លុបសំណួរនេះ" : "Remove question"}
                             >
                               <X size={15} />
@@ -1052,7 +1103,7 @@ function JournalContent() {
                             value={q.answer}
                             onChange={(e) => handleQuestionAnswerChange(q.id, e.target.value)}
                             placeholder={km ? q.placeholderKm : q.placeholderEn}
-                            className="h-10 w-full rounded-xl border border-gray-100 bg-[#f9fbfb] pl-3 pr-10 text-xs sm:text-sm text-[#111827] outline-none transition-all placeholder:text-gray-400 focus:bg-white focus:border-[#1f6f5b]/40"
+                            className="h-11 w-full rounded-xl border border-[#e3ece8] bg-[#f7faf9] pl-3 pr-11 text-sm text-[#14221f] outline-none transition-colors placeholder:text-[#81918b] focus:border-[#1f6f5b] focus:bg-white focus:ring-2 focus:ring-[#1f6f5b]/10"
                           />
                           <button
                             type="button"
@@ -1062,10 +1113,10 @@ function JournalContent() {
                                 ? (km ? "បញ្ឈប់ការថតសំឡេង" : "Stop recording")
                                 : (km ? "កត់ត្រាជាសំឡេងសម្រាប់សំណួរនេះ" : "Speak answer for this question")
                             }
-                            className={`absolute right-1 flex size-8 items-center justify-center rounded-lg transition-all ${
+                            className={`absolute right-1 flex size-10 items-center justify-center rounded-xl transition-colors focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[#1f6f5b] ${
                               isRecordingThis
-                                ? "bg-rose-500 text-white shadow-sm ring-2 ring-rose-200 animate-pulse"
-                                : "text-[#1f6f5b] hover:bg-[#dff3ee] active:scale-95"
+                                ? "bg-rose-500 text-white ring-2 ring-rose-200 animate-pulse"
+                                : "text-[#1f6f5b] hover:bg-[#e0f3ee] active:scale-95"
                             }`}
                           >
                             {isRecordingThis ? <MicOff size={15} /> : <Mic size={15} />}
@@ -1098,7 +1149,7 @@ function JournalContent() {
                   <button
                     type="button"
                     onClick={() => setShowAddQuestionModal((prev) => !prev)}
-                    className="inline-flex items-center gap-1.5 rounded-xl border border-dashed border-[#1f6f5b]/40 bg-white px-3.5 py-2 text-xs font-semibold text-[#1f6f5b] shadow-2xs transition-all hover:border-[#1f6f5b] hover:bg-[#dff3ee]/30 active:scale-98"
+                    className="inline-flex min-h-11 items-center gap-1.5 rounded-xl border border-dashed border-[#9bbdb1] bg-white px-3.5 py-2 text-xs font-semibold text-[#165746] transition-colors hover:border-[#1f6f5b] hover:bg-[#f0f8f6] active:scale-[0.99] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1f6f5b]"
                   >
                     <Plus size={15} />
                     <span>{km ? "បន្ថែមសំណួរឆ្លុះបញ្ចាំង (Add Question)" : "Add a Question"}</span>
@@ -1106,15 +1157,15 @@ function JournalContent() {
 
                   {/* Add Question Popover / Presets */}
                   {showAddQuestionModal && (
-                    <div className="mt-3 rounded-2xl border border-emerald-100 bg-[#f4faf8] p-4 shadow-sm animate-in fade-in duration-150">
+                    <div className="mt-3 rounded-2xl border border-[#dcebe7] bg-[#f0f8f6] p-4 animate-in fade-in duration-150">
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-[#1f6f5b]">
+                            <span className="text-xs font-bold text-[#165746]">
                           {km ? "ជ្រើសរើសសំណួរគំរូ ឬសរសេរសំណួរផ្ទាល់ខ្លួន" : "Pick a prompt or write custom question"}
                         </span>
                         <button
                           type="button"
                           onClick={() => setShowAddQuestionModal(false)}
-                          className="text-gray-400 hover:text-gray-700"
+                            className="inline-flex size-9 items-center justify-center rounded-full text-[#7a8984] transition-colors hover:bg-white hover:text-[#34443f] focus-visible:outline-2 focus-visible:outline-[#1f6f5b]"
                         >
                           <X size={15} />
                         </button>
@@ -1127,7 +1178,7 @@ function JournalContent() {
                             key={preset.id}
                             type="button"
                             onClick={() => handleAddPresetQuestion(preset)}
-                            className="inline-flex items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-[#374151] hover:border-[#1f6f5b] hover:text-[#1f6f5b] hover:bg-[#dff3ee]/20 transition-all shadow-2xs"
+                            className="inline-flex min-h-10 items-center gap-1.5 rounded-xl border border-[#dcebe7] bg-white px-3 py-1.5 text-xs font-medium text-[#34443f] transition-colors hover:border-[#a9c9bd] hover:bg-[#f0f8f6] hover:text-[#165746] focus-visible:outline-2 focus-visible:outline-[#1f6f5b]"
                           >
                             <Plus size={13} className="text-[#1f6f5b]" />
                             <span>{km ? preset.labelKm : preset.labelEn}</span>
@@ -1148,13 +1199,13 @@ function JournalContent() {
                             }
                           }}
                           placeholder={km ? "សរសេរសំណួរផ្ទាល់ខ្លួនរបស់អ្នកនៅទីនេះ..." : "Write your custom question..."}
-                          className="h-9 flex-1 rounded-xl border border-gray-200 bg-white px-3 text-xs text-[#111827] outline-none focus:border-[#1f6f5b]"
+                          className="h-11 flex-1 rounded-xl border border-[#dcebe7] bg-white px-3 text-sm text-[#14221f] outline-none placeholder:text-[#81918b] focus:border-[#1f6f5b] focus:ring-2 focus:ring-[#1f6f5b]/10"
                         />
                         <button
                           type="button"
                           onClick={handleAddCustomQuestion}
                           disabled={!customQuestionInput.trim()}
-                          className="rounded-xl bg-[#1f6f5b] px-3.5 text-xs font-semibold text-white hover:bg-[#185848] disabled:opacity-50 transition-colors"
+                          className="min-h-11 rounded-xl bg-[#1f6f5b] px-4 text-xs font-semibold text-white transition-colors hover:bg-[#165746] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1f6f5b] disabled:opacity-50"
                         >
                           {km ? "បញ្ចូល (Add)" : "Add"}
                         </button>
@@ -1166,10 +1217,10 @@ function JournalContent() {
                 {/* Additional Notes Textarea */}
                 <div className="mt-5">
                   <div
-                    className={`relative rounded-2xl border bg-white p-3.5 shadow-2xs transition-all ${
+                    className={`relative rounded-2xl border bg-white p-4 transition-colors ${
                       recordingFieldId === "additional_notes"
                         ? "border-red-400 ring-2 ring-red-100"
-                        : "border-gray-200 focus-within:border-[#1f6f5b] focus-within:ring-2 focus-within:ring-[#1f6f5b]/10"
+                        : "border-[#dcebe7] focus-within:border-[#1f6f5b] focus-within:ring-2 focus-within:ring-[#1f6f5b]/10"
                     }`}
                   >
                     <textarea
@@ -1177,9 +1228,9 @@ function JournalContent() {
                       value={additionalNotes}
                       onChange={(e) => setAdditionalNotes(e.target.value)}
                       placeholder={km ? "សរសេរកំណត់ហេតុបន្ថែមនៅទីនេះ..." : "Write additional notes here..."}
-                      className="w-full resize-none bg-transparent text-xs sm:text-sm leading-relaxed text-[#111827] placeholder:text-gray-400 focus:outline-none"
+                      className="w-full resize-none bg-transparent text-sm leading-relaxed text-[#14221f] placeholder:text-[#81918b] focus:outline-none"
                     />
-                    <div className="flex items-center justify-between border-t border-gray-100 pt-2 text-xs text-gray-400">
+                    <div className="flex items-center justify-between border-t border-[#e7efec] pt-2 text-xs text-[#71827c]">
                       <span>
                         {recordingFieldId === "additional_notes" ? (
                           <span className="flex items-center gap-1.5 font-semibold text-rose-600 animate-in fade-in">
@@ -1206,19 +1257,19 @@ function JournalContent() {
                     <button
                       type="button"
                       onClick={() => handleToggleVoiceForField("additional_notes")}
-                      className={`flex w-full items-center justify-center gap-2.5 rounded-2xl border py-3.5 px-4 font-medium shadow-sm transition-all duration-150 active:scale-[0.99] ${
+                      className={`flex min-h-12 w-full items-center justify-center gap-2.5 rounded-2xl border px-4 py-3.5 font-medium transition-colors duration-150 active:scale-[0.99] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1f6f5b] ${
                         recordingFieldId === "additional_notes"
-                          ? "border-rose-400 bg-rose-50 text-rose-700 shadow-rose-100"
-                          : "border-gray-200 bg-white text-[#111827] hover:bg-gray-50 hover:border-gray-300"
+                          ? "border-rose-300 bg-rose-50 text-rose-700"
+                          : "border-[#dcebe7] bg-white text-[#14221f] hover:border-[#a9c9bd] hover:bg-[#f0f8f6]"
                       }`}
                     >
                       {recordingFieldId === "additional_notes" ? (
                         <>
                           <span className="flex items-center gap-1">
-                            <span className="w-1 h-3.5 bg-rose-600 rounded-full animate-bounce [animation-delay:0ms]" />
-                            <span className="w-1 h-5 bg-rose-600 rounded-full animate-bounce [animation-delay:150ms]" />
-                            <span className="w-1 h-4 bg-rose-600 rounded-full animate-bounce [animation-delay:300ms]" />
-                            <span className="w-1 h-2 bg-rose-600 rounded-full animate-bounce [animation-delay:450ms]" />
+                            <span className="w-1 h-3.5 bg-rose-600 rounded-full animate-pulse [animation-delay:0ms]" />
+                            <span className="w-1 h-5 bg-rose-600 rounded-full animate-pulse [animation-delay:150ms]" />
+                            <span className="w-1 h-4 bg-rose-600 rounded-full animate-pulse [animation-delay:300ms]" />
+                            <span className="w-1 h-2 bg-rose-600 rounded-full animate-pulse [animation-delay:450ms]" />
                           </span>
                           <MicOff size={18} className="text-rose-600" />
                           <span className="text-sm font-semibold text-rose-700">
@@ -1262,8 +1313,8 @@ function JournalContent() {
               )}
 
               {/* Section 5: Security / Privacy Note */}
-              <div className="mt-4 flex items-center justify-center gap-1.5 text-xs text-[#6b7280]">
-                <ShieldCheck size={14} className="text-emerald-600" />
+              <div className="mt-4 flex items-center justify-center gap-2 text-[13px] text-[#667a75]">
+                  <ShieldCheck size={16} className="shrink-0 text-[#23aa89]" />
                 <span>
                   {km
                     ? "កំណត់ត្រាផ្ទាល់ខ្លួនរបស់អ្នកត្រូវបានរក្សាទុកដោយសុវត្ថិភាព និងជាឯកជនភាព។"
@@ -1276,7 +1327,7 @@ function JournalContent() {
                 <button
                   type="button"
                   onClick={handleSave}
-                  className="w-full rounded-2xl bg-[#1f6f5b] py-4 text-center text-base font-semibold text-white shadow-[0_4px_16px_rgba(31,111,91,0.28)] transition-all duration-150 hover:bg-[#185848] active:scale-[0.99] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1f6f5b]"
+                  className="min-h-14 w-full rounded-xl bg-[#1f6f5b] py-4 text-center text-base font-semibold text-white shadow-[0_3px_10px_rgba(31,111,91,0.16)] transition-colors duration-150 hover:bg-[#165746] active:scale-[0.99] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1f6f5b]"
                 >
                   {km ? "រក្សាទុកកំណត់ត្រា (Save Journal)" : "Save Journal"}
                 </button>

@@ -166,7 +166,7 @@ export async function listProfessionals() {
     supabase
       .from("professional_profiles")
       .select(
-        "id, display_name, display_name_km, title, title_km, bio, bio_km, photo_url, specialties, languages, years_experience, session_types, verification_status, created_at, profiles(account_status, suspended_reason), professional_credentials(license_number, issuing_body, submitted_at), professional_contacts(phone, telegram), professional_profile_changes(field, old_value, new_value, status)",
+        "id, display_name, display_name_km, title, title_km, bio, bio_km, photo_url, specialties, languages, years_experience, session_types, verification_status, created_at, profiles!professional_profiles_id_fkey(account_status, suspended_reason), professional_credentials(license_number, issuing_body, submitted_at), professional_contacts(phone, telegram), professional_profile_changes(field, old_value, new_value, status)",
       )
       .order("created_at", { ascending: false })
       .limit(1000)
