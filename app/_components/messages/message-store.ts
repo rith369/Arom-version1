@@ -1,12 +1,27 @@
 'use client';
 
-import { useSyncExternalStore } from 'react';
+import { useEffect, useSyncExternalStore } from 'react';
+import {
+  MAX_TEXT,
+  MAX_VOICE_SECONDS,
+  conversationKey,
+  type ApiMessage,
+  type ConversationSummary,
+  type ConversationsResponse,
+  type ReplyTime,
+  type SendResponse,
+  type Sender,
+  type ThreadResponse,
+} from '@/lib/messages';
 
 // Private messages between one client and one professional, only after the
-// client has booked with them. Admins cannot read these. Mock store: kept in
-// memory only (never in browser storage), so it resets on refresh.
+// client has booked with them. Admins cannot read these. Conversations and
+// messages come from the API (BACKEND-HANDOFF.md section 17) and are checked
+// again every few seconds while a page is open. Session suggestions and
+// quick replies are still kept in memory only (section 19).
 
-export type Sender = 'client' | 'professional';
+export { MAX_TEXT, MAX_VOICE_SECONDS };
+export type { ConversationSummary, ReplyTime, Sender };
 
 export type ChatMessage = {
   id: string;
@@ -15,7 +30,7 @@ export type ChatMessage = {
   // suggestion: times for the next session (see sessions/session-store.ts).
   kind: 'text' | 'voice' | 'suggestion';
   text: string;
-  // Voice only. Empty for sample voice messages that have no audio.
+  // Voice only.
   audioUrl: string;
   durationSeconds: number;
   suggestionId: string;
@@ -30,83 +45,42 @@ export const MAX_QUICK_REPLY = 500;
 
 export type Conversation = {
   id: string; // `${professionalId}:${clientId}`
-  professionalId: string;
+  professionalId: string; // slug
   professionalName: string;
   kmProfessionalName: string;
   clientId: string;
   clientName: string;
 };
 
-export type ReplyTime = 'few_hours' | 'one_day' | 'two_days';
+type ListState = { status: 'loading' | 'ready' | 'error'; conversations: ConversationSummary[] };
 
 type State = {
-  conversations: Conversation[];
-  messages: ChatMessage[];
+  // One list per side, so a professional can also use /messages as a client.
+  lists: Record<Sender, ListState>;
+  threads: Record<string, ChatMessage[]>;
+  // Suggestion messages, until section 19 is connected.
+  localMessages: ChatMessage[];
   replyTimes: Record<string, ReplyTime>;
   quickReplies: Record<string, QuickReply[]>;
 };
 
-export const MAX_VOICE_SECONDS = 120;
-export const MAX_TEXT = 2000;
+export const conversationId = conversationKey;
 
-export const conversationId = (professionalId: string, clientId: string) => `${professionalId}:${clientId}`;
+const DEFAULT_QUICK_REPLIES: QuickReply[] = [
+  { id: 'qr1', text: 'Thank you for your message, {name}. I will reply properly before our next session.' },
+  { id: 'qr2', text: 'I am running 5 minutes late. Please stay in the meeting room, I am coming.' },
+  { id: 'qr3', text: 'Here is the link for our session: {link}' },
+  { id: 'qr4', text: 'See you on {next}. Take care until then.' },
+  { id: 'qr5', text: 'សូមអរគុណសម្រាប់សាររបស់អ្នក {name}។ ខ្ញុំនឹងឆ្លើយតបមុនវគ្គបន្ទាប់របស់យើង។' },
+];
 
-const SOPHEAP = { professionalId: 'sopheap-chan', professionalName: 'Dr. Sopheap Chan', kmProfessionalName: 'វេជ្ជបណ្ឌិត ចាន់ សុភាព' };
-
-function seed(): State {
-  const dara = conversationId('sopheap-chan', 'demo-user-001');
-  const rachana = conversationId('sopheap-chan', 'demo-user-005');
-  const message = (id: string, convo: string, sender: Sender, createdAt: string, text: string, read = true): ChatMessage => ({
-    id,
-    conversationId: convo,
-    sender,
-    kind: 'text',
-    text,
-    audioUrl: '',
-    durationSeconds: 0,
-    suggestionId: '',
-    createdAt,
-    readAt: read ? createdAt : null,
-  });
-
-  return {
-    conversations: [
-      { id: dara, ...SOPHEAP, clientId: 'demo-user-001', clientName: 'Sok Dara' },
-      { id: rachana, ...SOPHEAP, clientId: 'demo-user-005', clientName: 'Heng Rachana' },
-    ],
-    messages: [
-      message('m1', dara, 'professional', '2026-10-12T05:10:00Z', 'Thank you for today, Dara. As we discussed, try the 4 7 8 breathing before bed this week.'),
-      message('m2', dara, 'client', '2026-10-12T13:42:00Z', 'Thank you! I tried it last night and fell asleep a bit faster.'),
-      {
-        id: 'm3',
-        conversationId: dara,
-        sender: 'client',
-        kind: 'voice',
-        text: '',
-        audioUrl: '',
-        durationSeconds: 34,
-        suggestionId: '',
-        createdAt: '2026-10-13T01:05:00Z',
-        readAt: null,
-      },
-      message('m4', dara, 'client', '2026-10-13T01:06:00Z', 'Sorry, easier to say it in Khmer. Can we talk about work stress on Friday?', false),
-      message('m5', rachana, 'client', '2026-10-11T10:20:00Z', 'Is it okay if my camera is off at the start of our session?'),
-      message('m6', rachana, 'professional', '2026-10-11T11:02:00Z', 'Of course. Turn it on only when you feel ready.'),
-    ],
-    replyTimes: { 'sopheap-chan': 'one_day' },
-    quickReplies: {
-      'sopheap-chan': [
-        { id: 'qr1', text: 'Thank you for your message, {name}. I will reply properly before our next session.' },
-        { id: 'qr2', text: 'I am running 5 minutes late. Please stay in the meeting room, I am coming.' },
-        { id: 'qr3', text: 'Here is the link for our session: {link}' },
-        { id: 'qr4', text: 'See you on {next}. Take care until then.' },
-        { id: 'qr5', text: 'សូមអរគុណសម្រាប់សាររបស់អ្នក {name}។ ខ្ញុំនឹងឆ្លើយតបមុនវគ្គបន្ទាប់របស់យើង។' },
-      ],
-    },
-  };
-}
-
-const initial = seed();
+const initial: State = {
+  lists: { client: { status: 'loading', conversations: [] }, professional: { status: 'loading', conversations: [] } },
+  threads: {},
+  localMessages: [],
+  replyTimes: {},
+  quickReplies: {},
+};
 let state: State = initial;
 const listeners = new Set<() => void>();
 
@@ -124,55 +98,209 @@ export function useMessageStore() {
   return useSyncExternalStore(subscribe, () => state, () => initial);
 }
 
-function ensureConversation(conversation: Conversation) {
-  if (state.conversations.some((item) => item.id === conversation.id)) return state.conversations;
-  return [...state.conversations, conversation];
+// ---------------------------------------------------------------------------
+// API
+// ---------------------------------------------------------------------------
+
+const threadUrl = (conversation: Pick<Conversation, 'professionalId' | 'clientId'>, viewer: Sender) =>
+  viewer === 'client'
+    ? `/api/messages/${encodeURIComponent(conversation.professionalId)}`
+    : `/api/pro/messages/${encodeURIComponent(conversation.clientId)}`;
+
+async function getJson<T>(url: string, init?: RequestInit): Promise<{ ok: true; data: T } | { ok: false; status: number }> {
+  try {
+    const response = await fetch(url, { cache: 'no-store', ...init });
+    if (!response.ok) return { ok: false, status: response.status };
+    return { ok: true, data: (await response.json()) as T };
+  } catch {
+    return { ok: false, status: 0 };
+  }
 }
 
-export function sendMessage(
+function toChatMessage(message: ApiMessage, key: string): ChatMessage {
+  return { ...message, conversationId: key, suggestionId: '' };
+}
+
+function withReplyTimes(conversations: ConversationSummary[]) {
+  const replyTimes = { ...state.replyTimes };
+  for (const item of conversations) replyTimes[item.professionalId] = item.replyTime;
+  return replyTimes;
+}
+
+function replaceSummary(viewer: Sender, summary: ConversationSummary): Record<Sender, ListState> {
+  const list = state.lists[viewer];
+  const exists = list.conversations.some((item) => item.key === summary.key);
+  return {
+    ...state.lists,
+    [viewer]: {
+      ...list,
+      conversations: exists
+        ? list.conversations.map((item) => (item.key === summary.key ? summary : item))
+        : [...list.conversations, summary],
+    },
+  };
+}
+
+export async function loadConversations(viewer: Sender) {
+  const result = await getJson<ConversationsResponse>(viewer === 'client' ? '/api/messages' : '/api/pro/messages');
+  if (!result.ok) {
+    // Keep what is already shown if a later refresh fails.
+    if (state.lists[viewer].status !== 'ready') {
+      setState({ ...state, lists: { ...state.lists, [viewer]: { status: 'error', conversations: [] } } });
+    }
+    return;
+  }
+  const conversations = result.data.conversations;
+  setState({
+    ...state,
+    lists: { ...state.lists, [viewer]: { status: 'ready', conversations } },
+    replyTimes: withReplyTimes(conversations),
+  });
+}
+
+export async function loadThread(conversation: Conversation, viewer: Sender) {
+  const result = await getJson<ThreadResponse>(threadUrl(conversation, viewer));
+  if (!result.ok) return;
+  const { conversation: summary, messages } = result.data;
+  setState({
+    ...state,
+    lists: replaceSummary(viewer, summary),
+    threads: { ...state.threads, [summary.key]: messages.map((item) => toChatMessage(item, summary.key)) },
+    replyTimes: withReplyTimes([summary]),
+  });
+}
+
+/** Loads the conversation list for one side and checks it again every 30 seconds. */
+export function useConversations(viewer: Sender) {
+  const store = useMessageStore();
+  useEffect(() => {
+    void loadConversations(viewer);
+    const id = window.setInterval(() => {
+      if (document.visibilityState === 'visible') void loadConversations(viewer);
+    }, 30_000);
+    return () => window.clearInterval(id);
+  }, [viewer]);
+  return store.lists[viewer];
+}
+
+/** Loads one thread and checks it again every 10 seconds while it is open. */
+export function useThread(conversation: Conversation | undefined, viewer: Sender) {
+  const store = useMessageStore();
+  const professionalId = conversation?.professionalId;
+  const clientId = conversation?.clientId;
+  useEffect(() => {
+    if (!professionalId || !clientId) return;
+    const target = { id: conversationKey(professionalId, clientId), professionalId, clientId, professionalName: '', kmProfessionalName: '', clientName: '' };
+    void loadThread(target, viewer);
+    const id = window.setInterval(() => {
+      if (document.visibilityState === 'visible') void loadThread(target, viewer);
+    }, 10_000);
+    return () => window.clearInterval(id);
+  }, [professionalId, clientId, viewer]);
+
+  if (!conversation) return { loaded: false, messages: [] as ChatMessage[], summary: undefined };
+  const loaded = conversation.id in store.threads;
+  const messages = [
+    ...(store.threads[conversation.id] ?? []),
+    ...store.localMessages.filter((item) => item.conversationId === conversation.id),
+  ].sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+  const summary = store.lists[viewer].conversations.find((item) => item.key === conversation.id);
+  return { loaded, messages, summary };
+}
+
+export type SendResult = { ok: true } | { ok: false; reason: 'not_allowed' | 'closed' | 'failed' };
+
+function sendFailure(status: number): SendResult {
+  return { ok: false, reason: status === 403 ? 'not_allowed' : status === 409 ? 'closed' : 'failed' };
+}
+
+export async function sendMessage(
   conversation: Conversation,
   sender: Sender,
   content:
     | { kind: 'text'; text: string }
-    | { kind: 'voice'; audioUrl: string; durationSeconds: number }
+    | { kind: 'voice'; audio: Blob; durationSeconds: number }
     | { kind: 'suggestion'; suggestionId: string },
-) {
-  const now = new Date().toISOString();
-  setState({
-    ...state,
-    conversations: ensureConversation(conversation),
-    messages: [
-      ...state.messages,
-      {
-        id: crypto.randomUUID(),
-        conversationId: conversation.id,
-        sender,
-        kind: content.kind,
-        text: content.kind === 'text' ? content.text.slice(0, MAX_TEXT) : '',
-        audioUrl: content.kind === 'voice' ? content.audioUrl : '',
-        durationSeconds: content.kind === 'voice' ? content.durationSeconds : 0,
-        suggestionId: content.kind === 'suggestion' ? content.suggestionId : '',
-        createdAt: now,
-        readAt: null,
-      },
-    ],
-  });
+): Promise<SendResult> {
+  if (content.kind === 'suggestion') {
+    const now = new Date().toISOString();
+    setState({
+      ...state,
+      localMessages: [
+        ...state.localMessages,
+        {
+          id: crypto.randomUUID(),
+          conversationId: conversation.id,
+          sender,
+          kind: 'suggestion',
+          text: '',
+          audioUrl: '',
+          durationSeconds: 0,
+          suggestionId: content.suggestionId,
+          createdAt: now,
+          readAt: null,
+        },
+      ],
+    });
+    return { ok: true };
+  }
+
+  let init: RequestInit;
+  if (content.kind === 'text') {
+    init = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ kind: 'text', text: content.text.slice(0, MAX_TEXT) }),
+    };
+  } else {
+    const body = new FormData();
+    body.set('audio', content.audio, 'voice');
+    body.set('durationSeconds', String(Math.min(MAX_VOICE_SECONDS, Math.max(1, Math.round(content.durationSeconds)))));
+    init = { method: 'POST', body };
+  }
+
+  const result = await getJson<SendResponse>(threadUrl(conversation, sender), init);
+  if (!result.ok) return sendFailure(result.status);
+
+  const message = toChatMessage(result.data.message, conversation.id);
+  setState({ ...state, threads: { ...state.threads, [conversation.id]: [...(state.threads[conversation.id] ?? []), message] } });
+  void loadConversations(sender);
+  return { ok: true };
 }
 
 // Marks the other person's messages as read when the viewer opens the chat.
-export function markRead(id: string, viewer: Sender) {
+export function markRead(conversation: Conversation, viewer: Sender) {
+  const thread = state.threads[conversation.id] ?? [];
+  if (!thread.some((item) => item.sender !== viewer && !item.readAt)) return;
   const now = new Date().toISOString();
-  if (!state.messages.some((item) => item.conversationId === id && item.sender !== viewer && !item.readAt)) return;
+  const list = state.lists[viewer];
   setState({
     ...state,
-    messages: state.messages.map((item) =>
-      item.conversationId === id && item.sender !== viewer && !item.readAt ? { ...item, readAt: now } : item,
-    ),
+    threads: {
+      ...state.threads,
+      [conversation.id]: thread.map((item) => (item.sender !== viewer && !item.readAt ? { ...item, readAt: now } : item)),
+    },
+    lists: {
+      ...state.lists,
+      [viewer]: { ...list, conversations: list.conversations.map((item) => (item.key === conversation.id ? { ...item, unread: 0 } : item)) },
+    },
   });
+  void getJson(`${threadUrl(conversation, viewer)}/read`, { method: 'POST' });
 }
 
-export function setReplyTime(professionalId: string, value: ReplyTime) {
+export async function setReplyTime(professionalId: string, value: ReplyTime) {
+  const previous = state.replyTimes[professionalId];
   setState({ ...state, replyTimes: { ...state.replyTimes, [professionalId]: value } });
+  const result = await getJson('/api/pro/messages', {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ replyTime: value }),
+  });
+  if (!result.ok && previous) setState({ ...state, replyTimes: { ...state.replyTimes, [professionalId]: previous } });
+}
+
+export function quickRepliesFor(store: State, professionalId: string) {
+  return store.quickReplies[professionalId] ?? DEFAULT_QUICK_REPLIES;
 }
 
 export function saveQuickReplies(professionalId: string, replies: QuickReply[]) {
@@ -190,8 +318,9 @@ export function fillQuickReply(text: string, values: { name: string; link: strin
   return text.replaceAll('{name}', values.name).replaceAll('{link}', values.link).replaceAll('{next}', values.next);
 }
 
-export function unreadCount(messages: ChatMessage[], id: string, viewer: Sender) {
-  return messages.filter((item) => item.conversationId === id && item.sender !== viewer && !item.readAt).length;
+/** Unread messages from the other person in one conversation. */
+export function unreadCount(list: ListState, id: string) {
+  return list.conversations.find((item) => item.key === id)?.unread ?? 0;
 }
 
 export const REPLY_TIME_LABELS: Record<ReplyTime, { en: string; km: string }> = {

@@ -10,11 +10,14 @@ import {
   MAX_VOICE_SECONDS,
   fillQuickReply,
   markRead,
+  quickRepliesFor,
   saveQuickReplies,
   sendMessage,
   useMessageStore,
+  useThread,
   type ChatMessage,
   type Conversation,
+  type SendResult,
   type Sender,
 } from "./message-store";
 
@@ -80,7 +83,7 @@ function VoiceBubble({ message, mine, km }: { message: ChatMessage; mine: boolea
 type RecorderState =
   | { phase: "idle" }
   | { phase: "recording"; seconds: number }
-  | { phase: "preview"; url: string; seconds: number };
+  | { phase: "preview"; url: string; blob: Blob; seconds: number };
 
 export function ChatThread({
   conversation,
@@ -97,19 +100,29 @@ export function ChatThread({
   // Professionals only: turns on saved quick replies and fills {name}, {link}, {next}.
   quickReplyValues?: { name: string; link: string; next: string };
 }) {
-  const { messages, quickReplies } = useMessageStore();
-  const replies = quickReplies[conversation.professionalId] ?? [];
+  const store = useMessageStore();
+  const { loaded, messages: thread, summary } = useThread(conversation, viewer);
+  const replies = quickRepliesFor(store, conversation.professionalId);
   const [repliesOpen, setRepliesOpen] = useState(false);
   const [managing, setManaging] = useState(false);
   const [newReply, setNewReply] = useState("");
   const t = (kmText: string, enText: string) => (km ? kmText : enText);
-  const thread = messages
-    .filter((item) => item.conversationId === conversation.id)
-    .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+  // Read only when the parent says so, when the professional archived the
+  // client, or when there is no booked or completed session.
+  const lockedNote =
+    closedNote ??
+    (summary && !summary.canWrite
+      ? summary.closed
+        ? t("ការសន្ទនានេះត្រូវបានបិទ។ សារត្រូវបានរក្សាទុក។", "This conversation is closed. Messages are kept.")
+        : viewer === "client"
+          ? t("អ្នកអាចផ្ញើសារម្តងទៀត បន្ទាប់ពីអ្នកកក់វគ្គ។", "You can send messages again after you book a session.")
+          : t("អ្នកអាចផ្ញើសារទៅអតិថិជននេះម្តងទៀត បន្ទាប់ពីពួកគេកក់វគ្គជាមួយអ្នក។", "You can message this client again after they book a session with you.")
+      : undefined);
 
   const [text, setText] = useState("");
   const [recorder, setRecorder] = useState<RecorderState>({ phase: "idle" });
   const [error, setError] = useState("");
+  const [sending, setSending] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
   const mediaRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
@@ -118,7 +131,9 @@ export function ChatThread({
   const cancelledRef = useRef(false);
 
   useEffect(() => {
-    markRead(conversation.id, viewer);
+    markRead(conversation, viewer);
+    // The conversation object is rebuilt on every render; its id is enough.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [conversation.id, viewer, thread.length]);
 
   useEffect(() => {
@@ -134,17 +149,41 @@ export function ChatThread({
     [],
   );
 
-  function sendText() {
+  function failureText(result: Exclude<SendResult, { ok: true }>) {
+    if (result.reason === "closed") return t("ការសន្ទនានេះត្រូវបានបិទ។", "This conversation is closed.");
+    if (result.reason === "not_allowed") return t("អ្នកអាចផ្ញើសារបាន បន្ទាប់ពីមានវគ្គដែលបានកក់។", "You can send messages after a booked session.");
+    return t("មិនអាចផ្ញើសាររបស់អ្នកបានទេ។ សូមព្យាយាមម្តងទៀត។", "Your message could not be sent. Please try again.");
+  }
+
+  async function sendText() {
     const value = text.trim();
-    if (!value) return;
-    sendMessage(conversation, viewer, { kind: "text", text: value });
-    setText("");
+    if (!value || sending) return;
+    setSending(true);
+    setError("");
+    const result = await sendMessage(conversation, viewer, { kind: "text", text: value });
+    setSending(false);
+    if (result.ok) setText("");
+    else setError(failureText(result));
+  }
+
+  async function sendVoice(blob: Blob, seconds: number, url: string) {
+    if (sending) return;
+    setSending(true);
+    setError("");
+    const result = await sendMessage(conversation, viewer, { kind: "voice", audio: blob, durationSeconds: seconds });
+    setSending(false);
+    if (result.ok) {
+      URL.revokeObjectURL(url);
+      setRecorder({ phase: "idle" });
+    } else {
+      setError(failureText(result));
+    }
   }
 
   function onKeyDown(event: KeyboardEvent<HTMLTextAreaElement>) {
     if (event.key === "Enter" && !event.shiftKey) {
       event.preventDefault();
-      sendText();
+      void sendText();
     }
   }
 
@@ -177,7 +216,7 @@ export function ChatThread({
           return;
         }
         const blob = new Blob(chunksRef.current, { type: media.mimeType || "audio/webm" });
-        setRecorder({ phase: "preview", url: URL.createObjectURL(blob), seconds: Math.max(1, secondsRef.current) });
+        setRecorder({ phase: "preview", url: URL.createObjectURL(blob), blob, seconds: Math.max(1, secondsRef.current) });
       };
       mediaRef.current = media;
       media.start();
@@ -203,7 +242,12 @@ export function ChatThread({
   return (
     <div className="flex h-full min-h-0 flex-col">
       <div className="min-h-0 flex-1 space-y-2 overflow-y-auto px-4 py-4 sm:px-6">
-        {thread.length === 0 && (
+        {!loaded && (
+          <p role="status" className="py-10 text-center text-sm text-ink-muted">
+            {t("កំពុងផ្ទុក...", "Loading...")}
+          </p>
+        )}
+        {loaded && thread.length === 0 && (
           <p className="py-10 text-center text-sm text-ink-muted">
             {t("មិនទាន់មានសារទេ។ ចាប់ផ្តើមការសន្ទនា។", "No messages yet. Start the conversation.")}
           </p>
@@ -219,7 +263,7 @@ export function ChatThread({
               <div className={`flex ${mine ? "justify-end" : "justify-start"}`}>
                 {message.kind === "suggestion" ? (
                   <div className="w-full max-w-sm">
-                    <SuggestionCard suggestionId={message.suggestionId} viewer={viewer} km={km} readOnly={Boolean(closedNote)} />
+                    <SuggestionCard suggestionId={message.suggestionId} viewer={viewer} km={km} readOnly={Boolean(lockedNote)} />
                     <p className={`mt-1 text-[0.68rem] text-ink-muted ${mine ? "text-right" : ""}`}>{timeLabel(message.createdAt)}</p>
                   </div>
                 ) : (
@@ -246,8 +290,8 @@ export function ChatThread({
         <div ref={endRef} />
       </div>
 
-      {closedNote ? (
-        <p className="border-t border-arom-border bg-arom-wash/70 px-5 py-4 text-center text-sm text-ink-muted">{closedNote}</p>
+      {lockedNote ? (
+        <p className="border-t border-arom-border bg-arom-wash/70 px-5 py-4 text-center text-sm text-ink-muted">{lockedNote}</p>
       ) : (
         <div className="border-t border-arom-border bg-white px-3 py-3 sm:px-4">
           {error && (
@@ -288,11 +332,9 @@ export function ChatThread({
               </button>
               <button
                 type="button"
-                onClick={() => {
-                  sendMessage(conversation, viewer, { kind: "voice", audioUrl: recorder.url, durationSeconds: recorder.seconds });
-                  setRecorder({ phase: "idle" });
-                }}
-                className="flex items-center gap-1.5 rounded-full bg-arom px-4 py-2 text-sm font-semibold text-white hover:bg-arom-deep"
+                onClick={() => void sendVoice(recorder.blob, recorder.seconds, recorder.url)}
+                disabled={sending}
+                className="flex items-center gap-1.5 rounded-full bg-arom px-4 py-2 text-sm font-semibold text-white hover:bg-arom-deep disabled:opacity-50"
               >
                 <Send size={15} aria-hidden="true" />
                 {t("ផ្ញើ", "Send")}
@@ -409,8 +451,8 @@ export function ChatThread({
               </button>
               <button
                 type="button"
-                onClick={sendText}
-                disabled={!text.trim()}
+                onClick={() => void sendText()}
+                disabled={!text.trim() || sending}
                 aria-label={t("ផ្ញើ", "Send")}
                 className="flex size-11 shrink-0 items-center justify-center rounded-full bg-arom text-white hover:bg-arom-deep disabled:opacity-40"
               >

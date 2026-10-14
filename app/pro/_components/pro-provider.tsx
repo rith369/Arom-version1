@@ -16,8 +16,8 @@ import type { ProBooking, SessionNote } from '../_data/bookings';
 import { useLanguage } from '../../_components/language-provider';
 
 // The signed in professional's own data, from /api/pro/me (BACKEND-HANDOFF.md
-// section 16). Profile, schedule, bookings and session notes are saved in the
-// database. Prep notes, client summary notes and archived clients are still
+// section 16). Profile, schedule, bookings, session notes and archived clients
+// are saved in the database. Prep notes and client summary notes are still
 // kept in memory only.
 
 export type ActionResult = { ok: true } | { ok: false; message: string };
@@ -58,8 +58,9 @@ type ProState = {
   // One pinned summary per client, private to the professional. Memory only.
   summaryNotes: Record<string, SessionNote>;
   saveSummaryNote: (clientId: string, text: string) => void;
+  // Archiving closes the conversation with that client (read only for both).
   archivedClients: string[];
-  setClientArchived: (clientId: string, archived: boolean) => void;
+  setClientArchived: (clientId: string, archived: boolean) => Promise<ActionResult>;
   freeDuringTesting: boolean;
   saveProfile: (next: ProProfile) => Promise<SaveResult>;
   withdrawChange: (field: ReviewedField) => Promise<void>;
@@ -118,7 +119,6 @@ export function ProProvider({ children }: { children: ReactNode }) {
   const [version, setVersion] = useState(0);
   const [prepNotes, setPrepNotes] = useState<Record<string, SessionNote>>({});
   const [summaryNotes, setSummaryNotes] = useState<Record<string, SessionNote>>({});
-  const [archivedClients, setArchivedClients] = useState<string[]>([]);
 
   const applyData = useCallback((next: ProData) => {
     setData(next);
@@ -232,6 +232,22 @@ export function ProProvider({ children }: { children: ReactNode }) {
     return { ok: true };
   }
 
+  async function setClientArchived(clientId: string, archived: boolean): Promise<ActionResult> {
+    const result = await request<{ archived: boolean }>(`/api/pro/clients/${clientId}`, jsonInit('POST', { archived }));
+    if (!result.ok) return result;
+    setData((current) =>
+      current
+        ? {
+            ...current,
+            archivedClients: archived
+              ? [...new Set([...current.archivedClients, clientId])]
+              : current.archivedClients.filter((id) => id !== clientId),
+          }
+        : current,
+    );
+    return { ok: true };
+  }
+
   async function withdrawChange(field: ReviewedField) {
     await request(`/api/pro/profile/changes?field=${field}`, { method: 'DELETE' });
     await load();
@@ -262,11 +278,8 @@ export function ProProvider({ children }: { children: ReactNode }) {
         summaryNotes,
         saveSummaryNote: (clientId, text) =>
           setSummaryNotes((current) => ({ ...current, [clientId]: { text, updatedAt: stamp() } })),
-        archivedClients,
-        setClientArchived: (clientId, archived) =>
-          setArchivedClients((current) =>
-            archived ? [...new Set([...current, clientId])] : current.filter((id) => id !== clientId),
-          ),
+        archivedClients: data.archivedClients,
+        setClientArchived,
         freeDuringTesting: FREE_DURING_TESTING,
         saveProfile,
         withdrawChange,
