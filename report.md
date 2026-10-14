@@ -1,4 +1,4 @@
-﻿# AROM: Change Report
+# AROM: Change Report
 
 A plain-language log of what changed in the app, written for the team rather than for developers. Newest entries first.
 
