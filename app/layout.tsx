@@ -21,7 +21,7 @@ const kantumruyPro = Kantumruy_Pro({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://arom.app"),
+  metadataBase: new URL("https://arom-version1.vercel.app"),
   title: {
     default: "AROM: Your wellness space",
     template: "%s · AROM",
