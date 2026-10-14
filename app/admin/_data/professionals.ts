@@ -13,7 +13,7 @@ export type ProfessionalCredential = {
 };
 
 // Changes to identity or license details wait for admin review before going live.
-export type ReviewedField = 'name' | 'role' | 'licenseNumber' | 'issuingBody';
+export type ReviewedField = 'name' | 'kmName' | 'role' | 'kmRole' | 'licenseNumber' | 'issuingBody';
 
 // How they became a professional: their own application, or promoted directly by an admin.
 export type ProfessionalSource = 'application' | 'admin';
@@ -47,6 +47,9 @@ export type Professional = {
   reviewNote: string;
   source: ProfessionalSource;
   joinedAt: string;
+  // The application that holds the license file. Opens through
+  // GET /api/admin/applications/<applicationId>/license (short lived link).
+  applicationId?: string;
 };
 
 const directoryProfessionals: Professional[] = therapists.map((item, index) => ({

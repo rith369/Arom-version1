@@ -1,7 +1,7 @@
 // Crisis helplines and AROM support contact shown to users in Profile and
-// Settings. Admins manage both in Admin, Settings. Mirrors the
-// crisis_resources table. Empty until the team adds real, checked numbers;
-// never put a number here that has not been verified.
+// Settings. Admins manage both in Admin, Settings. Helplines come from the
+// crisis_resources table (GET /api/crisis-resources); the support contact
+// is still a placeholder until it has its own table.
 
 export type CrisisHelpline = {
   id: string;
@@ -24,8 +24,6 @@ export type SupportContact = {
   hours: string;
   kmHours: string;
 };
-
-export const CRISIS_HELPLINES: CrisisHelpline[] = [];
 
 export const SUPPORT_CONTACT: SupportContact = {
   email: '',

@@ -42,7 +42,7 @@ function Card({ children, className = '' }: { children: React.ReactNode; classNa
 }
 
 export function ProHome() {
-  const { profile, pendingChanges, hasSchedule, freeDuringTesting, demoMode, bookings } = usePro();
+  const { profile, pendingChanges, hasSchedule, freeDuringTesting, listed, bookings } = usePro();
   const { language } = useLanguage();
   const km = language === 'km';
   const t = (kmText: string, enText: string) => (km ? kmText : enText);
@@ -51,7 +51,8 @@ export function ProHome() {
 
   const checklist = profileChecklist(profile, { hasSchedule });
   const remaining = checklist.filter((item) => !item.done);
-  const isVisible = remaining.length === 0;
+  // The database decides: verified, active, complete and with open times.
+  const isVisible = listed;
   const name = (km && profile.kmDisplayName) || profile.displayName;
 
   const todaySessions = bookings
@@ -70,12 +71,10 @@ export function ProHome() {
             <Eye size={13} aria-hidden="true" />
             {t('ប្រវត្តិរូបរបស់អ្នកកំពុងបង្ហាញ', 'Your profile is live')}
           </span>
-          {demoMode === 'established' && (
-            <Link href={`/professional/${profile.slug}`} className="inline-flex items-center gap-1 font-semibold text-arom hover:underline">
-              {t('មើលប្រវត្តិរូប', 'View profile')}
-              <ArrowRight size={14} aria-hidden="true" />
-            </Link>
-          )}
+          <Link href={`/professional/${profile.slug}`} className="inline-flex items-center gap-1 font-semibold text-arom hover:underline">
+            {t('មើលប្រវត្តិរូប', 'View profile')}
+            <ArrowRight size={14} aria-hidden="true" />
+          </Link>
         </p>
       ) : (
         <p className="mt-1 text-sm text-ink-muted">
@@ -111,7 +110,7 @@ export function ProHome() {
                         `Finish the ${remaining.length} step${remaining.length > 1 ? 's' : ''} below. Your profile appears to users as soon as it is complete.`,
                       )}
                 </p>
-                {isVisible && demoMode === 'established' && (
+                {isVisible && (
                   <Link href={`/professional/${profile.slug}`} className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-arom hover:underline">
                     {t('មើលប្រវត្តិរូបសាធារណៈ', 'View your public profile')}
                     <ArrowRight size={15} aria-hidden="true" />

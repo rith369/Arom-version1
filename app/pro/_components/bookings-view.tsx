@@ -11,7 +11,7 @@ import { WeekCalendar } from './week-calendar';
 import { cambodiaToday } from '../../_components/care/care-store';
 import { useLanguage } from '../../_components/language-provider';
 import { JoinButton } from '../../_components/sessions/join-button';
-import { seriesPosition, updateBooking } from '../../_components/sessions/session-store';
+import { seriesPosition } from '../../_components/sessions/session-store';
 import { MAX_NOTE, MAX_REASON, type ProBooking } from '../_data/bookings';
 import { JOIN_OPENS_MINUTES, cambodiaDate, isMeetingUrl, openSlots } from '../_data/schedule';
 
@@ -45,7 +45,7 @@ export function BookingDialog({
   onClose: () => void;
   showClientLink?: boolean;
 }) {
-  const { bookings, schedule, sessionNotes, cancelBooking, rescheduleBooking, setBookingOutcome, saveSessionNote, archivedClients } = usePro();
+  const { bookings, schedule, sessionNotes, cancelBooking, rescheduleBooking, setBookingOutcome, saveSessionNote, setMeetingLink, archivedClients } = usePro();
   const { language } = useLanguage();
   const km = language === 'km';
   const t = (kmText: string, enText: string) => (km ? kmText : enText);
@@ -61,6 +61,8 @@ export function BookingDialog({
   const [link, setLink] = useState(booking.meetingUrl ?? '');
   const [linkStatus, setLinkStatus] = useState('');
   const [nextStep, setNextStep] = useState<'task' | 'suggest' | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [outcomeError, setOutcomeError] = useState('');
   const [today] = useState(() => cambodiaToday(Date.now()));
 
   useEffect(() => {
@@ -76,14 +78,20 @@ export function BookingDialog({
   const series = seriesPosition(bookings, booking);
   const archived = archivedClients.includes(booking.clientId);
 
-  function saveLink() {
+  async function saveLink() {
     const value = link.trim();
     if (value && !isMeetingUrl(value)) {
       setLinkStatus(t('សូមបញ្ចូលតំណពេញ ចាប់ផ្តើមដោយ https://', 'Enter a full link that starts with https://'));
       return;
     }
-    updateBooking(booking.id, { meetingUrl: value || null });
-    setLinkStatus(t('បានរក្សាទុក។ អតិថិជនឃើញតំណនេះ។', 'Saved. The client sees this link.'));
+    const result = await setMeetingLink(booking.id, value);
+    setLinkStatus(result.ok ? t('បានរក្សាទុក។ អតិថិជនឃើញតំណនេះ។', 'Saved. The client sees this link.') : result.message);
+  }
+
+  async function recordOutcome(status: 'completed' | 'no_show') {
+    setOutcomeError('');
+    const result = await setBookingOutcome(booking.id, status);
+    if (!result.ok) setOutcomeError(result.message);
   }
 
   // Open times that fit this session's type, leaving out every other booking.
@@ -100,7 +108,8 @@ export function BookingDialog({
   );
   const slotDays = [...new Set(slots.map((slot) => slot.date))].slice(0, 6);
 
-  function confirmAction() {
+  async function confirmAction() {
+    if (busy) return;
     if (!reason.trim()) {
       setError(t('សូមសរសេរមូលហេតុ។ អតិថិជននឹងឃើញវា។', 'Write a reason. The client will see it.'));
       return;
@@ -110,9 +119,16 @@ export function BookingDialog({
         setError(t('សូមជ្រើសរើសម៉ោងថ្មី។', 'Choose a new time.'));
         return;
       }
-      rescheduleBooking(booking.id, newStart, reason.trim());
-    } else if (action === 'cancel') {
-      cancelBooking(booking.id, reason.trim());
+    }
+    setBusy(true);
+    const result =
+      action === 'reschedule'
+        ? await rescheduleBooking(booking.id, newStart, reason.trim())
+        : await cancelBooking(booking.id, reason.trim());
+    setBusy(false);
+    if (!result.ok) {
+      setError(result.message);
+      return;
     }
     onClose();
   }
@@ -207,7 +223,7 @@ export function BookingDialog({
               <button
                 type="button"
                 disabled={link.trim() === (booking.meetingUrl ?? '')}
-                onClick={saveLink}
+                onClick={() => void saveLink()}
                 className="rounded-full border border-arom-border px-4 py-2 text-sm font-medium text-arom hover:bg-arom-wash disabled:opacity-40">
                 {t('រក្សាទុក', 'Save')}
               </button>
@@ -228,15 +244,16 @@ export function BookingDialog({
               <>
                 <p className="mt-1 text-xs text-ink-muted">{t('ជំហានទី ១: វគ្គនេះយ៉ាងម៉េចដែរ?', 'Step 1: how did this session go?')}</p>
                 <div className="mt-3 flex flex-wrap gap-2">
-                  <button type="button" onClick={() => setBookingOutcome(booking.id, 'completed')} className="flex items-center gap-2 rounded-full bg-arom px-4 py-2 text-sm font-semibold text-white hover:bg-arom-deep">
+                  <button type="button" onClick={() => void recordOutcome('completed')} className="flex items-center gap-2 rounded-full bg-arom px-4 py-2 text-sm font-semibold text-white hover:bg-arom-deep">
                     <CheckCircle2 size={16} aria-hidden="true" />
                     {t('បានបញ្ចប់', 'Completed')}
                   </button>
-                  <button type="button" onClick={() => setBookingOutcome(booking.id, 'no_show')} className="flex items-center gap-2 rounded-full border border-arom-border bg-white px-4 py-2 text-sm font-medium text-ink hover:bg-arom-wash">
+                  <button type="button" onClick={() => void recordOutcome('no_show')} className="flex items-center gap-2 rounded-full border border-arom-border bg-white px-4 py-2 text-sm font-medium text-ink hover:bg-arom-wash">
                     <UserX size={16} aria-hidden="true" />
                     {t('អតិថិជនមិនបានមក', 'Client did not come')}
                   </button>
                 </div>
+                {outcomeError && <p role="alert" className="mt-2 text-xs text-arom-danger">{outcomeError}</p>}
               </>
             ) : (
               <>
@@ -371,7 +388,8 @@ export function BookingDialog({
             <div className="mt-4 flex flex-wrap gap-2">
               <button
                 type="button"
-                onClick={confirmAction}
+                onClick={() => void confirmAction()}
+                disabled={busy}
                 className={`rounded-full px-4 py-2 text-sm font-semibold text-white ${action === 'cancel' ? 'bg-arom-danger hover:opacity-90' : 'bg-arom hover:bg-arom-deep'}`}>
                 {action === 'cancel' ? t('បោះបង់ ហើយប្រាប់អតិថិជន', 'Cancel and tell the client') : t('ប្តូរពេល ហើយប្រាប់អតិថិជន', 'Move and tell the client')}
               </button>
@@ -413,9 +431,9 @@ export function BookingDialog({
             <button
               type="button"
               disabled={note === (savedNote?.text ?? '')}
-              onClick={() => {
-                saveSessionNote(booking.id, note);
-                setNoteSaved(t('បានរក្សាទុក។', 'Saved.'));
+              onClick={async () => {
+                const result = await saveSessionNote(booking.id, note);
+                setNoteSaved(result.ok ? t('បានរក្សាទុក។', 'Saved.') : result.message);
               }}
               className="rounded-full bg-arom px-4 py-2 text-sm font-semibold text-white hover:bg-arom-deep disabled:opacity-40">
               {t('រក្សាទុកកំណត់ចំណាំ', 'Save note')}

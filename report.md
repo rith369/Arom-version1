@@ -7,6 +7,154 @@ A plain-language log of what changed in the app, written for the team rather tha
 
 Each entry lists the commit it landed in, so you can match it to a version of the site.
 
+## 14 Oct 2026: Real Professionals, Real Schedules, Real Bookings
+
+Commit `PENDING`. Migration `20261014000400_pro_profile_booking.sql` must be run in Supabase (after `20261014000200` and `20261014000300`).
+
+**Why.** AROM's main job is to let someone find a therapist and book a session. Until now every step was pretend: profiles, open times and bookings vanished on refresh, and the list of professionals was sample data. Now the whole path is real.
+
+**What changed for professionals:**
+- **My profile is saved.** Photo, bio in both languages, specialties, languages, session types, price and years of experience save at once. Name, title and license changes wait for an admin, and the public profile keeps the old value until then.
+- **My schedule is saved** and turns into real open times for the booking window. Saving never cancels a booked session.
+- **My bookings are real:** cancel or move a session with a reason, mark completed or did not come (only after it ends), write a private note, change the meeting link.
+- **Home shows "Your profile is live"** only when users can really find you.
+- **The demo switch is gone.** A small note says what is still demo (messages, care plans, podcasts, summary notes, session prep).
+
+**What changed for users:**
+- **Find a professional** shows only real professionals whose profile is complete and who have open times. Until the first one is ready, it says no professionals are available yet.
+- **Booking shows real open times** in Cambodia time, grouped by morning, afternoon and evening, and books instantly. If someone else just took the time, the page says so and offers another time.
+- **Ratings are hidden** while a professional has no reviews.
+
+**What changed for admins:**
+- **Profile changes to review** now arrive on the Professionals page; approve or decline them together (declining needs a reason).
+
+**What changed for the team:**
+- **New endpoints:** `/api/pro/me`, `/api/pro/profile`, `/api/pro/profile/changes`, `/api/pro/photo`, `/api/pro/schedule`, `/api/pro/bookings/:id`, `/api/bookings`, `/api/admin/professionals/:id/changes/review`.
+- **New database pieces:** `professional_profile_changes`, `professional_schedules`, `professional-photos` bucket, and functions `review_profile_changes`, `sync_availability_slots`, `is_listed_professional`, `list_public_professionals`, `public_open_slots`, `reschedule_appointment`, `my_client_names`. `book_appointment` and two guard triggers were updated.
+- **Tested** every migration and the full flow on a local Postgres (see BACKEND-HANDOFF.md section 16).
+- **Known gaps:** open times roll forward only when the professional opens `/pro` (a daily job is better); old photos are not deleted; users have no "My appointments" page yet.
+
+**What to re-test (after running the migration):**
+- As a professional: fill in photo, both bios, specialties, languages, session types and price; save; refresh and confirm it stayed;
+- Change your name and confirm it shows as waiting; approve it as an admin on Professionals and confirm it changes;
+- Open weekday hours in My schedule and save; confirm Home says your profile is live and View profile opens;
+- Signed out, open Find a professional and confirm you appear; open your profile;
+- As a user, book a time; confirm it appears in the professional's My bookings with the meeting link;
+- As the professional, move it with a reason, then cancel it, and confirm the time opens again;
+- Try booking a time less than the minimum notice away and confirm it is refused.
+
+---
+
+## 14 Oct 2026: Crisis Helplines Reach Users
+
+Commit `PENDING`. Migration `20261014000300_crisis_resources.sql` must be run in Supabase.
+
+**Why.** The Overview page warned "No crisis hotlines added yet" (real), but the Settings page that should fix it only saved in the browser, so users in crisis never saw a number. On a mental health app this is the most important thing to get right.
+
+**What changed for users:**
+- **"Get help now"** in Profile and Settings now shows the helplines the AROM team adds, with Call, Text and Website buttons. Signed out visitors can see them too. The message to contact local emergency services always stays on top.
+
+**What changed for admins:**
+- **Crisis helplines in Settings are saved for real:** add, edit, hide, reorder and delete. The Urgent alert on Overview clears once an active helpline exists.
+- **Clear errors** inside the edit window if the server refuses a helpline.
+- **Every save is in the audit log,** including the names of removed helplines.
+
+**What changed for the team:**
+- **New endpoints** `GET /api/crisis-resources` (public) and `GET`/`PUT /api/admin/crisis-resources`.
+- **New database function** `save_crisis_resources()` saves the whole list in one go; the table now has the same checks as the form.
+- **Removed** the empty mock list `CRISIS_HELPLINES` and `initialCrisisHelplines`.
+- **Still mock:** the AROM support contact (email and phone for app questions).
+
+**What to re-test (after running the migration):**
+- In Admin, Settings, add a helpline with a phone number and both names; refresh and confirm it is still there;
+- Confirm the Urgent alert on Overview is gone;
+- Open Profile as a user, and the page signed out, and confirm the helpline shows under Get help now with a working Call button;
+- Hide it and confirm users no longer see it; reorder two and confirm the order on the user page;
+- Try a website without https and confirm it is refused.
+
+---
+
+## 14 Oct 2026: Admin Professionals Page Uses Real Data
+
+Commit `PENDING`. Migration `20261014000200_account_status.sql` must be run in Supabase.
+
+**Why.** The Professionals page showed sample therapists, so admins could not review the real people who apply. Now it shows real applicants and professionals, and every decision is saved.
+
+**What changed for admins:**
+- **Real list:** new applicants, live professionals, suspended and rejected, all from the database. The demo banner is gone on this page.
+- **Open the license file** from the review window. It opens a private link that works for one minute.
+- **Approve and reject** are saved; rejecting needs a reason the applicant sees.
+- **Suspend and reinstate** are saved, with a reason for suspending. You cannot suspend yourself. Every change goes to the audit log.
+- **Errors show in the window** if something fails, instead of pretending it worked.
+
+**What changed for the team:**
+- **New endpoints:** `GET /api/admin/professionals`, `GET /api/admin/applications/:id/license`, `PATCH /api/admin/users/:id/status`.
+- **New database function** `set_account_status()`; the Users page can use it too.
+- **Provider:** `professionalRecords` holds the real list; the old sample `professionals` stays for the demo pages that still use it.
+- **Not built yet:** reviewing profile changes (needs a new table) and a stored `source` column.
+
+**What to re-test (after running the migration):**
+- Open Professionals and confirm your real applicant shows as New application;
+- Open them, click Open file, and confirm the license opens;
+- Approve one and confirm they become Live; reject another with a reason;
+- Suspend a live professional with a reason, confirm Suspended, then Reinstate;
+- Try suspending without a reason and confirm it is refused.
+
+---
+
+## 14 Oct 2026: Account Menu and a Reason When Rejecting
+
+Commit `59b737a`. No migration.
+
+**Why.** Admins and professionals had no quick way to see who they are signed in as or to log out from their area. And the dashboard Reject button sent no reason, which the database now refuses, so admins saw an error with nowhere to type.
+
+**What changed for admins and professionals:**
+- **Account button at the top right** of `/admin` and `/pro`: initials, name and role. It opens a menu with My profile and Log out. English only in the admin area, bilingual in `/pro`.
+- **Reject asks for a reason** on the admin Overview. "Confirm reject" stays off until a reason is typed; the applicant sees it.
+
+**What changed for the team:**
+- **New** `app/_components/account-menu.tsx`, used in `admin-shell.tsx` and `pro-shell.tsx`.
+- **`dashboard.tsx`** sends `note` with a rejection.
+
+**What to re-test:**
+- Open `/admin` and `/pro`, open the account menu, use My profile, then Log out;
+- On the admin Overview, Reject an application, confirm the button is off until you type, then reject and check the applicant sees the reason;
+- Check the menu on a phone width.
+
+---
+
+## 14 Oct 2026: Become a Professional Sends Real Applications
+
+Commit `59b737a`. Migration `20261014000100_professional_applications.sql` must be run in Supabase before this works.
+
+**Why.** The "Become a Professional" page only pretended to send. Nothing reached the AROM team, so no one could actually apply. This is the first step of the professional journey: apply, admin approves, then the professional sets up their profile.
+
+**What changed for users:**
+- **Applications are really sent.** The form and the license file go to AROM, and the page shows "We're reviewing your application" after a reload or on another device.
+- **One application at a time.** Sending a second one while the first waits shows "You already have an application waiting for review."
+- **Clear errors** if sending fails, in English and Khmer.
+- **The yellow demo bar is gone.**
+
+**What changed for admins:**
+- **Applications list now includes phone, Telegram and the license file name.**
+- **Rejecting needs a reason,** so the applicant knows what to fix.
+
+**What changed for the team:**
+- **New endpoint** `GET` and `POST /api/professional/application` (`lib/controllers/application-controller.ts`). The server repeats every form rule and checks the file really is a PDF, JPG or PNG.
+- **License files** go to a new private `licenses` storage bucket. Only the owner can upload into their own folder, only admins can read, nobody can change or delete.
+- **Phone and Telegram** are copied on approval into a new private `professional_contacts` table, never into the public profile.
+- **No service role key used.** Everything runs as the signed in user, so RLS applies.
+
+**What to re-test (after running the migration):**
+- Sign in as a normal user, open Profile, Become a Professional, fill the form with a PDF license and submit; confirm the pending card shows;
+- Reload the page and confirm the pending card is still there;
+- In Supabase, confirm the row in `professional_applications` and the file in `licenses/<user id>/`;
+- Approve it with `POST /api/admin/applications/<id>/review` and confirm `professional_contacts` has the phone;
+- Reject another application with no note and confirm it is refused;
+- Switch to Khmer.
+
+---
+
 ## 13 Oct 2026: Browse MindGuide When Giving a Care Task
 
 Commit `eacfa97`. No migration. Frontend only.

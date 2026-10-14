@@ -17,18 +17,19 @@ export type BookingDay = {
   kmLongLabel: string;
 };
 
-export type TimePeriod = {
-  label: "Morning" | "Afternoon" | "Evening";
-  times: string[];
+export type PeriodLabel = "Morning" | "Afternoon" | "Evening";
+
+/** One bookable time, as the booking page shows it. */
+export type BookableTime = {
+  /** availability_slots.id */
+  id: string;
+  startsAt: string;
+  /** e.g. "9:00 AM" in Cambodia time */
+  label: string;
+  period: PeriodLabel;
 };
 
 export const clinicTimeZone = "Asia/Phnom_Penh";
-
-export const timePeriods: TimePeriod[] = [
-  { label: "Morning", times: ["9:00 AM", "10:00 AM", "11:00 AM"] },
-  { label: "Afternoon", times: ["2:00 PM", "3:30 PM"] },
-  { label: "Evening", times: ["6:00 PM", "7:30 PM"] },
-];
 
 export const meetingTypes: {
   type: MeetingType;
@@ -56,7 +57,7 @@ export const meetingTypes: {
   },
 ];
 
-export function getPeriodLabel(label: "Morning" | "Afternoon" | "Evening", km: boolean): string {
+export function getPeriodLabel(label: PeriodLabel, km: boolean): string {
   if (km) {
     switch (label) {
       case "Morning":
@@ -78,32 +79,59 @@ export function getMeetingTypeLabel(type: MeetingType | null, km: boolean): stri
   return type === "In-person" ? "In Person" : type;
 }
 
-/** Builds the next `count` bookable days, starting tomorrow in the clinic time zone. */
-export function getBookingDays(now: Date, count = 5): BookingDay[] {
-  const parts = new Intl.DateTimeFormat("en-CA", {
-    timeZone: clinicTimeZone,
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).formatToParts(now);
-  const get = (type: string) => Number(parts.find((part) => part.type === type)?.value);
-  const today = Date.UTC(get("year"), get("month") - 1, get("day"));
+/** Labels for one calendar date (YYYY-MM-DD, Cambodia time). */
+export function bookingDay(value: string): BookingDay {
+  const date = new Date(`${value}T00:00:00Z`);
+  const formatEn = (options: Intl.DateTimeFormatOptions) =>
+    new Intl.DateTimeFormat("en-US", { timeZone: "UTC", ...options }).format(date);
+  const formatKm = (options: Intl.DateTimeFormatOptions) =>
+    new Intl.DateTimeFormat("km-KH", { timeZone: "UTC", ...options }).format(date);
 
-  return Array.from({ length: count }, (_, index) => {
-    const date = new Date(today + (index + 1) * 24 * 60 * 60 * 1000);
-    const formatEn = (options: Intl.DateTimeFormatOptions) =>
-      new Intl.DateTimeFormat("en-US", { timeZone: "UTC", ...options }).format(date);
-    const formatKm = (options: Intl.DateTimeFormatOptions) =>
-      new Intl.DateTimeFormat("km-KH", { timeZone: "UTC", ...options }).format(date);
+  return {
+    value,
+    label: formatEn({ month: "short", day: "numeric" }),
+    weekday: formatEn({ weekday: "short" }),
+    longLabel: formatEn({ month: "short", day: "numeric", year: "numeric" }),
+    kmLabel: formatKm({ month: "short", day: "numeric" }),
+    kmWeekday: formatKm({ weekday: "short" }),
+    kmLongLabel: formatKm({ month: "short", day: "numeric", year: "numeric" }),
+  };
+}
 
-    return {
-      value: date.toISOString().slice(0, 10),
-      label: formatEn({ month: "short", day: "numeric" }),
-      weekday: formatEn({ weekday: "short" }),
-      longLabel: formatEn({ month: "short", day: "numeric", year: "numeric" }),
-      kmLabel: formatKm({ month: "short", day: "numeric" }),
-      kmWeekday: formatKm({ weekday: "short" }),
-      kmLongLabel: formatKm({ month: "short", day: "numeric", year: "numeric" }),
-    };
-  });
+const dateOf = (startsAt: string) =>
+  new Intl.DateTimeFormat("en-CA", { timeZone: clinicTimeZone }).format(new Date(startsAt));
+
+const hourOf = (startsAt: string) =>
+  Number(
+    new Intl.DateTimeFormat("en-GB", { timeZone: clinicTimeZone, hour: "2-digit", hourCycle: "h23" }).format(
+      new Date(startsAt),
+    ),
+  );
+
+const timeLabel = (startsAt: string) =>
+  new Intl.DateTimeFormat("en-US", { timeZone: clinicTimeZone, hour: "numeric", minute: "2-digit" }).format(
+    new Date(startsAt),
+  );
+
+/**
+ * Groups open times into days (soonest first, at most `maxDays`) and, per
+ * day, into morning, afternoon and evening.
+ */
+export function groupOpenTimes(
+  times: { id: string; startsAt: string }[],
+  maxDays = 14,
+): { days: BookingDay[]; byDay: Record<string, BookableTime[]> } {
+  const byDay: Record<string, BookableTime[]> = {};
+  for (const time of [...times].sort((a, b) => a.startsAt.localeCompare(b.startsAt))) {
+    const day = dateOf(time.startsAt);
+    const hour = hourOf(time.startsAt);
+    (byDay[day] ??= []).push({
+      id: time.id,
+      startsAt: time.startsAt,
+      label: timeLabel(time.startsAt),
+      period: hour < 12 ? "Morning" : hour < 17 ? "Afternoon" : "Evening",
+    });
+  }
+  const days = Object.keys(byDay).sort().slice(0, maxDays).map(bookingDay);
+  return { days, byDay };
 }

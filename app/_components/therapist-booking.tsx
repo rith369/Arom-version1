@@ -14,15 +14,19 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import {
   getMeetingTypeLabel,
   getPeriodLabel,
+  groupOpenTimes,
   meetingTypes,
-  timePeriods,
+  type BookableTime,
   type BookingDay,
   type MeetingType,
+  type PeriodLabel,
 } from "@/lib/booking";
+import type { OpenTime } from "@/lib/professionals";
 import {
   getTherapistName,
   getTherapistRole,
@@ -151,8 +155,11 @@ function MeetingStep({
   );
 }
 
+const PERIODS: PeriodLabel[] = ["Morning", "Afternoon", "Evening"];
+
 function TimeStep({
   days,
+  times,
   date,
   time,
   onDateChange,
@@ -160,12 +167,23 @@ function TimeStep({
   km,
 }: {
   days: BookingDay[];
+  times: BookableTime[];
   date: string;
   time: string | null;
   onDateChange: (value: string) => void;
   onTimeChange: (value: string) => void;
   km: boolean;
 }) {
+  if (days.length === 0) {
+    return (
+      <p className="rounded-xl border border-dashed border-arom/30 bg-white px-5 py-8 text-center text-sm text-ink-muted">
+        {km
+          ? "អ្នកជំនាញនេះមិនមានម៉ោងទំនេរសម្រាប់ប្រភេទនេះទេនៅពេលនេះ។ សូមសាកល្បងប្រភេទផ្សេង ឬត្រឡប់មកវិញពេលក្រោយ។"
+          : "This professional has no open times for this session type right now. Try another session type, or check back later."}
+      </p>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <fieldset>
@@ -173,7 +191,7 @@ function TimeStep({
           {km ? "ជ្រើសរើសកាលបរិច្ឆេទ" : "Select a date"}
         </legend>
         <div className="-mx-4 mt-3 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0">
-          <div className="grid min-w-[20rem] grid-cols-5 gap-2">
+          <div className="grid auto-cols-[4.5rem] grid-flow-col gap-2">
             {days.map((day) => {
               const selected = date === day.value;
               return (
@@ -204,34 +222,36 @@ function TimeStep({
 
       <fieldset>
         <legend className="text-base font-medium text-ink">
-          {km ? "ពេលវេលាដែលអាចជ្រើសរើសបាន" : "Available times"}
+          {km ? "ពេលវេលាដែលអាចជ្រើសរើសបាន (ម៉ោងកម្ពុជា)" : "Available times (Cambodia time)"}
         </legend>
         <div className="mt-2 space-y-4">
-          {timePeriods.map((period) => (
-            <div key={period.label} role="group" aria-labelledby={`period-${period.label}`}>
-              <p id={`period-${period.label}`} className="text-[0.94rem] font-medium text-ink">
-                {getPeriodLabel(period.label, km)}
+          {PERIODS.filter((period) => times.some((slot) => slot.period === period)).map((period) => (
+            <div key={period} role="group" aria-labelledby={`period-${period}`}>
+              <p id={`period-${period}`} className="text-[0.94rem] font-medium text-ink">
+                {getPeriodLabel(period, km)}
               </p>
               <div className="mt-2 grid grid-cols-3 gap-2 sm:gap-2.5">
-                {period.times.map((slot) => {
-                  const selected = time === slot;
-                  return (
-                    <label
-                      key={slot}
-                      className={`flex h-10 items-center justify-center rounded-lg text-[0.95rem] text-ink ${optionClass(selected)}`}
-                    >
-                      <input
-                        type="radio"
-                        name="booking-time"
-                        value={slot}
-                        checked={selected}
-                        onChange={() => onTimeChange(slot)}
-                        className="sr-only"
-                      />
-                      {slot}
-                    </label>
-                  );
-                })}
+                {times
+                  .filter((slot) => slot.period === period)
+                  .map((slot) => {
+                    const selected = time === slot.id;
+                    return (
+                      <label
+                        key={slot.id}
+                        className={`flex h-10 items-center justify-center rounded-lg text-[0.95rem] text-ink ${optionClass(selected)}`}
+                      >
+                        <input
+                          type="radio"
+                          name="booking-time"
+                          value={slot.id}
+                          checked={selected}
+                          onChange={() => onTimeChange(slot.id)}
+                          className="sr-only"
+                        />
+                        {slot.label}
+                      </label>
+                    );
+                  })}
               </div>
             </div>
           ))}
@@ -313,7 +333,10 @@ function ReviewStep({
   );
 }
 
-export function TherapistBooking({ therapist, days }: { therapist: Therapist; days: BookingDay[] }) {
+type BookingError = { kind: "login" } | { kind: "message"; text: string };
+
+export function TherapistBooking({ therapist, openTimes }: { therapist: Therapist; openTimes: OpenTime[] }) {
+  const router = useRouter();
   const { language } = useLanguage();
   const km = language === "km";
   const therapistName = getTherapistName(therapist, km);
@@ -327,19 +350,67 @@ export function TherapistBooking({ therapist, days }: { therapist: Therapist; da
   const [meeting, setMeeting] = useState<MeetingType | null>(
     meetingOptions.length === 1 ? meetingOptions[0] : null,
   );
-  const [date, setDate] = useState(days[0]?.value ?? "");
+  const [date, setDate] = useState("");
   const [time, setTime] = useState<string | null>(null);
   const [note, setNote] = useState("");
   const [isComplete, setIsComplete] = useState(false);
+  const [isBooking, setIsBooking] = useState(false);
+  const [bookingError, setBookingError] = useState<BookingError | null>(null);
+
+  // Only the times that offer the chosen session type.
+  const sessionType = meeting === "In-person" ? "in_person" : "online";
+  const { days, byDay } = groupOpenTimes(
+    openTimes.filter((slot) => meeting !== null && slot.sessionTypes.includes(sessionType)),
+  );
+  const activeDate = days.some((day) => day.value === date) ? date : (days[0]?.value ?? "");
+  const dayTimes = byDay[activeDate] ?? [];
+  const selectedTime = dayTimes.find((slot) => slot.id === time) ?? null;
   const headingRef = useRef<HTMLHeadingElement>(null);
   const hasNavigated = useRef(false);
   const shouldReduceMotion = useReducedMotion();
 
   const steps = getSteps(km);
   const step = steps[stepIndex];
-  const selectedDay = days.find((day) => day.value === date);
+  const selectedDay = days.find((day) => day.value === activeDate);
   const canContinue =
-    (step.id === "meeting" && meeting !== null) || (step.id === "time" && Boolean(date && time));
+    (step.id === "meeting" && meeting !== null) || (step.id === "time" && selectedTime !== null);
+
+  async function confirmBooking() {
+    if (!selectedTime || isBooking) return;
+    setIsBooking(true);
+    setBookingError(null);
+    try {
+      const response = await fetch("/api/bookings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ slotId: selectedTime.id, sessionType, note: note.trim() }),
+      });
+      if (response.status === 401) {
+        setBookingError({ kind: "login" });
+        return;
+      }
+      if (!response.ok) {
+        const body = (await response.json().catch(() => null)) as { error?: { message?: string } } | null;
+        setBookingError({
+          kind: "message",
+          text:
+            body?.error?.message ??
+            (km ? "មិនអាចកក់បានទេ។ សូមព្យាយាមម្តងទៀត។" : "We could not book this time. Please try again."),
+        });
+        // The time may have just been taken: load fresh open times.
+        router.refresh();
+        return;
+      }
+      setIsComplete(true);
+    } catch {
+      setBookingError({
+        kind: "message",
+        text: km ? "មិនអាចភ្ជាប់ទៅម៉ាស៊ីនមេបានទេ។" : "Could not reach the server. Check your connection.",
+      });
+    } finally {
+      setIsBooking(false);
+    }
+  }
 
   // Move focus to the new step's heading so screen readers announce it.
   useEffect(() => {
@@ -358,7 +429,7 @@ export function TherapistBooking({ therapist, days }: { therapist: Therapist; da
 
   const reviewDetails = [
     { icon: CalendarDays, label: km ? "កាលបរិច្ឆេទ" : "Date", value: selectedDateLabel },
-    { icon: Clock3, label: km ? "ពេលវេលា" : "Time", value: time ?? "" },
+    { icon: Clock3, label: km ? "ពេលវេលា" : "Time", value: selectedTime?.label ?? "" },
     {
       icon: meeting ? meetingIcons[meeting] : Video,
       label: km ? "ទម្រង់នៃការប្រឹក្សា" : "Session Type",
@@ -372,7 +443,7 @@ export function TherapistBooking({ therapist, days }: { therapist: Therapist; da
   const completeDetails = [
     { icon: UserRound, label: km ? "អ្នកជំនាញ" : "Therapist", value: therapistName },
     { icon: CalendarDays, label: km ? "កាលបរិច្ឆេទ" : "Date", value: selectedDateLabel },
-    { icon: Clock3, label: km ? "ពេលវេលា" : "Time", value: time ?? "" },
+    { icon: Clock3, label: km ? "ពេលវេលា" : "Time", value: selectedTime?.label ?? "" },
     {
       icon: meeting === "Online" ? Video : UsersRound,
       label: km ? "ទម្រង់នៃការប្រឹក្សា" : "Session Type",
@@ -474,7 +545,8 @@ export function TherapistBooking({ therapist, days }: { therapist: Therapist; da
                       {step.id === "time" && (
                         <TimeStep
                           days={days}
-                          date={date}
+                          times={dayTimes}
+                          date={activeDate}
                           time={time}
                           onDateChange={setDate}
                           onTimeChange={setTime}
@@ -495,13 +567,42 @@ export function TherapistBooking({ therapist, days }: { therapist: Therapist; da
                 </AnimatePresence>
 
                 <div className="sticky bottom-0 -mx-4 mt-auto bg-white px-4 pb-[calc(1.25rem+env(safe-area-inset-bottom))] pt-5 sm:-mx-8 sm:px-8 lg:static lg:mx-0 lg:mt-8 lg:p-0">
+                  {step.id === "review" && bookingError && (
+                    <div role="alert" className="mb-3 rounded-xl bg-arom-danger-soft/60 px-4 py-3 text-sm text-arom-danger">
+                      {bookingError.kind === "login" ? (
+                        <>
+                          {km ? "សូមចូលគណនីដើម្បីកក់។ " : "Please log in to book. "}
+                          <Link
+                            href={`/login?next=${encodeURIComponent(`/professional/${therapist.slug}/book`)}`}
+                            className="font-semibold underline"
+                          >
+                            {km ? "ចូលគណនី" : "Log in"}
+                          </Link>
+                        </>
+                      ) : (
+                        <>
+                          {bookingError.text}{" "}
+                          <button type="button" onClick={() => goTo(1)} className="font-semibold underline">
+                            {km ? "ជ្រើសរើសម៉ោងផ្សេង" : "Choose another time"}
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  )}
                   {step.id === "review" ? (
                     <button
                       type="button"
-                      onClick={() => setIsComplete(true)}
-                      className="flex h-[3.4rem] w-full items-center justify-center rounded-2xl bg-arom px-5 text-lg font-bold text-white transition-colors duration-150 hover:bg-arom-deep focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-arom"
+                      disabled={isBooking}
+                      onClick={() => void confirmBooking()}
+                      className="flex h-[3.4rem] w-full items-center justify-center rounded-2xl bg-arom px-5 text-lg font-bold text-white transition-colors duration-150 hover:bg-arom-deep focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-arom disabled:opacity-60"
                     >
-                      {km ? "បញ្ជាក់ការកក់ណាត់ជួប" : "Confirm Appointment"}
+                      {isBooking
+                        ? km
+                          ? "កំពុងកក់..."
+                          : "Booking..."
+                        : km
+                          ? "បញ្ជាក់ការកក់ណាត់ជួប"
+                          : "Confirm Appointment"}
                     </button>
                   ) : (
                     <button

@@ -1,7 +1,5 @@
 import {
-  CRISIS_HELPLINES,
   SUPPORT_CONTACT,
-  type CrisisHelpline,
   type SupportContact,
 } from '../../_components/support-contacts';
 
@@ -11,7 +9,3 @@ import {
 export type AdminSettings = SupportContact;
 
 export const initialSettings: AdminSettings = { ...SUPPORT_CONTACT };
-
-export const initialCrisisHelplines: CrisisHelpline[] = CRISIS_HELPLINES.map(
-  (item) => ({ ...item }),
-);

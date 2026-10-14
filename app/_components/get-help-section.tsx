@@ -1,10 +1,11 @@
 "use client";
 
 import { Globe, LifeBuoy, Mail, MessageSquare, Phone } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useLanguage } from "./language-provider";
 import {
-  CRISIS_HELPLINES,
   SUPPORT_CONTACT,
+  type CrisisHelpline,
   activeHelplines,
   smsHref,
   telHref,
@@ -17,7 +18,22 @@ const actionClass =
 export function GetHelpSection() {
   const { language } = useLanguage();
   const km = language === "km";
-  const helplines = activeHelplines(CRISIS_HELPLINES);
+  const [helplines, setHelplines] = useState<CrisisHelpline[]>([]);
+
+  // Public list, managed by admins. The emergency services message above the
+  // list always shows, so nothing is missing while this loads or if it fails.
+  useEffect(() => {
+    let active = true;
+    fetch("/api/crisis-resources")
+      .then((response) => (response.ok ? response.json() : null))
+      .then((data: { helplines: CrisisHelpline[] } | null) => {
+        if (active && data) setHelplines(activeHelplines(data.helplines));
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, []);
   const support = SUPPORT_CONTACT;
   const hasSupport = Boolean(support.email || support.phone);
 

@@ -60,12 +60,13 @@ function HelplineDialog({
   record: CrisisHelpline;
   isNew: boolean;
   onCancel: () => void;
-  onSave: (record: CrisisHelpline) => void;
+  onSave: (record: CrisisHelpline) => Promise<string | null>;
 }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [draft, setDraft] = useState(record);
   const [checked, setChecked] = useState(false);
   const [error, setError] = useState('');
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -78,8 +79,9 @@ function HelplineDialog({
     setError('');
   }
 
-  function submit(event: FormEvent<HTMLFormElement>) {
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (saving) return;
 
     const cleaned: CrisisHelpline = {
       ...draft,
@@ -108,7 +110,10 @@ function HelplineDialog({
     } else if (!checked) {
       setError('Confirm that you checked the number and it reaches the right service.');
     } else {
-      onSave(cleaned);
+      setSaving(true);
+      const failure = await onSave(cleaned);
+      setSaving(false);
+      if (failure) setError(failure);
     }
   }
 
@@ -191,8 +196,8 @@ function HelplineDialog({
           <button type="button" onClick={onCancel} className="rounded-full border border-arom-border px-5 py-2.5 text-sm">
             Cancel
           </button>
-          <button type="submit" className="rounded-full bg-arom px-5 py-2.5 text-sm text-white hover:bg-arom-deep">
-            Save helpline
+          <button type="submit" disabled={saving} className="rounded-full bg-arom px-5 py-2.5 text-sm text-white hover:bg-arom-deep disabled:opacity-60">
+            {saving ? 'Saving...' : 'Save helpline'}
           </button>
         </footer>
       </form>
@@ -201,7 +206,7 @@ function HelplineDialog({
 }
 
 function CrisisHelplinesSection() {
-  const { crisisHelplines, saveCrisisHelplines } = useAdmin();
+  const { crisisHelplines, crisisHelplinesLoad, saveCrisisHelplines } = useAdmin();
   const [editing, setEditing] = useState<{ record: CrisisHelpline; isNew: boolean } | null>(null);
   const [armedDeleteId, setArmedDeleteId] = useState<string | null>(null);
   const [notice, setNotice] = useState('');
@@ -214,23 +219,32 @@ function CrisisHelplinesSection() {
     return () => window.clearTimeout(timer);
   }, [armedDeleteId]);
 
+  // Every change saves the whole list. Shows the error when the server refuses.
+  async function persist(next: CrisisHelpline[], success: string) {
+    const result = await saveCrisisHelplines(next);
+    setNotice(result.ok ? success : result.message);
+  }
+
   function move(index: number, direction: -1 | 1) {
     const next = [...crisisHelplines];
     const target = index + direction;
     if (target < 0 || target >= next.length) return;
     [next[index], next[target]] = [next[target], next[index]];
-    saveCrisisHelplines(next);
+    void persist(next, 'Order saved.');
   }
 
-  function save(record: CrisisHelpline) {
+  // Returns the error to show inside the dialog, or null once saved.
+  async function save(record: CrisisHelpline) {
     const exists = crisisHelplines.some((item) => item.id === record.id);
-    saveCrisisHelplines(
+    const result = await saveCrisisHelplines(
       exists
         ? crisisHelplines.map((item) => (item.id === record.id ? record : item))
         : [...crisisHelplines, record],
     );
+    if (!result.ok) return result.message;
     setEditing(null);
     setNotice(`${record.name} saved.`);
+    return null;
   }
 
   return (
@@ -254,7 +268,15 @@ function CrisisHelplinesSection() {
         </button>
       </div>
 
-      {activeCount === 0 && (
+      {crisisHelplinesLoad !== 'ready' && (
+        <p role={crisisHelplinesLoad === 'error' ? 'alert' : 'status'} className="mt-5 text-sm text-ink-muted">
+          {crisisHelplinesLoad === 'error'
+            ? 'Could not load helplines. Refresh the page to try again.'
+            : 'Loading helplines...'}
+        </p>
+      )}
+
+      {crisisHelplinesLoad === 'ready' && activeCount === 0 && (
         <p className="mt-5 flex items-start gap-2 rounded-2xl bg-arom-warning-soft p-4 text-sm text-arom-warning">
           <AlertTriangle size={18} className="mt-0.5 shrink-0" aria-hidden="true" />
           No helplines are shown to users yet. Until you add one, users only see a
@@ -304,7 +326,7 @@ function CrisisHelplinesSection() {
                   <button
                     type="button"
                     onClick={() => {
-                      saveCrisisHelplines(crisisHelplines.map((entry) => (entry.id === item.id ? { ...entry, isActive: !entry.isActive } : entry)));
+                      void persist(crisisHelplines.map((entry) => (entry.id === item.id ? { ...entry, isActive: !entry.isActive } : entry)), item.isActive ? `${item.name} hidden from users.` : `${item.name} shown to users.`);
                       setNotice(`${item.name} is now ${item.isActive ? 'hidden from' : 'shown to'} users.`);
                     }}
                     aria-label={`${item.isActive ? 'Hide' : 'Show'} ${item.name}`}
@@ -315,7 +337,7 @@ function CrisisHelplinesSection() {
                     type="button"
                     onClick={() => {
                       if (armedDeleteId === item.id) {
-                        saveCrisisHelplines(crisisHelplines.filter((entry) => entry.id !== item.id));
+                        void persist(crisisHelplines.filter((entry) => entry.id !== item.id), `${item.name} deleted.`);
                         setArmedDeleteId(null);
                         setNotice(`${item.name} deleted.`);
                       } else {

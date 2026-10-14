@@ -55,9 +55,14 @@ export interface ApplicationSummary {
   title: string;
   licenseNumber: string;
   issuingBody: string | null;
+  /** Original file name only. The file itself is opened through a signed URL. */
+  documentName: string | null;
   specialties: string[];
   languages: string[];
   yearsExperience: number | null;
+  /** Private contact details. Admins only, never in public queries. */
+  phone: string | null;
+  telegram: string | null;
   motivation: string | null;
   status: "pending" | "approved" | "rejected";
   reviewNote: string | null;

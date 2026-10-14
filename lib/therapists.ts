@@ -115,7 +115,13 @@ export function matchesFilters(therapist: Therapist, filters: TherapistFilters) 
     if (filters.session === "Both" && !(offersOnline && offersInPerson)) return false;
   }
 
-  if (filters.availableNow && therapist.availability !== "Available Now") return false;
+  if (
+    filters.availableNow &&
+    therapist.availability !== "Available Now" &&
+    therapist.availability !== "Available Today"
+  ) {
+    return false;
+  }
 
   if (filters.languages.length > 0) {
     const speaksAll = filters.languages.every((language) => therapist.languages.includes(language));
@@ -376,6 +382,10 @@ export function getAvailabilityLabel(availability: string, km: boolean): string 
       return "ទំនេរថ្ងៃនេះ (Available Today)";
     case "Available Tomorrow":
       return "ទំនេរថ្ងៃស្អែក (Available Tomorrow)";
+    case "Open times available":
+      return "មានម៉ោងទំនេរ (Open times available)";
+    case "No open times":
+      return "មិនមានម៉ោងទំនេរ (No open times)";
     default:
       return availability;
   }
