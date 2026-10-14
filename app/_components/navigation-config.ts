@@ -158,7 +158,7 @@ export const NAVIGATION_SECTIONS: NavSection[] = [
         enTitle: "Appointments",
         kmTitle: "ការណាត់ជួប",
         icon: CalendarCheck,
-        isComingSoon: true,
+        href: "/appointments",
       },
     ],
   },

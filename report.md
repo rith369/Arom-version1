@@ -7,6 +7,97 @@ A plain-language log of what changed in the app, written for the team rather tha
 
 Each entry lists the commit it landed in, so you can match it to a version of the site.
 
+## 14 Oct 2026: Real Users Page, Real Audit Log, Nightly Open Times
+
+Commit `PENDING`. Migration `20261014000600_admin_users_open_times.sql` must be run in Supabase.
+
+**Why.** The admin Users page and the Audit log showed sample data, while real admin actions were already being saved. And professionals' open times only moved forward when they opened their area.
+
+**What changed for admins:**
+- **Users page shows every real account** with email, last sign in, and activity as counts only (days active in the last 30 days, check ins, bookings). Your own card is marked, so you cannot change yourself.
+- **Make professional** for someone you know records their title, license number and issuing body and makes them a verified professional straight away. They then fill in their own public profile.
+- **Make admin** and **remove admin** work, with the confirm box. AROM never lets you remove the last active admin, or change your own role.
+- **Suspend asks for a reason,** which goes in the audit log. The text now says what suspension really does: they can still sign in to see or delete their own data, but cannot book, post or publish, and a professional is hidden.
+- **Errors show inside the window** if something is refused.
+- **Audit log shows the real history:** who did what, to whom, when, with the reason or note. Nobody can edit or delete these lines.
+
+**What changed for professionals and users:**
+- **Open times refresh every night** at 00:05 Cambodia time for the whole booking window, even if the professional does not open AROM.
+
+**What changed for the team:**
+- New database functions `admin_list_users()`, `refresh_all_open_times()` and a new 6 argument `set_user_role()` (the old 2 argument version is replaced). pg_cron job `arom-refresh-open-times`.
+- New `lib/controllers/audit-controller.ts` and `GET /api/admin/audit-log`; `GET /api/admin/users` and `PATCH /api/admin/users/:id/role` rewritten.
+- Tested on a local Postgres: emails and counts, promotion with license, own role refused, last active admin protected (including when the other admin is suspended), non admins refused, the nightly job makes the right times and adds nothing the second time.
+
+**What to re-test (after running the migration):**
+- Open Users: confirm real accounts, emails and your own card marked;
+- Make a test account a professional with license details; confirm it appears on Professionals as live after they complete their profile;
+- Suspend it with a reason, then restore it; open Audit log and confirm both lines with the reason;
+- In Supabase, Integrations, Cron, confirm the job `arom-refresh-open-times` is listed.
+
+---
+
+## 14 Oct 2026: Sign Up Confirmation That Works on Any Device
+
+Commit `PENDING`. No migration. **Supabase dashboard changes needed** (see the last section).
+
+**Why.** People who opened the confirmation email on their phone saw "Link expired, let's try that again" even though their email was already confirmed. Supabase's default link only finishes signing in on the browser that signed up. Signing up again with an existing account also left people waiting for an email that never came.
+
+**What changed for users:**
+- **Confirmed means confirmed.** If the link is opened on another device, AROM says "Your email is confirmed. Log in to continue" instead of "expired".
+- **Signed in automatically** when the link is opened where it can finish, and taken home.
+- **6 digit code:** the Check your email page has a "Have a code from the email?" box. Typing the code signs you in on that device.
+- **Link used or expired page** now leads with "I already confirmed, log in", and offers a new link second.
+- **Signing up with an account you already have:** with the right password you are simply logged in. If the account is not confirmed yet, a new link is sent. With a wrong password the answer looks like a normal sign up, so the form cannot be used to find out who has an account.
+- **Passwords** are limited to 72 characters (the most Supabase can store).
+
+**What changed for the team:**
+- `confirmEmail` in `lib/controllers/auth-controller.ts` handles: success, a code that cannot finish on this device, an already signed in visitor, and real expiry. New `POST /api/auth/verify` checks the 6 digit code.
+- `safeNextPath` in `lib/auth.ts` is the one place that checks redirect paths; it also rejects `/\host` and control characters (open redirect protection).
+
+**Supabase dashboard (Authentication):**
+1. **Email Templates, Confirm signup:** use a link that works on every device and include the code:
+   `<a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email">Confirm your email</a>` and `Or enter this code: {{ .Token }}`
+2. **URL Configuration:** Site URL is the Vercel URL, and both the Vercel and `http://localhost:3000` addresses are in Redirect URLs.
+3. **Attack Protection:** turn on leaked password protection if the plan allows it.
+4. **Email OTP expiration:** 1 hour is a good balance.
+
+**What to re-test:**
+- Sign up on a laptop, open the email on a phone: you are signed in on the phone (new template) or told your email is confirmed (old template), never "expired";
+- Type the 6 digit code on the laptop and confirm you land on Home signed in;
+- Open the same link twice: the second time you go home if signed in, or see "This Link Can't Be Used" with Log in first;
+- Sign up again with the same email and right password: you are logged in; with a wrong password: you see Check your email.
+
+---
+
+## 14 Oct 2026: My Appointments for Users
+
+Commit `PENDING`. No migration.
+
+**Why.** A user could book a real session but could not see it anywhere afterwards, cancel it, or find the meeting link. The sidebar "Appointments" item still said Soon.
+
+**What changed for users:**
+- **New My appointments page** (`/appointments`, sidebar "Appointments"): upcoming sessions first, then past and cancelled ones, with the professional's photo, date and time in Cambodia time, and online or in person.
+- **Join** opens the professional's meeting room from 10 minutes before an online session.
+- **Cancel** an upcoming session, with an optional reason the professional sees. The time opens again for others.
+- **See changes:** if the professional moved or cancelled a session, the reason shows on the card.
+- **Sharing switches** per session: share your first survey or symptom check results with that professional, off by default, and you can turn them off at any time. Journal and mood check ins are never shared.
+- **"View Appointment"** after booking now opens this page, and a "Get help now" link stays at the top.
+
+**What changed for the team:**
+- **New endpoints** `GET /api/appointments` and `POST /api/appointments/:id` (`cancel` or `sharing`), in `lib/controllers/appointments-controller.ts`. They run as the user, so RLS returns only their own appointments.
+- **`JoinButton`** now accepts any session with the fields it needs, not only `ProBooking`.
+- **`/appointments`** is added to `PROTECTED_PREFIXES`.
+
+**What to re-test:**
+- Book a session as a user, tap View Appointment, and confirm it shows under Upcoming;
+- Turn on "My symptom check results", refresh, and confirm it stayed on; turn it off again;
+- Cancel it with a reason; confirm it moves to Past and cancelled, and the professional sees the reason in My bookings;
+- As the professional, move another session; confirm the user sees the new time and the reason;
+- Open the page signed out and confirm it asks you to log in; switch to Khmer.
+
+---
+
 ## 14 Oct 2026: Admin Test Profile in the Professional Area
 
 Commit `bbcf651`. Migration `20261014000500_admin_test_profile.sql` must be run in Supabase.

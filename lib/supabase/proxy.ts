@@ -5,7 +5,7 @@ import { ROLE_ROUTES } from "@/lib/roles";
 import { supabaseAnonKey, supabaseUrl } from "./env";
 
 /** Routes that need a signed in user. */
-const PROTECTED_PREFIXES = ["/profile", "/settings", "/messages", "/care-plan"];
+const PROTECTED_PREFIXES = ["/profile", "/settings", "/messages", "/care-plan", "/appointments"];
 const PROTECTED_PATTERNS = [/^\/professional\/[^/]+\/book(\/|$)/];
 
 /** Auth pages a signed in user should skip. */

@@ -43,7 +43,7 @@ The yellow "Demo data on this page" banner is in `admin-shell.tsx`. Remove it fo
 | Feature | Frontend | Backend | Section |
 |---|---|---|---|
 | Admin overview (dashboard) | Done | Connected (`/api/admin/overview`) | none |
-| Admin users: list, details, roles, suspend | Done on mock data | Waiting for backend | 5 |
+| Admin users: list, details, roles, suspend | Done | Connected (`GET /api/admin/users`, `PATCH .../role`, `PATCH .../status`), migration `20261014000600` | 5 |
 | Admin professionals: review and moderation | Done | Connected, including profile change review. Stored `source` column still open (derived for now). Migrations `20261014000200`, `20261014000400` | 6 |
 | Become a professional (user applies) | Done | Connected (`/api/professional/application`), migration `20261014000100` not yet applied to Supabase | 8 |
 | Professional area `/pro`: shell, home, my profile with preview, login entry | Done | Connected (`/api/pro/me`, `/api/pro/profile`, `/api/pro/photo`), migration `20261014000400` | 16 |
@@ -51,6 +51,7 @@ The yellow "Demo data on this page" banner is in `admin-shell.tsx`. Remove it fo
 | Professional bookings (`/pro/bookings`) | Done | Connected: list, cancel, reschedule, outcome, session notes, meeting link (`/api/pro/bookings/:id`), migration `20261014000400` | 16 |
 | Professional clients (`/pro/clients`, client file) | Done | Partly: list comes from real bookings. Summary notes and archive still memory only | 16 |
 | Public directory and booking (`/professional`, `/professional/<slug>`, `/professional/<slug>/book`) | Done | Connected: only listed professionals, real open times, instant booking (`/api/bookings`), migration `20261014000400` | 16 |
+| My appointments for users (`/appointments`) | Done | Connected (`GET /api/appointments`, `POST /api/appointments/:id` with `cancel` or `sharing`). No migration | 21 |
 | Messages between client and professional (text and voice): `/pro/messages`, `/messages` | Done on mock data | Waiting for backend | 17 |
 | Care plan: professional gives tasks, client sees them in Your Plan For Today (`/pro/clients/<id>`, `/care-plan`, home) | Done on mock data | Waiting for backend | 18 |
 | Sessions: meeting links and Join, after session steps, suggest next session, repeating series, quick replies | Done on mock data | Waiting for backend | 19 |
@@ -65,9 +66,20 @@ The yellow "Demo data on this page" banner is in `admin-shell.tsx`. Remove it fo
 | Admin bookings chart: sessions per day and new bookings per day (`/admin/bookings`) | Done on mock data | Waiting for backend | 12 |
 | MindGuide podcasts: user pages `/podcasts` and `/podcasts/<id>`, admin Podcasts tab | Done on mock data | Waiting for backend | 11 |
 | Community: professionals and admins create groups, admins read chats and shut groups down, users report a person, image, message or group (`/community`, `/admin/community`) | Done on mock data | Waiting for backend | 14 |
-| Other admin pages (bookings, journal prompts, settings, audit log) | Built by Sokheng on mock data | Not started | not written yet |
+| Admin audit log (`/admin/audit-log`) | Done | Connected (`GET /api/admin/audit-log`). No migration | 5 |
+| Other admin pages (bookings, journal prompts, settings) | Built by Sokheng on mock data | Not started | not written yet |
 
 ## 5. Admin users page
+
+**Connected (14 Oct 2026), migration `20261014000600_admin_users_open_times.sql`:**
+
+- `GET /api/admin/users` calls `admin_list_users()` (admin only, `security definer`): email from `auth.users`, last sign in, and counts only (days active in 30 days from mood check ins, journal dates and symptom checks; check in count; booking count). Returns `currentUserId` from the session, so "you" is real. All accounts are returned (up to 2000) and the page searches in the browser.
+- `PATCH /api/admin/users/:id/role` body `{ role, promotion? }` calls the new 6 argument `set_user_role()`: admin only, never your own role, never the last active admin, admins can make admins, and promoting someone without a professional profile needs title, license number and issuing body, which creates a verified profile and credential (an admin's test profile is replaced). Logged as `change_role`, plus `promote_professional` with the license and note.
+- `PATCH /api/admin/users/:id/status` (from section 6) suspends with a required reason, or restores.
+- **Audit log page** reads `GET /api/admin/audit-log` (`lib/controllers/audit-controller.ts`), which turns each action code into a readable line with who did it, who it was about (names only) and a short detail (role change, reason, note). Rows with no admin were made in the Supabase dashboard.
+- The old sample `users` list stays only for the demo Bookings page.
+- **Nightly open times:** `refresh_all_open_times()` mirrors `openSlots()` in SQL and adds missing times for every active professional's booking window. pg_cron runs it at 00:05 Cambodia time (`arom-refresh-open-times`). It only adds; saving the schedule in `/pro` still replaces times exactly.
+- Still open: `avatarUrl` (null, the page shows initials) and server side search for very large numbers of users.
 
 **Files:** `app/admin/_data/users.ts`, `app/admin/_components/users-view.tsx`, actions in `admin-provider.tsx`.
 
@@ -711,7 +723,7 @@ Suggested table: `professional_episodes` (columns as above, `takeaways` and `cha
 
 ## 21. Planned next (frontend not built yet)
 
-- **User side:** a page listing the user's own sessions (the sidebar "Appointments" item is still Soon). Today the next session and Join show at the top of the chat with that professional.
+- **User side, done (14 Oct 2026):** `/appointments` lists the user's own sessions (upcoming, then past and cancelled) with Join for online sessions, the professional's move or cancel reason, cancel with an optional reason (upcoming only, frees the time), and the per booking sharing switches (`set_appointment_sharing()`). Code: `lib/controllers/appointments-controller.ts`, `app/_components/appointments/user-appointments.tsx`. The sidebar "Appointments" item now links there, and "View Appointment" after booking opens it. The Messages "Next session" strip still reads the demo session store.
 - **Make professional (Way 2):** phone is optional there because the admin already knows the person. Add an optional phone field to `ProfessionalPromotion` when the backend supports it.
 
 ## 14. Community: groups, chat moderation and reports

@@ -24,7 +24,7 @@ import {
   useLanguage,
 } from '../../_components/language-provider';
 // Pages that read real data from the backend. The demo banner is hidden on these.
-const REAL_DATA_PAGES = ['/admin', '/admin/professionals'];
+const REAL_DATA_PAGES = ['/admin', '/admin/professionals', '/admin/users', '/admin/audit-log'];
 
 export function AdminShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();

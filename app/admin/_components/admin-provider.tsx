@@ -18,7 +18,6 @@ import {
 } from '../_data/professionals';
 
 import {
-  currentAdminId,
   initialUsers,
   type AdminUser,
   type UserRole,
@@ -76,6 +75,7 @@ import {
   type Announcement,
 } from '../../_components/announcements';
 import { FREE_DURING_TESTING } from '@/lib/pricing';
+import { useAuth } from '../../_components/auth-provider';
 
 import {
   initialReports,
@@ -109,13 +109,20 @@ type AdminState = {
     note: string,
   ) => Promise<ActionResult>;
 
+  // Sample accounts still used by the demo Bookings page. The Users page
+  // uses userRecords, which comes from the database.
   users: AdminUser[];
-  setUserStatus: (userId: string, status: UserStatus) => void;
+  userRecords: AdminUser[];
+  usersLoad: LoadStatus;
+  // The signed in admin, from the session.
+  currentUserId: string | null;
+  reloadUsers: () => void;
+  setUserStatus: (userId: string, status: UserStatus, reason: string) => Promise<ActionResult>;
   setUserRole: (
     userId: string,
     role: UserRole,
     promotion?: ProfessionalPromotion,
-  ) => void;
+  ) => Promise<ActionResult>;
 
   contentRecords: ContentRecord[];
   currentAdminName: string;
@@ -219,23 +226,17 @@ export type ProfessionalPromotion = {
 const AdminContext = createContext<AdminState | null>(null);
 
 export function AdminProvider({ children }: { children: ReactNode }) {
-  const [professionals, setProfessionals] =
-    useState<Professional[]>(initialProfessionals);
+  // Sample professionals for the demo pages (bookings, community, podcasts).
+  const [professionals] = useState<Professional[]>(initialProfessionals);
 
-  const [users, setUsers] = useState<AdminUser[]>(initialUsers);
+  // Demo accounts for the sample Bookings page only.
+  const [users] = useState<AdminUser[]>(initialUsers);
 
   const [contentRecords, setContentRecords] = useState<ContentRecord[]>(
     initialContentRecords,
   );
 
-  function updateProfessional(
-    id: string,
-    update: (record: Professional) => Professional,
-  ) {
-    setProfessionals((current) =>
-      current.map((item) => (item.id === id ? update(item) : item)),
-    );
-  }
+
 
   const [professionalRecords, setProfessionalRecords] = useState<Professional[]>([]);
   const [professionalsLoad, setProfessionalsLoad] = useState<LoadStatus>('loading');
@@ -302,82 +303,52 @@ export function AdminProvider({ children }: { children: ReactNode }) {
     return result;
   }
 
-  function setUserStatus(userId: string, status: UserStatus) {
-    setUsers((current) =>
-      current.map((user) => (user.id === userId ? { ...user, status } : user)),
-    );
+  const [userRecords, setUserRecords] = useState<AdminUser[]>([]);
+  const [usersLoad, setUsersLoad] = useState<LoadStatus>('loading');
+
+  const reloadUsers = useCallback(async () => {
+    try {
+      const response = await fetch('/api/admin/users', { cache: 'no-store' });
+      if (!response.ok) throw new Error('load failed');
+      const data = (await response.json()) as { users: AdminUser[] };
+      setUserRecords(data.users);
+      setUsersLoad('ready');
+    } catch {
+      setUsersLoad('error');
+    }
+  }, []);
+
+  useEffect(() => {
+    // Loading from an external API on mount is what this effect is for.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void reloadUsers();
+  }, [reloadUsers]);
+
+  async function setUserStatus(userId: string, status: UserStatus, reason: string): Promise<ActionResult> {
+    const result = await sendAdminRequest(`/api/admin/users/${userId}/status`, 'PATCH', {
+      status,
+      reason: reason || undefined,
+    });
+    if (result.ok) await Promise.all([reloadUsers(), reloadProfessionals()]);
+    return result;
   }
 
-  function setUserRole(
+  async function setUserRole(
     userId: string,
     role: UserRole,
     promotion?: ProfessionalPromotion,
-  ) {
-    const user = users.find((item) => item.id === userId);
-
-    if (!user || user.role === role) return;
-
-    setUsers((current) =>
-      current.map((item) => (item.id === userId ? { ...item, role } : item)),
-    );
-
-    if (role === 'professional' && promotion) {
-      const today = new Date().toISOString().slice(0, 10);
-      const promoted = {
-        role: promotion.title,
-        verificationStatus: 'verified',
-        accountStatus: 'active',
-        credential: {
-          licenseNumber: promotion.licenseNumber,
-          issuingBody: promotion.issuingBody,
-          documentName: '',
-          submittedAt: today,
-        },
-        pendingChanges: [],
-        reviewNote: promotion.note,
-        source: 'admin',
-      } satisfies Partial<Professional>;
-
-      setProfessionals((current) =>
-        current.some((item) => item.id === userId)
-          ? current.map((item) =>
-              item.id === userId ? { ...item, ...promoted } : item,
-            )
-          : [
-              ...current,
-              {
-                id: userId,
-                name: user.fullName,
-                kmName: '',
-                kmRole: '',
-                specialties: [],
-                languages: [user.preferredLanguage === 'km' ? 'Khmer' : 'English'],
-                experience: '',
-                about: '',
-                kmAbout: '',
-                image: '',
-                session: 'Online',
-                phone: '',
-                telegram: '',
-                joinedAt: today,
-                ...promoted,
-              },
-            ],
-      );
-    }
-
-    // Matches set_user_role(): a former professional leaves the public directory.
-    if (user.role === 'professional') {
-      updateProfessional(userId, (item) => ({
-        ...item,
-        verificationStatus: 'rejected',
-        reviewNote: 'Professional role removed by an admin.',
-      }));
-    }
+  ): Promise<ActionResult> {
+    const result = await sendAdminRequest(`/api/admin/users/${userId}/role`, 'PATCH', {
+      role,
+      promotion,
+    });
+    if (result.ok) await Promise.all([reloadUsers(), reloadProfessionals()]);
+    return result;
   }
 
-  const currentAdminName =
-    users.find((user) => user.id === currentAdminId)?.fullName ?? 'Admin';
+  const { user: signedIn } = useAuth();
+  const currentUserId = signedIn?.id ?? null;
+  const currentAdminName = signedIn?.fullName || 'Admin';
 
   function updateContentRecord(
     id: string,
@@ -809,6 +780,10 @@ export function AdminProvider({ children }: { children: ReactNode }) {
         reviewProfileChanges,
         setProfessionalAccess,
         users,
+        userRecords,
+        usersLoad,
+        currentUserId,
+        reloadUsers,
         setUserStatus,
         setUserRole,
         contentRecords,

@@ -24,6 +24,8 @@ export const signupSchema = z
     password: z
       .string()
       .min(8, "Use at least 8 characters")
+      // Supabase Auth hashes at most 72 characters; longer would be cut silently.
+      .max(72, "Use 72 characters or fewer")
       .regex(/[a-z]/, "Include a lowercase letter")
       .regex(/[A-Z]/, "Include an uppercase letter")
       .regex(/[0-9]/, "Include a number")
@@ -61,6 +63,32 @@ export const profileUpdateSchema = z
   .refine((values) => Object.keys(values).length > 0, {
     message: "Nothing to update",
   });
+
+/** The 6 digit code from the confirmation email, typed on the device that signed up. */
+export const verifyCodeSchema = z.object({
+  email: z
+    .string()
+    .trim()
+    .min(1, "Email is required")
+    .email("Enter a valid email address"),
+  code: z
+    .string()
+    .trim()
+    .regex(/^\d{6}$/, "Enter the 6 digit code from the email"),
+});
+
+export type VerifyCodeValues = z.infer<typeof verifyCodeSchema>;
+
+/**
+ * Only same site paths, so a `next` link can never send someone off AROM.
+ * Rejects "//host" and "/\host" (browsers read both as another site) and
+ * control characters.
+ */
+export function safeNextPath(value: string | null | undefined, fallback = "/") {
+  if (!value || !value.startsWith("/") || value.startsWith("//")) return fallback;
+  if (/[\\\u0000-\u001f]/.test(value)) return fallback;
+  return value;
+}
 
 /** sessionStorage key that carries the signup email to the confirm page. Never put it in the URL. */
 export const PENDING_CONFIRMATION_KEY = "arom:pending-confirmation";

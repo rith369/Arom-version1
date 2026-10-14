@@ -25,7 +25,6 @@ import { useAdmin, type ProfessionalPromotion } from './admin-provider';
 import { useLanguage } from '../../_components/language-provider';
 
 import {
-  currentAdminId,
   type AdminUser,
   type UserRole,
   type UserStatus,
@@ -82,9 +81,12 @@ function ActionDialog({
   confirmLabel: string;
   isDestructive: boolean;
   onCancel: () => void;
-  onSubmit: (form: FormData) => void;
+  // Returns an error message to show, or null when done.
+  onSubmit: (form: FormData) => Promise<string | null>;
 }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const [error, setError] = useState('');
+  const [busy, setBusy] = useState(false);
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -96,9 +98,14 @@ function ActionDialog({
     };
   }, []);
 
-  function submit(event: FormEvent<HTMLFormElement>) {
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    onSubmit(new FormData(event.currentTarget));
+    if (busy) return;
+    setBusy(true);
+    setError('');
+    const failure = await onSubmit(new FormData(event.currentTarget));
+    setBusy(false);
+    if (failure) setError(failure);
   }
 
   return (
@@ -124,6 +131,12 @@ function ActionDialog({
 
         <div className="mt-4 text-sm leading-6 text-ink-muted">{children}</div>
 
+        {error && (
+          <p role="alert" className="mt-4 text-sm text-arom-danger">
+            {error}
+          </p>
+        )}
+
         <div className="mt-6 flex justify-end gap-3">
           <button
             type="button"
@@ -135,7 +148,8 @@ function ActionDialog({
 
           <button
             type="submit"
-            className={`rounded-full px-5 py-2.5 text-sm text-white ${
+            disabled={busy}
+            className={`rounded-full px-5 py-2.5 text-sm text-white disabled:opacity-60 ${
               isDestructive
                 ? 'bg-arom-danger hover:opacity-90'
                 : 'bg-arom hover:bg-arom-deep'
@@ -149,7 +163,14 @@ function ActionDialog({
 }
 
 export function UsersView() {
-  const { users, setUserStatus, setUserRole } = useAdmin();
+  const {
+    userRecords: users,
+    usersLoad,
+    reloadUsers,
+    currentUserId,
+    setUserStatus,
+    setUserRole,
+  } = useAdmin();
   const { language } = useLanguage();
 
   const km = language === 'km';
@@ -296,31 +317,36 @@ export function UsersView() {
     return [...roleActions, user.status === 'active' ? 'suspend' : 'restore'];
   }
 
-  function runAction(form: FormData) {
-    if (!pendingAction) return;
+  async function runAction(form: FormData): Promise<string | null> {
+    if (!pendingAction) return null;
 
     const { user, kind } = pendingAction;
     const text = (key: string) => String(form.get(key) ?? '').trim();
 
+    let promotion: ProfessionalPromotion | undefined;
     if (kind === 'makeProfessional') {
-      const promotion: ProfessionalPromotion = {
+      promotion = {
         title: text('title'),
         licenseNumber: text('licenseNumber'),
         issuingBody: text('issuingBody'),
         note: text('note'),
       };
-
-      setUserRole(user.id, 'professional', promotion);
-    } else if (kind === 'makeAdmin') {
-      setUserRole(user.id, 'admin');
-    } else if (kind === 'removeProfessional' || kind === 'removeAdmin') {
-      setUserRole(user.id, 'user');
-    } else {
-      setUserStatus(user.id, kind === 'suspend' ? 'suspended' : 'active');
     }
+
+    const result =
+      kind === 'makeProfessional'
+        ? await setUserRole(user.id, 'professional', promotion)
+        : kind === 'makeAdmin'
+          ? await setUserRole(user.id, 'admin')
+          : kind === 'removeProfessional' || kind === 'removeAdmin'
+            ? await setUserRole(user.id, 'user')
+            : await setUserStatus(user.id, kind === 'suspend' ? 'suspended' : 'active', text('reason'));
+
+    if (!result.ok) return result.message;
 
     setNotice(`${user.fullName}: ${actionConfig[kind].done}`);
     setPendingAction(null);
+    return null;
   }
 
   function clearFilters() {
@@ -437,8 +463,8 @@ export function UsersView() {
         'They lose access to the admin area right away.',
       ),
       suspend: t(
-        'ពួកគេនឹងមិនអាចចូលគណនីបានទេ រហូតដល់អ្នកស្ដារវាវិញ។',
-        'They cannot sign in until you restore the account.',
+        'ពួកគេនៅតែអាចចូល មើល និងលុបទិន្នន័យផ្ទាល់ខ្លួនបាន ប៉ុន្តែមិនអាចកក់ ចូលក្រុម បង្ហោះ ឬផ្សព្វផ្សាយបានទេ រហូតដល់អ្នកស្ដារវាវិញ។ ប្រសិនបើជាអ្នកជំនាញ ប្រវត្តិរូបនឹងត្រូវលាក់។',
+        'They can still sign in to see or delete their own data, but cannot book, join groups, post or publish until you restore the account. A professional is hidden from the directory.',
       ),
       restore: t(
         'ពួកគេនឹងអាចចូលគណនីបានម្តងទៀត។',
@@ -450,6 +476,12 @@ export function UsersView() {
       <>
         {who}
         <p className="mt-4">{messages[kind]}</p>
+        {kind === 'suspend' && (
+          <label className="mt-4 block font-medium text-ink">
+            Reason (kept in the audit log) *
+            <textarea name="reason" required rows={2} maxLength={500} className={fieldClass} />
+          </label>
+        )}
       </>
     );
   }
@@ -536,6 +568,26 @@ export function UsersView() {
         </select>
       </div>
 
+      {usersLoad !== 'ready' && (
+        <div
+          role={usersLoad === 'error' ? 'alert' : 'status'}
+          className={`mt-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border p-4 text-sm ${
+            usersLoad === 'error'
+              ? 'border-arom-danger/25 bg-arom-danger-soft/50 text-arom-danger'
+              : 'border-arom-border bg-white text-ink-muted'
+          }`}>
+          {usersLoad === 'error' ? 'Could not load accounts.' : 'Loading accounts...'}
+          {usersLoad === 'error' && (
+            <button
+              type="button"
+              onClick={() => void reloadUsers()}
+              className="rounded-full border border-arom-danger/30 px-4 py-1.5 text-xs font-semibold hover:bg-white">
+              Try again
+            </button>
+          )}
+        </div>
+      )}
+
       <p className="mt-5 text-xs font-medium text-ink-muted">
         {t('គណនី', 'Accounts')}: {filteredUsers.length} / {users.length}
       </p>
@@ -543,7 +595,7 @@ export function UsersView() {
       <ul className="mt-3 space-y-3">
         {filteredUsers.map((user) => {
           const isOpen = openId === user.id;
-          const isYou = user.id === currentAdminId;
+          const isYou = user.id === currentUserId;
           const isLastAdmin = user.role === 'admin' && adminCount <= 1;
           const panelId = `user-panel-${user.id}`;
 
@@ -554,7 +606,7 @@ export function UsersView() {
             },
             {
               label: t('ចូលចុងក្រោយ', 'Last seen'),
-              value: dateTimeFormatter.format(new Date(user.lastSeenAt)),
+              value: user.lastSeenAt ? dateTimeFormatter.format(new Date(user.lastSeenAt)) : 'Never',
             },
             {
               label: t('ភាសា', 'Language'),
@@ -624,7 +676,7 @@ export function UsersView() {
                   </span>
                   <span className="mt-0.5 block text-xs text-ink-muted">
                     {t('ចូលចុងក្រោយ', 'Last seen')}{' '}
-                    {dateTimeFormatter.format(new Date(user.lastSeenAt))}
+                    {user.lastSeenAt ? dateTimeFormatter.format(new Date(user.lastSeenAt)) : 'Never'}
                   </span>
                 </span>
 

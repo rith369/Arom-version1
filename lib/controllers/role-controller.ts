@@ -5,12 +5,10 @@ import {
   applicationListQuerySchema,
   assignableRoleSchema,
   reviewApplicationSchema,
-  userListQuerySchema,
   uuidSchema,
-  type AdminUserList,
-  type AdminUserSummary,
   type ApplicationSummary,
 } from "@/lib/roles";
+import type { AdminUser } from "@/app/admin/_data/users";
 import { createClient } from "@/lib/supabase/server";
 import { fail, invalidInput, json, readJson, unauthorized } from "./shared";
 
@@ -19,8 +17,6 @@ import { fail, invalidInput, json, readJson, unauthorized } from "./shared";
  * the role from the database (not the JWT), so a promotion or demotion takes
  * effect immediately. RLS and the database functions check again underneath.
  */
-
-const PAGE_SIZE = 25;
 
 type Guard =
   | { ok: true; supabase: SupabaseClient; userId: string; role: UserRole }
@@ -55,41 +51,50 @@ function databaseError(message: string | undefined) {
   return fail("invalid_input", message ?? "That change could not be made.", 400);
 }
 
-/** GET /api/admin/users?role=&page= */
-export async function listUsers(request: NextRequest) {
+interface AdminUserRow {
+  id: string;
+  full_name: string | null;
+  email: string | null;
+  role: UserRole;
+  account_status: "active" | "suspended";
+  language: "en" | "km";
+  created_at: string;
+  last_seen_at: string | null;
+  days_active_30: number;
+  check_in_count: number;
+  booking_count: number;
+}
+
+/**
+ * GET /api/admin/users: every account with email and activity counts.
+ * Counts only, never journal, mood, detection or session content.
+ */
+export async function listUsers() {
   const guard = await requireRole("admin");
   if (!guard.ok) return guard.response;
 
-  const query = userListQuerySchema.safeParse(
-    Object.fromEntries(request.nextUrl.searchParams),
-  );
-  if (!query.success) return invalidInput();
-
-  const { role, page } = query.data;
-  const from = (page - 1) * PAGE_SIZE;
-
-  let builder = guard.supabase
-    .from("profiles")
-    .select("id, full_name, role, account_status, created_at", { count: "exact" })
-    .order("created_at", { ascending: false })
-    .range(from, from + PAGE_SIZE - 1);
-  if (role) builder = builder.eq("role", role);
-
-  const { data, count, error } = await builder;
+  const { data, error } = await guard.supabase.rpc("admin_list_users");
   if (error) return fail("server_error", "We could not load accounts.", 500);
 
-  const users: AdminUserSummary[] = (data ?? []).map((row) => ({
+  const users: AdminUser[] = ((data ?? []) as AdminUserRow[]).map((row) => ({
     id: row.id,
-    fullName: row.full_name,
+    fullName: row.full_name ?? "",
+    email: row.email ?? "",
+    avatarUrl: null,
     role: row.role,
-    accountStatus: row.account_status === "suspended" ? "suspended" : "active",
+    status: row.account_status === "suspended" ? "suspended" : "active",
+    preferredLanguage: row.language === "km" ? "km" : "en",
     createdAt: row.created_at,
+    lastSeenAt: row.last_seen_at,
+    daysActive30: row.days_active_30,
+    checkInCount: row.check_in_count,
+    bookingCount: row.booking_count,
   }));
 
-  return json<AdminUserList>({ users, page, pageSize: PAGE_SIZE, total: count ?? 0 });
+  return json({ users, currentUserId: guard.userId });
 }
 
-/** PATCH /api/admin/users/:id/role  body `{ role: "user" | "professional" }` */
+/** PATCH /api/admin/users/:id/role  body `{ role, promotion? }` */
 export async function setUserRole(request: NextRequest, userId: string) {
   const guard = await requireRole("admin");
   if (!guard.ok) return guard.response;
@@ -98,9 +103,15 @@ export async function setUserRole(request: NextRequest, userId: string) {
   const body = assignableRoleSchema.safeParse(await readJson(request));
   if (!id.success || !body.success) return invalidInput();
 
+  const promotion = body.data.role === "professional" ? body.data.promotion : undefined;
+  // The database function checks: admin only, not yourself, never the last admin.
   const { error } = await guard.supabase.rpc("set_user_role", {
     p_user_id: id.data,
     p_role: body.data.role,
+    p_title: promotion?.title ?? null,
+    p_license_number: promotion?.licenseNumber ?? null,
+    p_issuing_body: promotion?.issuingBody ?? null,
+    p_note: promotion?.note || null,
   });
   if (error) return databaseError(error.message);
 

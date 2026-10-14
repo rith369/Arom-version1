@@ -7,7 +7,10 @@ import { JOIN_OPENS_MINUTES, joinState } from "../../pro/_data/schedule";
 
 // Opens the session's meeting room. Only active from shortly before the start.
 // Keeps its own clock so it turns on without a refresh.
-export function JoinButton({ booking, now, km, size = "md" }: { booking: ProBooking; now: number; km: boolean; size?: "sm" | "md" }) {
+// Only the fields the button needs, so the user's own appointments can use it too.
+type JoinableSession = Pick<ProBooking, "sessionType" | "meetingUrl" | "startsAt" | "durationMinutes" | "status">;
+
+export function JoinButton({ booking, now, km, size = "md" }: { booking: JoinableSession; now: number; km: boolean; size?: "sm" | "md" }) {
   const [current, setCurrent] = useState(now);
   useEffect(() => {
     const id = window.setInterval(() => setCurrent(Date.now()), 30_000);

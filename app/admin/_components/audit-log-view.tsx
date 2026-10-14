@@ -1,11 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Search, ClipboardList } from 'lucide-react';
 
 import { useLanguage } from '../../_components/language-provider';
 
-import { initialAuditEntries, type AuditModule } from '../_data/audit-log';
+import type { AdminAuditEntry, AuditModule } from '../_data/audit-log';
 
 function clinicDate(value: string) {
   const parts = new Intl.DateTimeFormat('en-GB', {
@@ -28,6 +28,26 @@ export function AuditLogView() {
   const [query, setQuery] = useState('');
   const [moduleFilter, setModuleFilter] = useState<AuditModule | 'all'>('all');
   const [date, setDate] = useState('');
+  const [entries, setEntries] = useState<AdminAuditEntry[]>([]);
+  const [loadState, setLoadState] = useState<'loading' | 'ready' | 'error'>('loading');
+
+  useEffect(() => {
+    let active = true;
+    fetch('/api/admin/audit-log', { cache: 'no-store' })
+      .then(async (response) => {
+        if (!response.ok) throw new Error('load failed');
+        const data = (await response.json()) as { entries: AdminAuditEntry[] };
+        if (!active) return;
+        setEntries(data.entries);
+        setLoadState('ready');
+      })
+      .catch(() => {
+        if (active) setLoadState('error');
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const moduleLabels: Record<AuditModule, string> = {
     users: km ? 'អ្នកប្រើប្រាស់' : 'Users',
@@ -42,7 +62,7 @@ export function AuditLogView() {
 
   const search = query.trim().toLocaleLowerCase();
 
-  const visibleEntries = initialAuditEntries
+  const visibleEntries = entries
     .filter((entry) => {
       const matchesModule =
         moduleFilter === 'all' || entry.module === moduleFilter;
@@ -50,7 +70,7 @@ export function AuditLogView() {
       const matchesDate = !date || clinicDate(entry.createdAt) === date;
 
       const matchesSearch =
-        `${entry.actorName} ${entry.action} ${entry.kmAction} ${entry.targetLabel}`
+        `${entry.actorName} ${entry.action} ${entry.kmAction} ${entry.targetLabel} ${entry.detail ?? ''}`
           .toLocaleLowerCase()
           .includes(search);
 
@@ -87,10 +107,18 @@ export function AuditLogView() {
       </p>
 
       <p className="mt-5 rounded-xl bg-arom-wash p-4 text-xs leading-5 text-arom">
-        {km
-          ? 'នេះជាប្រវត្តិសាកល្បង។ សកម្មភាពនៅទំព័រផ្សេងមិនទាន់បន្ថែមកំណត់ហេតុដោយស្វ័យប្រវត្តិ។'
-          : 'These are fictional entries. Actions on other admin pages are not automatically logged yet.'}
+        Every role change, suspension, review, profile change and helpline save is written here by the
+        database. Nobody can edit or delete these lines. Pages still on demo data (Bookings, Community,
+        Reports, MindGuide) do not add lines yet.
       </p>
+
+      {loadState !== 'ready' && (
+        <p
+          role={loadState === 'error' ? 'alert' : 'status'}
+          className={`mt-4 text-sm ${loadState === 'error' ? 'text-arom-danger' : 'text-ink-muted'}`}>
+          {loadState === 'error' ? 'Could not load the audit log. Refresh the page to try again.' : 'Loading...'}
+        </p>
+      )}
 
       <section className="mt-6 overflow-hidden rounded-3xl border border-arom-border bg-white shadow-sm">
         <div className="flex flex-wrap gap-3 border-b border-arom-border p-5">
@@ -198,6 +226,9 @@ export function AuditLogView() {
 
                   <td className="px-5 py-5 text-ink-muted">
                     {entry.targetLabel}
+                    {entry.detail && (
+                      <span className="mt-1 block text-xs text-ink-muted/80">{entry.detail}</span>
+                    )}
                   </td>
                 </tr>
               ))}
@@ -205,7 +236,7 @@ export function AuditLogView() {
           </table>
         </div>
 
-        {!visibleEntries.length && (
+        {loadState === 'ready' && !visibleEntries.length && (
           <div className="p-12 text-center">
             <ClipboardList
               size={32}
@@ -220,7 +251,7 @@ export function AuditLogView() {
 
         <p className="border-t border-arom-border px-5 py-4 text-xs text-ink-muted">
           {km ? 'លទ្ធផល' : 'Showing'} {visibleEntries.length} /{' '}
-          {initialAuditEntries.length}
+          {entries.length}
           {' · '}
           {km ? 'ពេលវេលាភ្នំពេញ' : 'Phnom Penh time'}
         </p>
