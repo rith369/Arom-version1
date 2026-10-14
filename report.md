@@ -7,6 +7,27 @@ A plain-language log of what changed in the app, written for the team rather tha
 
 Each entry lists the commit it landed in, so you can match it to a version of the site.
 
+## 14 Oct 2026: Brand Header on Home, Detection, Journal and Community
+
+Commit `PENDING`. No database changes.
+
+**Why.** The top of these pages showed a level, XP bar, streak and coins that are not real yet. That felt like a game more than a calm wellness space. The header now matches MindGuide and Find a professional: the AROM logo with its tagline, a menu button and the profile picture.
+
+**What changed for users:**
+- **New header on mobile:** AROM logo and "A calmer mind, a brighter you" on the left, the menu button and profile picture on the right.
+- **Level, XP, streak and coins are gone** from the top of Home, Detection, Journal and Community.
+- **On desktop** only the profile picture shows at the top right, because the sidebar already has the logo and menu.
+
+**What changed for the team:**
+- **`TopHeader` (`app/components/top-header.tsx`) no longer takes `level`, `currentXp`, `maxXp`, `streak` or `coins`.** It only takes an optional `onOpenSidebar`.
+
+**What to re-test:**
+1. On a phone, open Home, Detection, Detection Journal and Community. Check the logo, tagline, menu button and profile picture show in one row.
+2. Tap the menu button and check the side menu opens.
+3. Tap the profile picture and check it opens your profile.
+4. Switch to Khmer and check the tagline is in Khmer.
+5. On a laptop, check only the profile picture shows at the top right.
+
 ## 14 Oct 2026: Real Professionals, Real Schedules, Real Bookings
 
 Commit `PENDING`. Migration `20261014000400_pro_profile_booking.sql` must be run in Supabase (after `20261014000200` and `20261014000300`).
