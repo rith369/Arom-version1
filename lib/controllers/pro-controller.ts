@@ -19,6 +19,7 @@ import {
 import { isValidPrice, type SessionPrice } from "@/lib/pricing";
 import { toPrice } from "@/lib/professionals";
 import { supabaseUrl } from "@/lib/supabase/env";
+import { loadArchivedClients } from "./messages-controller";
 import { fail, invalidInput, json, readJson } from "./shared";
 import { requireRole } from "./role-controller";
 
@@ -39,6 +40,8 @@ export interface ProData {
   listed: boolean;
   // An admin's test profile: only admins can find and book it.
   isTest: boolean;
+  // Archived clients: their conversation is closed (section 17).
+  archivedClients: string[];
 }
 
 const PROFILE_COLUMNS =
@@ -165,7 +168,7 @@ async function loadAll(supabase: Supabase, userId: string): Promise<ProData | nu
   const profile = await loadProfile(supabase, userId);
   if (!profile) return null;
 
-  const [changes, scheduleRow, bookingData] = await Promise.all([
+  const [changes, scheduleRow, bookingData, archivedClients] = await Promise.all([
     supabase
       .from("professional_profile_changes")
       .select("field, old_value, new_value, created_at")
@@ -173,6 +176,7 @@ async function loadAll(supabase: Supabase, userId: string): Promise<ProData | nu
       .eq("status", "pending"),
     supabase.from("professional_schedules").select("schedule").eq("professional_id", userId).maybeSingle(),
     loadBookings(supabase, userId, profile.slug),
+    loadArchivedClients(supabase, userId),
   ]);
 
   const schedule = (scheduleRow.data?.schedule as Schedule | undefined) ?? null;
@@ -197,6 +201,7 @@ async function loadAll(supabase: Supabase, userId: string): Promise<ProData | nu
     ...bookingData,
     listed: listed === true,
     isTest: flags?.is_test === true,
+    archivedClients,
   };
 }
 

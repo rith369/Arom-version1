@@ -93,7 +93,7 @@ export function SuggestSessionDialog({
       note: note.trim(),
       meetingUrl: sessionType === 'online' ? schedule.meetingUrl || null : null,
     });
-    sendMessage(
+    void sendMessage(
       {
         id: conversationId(profile.slug, clientId),
         professionalId: profile.slug,

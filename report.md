@@ -7,6 +7,43 @@ A plain-language log of what changed in the app, written for the team rather tha
 
 Each entry lists the commit it landed in, so you can match it to a version of the site.
 
+## 14 Oct 2026: Real Messages Between Clients and Professionals
+
+Commit `PENDING`. Migration `20261014000700_messages.sql` must be run in Supabase (it also creates the private `message-voice` storage bucket).
+
+**Why.** Messages in `/messages` and `/pro/messages` were sample data kept in the browser's memory, so nothing was saved and the user side always showed "Sok Dara". Clients and professionals need a private way to talk between sessions, with text and voice, and only after a real booking.
+
+**What changed for users:**
+- **Messages are real and saved.** You see every professional you have a booked or completed session with, with their real name, photo and reply time.
+- **Text and voice messages** (up to 2 minutes) are sent to the server and kept. New messages and "Seen" appear within about 10 seconds while the chat is open.
+- **Only you and your professional can read them.** Admins cannot. Voice recordings are stored privately and open only through a link that expires after 5 minutes.
+- **Next session strip** in a chat now shows your real next booking with that professional, with Join for online sessions.
+- **Read only when it should be:** if all your sessions with someone were cancelled, or the professional archived you, the chat shows why and you cannot send.
+
+**What changed for professionals:**
+- **Your clients' messages are real,** with unread counts on the list, Home "Needs your attention" and the Prepare page.
+- **Reply time you choose is saved** and shown to clients.
+- **Archive client is saved.** It closes the chat for both of you (messages are kept). Restore client opens it again.
+- Quick replies and "Suggest a session" in the chat still work in this browser only (they are not connected yet).
+
+**What changed for the team:**
+- New tables `conversations` and `messages`, column `professional_profiles.reply_time`, private bucket `message-voice`. No admin read policy on any of them.
+- Writes only through security definer functions: `open_conversation`, `send_message`, `mark_conversation_read`, `set_client_archived`; list through `my_conversations(side)`. Writing needs a booked or completed appointment and an active professional account; suspended senders are blocked.
+- New `lib/messages.ts` (types), `lib/controllers/messages-controller.ts`, routes `/api/messages`, `/api/messages/:slug` (+ `/read`), `/api/pro/messages`, `/api/pro/messages/:clientId` (+ `/read`), `/api/pro/clients/:clientId` (archive), `/api/voice/:messageId`. `GET /api/pro/me` now returns `archivedClients`.
+- `message-store.ts` now loads from the API and checks again every 10 seconds (open chat) or 30 seconds (lists). Supabase Realtime can replace this later.
+- Voice files are checked by their first bytes (WebM, Ogg or MP4 audio, 5 MB at most) and removed again if sending fails.
+- Tested on a local Postgres: cancelled only booking cannot write, both sides write after booking, no direct inserts, read receipts, other users and admins see 0 messages and 0 files, voice folder rules, archive closes and reopens, suspended professional and suspended client refused, signed out visitors refused.
+
+**What to re-test (after running the migration):**
+- As a user with a booking, open Messages, send a text and a voice message;
+- As that professional, open `/pro/messages`, confirm the unread count, open the chat, reply, and play the voice message;
+- Back as the user, confirm the reply arrives and your last message shows "Seen";
+- Change the reply time in `/pro/messages` and confirm the user sees the new text;
+- Archive the client in their client file, confirm both sides can no longer send, then restore;
+- As an admin, confirm there is no way to see these messages.
+
+---
+
 ## 14 Oct 2026: Real Users Page, Real Audit Log, Nightly Open Times
 
 Commit `PENDING`. Migration `20261014000600_admin_users_open_times.sql` must be run in Supabase.

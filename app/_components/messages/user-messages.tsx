@@ -2,21 +2,18 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
-import { ArrowLeft, CalendarCheck, LifeBuoy, Lock, MessageCircle, Mic, Monitor, Repeat, UserRound } from "lucide-react";
-import { getTherapist, getTherapistName } from "@/lib/therapists";
+import { useEffect, useState } from "react";
+import { ArrowLeft, CalendarCheck, LifeBuoy, Lock, MessageCircle, Mic, Monitor, UserRound } from "lucide-react";
+import type { AppointmentsResponse, UserAppointment } from "@/lib/appointments";
 import { DesktopNavigation, MobileNavigation } from "../app-navigation";
 import { useLanguage } from "../language-provider";
-import { DEMO_CLIENT } from "../demo-client";
 import { JoinButton } from "../sessions/join-button";
-import { useSessionStore } from "../sessions/session-store";
 import { ChatThread } from "./chat-thread";
 import {
   REPLY_TIME_LABELS,
-  conversationId,
-  unreadCount,
-  useMessageStore,
+  useConversations,
   type Conversation,
+  type ConversationSummary,
 } from "./message-store";
 
 function Shell({ children }: { children: React.ReactNode }) {
@@ -35,32 +32,41 @@ export function UserMessages({ professionalId }: { professionalId?: string }) {
   const { language } = useLanguage();
   const km = language === "km";
   const t = (kmText: string, enText: string) => (km ? kmText : enText);
-  const { messages, replyTimes } = useMessageStore();
-  const { bookings } = useSessionStore();
+  const list = useConversations("client");
   const [now] = useState(() => Date.now());
+  const [appointments, setAppointments] = useState<UserAppointment[]>([]);
 
-  // Only professionals this person has booked with can be messaged.
-  const mine = bookings.filter((booking) => booking.clientId === DEMO_CLIENT.id && booking.status !== "cancelled");
-  const professionalIds = [...new Set(mine.map((booking) => booking.professionalId))];
-  const conversations: Conversation[] = professionalIds
-    .map((id) => getTherapist(id))
-    .filter((therapist) => therapist !== undefined)
-    .map((therapist) => ({
-      id: conversationId(therapist.slug, DEMO_CLIENT.id),
-      professionalId: therapist.slug,
-      professionalName: therapist.name,
-      kmProfessionalName: therapist.kmName ?? therapist.name,
-      clientId: DEMO_CLIENT.id,
-      clientName: DEMO_CLIENT.name,
-    }));
-  const lastFor = (id: string) =>
-    messages.filter((item) => item.conversationId === id).sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0];
-  const sorted = [...conversations].sort((a, b) => (lastFor(b.id)?.createdAt ?? "").localeCompare(lastFor(a.id)?.createdAt ?? ""));
-  const selected = conversations.find((item) => item.professionalId === professionalId);
-  const selectedTherapist = selected ? getTherapist(selected.professionalId) : undefined;
-  const nextSession = selected
-    ? mine
-        .filter((booking) => booking.professionalId === selected.professionalId && booking.status === "booked" && Date.parse(booking.startsAt) + booking.durationMinutes * 60_000 > now)
+  // For the "Next session" strip. Only this person's own appointments.
+  useEffect(() => {
+    let active = true;
+    fetch("/api/appointments", { cache: "no-store" })
+      .then((response) => (response.ok ? (response.json() as Promise<AppointmentsResponse>) : null))
+      .then((data) => {
+        if (active && data) setAppointments(data.appointments);
+      })
+      .catch(() => undefined);
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  // Only professionals this person has booked with can be messaged (checked by the server).
+  const nameOf = (item: ConversationSummary) => (km && item.kmProfessionalName ? item.kmProfessionalName : item.professionalName);
+  const sorted = [...list.conversations].sort(
+    (a, b) => (b.last?.createdAt ?? "").localeCompare(a.last?.createdAt ?? "") || a.professionalName.localeCompare(b.professionalName),
+  );
+  const selectedSummary = list.conversations.find((item) => item.professionalId === professionalId);
+  const selected: Conversation | undefined = selectedSummary && {
+    id: selectedSummary.key,
+    professionalId: selectedSummary.professionalId,
+    professionalName: selectedSummary.professionalName,
+    kmProfessionalName: selectedSummary.kmProfessionalName,
+    clientId: selectedSummary.clientId,
+    clientName: "",
+  };
+  const nextSession = selectedSummary
+    ? appointments
+        .filter((item) => item.professional?.slug === selectedSummary.professionalId && item.status === "booked" && Date.parse(item.endsAt) > now)
         .sort((a, b) => a.startsAt.localeCompare(b.startsAt))[0]
     : undefined;
   const sessionTime = new Intl.DateTimeFormat(km ? "km-KH" : "en-GB", { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", hourCycle: "h23", timeZone: "Asia/Phnom_Penh" });
@@ -73,13 +79,18 @@ export function UserMessages({ professionalId }: { professionalId?: string }) {
         <Lock size={14} aria-hidden="true" />
         {t("មានតែអ្នក និងអ្នកជំនាញរបស់អ្នកទេដែលអាចអានសារទាំងនេះ។", "Only you and your professional can read these messages.")}
       </p>
-      <p className="mt-1 text-xs text-ink-muted">
-        {t(`ទិន្នន័យសាកល្បង: កំពុងមើលជា ${DEMO_CLIENT.name}`, `Demo: viewing as ${DEMO_CLIENT.name}`)}
-      </p>
 
       <div className="mt-5 grid overflow-hidden rounded-3xl border border-arom-border bg-white shadow-card lg:h-[72vh] lg:grid-cols-[18rem_minmax(0,1fr)]">
         <aside className={`border-arom-border lg:flex lg:min-h-0 lg:flex-col lg:border-r ${selected ? "hidden" : "flex flex-col"}`}>
-          {sorted.length === 0 ? (
+          {list.status === "loading" ? (
+            <p role="status" className="p-6 text-center text-sm text-ink-muted">
+              {t("កំពុងផ្ទុក...", "Loading...")}
+            </p>
+          ) : list.status === "error" ? (
+            <p role="alert" className="p-6 text-center text-sm text-arom-danger">
+              {t("មិនអាចផ្ទុកសាររបស់អ្នកបានទេ។ សូមព្យាយាមម្តងទៀត។", "We could not load your messages. Please try again.")}
+            </p>
+          ) : sorted.length === 0 ? (
             <p className="p-6 text-center text-sm leading-6 text-ink-muted">
               {t("អ្នកអាចផ្ញើសារទៅអ្នកជំនាញ បន្ទាប់ពីអ្នកកក់ការពិគ្រោះជាមួយពួកគេ។", "You can message a professional after you book a session with them.")}{" "}
               <Link href="/professional" className="font-semibold text-arom underline">
@@ -89,25 +100,25 @@ export function UserMessages({ professionalId }: { professionalId?: string }) {
           ) : (
             <ul className="min-h-0 flex-1 divide-y divide-arom-border overflow-y-auto">
               {sorted.map((conversation) => {
-                const therapist = getTherapist(conversation.professionalId);
-                const last = lastFor(conversation.id);
-                const unread = unreadCount(messages, conversation.id, "client");
+                const { last, unread } = conversation;
                 return (
-                  <li key={conversation.id}>
+                  <li key={conversation.key}>
                     <Link
                       href={`/messages/${conversation.professionalId}`}
                       aria-current={conversation.professionalId === professionalId ? "page" : undefined}
                       className={`flex items-center gap-3 px-4 py-3 hover:bg-arom-wash/60 ${conversation.professionalId === professionalId ? "bg-arom-wash" : ""}`}
                     >
-                      {therapist && (
-                        <span className="relative size-11 shrink-0 overflow-hidden rounded-full bg-arom-soft">
-                          <Image src={therapist.image} alt="" fill sizes="44px" className="object-cover" style={{ objectPosition: therapist.imagePosition }} />
-                        </span>
-                      )}
+                      <span className="relative flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-arom-soft text-sm font-semibold text-arom">
+                        {conversation.photoUrl ? (
+                          <Image src={conversation.photoUrl} alt="" fill sizes="44px" className="object-cover" />
+                        ) : (
+                          <span aria-hidden="true">{conversation.professionalName.charAt(0)}</span>
+                        )}
+                      </span>
                       <span className="min-w-0 flex-1">
                         <span className="flex items-center justify-between gap-2">
                           <span className={`truncate text-sm ${unread ? "font-bold" : "font-medium"} text-ink`}>
-                            {therapist ? getTherapistName(therapist, km) : conversation.professionalName}
+                            {nameOf(conversation)}
                           </span>
                           {last && <span className="shrink-0 text-[0.7rem] text-ink-muted">{date.format(new Date(last.createdAt))}</span>}
                         </span>
@@ -116,11 +127,9 @@ export function UserMessages({ professionalId }: { professionalId?: string }) {
                           <span className="truncate">
                             {!last
                               ? t("មិនទាន់មានសារ", "No messages yet")
-                              : last.kind === "suggestion"
-                                ? t("ម៉ោងសម្រាប់វគ្គបន្ទាប់របស់អ្នក", "Times for your next session")
-                                : last.kind === "voice"
+                              : last.kind === "voice"
                                 ? t("សារសំឡេង", "Voice message")
-                                : `${last.sender === "client" ? t("អ្នក: ", "You: ") : ""}${last.text}`}
+                                : `${last.mine ? t("អ្នក: ", "You: ") : ""}${last.text}`}
                           </span>
                         </span>
                       </span>
@@ -134,7 +143,7 @@ export function UserMessages({ professionalId }: { professionalId?: string }) {
         </aside>
 
         <section className={`min-h-0 flex-col ${selected ? "flex h-[75vh] lg:h-auto" : "hidden lg:flex"}`}>
-          {selected ? (
+          {selected && selectedSummary ? (
             <>
               <header className="flex items-center gap-3 border-b border-arom-border px-4 py-3 sm:px-6">
                 <Link href="/messages" aria-label={t("ត្រឡប់ក្រោយ", "Back")} className="rounded-full p-1.5 text-arom hover:bg-arom-wash lg:hidden">
@@ -142,10 +151,10 @@ export function UserMessages({ professionalId }: { professionalId?: string }) {
                 </Link>
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-bold text-ink">
-                    {selectedTherapist ? getTherapistName(selectedTherapist, km) : selected.professionalName}
+                    {nameOf(selectedSummary)}
                   </p>
                   <p className="text-xs text-ink-muted">
-                    {km ? REPLY_TIME_LABELS[replyTimes[selected.professionalId] ?? "one_day"].km : REPLY_TIME_LABELS[replyTimes[selected.professionalId] ?? "one_day"].en}
+                    {km ? REPLY_TIME_LABELS[selectedSummary.replyTime].km : REPLY_TIME_LABELS[selectedSummary.replyTime].en}
                   </p>
                 </div>
                 <Link href={`/professional/${selected.professionalId}`} className="text-sm font-semibold text-arom hover:underline">
@@ -162,12 +171,6 @@ export function UserMessages({ professionalId }: { professionalId?: string }) {
                       {nextSession.sessionType === "online" ? <Monitor size={12} aria-hidden="true" /> : <UserRound size={12} aria-hidden="true" />}
                       {nextSession.sessionType === "online" ? t("អនឡាញ", "Online") : t("ជួបផ្ទាល់", "In person")}
                     </span>
-                    {nextSession.seriesId && (
-                      <span className="ml-2 inline-flex items-center gap-1 text-xs text-ink-muted">
-                        <Repeat size={12} aria-hidden="true" />
-                        {t("ធ្វើម្តងទៀត", "Repeating")}
-                      </span>
-                    )}
                   </span>
                   {nextSession.sessionType === "online" && !nextSession.meetingUrl ? (
                     <span className="text-xs text-ink-muted">{t("តំណប្រជុំនឹងមកដល់ពីអ្នកជំនាញ", "Your professional will add the meeting link")}</span>

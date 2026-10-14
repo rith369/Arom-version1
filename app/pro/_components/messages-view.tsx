@@ -11,7 +11,7 @@ import {
   REPLY_TIME_LABELS,
   conversationId,
   setReplyTime,
-  unreadCount,
+  useConversations,
   useMessageStore,
   type Conversation,
   type ReplyTime,
@@ -21,7 +21,8 @@ import { clientsFrom } from '../_data/clients';
 
 export function ProMessagesView({ clientId }: { clientId?: string }) {
   const { bookings, profile, archivedClients, schedule } = usePro();
-  const { messages, replyTimes } = useMessageStore();
+  const { replyTimes } = useMessageStore();
+  const list = useConversations('professional');
   const { language } = useLanguage();
   const km = language === 'km';
   const t = (kmText: string, enText: string) => (km ? kmText : enText);
@@ -40,18 +41,15 @@ export function ProMessagesView({ clientId }: { clientId?: string }) {
     clientId: id,
     clientName: name,
   });
-  const lastMessage = (id: string) =>
-    messages
-      .filter((item) => item.conversationId === conversationId(profile.slug, id))
-      .sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0];
+  const summaryFor = (id: string) => list.conversations.find((item) => item.key === conversationId(profile.slug, id));
 
   const search = query.trim().toLocaleLowerCase();
   const rows = clients
     .filter((client) => client.name.toLocaleLowerCase().includes(search))
     .map((client) => ({
       client,
-      last: lastMessage(client.id),
-      unread: unreadCount(messages, conversationId(profile.slug, client.id), 'professional'),
+      last: summaryFor(client.id)?.last ?? null,
+      unread: summaryFor(client.id)?.unread ?? 0,
     }))
     .sort((a, b) => b.unread - a.unread || (b.last?.createdAt ?? '').localeCompare(a.last?.createdAt ?? '') || a.client.name.localeCompare(b.client.name));
 
@@ -80,7 +78,7 @@ export function ProMessagesView({ clientId }: { clientId?: string }) {
           {t('ពេលវេលាឆ្លើយតបដែលអតិថិជនឃើញ', 'Reply time clients see')}
           <select
             value={replyTime}
-            onChange={(event) => setReplyTime(profile.slug, event.target.value as ReplyTime)}
+            onChange={(event) => void setReplyTime(profile.slug, event.target.value as ReplyTime)}
             className="mt-1 block rounded-xl border border-arom-border bg-white px-3 py-2 text-sm text-ink">
             {(Object.keys(REPLY_TIME_LABELS) as ReplyTime[]).map((value) => (
               <option key={value} value={value}>
@@ -130,11 +128,9 @@ export function ProMessagesView({ clientId }: { clientId?: string }) {
                         <span className="truncate">
                           {!last
                             ? t('មិនទាន់មានសារ', 'No messages yet')
-                            : last.kind === 'suggestion'
-                              ? t('អ្នកបានណែនាំម៉ោងវគ្គបន្ទាប់', 'You suggested times for the next session')
-                              : last.kind === 'voice'
+                            : last.kind === 'voice'
                               ? t('សារសំឡេង', 'Voice message')
-                              : `${last.sender === 'professional' ? t('អ្នក: ', 'You: ') : ''}${last.text}`}
+                              : `${last.mine ? t('អ្នក: ', 'You: ') : ''}${last.text}`}
                         </span>
                       </span>
                     </span>

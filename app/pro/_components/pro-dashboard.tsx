@@ -6,7 +6,7 @@ import { AlertCircle, ArrowRight, CalendarCheck, CheckCircle2, ClipboardList, Me
 import { usePro } from './pro-provider';
 import { mondayOf } from './weekly-sessions-chart';
 import { cambodiaToday, isActive, progressBetween, sharingKey, shiftDate, useCareStore } from '../../_components/care/care-store';
-import { conversationId, unreadCount, useMessageStore } from '../../_components/messages/message-store';
+import { conversationId, unreadCount, useConversations } from '../../_components/messages/message-store';
 import { JoinButton } from '../../_components/sessions/join-button';
 import { useSessionStore } from '../../_components/sessions/session-store';
 import type { ProBooking } from '../_data/bookings';
@@ -142,7 +142,7 @@ export function StatTiles({ now, km }: { now: number; km: boolean }) {
 // Things waiting for the professional, each linking to where it is done.
 export function NeedsAttention({ now, km }: { now: number; km: boolean }) {
   const { bookings, profile, archivedClients } = usePro();
-  const { messages } = useMessageStore();
+  const conversations = useConversations('professional');
   const { suggestions } = useSessionStore();
   const care = useCareStore();
   const t = (kmText: string, enText: string) => (km ? kmText : enText);
@@ -150,7 +150,7 @@ export function NeedsAttention({ now, km }: { now: number; km: boolean }) {
 
   const outcomes = bookings.filter((item) => item.status === 'booked' && endOf(item) <= now);
   const clients = clientsFrom(bookings, now).filter((client) => !archivedClients.includes(client.id));
-  const unread = clients.reduce((sum, client) => sum + unreadCount(messages, conversationId(profile.slug, client.id), 'professional'), 0);
+  const unread = clients.reduce((sum, client) => sum + unreadCount(conversations, conversationId(profile.slug, client.id)), 0);
   const waiting = suggestions.filter((item) => item.professionalId === profile.slug && item.status === 'open');
   const noPlan = clients.filter(
     (client) =>

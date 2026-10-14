@@ -14,7 +14,7 @@ import {
   useCareStore,
 } from '../../_components/care/care-store';
 import { useLanguage } from '../../_components/language-provider';
-import { conversationId, useMessageStore } from '../../_components/messages/message-store';
+import { conversationId, useThread } from '../../_components/messages/message-store';
 import { JoinButton } from '../../_components/sessions/join-button';
 import { seriesPosition } from '../../_components/sessions/session-store';
 import { MAX_NOTE, type ProBooking } from '../_data/bookings';
@@ -49,7 +49,6 @@ function Block({ title, icon: Icon, children, action }: { title: string; icon: t
 export function PrepareView({ bookingId }: { bookingId: string }) {
   const { bookings, sessionNotes, summaryNotes, prepNotes, savePrepNote, profile } = usePro();
   const care = useCareStore();
-  const { messages } = useMessageStore();
   const { language } = useLanguage();
   const km = language === 'km';
   const t = (kmText: string, enText: string) => (km ? kmText : enText);
@@ -58,6 +57,17 @@ export function PrepareView({ bookingId }: { bookingId: string }) {
   const [now] = useState(() => Date.now());
   const [today] = useState(() => cambodiaToday(Date.now()));
   const booking = bookings.find((item) => item.id === bookingId);
+  const { messages: thread } = useThread(
+    booking && {
+      id: conversationId(profile.slug, booking.clientId),
+      professionalId: profile.slug,
+      professionalName: profile.displayName,
+      kmProfessionalName: profile.kmDisplayName,
+      clientId: booking.clientId,
+      clientName: booking.clientName,
+    },
+    'professional',
+  );
   const [plan, setPlan] = useState(prepNotes[bookingId]?.text ?? '');
   const [planStatus, setPlanStatus] = useState('');
 
@@ -95,7 +105,6 @@ export function PrepareView({ bookingId }: { bookingId: string }) {
   const checks = sharing.symptomChecks ? [...(SAMPLE_SHARED[booking.clientId]?.symptomChecks ?? [])].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 3) : [];
 
   // Messages since the last session.
-  const thread = messages.filter((item) => item.conversationId === conversationId(profile.slug, booking.clientId));
   const recent = lastSession ? thread.filter((item) => item.createdAt > lastSession.startsAt) : thread;
   const unread = recent.filter((item) => item.sender === 'client' && !item.readAt).length;
 
