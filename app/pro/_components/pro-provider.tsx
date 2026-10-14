@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
 
 import { FREE_DURING_TESTING } from '@/lib/pricing';
@@ -39,6 +40,8 @@ type ProState = {
   pendingChanges: PendingChange[];
   // True when users can find and book this professional.
   listed: boolean;
+  // An admin's test profile: only admins can find and book it.
+  isTest: boolean;
   hasSchedule: boolean;
   schedule: Schedule;
   saveSchedule: (next: Schedule) => Promise<ActionResult>;
@@ -68,18 +71,25 @@ const ProContext = createContext<ProState | null>(null);
 
 const NETWORK_ERROR = 'Could not reach the server. Check your connection.';
 
-async function request<T>(url: string, init?: RequestInit): Promise<{ ok: true; data: T } | { ok: false; message: string }> {
+async function request<T>(
+  url: string,
+  init?: RequestInit,
+): Promise<{ ok: true; data: T } | { ok: false; message: string; status: number }> {
   try {
     const response = await fetch(url, { cache: 'no-store', ...init });
     const data = (await response.json().catch(() => null)) as (T & { error?: { message?: string } }) | null;
     if (!response.ok || data === null) {
-      return { ok: false, message: data?.error?.message ?? 'That could not be saved.' };
+      return { ok: false, message: data?.error?.message ?? 'That could not be saved.', status: response.status };
     }
     return { ok: true, data };
   } catch {
-    return { ok: false, message: NETWORK_ERROR };
+    return { ok: false, message: NETWORK_ERROR, status: 0 };
   }
 }
+
+// Why the area could not open: not a professional account (admins can open
+// /pro but have no professional profile), no profile row yet, or a failure.
+type LoadError = 'not_professional' | 'no_profile' | 'failed';
 
 const jsonInit = (method: string, body: unknown): RequestInit => ({
   method,
@@ -104,7 +114,7 @@ export function ProProvider({ children }: { children: ReactNode }) {
   const { language } = useLanguage();
   const km = language === 'km';
   const [data, setData] = useState<ProData | null>(null);
-  const [loadError, setLoadError] = useState(false);
+  const [loadError, setLoadError] = useState<LoadError | null>(null);
   const [version, setVersion] = useState(0);
   const [prepNotes, setPrepNotes] = useState<Record<string, SessionNote>>({});
   const [summaryNotes, setSummaryNotes] = useState<Record<string, SessionNote>>({});
@@ -119,9 +129,9 @@ export function ProProvider({ children }: { children: ReactNode }) {
     const result = await request<ProData>('/api/pro/me');
     if (result.ok) {
       applyData(result.data);
-      setLoadError(false);
+      setLoadError(null);
     } else {
-      setLoadError(true);
+      setLoadError(result.status === 403 ? 'not_professional' : result.status === 404 ? 'no_profile' : 'failed');
     }
   }, [applyData]);
 
@@ -134,7 +144,31 @@ export function ProProvider({ children }: { children: ReactNode }) {
   if (!data) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-canvas p-6 text-center">
-        {loadError ? (
+        {loadError === 'not_professional' || loadError === 'no_profile' ? (
+          <div role="alert" className="max-w-md">
+            <p className="text-base font-semibold text-ink">
+              {loadError === 'not_professional'
+                ? km
+                  ? 'ផ្នែកនេះសម្រាប់គណនីអ្នកជំនាញ'
+                  : 'This area is for professional accounts'
+                : km
+                  ? 'ប្រវត្តិរូបអ្នកជំនាញរបស់អ្នកមិនទាន់រៀបចំនៅឡើយ'
+                  : 'Your professional profile is not set up yet'}
+            </p>
+            <p className="mt-2 text-sm leading-6 text-ink-muted">
+              {loadError === 'not_professional'
+                ? km
+                  ? 'គណនីនេះមិនមែនជាអ្នកជំនាញទេ ដូច្នេះមិនមានប្រវត្តិរូប កាលវិភាគ ឬការណាត់ជួបទេ។ សូមចូលដោយគណនីអ្នកជំនាញ ឬដាក់ពាក្យក្លាយជាអ្នកជំនាញ។ ប្រសិនបើអ្នកទើបត្រូវបានអនុម័ត សូមចាកចេញ ហើយចូលម្តងទៀត។'
+                  : 'This account is not a professional, so it has no profile, schedule or bookings. Log in with a professional account, or apply to become one. If you were just approved, log out and log in again.'
+                : km
+                  ? 'គណនីរបស់អ្នកជាអ្នកជំនាញ ប៉ុន្តែមិនមានប្រវត្តិរូបទេ។ សូមទាក់ទងក្រុម AROM។'
+                  : 'Your account is a professional, but it has no profile yet. Please contact the AROM team.'}
+            </p>
+            <Link href="/" className="mt-4 inline-block rounded-full bg-arom px-5 py-2 text-sm font-semibold text-white hover:bg-arom-deep">
+              {km ? 'ត្រឡប់ទៅទំព័រដើម' : 'Back to home'}
+            </Link>
+          </div>
+        ) : loadError === 'failed' ? (
           <div role="alert">
             <p className="text-sm text-arom-danger">
               {km ? 'មិនអាចផ្ទុកផ្នែកអ្នកជំនាញបានទេ។' : 'We could not load your professional area.'}
@@ -211,6 +245,7 @@ export function ProProvider({ children }: { children: ReactNode }) {
         profile,
         pendingChanges: data.pendingChanges,
         listed: data.listed,
+        isTest: data.isTest,
         hasSchedule: hasOpenTimes(schedule),
         schedule,
         saveSchedule,

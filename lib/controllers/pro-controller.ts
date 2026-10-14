@@ -37,6 +37,8 @@ export interface ProData {
   bookings: ProBooking[];
   sessionNotes: Record<string, SessionNote>;
   listed: boolean;
+  // An admin's test profile: only admins can find and book it.
+  isTest: boolean;
 }
 
 const PROFILE_COLUMNS =
@@ -178,7 +180,10 @@ async function loadAll(supabase: Supabase, userId: string): Promise<ProData | nu
   // Rolls the booking window forward each time the professional opens their area.
   if (schedule) await supabase.rpc("sync_availability_slots", { p_slots: slotsFor(schedule, Date.now()) });
 
-  const { data: listed } = await supabase.rpc("is_listed_professional", { p_id: userId });
+  const [{ data: listed }, { data: flags }] = await Promise.all([
+    supabase.rpc("is_listed_professional", { p_id: userId }),
+    supabase.from("professional_profiles").select("is_test").eq("id", userId).maybeSingle(),
+  ]);
 
   return {
     profile,
@@ -191,13 +196,17 @@ async function loadAll(supabase: Supabase, userId: string): Promise<ProData | nu
     schedule,
     ...bookingData,
     listed: listed === true,
+    isTest: flags?.is_test === true,
   };
 }
 
 /** GET /api/pro/me: everything the professional area needs, in one call. */
 export async function getProData() {
-  const guard = await requireRole("professional");
+  const guard = await requireRole("professional", "admin");
   if (!guard.ok) return guard.response;
+
+  // Admins use the professional area with their own test profile, made on first visit.
+  if (guard.role === "admin") await guard.supabase.rpc("ensure_admin_test_profile");
 
   const data = await loadAll(guard.supabase, guard.userId);
   if (!data) return fail("forbidden", "Your professional profile was not found.", 404);
@@ -233,7 +242,7 @@ const profileSchema = z.object({
 
 /** PATCH /api/pro/profile: normal fields save at once, reviewed fields wait for an admin. */
 export async function saveProProfile(request: NextRequest) {
-  const guard = await requireRole("professional");
+  const guard = await requireRole("professional", "admin");
   if (!guard.ok) return guard.response;
   const { supabase, userId } = guard;
 
@@ -295,7 +304,7 @@ export async function saveProProfile(request: NextRequest) {
 
 /** DELETE /api/pro/profile/changes?field=title: withdraw a waiting change. */
 export async function withdrawProfileChange(request: NextRequest) {
-  const guard = await requireRole("professional");
+  const guard = await requireRole("professional", "admin");
   if (!guard.ok) return guard.response;
 
   const field = z.enum(REVIEWED_FIELDS).safeParse(request.nextUrl.searchParams.get("field"));
@@ -322,7 +331,7 @@ const PHOTO_TYPES: Record<string, { extension: string; check: (bytes: Uint8Array
 
 /** POST /api/pro/photo (multipart `photo`): uploads a profile photo and returns its public URL. */
 export async function uploadProPhoto(request: NextRequest) {
-  const guard = await requireRole("professional");
+  const guard = await requireRole("professional", "admin");
   if (!guard.ok) return guard.response;
 
   let file: FormDataEntryValue | null = null;
@@ -385,7 +394,7 @@ const scheduleSchema = z.object({
 
 /** PUT /api/pro/schedule: saves weekly hours and refreshes open times. Never cancels bookings. */
 export async function saveProSchedule(request: NextRequest) {
-  const guard = await requireRole("professional");
+  const guard = await requireRole("professional", "admin");
   if (!guard.ok) return guard.response;
   const { supabase, userId } = guard;
 
@@ -455,7 +464,7 @@ const bookingActionSchema = z.discriminatedUnion("action", [
 
 /** POST /api/pro/bookings/:id  body `{ action, ... }` */
 export async function updateProBooking(request: NextRequest, appointmentId: string) {
-  const guard = await requireRole("professional");
+  const guard = await requireRole("professional", "admin");
   if (!guard.ok) return guard.response;
   const { supabase, userId } = guard;
 
