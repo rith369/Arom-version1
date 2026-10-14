@@ -185,8 +185,9 @@ function TimeStep({
   }
 
   return (
-    <div className="space-y-6">
-      <fieldset>
+    <div className="min-w-0 space-y-6">
+      {/* min-w-0: a fieldset never shrinks below its content by default, so the date row would spill out of the card. */}
+      <fieldset className="min-w-0">
         <legend className="text-base font-medium text-ink">
           {km ? "ជ្រើសរើសកាលបរិច្ឆេទ" : "Select a date"}
         </legend>
@@ -512,6 +513,7 @@ export function TherapistBooking({ therapist, openTimes }: { therapist: Therapis
                 <AnimatePresence mode="wait" initial={false}>
                   <motion.section
                     key={step.id}
+                    className="min-w-0"
                     aria-labelledby="booking-step-title"
                     initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, transform: "translateX(12px)" }}
                     animate={{ opacity: 1, transform: "translateX(0)" }}
