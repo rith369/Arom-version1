@@ -2,7 +2,7 @@
 
 ## 15 Oct 2026: My Appointments: Message, Add to Calendar, How Soon, Quieter Sharing
 
-Commit `PENDING`. No migration.
+Commit `6dd9417`. No migration.
 
 **Why.** After booking, a client had to find the Messages page on their own, had no easy way to remember the session, and had to read a full date to know how soon it was. The sharing box took a third of every card, and ticking a box saved with no sign that it worked, which matters for private health information.
 
