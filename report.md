@@ -2,7 +2,7 @@
 
 ## 16 Oct 2026: Check In Right on the Progress Dashboard
 
-Commit `PENDING`. No migration.
+Commit `414b5d1`. No migration.
 
 **Why.** Today's Check in sent people back to Home to pick a mood. Every extra step means fewer check ins.
 
