@@ -2,7 +2,7 @@
 
 ## 15 Oct 2026: Mood Details Easier to Find
 
-Commit `PENDING`. No migration.
+Commit `ef50a12`. No migration.
 
 **Why.** The only way from Progress Dashboard to Mood & Activity Details was a small "See details" text in the corner of the Mood Trend card. Rith found it easy to miss, so users would too.
 
