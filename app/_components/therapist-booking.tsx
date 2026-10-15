@@ -169,7 +169,8 @@ function MeetingStep({
 
 const PERIODS: PeriodLabel[] = ["Morning", "Afternoon", "Evening"];
 
-function TimeStep({
+/** Date and time picker. Also used by "Change time" in My appointments. */
+export function TimeStep({
   days,
   times,
   date,
@@ -177,6 +178,8 @@ function TimeStep({
   onDateChange,
   onTimeChange,
   km,
+  idPrefix = "booking",
+  emptyText,
 }: {
   days: BookingDay[];
   times: BookableTime[];
@@ -185,13 +188,17 @@ function TimeStep({
   onDateChange: (value: string) => void;
   onTimeChange: (value: string) => void;
   km: boolean;
+  // Keeps radio names and ids unique when several pickers are on one page.
+  idPrefix?: string;
+  emptyText?: string;
 }) {
   if (days.length === 0) {
     return (
       <p className="rounded-xl border border-dashed border-arom/30 bg-white px-5 py-8 text-center text-sm text-ink-muted">
-        {km
-          ? "អ្នកជំនាញនេះមិនមានម៉ោងទំនេរសម្រាប់ប្រភេទនេះទេនៅពេលនេះ។ សូមសាកល្បងប្រភេទផ្សេង ឬត្រឡប់មកវិញពេលក្រោយ។"
-          : "This professional has no open times for this session type right now. Try another session type, or check back later."}
+        {emptyText ??
+          (km
+            ? "អ្នកជំនាញនេះមិនមានម៉ោងទំនេរសម្រាប់ប្រភេទនេះទេនៅពេលនេះ។ សូមសាកល្បងប្រភេទផ្សេង ឬត្រឡប់មកវិញពេលក្រោយ។"
+            : "This professional has no open times for this session type right now. Try another session type, or check back later.")}
       </p>
     );
   }
@@ -214,7 +221,7 @@ function TimeStep({
                 >
                   <input
                     type="radio"
-                    name="booking-date"
+                    name={`${idPrefix}-date`}
                     value={day.value}
                     checked={selected}
                     onChange={() => onDateChange(day.value)}
@@ -239,8 +246,8 @@ function TimeStep({
         </legend>
         <div className="mt-2 space-y-4">
           {PERIODS.filter((period) => times.some((slot) => slot.period === period)).map((period) => (
-            <div key={period} role="group" aria-labelledby={`period-${period}`}>
-              <p id={`period-${period}`} className="text-[0.94rem] font-medium text-ink">
+            <div key={period} role="group" aria-labelledby={`${idPrefix}-period-${period}`}>
+              <p id={`${idPrefix}-period-${period}`} className="text-[0.94rem] font-medium text-ink">
                 {getPeriodLabel(period, km)}
               </p>
               <div className="mt-2 grid grid-cols-3 gap-2 sm:gap-2.5">
@@ -255,7 +262,7 @@ function TimeStep({
                       >
                         <input
                           type="radio"
-                          name="booking-time"
+                          name={`${idPrefix}-time`}
                           value={slot.id}
                           checked={selected}
                           onChange={() => onTimeChange(slot.id)}
