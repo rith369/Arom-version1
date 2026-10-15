@@ -861,7 +861,9 @@ The admin list uses `CommunityReport`: `id, groupId, targetKind, targetLabel, me
 | Today's Check in card | Real, today from the same response |
 | 30 days and 3 months | **Sample**, `sampleProgress()`, labeled "Sample data, not yours yet" on screen, shown only to signed in people |
 | Insights tab | Worked out in the browser from the same check ins (`app/progress/_components/insights.ts`): real for 7 days, sample for longer ranges. Facts only: check in count, most common mood, the span of moods, the weekday checked in most (30 days or more, only when one weekday clearly leads), and how many days were Low or Very Low. **Backend later:** a "time of day you check in" insight needs the check in time (`created_at` of `mood_checkins`) in the progress response |
-| Activities tab | "Coming soon" |
+| Activities tab | **Sample** for every range, `app/progress/_data/sample-activities.ts`, labeled on screen. Counts of practices done, lessons read and journal entries, plus a Recent list (practice and lesson names come from `ALL_PRACTICES` and `ALL_LESSONS`; a journal entry is only a date, never its words) |
+
+**Backend needed for Activities:** save each finished practice (`practice_id`), each finished lesson (`lesson_id`) and each journal entry (date only here) for the signed in user, owner only RLS. Then `GET /api/progress/activities?range=7d|30d|90d` returning `ActivitiesResponse` from `sample-activities.ts`: `{ counts: { practice, lesson, journal }, recent: { id, kind, refId, day }[] }`, newest first, at most 20. Never return journal text here. Then swap `sampleActivities()` in `activities-panel.tsx` for the API and delete the sample file.
 
 **Backend needed:** `GET /api/progress?range=30d|90d` returning the same `MoodWeekResponse` (`{ days: MoodDay[], checkIns }`): one entry per Cambodia day, oldest first, today last, `mood` null on a missed day. Without `range` it stays 7 days. Then in `use-progress.ts` load the range instead of `sampleProgress()` and delete `app/progress/_data/sample-progress.ts`. The distribution is counted in the browser with `moodCounts()`, so no extra endpoint.
 

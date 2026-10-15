@@ -1,34 +1,19 @@
 'use client';
 
 import { useState } from 'react';
-import { Activity } from 'lucide-react';
-
 import { useLanguage } from '../../_components/language-provider';
 import { PROGRESS_RANGES, type ProgressRange } from '@/lib/mood';
+import { ActivitiesPanel } from './activities-panel';
 import { InsightsPanel } from './insights-panel';
 import { MoodBarChart, MoodDonut } from './progress-charts';
 import { MascotNote, PillSwitch, ProgressShell, ProgressStatus, RANGE_LABELS, SampleBadge } from './progress-parts';
 import { useProgress } from './use-progress';
 
 // Mood & Activity Details (Figma, BACKEND-HANDOFF.md section 22). Mood and
-// Insights use the check ins (7 days real, longer ranges sample data).
+// Insights use the check ins (7 days real, longer ranges sample data);
+// Activities is sample data until practices and lessons are saved on the server.
 
 type Tab = 'mood' | 'activities' | 'insights';
-
-function Soon({ icon: Icon, title, text, km }: { icon: typeof Activity; title: string; text: string; km: boolean }) {
-  return (
-    <section className="rounded-3xl border border-dashed border-arom/30 bg-white px-6 py-10 text-center">
-      <span className="mx-auto flex size-12 items-center justify-center rounded-full bg-arom-soft text-arom">
-        <Icon size={22} aria-hidden="true" />
-      </span>
-      <p className="mt-3 inline-flex rounded-full bg-arom-wash px-2.5 py-0.5 text-xs font-semibold text-arom">
-        {km ? 'ឆាប់ៗនេះ' : 'Coming soon'}
-      </p>
-      <h2 className="mt-2 text-lg font-semibold text-ink">{title}</h2>
-      <p className="mx-auto mt-1 max-w-sm text-sm text-ink-muted">{text}</p>
-    </section>
-  );
-}
 
 export function MoodDetailsView() {
   const { language } = useLanguage();
@@ -56,17 +41,7 @@ export function MoodDetailsView() {
         onChange={setTab}
       />
 
-      {tab === 'activities' && (
-        <Soon
-          icon={Activity}
-          km={km}
-          title={t('សកម្មភាពរបស់អ្នក', 'Your activities')}
-          text={t(
-            'ឆាប់ៗនេះ អ្នកនឹងឃើញលំហាត់ និងមេរៀនដែលអ្នកបានធ្វើនៅទីនេះ។',
-            'Soon you will see the practices and lessons you have done here.',
-          )}
-        />
-      )}
+      {tab === 'activities' && <ActivitiesPanel status={data.status} range={range} onRange={setRange} km={km} />}
 
       {tab === 'insights' && <InsightsPanel data={data} range={range} onRange={setRange} km={km} />}
 

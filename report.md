@@ -1,5 +1,25 @@
 # AROM: Change Report
 
+## 15 Oct 2026: Activities Tab on Sample Data
+
+Commit `PENDING`. No migration.
+
+**Why.** The Activities tab said Coming soon. Rith wants it built now on sample data so Hok Chheng can make it real.
+
+**What changed for users:**
+- **Activities tab** shows practices done, lessons read and journal entries for 7 days, 30 days or 3 months, a Recent list, and buttons to Find a practice or Read a lesson.
+- **Clearly sample:** the "Sample data, not yours yet" label shows for every range, and signed out visitors see the log in card instead.
+- **Private:** journal entries show only the date, never what was written.
+
+**What changed for the team:**
+- **New** `app/progress/_components/activities-panel.tsx` and `app/progress/_data/sample-activities.ts` (the `ActivitiesResponse` shape). BACKEND-HANDOFF.md section 22 lists what Hok Chheng needs to save and the endpoint.
+
+**What to re-test:**
+1. Signed in, open Mood & Activity Details, Activities, and switch ranges.
+2. Confirm the Sample data label, and that no journal text appears.
+3. Tap Find a practice and Read a lesson.
+4. Switch to Khmer.
+
 ## 15 Oct 2026: Insights Tab With Facts From Check Ins
 
 Commit `3f8e3e6`. No migration.
