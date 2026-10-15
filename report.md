@@ -2,7 +2,7 @@
 
 ## 15 Oct 2026: Address for In Person Sessions
 
-Commit `PENDING`. Migration `20261015001600_in_person_address.sql` **not yet applied**: Hok Chheng reviews and runs it in Supabase, then merges the pull request. Run after `20261015000200_sessions.sql`.
+Commit `6e3cafd`. Migration `20261015001600_in_person_address.sql` **not yet applied**: Hok Chheng reviews and runs it in Supabase, then merges the pull request. Run after `20261015000200_sessions.sql`.
 
 **Why.** Professionals could offer in person sessions, and 56 in person times were open, but nowhere said where to go. A client could book and arrive nowhere. Rith decided: professionals type their own place, everyone can see it, no admin review, and an address is required to offer in person.
 
