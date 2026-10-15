@@ -2,7 +2,7 @@
 
 ## 15 Oct 2026: Progress Pages Use the Normal Page Header
 
-Commit `PENDING`. No migration.
+Commit `0069a7c`. No migration.
 
 **Why.** The Progress pages copied the phone style header from the Figma (back arrow and a centered green title), which looked different from every other page. Rith asked for the normal header.
 
