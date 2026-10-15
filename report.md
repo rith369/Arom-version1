@@ -2,7 +2,7 @@
 
 ## 15 Oct 2026: AROM Top Bar on the Progress Pages
 
-Commit `PENDING`. No migration.
+Commit `61d3249`. No migration.
 
 **Why.** Home, Community and Journal start with the AROM top bar (logo, "A calmer mind, a brighter you", menu and profile button), but the Progress pages did not, so on a phone there was no menu button at the top. Rith asked for the same top bar.
 
