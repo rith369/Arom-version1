@@ -299,6 +299,26 @@ function AppointmentCard({
                   />
                   {t("លទ្ធផលពិនិត្យរោគសញ្ញារបស់ខ្ញុំ", "My symptom check results")}
                 </label>
+                {/* Not active until the backend shares it (BACKEND-HANDOFF.md section 22):
+                    off by default, moods only, never the journal, can be turned off any time. */}
+                <div className="flex items-start gap-2.5 text-ink-muted">
+                  <input
+                    type="checkbox"
+                    checked={false}
+                    disabled
+                    aria-describedby={`mood-share-${appointment.id}`}
+                    className="mt-0.5 size-4"
+                  />
+                  <span>
+                    {t("ការកត់ត្រាអារម្មណ៍របស់ខ្ញុំ", "My mood check ins")}
+                    <span id={`mood-share-${appointment.id}`} className="block text-xs">
+                      {t(
+                        "ឆាប់ៗនេះ។ មិនទាន់មានអ្វីត្រូវបានចែករំលែកទេ។ មានតែអារម្មណ៍ មិនមែនកំណត់ហេតុឡើយ។",
+                        "Coming soon. Nothing is shared yet. Moods only, never your journal.",
+                      )}
+                    </span>
+                  </span>
+                </div>
               </div>
             </fieldset>
           )}

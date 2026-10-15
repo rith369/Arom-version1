@@ -1,5 +1,26 @@
 # AROM: Change Report
 
+## 15 Oct 2026: Share Mood Check Ins With a Professional (Coming Soon)
+
+Commit `PENDING`. No migration.
+
+**Why.** A professional who can see a client's recent moods can prepare better sessions. Rith decided the rules: off by default, moods only, never the journal, and the client can turn it off at any time. The screens are built now; Hok Chheng makes it real.
+
+**What changed for users:**
+- **My appointments:** a third sharing option "My mood check ins", shown off and disabled with "Coming soon. Nothing is shared yet. Moods only, never your journal."
+
+**What changed for professionals:**
+- **Client file:** a "Mood check ins" card, Coming soon, explaining what will show, with a dimmed example chart labeled "An example, not this client".
+
+**What changed for the team:**
+- **New** `app/pro/_components/shared-mood-preview.tsx`; the sharing option in `user-appointments.tsx`. BACKEND-HANDOFF.md section 22 lists the column, the function and the privacy rules.
+- **Bar charts** on longer ranges now label dates weekly, so labels never run into each other in narrow cards.
+
+**What to re-test:**
+1. On My appointments, open a session's sharing and confirm "My mood check ins" is off, cannot be ticked, and says Coming soon.
+2. As a professional, open a client file and confirm the Mood check ins card says Coming soon and "An example, not this client".
+3. Switch to Khmer.
+
 ## 15 Oct 2026: Activities Tab on Sample Data
 
 Commit `b4af4d2`. No migration.

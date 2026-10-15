@@ -21,14 +21,18 @@ import { dayLabel } from './progress-parts';
 
 const moodName = (mood: MoodLevel, km: boolean) => (km ? MOOD_LABELS[mood].km : MOOD_LABELS[mood].en);
 
-/** Which days get a label under the chart: every day for 7 days, fewer for longer ranges. */
-function labelEvery(range: ProgressRange) {
-  return range === '7d' ? 1 : range === '30d' ? 5 : 15;
+/**
+ * Which days get a label under the chart: every day for 7 days, fewer for
+ * longer ranges. Bars can sit in narrow cards, so they are labeled weekly.
+ */
+function labelEvery(range: ProgressRange, bars: boolean) {
+  if (range === '7d') return 1;
+  if (bars) return range === '30d' ? 7 : 21;
+  return range === '30d' ? 5 : 15;
 }
 
-function showLabel(index: number, count: number, range: ProgressRange) {
-  const every = labelEvery(range);
-  return range === '7d' || index === count - 1 || (count - 1 - index) % every === 0;
+function showLabel(index: number, count: number, range: ProgressRange, bars = false) {
+  return range === '7d' || (count - 1 - index) % labelEvery(range, bars) === 0;
 }
 
 /** The faces down the left side: great at the top, very low at the bottom. */
@@ -298,7 +302,7 @@ export function MoodBarChart({ days, km, range }: { days: MoodDay[]; km: boolean
         <div className={`mt-1.5 flex ${gap}`}>
           {days.map((entry, index) => (
             <span key={entry.day} className="relative min-w-0 flex-1 text-center text-[11px] text-ink-muted">
-              {showLabel(index, days.length, range) && (
+              {showLabel(index, days.length, range, true) && (
                 <span
                   className={
                     short
