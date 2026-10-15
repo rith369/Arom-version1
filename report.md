@@ -1,5 +1,25 @@
 # AROM: Change Report
 
+## 16 Oct 2026: Home Shows a Small Progress Glance
+
+Commit `PENDING`. No migration.
+
+**Why.** Home had its own 7 day chart, the same as the new Progress Dashboard, which made Home longer and meant two charts to keep in step. Rith chose to keep a small glance on Home that opens the dashboard, and to remove the breathing link there (the dashboard's support card offers breathing on hard days).
+
+**What changed for users:**
+- **Your Progress on Home** is one small card: 7 dots in the color of each day's mood (an empty dot for a missed day), "You checked in 6 of 7 days", and Open Progress Dashboard. The whole card opens the dashboard.
+- **No check ins yet:** "Start your week today" points to the mood check in above.
+- **Removed:** the "Try a short breathing practice" link under Your Progress.
+
+**What changed for the team:**
+- **`app/components/progress-dashboard.tsx`** rewritten as the glance; the chart now lives only in `app/progress/`.
+
+**What to re-test:**
+1. Signed in, open Home and compare the dots with your check ins; tap the card and confirm it opens Progress Dashboard.
+2. With no check ins, confirm "Start your week today" scrolls to the mood check in.
+3. Signed out, confirm the Log in prompt.
+4. Check a phone width and Khmer.
+
 ## 16 Oct 2026: Mood Calendar for 30 Days and 3 Months
 
 Commit `9a62c2e`. No migration.
