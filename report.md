@@ -1,5 +1,25 @@
 # AROM: Change Report
 
+## 15 Oct 2026: Session Times Show When They End
+
+Commit `PENDING`. No migration.
+
+**Why.** When booking, each time button showed only the start ("9:00 AM"), so a client could not see how long the session was before choosing. After booking, My appointments showed the same session in another format ("09:00 to 10:30"), and in Khmer the word "to" stayed in English.
+
+**What changed for users:**
+- **Booking shows the end time:** each time button now shows the start with "to 10:30 AM" underneath, and the review and confirmation steps show "9:00 AM to 10:30 AM".
+- **One format everywhere:** My appointments now shows "9:00 AM to 10:30 AM", the same as booking.
+- **Khmer reads correctly:** the range reads "9:00 AM ដល់ 10:30 AM" in Khmer.
+
+**What changed for the team:**
+- **Shared helpers in `lib/booking.ts`:** `timeLabel()` and `timeRangeLabel()` format Cambodia time for both pages. `BookableTime` now carries `endsAt` and `endLabel` (from `availability_slots.ends_at`, already loaded). No API or database change.
+
+**What to re-test:**
+1. Open a professional's booking page, choose a session type and check each time button shows the start and "to" the end time, on a phone width too.
+2. Choose a time and confirm the review step and the confirmation show "9:00 AM to 10:30 AM".
+3. Open My appointments and confirm the same format.
+4. Switch to Khmer and confirm both pages read "ដល់" instead of "to".
+
 ## 15 Oct 2026: Point Share Images at the Vercel Domain
 
 Commit `PENDING`. No migration.

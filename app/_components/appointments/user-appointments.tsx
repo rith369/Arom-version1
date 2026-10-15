@@ -19,6 +19,7 @@ import {
   type AppointmentsResponse,
   type UserAppointment,
 } from "@/lib/appointments";
+import { timeRangeLabel } from "@/lib/booking";
 import { DesktopNavigation, MobileNavigation } from "../app-navigation";
 import { useLanguage } from "../language-provider";
 import { JoinButton } from "../sessions/join-button";
@@ -43,7 +44,6 @@ function useFormats(km: boolean) {
   const locale = km ? "km-KH" : "en-GB";
   return {
     day: new Intl.DateTimeFormat(locale, { weekday: "long", day: "numeric", month: "long", timeZone: TIME_ZONE }),
-    time: new Intl.DateTimeFormat(locale, { hour: "2-digit", minute: "2-digit", hourCycle: "h23", timeZone: TIME_ZONE }),
     short: new Intl.DateTimeFormat(locale, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", hourCycle: "h23", timeZone: TIME_ZONE }),
   };
 }
@@ -90,7 +90,6 @@ function AppointmentCard({
   const name = professional ? (km && professional.kmName) || professional.name : t("អ្នកជំនាញ", "Professional");
   const title = professional ? (km && professional.kmTitle) || professional.title : "";
   const start = new Date(appointment.startsAt);
-  const end = new Date(appointment.endsAt);
   const upcoming = appointment.status === "booked" && Date.parse(appointment.endsAt) > now;
   const canCancel = appointment.status === "booked" && Date.parse(appointment.startsAt) > now;
   const canShare = appointment.status === "booked" || appointment.status === "completed";
@@ -161,7 +160,7 @@ function AppointmentCard({
               <Clock3 aria-hidden="true" size={16} className="shrink-0 text-arom" />
               <dt className="sr-only">{t("ម៉ោង", "Time")}</dt>
               <dd>
-                {formats.time.format(start)} to {formats.time.format(end)} {t("ម៉ោងកម្ពុជា", "Cambodia time")}
+                {timeRangeLabel(appointment.startsAt, appointment.endsAt, km)} {t("ម៉ោងកម្ពុជា", "Cambodia time")}
               </dd>
             </div>
             <div className="flex items-center gap-2">

@@ -24,8 +24,11 @@ export type BookableTime = {
   /** availability_slots.id */
   id: string;
   startsAt: string;
+  endsAt: string;
   /** e.g. "9:00 AM" in Cambodia time */
   label: string;
+  /** e.g. "10:30 AM" in Cambodia time */
+  endLabel: string;
   period: PeriodLabel;
 };
 
@@ -108,17 +111,22 @@ const hourOf = (startsAt: string) =>
     ),
   );
 
-const timeLabel = (startsAt: string) =>
+/** e.g. "9:00 AM" in Cambodia time. */
+export const timeLabel = (iso: string) =>
   new Intl.DateTimeFormat("en-US", { timeZone: clinicTimeZone, hour: "numeric", minute: "2-digit" }).format(
-    new Date(startsAt),
+    new Date(iso),
   );
+
+/** e.g. "9:00 AM to 10:30 AM", the same on the booking and appointments pages. */
+export const timeRangeLabel = (startsAt: string, endsAt: string, km: boolean) =>
+  `${timeLabel(startsAt)} ${km ? "ដល់" : "to"} ${timeLabel(endsAt)}`;
 
 /**
  * Groups open times into days (soonest first, at most `maxDays`) and, per
  * day, into morning, afternoon and evening.
  */
 export function groupOpenTimes(
-  times: { id: string; startsAt: string }[],
+  times: { id: string; startsAt: string; endsAt: string }[],
   maxDays = 14,
 ): { days: BookingDay[]; byDay: Record<string, BookableTime[]> } {
   const byDay: Record<string, BookableTime[]> = {};
@@ -128,7 +136,9 @@ export function groupOpenTimes(
     (byDay[day] ??= []).push({
       id: time.id,
       startsAt: time.startsAt,
+      endsAt: time.endsAt,
       label: timeLabel(time.startsAt),
+      endLabel: timeLabel(time.endsAt),
       period: hour < 12 ? "Morning" : hour < 17 ? "Afternoon" : "Evening",
     });
   }

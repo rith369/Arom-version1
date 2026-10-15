@@ -20,6 +20,7 @@ import {
   getMeetingTypeLabel,
   getPeriodLabel,
   groupOpenTimes,
+  timeRangeLabel,
   meetingTypes,
   type BookableTime,
   type BookingDay,
@@ -239,7 +240,7 @@ function TimeStep({
                     return (
                       <label
                         key={slot.id}
-                        className={`flex h-10 items-center justify-center rounded-lg text-[0.95rem] text-ink ${optionClass(selected)}`}
+                        className={`flex min-h-14 flex-col items-center justify-center rounded-lg px-1 py-1.5 text-center text-ink ${optionClass(selected)}`}
                       >
                         <input
                           type="radio"
@@ -249,7 +250,10 @@ function TimeStep({
                           onChange={() => onTimeChange(slot.id)}
                           className="sr-only"
                         />
-                        {slot.label}
+                        <span className="text-[0.95rem] font-medium">{slot.label}</span>
+                        <span className="text-xs text-ink-muted">
+                          {km ? "ដល់" : "to"} {slot.endLabel}
+                        </span>
                       </label>
                     );
                   })}
@@ -428,9 +432,11 @@ export function TherapistBooking({ therapist, openTimes }: { therapist: Therapis
     ? (selectedDay?.kmLongLabel || selectedDay?.longLabel || "")
     : (selectedDay?.longLabel || "");
 
+  const selectedTimeLabel = selectedTime ? timeRangeLabel(selectedTime.startsAt, selectedTime.endsAt, km) : "";
+
   const reviewDetails = [
     { icon: CalendarDays, label: km ? "កាលបរិច្ឆេទ" : "Date", value: selectedDateLabel },
-    { icon: Clock3, label: km ? "ពេលវេលា" : "Time", value: selectedTime?.label ?? "" },
+    { icon: Clock3, label: km ? "ពេលវេលា" : "Time", value: selectedTimeLabel },
     {
       icon: meeting ? meetingIcons[meeting] : Video,
       label: km ? "ទម្រង់នៃការប្រឹក្សា" : "Session Type",
@@ -444,7 +450,7 @@ export function TherapistBooking({ therapist, openTimes }: { therapist: Therapis
   const completeDetails = [
     { icon: UserRound, label: km ? "អ្នកជំនាញ" : "Therapist", value: therapistName },
     { icon: CalendarDays, label: km ? "កាលបរិច្ឆេទ" : "Date", value: selectedDateLabel },
-    { icon: Clock3, label: km ? "ពេលវេលា" : "Time", value: selectedTime?.label ?? "" },
+    { icon: Clock3, label: km ? "ពេលវេលា" : "Time", value: selectedTimeLabel },
     {
       icon: meeting === "Online" ? Video : UsersRound,
       label: km ? "ទម្រង់នៃការប្រឹក្សា" : "Session Type",
