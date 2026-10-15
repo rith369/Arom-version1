@@ -2,7 +2,7 @@
 
 ## 16 Oct 2026: Mood Calendar for 30 Days and 3 Months
 
-Commit `PENDING`. No migration.
+Commit `9a62c2e`. No migration.
 
 **Why.** For 30 days and 3 months, Mood Statistics showed 30 or 90 thin bars, which are hard to read, especially on a phone. A calendar lets people see their own month at a glance and spot patterns, such as hard Mondays.
 
