@@ -1,12 +1,12 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 export const loginSchema = z.object({
   email: z
     .string()
     .trim()
-    .min(1, "Email is required")
-    .email("Enter a valid email address"),
-  password: z.string().min(1, "Password is required"),
+    .min(1, 'Email is required')
+    .email('Enter a valid email address'),
+  password: z.string().min(1, 'Password is required'),
 });
 
 export const signupSchema = z
@@ -14,40 +14,41 @@ export const signupSchema = z
     fullName: z
       .string()
       .trim()
-      .min(2, "Enter your full name")
-      .max(60, "Name must be 60 characters or fewer"),
+      .min(2, 'Enter your full name')
+      .max(60, 'Name must be 60 characters or fewer'),
     email: z
       .string()
       .trim()
-      .min(1, "Email is required")
-      .email("Enter a valid email address"),
+      .min(1, 'Email is required')
+      .email('Enter a valid email address'),
     password: z
       .string()
-      .min(8, "Use at least 8 characters")
+      .min(8, 'Use at least 8 characters')
       // Supabase Auth hashes at most 72 characters; longer would be cut silently.
-      .max(72, "Use 72 characters or fewer")
-      .regex(/[a-z]/, "Include a lowercase letter")
-      .regex(/[A-Z]/, "Include an uppercase letter")
-      .regex(/[0-9]/, "Include a number")
-      .regex(/[^A-Za-z0-9]/, "Include a special character"),
-    confirmPassword: z.string().min(1, "Confirm your password"),
+      .max(72, 'Use 72 characters or fewer')
+      .regex(/[a-z]/, 'Include a lowercase letter')
+      .regex(/[A-Z]/, 'Include an uppercase letter')
+      .regex(/[0-9]/, 'Include a number')
+      .regex(/[^A-Za-z0-9]/, 'Include a special character'),
+    confirmPassword: z.string().min(1, 'Confirm your password'),
+
     terms: z.boolean().refine((value) => value, {
-      message: "Please accept the Terms and Privacy Policy",
+      message: 'Please accept the Terms and Privacy Policy',
     }),
     /** App language at signup. The database trigger saves it to the profile. */
-    language: z.enum(["en", "km"]).optional(),
+    language: z.enum(['en', 'km']).optional(),
   })
   .refine((values) => values.password === values.confirmPassword, {
-    path: ["confirmPassword"],
-    message: "Passwords do not match",
+    path: ['confirmPassword'],
+    message: 'Passwords do not match',
   });
 
 export const resendSchema = z.object({
   email: z
     .string()
     .trim()
-    .min(1, "Email is required")
-    .email("Enter a valid email address"),
+    .min(1, 'Email is required')
+    .email('Enter a valid email address'),
 });
 
 export const profileUpdateSchema = z
@@ -55,13 +56,14 @@ export const profileUpdateSchema = z
     fullName: z
       .string()
       .trim()
-      .min(2, "Enter your full name")
-      .max(60, "Name must be 60 characters or fewer"),
-    language: z.enum(["en", "km"]),
+      .min(2, 'Enter your full name')
+      .max(60, 'Name must be 60 characters or fewer'),
+    language: z.enum(['en', 'km']),
+    hideIdentity: z.boolean(),
   })
   .partial()
   .refine((values) => Object.keys(values).length > 0, {
-    message: "Nothing to update",
+    message: 'Nothing to update',
   });
 
 /** The 6 digit code from the confirmation email, typed on the device that signed up. */
@@ -69,12 +71,12 @@ export const verifyCodeSchema = z.object({
   email: z
     .string()
     .trim()
-    .min(1, "Email is required")
-    .email("Enter a valid email address"),
+    .min(1, 'Email is required')
+    .email('Enter a valid email address'),
   code: z
     .string()
     .trim()
-    .regex(/^\d{6}$/, "Enter the 6 digit code from the email"),
+    .regex(/^\d{6}$/, 'Enter the 6 digit code from the email'),
 });
 
 export type VerifyCodeValues = z.infer<typeof verifyCodeSchema>;
@@ -84,14 +86,15 @@ export type VerifyCodeValues = z.infer<typeof verifyCodeSchema>;
  * Rejects "//host" and "/\host" (browsers read both as another site) and
  * control characters.
  */
-export function safeNextPath(value: string | null | undefined, fallback = "/") {
-  if (!value || !value.startsWith("/") || value.startsWith("//")) return fallback;
+export function safeNextPath(value: string | null | undefined, fallback = '/') {
+  if (!value || !value.startsWith('/') || value.startsWith('//'))
+    return fallback;
   if (/[\\\u0000-\u001f]/.test(value)) return fallback;
   return value;
 }
 
 /** sessionStorage key that carries the signup email to the confirm page. Never put it in the URL. */
-export const PENDING_CONFIRMATION_KEY = "arom:pending-confirmation";
+export const PENDING_CONFIRMATION_KEY = 'arom:pending-confirmation';
 
 export type LoginValues = z.infer<typeof loginSchema>;
 export type SignupValues = z.infer<typeof signupSchema>;
@@ -99,7 +102,7 @@ export type ResendValues = z.infer<typeof resendSchema>;
 export type ProfileUpdateValues = z.infer<typeof profileUpdateSchema>;
 
 /** Mirrors the `user_role` enum in Supabase. */
-export type UserRole = "user" | "professional" | "admin";
+export type UserRole = 'user' | 'professional' | 'admin';
 
 /** Safe public shape of the signed in user. Never includes tokens. */
 export interface AuthUser {
@@ -107,21 +110,23 @@ export interface AuthUser {
   email: string;
   fullName: string;
   role: UserRole;
-  language: "en" | "km";
-  accountStatus: "active" | "suspended";
+  language: 'en' | 'km';
+  accountStatus: 'active' | 'suspended';
   /** ISO timestamp of when the profile was created. */
+
+  hideIdentity?: boolean;
   createdAt: string;
 }
 
 /** Stable error codes the auth endpoints return. Forms map them to copy. */
 export type AuthErrorCode =
-  | "invalid_input"
-  | "invalid_credentials"
-  | "email_not_confirmed"
-  | "rate_limited"
-  | "unauthorized"
-  | "forbidden"
-  | "server_error";
+  | 'invalid_input'
+  | 'invalid_credentials'
+  | 'email_not_confirmed'
+  | 'rate_limited'
+  | 'unauthorized'
+  | 'forbidden'
+  | 'server_error';
 
 export interface AuthErrorBody {
   error: { code: AuthErrorCode; message: string };
