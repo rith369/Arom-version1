@@ -6,10 +6,13 @@ import { useEffect, useState } from "react";
 import {
   CalendarCheck,
   CalendarClock,
+  CalendarPlus,
   CalendarX2,
+  CheckCircle2,
   Clock3,
   LifeBuoy,
   MapPin,
+  MessageCircle,
   ShieldCheck,
   UserRound,
   Video,
@@ -23,6 +26,7 @@ import { timeRangeLabel } from "@/lib/booking";
 import { DesktopNavigation, MobileNavigation } from "../app-navigation";
 import { useLanguage } from "../language-provider";
 import { JoinButton } from "../sessions/join-button";
+import { downloadCalendarFile, howSoon } from "./appointment-helpers";
 
 const TIME_ZONE = "Asia/Phnom_Penh";
 
@@ -85,6 +89,16 @@ function AppointmentCard({
   const [reason, setReason] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [sharingOpen, setSharingOpen] = useState(false);
+  const [sharingSaving, setSharingSaving] = useState(false);
+  const [sharingSaved, setSharingSaved] = useState(false);
+
+  // The "Saved" note fades after a moment.
+  useEffect(() => {
+    if (!sharingSaved) return;
+    const id = window.setTimeout(() => setSharingSaved(false), 2500);
+    return () => window.clearTimeout(id);
+  }, [sharingSaved]);
 
   const professional = appointment.professional;
   const name = professional ? (km && professional.kmName) || professional.name : t("អ្នកជំនាញ", "Professional");
@@ -93,6 +107,11 @@ function AppointmentCard({
   const upcoming = appointment.status === "booked" && Date.parse(appointment.endsAt) > now;
   const canCancel = appointment.status === "booked" && Date.parse(appointment.startsAt) > now;
   const canShare = appointment.status === "booked" || appointment.status === "completed";
+  const soon = upcoming ? howSoon(appointment.startsAt, now, km) : null;
+  const sharedItems = [
+    appointment.shareSurvey && t("ការស្ទង់មតិដំបូង", "first survey"),
+    appointment.shareSymptomChecks && t("លទ្ធផលពិនិត្យរោគសញ្ញា", "symptom check results"),
+  ].filter(Boolean);
   const fallback = t("មិនអាចរក្សាទុកបានទេ។ សូមព្យាយាមម្តងទៀត។", "That could not be saved. Please try again.");
 
   const statusLabel: Record<UserAppointment["status"], { text: string; tone: string }> = {
@@ -120,16 +139,21 @@ function AppointmentCard({
   }
 
   async function share(change: { shareSurvey?: boolean; shareSymptomChecks?: boolean }) {
+    if (sharingSaving) return;
     setError("");
+    setSharingSaved(false);
+    setSharingSaving(true);
     const result = await send(appointment.id, {
       action: "sharing",
       shareSurvey: change.shareSurvey ?? appointment.shareSurvey,
       shareSymptomChecks: change.shareSymptomChecks ?? appointment.shareSymptomChecks,
     });
+    setSharingSaving(false);
     if (!result.ok) {
       setError(result.message ?? fallback);
       return;
     }
+    setSharingSaved(true);
     onChange(result.appointments);
   }
 
@@ -154,7 +178,12 @@ function AppointmentCard({
             <div className="flex items-center gap-2">
               <CalendarCheck aria-hidden="true" size={16} className="shrink-0 text-arom" />
               <dt className="sr-only">{t("ថ្ងៃ", "Date")}</dt>
-              <dd>{formats.day.format(start)}</dd>
+              <dd className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                {formats.day.format(start)}
+                {soon && (
+                  <span className="rounded-full bg-arom-wash px-2 py-0.5 text-xs font-semibold text-arom-deep">{soon}</span>
+                )}
+              </dd>
             </div>
             <div className="flex items-center gap-2">
               <Clock3 aria-hidden="true" size={16} className="shrink-0 text-arom" />
@@ -211,39 +240,69 @@ function AppointmentCard({
       )}
 
       {canShare && (
-        <fieldset className="mt-4 min-w-0 rounded-2xl bg-arom-wash/70 p-3.5">
-          <legend className="sr-only">{t("ការចែករំលែក", "Sharing")}</legend>
-          <p className="flex items-center gap-2 text-sm font-semibold text-ink">
-            <ShieldCheck aria-hidden="true" size={16} className="text-arom" />
-            {t("ចែករំលែកជាមួយអ្នកជំនាញនេះ", "Share with this professional")}
-          </p>
-          <p className="mt-1 text-xs leading-5 text-ink-muted">
-            {t(
-              "ជម្រើសរបស់អ្នក។ អ្នកអាចបិទវាបានគ្រប់ពេល។ កំណត់ហេតុ អារម្មណ៍ និងចម្លើយការត្រួតពិនិត្យ មិនត្រូវបានចែករំលែកឡើយ។",
-              "Your choice, and you can turn it off at any time. Your journal and mood check ins are never shared.",
-            )}
-          </p>
-          <div className="mt-2.5 space-y-2 text-sm text-ink">
-            <label className="flex cursor-pointer items-center gap-2.5">
-              <input
-                type="checkbox"
-                checked={appointment.shareSurvey}
-                onChange={(event) => void share({ shareSurvey: event.target.checked })}
-                className="size-4 accent-arom"
-              />
-              {t("ការស្ទង់មតិដំបូងរបស់ខ្ញុំ", "My first survey")}
-            </label>
-            <label className="flex cursor-pointer items-center gap-2.5">
-              <input
-                type="checkbox"
-                checked={appointment.shareSymptomChecks}
-                onChange={(event) => void share({ shareSymptomChecks: event.target.checked })}
-                className="size-4 accent-arom"
-              />
-              {t("លទ្ធផលពិនិត្យរោគសញ្ញារបស់ខ្ញុំ", "My symptom check results")}
-            </label>
+        <div className="mt-4 min-w-0 rounded-2xl bg-arom-wash/70 px-3.5 py-3">
+          <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+            <p className="flex min-w-0 items-start gap-2 text-sm text-ink">
+              <ShieldCheck aria-hidden="true" size={16} className="mt-0.5 shrink-0 text-arom" />
+              <span>
+                {sharedItems.length > 0
+                  ? `${t("បានចែករំលែក", "Shared")}: ${sharedItems.join(", ")}`
+                  : t("មិនបានចែករំលែកអ្វីទេ", "Nothing shared")}
+              </span>
+            </p>
+            <div className="flex items-center gap-2">
+              {sharingSaved && (
+                <span role="status" className="flex items-center gap-1 text-xs font-semibold text-arom-deep">
+                  <CheckCircle2 aria-hidden="true" size={14} />
+                  {t("បានរក្សាទុក", "Saved")}
+                </span>
+              )}
+              <button
+                type="button"
+                aria-expanded={sharingOpen}
+                aria-controls={`sharing-${appointment.id}`}
+                onClick={() => setSharingOpen((open) => !open)}
+                className="rounded-full px-2.5 py-1 text-sm font-semibold text-arom hover:bg-white"
+              >
+                {sharingOpen ? t("រួចរាល់", "Done") : t("ប្តូរ", "Change")}
+              </button>
+            </div>
           </div>
-        </fieldset>
+
+          {sharingOpen && (
+            <fieldset id={`sharing-${appointment.id}`} className="mt-2 min-w-0">
+              <legend className="sr-only">{t("ចែករំលែកជាមួយអ្នកជំនាញនេះ", "Share with this professional")}</legend>
+              <p className="text-xs leading-5 text-ink-muted">
+                {t(
+                  "ជម្រើសរបស់អ្នក។ អ្នកអាចបិទវាបានគ្រប់ពេល។ កំណត់ហេតុ អារម្មណ៍ និងចម្លើយការត្រួតពិនិត្យ មិនត្រូវបានចែករំលែកឡើយ។",
+                  "Your choice, and you can turn it off at any time. Your journal and mood check ins are never shared.",
+                )}
+              </p>
+              <div className="mt-2.5 space-y-2 text-sm text-ink">
+                <label className="flex cursor-pointer items-center gap-2.5">
+                  <input
+                    type="checkbox"
+                    checked={appointment.shareSurvey}
+                    disabled={sharingSaving}
+                    onChange={(event) => void share({ shareSurvey: event.target.checked })}
+                    className="size-4 accent-arom"
+                  />
+                  {t("ការស្ទង់មតិដំបូងរបស់ខ្ញុំ", "My first survey")}
+                </label>
+                <label className="flex cursor-pointer items-center gap-2.5">
+                  <input
+                    type="checkbox"
+                    checked={appointment.shareSymptomChecks}
+                    disabled={sharingSaving}
+                    onChange={(event) => void share({ shareSymptomChecks: event.target.checked })}
+                    className="size-4 accent-arom"
+                  />
+                  {t("លទ្ធផលពិនិត្យរោគសញ្ញារបស់ខ្ញុំ", "My symptom check results")}
+                </label>
+              </div>
+            </fieldset>
+          )}
+        </div>
       )}
 
       {cancelling && (
@@ -286,6 +345,25 @@ function AppointmentCard({
 
       <div className="mt-4 flex flex-wrap items-center gap-2">
         <JoinButton booking={appointment} now={now} km={km} />
+        {professional && canShare && (
+          <Link
+            href={`/messages/${professional.slug}`}
+            className="inline-flex items-center gap-1.5 rounded-full border border-arom-border px-4 py-2 text-sm font-medium text-ink hover:bg-arom-wash"
+          >
+            <MessageCircle aria-hidden="true" size={16} className="text-arom" />
+            {t("ផ្ញើសារ", "Message")}
+          </Link>
+        )}
+        {upcoming && (
+          <button
+            type="button"
+            onClick={() => downloadCalendarFile(appointment, name, km)}
+            className="inline-flex items-center gap-1.5 rounded-full border border-arom-border px-4 py-2 text-sm font-medium text-ink hover:bg-arom-wash"
+          >
+            <CalendarPlus aria-hidden="true" size={16} className="text-arom" />
+            {t("បញ្ចូលក្នុងប្រតិទិន", "Add to calendar")}
+          </button>
+        )}
         {professional && (
           <Link
             href={`/professional/${professional.slug}`}

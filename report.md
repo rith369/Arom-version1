@@ -1,5 +1,29 @@
 # AROM: Change Report
 
+## 15 Oct 2026: My Appointments: Message, Add to Calendar, How Soon, Quieter Sharing
+
+Commit `PENDING`. No migration.
+
+**Why.** After booking, a client had to find the Messages page on their own, had no easy way to remember the session, and had to read a full date to know how soon it was. The sharing box took a third of every card, and ticking a box saved with no sign that it worked, which matters for private health information.
+
+**What changed for users:**
+- **Message button** on booked and completed sessions opens the chat with that professional.
+- **Add to calendar** on upcoming sessions downloads a calendar file with a reminder 30 minutes before. The title stays neutral ("Appointment with Keo Panharith"), because reminders can show on a locked screen.
+- **How soon:** "Today", "Tomorrow" or "In 3 days" next to the date, for sessions less than two weeks away.
+- **Sharing folds into one line,** for example "Shared: first survey, symptom check results", with Change to open the boxes.
+- **"Saved" appears** after a sharing box is ticked or unticked, and the boxes wait while saving.
+
+**What changed for the team:**
+- **New** `app/_components/appointments/appointment-helpers.ts`: `howSoon()` and `downloadCalendarFile()` (an .ics file built in the browser, nothing sent to a server).
+- **No API or database change.** The Message button links to `/messages/<professional slug>`, which already lists every professional the client has booked.
+
+**What to re-test:**
+1. Open My appointments with an upcoming session and confirm "Tomorrow" or "In N days" shows next to the date.
+2. Tap Message and confirm the chat with that professional opens.
+3. Tap Add to calendar on a phone and on a computer, and confirm the event has the right time (Cambodia time) and a 30 minute reminder.
+4. Tap Change, untick a box, and confirm "Saved" appears and the one line summary updates; reload and confirm it stayed.
+5. Switch to Khmer and check every new label.
+
 ## 15 Oct 2026: Session Times Show When They End
 
 Commit `af68d08`. No migration.
