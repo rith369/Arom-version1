@@ -36,6 +36,23 @@ export type MoodWeekResponse = { days: MoodDay[]; checkIns: number };
 
 export const PROGRESS_DAYS = 7;
 
+/**
+ * Progress ranges. 7 days is connected (GET /api/progress). 30 days and
+ * 3 months are sample data in the browser until the backend answers
+ * GET /api/progress?range=30d|90d with the same MoodWeekResponse shape
+ * (BACKEND-HANDOFF.md section 22).
+ */
+export const PROGRESS_RANGES = ["7d", "30d", "90d"] as const;
+export type ProgressRange = (typeof PROGRESS_RANGES)[number];
+export const RANGE_DAYS: Record<ProgressRange, number> = { "7d": 7, "30d": 30, "90d": 90 };
+
+/** How many check ins had each mood. Counts only, never a score. */
+export function moodCounts(days: MoodDay[]): Record<MoodLevel, number> {
+  const counts = Object.fromEntries(MOOD_LEVELS.map((level) => [level, 0])) as Record<MoodLevel, number>;
+  for (const entry of days) if (entry.mood) counts[entry.mood] += 1;
+  return counts;
+}
+
 // ---------- Dates (Cambodia) ----------
 
 export function cambodiaDay(now: number) {
