@@ -1,5 +1,24 @@
 # AROM: Change Report
 
+## 15 Oct 2026: Insights Tab With Facts From Check Ins
+
+Commit `PENDING`. No migration.
+
+**Why.** The Insights tab said Coming soon. Simple facts about one's own check ins help people notice patterns, as long as the app never judges the mood.
+
+**What changed for users:**
+- **Insights tab** in Mood & Activity Details lists facts for 7 days, 30 days or 3 months: how many days you checked in, your most common mood, the span of your moods, the weekday you check in most (longer ranges, only when one clearly leads), and how many days were Low or Very Low.
+- **Honest:** a note says "These are only facts from your check ins. AROM never scores or judges your mood." 30 days and 3 months show the Sample data label.
+
+**What changed for the team:**
+- **New** `app/progress/_components/insights.ts` (the rules) and `insights-panel.tsx`. Worked out in the browser, so no new endpoint. BACKEND-HANDOFF.md section 22 notes the check in time a later insight would need.
+
+**What to re-test:**
+1. Signed in, open Mood & Activity Details, Insights, and compare the facts with your 7 day chart.
+2. Switch to 30 days and 3 months and confirm the Sample data label.
+3. With one check in, confirm it says "Your one check in was ...".
+4. Switch to Khmer.
+
 ## 15 Oct 2026: Write About Today From Progress
 
 Commit `913ecc6`. No migration.

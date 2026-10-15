@@ -860,7 +860,8 @@ The admin list uses `CommunityReport`: `id, groupId, targetKind, targetLabel, me
 | 7 days: Mood Trend, Mood Statistics bars, Mood Distribution, summary card | Real, `GET /api/progress` |
 | Today's Check in card | Real, today from the same response |
 | 30 days and 3 months | **Sample**, `sampleProgress()`, labeled "Sample data, not yours yet" on screen, shown only to signed in people |
-| Activities and Insights tabs | "Coming soon", nothing to build until the team decides what they show |
+| Insights tab | Worked out in the browser from the same check ins (`app/progress/_components/insights.ts`): real for 7 days, sample for longer ranges. Facts only: check in count, most common mood, the span of moods, the weekday checked in most (30 days or more, only when one weekday clearly leads), and how many days were Low or Very Low. **Backend later:** a "time of day you check in" insight needs the check in time (`created_at` of `mood_checkins`) in the progress response |
+| Activities tab | "Coming soon" |
 
 **Backend needed:** `GET /api/progress?range=30d|90d` returning the same `MoodWeekResponse` (`{ days: MoodDay[], checkIns }`): one entry per Cambodia day, oldest first, today last, `mood` null on a missed day. Without `range` it stays 7 days. Then in `use-progress.ts` load the range instead of `sampleProgress()` and delete `app/progress/_data/sample-progress.ts`. The distribution is counted in the browser with `moodCounts()`, so no extra endpoint.
 

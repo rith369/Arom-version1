@@ -1,16 +1,17 @@
 'use client';
 
 import { useState } from 'react';
-import { Activity, FileText } from 'lucide-react';
+import { Activity } from 'lucide-react';
 
 import { useLanguage } from '../../_components/language-provider';
 import { PROGRESS_RANGES, type ProgressRange } from '@/lib/mood';
+import { InsightsPanel } from './insights-panel';
 import { MoodBarChart, MoodDonut } from './progress-charts';
 import { MascotNote, PillSwitch, ProgressShell, ProgressStatus, RANGE_LABELS, SampleBadge } from './progress-parts';
 import { useProgress } from './use-progress';
 
-// Mood & Activity Details (Figma, BACKEND-HANDOFF.md section 22). The Mood tab
-// is built; Activities and Insights wait for a product decision on what they show.
+// Mood & Activity Details (Figma, BACKEND-HANDOFF.md section 22). Mood and
+// Insights use the check ins (7 days real, longer ranges sample data).
 
 type Tab = 'mood' | 'activities' | 'insights';
 
@@ -67,17 +68,7 @@ export function MoodDetailsView() {
         />
       )}
 
-      {tab === 'insights' && (
-        <Soon
-          icon={FileText}
-          km={km}
-          title={t('ការយល់ដឹង', 'Insights')}
-          text={t(
-            'ឆាប់ៗនេះ កំណត់ចំណាំសាមញ្ញអំពីការកត់ត្រារបស់អ្នកនឹងបង្ហាញនៅទីនេះ។',
-            'Soon, simple notes about your check ins will show here.',
-          )}
-        />
-      )}
+      {tab === 'insights' && <InsightsPanel data={data} range={range} onRange={setRange} km={km} />}
 
       {tab === 'mood' &&
         (data.status !== 'ready' ? (
