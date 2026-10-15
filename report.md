@@ -2,7 +2,7 @@
 
 ## 15 Oct 2026: Clients Can Change the Time of Their Session
 
-Commit `PENDING`. Migration `20261015001500_client_reschedule.sql` **not yet applied**: Hok Chheng reviews and runs it in Supabase, then merges the pull request. Run after `20261015000200_sessions.sql`.
+Commit `4322eda`. Migration `20261015001500_client_reschedule.sql` **not yet applied**: Hok Chheng reviews and runs it in Supabase, then merges the pull request. Run after `20261015000200_sessions.sql`.
 
 **Why.** A client who could not make their session could only cancel and book again, and in between someone else could take the time they wanted. Professionals could already move sessions; clients now can too, safely in one step.
 
