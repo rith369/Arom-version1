@@ -1,5 +1,35 @@
 # AROM: Change Report
 
+## 15 Oct 2026: Address for In Person Sessions
+
+Commit `PENDING`. Migration `20261015001600_in_person_address.sql` **not yet applied**: Hok Chheng reviews and runs it in Supabase, then merges the pull request. Run after `20261015000200_sessions.sql`.
+
+**Why.** Professionals could offer in person sessions, and 56 in person times were open, but nowhere said where to go. A client could book and arrive nowhere. Rith decided: professionals type their own place, everyone can see it, no admin review, and an address is required to offer in person.
+
+**What changed for professionals:**
+- **Where you see clients in person** in My profile, under How you meet clients: place name (optional), address and a Google Maps link (optional). It saves at once.
+- **In person needs an address:** saving In person without one shows an error, and Home shows "Users cannot book in person until you add the address where you see clients" with a link.
+
+**What changed for users:**
+- **Public profile** shows "Where to meet in person" with the address and Open in Maps.
+- **Booking** shows the address under the In person choice, and the review and confirmation show the place.
+- **My appointments** shows the place and Open in Maps on in person sessions, and Add to calendar puts the address in the calendar event.
+- **No address, no in person:** professionals without an address offer online only until they add one.
+
+**What changed for the team:**
+- **New columns** `professional_profiles.office_name`, `office_address`, `office_map_url`; `list_public_professionals()` returns them; trigger `appointments_require_office` refuses new in person bookings without an address.
+- **New** `lib/office.ts` and `app/_components/office-card.tsx`.
+- **Tested** the migration on a local Postgres (PGlite) with 18 checks. See BACKEND-HANDOFF.md section 24.
+
+**What to re-test (after running the migration):**
+1. As a professional with In person on, open My profile, clear the address and try to save: confirm the error.
+2. Add a place name, address and map link, save, refresh, and confirm they stayed.
+3. Open your public profile and confirm "Where to meet in person" and that Open in Maps opens the right place.
+4. As a user, book In person and confirm the address shows on the choice, the review and the confirmation.
+5. Open My appointments and confirm the place and Open in Maps on the session; tap Add to calendar and check the event location.
+6. As a professional with In person but no address, confirm Home shows the reminder and users only see Online.
+7. Switch to Khmer and check every new label.
+
 ## 15 Oct 2026: My Appointments: Message, Add to Calendar, How Soon, Quieter Sharing
 
 Commit `6dd9417`. No migration.
