@@ -2,7 +2,7 @@
 
 ## 15 Oct 2026: Activities Tab on Sample Data
 
-Commit `PENDING`. No migration.
+Commit `b4af4d2`. No migration.
 
 **Why.** The Activities tab said Coming soon. Rith wants it built now on sample data so Hok Chheng can make it real.
 
