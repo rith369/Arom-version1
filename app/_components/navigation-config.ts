@@ -119,7 +119,7 @@ export const NAVIGATION_SECTIONS: NavSection[] = [
         enTitle: "Progress Dashboard",
         kmTitle: "ផ្ទាំងតាមដានការវិវត្ត",
         icon: BarChart3,
-        href: "/#progress-dashboard",
+        href: "/progress",
       },
     ],
   },

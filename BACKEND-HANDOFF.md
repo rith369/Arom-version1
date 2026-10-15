@@ -68,6 +68,7 @@ The yellow "Demo data on this page" banner is in `admin-shell.tsx`. Remove it fo
 | MindGuide podcasts: user pages `/podcasts` and `/podcasts/<id>`, admin Podcasts tab | Done on mock data | Waiting for backend | 11 |
 | Community: professionals and admins create groups, admins read chats and shut groups down, users report a person, image, message or group (`/community`, `/admin/community`) | Done on mock data | Waiting for backend | 14 |
 | Mood check in and Your Progress on Home (`/`, journal starts from today's mood) | Done | Connected (`POST /api/mood-checkins`, `GET /api/progress`), migration `20261015000400` not yet applied to Supabase | 22 |
+| Progress pages (`/progress`, `/progress/details`, from Figma): trend, bars, distribution, today's check in | Done, 30 days and 3 months on sample data | 7 days connected (`GET /api/progress`). Waiting for `GET /api/progress?range=30d\|90d` | 22 |
 | Admin audit log (`/admin/audit-log`) | Done | Connected (`GET /api/admin/audit-log`). No migration | 5 |
 | Other admin pages (bookings, journal prompts, settings) | Built by Sokheng on mock data | Not started | not written yet |
 
@@ -879,6 +880,36 @@ The admin list uses `CommunityReport`: `id, groupId, targetKind, targetLabel, me
 - **`reschedule_appointment()` (professional) and `guard_appointment_update()` are replaced** with the same bodies plus `rescheduled_by`. Both matched the live database before this change.
 - **Tested** on a local Postgres (PGlite) with the real trigger code: 30 checks for moving, taken times, other people's sessions, other professionals, minimum notice for the new time and for the session itself, the deadlines function, session type, reason length, cancelled sessions, the professional's version, the guard and grants. Not yet tested against Supabase or in the running app.
 - **Not built:** a notice to the professional beyond the bookings list (no message or email is sent).
+### Progress pages `/progress` and `/progress/details` (15 Oct 2026, from Figma)
+
+**Files:** `app/progress/page.tsx`, `app/progress/details/page.tsx`, `app/progress/_components/*` (views, charts, `use-progress.ts`), `app/progress/_data/sample-progress.ts` (**sample data**), `app/_components/mood/mood-visuals.ts` (mood icons and chart colors, shared with the Home check in), `lib/mood.ts` (`PROGRESS_RANGES`, `RANGE_DAYS`, `moodCounts()`). The sidebar "Progress Dashboard" item and Home "See all" link open `/progress`.
+
+**What is real and what is sample:**
+
+| Part | Data |
+|---|---|
+| 7 days: Mood Trend, Mood Statistics bars, Mood Distribution, summary card | Real, `GET /api/progress` |
+| Today's Check in card | Real, today from the same response |
+| 30 days and 3 months | **Sample**, `sampleProgress()`, labeled "Sample data, not yours yet" on screen, shown only to signed in people |
+| Insights tab | Worked out in the browser from the same check ins (`app/progress/_components/insights.ts`): real for 7 days, sample for longer ranges. Facts only: check in count, most common mood, the span of moods, the weekday checked in most (30 days or more, only when one weekday clearly leads), and how many days were Low or Very Low. **Backend later:** a "time of day you check in" insight needs the check in time (`created_at` of `mood_checkins`) in the progress response |
+| Activities tab | **Sample** for every range, `app/progress/_data/sample-activities.ts`, labeled on screen. Counts of practices done, lessons read and journal entries, plus a Recent list (practice and lesson names come from `ALL_PRACTICES` and `ALL_LESSONS`; a journal entry is only a date, never its words) |
+
+**Backend needed for Activities:** save each finished practice (`practice_id`), each finished lesson (`lesson_id`) and each journal entry (date only here) for the signed in user, owner only RLS. Then `GET /api/progress/activities?range=7d|30d|90d` returning `ActivitiesResponse` from `sample-activities.ts`: `{ counts: { practice, lesson, journal }, recent: { id, kind, refId, day }[] }`, newest first, at most 20. Never return journal text here. Then swap `sampleActivities()` in `activities-panel.tsx` for the API and delete the sample file.
+
+**Share my mood check ins with my professional (built as "Coming soon", nothing is shared yet).** Rith decided: **off by default, moods only (never the journal, never notes), the client can turn it off at any time.**
+- **Client side today:** My appointments shows a third sharing option "My mood check ins", disabled, with "Coming soon. Nothing is shared yet." (`app/_components/appointments/user-appointments.tsx`).
+- **Professional side today:** the client file shows a "Mood check ins" card, Coming soon, with a dimmed chart labeled "An example, not this client" (`app/pro/_components/shared-mood-preview.tsx`, sample data). It must never look like the client's real moods.
+- **Backend needed:** `appointments.share_mood_trend boolean not null default false`, set through `set_appointment_sharing()` (add `p_share_mood_trend`) and returned in `GET /api/appointments` as `shareMoodTrend`; lock it in `guard_appointment_update()` like the other share columns. A `security definer` function for the professional, for example `shared_mood_checkins(p_client uuid)`, returning only `(day, mood)` for the last 30 Cambodia days, and only when that client has `share_mood_trend = true` on a booked or completed appointment with the caller. Turning the switch off must stop it at once. No admin read. Then: enable the checkbox, send it with the `sharing` action, and swap the example chart for the real one.
+
+**Backend needed:** `GET /api/progress?range=30d|90d` returning the same `MoodWeekResponse` (`{ days: MoodDay[], checkIns }`): one entry per Cambodia day, oldest first, today last, `mood` null on a missed day. Without `range` it stays 7 days. Then in `use-progress.ts` load the range instead of `sampleProgress()` and delete `app/progress/_data/sample-progress.ts`. The distribution is counted in the browser with `moodCounts()`, so no extra endpoint.
+
+**Decided with Rith (changes from the Figma, do not undo):**
+
+- **Honest wording only.** No "You're doing great", "Feeling better than last week" or "more positive this week". The cards count check ins ("You checked in 5 of the last 7 days").
+- **The app's 5 moods** (Very Low to Great), not the 4 in the Figma (Happy, Calm, Neutral, Sad).
+- **One mood per day:** a bar's height is that day's mood, and tapping it shows the mood name. No percentages per day.
+- **One range switch:** 7 days, 30 days, 3 months (the Figma's Week, Month, Year is gone).
+- **No sparkles:** the mascot (`public/progress/mascot.png`, from the Figma) had its three star shapes removed, as AGENTS.md section 7 requires.
 
 ## Template for a new feature section
 

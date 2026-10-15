@@ -6,6 +6,7 @@ import { Archive, ArchiveRestore, ArrowLeft, CalendarCheck, FileText, Lock, Mess
 
 import { BookingDialog } from './bookings-view';
 import { CarePlanCard } from './care-plan-card';
+import { SharedMoodPreview } from './shared-mood-preview';
 import { SuggestSessionDialog } from './suggest-session-dialog';
 import { usePro, useSharedByClient } from './pro-provider';
 import { useLanguage } from '../../_components/language-provider';
@@ -322,6 +323,8 @@ export function ClientFile({ clientId }: { clientId: string }) {
               </div>
             )}
           </Card>
+
+          <SharedMoodPreview km={km} />
 
           {latestIntake && (
             <Card title={t('ចម្លើយចុងក្រោយពេលកក់', 'Latest intake answers')} icon={FileText}>

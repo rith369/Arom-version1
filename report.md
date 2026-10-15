@@ -30,6 +30,159 @@ Commit `4322eda`. Migration `20261015001500_client_reschedule.sql` **not yet app
 5. Open the same session in two browsers, move both to the same time, and confirm the second gets "This time is no longer available".
 6. With a session less than the professional's minimum notice away, confirm Change time is hidden, the "too close" note shows, and Cancel still works.
 7. Switch to Khmer and check every new label.
+## 15 Oct 2026: Share Mood Check Ins With a Professional (Coming Soon)
+
+Commit `6d8457b`. No migration.
+
+**Why.** A professional who can see a client's recent moods can prepare better sessions. Rith decided the rules: off by default, moods only, never the journal, and the client can turn it off at any time. The screens are built now; Hok Chheng makes it real.
+
+**What changed for users:**
+- **My appointments:** a third sharing option "My mood check ins", shown off and disabled with "Coming soon. Nothing is shared yet. Moods only, never your journal."
+
+**What changed for professionals:**
+- **Client file:** a "Mood check ins" card, Coming soon, explaining what will show, with a dimmed example chart labeled "An example, not this client".
+
+**What changed for the team:**
+- **New** `app/pro/_components/shared-mood-preview.tsx`; the sharing option in `user-appointments.tsx`. BACKEND-HANDOFF.md section 22 lists the column, the function and the privacy rules.
+- **Bar charts** on longer ranges now label dates weekly, so labels never run into each other in narrow cards.
+
+**What to re-test:**
+1. On My appointments, open a session's sharing and confirm "My mood check ins" is off, cannot be ticked, and says Coming soon.
+2. As a professional, open a client file and confirm the Mood check ins card says Coming soon and "An example, not this client".
+3. Switch to Khmer.
+
+## 15 Oct 2026: Activities Tab on Sample Data
+
+Commit `b4af4d2`. No migration.
+
+**Why.** The Activities tab said Coming soon. Rith wants it built now on sample data so Hok Chheng can make it real.
+
+**What changed for users:**
+- **Activities tab** shows practices done, lessons read and journal entries for 7 days, 30 days or 3 months, a Recent list, and buttons to Find a practice or Read a lesson.
+- **Clearly sample:** the "Sample data, not yours yet" label shows for every range, and signed out visitors see the log in card instead.
+- **Private:** journal entries show only the date, never what was written.
+
+**What changed for the team:**
+- **New** `app/progress/_components/activities-panel.tsx` and `app/progress/_data/sample-activities.ts` (the `ActivitiesResponse` shape). BACKEND-HANDOFF.md section 22 lists what Hok Chheng needs to save and the endpoint.
+
+**What to re-test:**
+1. Signed in, open Mood & Activity Details, Activities, and switch ranges.
+2. Confirm the Sample data label, and that no journal text appears.
+3. Tap Find a practice and Read a lesson.
+4. Switch to Khmer.
+
+## 15 Oct 2026: Insights Tab With Facts From Check Ins
+
+Commit `3f8e3e6`. No migration.
+
+**Why.** The Insights tab said Coming soon. Simple facts about one's own check ins help people notice patterns, as long as the app never judges the mood.
+
+**What changed for users:**
+- **Insights tab** in Mood & Activity Details lists facts for 7 days, 30 days or 3 months: how many days you checked in, your most common mood, the span of your moods, the weekday you check in most (longer ranges, only when one clearly leads), and how many days were Low or Very Low.
+- **Honest:** a note says "These are only facts from your check ins. AROM never scores or judges your mood." 30 days and 3 months show the Sample data label.
+
+**What changed for the team:**
+- **New** `app/progress/_components/insights.ts` (the rules) and `insights-panel.tsx`. Worked out in the browser, so no new endpoint. BACKEND-HANDOFF.md section 22 notes the check in time a later insight would need.
+
+**What to re-test:**
+1. Signed in, open Mood & Activity Details, Insights, and compare the facts with your 7 day chart.
+2. Switch to 30 days and 3 months and confirm the Sample data label.
+3. With one check in, confirm it says "Your one check in was ...".
+4. Switch to Khmer.
+
+## 15 Oct 2026: Write About Today From Progress
+
+Commit `913ecc6`. No migration.
+
+**Why.** After checking in, people may want to write about their day. The Progress Dashboard had no way to get to the journal.
+
+**What changed for users:**
+- **"Write about today"** under Today's Check in opens the journal, which starts from today's mood.
+
+**What changed for the team:**
+- **Only** `app/progress/_components/progress-dashboard-view.tsx`. The journal is still saved in the browser only (BACKEND-HANDOFF.md section 22, Still open); the link keeps working when it moves to the server.
+
+**What to re-test:**
+1. Signed in, open Progress Dashboard, tap Write about today and confirm the journal opens with today's mood.
+
+## 15 Oct 2026: AROM Top Bar on the Progress Pages
+
+Commit `61d3249`. No migration.
+
+**Why.** Home, Community and Journal start with the AROM top bar (logo, "A calmer mind, a brighter you", menu and profile button), but the Progress pages did not, so on a phone there was no menu button at the top. Rith asked for the same top bar.
+
+**What changed for users:**
+- **Progress Dashboard and Mood & Activity Details** now start with the AROM top bar on phones, and the profile button on computers, the same as Home.
+
+**What changed for the team:**
+- **`ProgressShell`** (`app/progress/_components/progress-parts.tsx`) renders the shared `TopHeader`.
+
+**What to re-test:**
+1. On a phone width, open both Progress pages and confirm the logo, menu button and profile button, and that the menu opens.
+2. On a computer, confirm only the profile button shows at the top right, like Home.
+
+## 15 Oct 2026: Progress Pages Use the Normal Page Header
+
+Commit `0069a7c`. No migration.
+
+**Why.** The Progress pages copied the phone style header from the Figma (back arrow and a centered green title), which looked different from every other page. Rith asked for the normal header.
+
+**What changed for users:**
+- **Progress Dashboard:** big left aligned title and a short line under it ("Your mood check ins over time. Only you can see them."), like My appointments. No back arrow, because it is a main page in the menu.
+- **Mood & Activity Details:** the same header, with a small "Progress Dashboard" link above the title to go back.
+
+**What changed for the team:**
+- **`ProgressShell`** in `app/progress/_components/progress-parts.tsx` takes `subtitle` and an optional `back` link instead of `backHref`.
+
+**What to re-test:**
+1. Open both pages on a computer and a phone and compare the header with My appointments.
+2. On Mood & Activity Details, tap "Progress Dashboard" and confirm it goes back.
+3. Switch to Khmer.
+
+## 15 Oct 2026: Mood Details Easier to Find
+
+Commit `ef50a12`. No migration.
+
+**Why.** The only way from Progress Dashboard to Mood & Activity Details was a small "See details" text in the corner of the Mood Trend card. Rith found it easy to miss, so users would too.
+
+**What changed for users:**
+- **See details is a button:** a green outlined pill, larger and easier to tap, in the same place as the Figma.
+- **New full width button** at the bottom of the Mood Trend card: "See mood details, Statistics and how your moods are spread".
+
+**What changed for the team:**
+- **Only** `app/progress/_components/progress-dashboard-view.tsx`. No data or API change.
+
+**What to re-test:**
+1. Signed in, open Progress Dashboard and confirm both buttons open Mood & Activity Details.
+2. Check a phone width and Khmer.
+
+## 15 Oct 2026: Progress Dashboard and Mood Details Pages
+
+Commit `9ea69ac`. No migration.
+
+**Why.** The Figma has a Progress Dashboard and a Mood & Activity Details screen, but the app only had a small Your Progress card on Home. People need one calm place to see how their check ins look over time, without the app judging their mood.
+
+**What changed for users:**
+- **Progress Dashboard (`/progress`):** a thank you card with the AROM sprout, a 7 days, 30 days and 3 months switch, a Mood Trend line (tap a day to see its mood), and Today's Check in with a Change or Check in button.
+- **Mood & Activity Details (`/progress/details`):** Mood Statistics bars in mood colors (tap a bar to see the mood), Mood Distribution donut with the share of each mood, and a short honest note. Activities and Insights say Coming soon.
+- **Honest wording:** the pages count check ins ("You checked in 5 of the last 7 days") and never say better or worse, unlike the Figma text.
+- **Sample data is labeled:** 30 days and 3 months show "Sample data, not yours yet" until the backend serves them. 7 days is real.
+- **Sidebar and Home:** Progress Dashboard in the sidebar and See all on Home open the new page.
+
+**What changed for the team:**
+- **New** `app/progress/` (pages, charts, `use-progress.ts`, sample data) and `app/_components/mood/mood-visuals.ts` (mood icons and colors, now also used by the Home check in).
+- **`lib/mood.ts`:** `PROGRESS_RANGES`, `RANGE_DAYS`, `moodCounts()`.
+- **Mascot** from the Figma saved as `public/progress/mascot.png`, with its sparkle stars removed (AGENTS.md section 7) and resized from 1.4 MB to 195 KB.
+- **Backend:** Hok Chheng needs `GET /api/progress?range=30d|90d`; see BACKEND-HANDOFF.md section 22.
+
+**What to re-test:**
+1. Signed in, open Progress Dashboard from the sidebar and check the card, the switch and the trend for 7 days against your real check ins.
+2. Tap days on the trend and confirm the mood under it.
+3. Switch to 30 days and 3 months and confirm the Sample data label.
+4. Tap See details, tap bars, check the donut percentages and the Activities and Insights tabs.
+5. Tap Change on Today's Check in and confirm it opens the Home check in.
+6. Sign out and confirm both pages ask you to log in and show no moods.
+7. Check a phone width and Khmer.
 
 ## 15 Oct 2026: My Appointments: Message, Add to Calendar, How Soon, Quieter Sharing
 

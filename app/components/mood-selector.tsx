@@ -7,15 +7,10 @@ import { BookOpen, Check, ChevronRight, LogIn, RotateCcw } from "lucide-react";
 import { FigmaIcon } from "./figma-icon";
 import { useLanguage } from "../_components/language-provider";
 import { useAuth } from "../_components/auth-provider";
-import { MOOD_LABELS, saveTodayMood, useMoodStore, type MoodLevel } from "../_components/mood/mood-store";
+import { MOOD_LABELS, MOOD_LEVELS, saveTodayMood, useMoodStore, type MoodLevel } from "../_components/mood/mood-store";
+import { MOOD_ICONS } from "../_components/mood/mood-visuals";
 
-const moods: { id: MoodLevel; icon: string }[] = [
-  { id: "very_low", icon: "boxicons_tired" },
-  { id: "low", icon: "akar-icons_face-sad" },
-  { id: "okay", icon: "teenyicons_mood-flat-outline" },
-  { id: "good", icon: "ic_outline-mood" },
-  { id: "great", icon: "boxicons_happy-beaming" },
-];
+const moods: { id: MoodLevel; icon: string }[] = MOOD_LEVELS.map((id) => ({ id, icon: MOOD_ICONS[id] }));
 
 type SaveState = "idle" | "saving" | "saved" | "error" | "sign_in";
 
