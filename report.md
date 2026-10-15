@@ -2,7 +2,7 @@
 
 ## 15 Oct 2026: Session Times Show When They End
 
-Commit `PENDING`. No migration.
+Commit `af68d08`. No migration.
 
 **Why.** When booking, each time button showed only the start ("9:00 AM"), so a client could not see how long the session was before choosing. After booking, My appointments showed the same session in another format ("09:00 to 10:30"), and in Khmer the word "to" stayed in English.
 
