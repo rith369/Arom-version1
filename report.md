@@ -2,7 +2,7 @@
 
 ## 16 Oct 2026: Progress Shows Which Dates It Covers
 
-Commit `PENDING`. No migration.
+Commit `30225ab`. No migration.
 
 **Why.** "7 days" or "30 days" did not say exactly which days were shown, so people could not match a chart to their own memory of those days.
 
