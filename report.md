@@ -2,7 +2,7 @@
 
 ## 15 Oct 2026: Share Mood Check Ins With a Professional (Coming Soon)
 
-Commit `PENDING`. No migration.
+Commit `6d8457b`. No migration.
 
 **Why.** A professional who can see a client's recent moods can prepare better sessions. Rith decided the rules: off by default, moods only, never the journal, and the client can turn it off at any time. The screens are built now; Hok Chheng makes it real.
 
