@@ -1,5 +1,20 @@
 # AROM: Change Report
 
+## 15 Oct 2026: Write About Today From Progress
+
+Commit `PENDING`. No migration.
+
+**Why.** After checking in, people may want to write about their day. The Progress Dashboard had no way to get to the journal.
+
+**What changed for users:**
+- **"Write about today"** under Today's Check in opens the journal, which starts from today's mood.
+
+**What changed for the team:**
+- **Only** `app/progress/_components/progress-dashboard-view.tsx`. The journal is still saved in the browser only (BACKEND-HANDOFF.md section 22, Still open); the link keeps working when it moves to the server.
+
+**What to re-test:**
+1. Signed in, open Progress Dashboard, tap Write about today and confirm the journal opens with today's mood.
+
 ## 15 Oct 2026: AROM Top Bar on the Progress Pages
 
 Commit `61d3249`. No migration.

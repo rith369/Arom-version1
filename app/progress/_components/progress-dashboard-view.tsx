@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { BarChart3, ChevronRight } from 'lucide-react';
+import { BarChart3, ChevronRight, PenLine } from 'lucide-react';
 
 import { FigmaIcon } from '../../components/figma-icon';
 import { useLanguage } from '../../_components/language-provider';
@@ -135,6 +135,22 @@ export function ProgressDashboardView() {
                 {week.today ? t('ប្តូរ', 'Change') : t('កត់ត្រា', 'Check in')}
               </Link>
             </div>
+            {/* The journal starts from today's check in by itself (section 22). */}
+            <Link
+              href="/detection/journal"
+              className="mt-3 flex items-center gap-3 rounded-2xl border border-arom-border bg-white px-4 py-3 text-sm text-ink transition-colors hover:bg-arom-wash focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-arom"
+            >
+              <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-arom-soft text-arom">
+                <PenLine size={17} aria-hidden="true" />
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block font-semibold">{t('សរសេរអំពីថ្ងៃនេះ', 'Write about today')}</span>
+                <span className="block text-xs text-ink-muted">
+                  {t('កំណត់ហេតុរបស់អ្នកជាឯកជន។', 'Your journal is private to you.')}
+                </span>
+              </span>
+              <ChevronRight size={18} aria-hidden="true" className="shrink-0 text-arom" />
+            </Link>
           </section>
         </>
       )}
