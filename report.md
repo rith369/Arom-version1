@@ -2,7 +2,7 @@
 
 ## 15 Oct 2026: Write About Today From Progress
 
-Commit `PENDING`. No migration.
+Commit `913ecc6`. No migration.
 
 **Why.** After checking in, people may want to write about their day. The Progress Dashboard had no way to get to the journal.
 
