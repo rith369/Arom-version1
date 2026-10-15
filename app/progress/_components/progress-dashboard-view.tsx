@@ -8,7 +8,7 @@ import { useLanguage } from '../../_components/language-provider';
 import { useMoodStore } from '../../_components/mood/mood-store';
 import { PROGRESS_DAYS, PROGRESS_RANGES, type ProgressRange } from '@/lib/mood';
 import { MoodTrendChart } from './progress-charts';
-import { MascotNote, PillSwitch, ProgressShell, ProgressStatus, RANGE_LABELS, SampleBadge } from './progress-parts';
+import { MascotNote, PillSwitch, ProgressShell, ProgressStatus, RANGE_LABELS, SampleBadge, RangeDates } from './progress-parts';
 import { SupportCard, needsSupport } from './support-card';
 import { TodayCheckIn } from './today-check-in';
 import { useProgress } from './use-progress';
@@ -60,6 +60,7 @@ export function ProgressDashboardView() {
             value={range}
             onChange={setRange}
           />
+          <RangeDates first={data.days[0]?.day} last={data.days.at(-1)?.day} km={km} />
 
           <section aria-labelledby="trend-title" className="rounded-3xl border border-arom-border bg-white p-4 shadow-card sm:p-5">
             <div className="flex flex-wrap items-center justify-between gap-2">

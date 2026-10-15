@@ -119,6 +119,16 @@ export function MascotNote({ title, text, compact = false }: { title?: string; t
   );
 }
 
+/** "Oct 9 to Oct 15": the days a range covers, under the range switch. */
+export function RangeDates({ first, last, km }: { first?: string; last?: string; km: boolean }) {
+  if (!first || !last) return null;
+  return (
+    <p className="-mt-1 px-1 text-xs text-ink-muted">
+      {dayLabel(first, km, false)} {km ? 'ដល់' : 'to'} {dayLabel(last, km, false)}
+    </p>
+  );
+}
+
 export function SampleBadge({ km }: { km: boolean }) {
   return (
     <p className="inline-flex rounded-full bg-arom-warning-soft px-2.5 py-0.5 text-xs font-semibold text-arom-warning">

@@ -1,5 +1,21 @@
 # AROM: Change Report
 
+## 16 Oct 2026: Progress Shows Which Dates It Covers
+
+Commit `PENDING`. No migration.
+
+**Why.** "7 days" or "30 days" did not say exactly which days were shown, so people could not match a chart to their own memory of those days.
+
+**What changed for users:**
+- **A small line under every range switch** on the Progress pages, for example "Oct 9 to Oct 15", in English and Khmer.
+
+**What changed for the team:**
+- **New** `RangeDates` in `app/progress/_components/progress-parts.tsx`, used by the dashboard, Mood, Insights and Activities.
+
+**What to re-test:**
+1. On each Progress tab, switch ranges and confirm the dates change and end today.
+2. Switch to Khmer.
+
 ## 16 Oct 2026: Mood Distribution Shows Counts for Few Check Ins
 
 Commit `584b082`. No migration.

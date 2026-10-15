@@ -6,7 +6,7 @@ import { PROGRESS_RANGES, type ProgressRange } from '@/lib/mood';
 import { ActivitiesPanel } from './activities-panel';
 import { InsightsPanel } from './insights-panel';
 import { MoodBarChart, MoodDonut } from './progress-charts';
-import { MascotNote, PillSwitch, ProgressShell, ProgressStatus, RANGE_LABELS, SampleBadge } from './progress-parts';
+import { MascotNote, PillSwitch, ProgressShell, ProgressStatus, RANGE_LABELS, SampleBadge, RangeDates } from './progress-parts';
 import { useProgress } from './use-progress';
 
 // Mood & Activity Details (Figma, BACKEND-HANDOFF.md section 22). Mood and
@@ -60,6 +60,7 @@ export function MoodDetailsView() {
                 value={range}
                 onChange={setRange}
               />
+              <RangeDates first={data.days[0]?.day} last={data.days.at(-1)?.day} km={km} />
               <div className="rounded-3xl border border-arom-border bg-white p-4 shadow-card sm:p-5">
                 {data.sample && (
                   <div className="mb-2">
