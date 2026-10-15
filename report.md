@@ -1,5 +1,21 @@
 # AROM: Change Report
 
+## 16 Oct 2026: Mood Distribution Shows Counts for Few Check Ins
+
+Commit `PENDING`. No migration.
+
+**Why.** With only a few check ins, a percentage sounds bigger than it is: one Great day out of two showed as "Great 50%".
+
+**What changed for users:**
+- **Below 10 check ins,** the Mood Distribution list shows "1 of 2" instead of a percentage. From 10 check ins on it shows percentages as before.
+
+**What changed for the team:**
+- **`MoodDonut`** in `app/progress/_components/progress-charts.tsx`, `FEW_CHECK_INS = 10`.
+
+**What to re-test:**
+1. With a few check ins, open Mood & Activity Details and confirm "1 of 2" style counts; switch to 30 days (sample) and confirm percentages.
+2. Switch to Khmer.
+
 ## 16 Oct 2026: Gentle Support Card After Hard Days
 
 Commit `0fc2626`. No migration.
