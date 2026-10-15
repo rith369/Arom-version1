@@ -67,7 +67,10 @@ The yellow "Demo data on this page" banner is in `admin-shell.tsx`. Remove it fo
 | MindGuide podcasts: user pages `/podcasts` and `/podcasts/<id>`, admin Podcasts tab | Done on mock data | Waiting for backend | 11 |
 | Community: professionals and admins create groups, admins read chats and shut groups down, users report a person, image, message or group (`/community`, `/admin/community`) | Done on mock data | Waiting for backend | 14 |
 | Mood check in and Your Progress on Home (`/`, journal starts from today's mood) | Done | Connected (`POST /api/mood-checkins`, `GET /api/progress`), migration `20261015000400` not yet applied to Supabase | 22 |
-| Progress pages (`/progress`, `/progress/details`, from Figma): trend, bars, distribution, today's check in | Done, 30 days and 3 months on sample data | 7 days connected (`GET /api/progress`). Waiting for `GET /api/progress?range=30d\|90d` | 22 |
+| Progress pages (`/progress`, `/progress/details`, from Figma): trend, bars, distribution, today's check in | Done, 30 days and 3 months on sample data | 7 days connected (`GET /api/progress`). Waiting for `GET /api/progress?range=30d\|90d`. Insights worked out in the browser (real for 7 days) | 22 |
+| Progress Activities tab (practices done, lessons read, journal entries) | Done on sample data | Waiting for backend: save finished practices and lessons, `GET /api/progress/activities?range=` | 22 |
+| Share mood check ins with my professional (My appointments switch, client file card) | Done as Coming soon, nothing is shared | Waiting for backend: `appointments.share_mood_trend`, a function for the professional to read the last 30 days, RLS | 22 |
+| Journal (Write about today, `/detection/journal`) | Done, saved in the browser only | Waiting for backend: `journal_entries` API, owner only | 22 |
 | Admin audit log (`/admin/audit-log`) | Done | Connected (`GET /api/admin/audit-log`). No migration | 5 |
 | Other admin pages (bookings, journal prompts, settings) | Built by Sokheng on mock data | Not started | not written yet |
 
