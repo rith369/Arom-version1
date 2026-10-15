@@ -2,7 +2,7 @@
 
 ## 15 Oct 2026: Progress Dashboard and Mood Details Pages
 
-Commit `PENDING`. No migration.
+Commit `9ea69ac`. No migration.
 
 **Why.** The Figma has a Progress Dashboard and a Mood & Activity Details screen, but the app only had a small Your Progress card on Home. People need one calm place to see how their check ins look over time, without the app judging their mood.
 
