@@ -1,5 +1,23 @@
 # AROM: Change Report
 
+## 16 Oct 2026: Check In Right on the Progress Dashboard
+
+Commit `PENDING`. No migration.
+
+**Why.** Today's Check in sent people back to Home to pick a mood. Every extra step means fewer check ins.
+
+**What changed for users:**
+- **The 5 mood faces are inside Today's Check in.** A tap saves today's mood, the charts above update straight away, and "Saved" shows once the server confirms. Tapping another mood changes it.
+- **Same rules as Home:** nothing is preselected, and errors offer Try again.
+
+**What changed for the team:**
+- **New** `app/progress/_components/today-check-in.tsx`, using `saveTodayMood()` from the mood store (the same save as Home).
+
+**What to re-test:**
+1. Signed in, open Progress Dashboard, tap a mood, confirm "Saved" and that today's point on the chart updates.
+2. Tap another mood and confirm it changes; refresh and confirm it stayed.
+3. Check a phone width and Khmer.
+
 ## 15 Oct 2026: Share Mood Check Ins With a Professional (Coming Soon)
 
 Commit `6d8457b`. No migration.

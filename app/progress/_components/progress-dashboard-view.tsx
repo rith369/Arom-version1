@@ -4,13 +4,12 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { BarChart3, ChevronRight, PenLine } from 'lucide-react';
 
-import { FigmaIcon } from '../../components/figma-icon';
 import { useLanguage } from '../../_components/language-provider';
 import { useMoodStore } from '../../_components/mood/mood-store';
-import { MOOD_COLORS, MOOD_ICONS } from '../../_components/mood/mood-visuals';
-import { MOOD_LABELS, PROGRESS_DAYS, PROGRESS_RANGES, type ProgressRange } from '@/lib/mood';
+import { PROGRESS_DAYS, PROGRESS_RANGES, type ProgressRange } from '@/lib/mood';
 import { MoodTrendChart } from './progress-charts';
 import { MascotNote, PillSwitch, ProgressShell, ProgressStatus, RANGE_LABELS, SampleBadge } from './progress-parts';
+import { TodayCheckIn } from './today-check-in';
 import { useProgress } from './use-progress';
 
 // Progress Dashboard (Figma "Progress Dashboard", BACKEND-HANDOFF.md section 22).
@@ -107,34 +106,7 @@ export function ProgressDashboardView() {
             <h2 id="today-title" className="text-base font-semibold text-ink">
               {t('ការកត់ត្រាថ្ងៃនេះ', "Today's Check in")}
             </h2>
-            <div className="mt-3 flex items-center gap-4 rounded-2xl border border-black/10 bg-white p-4 shadow-[4px_4px_12px_rgba(0,0,0,0.08)]">
-              <span
-                className="flex size-14 shrink-0 items-center justify-center rounded-full"
-                style={{ backgroundColor: week.today ? `${MOOD_COLORS[week.today]}33` : '#e8f0ee' }}
-              >
-                <FigmaIcon name={week.today ? MOOD_ICONS[week.today] : 'ic_outline-mood'} size={30} />
-              </span>
-              <div className="min-w-0 flex-1">
-                <p className="font-medium text-ink">
-                  {week.today
-                    ? km
-                      ? MOOD_LABELS[week.today].km
-                      : MOOD_LABELS[week.today].en
-                    : t('មិនទាន់បានកត់ត្រាថ្ងៃនេះ', 'No check in yet today')}
-                </p>
-                <p className="text-sm font-light text-ink">
-                  {week.today
-                    ? t('អារម្មណ៍ដែលអ្នកបានកត់ត្រាសម្រាប់ថ្ងៃនេះ។', 'The mood you chose for today.')
-                    : t('តើអ្នកមានអារម្មណ៍យ៉ាងណាថ្ងៃនេះ?', 'How are you feeling today?')}
-                </p>
-              </div>
-              <Link
-                href="/#mood-check-in"
-                className="shrink-0 rounded-full border border-arom px-3.5 py-1.5 text-xs font-medium text-arom hover:bg-arom-wash"
-              >
-                {week.today ? t('ប្តូរ', 'Change') : t('កត់ត្រា', 'Check in')}
-              </Link>
-            </div>
+            <TodayCheckIn today={week.today} km={km} />
             {/* The journal starts from today's check in by itself (section 22). */}
             <Link
               href="/detection/journal"
