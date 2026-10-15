@@ -2,7 +2,7 @@
 
 ## 16 Oct 2026: Mood Distribution Shows Counts for Few Check Ins
 
-Commit `PENDING`. No migration.
+Commit `584b082`. No migration.
 
 **Why.** With only a few check ins, a percentage sounds bigger than it is: one Great day out of two showed as "Great 50%".
 
