@@ -2,7 +2,7 @@
 
 ## 15 Oct 2026: Insights Tab With Facts From Check Ins
 
-Commit `PENDING`. No migration.
+Commit `3f8e3e6`. No migration.
 
 **Why.** The Insights tab said Coming soon. Simple facts about one's own check ins help people notice patterns, as long as the app never judges the mood.
 
