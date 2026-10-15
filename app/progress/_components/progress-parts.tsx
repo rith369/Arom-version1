@@ -6,6 +6,7 @@ import type { ReactNode } from 'react';
 import { ChevronLeft, LogIn, RotateCcw } from 'lucide-react';
 
 import { DesktopNavigation, MobileNavigation } from '../../_components/app-navigation';
+import { TopHeader } from '../../components/top-header';
 import { loadMoodWeek } from '../../_components/mood/mood-store';
 import type { MoodStatus } from '../../_components/mood/mood-store';
 import type { ProgressRange } from '@/lib/mood';
@@ -42,7 +43,9 @@ export function ProgressShell({
       <DesktopNavigation active="Progress" />
       <main className="min-w-0 px-4 pb-28 pt-5 sm:px-8 lg:px-10 lg:py-8">
         <div className="mx-auto w-full max-w-2xl">
-          <header>
+          {/* AROM brand, menu and profile, the same as Home and Community. */}
+          <TopHeader />
+          <header className="mt-6 lg:mt-2">
             {back && (
               <Link
                 href={back.href}

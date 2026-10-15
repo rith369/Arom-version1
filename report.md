@@ -1,5 +1,21 @@
 # AROM: Change Report
 
+## 15 Oct 2026: AROM Top Bar on the Progress Pages
+
+Commit `PENDING`. No migration.
+
+**Why.** Home, Community and Journal start with the AROM top bar (logo, "A calmer mind, a brighter you", menu and profile button), but the Progress pages did not, so on a phone there was no menu button at the top. Rith asked for the same top bar.
+
+**What changed for users:**
+- **Progress Dashboard and Mood & Activity Details** now start with the AROM top bar on phones, and the profile button on computers, the same as Home.
+
+**What changed for the team:**
+- **`ProgressShell`** (`app/progress/_components/progress-parts.tsx`) renders the shared `TopHeader`.
+
+**What to re-test:**
+1. On a phone width, open both Progress pages and confirm the logo, menu button and profile button, and that the menu opens.
+2. On a computer, confirm only the profile button shows at the top right, like Home.
+
 ## 15 Oct 2026: Progress Pages Use the Normal Page Header
 
 Commit `0069a7c`. No migration.
