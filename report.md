@@ -2,7 +2,7 @@
 
 ## 16 Oct 2026: Gentle Support Card After Hard Days
 
-Commit `PENDING`. No migration.
+Commit `0fc2626`. No migration.
 
 **Why.** On a mental health app, the progress page is a moment where AROM can actually help. When someone has several hard days in a row, it should offer support, calmly and without judging. Rith chose the rule and the wording.
 
