@@ -860,6 +860,7 @@ The admin list uses `CommunityReport`: `id, groupId, targetKind, targetLabel, me
 | Type | Fields | Table |
 |---|---|---|
 | `UserAppointment.rescheduledBy` | `"you"`, `"professional"` or null when never moved | `appointments.rescheduled_by` |
+| `UserAppointment.changeTimeUntil` | ISO time: the start minus the professional's minimum notice; null when not upcoming | `my_change_time_deadlines()` |
 | `ProBooking.rescheduledBy` | `'client'`, `'professional'` or null | `appointments.rescheduled_by` |
 | `MoveTimesResponse` | `times`: `{ id, startsAt, endsAt }[]` | `availability_slots` via `public_open_slots()` |
 
@@ -871,11 +872,12 @@ The admin list uses `CommunityReport`: `id, groupId, targetKind, targetLabel, me
 ### Rules (decided)
 
 - **Same professional, same session type,** any open time outside the minimum notice. The meeting link stays the same.
-- **Allowed until the session starts,** the same as cancelling. The reason is optional (up to 300 characters) and the professional sees it.
+- **Allowed until the professional's minimum notice before the session** (for example 24 hours before), because the professional may already have prepared. Cancelling stays open until the session starts. Inside the notice the card says "It is too close to your session to change the time. You can still cancel it, or message your professional." The reason is optional (up to 300 characters) and the professional sees it.
+- **The deadline comes from `my_change_time_deadlines()`** (`security definer`, the caller's own upcoming sessions only), because clients cannot read `professional_schedules`. Only the deadline leaves the function, never the schedule.
 - **One transaction:** the appointment moves and the `appointments_refresh_slots` trigger frees the old open time and takes the new one. If two people pick the same time, the second gets "This time is no longer available".
 - **Who moved it is recorded** in `rescheduled_by`. The client sees "You moved this session from ..." or "Your professional moved this session from ...". The professional sees "The client moved this session from ...". `rescheduled_from` keeps the very first time.
 - **`reschedule_appointment()` (professional) and `guard_appointment_update()` are replaced** with the same bodies plus `rescheduled_by`. Both matched the live database before this change.
-- **Tested** on a local Postgres (PGlite) with the real trigger code: 23 checks for moving, taken times, other people's sessions, other professionals, minimum notice, session type, reason length, cancelled sessions, the professional's version, the guard and grants. Not yet tested against Supabase or in the running app.
+- **Tested** on a local Postgres (PGlite) with the real trigger code: 30 checks for moving, taken times, other people's sessions, other professionals, minimum notice for the new time and for the session itself, the deadlines function, session type, reason length, cancelled sessions, the professional's version, the guard and grants. Not yet tested against Supabase or in the running app.
 - **Not built:** a notice to the professional beyond the bookings list (no message or email is sent).
 
 ## Template for a new feature section

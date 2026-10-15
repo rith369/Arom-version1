@@ -50,7 +50,7 @@ interface AppointmentRow {
   professional: ProfessionalRow | ProfessionalRow[] | null;
 }
 
-function toAppointment(row: AppointmentRow): UserAppointment {
+function toAppointment(row: AppointmentRow, changeUntil: Map<string, string>): UserAppointment {
   const professional = Array.isArray(row.professional) ? row.professional[0] : row.professional;
   return {
     id: row.id,
@@ -73,6 +73,7 @@ function toAppointment(row: AppointmentRow): UserAppointment {
     rescheduledFrom: row.rescheduled_from,
     rescheduleReason: row.reschedule_reason ?? "",
     rescheduledBy: !row.rescheduled_from ? null : row.rescheduled_by === row.user_id ? "you" : "professional",
+    changeTimeUntil: changeUntil.get(row.id) ?? null,
     shareSurvey: row.share_survey,
     shareSymptomChecks: row.share_symptom_checks,
     seriesId: row.series_id,
@@ -98,15 +99,25 @@ async function signedIn() {
 }
 
 async function loadAppointments(supabase: SupabaseClient, userId: string) {
-  const { data, error } = await supabase
-    .from("appointments")
-    .select(COLUMNS)
-    .eq("user_id", userId)
-    .order("starts_at", { ascending: false })
-    .limit(200)
-    .returns<AppointmentRow[]>();
+  const [{ data, error }, deadlines] = await Promise.all([
+    supabase
+      .from("appointments")
+      .select(COLUMNS)
+      .eq("user_id", userId)
+      .order("starts_at", { ascending: false })
+      .limit(200)
+      .returns<AppointmentRow[]>(),
+    // The professional's schedule is private, so only the deadline comes back.
+    supabase.rpc("my_change_time_deadlines"),
+  ]);
   if (error) return null;
-  return (data ?? []).map(toAppointment);
+  const changeUntil = new Map(
+    ((deadlines.data ?? []) as { appointment_id: string; change_until: string }[]).map((row) => [
+      row.appointment_id,
+      row.change_until,
+    ]),
+  );
+  return (data ?? []).map((row) => toAppointment(row, changeUntil));
 }
 
 /** GET /api/appointments: the caller's own appointments, newest first. */

@@ -31,6 +31,10 @@ export interface UserAppointment {
   rescheduleReason: string;
   // Who last moved the session (appointments.rescheduled_by). Null if never moved.
   rescheduledBy: "you" | "professional" | null;
+  // Until when the user can change the time: the start minus the
+  // professional's minimum notice (my_change_time_deadlines()). Null when
+  // the session is not upcoming. Cancelling stays open until the start.
+  changeTimeUntil: string | null;
   // The user's choice per booking. Off by default.
   shareSurvey: boolean;
   shareSymptomChecks: boolean;

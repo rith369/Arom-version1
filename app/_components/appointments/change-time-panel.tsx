@@ -29,6 +29,16 @@ export function ChangeTimePanel({
   onClose: () => void;
 }) {
   const t = (kmText: string, enText: string) => (km ? kmText : enText);
+  // e.g. "Sat, Oct 24, 9:00 AM" in Cambodia time, like the booking page.
+  const deadline = new Intl.DateTimeFormat(km ? "km-KH" : "en-US", {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+    timeZone: "Asia/Phnom_Penh",
+  });
   const [state, setState] = useState<LoadState>("loading");
   const [times, setTimes] = useState<MoveTimesResponse["times"]>([]);
   const [reloadKey, setReloadKey] = useState(0);
@@ -97,6 +107,13 @@ export function ChangeTimePanel({
         {t(
           "វគ្គដដែល អ្នកជំនាញដដែល។ ម៉ោងបច្ចុប្បន្នរបស់អ្នកនឹងទំនេរវិញសម្រាប់អ្នកផ្សេង។",
           "Same session, same professional. Your current time opens up for someone else.",
+        )}
+        {appointment.changeTimeUntil && (
+          <>
+            {" "}
+            {t("អ្នកអាចប្តូរម៉ោងបានរហូតដល់", "You can change the time until")}{" "}
+            {deadline.format(new Date(appointment.changeTimeUntil))}.
+          </>
         )}
       </p>
 

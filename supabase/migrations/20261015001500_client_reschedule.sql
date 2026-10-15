@@ -8,9 +8,13 @@
 --      session to another open time with the same professional and the same
 --      session type, in one transaction. The same checks as booking apply:
 --      the time is still open, the professional is listed, and the minimum
---      notice. The appointments_refresh_slots trigger (file
+--      notice. The session itself can only be moved while it is still more
+--      than the professional's minimum notice away (cancelling stays open
+--      until it starts). The appointments_refresh_slots trigger (file
 --      20261015000200_sessions.sql) frees the old open time and takes the
 --      new one.
+--      my_change_time_deadlines() tells the client until when each of their
+--      own upcoming sessions can be moved, without exposing the schedule.
 --   3. reschedule_appointment() (the professional's version) also records
 --      rescheduled_by. Otherwise the same as file 20261014000400.
 --   4. guard_appointment_update() also locks rescheduled_by. Otherwise the
@@ -67,6 +71,15 @@ begin
     raise exception 'Only upcoming sessions can be moved';
   end if;
 
+  select min_notice_hours into v_notice
+  from public.professional_schedules
+  where professional_id = v_appointment.professional_id;
+
+  -- Not inside the professional's minimum notice: they may have prepared.
+  if v_appointment.starts_at <= now() + make_interval(hours => coalesce(v_notice, 24)) then
+    raise exception 'It is too close to your session to change the time. You can still cancel it, or message your professional';
+  end if;
+
   -- Only an open time of the same professional.
   select * into v_slot
   from public.availability_slots
@@ -82,11 +95,6 @@ begin
   if not (v_appointment.session_type = any (v_slot.session_types)) then
     raise exception 'This time does not offer your session type';
   end if;
-
-  select min_notice_hours into v_notice
-  from public.professional_schedules
-  where professional_id = v_slot.professional_id;
-
   if v_slot.starts_at <= now() + make_interval(hours => coalesce(v_notice, 24)) then
     raise exception 'This time is too soon to book. Please choose a later time';
   end if;
@@ -105,6 +113,26 @@ $$;
 
 revoke execute on function public.client_reschedule_appointment(uuid, uuid, text) from public, anon;
 grant execute on function public.client_reschedule_appointment(uuid, uuid, text) to authenticated;
+
+-- Until when the caller can move each of their own upcoming sessions. Only
+-- the deadline leaves the function, never the professional's schedule.
+create or replace function public.my_change_time_deadlines()
+returns table (appointment_id uuid, change_until timestamptz)
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select a.id, a.starts_at - make_interval(hours => coalesce(ps.min_notice_hours, 24))
+  from public.appointments a
+  left join public.professional_schedules ps on ps.professional_id = a.professional_id
+  where a.user_id = (select auth.uid())
+    and a.status = 'booked'
+    and a.starts_at > now();
+$$;
+
+revoke execute on function public.my_change_time_deadlines() from public, anon;
+grant execute on function public.my_change_time_deadlines() to authenticated;
 
 -- ===========================================================================
 -- 3. The professional's version also records who moved it

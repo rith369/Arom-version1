@@ -9,6 +9,7 @@ Commit `4322eda`. Migration `20261015001500_client_reschedule.sql` **not yet app
 **What changed for users:**
 - **Change time** on an upcoming session opens the same date and time picker as booking, with the professional's open times for the same session type.
 - **One step and safe:** the session moves and the old time opens for someone else at once. If someone just took the new time, the page says so and loads fresh times.
+- **Up to the professional's notice:** a session can be moved until the professional's minimum notice before it (for example 24 hours), and the panel says until when. After that the card says it is too close to change the time, and the client can still cancel or message the professional.
 - **Optional reason** the professional sees.
 - **Clear wording:** the card says "You moved this session from ..." or "Your professional moved this session from ...".
 
@@ -16,10 +17,10 @@ Commit `4322eda`. Migration `20261015001500_client_reschedule.sql` **not yet app
 - **My bookings shows "The client moved this session from ..."** with the client's reason.
 
 **What changed for the team:**
-- **New database function** `client_reschedule_appointment()` and column `appointments.rescheduled_by`. `reschedule_appointment()` and `guard_appointment_update()` are replaced with the same bodies plus `rescheduled_by` (checked against the live database first).
+- **New database functions** `client_reschedule_appointment()` and `my_change_time_deadlines()` (the deadline only, the schedule stays private), and column `appointments.rescheduled_by`. `reschedule_appointment()` and `guard_appointment_update()` are replaced with the same bodies plus `rescheduled_by` (checked against the live database first).
 - **New endpoint** `GET /api/appointments/:id/open-times` and a `reschedule` action on `POST /api/appointments/:id`.
 - **`TimeStep`** from the booking page is exported and reused.
-- **Tested** the migration on a local Postgres (PGlite) with 23 checks. See BACKEND-HANDOFF.md section 23.
+- **Tested** the migration on a local Postgres (PGlite) with 30 checks. See BACKEND-HANDOFF.md section 23.
 
 **What to re-test (after running the migration):**
 1. As a client with an upcoming session, tap Change time, pick another time, add a reason and confirm.
@@ -27,7 +28,8 @@ Commit `4322eda`. Migration `20261015001500_client_reschedule.sql` **not yet app
 3. Open the professional's My bookings and confirm the new time and "The client moved this session from ..." with the reason.
 4. Confirm the old time shows again on the professional's booking page and the new one does not.
 5. Open the same session in two browsers, move both to the same time, and confirm the second gets "This time is no longer available".
-6. Switch to Khmer and check every new label.
+6. With a session less than the professional's minimum notice away, confirm Change time is hidden, the "too close" note shows, and Cancel still works.
+7. Switch to Khmer and check every new label.
 
 ## 15 Oct 2026: My Appointments: Message, Add to Calendar, How Soon, Quieter Sharing
 

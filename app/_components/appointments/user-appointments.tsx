@@ -108,6 +108,10 @@ function AppointmentCard({
   const start = new Date(appointment.startsAt);
   const upcoming = appointment.status === "booked" && Date.parse(appointment.endsAt) > now;
   const canCancel = appointment.status === "booked" && Date.parse(appointment.startsAt) > now;
+  // Moving closes at the professional's minimum notice; cancelling stays open until the start.
+  const canChangeTime =
+    canCancel && professional !== null && appointment.changeTimeUntil !== null && Date.parse(appointment.changeTimeUntil) > now;
+  const tooLateToChange = canCancel && professional !== null && !canChangeTime;
   const canShare = appointment.status === "booked" || appointment.status === "completed";
   const soon = upcoming ? howSoon(appointment.startsAt, now, km) : null;
   const sharedItems = [
@@ -309,7 +313,16 @@ function AppointmentCard({
         </div>
       )}
 
-      {moving && (
+      {tooLateToChange && (
+        <p className="mt-4 text-sm text-ink-muted">
+          {t(
+            "ជិតដល់ពេលវគ្គពេកហើយ មិនអាចប្តូរម៉ោងបានទេ។ អ្នកនៅតែអាចបោះបង់ ឬផ្ញើសារទៅអ្នកជំនាញរបស់អ្នក។",
+            "It is too close to your session to change the time. You can still cancel it, or message your professional.",
+          )}
+        </p>
+      )}
+
+      {moving && canChangeTime && (
         <ChangeTimePanel
           appointment={appointment}
           km={km}
@@ -388,7 +401,7 @@ function AppointmentCard({
             {t("មើលប្រវត្តិរូប", "View profile")}
           </Link>
         )}
-        {canCancel && professional && !moving && (
+        {canChangeTime && !moving && (
           <button
             type="button"
             onClick={() => {
