@@ -1,5 +1,33 @@
 # AROM: Change Report
 
+## 15 Oct 2026: Progress Dashboard and Mood Details Pages
+
+Commit `PENDING`. No migration.
+
+**Why.** The Figma has a Progress Dashboard and a Mood & Activity Details screen, but the app only had a small Your Progress card on Home. People need one calm place to see how their check ins look over time, without the app judging their mood.
+
+**What changed for users:**
+- **Progress Dashboard (`/progress`):** a thank you card with the AROM sprout, a 7 days, 30 days and 3 months switch, a Mood Trend line (tap a day to see its mood), and Today's Check in with a Change or Check in button.
+- **Mood & Activity Details (`/progress/details`):** Mood Statistics bars in mood colors (tap a bar to see the mood), Mood Distribution donut with the share of each mood, and a short honest note. Activities and Insights say Coming soon.
+- **Honest wording:** the pages count check ins ("You checked in 5 of the last 7 days") and never say better or worse, unlike the Figma text.
+- **Sample data is labeled:** 30 days and 3 months show "Sample data, not yours yet" until the backend serves them. 7 days is real.
+- **Sidebar and Home:** Progress Dashboard in the sidebar and See all on Home open the new page.
+
+**What changed for the team:**
+- **New** `app/progress/` (pages, charts, `use-progress.ts`, sample data) and `app/_components/mood/mood-visuals.ts` (mood icons and colors, now also used by the Home check in).
+- **`lib/mood.ts`:** `PROGRESS_RANGES`, `RANGE_DAYS`, `moodCounts()`.
+- **Mascot** from the Figma saved as `public/progress/mascot.png`, with its sparkle stars removed (AGENTS.md section 7) and resized from 1.4 MB to 195 KB.
+- **Backend:** Hok Chheng needs `GET /api/progress?range=30d|90d`; see BACKEND-HANDOFF.md section 22.
+
+**What to re-test:**
+1. Signed in, open Progress Dashboard from the sidebar and check the card, the switch and the trend for 7 days against your real check ins.
+2. Tap days on the trend and confirm the mood under it.
+3. Switch to 30 days and 3 months and confirm the Sample data label.
+4. Tap See details, tap bars, check the donut percentages and the Activities and Insights tabs.
+5. Tap Change on Today's Check in and confirm it opens the Home check in.
+6. Sign out and confirm both pages ask you to log in and show no moods.
+7. Check a phone width and Khmer.
+
 ## 15 Oct 2026: My Appointments: Message, Add to Calendar, How Soon, Quieter Sharing
 
 Commit `6dd9417`. No migration.

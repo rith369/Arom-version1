@@ -76,13 +76,22 @@ export function ProgressDashboard() {
       aria-labelledby="progress-title"
       className="mt-6 flex scroll-mt-6 flex-col gap-4 sm:gap-5"
     >
-      <div className="px-1">
-        <h2 id="progress-title" className="text-xl font-bold tracking-tight text-[#14221f] sm:text-2xl">
-          {t("ដំណើរការវិវឌ្ឍរបស់អ្នក (Your Progress)", "Your Progress")}
-        </h2>
-        <p className="mt-0.5 text-xs text-[#4b5563] sm:text-sm">
-          {t("«រាល់ជំហានតូចៗ សុទ្ធតែជាការរីកចម្រើនដ៏មានតម្លៃ។»", "“Small steps are still progress.”")}
-        </p>
+      <div className="flex items-end justify-between gap-3 px-1">
+        <div>
+          <h2 id="progress-title" className="text-xl font-bold tracking-tight text-[#14221f] sm:text-2xl">
+            {t("ដំណើរការវិវឌ្ឍរបស់អ្នក (Your Progress)", "Your Progress")}
+          </h2>
+          <p className="mt-0.5 text-xs text-[#4b5563] sm:text-sm">
+            {t("«រាល់ជំហានតូចៗ សុទ្ធតែជាការរីកចម្រើនដ៏មានតម្លៃ។»", "“Small steps are still progress.”")}
+          </p>
+        </div>
+        <Link
+          href="/progress"
+          className="inline-flex shrink-0 items-center gap-1 text-sm font-semibold text-[#1f6f5b] hover:underline"
+        >
+          {t("មើលទាំងអស់", "See all")}
+          <ArrowRight size={15} aria-hidden="true" />
+        </Link>
       </div>
 
       {mood.status === "loading" && (

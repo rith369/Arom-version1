@@ -67,6 +67,7 @@ The yellow "Demo data on this page" banner is in `admin-shell.tsx`. Remove it fo
 | MindGuide podcasts: user pages `/podcasts` and `/podcasts/<id>`, admin Podcasts tab | Done on mock data | Waiting for backend | 11 |
 | Community: professionals and admins create groups, admins read chats and shut groups down, users report a person, image, message or group (`/community`, `/admin/community`) | Done on mock data | Waiting for backend | 14 |
 | Mood check in and Your Progress on Home (`/`, journal starts from today's mood) | Done | Connected (`POST /api/mood-checkins`, `GET /api/progress`), migration `20261015000400` not yet applied to Supabase | 22 |
+| Progress pages (`/progress`, `/progress/details`, from Figma): trend, bars, distribution, today's check in | Done, 30 days and 3 months on sample data | 7 days connected (`GET /api/progress`). Waiting for `GET /api/progress?range=30d\|90d` | 22 |
 | Admin audit log (`/admin/audit-log`) | Done | Connected (`GET /api/admin/audit-log`). No migration | 5 |
 | Other admin pages (bookings, journal prompts, settings) | Built by Sokheng on mock data | Not started | not written yet |
 
@@ -847,6 +848,29 @@ The admin list uses `CommunityReport`: `id, groupId, targetKind, targetLabel, me
 - **API:** `POST /api/mood-checkins { mood, source? }` returns `{ day, mood }`; `GET /api/progress` returns `MoodWeekResponse`. Both answer 401 when signed out.
 - **Still open:** the journal itself (`journal_entries`) is still saved in the browser only (`arom_journal_entries` in `localStorage`). It needs its own API before real users write in it. The weekly range is the last 7 days only; the old This week and Last week switch is gone.
 - **Not tested yet** in the running app or against Supabase, only typecheck and lint.
+
+### Progress pages `/progress` and `/progress/details` (15 Oct 2026, from Figma)
+
+**Files:** `app/progress/page.tsx`, `app/progress/details/page.tsx`, `app/progress/_components/*` (views, charts, `use-progress.ts`), `app/progress/_data/sample-progress.ts` (**sample data**), `app/_components/mood/mood-visuals.ts` (mood icons and chart colors, shared with the Home check in), `lib/mood.ts` (`PROGRESS_RANGES`, `RANGE_DAYS`, `moodCounts()`). The sidebar "Progress Dashboard" item and Home "See all" link open `/progress`.
+
+**What is real and what is sample:**
+
+| Part | Data |
+|---|---|
+| 7 days: Mood Trend, Mood Statistics bars, Mood Distribution, summary card | Real, `GET /api/progress` |
+| Today's Check in card | Real, today from the same response |
+| 30 days and 3 months | **Sample**, `sampleProgress()`, labeled "Sample data, not yours yet" on screen, shown only to signed in people |
+| Activities and Insights tabs | "Coming soon", nothing to build until the team decides what they show |
+
+**Backend needed:** `GET /api/progress?range=30d|90d` returning the same `MoodWeekResponse` (`{ days: MoodDay[], checkIns }`): one entry per Cambodia day, oldest first, today last, `mood` null on a missed day. Without `range` it stays 7 days. Then in `use-progress.ts` load the range instead of `sampleProgress()` and delete `app/progress/_data/sample-progress.ts`. The distribution is counted in the browser with `moodCounts()`, so no extra endpoint.
+
+**Decided with Rith (changes from the Figma, do not undo):**
+
+- **Honest wording only.** No "You're doing great", "Feeling better than last week" or "more positive this week". The cards count check ins ("You checked in 5 of the last 7 days").
+- **The app's 5 moods** (Very Low to Great), not the 4 in the Figma (Happy, Calm, Neutral, Sad).
+- **One mood per day:** a bar's height is that day's mood, and tapping it shows the mood name. No percentages per day.
+- **One range switch:** 7 days, 30 days, 3 months (the Figma's Week, Month, Year is gone).
+- **No sparkles:** the mascot (`public/progress/mascot.png`, from the Figma) had its three star shapes removed, as AGENTS.md section 7 requires.
 
 ## Template for a new feature section
 
