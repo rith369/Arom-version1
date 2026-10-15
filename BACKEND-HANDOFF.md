@@ -68,7 +68,10 @@ The yellow "Demo data on this page" banner is in `admin-shell.tsx`. Remove it fo
 | MindGuide podcasts: user pages `/podcasts` and `/podcasts/<id>`, admin Podcasts tab | Done on mock data | Waiting for backend | 11 |
 | Community: professionals and admins create groups, admins read chats and shut groups down, users report a person, image, message or group (`/community`, `/admin/community`) | Done on mock data | Waiting for backend | 14 |
 | Mood check in and Your Progress on Home (`/`, journal starts from today's mood) | Done | Connected (`POST /api/mood-checkins`, `GET /api/progress`), migration `20261015000400` not yet applied to Supabase | 22 |
-| Progress pages (`/progress`, `/progress/details`, from Figma): trend, bars, distribution, today's check in | Done, 30 days and 3 months on sample data | 7 days connected (`GET /api/progress`). Waiting for `GET /api/progress?range=30d\|90d` | 22 |
+| Progress pages (`/progress`, `/progress/details`, from Figma): trend, bars, distribution, today's check in | Done, 30 days and 3 months on sample data | 7 days connected (`GET /api/progress`). Waiting for `GET /api/progress?range=30d\|90d`. Insights worked out in the browser (real for 7 days) | 22 |
+| Progress Activities tab (practices done, lessons read, journal entries) | Done on sample data | Waiting for backend: save finished practices and lessons, `GET /api/progress/activities?range=` | 22 |
+| Share mood check ins with my professional (My appointments switch, client file card) | Done as Coming soon, nothing is shared | Waiting for backend: `appointments.share_mood_trend`, a function for the professional to read the last 30 days, RLS | 22 |
+| Journal (Write about today, `/detection/journal`) | Done, saved in the browser only | Waiting for backend: `journal_entries` API, owner only | 22 |
 | Admin audit log (`/admin/audit-log`) | Done | Connected (`GET /api/admin/audit-log`). No migration | 5 |
 | Other admin pages (bookings, journal prompts, settings) | Built by Sokheng on mock data | Not started | not written yet |
 
@@ -889,6 +892,7 @@ The admin list uses `CommunityReport`: `id, groupId, targetKind, targetLabel, me
 | Part | Data |
 |---|---|
 | 7 days: Mood Trend, Mood Statistics bars, Mood Distribution, summary card | Real, `GET /api/progress` |
+| 30 days and 3 months in Mood Statistics | Month calendars, each day colored by its mood, grey when missed (`mood-calendar.tsx`). Same data as the ranges below |
 | Today's Check in card | Real, today from the same response |
 | 30 days and 3 months | **Sample**, `sampleProgress()`, labeled "Sample data, not yours yet" on screen, shown only to signed in people |
 | Insights tab | Worked out in the browser from the same check ins (`app/progress/_components/insights.ts`): real for 7 days, sample for longer ranges. Facts only: check in count, most common mood, the span of moods, the weekday checked in most (30 days or more, only when one weekday clearly leads), and how many days were Low or Very Low. **Backend later:** a "time of day you check in" insight needs the check in time (`created_at` of `mood_checkins`) in the progress response |
@@ -910,6 +914,7 @@ The admin list uses `CommunityReport`: `id, groupId, targetKind, targetLabel, me
 - **One mood per day:** a bar's height is that day's mood, and tapping it shows the mood name. No percentages per day.
 - **One range switch:** 7 days, 30 days, 3 months (the Figma's Week, Month, Year is gone).
 - **No sparkles:** the mascot (`public/progress/mascot.png`, from the Figma) had its three star shapes removed, as AGENTS.md section 7 requires.
+- **Support card (decided 16 Oct 2026):** when 3 or more of the real last 7 check ins are Low or Very Low, the dashboard shows "Some of your recent days were hard. You don't have to handle it alone." with Breathing practice, Talk to a professional and Get help now (`support-card.tsx`, `SUPPORT_MIN_HARD_DAYS`). Never from sample data. "Not now" hides it for that visit only; nothing is saved or sent. No backend needed.
 
 ## Template for a new feature section
 
