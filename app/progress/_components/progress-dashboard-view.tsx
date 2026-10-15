@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { ChevronRight } from 'lucide-react';
+import { BarChart3, ChevronRight } from 'lucide-react';
 
 import { FigmaIcon } from '../../components/figma-icon';
 import { useLanguage } from '../../_components/language-provider';
@@ -60,9 +60,12 @@ export function ProgressDashboardView() {
               <h2 id="trend-title" className="text-lg font-semibold text-arom">
                 {t('និន្នាការអារម្មណ៍', 'Mood Trend')}
               </h2>
-              <Link href="/progress/details" className="inline-flex items-center gap-0.5 text-xs font-semibold text-arom hover:underline">
+              <Link
+                href="/progress/details"
+                className="inline-flex min-h-9 items-center gap-0.5 rounded-full border border-arom/40 bg-arom-wash px-3 text-sm font-semibold text-arom hover:border-arom hover:bg-arom-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-arom"
+              >
                 {t('មើលលម្អិត', 'See details')}
-                <ChevronRight size={14} aria-hidden="true" />
+                <ChevronRight size={16} aria-hidden="true" />
               </Link>
             </div>
             {data.sample && (
@@ -79,6 +82,22 @@ export function ProgressDashboardView() {
                 <MoodTrendChart key={range} days={data.days} km={km} range={range} />
               </div>
             )}
+
+            <Link
+              href="/progress/details"
+              className="group mt-4 flex items-center gap-3 rounded-2xl bg-arom px-4 py-3 text-white transition-colors hover:bg-arom-deep focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-arom"
+            >
+              <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-white/15">
+                <BarChart3 size={18} aria-hidden="true" />
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block text-sm font-semibold">{t('មើលព័ត៌មានលម្អិតអំពីអារម្មណ៍', 'See mood details')}</span>
+                <span className="block text-xs text-white/80">
+                  {t('ស្ថិតិ និងការបែងចែកអារម្មណ៍របស់អ្នក', 'Statistics and how your moods are spread')}
+                </span>
+              </span>
+              <ChevronRight size={18} aria-hidden="true" className="shrink-0 transition-transform group-hover:translate-x-0.5" />
+            </Link>
           </section>
 
           <section aria-labelledby="today-title">

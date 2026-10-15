@@ -1,5 +1,22 @@
 # AROM: Change Report
 
+## 15 Oct 2026: Mood Details Easier to Find
+
+Commit `PENDING`. No migration.
+
+**Why.** The only way from Progress Dashboard to Mood & Activity Details was a small "See details" text in the corner of the Mood Trend card. Rith found it easy to miss, so users would too.
+
+**What changed for users:**
+- **See details is a button:** a green outlined pill, larger and easier to tap, in the same place as the Figma.
+- **New full width button** at the bottom of the Mood Trend card: "See mood details, Statistics and how your moods are spread".
+
+**What changed for the team:**
+- **Only** `app/progress/_components/progress-dashboard-view.tsx`. No data or API change.
+
+**What to re-test:**
+1. Signed in, open Progress Dashboard and confirm both buttons open Mood & Activity Details.
+2. Check a phone width and Khmer.
+
 ## 15 Oct 2026: Progress Dashboard and Mood Details Pages
 
 Commit `9ea69ac`. No migration.
