@@ -1,5 +1,23 @@
 # AROM: Change Report
 
+## 15 Oct 2026: Progress Pages Use the Normal Page Header
+
+Commit `PENDING`. No migration.
+
+**Why.** The Progress pages copied the phone style header from the Figma (back arrow and a centered green title), which looked different from every other page. Rith asked for the normal header.
+
+**What changed for users:**
+- **Progress Dashboard:** big left aligned title and a short line under it ("Your mood check ins over time. Only you can see them."), like My appointments. No back arrow, because it is a main page in the menu.
+- **Mood & Activity Details:** the same header, with a small "Progress Dashboard" link above the title to go back.
+
+**What changed for the team:**
+- **`ProgressShell`** in `app/progress/_components/progress-parts.tsx` takes `subtitle` and an optional `back` link instead of `backHref`.
+
+**What to re-test:**
+1. Open both pages on a computer and a phone and compare the header with My appointments.
+2. On Mood & Activity Details, tap "Progress Dashboard" and confirm it goes back.
+3. Switch to Khmer.
+
 ## 15 Oct 2026: Mood Details Easier to Find
 
 Commit `ef50a12`. No migration.

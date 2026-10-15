@@ -39,7 +39,11 @@ export function MoodDetailsView() {
   const rangeText = km ? RANGE_LABELS[range].km : RANGE_LABELS[range].en;
 
   return (
-    <ProgressShell title={t('ព័ត៌មានលម្អិតអំពីអារម្មណ៍ និងសកម្មភាព', 'Mood & Activity Details')} backHref="/progress">
+    <ProgressShell
+      title={t('ព័ត៌មានលម្អិតអំពីអារម្មណ៍ និងសកម្មភាព', 'Mood & Activity Details')}
+      subtitle={t('ស្ថិតិ និងការបែងចែកអារម្មណ៍របស់អ្នក។', 'Statistics and how your moods are spread.')}
+      back={{ href: '/progress', label: t('ផ្ទាំងតាមដានការវិវត្ត', 'Progress Dashboard') }}
+    >
       <PillSwitch
         label={t('ផ្ទាំង', 'Sections')}
         options={[

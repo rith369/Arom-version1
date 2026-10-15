@@ -24,21 +24,36 @@ export function dayLabel(day: string, km: boolean, short: boolean) {
   }).format(new Date(`${day}T00:00:00Z`));
 }
 
-export function ProgressShell({ title, backHref, children }: { title: string; backHref: string; children: ReactNode }) {
+/** Page frame with the same header as other pages (My appointments, Messages). */
+export function ProgressShell({
+  title,
+  subtitle,
+  back,
+  children,
+}: {
+  title: string;
+  subtitle: string;
+  // Sub pages show a small link back to their parent page above the title.
+  back?: { href: string; label: string };
+  children: ReactNode;
+}) {
   return (
     <div className="min-h-screen bg-canvas lg:grid lg:grid-cols-[19rem_minmax(0,1fr)]">
       <DesktopNavigation active="Progress" />
       <main className="min-w-0 px-4 pb-28 pt-5 sm:px-8 lg:px-10 lg:py-8">
         <div className="mx-auto w-full max-w-2xl">
-          <header className="relative flex min-h-11 items-center justify-center">
-            <Link
-              href={backHref}
-              aria-label="Back"
-              className="absolute left-0 flex size-11 items-center justify-center rounded-full text-arom hover:bg-arom-wash focus-visible:outline-2 focus-visible:outline-arom"
-            >
-              <ChevronLeft size={26} aria-hidden="true" />
-            </Link>
-            <h1 className="px-12 text-center text-2xl font-semibold tracking-tight text-arom">{title}</h1>
+          <header>
+            {back && (
+              <Link
+                href={back.href}
+                className="-ml-1 mb-2 inline-flex min-h-9 items-center gap-0.5 rounded-full pr-2 text-sm font-semibold text-arom hover:underline focus-visible:outline-2 focus-visible:outline-arom"
+              >
+                <ChevronLeft size={18} aria-hidden="true" />
+                {back.label}
+              </Link>
+            )}
+            <h1 className="text-2xl font-bold tracking-tight text-ink sm:text-3xl">{title}</h1>
+            <p className="mt-1 text-sm text-ink-muted">{subtitle}</p>
           </header>
           <div className="mt-6 space-y-6">{children}</div>
         </div>

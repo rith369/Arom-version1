@@ -25,7 +25,10 @@ export function ProgressDashboardView() {
   const data = useProgress(range);
 
   return (
-    <ProgressShell title={t('ផ្ទាំងតាមដានការវិវត្ត', 'Progress Dashboard')} backHref="/">
+    <ProgressShell
+      title={t('ផ្ទាំងតាមដានការវិវត្ត', 'Progress Dashboard')}
+      subtitle={t('ការកត់ត្រាអារម្មណ៍របស់អ្នកតាមពេលវេលា។ មានតែអ្នកទេដែលអាចមើលឃើញ។', 'Your mood check ins over time. Only you can see them.')}
+    >
       {week.status !== 'ready' ? (
         <ProgressStatus status={week.status} km={km} next="/progress" />
       ) : (
