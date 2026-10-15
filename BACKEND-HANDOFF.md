@@ -882,6 +882,7 @@ The admin list uses `CommunityReport`: `id, groupId, targetKind, targetLabel, me
 - **One mood per day:** a bar's height is that day's mood, and tapping it shows the mood name. No percentages per day.
 - **One range switch:** 7 days, 30 days, 3 months (the Figma's Week, Month, Year is gone).
 - **No sparkles:** the mascot (`public/progress/mascot.png`, from the Figma) had its three star shapes removed, as AGENTS.md section 7 requires.
+- **Support card (decided 16 Oct 2026):** when 3 or more of the real last 7 check ins are Low or Very Low, the dashboard shows "Some of your recent days were hard. You don't have to handle it alone." with Breathing practice, Talk to a professional and Get help now (`support-card.tsx`, `SUPPORT_MIN_HARD_DAYS`). Never from sample data. "Not now" hides it for that visit only; nothing is saved or sent. No backend needed.
 
 ## Template for a new feature section
 

@@ -9,6 +9,7 @@ import { useMoodStore } from '../../_components/mood/mood-store';
 import { PROGRESS_DAYS, PROGRESS_RANGES, type ProgressRange } from '@/lib/mood';
 import { MoodTrendChart } from './progress-charts';
 import { MascotNote, PillSwitch, ProgressShell, ProgressStatus, RANGE_LABELS, SampleBadge } from './progress-parts';
+import { SupportCard, needsSupport } from './support-card';
 import { TodayCheckIn } from './today-check-in';
 import { useProgress } from './use-progress';
 
@@ -49,6 +50,9 @@ export function ProgressDashboardView() {
               )}
             />
           )}
+
+          {/* Real last 7 days only, never sample data. */}
+          {needsSupport(week.days) && <SupportCard km={km} />}
 
           <PillSwitch
             label={t('រយៈពេល', 'Time range')}

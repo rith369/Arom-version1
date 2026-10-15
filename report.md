@@ -1,5 +1,25 @@
 # AROM: Change Report
 
+## 16 Oct 2026: Gentle Support Card After Hard Days
+
+Commit `PENDING`. No migration.
+
+**Why.** On a mental health app, the progress page is a moment where AROM can actually help. When someone has several hard days in a row, it should offer support, calmly and without judging. Rith chose the rule and the wording.
+
+**What changed for users:**
+- **A calm card on the Progress Dashboard** when 3 or more of the last 7 check ins are Low or Very Low: "Some of your recent days were hard. You don't have to handle it alone."
+- **Three ways to get support:** Breathing practice, Talk to a professional, Get help now.
+- **"Not now"** hides it for this visit. It only uses real check ins, never sample data.
+
+**What changed for the team:**
+- **New** `app/progress/_components/support-card.tsx` with `needsSupport()` and `SUPPORT_MIN_HARD_DAYS = 3`. Rule recorded in BACKEND-HANDOFF.md section 22. No backend.
+
+**What to re-test:**
+1. Check in Low or Very Low on 3 different days (or use a test account), open Progress Dashboard and confirm the card.
+2. With only 2 hard days, confirm there is no card.
+3. Tap each button, and Not now.
+4. Switch to Khmer.
+
 ## 16 Oct 2026: Check In Right on the Progress Dashboard
 
 Commit `414b5d1`. No migration.
