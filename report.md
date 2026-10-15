@@ -2,7 +2,7 @@
 
 ## 16 Oct 2026: Home Shows a Small Progress Glance
 
-Commit `PENDING`. No migration.
+Commit `0aedecc`. No migration.
 
 **Why.** Home had its own 7 day chart, the same as the new Progress Dashboard, which made Home longer and meant two charts to keep in step. Rith chose to keep a small glance on Home that opens the dashboard, and to remove the breathing link there (the dashboard's support card offers breathing on hard days).
 
