@@ -6,9 +6,9 @@ import { BookOpen, ChevronRight, HeartPulse, NotebookPen, type LucideIcon } from
 
 import { ALL_LESSONS } from '../../_components/learn/learn-data';
 import { ALL_PRACTICES } from '../../_components/practice/practice-data';
-import { PROGRESS_RANGES, RANGE_DAYS, cambodiaDay, type ProgressRange } from '@/lib/mood';
+import { PROGRESS_RANGES, RANGE_DAYS, cambodiaDay, lastDays, type ProgressRange } from '@/lib/mood';
 import { sampleActivities, type ActivityKind } from '../_data/sample-activities';
-import { PillSwitch, ProgressStatus, RANGE_LABELS, SampleBadge, dayLabel } from './progress-parts';
+import { PillSwitch, ProgressStatus, RANGE_LABELS, SampleBadge, dayLabel, RangeDates } from './progress-parts';
 import type { ProgressData } from './use-progress';
 
 // Activities tab (BACKEND-HANDOFF.md section 22). SAMPLE DATA for every range
@@ -46,6 +46,7 @@ export function ActivitiesPanel({
   if (status !== 'ready') return <ProgressStatus status={status} km={km} next="/progress/details" />;
 
   const data = sampleActivities(today, RANGE_DAYS[range]);
+  const covered = lastDays(today, RANGE_DAYS[range]);
 
   return (
     <section aria-labelledby="activities-title" className="space-y-3">
@@ -58,6 +59,7 @@ export function ActivitiesPanel({
         value={range}
         onChange={onRange}
       />
+      <RangeDates first={covered[0]} last={covered.at(-1)} km={km} />
       <SampleBadge km={km} />
 
       <ul className="grid grid-cols-3 gap-2 sm:gap-3">

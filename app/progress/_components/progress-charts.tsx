@@ -329,6 +329,9 @@ export function MoodBarChart({ days, km, range }: { days: MoodDay[]; km: boolean
 
 const DONUT = { size: 140, radius: 52, stroke: 24 };
 
+// Below this many check ins the legend shows counts instead of percentages.
+const FEW_CHECK_INS = 10;
+
 export function MoodDonut({ days, km }: { days: MoodDay[]; km: boolean }) {
   const counts = moodCounts(days);
   const total = Object.values(counts).reduce((sum, count) => sum + count, 0);
@@ -380,7 +383,14 @@ export function MoodDonut({ days, km }: { days: MoodDay[]; km: boolean }) {
           <li key={level} className="flex items-center gap-3 text-sm text-ink">
             <span aria-hidden="true" className="size-3.5 shrink-0 rounded-full" style={{ backgroundColor: MOOD_COLORS[level] }} />
             <span className="min-w-0 flex-1">{moodName(level, km)}</span>
-            <span className="font-semibold tabular-nums">{total ? Math.round((counts[level] / total) * 100) : 0}%</span>
+            <span className="font-semibold tabular-nums">
+              {/* With few check ins a percentage overstates it: "1 of 2" reads more honestly than "50%". */}
+              {total < FEW_CHECK_INS
+                ? km
+                  ? `${counts[level]} ក្នុង ${total}`
+                  : `${counts[level]} of ${total}`
+                : `${Math.round((counts[level] / total) * 100)}%`}
+            </span>
             <span className="sr-only">
               {km ? `${counts[level]} ដង` : `${counts[level]} ${counts[level] === 1 ? 'check in' : 'check ins'}`}
             </span>

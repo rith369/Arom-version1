@@ -28,6 +28,7 @@ Commit `6e3cafd`. Migration `20261015001600_in_person_address.sql` **not yet app
 4. As a user, book In person and confirm the address shows on the choice, the review and the confirmation.
 5. Open My appointments and confirm the place and Open in Maps on the session; tap Add to calendar and check the event location.
 6. As a professional with In person but no address, confirm Home shows the reminder and users only see Online.
+
 ## 15 Oct 2026: Clients Can Change the Time of Their Session
 
 Commit `4322eda`. Migration `20261015001500_client_reschedule.sql` **not yet applied**: Hok Chheng reviews and runs it in Supabase, then merges the pull request. Run after `20261015000200_sessions.sql`.
@@ -58,6 +59,95 @@ Commit `4322eda`. Migration `20261015001500_client_reschedule.sql` **not yet app
 5. Open the same session in two browsers, move both to the same time, and confirm the second gets "This time is no longer available".
 6. With a session less than the professional's minimum notice away, confirm Change time is hidden, the "too close" note shows, and Cancel still works.
 7. Switch to Khmer and check every new label.
+
+## 16 Oct 2026: Mood Calendar for 30 Days and 3 Months
+
+Commit `9a62c2e`. No migration.
+
+**Why.** For 30 days and 3 months, Mood Statistics showed 30 or 90 thin bars, which are hard to read, especially on a phone. A calendar lets people see their own month at a glance and spot patterns, such as hard Mondays.
+
+**What changed for users:**
+- **Mood Statistics for 30 days and 3 months** shows month calendars. Each day is colored by its mood, a missed day stays grey, and tapping a day shows its mood. A color key sits underneath.
+- **7 days** keeps the bars. On a computer, two months sit side by side.
+
+**What changed for the team:**
+- **New** `app/progress/_components/mood-calendar.tsx` (weeks start on Monday). Used in `mood-details-view.tsx` for the longer ranges. Still sample data until `GET /api/progress?range=` exists.
+
+**What to re-test:**
+1. Open Mood & Activity Details, switch to 30 days and 3 months, and confirm the calendars and the Sample data label.
+2. Tap a few days and confirm the mood under the calendar.
+3. Check a phone width and Khmer.
+
+## 16 Oct 2026: Progress Shows Which Dates It Covers
+
+Commit `30225ab`. No migration.
+
+**Why.** "7 days" or "30 days" did not say exactly which days were shown, so people could not match a chart to their own memory of those days.
+
+**What changed for users:**
+- **A small line under every range switch** on the Progress pages, for example "Oct 9 to Oct 15", in English and Khmer.
+
+**What changed for the team:**
+- **New** `RangeDates` in `app/progress/_components/progress-parts.tsx`, used by the dashboard, Mood, Insights and Activities.
+
+**What to re-test:**
+1. On each Progress tab, switch ranges and confirm the dates change and end today.
+2. Switch to Khmer.
+
+## 16 Oct 2026: Mood Distribution Shows Counts for Few Check Ins
+
+Commit `584b082`. No migration.
+
+**Why.** With only a few check ins, a percentage sounds bigger than it is: one Great day out of two showed as "Great 50%".
+
+**What changed for users:**
+- **Below 10 check ins,** the Mood Distribution list shows "1 of 2" instead of a percentage. From 10 check ins on it shows percentages as before.
+
+**What changed for the team:**
+- **`MoodDonut`** in `app/progress/_components/progress-charts.tsx`, `FEW_CHECK_INS = 10`.
+
+**What to re-test:**
+1. With a few check ins, open Mood & Activity Details and confirm "1 of 2" style counts; switch to 30 days (sample) and confirm percentages.
+2. Switch to Khmer.
+
+## 16 Oct 2026: Gentle Support Card After Hard Days
+
+Commit `0fc2626`. No migration.
+
+**Why.** On a mental health app, the progress page is a moment where AROM can actually help. When someone has several hard days in a row, it should offer support, calmly and without judging. Rith chose the rule and the wording.
+
+**What changed for users:**
+- **A calm card on the Progress Dashboard** when 3 or more of the last 7 check ins are Low or Very Low: "Some of your recent days were hard. You don't have to handle it alone."
+- **Three ways to get support:** Breathing practice, Talk to a professional, Get help now.
+- **"Not now"** hides it for this visit. It only uses real check ins, never sample data.
+
+**What changed for the team:**
+- **New** `app/progress/_components/support-card.tsx` with `needsSupport()` and `SUPPORT_MIN_HARD_DAYS = 3`. Rule recorded in BACKEND-HANDOFF.md section 22. No backend.
+
+**What to re-test:**
+1. Check in Low or Very Low on 3 different days (or use a test account), open Progress Dashboard and confirm the card.
+2. With only 2 hard days, confirm there is no card.
+3. Tap each button, and Not now.
+4. Switch to Khmer.
+
+## 16 Oct 2026: Check In Right on the Progress Dashboard
+
+Commit `414b5d1`. No migration.
+
+**Why.** Today's Check in sent people back to Home to pick a mood. Every extra step means fewer check ins.
+
+**What changed for users:**
+- **The 5 mood faces are inside Today's Check in.** A tap saves today's mood, the charts above update straight away, and "Saved" shows once the server confirms. Tapping another mood changes it.
+- **Same rules as Home:** nothing is preselected, and errors offer Try again.
+
+**What changed for the team:**
+- **New** `app/progress/_components/today-check-in.tsx`, using `saveTodayMood()` from the mood store (the same save as Home).
+
+**What to re-test:**
+1. Signed in, open Progress Dashboard, tap a mood, confirm "Saved" and that today's point on the chart updates.
+2. Tap another mood and confirm it changes; refresh and confirm it stayed.
+3. Check a phone width and Khmer.
+
 ## 15 Oct 2026: Share Mood Check Ins With a Professional (Coming Soon)
 
 Commit `6d8457b`. No migration.
