@@ -861,6 +861,7 @@ The admin list uses `CommunityReport`: `id, groupId, targetKind, targetLabel, me
 | Part | Data |
 |---|---|
 | 7 days: Mood Trend, Mood Statistics bars, Mood Distribution, summary card | Real, `GET /api/progress` |
+| 30 days and 3 months in Mood Statistics | Month calendars, each day colored by its mood, grey when missed (`mood-calendar.tsx`). Same data as the ranges below |
 | Today's Check in card | Real, today from the same response |
 | 30 days and 3 months | **Sample**, `sampleProgress()`, labeled "Sample data, not yours yet" on screen, shown only to signed in people |
 | Insights tab | Worked out in the browser from the same check ins (`app/progress/_components/insights.ts`): real for 7 days, sample for longer ranges. Facts only: check in count, most common mood, the span of moods, the weekday checked in most (30 days or more, only when one weekday clearly leads), and how many days were Low or Very Low. **Backend later:** a "time of day you check in" insight needs the check in time (`created_at` of `mood_checkins`) in the progress response |

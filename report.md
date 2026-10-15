@@ -1,5 +1,23 @@
 # AROM: Change Report
 
+## 16 Oct 2026: Mood Calendar for 30 Days and 3 Months
+
+Commit `PENDING`. No migration.
+
+**Why.** For 30 days and 3 months, Mood Statistics showed 30 or 90 thin bars, which are hard to read, especially on a phone. A calendar lets people see their own month at a glance and spot patterns, such as hard Mondays.
+
+**What changed for users:**
+- **Mood Statistics for 30 days and 3 months** shows month calendars. Each day is colored by its mood, a missed day stays grey, and tapping a day shows its mood. A color key sits underneath.
+- **7 days** keeps the bars. On a computer, two months sit side by side.
+
+**What changed for the team:**
+- **New** `app/progress/_components/mood-calendar.tsx` (weeks start on Monday). Used in `mood-details-view.tsx` for the longer ranges. Still sample data until `GET /api/progress?range=` exists.
+
+**What to re-test:**
+1. Open Mood & Activity Details, switch to 30 days and 3 months, and confirm the calendars and the Sample data label.
+2. Tap a few days and confirm the mood under the calendar.
+3. Check a phone width and Khmer.
+
 ## 16 Oct 2026: Progress Shows Which Dates It Covers
 
 Commit `30225ab`. No migration.

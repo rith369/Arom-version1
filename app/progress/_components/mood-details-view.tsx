@@ -5,6 +5,7 @@ import { useLanguage } from '../../_components/language-provider';
 import { PROGRESS_RANGES, type ProgressRange } from '@/lib/mood';
 import { ActivitiesPanel } from './activities-panel';
 import { InsightsPanel } from './insights-panel';
+import { MoodCalendar } from './mood-calendar';
 import { MoodBarChart, MoodDonut } from './progress-charts';
 import { MascotNote, PillSwitch, ProgressShell, ProgressStatus, RANGE_LABELS, SampleBadge, RangeDates } from './progress-parts';
 import { useProgress } from './use-progress';
@@ -72,7 +73,11 @@ export function MoodDetailsView() {
                     {t('មិនទាន់មានការកត់ត្រានៅឡើយទេ។', 'No check ins yet.')}
                   </p>
                 ) : (
-                  <MoodBarChart key={range} days={data.days} km={km} range={range} />
+                  range === '7d' ? (
+                    <MoodBarChart key={range} days={data.days} km={km} range={range} />
+                  ) : (
+                    <MoodCalendar key={range} days={data.days} km={km} />
+                  )
                 )}
               </div>
             </section>
