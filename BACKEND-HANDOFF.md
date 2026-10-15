@@ -51,6 +51,7 @@ The yellow "Demo data on this page" banner is in `admin-shell.tsx`. Remove it fo
 | Professional bookings (`/pro/bookings`) | Done | Connected: list, cancel, reschedule, outcome, session notes, meeting link (`/api/pro/bookings/:id`), migration `20261014000400` | 16 |
 | Professional clients (`/pro/clients`, client file) | Done | Connected: list from real bookings, archive (closes the conversation), summary notes, real shared survey and symptom checks (`/api/pro/clients/:id`), migration `20261015000300` | 16 |
 | Public directory and booking (`/professional`, `/professional/<slug>`, `/professional/<slug>/book`) | Done | Connected: only listed professionals, real open times, instant booking (`/api/bookings`), migration `20261014000400` | 16 |
+| Client changes the time of a session (My appointments, Change time) | Done, on branch `rith/client-change-time` | Written, migration `20261015001500` not yet applied to Supabase | 23 |
 | My appointments for users (`/appointments`) | Done | Connected (`GET /api/appointments`, `POST /api/appointments/:id` with `cancel` or `sharing`). No migration | 21 |
 | Messages between client and professional (text and voice): `/pro/messages`, `/messages` | Done | Connected (`/api/messages`, `/api/pro/messages`, `/api/voice/:id`), archive saved (`/api/pro/clients/:id`), migration `20261014000700`. Suggestion messages and quick replies connected in section 19 | 17 |
 | Care plan: professional gives tasks, client sees them in Your Plan For Today (`/pro/clients/<id>`, `/care-plan`, home) | Done | Connected (`/api/care-plan`, `/api/pro/care`), migration `20261015000100` | 18 |
@@ -847,6 +848,35 @@ The admin list uses `CommunityReport`: `id, groupId, targetKind, targetLabel, me
 - **API:** `POST /api/mood-checkins { mood, source? }` returns `{ day, mood }`; `GET /api/progress` returns `MoodWeekResponse`. Both answer 401 when signed out.
 - **Still open:** the journal itself (`journal_entries`) is still saved in the browser only (`arom_journal_entries` in `localStorage`). It needs its own API before real users write in it. The weekly range is the last 7 days only; the old This week and Last week switch is gone.
 - **Not tested yet** in the running app or against Supabase, only typecheck and lint.
+
+## 23. Client changes the time of a session (My appointments)
+
+**Status: written, migration `20261015001500_client_reschedule.sql` NOT yet applied to Supabase.** Branch `rith/client-change-time`. Merge only after the migration runs: `GET /api/appointments` and the professional's bookings select the new `rescheduled_by` column and fail without it.
+
+**Files:** `supabase/migrations/20261015001500_client_reschedule.sql`, `lib/controllers/appointments-controller.ts` (`listMoveTimes`, `reschedule` action), `app/api/appointments/[id]/open-times/route.ts`, `app/_components/appointments/change-time-panel.tsx`, `app/_components/therapist-booking.tsx` (`TimeStep` now exported for reuse), `lib/controllers/pro-controller.ts` and `app/pro/_components/bookings-view.tsx` (shows who moved it).
+
+### Data shape
+
+| Type | Fields | Table |
+|---|---|---|
+| `UserAppointment.rescheduledBy` | `"you"`, `"professional"` or null when never moved | `appointments.rescheduled_by` |
+| `ProBooking.rescheduledBy` | `'client'`, `'professional'` or null | `appointments.rescheduled_by` |
+| `MoveTimesResponse` | `times`: `{ id, startsAt, endsAt }[]` | `availability_slots` via `public_open_slots()` |
+
+### Actions
+
+- `GET /api/appointments/:id/open-times`: the professional's open times for the same session type, minimum notice applied. Only the client's own upcoming session.
+- `POST /api/appointments/:id { action: "reschedule", slotId, reason? }`: calls `client_reschedule_appointment()`, returns the updated `AppointmentsResponse`. Answers 409 with a user facing message when the time was just taken or is too soon.
+
+### Rules (decided)
+
+- **Same professional, same session type,** any open time outside the minimum notice. The meeting link stays the same.
+- **Allowed until the session starts,** the same as cancelling. The reason is optional (up to 300 characters) and the professional sees it.
+- **One transaction:** the appointment moves and the `appointments_refresh_slots` trigger frees the old open time and takes the new one. If two people pick the same time, the second gets "This time is no longer available".
+- **Who moved it is recorded** in `rescheduled_by`. The client sees "You moved this session from ..." or "Your professional moved this session from ...". The professional sees "The client moved this session from ...". `rescheduled_from` keeps the very first time.
+- **`reschedule_appointment()` (professional) and `guard_appointment_update()` are replaced** with the same bodies plus `rescheduled_by`. Both matched the live database before this change.
+- **Tested** on a local Postgres (PGlite) with the real trigger code: 23 checks for moving, taken times, other people's sessions, other professionals, minimum notice, session type, reason length, cancelled sessions, the professional's version, the guard and grants. Not yet tested against Supabase or in the running app.
+- **Not built:** a notice to the professional beyond the bookings list (no message or email is sent).
 
 ## Template for a new feature section
 

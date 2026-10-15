@@ -181,7 +181,10 @@ export function BookingDialog({
       <div className="space-y-5 p-5 sm:p-6">
         {booking.rescheduledFrom && (
           <p className="rounded-2xl bg-arom-wash p-3.5 text-sm text-ink">
-            {t('បានប្តូរពី', 'Moved from')} {formats.stamp.format(new Date(booking.rescheduledFrom))}.{' '}
+            {booking.rescheduledBy === 'client'
+              ? t('អតិថិជនបានប្តូរវគ្គនេះពី', 'The client moved this session from')
+              : t('បានប្តូរពី', 'Moved from')}{' '}
+            {formats.stamp.format(new Date(booking.rescheduledFrom))}.{' '}
             <span className="text-ink-muted">{booking.rescheduleReason}</span>
           </p>
         )}

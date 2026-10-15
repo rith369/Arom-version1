@@ -104,7 +104,7 @@ async function loadBookings(supabase: Supabase, userId: string, slug: string) {
     supabase
       .from("appointments")
       .select(
-        "id, user_id, starts_at, ends_at, session_type, status, intake_note, cancelled_by, cancel_reason, rescheduled_from, reschedule_reason, share_survey, share_symptom_checks, meeting_url, series_id, intake_answers(question_snapshot, answer)",
+        "id, user_id, starts_at, ends_at, session_type, status, intake_note, cancelled_by, cancel_reason, rescheduled_from, reschedule_reason, rescheduled_by, share_survey, share_symptom_checks, meeting_url, series_id, intake_answers(question_snapshot, answer)",
       )
       .eq("professional_id", userId)
       .order("starts_at", { ascending: false })
@@ -144,6 +144,7 @@ async function loadBookings(supabase: Supabase, userId: string, slug: string) {
     cancelReason: row.cancel_reason ?? "",
     rescheduledFrom: row.rescheduled_from ? cambodiaIso(row.rescheduled_from) : null,
     rescheduleReason: row.reschedule_reason ?? "",
+    rescheduledBy: !row.rescheduled_from ? null : row.rescheduled_by === row.user_id ? "client" : "professional",
     shareSurvey: row.share_survey,
     shareSymptomChecks: row.share_symptom_checks,
     meetingUrl: row.session_type === "online" ? row.meeting_url : null,

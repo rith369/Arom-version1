@@ -27,6 +27,7 @@ import { DesktopNavigation, MobileNavigation } from "../app-navigation";
 import { useLanguage } from "../language-provider";
 import { JoinButton } from "../sessions/join-button";
 import { downloadCalendarFile, howSoon } from "./appointment-helpers";
+import { ChangeTimePanel } from "./change-time-panel";
 
 const TIME_ZONE = "Asia/Phnom_Penh";
 
@@ -86,6 +87,7 @@ function AppointmentCard({
   const formats = useFormats(km);
 
   const [cancelling, setCancelling] = useState(false);
+  const [moving, setMoving] = useState(false);
   const [reason, setReason] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -209,7 +211,9 @@ function AppointmentCard({
         <p className="mt-4 flex items-start gap-2 rounded-2xl bg-arom-warning-soft px-3.5 py-3 text-sm text-ink">
           <CalendarClock aria-hidden="true" size={17} className="mt-0.5 shrink-0 text-arom-warning" />
           <span>
-            {t("អ្នកជំនាញបានប្តូរពេលពី", "Your professional moved this session from")}{" "}
+            {appointment.rescheduledBy === "you"
+              ? t("អ្នកបានប្តូរវគ្គនេះពី", "You moved this session from")
+              : t("អ្នកជំនាញបានប្តូរពេលពី", "Your professional moved this session from")}{" "}
             {formats.short.format(new Date(appointment.rescheduledFrom))}.
             {appointment.rescheduleReason && ` ${t("មូលហេតុ", "Reason")}: ${appointment.rescheduleReason}`}
           </span>
@@ -305,6 +309,18 @@ function AppointmentCard({
         </div>
       )}
 
+      {moving && (
+        <ChangeTimePanel
+          appointment={appointment}
+          km={km}
+          onClose={() => setMoving(false)}
+          onMoved={(next) => {
+            setMoving(false);
+            onChange(next);
+          }}
+        />
+      )}
+
       {cancelling && (
         <div className="mt-4 rounded-2xl border border-arom-danger/20 p-3.5">
           <label className="block text-sm font-medium text-ink">
@@ -372,10 +388,26 @@ function AppointmentCard({
             {t("មើលប្រវត្តិរូប", "View profile")}
           </Link>
         )}
+        {canCancel && professional && !moving && (
+          <button
+            type="button"
+            onClick={() => {
+              setCancelling(false);
+              setMoving(true);
+            }}
+            className="inline-flex items-center gap-1.5 rounded-full border border-arom-border px-4 py-2 text-sm font-medium text-ink hover:bg-arom-wash"
+          >
+            <CalendarClock aria-hidden="true" size={16} className="text-arom" />
+            {t("ប្តូរម៉ោង", "Change time")}
+          </button>
+        )}
         {canCancel && !cancelling && (
           <button
             type="button"
-            onClick={() => setCancelling(true)}
+            onClick={() => {
+              setMoving(false);
+              setCancelling(true);
+            }}
             className="rounded-full px-4 py-2 text-sm font-medium text-arom-danger hover:bg-arom-danger-soft/60"
           >
             {t("បោះបង់", "Cancel")}

@@ -29,6 +29,8 @@ export interface UserAppointment {
   cancelReason: string;
   rescheduledFrom: string | null;
   rescheduleReason: string;
+  // Who last moved the session (appointments.rescheduled_by). Null if never moved.
+  rescheduledBy: "you" | "professional" | null;
   // The user's choice per booking. Off by default.
   shareSurvey: boolean;
   shareSymptomChecks: boolean;
@@ -43,3 +45,9 @@ export interface AppointmentsResponse {
 }
 
 export const MAX_CANCEL_REASON = 300;
+export const MAX_RESCHEDULE_REASON = 300;
+
+/** GET /api/appointments/:id/open-times: where this session can move to. */
+export interface MoveTimesResponse {
+  times: { id: string; startsAt: string; endsAt: string }[];
+}
