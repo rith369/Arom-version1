@@ -1,5 +1,27 @@
 # AROM: Change Report
 
+## 16 Oct 2026: The Mood Sprouts Everywhere There Are Five Moods
+
+Commit `PENDING`. No migration. Frontend only.
+
+**Why.** Rith asked for the five AROM sprouts from the new Home design to be used wherever the app shows the five moods, so a mood looks the same on every page.
+
+**What changed for users:**
+- **Journal (Write about today):** the mood buttons show the sprouts, and each saved entry, today's entry and the entry window show the sprout for its mood.
+- **The journal uses the same mood names as Home:** "Low" and "Very Low" instead of "Not Good" and "Very difficult" (Khmer: មិនសូវល្អ (Low), ពិបាកខ្លាំង (Very Low)). Only the words on screen changed. Saved entries keep their stored value, so nothing old breaks.
+- **Progress:** today's check in buttons and the faces down the side of the mood chart are sprouts.
+- **Not changed:** the mood calendar keeps its colored squares, because a sprout in each tiny day box would be too small to see.
+
+**What changed for the team:**
+- **One shared component:** `app/_components/mood/mood-sprout.tsx` (`<MoodSprout mood className="h-7 w-auto" />`). The images and their sizes are `MOOD_SPROUTS` in `mood-visuals.ts`. `MOOD_ICONS` is removed because nothing uses it anymore.
+- **Files:** `mood-selector.tsx` (Home), `today-check-in.tsx` and `progress-charts.tsx` (Progress), `app/detection/journal/page.tsx` (journal options now come from `JOURNAL_MOODS` and `JOURNAL_MOOD_LEVEL`, names from `MOOD_LABELS`).
+
+**What to re-test:**
+1. Open the journal, pick each mood and save an entry. Check the sprout shows on the button, on today's entry and in History.
+2. Open an older entry saved as "Not Good" and check it now says "Low" with the Low sprout.
+3. Logged in, open Progress. Check today's check in buttons and the chart faces are sprouts, and tapping a mood still saves.
+4. Switch to Khmer and check the journal mood buttons wrap neatly.
+
 ## 16 Oct 2026: Home Page Redesign with the AROM Sprout
 
 Commit `e45f398`. No migration. Frontend only.

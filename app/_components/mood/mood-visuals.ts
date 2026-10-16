@@ -1,14 +1,16 @@
 import type { MoodLevel } from '@/lib/mood';
 
-// How each mood looks, shared by the Home check in and the Progress pages.
-// Icons are files in public/figma/icons (drawn with FigmaIcon).
+// How each mood looks, shared by the Home check in, the journal and the
+// Progress pages. Drawn with <MoodSprout> (mood-sprout.tsx).
 
-export const MOOD_ICONS: Record<MoodLevel, string> = {
-  very_low: 'boxicons_tired',
-  low: 'akar-icons_face-sad',
-  okay: 'teenyicons_mood-flat-outline',
-  good: 'ic_outline-mood',
-  great: 'boxicons_happy-beaming',
+// The AROM sprout for each mood (Figma Homescreen): WebP files in
+// public/home, 168px wide, with their real heights.
+export const MOOD_SPROUTS: Record<MoodLevel, { src: string; height: number }> = {
+  very_low: { src: '/home/mood-very-low.webp', height: 189 },
+  low: { src: '/home/mood-low.webp', height: 154 },
+  okay: { src: '/home/mood-okay.webp', height: 153 },
+  good: { src: '/home/mood-good.webp', height: 153 },
+  great: { src: '/home/mood-great.webp', height: 150 },
 };
 
 // Calm tones for the charts, from soft rose (very low) to AROM green (great).

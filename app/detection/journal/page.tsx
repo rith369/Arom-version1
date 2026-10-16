@@ -37,7 +37,8 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { FigmaIcon } from "../../components/figma-icon";
-import { useMoodStore, type MoodLevel } from "../../_components/mood/mood-store";
+import { MOOD_LABELS, useMoodStore, type MoodLevel } from "../../_components/mood/mood-store";
+import { MoodSprout } from "../../_components/mood/mood-sprout";
 import { DesktopNavigation } from "../../_components/app-navigation";
 import { BottomNav } from "../../components/bottom-nav";
 import { TopHeader } from "../../components/top-header";
@@ -45,6 +46,7 @@ import { useLanguage } from "../../_components/language-provider";
 import { useConfirm } from "../../_components/confirm-dialog";
 import {
   JOURNAL_MOODS,
+  JOURNAL_MOOD_LEVEL,
   MOOD_LEVEL_JOURNAL,
   type JournalEntryDto,
   type JournalListResponse,
@@ -144,18 +146,13 @@ const PRESET_ADDITIONAL_QUESTIONS = [
 ];
 
 type MoodOption = {
-  en: string;
-  km: string;
-  icon: string;
+  // The value saved with an entry. Never change it: old entries use it.
+  en: JournalMood;
+  level: MoodLevel;
 };
 
-const MOODS: MoodOption[] = [
-  { en: "Great", km: "អស្ចារ្យ (Great)", icon: "boxicons_happy-beaming" },
-  { en: "Good", km: "ល្អ (Good)", icon: "ic_outline-mood" },
-  { en: "Okay", km: "ធម្មតា (Okay)", icon: "teenyicons_mood-flat-outline" },
-  { en: "Not Good", km: "មិនសូវល្អ (Not Good)", icon: "akar-icons_face-sad" },
-  { en: "Very difficult", km: "ពិបាកខ្លាំង (Very Difficult)", icon: "boxicons_tired" },
-];
+// Shown with the same sprouts and names as the Home check in (MOOD_LABELS).
+const MOODS: MoodOption[] = JOURNAL_MOODS.map((en) => ({ en, level: JOURNAL_MOOD_LEVEL[en] }));
 
 type EmotionOption = {
   en: string;
@@ -1026,7 +1023,8 @@ function JournalContent() {
 
   const getMoodLabel = (moodName: string) => {
     const found = MOODS.find((m) => m.en.toLowerCase() === moodName.toLowerCase());
-    return km && found ? found.km : moodName;
+    if (!found) return moodName;
+    return km ? MOOD_LABELS[found.level].km : MOOD_LABELS[found.level].en;
   };
 
   return (
@@ -1089,10 +1087,8 @@ function JournalContent() {
                             : "border-[#dcebe7] bg-white text-[#34443f] hover:border-[#a9c9bd] hover:bg-[#f0f8f6]"
                         }`}
                       >
-                        <span className={isSelected ? "text-[#1f6f5b]" : "text-[#668d80]"}>
-                          <FigmaIcon name={m.icon} size={20} />
-                        </span>
-                        <span>{km ? m.km : m.en}</span>
+                        <MoodSprout mood={m.level} className="h-8 w-auto" />
+                        <span>{km ? MOOD_LABELS[m.level].km : MOOD_LABELS[m.level].en}</span>
                       </button>
                     );
                   })}
@@ -1531,7 +1527,7 @@ function JournalContent() {
                     );
                     return (
                       <>
-                        {moodObj && <FigmaIcon name={moodObj.icon} size={18} />}
+                        {moodObj && <MoodSprout mood={moodObj.level} className="h-6 w-auto" />}
                         <p className="text-sm font-medium text-[#6b7280]">
                           {km ? "ថ្ងៃនេះ" : "Today"} • {getMoodLabel(savedEntry?.mood || selectedMood)}
                         </p>
@@ -1807,7 +1803,7 @@ function JournalContent() {
                     >
                       <div className="min-w-0 flex-1 pr-3">
                         <div className="flex items-center gap-2">
-                          {moodObj && <FigmaIcon name={moodObj.icon} size={18} />}
+                          {moodObj && <MoodSprout mood={moodObj.level} className="h-7 w-auto" />}
                           <p className="text-base font-bold text-[#111827] transition-colors group-hover:text-[#1f6f5b]">
                             {journalDayLabel(entry.createdAt, km)} • {getMoodLabel(entry.mood)}
                           </p>
@@ -1883,7 +1879,7 @@ function JournalContent() {
                       const moodObj = MOODS.find(
                         (m) => m.en.toLowerCase() === selectedDetailEntry.mood.toLowerCase()
                       );
-                      return moodObj ? <FigmaIcon name={moodObj.icon} size={17} /> : <Calendar size={13} />;
+                      return moodObj ? <MoodSprout mood={moodObj.level} className="h-6 w-auto" /> : <Calendar size={13} />;
                     })()}
                     <span>
                       {journalDayLabel(selectedDetailEntry.createdAt, km)} • {getMoodLabel(selectedDetailEntry.mood)}

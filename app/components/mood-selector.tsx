@@ -1,24 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { BookOpen, Check, ChevronRight, LogIn, RotateCcw } from "lucide-react";
 import { useLanguage } from "../_components/language-provider";
 import { useAuth } from "../_components/auth-provider";
 import { MOOD_LABELS, MOOD_LEVELS, saveTodayMood, useMoodStore, type MoodLevel } from "../_components/mood/mood-store";
-
-// The AROM sprout for each mood (Figma Homescreen): small WebP files, 168px wide.
-const MOOD_SPROUTS: Record<MoodLevel, { src: string; height: number }> = {
-  very_low: { src: "/home/mood-very-low.webp", height: 189 },
-  low: { src: "/home/mood-low.webp", height: 154 },
-  okay: { src: "/home/mood-okay.webp", height: 153 },
-  good: { src: "/home/mood-good.webp", height: 153 },
-  great: { src: "/home/mood-great.webp", height: 150 },
-};
-
-const moods = MOOD_LEVELS.map((id) => ({ id, sprout: MOOD_SPROUTS[id] }));
+import { MoodSprout } from "../_components/mood/mood-sprout";
 
 type SaveState = "idle" | "saving" | "saved" | "error" | "sign_in";
 
@@ -74,7 +63,7 @@ export function MoodSelector() {
         aria-busy={saveState === "saving"}
         className="mt-3.5 grid grid-cols-5 gap-1.5 sm:gap-3"
       >
-        {moods.map(({ id, sprout }) => {
+        {MOOD_LEVELS.map((id) => {
           const isSelected = selected === id;
           const label = MOOD_LABELS[id];
           return (
@@ -93,13 +82,9 @@ export function MoodSelector() {
                     : "group-hover:bg-[#e0f3ed]/60"
                 }`}
               >
-                <Image
-                  src={sprout.src}
-                  alt=""
-                  width={168}
-                  height={sprout.height}
-                  sizes="72px"
-                  className={`h-full w-auto object-contain transition-transform duration-200 ${
+                <MoodSprout
+                  mood={id}
+                  className={`h-full w-auto transition-transform duration-200 ${
                     isSelected ? "scale-105" : "group-hover:scale-105 motion-reduce:group-hover:scale-100"
                   }`}
                 />

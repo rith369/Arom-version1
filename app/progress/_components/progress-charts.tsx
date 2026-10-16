@@ -2,8 +2,8 @@
 
 import { useEffect, useId, useRef, useState } from 'react';
 
-import { FigmaIcon } from '../../components/figma-icon';
-import { MOOD_COLORS, MOOD_ICONS } from '../../_components/mood/mood-visuals';
+import { MOOD_COLORS } from '../../_components/mood/mood-visuals';
+import { MoodSprout } from '../../_components/mood/mood-sprout';
 import {
   MOOD_LABELS,
   MOOD_LEVELS,
@@ -40,12 +40,8 @@ function FaceAxis({ levels }: { levels: MoodLevel[] }) {
   return (
     <div aria-hidden="true" className="flex shrink-0 flex-col justify-between pb-7 pt-1">
       {levels.map((level) => (
-        <span
-          key={level}
-          className="flex size-6 items-center justify-center rounded-full"
-          style={{ backgroundColor: `${MOOD_COLORS[level]}33` }}
-        >
-          <FigmaIcon name={MOOD_ICONS[level]} size={16} />
+        <span key={level} className="flex size-6 items-center justify-center">
+          <MoodSprout mood={level} className="h-6 w-auto" />
         </span>
       ))}
     </div>

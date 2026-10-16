@@ -3,9 +3,8 @@
 import { useState } from 'react';
 import { Check, RotateCcw } from 'lucide-react';
 
-import { FigmaIcon } from '../../components/figma-icon';
 import { saveTodayMood } from '../../_components/mood/mood-store';
-import { MOOD_COLORS, MOOD_ICONS } from '../../_components/mood/mood-visuals';
+import { MoodSprout } from '../../_components/mood/mood-sprout';
 import { MOOD_LABELS, MOOD_LEVELS, type MoodLevel } from '@/lib/mood';
 
 type SaveState = 'idle' | 'saving' | 'saved' | 'error';
@@ -64,12 +63,7 @@ export function TodayCheckIn({ today, km }: { today: MoodLevel | null; km: boole
                 active ? 'border-arom bg-arom-wash' : 'border-arom-border bg-white hover:bg-arom-wash/60'
               }`}
             >
-              <span
-                className="flex size-9 items-center justify-center rounded-full"
-                style={{ backgroundColor: active ? `${MOOD_COLORS[mood]}40` : '#f1f5f3' }}
-              >
-                <FigmaIcon name={MOOD_ICONS[mood]} size={22} />
-              </span>
+              <MoodSprout mood={mood} className={`h-10 w-auto transition-transform ${active ? 'scale-110' : ''}`} />
               <span className={`text-center text-[11px] leading-tight ${active ? 'font-semibold text-arom' : 'text-ink-muted'}`}>
                 {km ? MOOD_LABELS[mood].km.split(' (')[0] : MOOD_LABELS[mood].en}
               </span>
