@@ -51,6 +51,7 @@ The yellow "Demo data on this page" banner is in `admin-shell.tsx`. Remove it fo
 | Professional bookings (`/pro/bookings`) | Done | Connected: list, cancel, reschedule, outcome, session notes, meeting link (`/api/pro/bookings/:id`), migration `20261014000400` | 16 |
 | Professional clients (`/pro/clients`, client file) | Done | Connected: list from real bookings, archive (closes the conversation), summary notes, real shared survey and symptom checks (`/api/pro/clients/:id`), migration `20261015000300` | 16 |
 | Public directory and booking (`/professional`, `/professional/<slug>`, `/professional/<slug>/book`) | Done | Connected: only listed professionals, real open times, instant booking (`/api/bookings`), migration `20261014000400` | 16 |
+| Address for in person sessions (My profile, public profile, booking, My appointments) | Done, on branch `rith/in-person-address` | Written, migration `20261015001600` not yet applied to Supabase | 24 |
 | Client changes the time of a session (My appointments, Change time) | Done, on branch `rith/client-change-time` | Written, migration `20261015001500` not yet applied to Supabase | 23 |
 | My appointments for users (`/appointments`) | Done | Connected (`GET /api/appointments`, `POST /api/appointments/:id` with `cancel` or `sharing`). No migration | 21 |
 | Messages between client and professional (text and voice): `/pro/messages`, `/messages` | Done | Connected (`/api/messages`, `/api/pro/messages`, `/api/voice/:id`), archive saved (`/api/pro/clients/:id`), migration `20261014000700`. Suggestion messages and quick replies connected in section 19 | 17 |
@@ -916,6 +917,32 @@ The admin list uses `CommunityReport`: `id, groupId, targetKind, targetLabel, me
 - **No sparkles:** the mascot (`public/progress/mascot.png`, from the Figma) had its three star shapes removed, as AGENTS.md section 7 requires.
 - **Support card (decided 16 Oct 2026):** when 3 or more of the real last 7 check ins are Low or Very Low, the dashboard shows "Some of your recent days were hard. You don't have to handle it alone." with Breathing practice, Talk to a professional and Get help now (`support-card.tsx`, `SUPPORT_MIN_HARD_DAYS`). Never from sample data. "Not now" hides it for that visit only; nothing is saved or sent. No backend needed.
 
+## 24. Address for in person sessions
+
+**Status: written, migration `20261015001600_in_person_address.sql` NOT yet applied to Supabase.** Branch `rith/in-person-address`. Merge only after the migration runs: My profile, the public directory and My appointments select the new columns and fail without them. Section 23 (client change time, PR #11) is a separate branch; whichever merges second may need a small merge in `appointments-controller.ts`, `lib/appointments.ts` and `user-appointments.tsx`.
+
+**Files:** `supabase/migrations/20261015001600_in_person_address.sql`, `lib/office.ts` (type, limits, map link), `app/_components/office-card.tsx`, `app/pro/_components/profile-editor.tsx` (fields under How you meet clients), `app/pro/_components/pro-home.tsx` (reminder), `lib/controllers/pro-controller.ts`, `lib/professionals.ts`, `app/_components/therapist-detail.tsx`, `app/_components/therapist-booking.tsx`, `lib/controllers/appointments-controller.ts`, `app/_components/appointments/*`.
+
+### Data shape (`OfficeLocation`)
+
+| Field | Type | Column |
+|---|---|---|
+| `name` | string, optional, up to 120 | `professional_profiles.office_name` |
+| `address` | string, up to 300, required to offer in person | `professional_profiles.office_address` |
+| `mapUrl` | https link, optional, up to 500 | `professional_profiles.office_map_url` |
+
+`ProProfile.office`, `Therapist.office` (only when in person is offered), `AppointmentProfessional.office` (null without an address).
+
+### Rules (decided by Rith, 15 Oct 2026)
+
+- **The professional types their own place** in My profile. The admin managed `clinics` table (0 rows) stays unused.
+- **Everyone can see it** on the public profile, the booking page and My appointments.
+- **No admin review.** It saves at once, like the bio (not in `REVIEWED_FIELDS`).
+- **An address is required to offer in person.** My profile refuses to save In person without one (`PATCH /api/pro/profile` answers 400 too). Without an address, the public profile and booking page offer online only, and the trigger `appointments_require_office` refuses any new in person booking (`book_appointment()`, `accept_session_suggestion()` and later paths). Bookings that already exist are not touched.
+- **Map link:** the professional's own https link, or a Google Maps search for the place name and address when there is none. Any other link is ignored.
+- **`list_public_professionals()`** returns `office_name`, `office_address`, `office_map_url`. It is dropped and created again (the return type changes) with the same body as file `20261014000400`, which matched the live database.
+- **Tested** on a local Postgres (PGlite) with the real `is_listed_professional()`: 18 checks for the public list, booking with and without an address, blank addresses, length and https limits, existing bookings and grants. Not yet tested against Supabase or in the running app.
+- **Today:** 56 in person open times exist without an address. After the migration their professionals see a reminder on Home, and users can only book them online until an address is added.
 ## Template for a new feature section
 
 ```md

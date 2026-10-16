@@ -9,6 +9,7 @@ import {
   BookmarkCheck,
   CalendarCheck2,
   Headphones,
+  MapPin,
   Monitor,
   Play,
   Radio,
@@ -34,6 +35,7 @@ import { DesktopNavigation, MobileNavigation } from "./app-navigation";
 import { useLanguage } from "./language-provider";
 import { FREE_DURING_TESTING, formatPrice, noPaymentNote } from "@/lib/pricing";
 import { publishedEpisodes, useProPodcasts } from "./podcasts/pro-podcast-store";
+import { OfficeCard } from "./office-card";
 
 const sessionIcons: Record<SessionOption, LucideIcon> = {
   Online: Monitor,
@@ -245,6 +247,16 @@ export function TherapistDetail({ therapist }: { therapist: Therapist }) {
                   </div>
                 </section>
               </div>
+
+              {therapist.office && (
+                <section aria-labelledby="office-heading" className="mt-6 border-t border-arom-border pt-6">
+                  <h2 id="office-heading" className="flex items-center gap-2 text-base font-bold text-ink">
+                    <MapPin aria-hidden="true" size={18} className="text-arom" />
+                    {km ? "កន្លែងជួបផ្ទាល់ (In person)" : "Where to meet in person"}
+                  </h2>
+                  <OfficeCard office={therapist.office} km={km} className="mt-3" />
+                </section>
+              )}
 
               {podcast && (
                 <section aria-labelledby="podcast-card-heading" className="mt-8 border-t border-arom-border pt-6">

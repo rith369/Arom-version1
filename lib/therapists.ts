@@ -31,6 +31,7 @@ export type TherapistPodcast = {
 };
 
 import type { SessionPrice } from './pricing';
+import type { OfficeLocation } from './office';
 
 export type Therapist = {
   slug: string;
@@ -51,6 +52,8 @@ export type Therapist = {
   kmAbout?: string;
   languages: string[];
   sessionOptions: SessionOption[];
+  // Where in person sessions happen. Set only when in person is offered.
+  office?: OfficeLocation;
   // Shown to users for information only. AROM takes no payments yet.
   price?: SessionPrice;
   podcast?: TherapistPodcast;

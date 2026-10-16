@@ -18,7 +18,7 @@ import { fail, invalidInput, json, readJson, unauthorized } from "./shared";
  */
 
 const COLUMNS =
-  "id, user_id, starts_at, ends_at, session_type, status, meeting_url, intake_note, cancelled_by, cancel_reason, rescheduled_from, reschedule_reason, rescheduled_by, share_survey, share_symptom_checks, series_id, professional_id, professional:professional_profiles(slug, display_name, display_name_km, title, title_km, photo_url)";
+  "id, user_id, starts_at, ends_at, session_type, status, meeting_url, intake_note, cancelled_by, cancel_reason, rescheduled_from, reschedule_reason, rescheduled_by, share_survey, share_symptom_checks, series_id, professional_id, professional:professional_profiles(slug, display_name, display_name_km, title, title_km, photo_url, office_name, office_address, office_map_url)";
 
 interface ProfessionalRow {
   slug: string;
@@ -27,6 +27,9 @@ interface ProfessionalRow {
   title: string;
   title_km: string | null;
   photo_url: string | null;
+  office_name: string | null;
+  office_address: string | null;
+  office_map_url: string | null;
 }
 
 interface AppointmentRow {
@@ -85,6 +88,13 @@ function toAppointment(row: AppointmentRow, changeUntil: Map<string, string>): U
           title: professional.title,
           kmTitle: professional.title_km ?? "",
           photoUrl: professional.photo_url ?? "",
+          office: professional.office_address
+            ? {
+                name: professional.office_name ?? "",
+                address: professional.office_address,
+                mapUrl: professional.office_map_url ?? "",
+              }
+            : null,
         }
       : null,
   };

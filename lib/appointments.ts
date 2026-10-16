@@ -4,6 +4,8 @@
  * can read an appointment (RLS on appointments).
  */
 
+import type { OfficeLocation } from "./office";
+
 export type AppointmentStatus = "booked" | "completed" | "cancelled" | "no_show";
 
 export interface AppointmentProfessional {
@@ -13,6 +15,8 @@ export interface AppointmentProfessional {
   title: string;
   kmTitle: string;
   photoUrl: string;
+  // Where in person sessions happen (public). Null when no address is set.
+  office: OfficeLocation | null;
 }
 
 export interface UserAppointment {

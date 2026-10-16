@@ -28,6 +28,7 @@ import { useLanguage } from "../language-provider";
 import { JoinButton } from "../sessions/join-button";
 import { downloadCalendarFile, howSoon } from "./appointment-helpers";
 import { ChangeTimePanel } from "./change-time-panel";
+import { OfficeCard } from "../office-card";
 
 const TIME_ZONE = "Asia/Phnom_Penh";
 
@@ -210,6 +211,22 @@ function AppointmentCard({
           </dl>
         </div>
       </div>
+
+      {appointment.sessionType === "in_person" && appointment.status === "booked" && (
+        <div className="mt-4 flex items-start gap-2.5 rounded-2xl bg-arom-wash/70 px-3.5 py-3">
+          <MapPin aria-hidden="true" size={17} className="mt-0.5 shrink-0 text-arom" />
+          {professional?.office ? (
+            <OfficeCard office={professional.office} km={km} />
+          ) : (
+            <p className="text-sm text-ink-muted">
+              {t(
+                "អ្នកជំនាញមិនទាន់បន្ថែមអាសយដ្ឋានទេ។ សូមផ្ញើសារសួរពួកគេ។",
+                "Your professional has not added an address yet. Please message them to ask.",
+              )}
+            </p>
+          )}
+        </div>
+      )}
 
       {appointment.rescheduledFrom && appointment.status === "booked" && (
         <p className="mt-4 flex items-start gap-2 rounded-2xl bg-arom-warning-soft px-3.5 py-3 text-sm text-ink">
