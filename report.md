@@ -2,7 +2,7 @@
 
 ## 16 Oct 2026: Journal Prompts Saved for Real and Shown in the Journal
 
-Commit `d855a3e`. Migration `20261016001200_journal_prompts.sql` not yet applied to Supabase. It must run before this branch is merged.
+Commit `d855a3e`. Migration `20261016001200_journal_prompts.sql` applied to Supabase on 16 Oct 2026 (by Rith).
 
 **Why.** The admin Journal prompts page ran on sample data: anything an admin added or switched off was lost on refresh, and the journal page never read it anyway. Its two guided questions were written into the code. Now the AROM team can choose the reflection questions users see without a code change.
 

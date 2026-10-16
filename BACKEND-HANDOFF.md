@@ -75,7 +75,7 @@ The yellow "Demo data on this page" banner is in `admin-shell.tsx`. Remove it fo
 | Journal (Write about today, `/detection/journal`) | Done | Connected (`GET\|POST /api/journal`, `DELETE /api/journal/:id`, owner only). Entries an older version saved in the browser are moved only if the person agrees, migration `20261016001000` | 22 |
 | Edit Profile for users: photo, display name, pronouns, About you (`/profile`) | Done | Connected (`/api/profile`, `/api/profile/photo`, private `user-profile-photos` bucket), migration `20261016000900`. Accounts without a profile row fixed by `20261016000800` | none |
 | Admin audit log (`/admin/audit-log`) | Done | Connected (`GET /api/admin/audit-log`). No migration | 5 |
-| Journal prompts: admin page `/admin/journal-prompts`, guided questions on Write about today (`/detection/journal`) | Done | Written on branch `rith/journal-prompts-backend` (`GET /api/journal-prompts`, `GET\|PUT /api/admin/journal-prompts`), migration `20261016001200` not yet applied to Supabase | 26 |
+| Journal prompts: admin page `/admin/journal-prompts`, guided questions on Write about today (`/detection/journal`) | Done | Connected (`GET /api/journal-prompts`, `GET\|PUT /api/admin/journal-prompts`), migration `20261016001200` | 26 |
 | Other admin pages (bookings, settings) | Built by Sokheng on mock data | Not started | not written yet |
 
 ## 5. Admin users page
@@ -945,7 +945,7 @@ The admin list uses `CommunityReport`: `id, groupId, targetKind, targetLabel, me
 
 ## 26. Journal prompts (admin page and journal questions)
 
-**Written (16 Oct 2026) on branch `rith/journal-prompts-backend`, migration `20261016001200_journal_prompts.sql` not yet applied to Supabase.**
+**Connected (16 Oct 2026), PR #16, migration `20261016001200_journal_prompts.sql` applied to Supabase.**
 
 **Files:** `lib/journal.ts` (`JournalPrompt`, `journalPromptSchema`), `lib/controllers/journal-prompts-controller.ts`, `app/api/journal-prompts/route.ts`, `app/api/admin/journal-prompts/route.ts`, `app/admin/_components/journal-prompts-view.tsx`, actions in `admin-provider.tsx`, journal page `app/detection/journal/page.tsx`.
 
@@ -977,7 +977,7 @@ The admin list uses `CommunityReport`: `id, groupId, targetKind, targetLabel, me
 - **No delete.** Admins make a prompt inactive instead. Old journal entries keep their own copy of the question text, so editing a prompt never changes past entries.
 - **RLS:** anyone reads active prompts, admins read all. There are no write policies. Writes only go through `save_journal_prompt()` (`security definer`, admin only), which logs `save_journal_prompt` to `admin_audit_log`. The Audit log page shows it as Added, Edited, Activated or Deactivated journal prompt.
 - **Starting data:** the migration adds the two questions the journal showed before (active) and the gratitude question (inactive).
-- **Tested** on a local Postgres (PGlite): seed rows, add, edit, deactivate, used order refused, an 11th active prompt refused, non admin refused, audit log rows, RLS on. Not yet tested against Supabase or in the running app.
+- **Tested** on a local Postgres (PGlite): seed rows, add, edit, deactivate, used order refused, an 11th active prompt refused, non admin refused, audit log rows, RLS on. Applied to Supabase and checked there: 3 prompts (2 active), RLS on, 2 policies, signed out visitors cannot call the save function. Not yet clicked through in the running app.
 
 ## Template for a new feature section
 
