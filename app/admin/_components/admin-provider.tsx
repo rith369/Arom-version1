@@ -60,10 +60,7 @@ import {
   DEFAULT_GROUP_RULES_KM,
   type ChatMessage,
 } from '../../community/community-data';
-import {
-  initialJournalPrompts,
-  type AdminJournalPrompt,
-} from '../_data/journal-prompts';
+import type { AdminJournalPrompt } from '../_data/journal-prompts';
 
 import {
   initialSettings,
@@ -166,8 +163,8 @@ type AdminState = {
   communityReports: CommunityReport[];
   resolveCommunityReport: (id: string, status: 'dismissed' | 'removed') => void;
   journalPrompts: AdminJournalPrompt[];
-  saveJournalPrompt: (record: AdminJournalPrompt) => void;
-  setJournalPromptActive: (id: string, isActive: boolean) => void;
+  journalPromptsLoad: LoadStatus;
+  saveJournalPrompt: (record: AdminJournalPrompt) => Promise<ActionResult>;
 
   settings: AdminSettings;
   saveSettings: (record: AdminSettings) => void;
@@ -673,22 +670,48 @@ export function AdminProvider({ children }: { children: ReactNode }) {
 
     setReportDecisions((current) => ({ ...current, [id]: status }));
   }
-  const [journalPrompts, setJournalPrompts] = useState<AdminJournalPrompt[]>(
-    initialJournalPrompts,
-  );
+  const [journalPrompts, setJournalPrompts] = useState<AdminJournalPrompt[]>([]);
+  const [journalPromptsLoad, setJournalPromptsLoad] = useState<LoadStatus>('loading');
 
-  function saveJournalPrompt(record: AdminJournalPrompt) {
-    setJournalPrompts((current) =>
-      current.some((item) => item.id === record.id)
-        ? current.map((item) => (item.id === record.id ? record : item))
-        : [...current, record],
-    );
-  }
+  useEffect(() => {
+    let active = true;
+    fetch('/api/admin/journal-prompts', { cache: 'no-store' })
+      .then(async (response) => {
+        if (!response.ok) throw new Error('load failed');
+        const data = (await response.json()) as { prompts: AdminJournalPrompt[] };
+        if (!active) return;
+        setJournalPrompts(data.prompts);
+        setJournalPromptsLoad('ready');
+      })
+      .catch(() => {
+        if (active) setJournalPromptsLoad('error');
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
-  function setJournalPromptActive(id: string, isActive: boolean) {
-    setJournalPrompts((current) =>
-      current.map((item) => (item.id === id ? { ...item, isActive } : item)),
-    );
+  // Adds or updates one prompt (activating and deactivating too). The screen
+  // only changes once the database has saved it.
+  async function saveJournalPrompt(record: AdminJournalPrompt): Promise<ActionResult> {
+    try {
+      const response = await fetch('/api/admin/journal-prompts', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: record }),
+      });
+      const data = (await response.json().catch(() => null)) as {
+        prompts?: AdminJournalPrompt[];
+        error?: { message?: string };
+      } | null;
+      if (!response.ok || !data?.prompts) {
+        return { ok: false, message: data?.error?.message ?? 'The prompt could not be saved.' };
+      }
+      setJournalPrompts(data.prompts);
+      return { ok: true };
+    } catch {
+      return { ok: false, message: 'Could not reach the server. Check your connection.' };
+    }
   }
   const [settings, setSettings] = useState<AdminSettings>(initialSettings);
 
@@ -812,8 +835,8 @@ export function AdminProvider({ children }: { children: ReactNode }) {
         communityReports,
         resolveCommunityReport,
         journalPrompts,
+        journalPromptsLoad,
         saveJournalPrompt,
-        setJournalPromptActive,
         settings,
         saveSettings,
         crisisHelplines,

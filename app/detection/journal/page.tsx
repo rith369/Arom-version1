@@ -49,6 +49,7 @@ import {
   type JournalEntryDto,
   type JournalListResponse,
   type JournalMood,
+  type JournalPrompt,
 } from "@/lib/journal";
 import { cambodiaDay } from "@/lib/mood";
 
@@ -240,6 +241,27 @@ async function fetchJournal(): Promise<JournalLoad> {
     return { status: "ready", entries: data.entries.map(fromDto) };
   } catch {
     return { status: "error" };
+  }
+}
+
+// The guided questions admins set in /admin/journal-prompts, in their order.
+// Null means they could not be loaded, so the page keeps DEFAULT_QUESTIONS.
+async function fetchPromptQuestions(): Promise<JournalQuestionItem[] | null> {
+  try {
+    const response = await fetch("/api/journal-prompts", { cache: "no-store" });
+    const data = (await response.json().catch(() => null)) as { prompts?: JournalPrompt[] } | null;
+    if (!response.ok || !data?.prompts) return null;
+    return data.prompts.map((prompt) => ({
+      id: prompt.id,
+      labelEn: prompt.question,
+      labelKm: prompt.kmQuestion,
+      placeholderEn: prompt.placeholder,
+      placeholderKm: prompt.kmPlaceholder,
+      answer: "",
+      isRemovable: false,
+    }));
+  } catch {
+    return null;
   }
 }
 
@@ -448,6 +470,22 @@ function JournalContent() {
 
   // Guided Questions State with default Happy & Difficult questions (matching user design)
   const [questions, setQuestions] = useState<JournalQuestionItem[]>(DEFAULT_QUESTIONS);
+  const [promptQuestions, setPromptQuestions] = useState<JournalQuestionItem[]>(DEFAULT_QUESTIONS);
+
+  useEffect(() => {
+    let active = true;
+    void fetchPromptQuestions().then((list) => {
+      if (!active || !list) return;
+      setPromptQuestions(list);
+      // Never replace questions someone has started answering.
+      setQuestions((current) =>
+        current.some((q) => q.answer.trim()) ? current : [...list, ...current.filter((q) => q.isRemovable)],
+      );
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
   const [additionalNotes, setAdditionalNotes] = useState("");
   const [showAddQuestionModal, setShowAddQuestionModal] = useState(false);
   const [customQuestionInput, setCustomQuestionInput] = useState("");
@@ -1590,7 +1628,7 @@ function JournalContent() {
                   onClick={() => {
                     setSelectedMood("Good");
                     setSelectedEmotions(getDefaultEmotionsForMood("Good"));
-                    setQuestions(DEFAULT_QUESTIONS.map((q) => ({ ...q, answer: "" })));
+                    setQuestions(promptQuestions.map((q) => ({ ...q, answer: "" })));
                     setAdditionalNotes("");
                     setRecordingFieldId(null);
                     setView("entry");

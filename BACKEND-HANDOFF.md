@@ -51,8 +51,8 @@ The yellow "Demo data on this page" banner is in `admin-shell.tsx`. Remove it fo
 | Professional bookings (`/pro/bookings`) | Done | Connected: list, cancel, reschedule, outcome, session notes, meeting link (`/api/pro/bookings/:id`), migration `20261014000400` | 16 |
 | Professional clients (`/pro/clients`, client file) | Done | Connected: list from real bookings, archive (closes the conversation), summary notes, real shared survey and symptom checks (`/api/pro/clients/:id`), migration `20261015000300` | 16 |
 | Public directory and booking (`/professional`, `/professional/<slug>`, `/professional/<slug>/book`) | Done | Connected: only listed professionals, real open times, instant booking (`/api/bookings`), migration `20261014000400` | 16 |
-| Address for in person sessions (My profile, public profile, booking, My appointments) | Done, on branch `rith/in-person-address` | Written, migration `20261015001600` not yet applied to Supabase | 25 |
-| Client changes the time of a session (My appointments, Change time) | Done, on branch `rith/client-change-time` | Written, migration `20261015001500` not yet applied to Supabase | 24 |
+| Address for in person sessions (My profile, public profile, booking, My appointments) | Done | Connected, migration `20261015001600` | 25 |
+| Client changes the time of a session (My appointments, Change time) | Done | Connected, migration `20261015001500` | 24 |
 | My appointments for users (`/appointments`) | Done | Connected (`GET /api/appointments`, `POST /api/appointments/:id` with `cancel` or `sharing`). No migration | 21 |
 | Messages between client and professional (text and voice): `/pro/messages`, `/messages` | Done | Connected (`/api/messages`, `/api/pro/messages`, `/api/voice/:id`), archive saved (`/api/pro/clients/:id`), migration `20261014000700`. Suggestion messages and quick replies connected in section 19 | 17 |
 | Care plan: professional gives tasks, client sees them in Your Plan For Today (`/pro/clients/<id>`, `/care-plan`, home) | Done | Connected (`/api/care-plan`, `/api/pro/care`), migration `20261015000100` | 18 |
@@ -75,7 +75,8 @@ The yellow "Demo data on this page" banner is in `admin-shell.tsx`. Remove it fo
 | Journal (Write about today, `/detection/journal`) | Done | Connected (`GET\|POST /api/journal`, `DELETE /api/journal/:id`, owner only). Entries an older version saved in the browser are moved only if the person agrees, migration `20261016001000` | 22 |
 | Edit Profile for users: photo, display name, pronouns, About you (`/profile`) | Done | Connected (`/api/profile`, `/api/profile/photo`, private `user-profile-photos` bucket), migration `20261016000900`. Accounts without a profile row fixed by `20261016000800` | none |
 | Admin audit log (`/admin/audit-log`) | Done | Connected (`GET /api/admin/audit-log`). No migration | 5 |
-| Other admin pages (bookings, journal prompts, settings) | Built by Sokheng on mock data | Not started | not written yet |
+| Journal prompts: admin page `/admin/journal-prompts`, guided questions on Write about today (`/detection/journal`) | Done | Written on branch `rith/journal-prompts-backend` (`GET /api/journal-prompts`, `GET\|PUT /api/admin/journal-prompts`), migration `20261016001200` not yet applied to Supabase | 26 |
+| Other admin pages (bookings, settings) | Built by Sokheng on mock data | Not started | not written yet |
 
 ## 5. Admin users page
 
@@ -941,6 +942,43 @@ The admin list uses `CommunityReport`: `id, groupId, targetKind, targetLabel, me
 - **`list_public_professionals()`** returns `office_name`, `office_address`, `office_map_url`. It is dropped and created again (the return type changes) with the same body as file `20261014000400`, which matched the live database.
 - **Tested** on a local Postgres (PGlite) with the real `is_listed_professional()`: 18 checks for the public list, booking with and without an address, blank addresses, length and https limits, existing bookings and grants. Not yet tested against Supabase or in the running app.
 - **Today:** 56 in person open times exist without an address. After the migration their professionals see a reminder on Home, and users can only book them online until an address is added.
+
+## 26. Journal prompts (admin page and journal questions)
+
+**Written (16 Oct 2026) on branch `rith/journal-prompts-backend`, migration `20261016001200_journal_prompts.sql` not yet applied to Supabase.**
+
+**Files:** `lib/journal.ts` (`JournalPrompt`, `journalPromptSchema`), `lib/controllers/journal-prompts-controller.ts`, `app/api/journal-prompts/route.ts`, `app/api/admin/journal-prompts/route.ts`, `app/admin/_components/journal-prompts-view.tsx`, actions in `admin-provider.tsx`, journal page `app/detection/journal/page.tsx`.
+
+### Data shape (`JournalPrompt`, also `AdminJournalPrompt`)
+
+| Field | Type | Database source |
+|---|---|---|
+| `id` | string (uuid) | `journal_prompts.id` |
+| `question` | string, 1 to 300 | `journal_prompts.question` |
+| `kmQuestion` | string, 1 to 300 | `journal_prompts.question_km` |
+| `placeholder` | string, up to 400 | `journal_prompts.placeholder` |
+| `kmPlaceholder` | string, up to 500 | `journal_prompts.placeholder_km` |
+| `order` | whole number, 1 or more, unique | `journal_prompts.sort_order` |
+| `isActive` | boolean | `journal_prompts.is_active` |
+
+### Endpoints
+
+| Endpoint | Who | What |
+|---|---|---|
+| `GET /api/journal-prompts` | Anyone | Active prompts in display order, `{ prompts }` |
+| `GET /api/admin/journal-prompts` | Admin | Every prompt, inactive ones too |
+| `PUT /api/admin/journal-prompts` body `{ prompt }` | Admin | Adds or updates one prompt (activate and deactivate too) through `save_journal_prompt()`, returns the full list |
+
+### Rules
+
+- **Active prompts are the journal's guided questions,** in the admin's order. They replace the two questions that were written into the page. If the list cannot be loaded, the page keeps those two. Questions a person has started answering are never replaced. The "add a question" presets on the journal page stay in the page code.
+- **Up to 10 active prompts,** because a saved journal entry holds up to 20 questions and people can add their own. The 300 character limit on questions matches what a journal entry accepts.
+- **Display order is unique.** The admin form checks it, and the database refuses a used number with a message the admin sees.
+- **No delete.** Admins make a prompt inactive instead. Old journal entries keep their own copy of the question text, so editing a prompt never changes past entries.
+- **RLS:** anyone reads active prompts, admins read all. There are no write policies. Writes only go through `save_journal_prompt()` (`security definer`, admin only), which logs `save_journal_prompt` to `admin_audit_log`. The Audit log page shows it as Added, Edited, Activated or Deactivated journal prompt.
+- **Starting data:** the migration adds the two questions the journal showed before (active) and the gratitude question (inactive).
+- **Tested** on a local Postgres (PGlite): seed rows, add, edit, deactivate, used order refused, an 11th active prompt refused, non admin refused, audit log rows, RLS on. Not yet tested against Supabase or in the running app.
+
 ## Template for a new feature section
 
 ```md

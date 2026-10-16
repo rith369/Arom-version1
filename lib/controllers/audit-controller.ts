@@ -60,6 +60,18 @@ function describe(row: AuditRow): { action: string; module: AuditModule; detail:
         detail: `${Number(d.total ?? 0)} helplines, ${Number(d.active ?? 0)} shown${removed ? `, ${removed} removed` : ""}`,
       };
     }
+    case "save_journal_prompt":
+      return {
+        action: d.created
+          ? "Added journal prompt"
+          : d.from_active !== d.to_active
+            ? d.to_active
+              ? "Activated journal prompt"
+              : "Deactivated journal prompt"
+            : "Edited journal prompt",
+        module: "content",
+        detail: text(d.question),
+      };
     case "read_group_chat":
       return { action: "Opened a support group chat", module: "community", detail: text(d.reason) };
     case "change_flag_status":
@@ -116,7 +128,9 @@ export async function listAuditLog(request: NextRequest) {
     const targetLabel =
       row.target_table === "crisis_resources"
         ? "Crisis helplines"
-        : row.target_table === "safety_flags"
+        : row.target_table === "journal_prompts"
+          ? "Journal prompts"
+          : row.target_table === "safety_flags"
           ? "Safety flag"
           : (row.target_id && names.get(row.target_id)) || "Deleted account";
     return {
