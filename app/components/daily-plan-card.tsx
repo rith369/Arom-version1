@@ -8,6 +8,9 @@ import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { FigmaIcon } from "./figma-icon";
 import { DailyPlanCuratorModal } from "./daily-plan-curator-modal";
 import { useLanguage } from "../_components/language-provider";
+import { useAuth } from "../_components/auth-provider";
+import { MOOD_LABELS, useMoodStore } from "../_components/mood/mood-store";
+import { useActivities } from "../progress/_components/use-activities";
 import {
   getPlanTryNowItems,
   togglePlanTryNowComplete,
@@ -61,11 +64,11 @@ const baseMoodActivity: PlanActivity = {
   id: "mood",
   title: "Mood check in",
   titleKm: "ពិនិត្យអារម្មណ៍ (Mood Check-in)",
-  subtitle: "Great Start",
-  subtitleKm: "ការចាប់ផ្តើមដ៏ស្រស់ស្រាយ",
-  icon: "mdi_check-circle",
-  href: "/detection/journal",
-  completed: true,
+  subtitle: "Tap how you feel below",
+  subtitleKm: "ចុចលើអារម្មណ៍របស់អ្នកខាងក្រោម",
+  icon: "ic_outline-mood",
+  href: "/#mood-check-in",
+  completed: false,
 };
 
 const defaultMindGuideActivity: PlanActivity = {
@@ -76,7 +79,7 @@ const defaultMindGuideActivity: PlanActivity = {
   subtitleKm: "ស្វែងយល់ពីការថប់បារម្ភ (Anxiety) • ៥ នាទី",
   icon: "ant-design_play-circle-filled",
   href: "/mindguide",
-  completed: true,
+  completed: false,
 };
 
 const defaultMeditationActivity: PlanActivity = {
@@ -127,7 +130,9 @@ function TickIcon({ done, children }: { done: boolean; children: ReactNode }) {
   );
 }
 
-export function DailyPlanCard() {
+// tuckBanner: the picture's empty top left tucks under the greeting. Off when
+// a card sits above it, so the sun and leaves never cover that card.
+export function DailyPlanCard({ tuckBanner = false }: { tuckBanner?: boolean }) {
   const { language } = useLanguage();
   const km = language === "km";
   const [tryNowItems, setTryNowItems] = useState<PlanTryNowItem[]>([]);
@@ -135,6 +140,13 @@ export function DailyPlanCard() {
   const [isCuratorOpen, setIsCuratorOpen] = useState(false);
   const care = useCareStore("client");
   const [today] = useState(() => cambodiaToday(Date.now()));
+  // Ticks come from real data only: today's check in, and lessons or
+  // practices finished today (activity_log). Nothing is done by default.
+  const { user } = useAuth();
+  const mood = useMoodStore();
+  const { state: activities } = useActivities("7d", Boolean(user));
+  const doneToday = (kind: "lesson" | "practice") =>
+    activities.status === "ready" && activities.data.recent.some((item) => item.kind === kind && item.day === today);
 
   useEffect(() => {
     setTryNowItems(getPlanTryNowItems());
@@ -202,7 +214,8 @@ export function DailyPlanCard() {
           id: item.id,
           title: item.title,
           titleKm: item.kmTitle,
-          subtitle: item.subtitle,
+          // Tips text continues "Try now:", so it starts in lowercase there.
+          subtitle: item.subtitle.charAt(0).toUpperCase() + item.subtitle.slice(1),
           subtitleKm: item.kmSubtitle,
           icon: item.completed ? "mdi_check-circle" : "boxicons_note-filled",
           href: "/tips",
@@ -215,7 +228,7 @@ export function DailyPlanCard() {
             id: "default-try-now",
             title: "Try now: Cut what you control",
             titleKm: "សាកល្បង (Try now)៖ បន្ធូរបន្ថយអ្វីដែលអ្នកគ្រប់គ្រងបាន",
-            subtitle: "drop or delay ONE thing this week.",
+            subtitle: "Drop or delay one thing this week.",
             subtitleKm: "កាត់បន្ថយ ឬពន្យារពេលការងារមួយក្នុងសប្តាហ៍នេះ",
             icon: "boxicons_note-filled",
             href: "/tips",
@@ -252,18 +265,33 @@ export function DailyPlanCard() {
   const mindguideOrCustomItems =
     customActivities.length > 0
       ? customActivities
-      : [defaultMindGuideActivity, defaultMeditationActivity];
+      : [
+          { ...defaultMindGuideActivity, completed: doneToday("lesson") },
+          { ...defaultMeditationActivity, completed: doneToday("practice") },
+        ];
+
+  const moodActivity: PlanActivity = mood.today
+    ? {
+        ...baseMoodActivity,
+        subtitle: `You checked in: ${MOOD_LABELS[mood.today].en}`,
+        subtitleKm: `អ្នកបានកត់ត្រា៖ ${MOOD_LABELS[mood.today].km}`,
+        icon: "mdi_check-circle",
+        completed: true,
+      }
+    : baseMoodActivity;
 
   const allActivities: PlanActivity[] = [
-    baseMoodActivity,
+    moodActivity,
     ...careActivities,
     ...mindguideOrCustomItems,
     ...tryNowActivities,
     baseCommunityActivity,
   ];
 
-  const totalTasks = allActivities.length;
-  const completedTasks = allActivities.filter((a) => a.completed).length;
+  // Explore Community is a suggestion with nothing to finish, so it is not counted.
+  const trackedActivities = allActivities.filter((a) => a.id !== baseCommunityActivity.id);
+  const totalTasks = trackedActivities.length;
+  const completedTasks = trackedActivities.filter((a) => a.completed).length;
 
   return (
     <div>
@@ -276,7 +304,7 @@ export function DailyPlanCard() {
         height={325}
         preload
         sizes="(min-width: 1024px) 34rem, (min-width: 640px) 36rem, 100vw"
-        className="pointer-events-none relative -mx-[5.65%] block h-auto w-[111.3%] max-w-none select-none"
+        className={`pointer-events-none relative -mx-[5.65%] block h-auto w-[111.3%] max-w-none select-none ${tuckBanner ? "-mt-5" : ""}`}
       />
       <section
         aria-labelledby="daily-plan-heading"
@@ -311,7 +339,7 @@ export function DailyPlanCard() {
           aria-label={`${completedTasks} of ${totalTasks} tasks completed`}
           className="mt-3 flex items-center gap-1.5"
         >
-          {allActivities.map((task, idx) => (
+          {trackedActivities.map((task, idx) => (
             <span
               key={task.id || idx}
               className={`h-1.5 flex-1 rounded-full transition-colors duration-200 ${
@@ -377,7 +405,12 @@ export function DailyPlanCard() {
                 </button>
               ) : (
                 <div className="flex size-7 items-center justify-center shrink-0">
-                  <FigmaIcon name={item.icon} size={22} className="text-white" />
+                  <FigmaIcon
+                    name={item.completed ? "mdi_check-circle" : item.icon}
+                    size={22}
+                    // The mood icon file is dark green; turn it white on the card.
+                    className={item.icon === "ic_outline-mood" && !item.completed ? "brightness-0 invert" : "text-white"}
+                  />
                 </div>
               )}
 

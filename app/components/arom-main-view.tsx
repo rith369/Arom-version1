@@ -7,9 +7,13 @@ import { QuoteCard } from "./quote-card";
 import { MoodSelector } from "./mood-selector";
 import { ProgressDashboard } from "./progress-dashboard";
 import { BottomNav } from "./bottom-nav";
+import { NextSessionCard, useNextSession } from "./next-session-card";
 import { DesktopNavigation } from "../_components/app-navigation";
+import { useLanguage } from "../_components/language-provider";
 
 export function AromMainView() {
+  const { language } = useLanguage();
+  const nextSession = useNextSession();
 
   return (
     <div className="min-h-screen bg-[#f7faf9] text-[#14221f] lg:grid lg:grid-cols-[19rem_minmax(0,1fr)]">
@@ -27,11 +31,14 @@ export function AromMainView() {
             {/* Greeting */}
             <GreetingSection />
 
+            {/* The user's next booked session, when there is one */}
+            {nextSession && <NextSessionCard next={nextSession} km={language === "km"} />}
+
             {/* Desktop 2-column or Mobile 1-column layout */}
             <div className="grid gap-5 lg:grid-cols-[1.1fr_0.9fr] lg:items-start lg:gap-6">
               {/* Daily Plan Card */}
               <div className="w-full">
-                <DailyPlanCard />
+                <DailyPlanCard tuckBanner={!nextSession} />
               </div>
 
               {/* Right column on desktop / below on mobile */}

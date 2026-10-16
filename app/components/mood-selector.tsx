@@ -8,6 +8,7 @@ import { useLanguage } from "../_components/language-provider";
 import { useAuth } from "../_components/auth-provider";
 import { MOOD_LABELS, MOOD_LEVELS, saveTodayMood, useMoodStore, type MoodLevel } from "../_components/mood/mood-store";
 import { MoodSprout } from "../_components/mood/mood-sprout";
+import { MoodResponse } from "./mood-response";
 
 type SaveState = "idle" | "saving" | "saved" | "error" | "sign_in";
 
@@ -147,6 +148,8 @@ export function MoodSelector() {
           )}
         </AnimatePresence>
       </p>
+
+      {mood.today && saveState !== "saving" && <MoodResponse mood={mood.today} km={km} />}
 
       <div className="mt-2 flex items-center border-t border-gray-100 pt-2.5">
         <Link

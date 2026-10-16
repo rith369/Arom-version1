@@ -45,7 +45,7 @@ export function GreetingSection() {
         {km ? `${words.km}${name}!` : `${words.en}${name}!`}
       </h1>
       <p className="mt-1 text-sm font-normal text-black/90 sm:text-base">
-        {km ? "តើថ្ងៃនេះអារម្មណ៍របស់អ្នកយ៉ាងណាដែរ?" : "How are you feeling today?"}
+        {km ? "ថ្ងៃនេះ សូមចំណាយពេលបន្តិចសម្រាប់ខ្លួនឯង។" : "Take a small moment for yourself today."}
       </p>
     </section>
   );

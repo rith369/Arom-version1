@@ -1,5 +1,32 @@
 # AROM: Change Report
 
+## 16 Oct 2026: Home Answers Your Mood, Shows Your Next Session, and Only Counts Real Progress
+
+Commit `PENDING`. No migration. Frontend only, using APIs that already exist.
+
+**Why.** Home showed "2/5 done" to everyone, even signed out, because two plan rows were marked done in the code. A check in only said "Saved", so it felt like a form. People with a session booked had to open My appointments to find it. Small text issues made the page feel unfinished.
+
+**What changed for users:**
+- **Your Plan For Today counts only real things.** Mood check in is ticked once you have checked in today ("You checked in: Good"). Otherwise it says "Tap how you feel below" and jumps to the mood check in. MindGuide Lesson and Guided Meditation are ticked when you finished a lesson or a practice today. Explore Community is a suggestion and no longer counts toward the total.
+- **Home answers your check in** with the sprout for your mood and a short kind line. Great and Good offer the journal, Okay and Low offer a breathing practice (Low also offers a professional), and Very Low offers "Get help now" (the crisis helplines) and "Talk to a professional". It never judges or diagnoses.
+- **Your next session shows under the greeting** when you have one: who, when ("Today, 15:00"), online or in person, the address for in person sessions, a Join button once it opens, and See details.
+- **Cleanups:** the greeting now says "Take a small moment for yourself today." instead of repeating the mood question; the quote changes every day (8 gentle lines in English and Khmer); the heart that did nothing is gone; "Drop or delay one thing this week." starts with a capital; the gap above the sprout is smaller.
+
+**What changed for the team:**
+- **New:** `app/components/mood-response.tsx` (the replies and their links), `app/components/next-session-card.tsx` (`useNextSession()` reads `GET /api/appointments`, the user's own sessions only).
+- **Plan ticks:** `daily-plan-card.tsx` uses `useMoodStore()` for today's check in and `useActivities("7d")` (`GET /api/progress/activities`) for lessons and practices done today. Nothing is done by default.
+- **Daily quote:** `quote-card.tsx` picks by the Cambodia date in the browser (`useSyncExternalStore`), so the server and browser never disagree.
+- **Khmer copy** for the replies, the greeting line and the quotes was drafted by Claude. Please have a Khmer speaker read it.
+
+**What to re-test:**
+1. Signed out: Home shows "0/4 done" and no ticks.
+2. Signed in, before checking in: the Mood check in row says "Tap how you feel below" and jumps down to the moods.
+3. Pick each mood: check the reply, the sprout and the links change, and the plan row turns into "You checked in: ...".
+4. Pick Very Low: check "Get help now" opens the helplines in Profile.
+5. Finish a lesson and a practice, come back to Home: both rows are ticked.
+6. With a booked session: the card shows under the greeting with the right day and time. For online, Join turns on shortly before the start. For in person, the address shows.
+7. Switch to Khmer and read the replies, greeting and quote.
+
 ## 16 Oct 2026: The Mood Sprouts Everywhere There Are Five Moods
 
 Commit `f566e77`. No migration. Frontend only.
