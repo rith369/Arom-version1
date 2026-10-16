@@ -1,3 +1,5 @@
+-- Professionals follow the client's Anonymous Mode (profiles.privacy_mode),
+-- the same rule as my_client_names(). hide_identity is the Community setting.
 create or replace function public.my_booking_client_aliases()
 returns table (
   appointment_id uuid,
@@ -13,7 +15,7 @@ as $$
     a.id as appointment_id,
     alias.alias_id as client_alias_id,
     case
-      when p.hide_identity then 'Anonymous'
+      when p.privacy_mode = 'anonymous' then 'Anonymous'
       else coalesce(nullif(p.full_name, ''), 'Client')
     end as client_display_name
   from public.appointments as a
