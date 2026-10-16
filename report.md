@@ -1,5 +1,55 @@
 # AROM: Change Report
 
+## 16 Oct 2026: Saved Schedules Stop Saying "Unsaved", and AROM's Own Confirm Window
+
+Commit `PENDING`. No migration.
+
+**Why.** After a professional saved their schedule, the page said "Schedule saved" and "Unsaved changes" at the same time, and asked them to confirm when leaving. The database stores the schedule in a format that reorders its fields, so the page compared the same schedule as two different ones. Confirmations also used the browser's plain grey pop up, which looks out of place in a calm wellness app and gives no clear safe choice.
+
+**What changed for users:**
+- **Saving the schedule settles the page:** after "Schedule saved", the Unsaved changes label goes away, Save and Undo are disabled again, and leaving does not ask.
+- **AROM's own confirm window:** leaving a page with unsaved changes, stopping a care task, deleting a podcast episode and restoring an older content version now open an AROM window instead of the browser's pop up. On phones it slides up from the bottom with large buttons; on desktop it is a small centered window.
+- **The safe choice comes first:** Stay or Cancel has focus when the window opens, and Escape or a tap outside picks it. Deleting and stopping use a red button.
+- **Closing the tab or reloading** with unsaved changes still shows the browser's own warning, because pages are not allowed to replace that one.
+
+**What changed for the team:**
+- **`useConfirm()`** in `app/_components/confirm-dialog.tsx`: `const { confirm, dialog } = useConfirm()`, render `dialog` once, then `if (await confirm({ title, message, confirmLabel, cancelLabel, tone })) ...`. Do not use `window.confirm` or `window.alert` anymore.
+- **`useUnsavedChangesGuard(isDirty, km)`** in `app/_components/unsaved-changes-guard.tsx` replaces the three copies of the leave warning (schedule, profile, admin content editor). Render the element it returns.
+- **`SheetDialog`** moved from `app/pro/_components/` to `app/_components/` so the user and admin areas can use it.
+- **Schedule comparison** ignores field order (`canonical()` in `schedule-editor.tsx`).
+
+**What to re-test:**
+1. In `/pro/schedule`, change a time and press Save schedule. Check that "Unsaved changes" disappears and Save is disabled.
+2. Change a time again, then click My bookings in the menu. Check that the AROM window asks "Leave without saving?". Press Stay and check nothing changes; press Leave and check My bookings opens.
+3. Repeat step 2 in My profile and in the admin content editor.
+4. In a client file, press Stop on a care task. Check the window, then Cancel and Stop task.
+5. In My podcasts, delete an episode through the window.
+6. On a phone sized window, check the window slides up from the bottom and Escape or a tap outside closes it.
+7. Switch to Khmer and check the window text.
+
+## 16 Oct 2026: Community Privacy Migrations Renumbered, Client Names Kept for Professionals
+
+Commit `PENDING`. Migrations renamed, not new. Run the 8 files `20261016000000` to `20261016000700` in Supabase, in order. Until `20261016000000` runs, the app cannot read `profiles.hide_identity`, so it loads every account as a plain user with no profile (admins and professionals lose their areas).
+
+**Why.** The community privacy work (commit `54c34f5`) added 8 migrations numbered `20261015000000` to `000700`. Four of those numbers were already used by care plans, sessions, private notes and mood check ins, and two files shared `20261015000400`. The run order was unclear, and the Supabase CLI needs unique numbers. One file would also have failed: it changed what `my_client_names()` returns. If it had run, it would have removed the client's language from the professional area. Two files also hid every client from their own professional, because Hide my identity is on by default.
+
+**What changed for users:**
+- **Professionals still see their clients' names**, unless the client uses Anonymous Mode, as before. Hide my identity applies to Community only, as the original commit intended.
+- **Messages and client files keep the client's language** for professionals.
+
+**What changed for the team:**
+- **Renamed:** `20261015000000` to `000700` (the community files) are now `20261016000000` to `000700`, in the same order. Care plans, sessions, notes and mood keep their `20261015` numbers.
+- **`20261016000500_private_client_names.sql`:** now keeps the `(id, full_name, language)` shape and the `privacy_mode` rule from `20261015000300`. On a database where that already ran, it changes nothing.
+- **`20261016000700_professional_booking_aliases.sql`:** uses `privacy_mode` instead of `hide_identity`.
+- **Rule for later:** a professional facing name follows `privacy_mode`; a Community name follows `hide_identity`.
+
+**What to re-test:**
+1. Run `20261016000000` to `20261016000700` in order. Check that each succeeds.
+2. Sign in as an admin and as a professional. Check that the admin area and `/pro` open. Then sign in as a user and check that Hide my identity can be switched.
+3. Sign in as a professional with a booked client in Private mode. Check that `/pro/clients` and Messages show the client's real name.
+4. Switch that client to Anonymous Mode. Check that the professional no longer sees the name.
+5. In Community, post with Hide my identity on. Check that others see "Anonymous".
+
 ## 16 Oct 2026: Home Shows a Small Progress Glance
 
 Commit `0aedecc`. No migration.

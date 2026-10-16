@@ -6,6 +6,7 @@ import { ArrowLeft, Eye, EyeOff, Headphones, Pencil, Plus, ShieldCheck, Trash2, 
 
 import { usePro } from './pro-provider';
 import { useLanguage } from '../../_components/language-provider';
+import { useConfirm } from '../../_components/confirm-dialog';
 import {
   AUDIO_TYPES,
   LIMITS,
@@ -330,6 +331,7 @@ export function ProPodcastsView() {
   const { language } = useLanguage();
   const km = language === 'km';
   const t = (kmText: string, enText: string) => (km ? kmText : enText);
+  const { confirm, dialog: confirmDialog } = useConfirm();
 
   const [editing, setEditing] = useState<ProEpisode | null>(null);
   const mine = episodes
@@ -343,6 +345,7 @@ export function ProPodcastsView() {
 
   return (
     <>
+      {confirmDialog}
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-ink sm:text-3xl">{t('ផតខាសរបស់ខ្ញុំ', 'My podcasts')}</h1>
@@ -417,8 +420,15 @@ export function ProPodcastsView() {
                 )}
                 <button
                   type="button"
-                  onClick={() => {
-                    if (window.confirm(t('លុបភាគនេះជាអចិន្ត្រៃយ៍?', 'Delete this episode for good?'))) deleteEpisode(episode.id);
+                  onClick={async () => {
+                    const remove = await confirm({
+                      title: t('លុបភាគនេះ?', 'Delete this episode?'),
+                      message: t('ភាគនេះនឹងត្រូវលុបជាអចិន្ត្រៃយ៍ ហើយមិនអាចយកមកវិញបានទេ។', 'It will be deleted for good and cannot be brought back.'),
+                      confirmLabel: t('លុប', 'Delete'),
+                      cancelLabel: t('បោះបង់', 'Cancel'),
+                      tone: 'danger',
+                    });
+                    if (remove) deleteEpisode(episode.id);
                   }}
                   className="ml-auto flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-medium text-arom-danger hover:bg-arom-danger-soft">
                   <Trash2 size={14} aria-hidden="true" />
