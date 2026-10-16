@@ -27,6 +27,8 @@ import { LessonFields } from './lesson-editor';
 import { PracticeFields } from './practice-editor';
 import { TipFields } from './tip-editor';
 import { useLanguage } from '../../_components/language-provider';
+import { useConfirm } from '../../_components/confirm-dialog';
+import { useUnsavedChangesGuard } from '../../_components/unsaved-changes-guard';
 
 import {
   getLiveBody,
@@ -293,34 +295,8 @@ function ContentEditor({
     ) + 1;
 
   // Warn before leaving with unsaved changes: browser close or refresh, and links inside the app.
-  useEffect(() => {
-    if (!isDirty) return;
-
-    const message = km
-      ? 'អ្នកមានការផ្លាស់ប្តូរដែលមិនទាន់រក្សាទុក។ ចាកចេញ?'
-      : 'You have unsaved changes. Leave without saving?';
-
-    function onBeforeUnload(event: BeforeUnloadEvent) {
-      event.preventDefault();
-    }
-
-    function onClick(event: MouseEvent) {
-      const link = (event.target as Element | null)?.closest('a[href]');
-      if (!link || link.getAttribute('target') === '_blank') return;
-      if (!window.confirm(message)) {
-        event.preventDefault();
-        event.stopPropagation();
-      }
-    }
-
-    window.addEventListener('beforeunload', onBeforeUnload);
-    document.addEventListener('click', onClick, true);
-
-    return () => {
-      window.removeEventListener('beforeunload', onBeforeUnload);
-      document.removeEventListener('click', onClick, true);
-    };
-  }, [isDirty, km]);
+  const leaveGuard = useUnsavedChangesGuard(isDirty, km);
+  const { confirm, dialog: confirmDialog } = useConfirm();
 
   function reload(body: ContentBody, updatedAt: string | null) {
     setLoaded({ body, updatedAt });
@@ -378,15 +354,18 @@ function ContentEditor({
     setNotice({ tone: 'ok', text: t('បានលុបសេចក្តីព្រាង។', 'Draft discarded. Showing the live version.') });
   }
 
-  function restore(version: number) {
+  async function restore(version: number) {
     if (
       (isDirty || record.draft) &&
-      !window.confirm(
-        t(
+      !(await confirm({
+        title: t(`ស្តារកំណែទី ${version}?`, `Restore version ${version}?`),
+        message: t(
           'វានឹងជំនួសសេចក្តីព្រាង និងការផ្លាស់ប្តូរដែលមិនទាន់រក្សាទុក។ បន្ត?',
           'This replaces your current draft and any unsaved changes. Continue?',
         ),
-      )
+        confirmLabel: 'Restore',
+        cancelLabel: 'Cancel',
+      }))
     ) {
       return;
     }
@@ -441,6 +420,8 @@ function ContentEditor({
 
   return (
     <>
+      {leaveGuard}
+      {confirmDialog}
       <Link
         href={backHref}
         className="inline-flex items-center gap-2 text-sm font-medium text-arom hover:underline">
@@ -638,7 +619,7 @@ function ContentEditor({
                     </p>
                     <button
                       type="button"
-                      onClick={() => restore(item.version)}
+                      onClick={() => void restore(item.version)}
                       className="mt-2 flex items-center gap-1.5 text-xs font-medium text-arom hover:underline">
                       <RotateCcw size={14} aria-hidden="true" />
                       {t('ស្ដារជាសេចក្តីព្រាង', 'Restore as draft')}

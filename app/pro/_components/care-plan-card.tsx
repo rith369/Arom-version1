@@ -5,7 +5,8 @@ import { BellRing, BookOpen, Check, ClipboardList, Compass, Footprints, Lock, Pl
 
 import { MindGuidePicker } from './mindguide-picker';
 import { usePro } from './pro-provider';
-import { SheetDialog } from './sheet-dialog';
+import { SheetDialog } from '../../_components/sheet-dialog';
+import { useConfirm } from '../../_components/confirm-dialog';
 import { useLanguage } from '../../_components/language-provider';
 import {
   EVERY_DAY,
@@ -376,6 +377,7 @@ export function CarePlanCard({ clientId, clientName, archived, latestSessionId }
   const { language } = useLanguage();
   const km = language === 'km';
   const t = (kmText: string, enText: string) => (km ? kmText : enText);
+  const { confirm, dialog: confirmDialog } = useConfirm();
 
   const [today] = useState(() => cambodiaToday(Date.now()));
   const [adding, setAdding] = useState(false);
@@ -421,8 +423,15 @@ export function CarePlanCard({ clientId, clientName, archived, latestSessionId }
           {!isPast && (
             <button
               type="button"
-              onClick={() => {
-                if (window.confirm(t('បញ្ឈប់កិច្ចការនេះ? វានឹងលែងបង្ហាញក្នុងផែនការរបស់អតិថិជន។', "Stop this task? It will no longer show in the client's plan."))) void stopCareTask(task.id);
+              onClick={async () => {
+                const stop = await confirm({
+                  title: t('បញ្ឈប់កិច្ចការនេះ?', 'Stop this task?'),
+                  message: t('វានឹងលែងបង្ហាញក្នុងផែនការរបស់អតិថិជន។', "It will no longer show in the client's plan."),
+                  confirmLabel: t('បញ្ឈប់', 'Stop task'),
+                  cancelLabel: t('បោះបង់', 'Cancel'),
+                  tone: 'danger',
+                });
+                if (stop) void stopCareTask(task.id);
               }}
               className="shrink-0 text-xs font-semibold text-ink-muted hover:text-arom-danger hover:underline">
               {t('បញ្ឈប់', 'Stop')}
@@ -480,6 +489,7 @@ export function CarePlanCard({ clientId, clientName, archived, latestSessionId }
       )}
 
       {adding && <AddTaskDialog clientId={clientId} clientName={clientName} bookingId={latestSessionId} today={today} onClose={() => setAdding(false)} />}
+      {confirmDialog}
     </section>
   );
 }

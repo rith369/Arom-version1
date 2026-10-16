@@ -1,11 +1,12 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useState, type ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { CalendarOff, Copy, Plus, Save, Trash2, Undo2 } from 'lucide-react';
 
 import { usePro } from './pro-provider';
 import { useLanguage } from '../../_components/language-provider';
+import { useUnsavedChangesGuard } from '../../_components/unsaved-changes-guard';
 import type { SessionType } from '../_data/profile';
 import {
   addDays,
@@ -33,7 +34,21 @@ function Section({ title, hint, children, id }: { title: string; hint?: string; 
   );
 }
 
-const sameSchedule = (a: Schedule, b: Schedule) => JSON.stringify(a) === JSON.stringify(b);
+// The database stores the schedule as jsonb, which reorders object keys, so
+// compare with sorted keys. Otherwise a saved schedule still looks changed.
+function canonical(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(canonical);
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(
+      Object.keys(value)
+        .sort()
+        .map((key) => [key, canonical((value as Record<string, unknown>)[key])]),
+    );
+  }
+  return value;
+}
+
+const sameSchedule = (a: Schedule, b: Schedule) => JSON.stringify(canonical(a)) === JSON.stringify(canonical(b));
 
 export function ScheduleEditor() {
   const { schedule, saveSchedule, profile, bookings } = usePro();
@@ -59,27 +74,7 @@ export function ScheduleEditor() {
   const preview = openSlots(draft, { fromDate: today, days: 7, now, booked });
   const weekSlots = openSlots(draft, { fromDate: today, days: 7, now, booked: [] }).length;
 
-  useEffect(() => {
-    if (!isDirty) return;
-    const message = km ? 'អ្នកមានការផ្លាស់ប្តូរមិនទាន់រក្សាទុក។ ចាកចេញ?' : 'You have unsaved changes. Leave without saving?';
-    function onBeforeUnload(event: BeforeUnloadEvent) {
-      event.preventDefault();
-    }
-    function onClick(event: MouseEvent) {
-      const link = (event.target as Element | null)?.closest('a[href]');
-      if (!link || link.getAttribute('href')?.startsWith('#')) return;
-      if (!window.confirm(message)) {
-        event.preventDefault();
-        event.stopPropagation();
-      }
-    }
-    window.addEventListener('beforeunload', onBeforeUnload);
-    document.addEventListener('click', onClick, true);
-    return () => {
-      window.removeEventListener('beforeunload', onBeforeUnload);
-      document.removeEventListener('click', onClick, true);
-    };
-  }, [isDirty, km]);
+  const leaveGuard = useUnsavedChangesGuard(isDirty, km);
 
   function update(next: Partial<Schedule>) {
     setDraft((current) => ({ ...current, ...next }));
@@ -177,6 +172,7 @@ export function ScheduleEditor() {
 
   return (
     <>
+      {leaveGuard}
       <h1 className="text-2xl font-bold tracking-tight text-ink sm:text-3xl">{t('កាលវិភាគរបស់ខ្ញុំ', 'My schedule')}</h1>
       <p className="mt-1 text-sm text-ink-muted">
         {t('ម៉ោងដែលអ្នកប្រើអាចកក់ការពិគ្រោះជាមួយអ្នក ម៉ោងកម្ពុជា។ ការកក់គឺភ្លាមៗ ដូច្នេះសូមបើកតែម៉ោងដែលអ្នកទំនេរពិតប្រាកដ។', 'The times people can book a session with you, in Cambodia time. Booking is instant, so only open times you are really free.')}

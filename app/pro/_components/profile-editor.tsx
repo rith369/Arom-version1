@@ -1,13 +1,14 @@
 'use client';
 
 import Image from 'next/image';
-import { useEffect, useState, type ChangeEvent, type ReactNode } from 'react';
+import { useState, type ChangeEvent, type ReactNode } from 'react';
 import { Clock, Eye, ImageUp, Pencil, Save, Trash2, Undo2 } from 'lucide-react';
 
 import { usePro } from './pro-provider';
 import { ProfilePreview } from './profile-preview';
 import { reviewedFieldLabels } from './pro-home';
 import { useLanguage } from '../../_components/language-provider';
+import { useUnsavedChangesGuard } from '../../_components/unsaved-changes-guard';
 import { getTherapist } from '@/lib/therapists';
 import { MAX_PRICE_USD, formatPrice, isValidPrice, type SessionPrice } from '@/lib/pricing';
 import {
@@ -75,29 +76,7 @@ export function ProfileEditor() {
   for (const field of REVIEWED_FIELDS) previewProfile[field] = profile[field];
   const previewTherapist = toPublicTherapist(previewProfile, getTherapist(profile.slug));
 
-  useEffect(() => {
-    if (!isDirty) return;
-    const message = km ? 'អ្នកមានការផ្លាស់ប្តូរមិនទាន់រក្សាទុក។ ចាកចេញ?' : 'You have unsaved changes. Leave without saving?';
-
-    function onBeforeUnload(event: BeforeUnloadEvent) {
-      event.preventDefault();
-    }
-    function onClick(event: MouseEvent) {
-      const link = (event.target as Element | null)?.closest('a[href]');
-      if (!link || link.getAttribute('href')?.startsWith('#')) return;
-      if (!window.confirm(message)) {
-        event.preventDefault();
-        event.stopPropagation();
-      }
-    }
-
-    window.addEventListener('beforeunload', onBeforeUnload);
-    document.addEventListener('click', onClick, true);
-    return () => {
-      window.removeEventListener('beforeunload', onBeforeUnload);
-      document.removeEventListener('click', onClick, true);
-    };
-  }, [isDirty, km]);
+  const leaveGuard = useUnsavedChangesGuard(isDirty, km);
 
   function set<Key extends keyof ProProfile>(key: Key, value: ProProfile[Key]) {
     setDraft((current) => ({ ...current, [key]: value }));
@@ -211,6 +190,7 @@ export function ProfileEditor() {
 
   return (
     <>
+      {leaveGuard}
       <h1 className="text-2xl font-bold tracking-tight text-ink sm:text-3xl">{t('ប្រវត្តិរូបរបស់ខ្ញុំ', 'My profile')}</h1>
       <p className="mt-1 text-sm text-ink-muted">
         {t('នេះជាអ្វីដែលអ្នកប្រើឃើញ មុនពេលកក់ការណាត់ជួបជាមួយអ្នក។', 'This is what people see before they book a session with you.')}

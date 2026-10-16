@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { CalendarCheck, CheckCircle2, X } from 'lucide-react';
 
 import { usePro } from './pro-provider';
-import { SheetDialog } from './sheet-dialog';
+import { SheetDialog } from '../../_components/sheet-dialog';
 import { useLanguage } from '../../_components/language-provider';
 import { conversationId, loadConversations, loadThread } from '../../_components/messages/message-store';
 import {
