@@ -42,6 +42,8 @@ export interface UserAppointment {
   // The user's choice per booking. Off by default.
   shareSurvey: boolean;
   shareSymptomChecks: boolean;
+  // Mood check ins of the last 30 days, never the journal. Off by default.
+  shareMoodTrend: boolean;
   // Shared by every session of a repeating series (section 19).
   seriesId: string | null;
   // Null when the professional is no longer listed publicly.

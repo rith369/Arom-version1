@@ -35,6 +35,7 @@ export type ProBooking = {
   // share_symptom_checks). Off by default; only the client can change it.
   shareSurvey: boolean;
   shareSymptomChecks: boolean;
+  shareMoodTrend: boolean;
   // Online sessions only (appointments.meeting_url). Null for in person.
   meetingUrl: string | null;
   // Set when the client booked a repeating series from a suggestion.

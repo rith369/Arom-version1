@@ -9,6 +9,8 @@ import {
   RotateCcw,
 } from "lucide-react";
 import { motion } from "motion/react";
+import { useEffect } from "react";
+import { recordActivity } from "../activity-log";
 import { useLanguage } from "../language-provider";
 import { type PracticeItem } from "./practice-data";
 
@@ -27,6 +29,11 @@ export function PracticeCompleteView({
 }: PracticeCompleteViewProps) {
   const { language } = useLanguage();
   const km = language === "km";
+
+  // Counts on the Progress Activities tab (once per practice per day).
+  useEffect(() => {
+    recordActivity("practice", practice.id);
+  }, [practice.id]);
 
   return (
     <div className="min-h-screen bg-canvas text-ink pb-24 lg:pb-12">

@@ -129,14 +129,6 @@ export function RangeDates({ first, last, km }: { first?: string; last?: string;
   );
 }
 
-export function SampleBadge({ km }: { km: boolean }) {
-  return (
-    <p className="inline-flex rounded-full bg-arom-warning-soft px-2.5 py-0.5 text-xs font-semibold text-arom-warning">
-      {km ? 'ទិន្នន័យគំរូ (មិនទាន់ពិត)' : 'Sample data, not yours yet'}
-    </p>
-  );
-}
-
 /** Loading, signed out and error states, shared by both pages. */
 export function ProgressStatus({ status, km, next }: { status: MoodStatus; km: boolean; next: string }) {
   const t = (kmText: string, enText: string) => (km ? kmText : enText);

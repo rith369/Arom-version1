@@ -24,7 +24,8 @@ import { supabaseUrl } from "@/lib/supabase/env";
 import type { SessionSuggestion } from "@/lib/sessions";
 import { loadArchivedClients } from "./messages-controller";
 import { SUGGESTION_COLUMNS, toSuggestion, type SuggestionRow } from "./sessions-controller";
-import { fail, invalidInput, json, readJson } from "./shared";
+import { databaseError, fail, invalidInput, json, readJson } from "./shared";
+import { SHARED_MOOD_DAYS, cambodiaDay, lastDays, type MoodLevel, type MoodWeekResponse } from "@/lib/mood";
 import { requireRole } from "./role-controller";
 
 /*
@@ -110,7 +111,7 @@ async function loadBookings(supabase: Supabase, userId: string, slug: string) {
     supabase
       .from("appointments")
       .select(
-        "id, user_id, starts_at, ends_at, session_type, status, intake_note, cancelled_by, cancel_reason, rescheduled_from, reschedule_reason, rescheduled_by, share_survey, share_symptom_checks, meeting_url, series_id, intake_answers(question_snapshot, answer)",
+        "id, user_id, starts_at, ends_at, session_type, status, intake_note, cancelled_by, cancel_reason, rescheduled_from, reschedule_reason, rescheduled_by, share_survey, share_symptom_checks, share_mood_trend, meeting_url, series_id, intake_answers(question_snapshot, answer)",
       )
       .eq("professional_id", userId)
       .order("starts_at", { ascending: false })
@@ -153,6 +154,7 @@ async function loadBookings(supabase: Supabase, userId: string, slug: string) {
     rescheduledBy: !row.rescheduled_from ? null : row.rescheduled_by === row.user_id ? "client" : "professional",
     shareSurvey: row.share_survey,
     shareSymptomChecks: row.share_symptom_checks,
+    shareMoodTrend: row.share_mood_trend,
     meetingUrl: row.session_type === "online" ? row.meeting_url : null,
     seriesId: row.series_id,
   }));
@@ -584,7 +586,7 @@ export async function updateProBooking(request: NextRequest, appointmentId: stri
       .eq("id", id.data));
   }
 
-  if (error) return fail("invalid_input", error.message, 400);
+  if (error) return databaseError(error, "This booking could not be updated. Please try again.");
 
   const profile = await loadProfile(supabase, userId);
   const data = await loadBookings(supabase, userId, profile?.slug ?? "");
@@ -641,6 +643,16 @@ export async function updateProClient(request: NextRequest, clientId: string) {
   return json({ summaryNotes: await loadSummaryNotes(supabase, userId) });
 }
 
+// The last 30 Cambodia days, missed days null. Null when nothing is shared.
+function sharedMoodDays(rows: { day: string; mood: MoodLevel }[]): MoodWeekResponse | null {
+  if (rows.length === 0) return null;
+  const byDay = new Map(rows.map((row) => [row.day, row.mood]));
+  return {
+    days: lastDays(cambodiaDay(Date.now()), SHARED_MOOD_DAYS).map((day) => ({ day, mood: byDay.get(day) ?? null })),
+    checkIns: byDay.size,
+  };
+}
+
 /**
  * GET /api/pro/clients/:clientId: what the client chose to share. RLS returns
  * rows only while they share them on a booked or completed session with this
@@ -654,7 +666,7 @@ export async function getSharedByClient(clientId: string) {
   const id = z.string().uuid().safeParse(clientId);
   if (!id.success) return invalidInput();
 
-  const [survey, checks] = await Promise.all([
+  const [survey, checks, moods] = await Promise.all([
     supabase
       .from("onboarding_surveys")
       .select("feelings, frequency, impact, challenges, prior_support, goals, created_at")
@@ -668,6 +680,8 @@ export async function getSharedByClient(clientId: string) {
       .eq("user_id", id.data)
       .order("created_at", { ascending: false })
       .limit(20),
+    // Moods only, and only while the client shares them with this professional.
+    supabase.rpc("shared_mood_checkins", { p_client_id: id.data }),
   ]);
 
   const shared: SharedByClient = {
@@ -689,6 +703,7 @@ export async function getSharedByClient(clientId: string) {
       level: row.level,
       createdAt: row.created_at,
     })),
+    moods: sharedMoodDays((moods.data ?? []) as { day: string; mood: MoodLevel }[]),
   };
   return json<SharedByClient>(shared);
 }

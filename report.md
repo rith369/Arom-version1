@@ -1,8 +1,105 @@
 # AROM: Change Report
 
+## 16 Oct 2026: Progress, Activities, Journal and Mood Sharing All Use Real Data (Issue #13)
+
+Commit `PENDING`. Migrations `20261016001000_progress_journal_sharing.sql` and `20261016001100_audit_admin_chat_reads.sql` must be run in Supabase, after `20261015001500_client_reschedule.sql` and `20261015001600_in_person_address.sql` (from PR #11).
+
+**Why.** Issue #13 listed four Progress parts that still ran on sample data or were switched off. The journal was the most serious: people's private reflections were kept only in the browser, where anyone using the same phone could read them, and new visitors saw five made up entries. Admins could also read community chats without the audit log entry AGENTS.md requires.
+
+**What changed for users:**
+- **30 days and 3 months show your own check ins.** The "Sample data, not yours yet" badge is gone. Missed days stay blank.
+- **Activities are real:** finishing a practice or a lesson counts on the Activities tab (once per item per day). Journal entries count by date only, never their words.
+- **Your journal is saved to your account,** private to you: not your professional, not admins. No more sample entries. If you are not logged in, Save asks you to log in and keeps what you wrote. Deleting an entry asks first.
+- **Entries saved on this device before:** the journal asks once whether to move them into your account, because they might belong to someone else who used the phone. Nothing moves without a yes.
+- **Share your moods with your professional:** My appointments has a working "My mood check ins" switch (off by default). It shares only your last 30 days of moods, never your journal, and turning it off stops it at once.
+- **Professionals** see that client's real last 30 days in the client file only while the client shares; otherwise "This client has not shared their moods."
+
+**What changed for the team:**
+- **API:** `GET /api/progress?range=7d|30d|90d`, `POST /api/activities`, `GET /api/progress/activities?range=`, `GET|POST /api/journal`, `DELETE /api/journal/:id`, and `moods` in `GET /api/pro/clients/:id`. `POST /api/appointments/:id` sharing takes `shareMoodTrend`.
+- **Migration 1000:** `activity_log` with `log_activity()`; `journal_entries.entry_date` defaults to Cambodia today; `appointments.share_mood_trend`, a 4 argument `set_appointment_sharing()`, `guard_appointment_update()` locking it, and `shared_mood_checkins()`.
+- **Migration 1100:** admins read a group chat only through `admin_read_community_messages()` (`GET /api/admin/community/groups/:id/messages?reason=`), which writes `read_group_chat` to the audit log every time. The member function and the raw table no longer let admins in.
+- **Shared code:** `lib/activities.ts`, `lib/journal.ts`; `mood-store.ts` loads the longer ranges; `use-activities.ts`; `shared-moods.tsx` replaces the example chart. `app/progress/_data/` is deleted.
+- **Merge:** PR #11 merged into `hokchheng`. `BACKEND-HANDOFF.md` sections are now 23 Community, 24 Client changes the time, 25 Address for in person sessions. The client reschedule error now uses `databaseError()`.
+
+**What to re-test:**
+1. Run the four migrations in order: `20261015001500`, `20261015001600`, `20261016001000`, `20261016001100`.
+2. Check in on Home, then open Progress and switch to 30 days and 3 months. Check today shows and no sample badge appears.
+3. Finish a practice and a lesson, then open Mood & Activity Details, Activities. Check both count.
+4. Write a journal entry, reload, and check it is still there. Delete it and check the confirm window.
+5. On a browser that has old journal entries saved, open the journal and check the Move window. Press Not now and check nothing moved.
+6. In My appointments, turn on My mood check ins. As that professional, open the client file and check the 30 day chart. Turn it off and reload: the chart is replaced by "This client has not shared their moods."
+7. As an admin, call `GET /api/admin/community/groups/<id>/messages?reason=check` and check the Audit log shows "Opened a support group chat".
+8. Signed out: Progress shows Log in, and the journal Save asks you to log in.
+
+## 16 Oct 2026: Team Docs Brought Up to Date
+
+Commit `20b40ed`. No migration. Docs only.
+
+**Why.** The docs had fallen behind the code. Nineteen report entries had no commit, the handoff status board still said applied migrations were waiting, two sections shared the number 14, finished backend gaps were still listed as open, and README and ADMIN.md described an early mock version of the app.
+
+**What changed for users:**
+- **Nothing on screen.** This change only touches documentation.
+
+**What changed for the team:**
+- **report.md:** every `Commit PENDING` now names the commit that added the entry.
+- **BACKEND-HANDOFF.md status board:** migrations `20261014000100` and `20261015000400` marked applied; new row for Edit Profile (migrations `20261016000800` and `20261016000900`); Community marked partly connected.
+- **Community is now section 23** (it shared 14 with Crash tracking), moved after section 22, with what is connected, what is still browser only, and the open gap that admin chat reads are not audited yet.
+- **Finished gaps closed** in sections 5, 6 and 8 (make admin, promote with license, suspend, license signed link, pending profile changes). Section 21 now says the Messages "Next session" strip uses real appointments.
+- **README.md** describes AROM, how to run it, the checks, migrations and where things are. **ADMIN.md** lists each admin page and whether its data is real.
+
+**What to re-test:**
+1. Open `BACKEND-HANDOFF.md` and check that sections run from 1 to 23 with no repeated number.
+2. Check that `report.md` has no `PENDING` left except this entry.
+
+## 16 Oct 2026: Private Profile Editing
+
+Commit `4588151`. Migration `20261016000900_profile_editor_fields.sql` adds private profile details and a private photo bucket. Apply it in Supabase before saving these fields.
+
+**Why.** The profile card had two separate edit controls, and the pencil could only change the name. A single Edit Profile flow gives members one place to update the details that belong to their account.
+
+**What changed for users:**
+- **One profile editor:** Edit Profile opens a compact mobile sheet or desktop dialog for a photo, display name, pronouns, and About you. The account email remains visible.
+- **Less empty space:** the sheet sizes to its content and scrolls the fields when the screen is short, with the save actions kept at the bottom.
+- **Private photos:** uploaded profile photos are served only to the signed in account holder.
+
+**What changed for the team:**
+- **Profile API:** saves the name, pronouns, and About you fields together, and validates photo type and size before upload.
+- **Private storage:** adds owner only policies for profile photo upload, read, and deletion. The admin user list does not receive profile photos.
+- **Bilingual form:** new controls support English and Khmer.
+- **Backend handoff:** documents that user photos remain private and are not part of admin user records.
+
+**What to re-test:**
+1. Apply the migration in Supabase.
+2. Open Profile & Settings and select Edit Profile. Check that the sheet has no large blank area under its actions on a phone sized screen.
+3. Change the name, photo, pronouns, and About you, save, then reload the page. Check that each value is retained.
+4. Upload a file larger than 5 MB or a non image file. Check that the form explains what to choose.
+5. Sign in as another account and confirm its photo endpoint cannot return the first account's image.
+6. Switch the app to Khmer and check the editor labels and buttons.
+
+## 16 Oct 2026: Booking Works for Every Account, and No More Database Errors on Screen
+
+Commit `4588151`. Migration `20261016000800_backfill_missing_profiles.sql` must be run in Supabase. It is safe to run more than once.
+
+**Why.** Booking a session on the live site showed `insert or update on table "appointments" violates foreign key constraint "appointments_user_id_fkey"`. The account had signed in fine but had no row in `profiles`, which happens to accounts created while the sign up trigger was missing. Every booking needs that row. The page also showed the raw database message, which means nothing to a user and reveals how the database is built.
+
+**What changed for users:**
+- **Booking works again** for accounts that were missing a profile. They get one with the role Member, their sign up name and language.
+- **Friendly errors only:** when something goes wrong while booking, cancelling, changing sharing, updating a booking, reviewing professionals or saving helplines, people see a plain message such as "We could not book this time. Please try again in a moment." Messages written for people, such as "This time is no longer available", still show as before.
+
+**What changed for the team:**
+- **Migration:** creates the missing profiles the same way `handle_new_user()` does, and recreates the `on_auth_user_created` trigger so new accounts always get one.
+- **`databaseError(error, fallback)`** in `lib/controllers/shared.ts`: shows messages our SQL functions raise for people (code `P0001`) and hides everything else behind `fallback`. Use it instead of `fail(..., error.message, ...)`.
+- **Used in** the booking, appointments, pro bookings, crisis helpline and admin professionals controllers.
+
+**What to re-test:**
+1. In Supabase, run this to see accounts without a profile (it should list the account that failed): `select u.id, u.email from auth.users u left join public.profiles p on p.id = u.id where p.id is null;`
+2. Run the migration, then run step 1 again. Check that it returns no rows.
+3. On the live site, book a session with the same account. Check that it goes through.
+4. Try to book a time someone just took. Check that you see "This time is no longer available".
+
 ## 16 Oct 2026: Saved Schedules Stop Saying "Unsaved", and AROM's Own Confirm Window
 
-Commit `PENDING`. No migration.
+Commit `5629343`. No migration.
 
 **Why.** After a professional saved their schedule, the page said "Schedule saved" and "Unsaved changes" at the same time, and asked them to confirm when leaving. The database stores the schedule in a format that reorders its fields, so the page compared the same schedule as two different ones. Confirmations also used the browser's plain grey pop up, which looks out of place in a calm wellness app and gives no clear safe choice.
 
@@ -29,7 +126,7 @@ Commit `PENDING`. No migration.
 
 ## 16 Oct 2026: Community Privacy Migrations Renumbered, Client Names Kept for Professionals
 
-Commit `PENDING`. Migrations renamed, not new. Run the 8 files `20261016000000` to `20261016000700` in Supabase, in order. Until `20261016000000` runs, the app cannot read `profiles.hide_identity`, so it loads every account as a plain user with no profile (admins and professionals lose their areas).
+Commit `5629343`. Migrations renamed, not new. Run the 8 files `20261016000000` to `20261016000700` in Supabase, in order. Until `20261016000000` runs, the app cannot read `profiles.hide_identity`, so it loads every account as a plain user with no profile (admins and professionals lose their areas).
 
 **Why.** The community privacy work (commit `54c34f5`) added 8 migrations numbered `20261015000000` to `000700`. Four of those numbers were already used by care plans, sessions, private notes and mood check ins, and two files shared `20261015000400`. The run order was unclear, and the Supabase CLI needs unique numbers. One file would also have failed: it changed what `my_client_names()` returns. If it had run, it would have removed the client's language from the professional area. Two files also hid every client from their own professional, because Hide my identity is on by default.
 
@@ -418,7 +515,7 @@ Commit `af68d08`. No migration.
 
 ## 15 Oct 2026: Point Share Images at the Vercel Domain
 
-Commit `PENDING`. No migration.
+Commit `c6f0774`. No migration.
 
 **Why.** The deployed page included Open Graph and Twitter image tags, but those tags pointed to `arom.app`, which did not return the image to the preview crawler. The app is currently shared from `arom-version1.vercel.app`.
 
@@ -435,7 +532,7 @@ Commit `PENDING`. No migration.
 
 ## 15 Oct 2026: Reworked AROM Share Image
 
-Commit `PENDING`. No migration.
+Commit `8ed13f8`. No migration.
 
 **Why.** The previous share image felt generic and did not give AROM’s calm, human wellness experience a distinctive first impression.
 
@@ -453,7 +550,7 @@ Commit `PENDING`. No migration.
 
 ## 15 Oct 2026: Honest Home: Real Mood Check In, Real Progress, Greeting by Time of Day
 
-Commit `PENDING`. Migration `20261015000400_mood_checkins_api.sql` must be run in Supabase. It runs on its own (it also creates `cambodia_today()`, the same as `20261015000100`).
+Commit `8ed13f8`. Migration `20261015000400_mood_checkins_api.sql` must be run in Supabase. It runs on its own (it also creates `cambodia_today()`, the same as `20261015000100`).
 
 **Why.** Home showed every person, signed in or not, the same made up week of moods, a "Your mood is improving" headline and a fake streak. The mood check in started with "Good" already chosen, left the page as soon as you tapped, and kept the mood in browser storage where anyone on a shared phone could read it. The greeting said "Good morning" at any hour. In a mental health app these break trust. This is Phase 1 of the AROM Predictability Fix Plan.
 
@@ -485,7 +582,7 @@ Commit `PENDING`. Migration `20261015000400_mood_checkins_api.sql` must be run i
 
 ## 15 Oct 2026: Refined Mobile Journal Styling
 
-Commit `PENDING`. No migration.
+Commit `8ed13f8`. No migration.
 
 **Why.** The mobile journal screen needed a calmer, more consistent visual treatment while preserving the familiar check in flow and all of its existing controls.
 
@@ -506,7 +603,7 @@ Commit `PENDING`. No migration.
 
 ## 15 Oct 2026: Profile Picture Opens an Account Menu
 
-Commit `PENDING`. No migration.
+Commit `8ed13f8`. No migration.
 
 **Why.** Tapping the profile picture at the top of a page, or the profile card at the bottom of the sidebar, took signed in people straight to the profile page. Logging out took extra steps, and other apps have taught people to expect a small menu here. The professional and admin areas already had this menu, so the user pages now work the same way.
 
@@ -531,7 +628,7 @@ Commit `PENDING`. No migration.
 
 ## 15 Oct 2026: Open Graph Social Share Image
 
-Commit `PENDING`.
+Commit `8ed13f8`.
 
 **Why.** Shared links needed a clear, branded preview that reflects AROM’s calming wellness experience and works across social and messaging platforms.
 
@@ -557,7 +654,7 @@ Each entry lists the commit it landed in, so you can match it to a version of th
 
 ## 15 Oct 2026: Gentle Motion for Two Windows and the Tick
 
-Commit `PENDING`. No migration.
+Commit `8ed13f8`. No migration.
 
 **Why.** The "Give a care task" and "Suggest a session" windows popped in and vanished with no transition, unlike the mobile menu, which slides. Ticking a care task, the client's main action between sessions, gave almost no feedback.
 
@@ -581,7 +678,7 @@ Commit `PENDING`. No migration.
 
 ## 15 Oct 2026: Real Private Notes, Real Shared Results, No More Yellow Note in /pro
 
-Commit `PENDING`. Migration `20261015000300_pro_private_notes.sql` must be run in Supabase (after the earlier 14 and 15 Oct migrations).
+Commit `ffc6bed`. Migration `20261015000300_pro_private_notes.sql` must be run in Supabase (after the earlier 14 and 15 Oct migrations).
 
 **Why.** The last parts of the professional area that were not saved were the plan written before a session and the pinned summary per client. "Shared by the client" also showed sample results instead of what the client really shared. And professionals could read every column of their clients' profile rows, more than they need.
 
@@ -609,7 +706,7 @@ Commit `PENDING`. Migration `20261015000300_pro_private_notes.sql` must be run i
 
 ## 15 Oct 2026: Real Suggested Sessions, Repeating Series and Quick Replies
 
-Commit `PENDING`. Migration `20261015000200_sessions.sql` must be run in Supabase (after `20261014000700_messages.sql`).
+Commit `ffc6bed`. Migration `20261015000200_sessions.sql` must be run in Supabase (after `20261014000700_messages.sql`).
 
 **Why.** "Suggest a session", repeating series and quick replies only worked in the professional's own browser and were lost on refresh, so clients never saw a suggestion. Booking a series also needs to be safe: either every session is booked or none is.
 
@@ -640,7 +737,7 @@ Commit `PENDING`. Migration `20261015000200_sessions.sql` must be run in Supabas
 
 ## 15 Oct 2026: Real Care Plans
 
-Commit `PENDING`. Migration `20261015000100_care_plans.sql` must be run in Supabase (after `20261014000700_messages.sql`, which it uses for archived clients).
+Commit `ffc6bed`. Migration `20261015000100_care_plans.sql` must be run in Supabase (after `20261014000700_messages.sql`, which it uses for archived clients).
 
 **Why.** Care tasks between sessions were sample data in the browser's memory, always shown as "Sok Dara", and lost on refresh. Professionals need to give real clients small steps between sessions, and clients need to see and tick them, with progress private unless they choose to share it.
 
@@ -672,7 +769,7 @@ Commit `PENDING`. Migration `20261015000100_care_plans.sql` must be run in Supab
 
 ## 14 Oct 2026: Phone Menu Labels No Longer Overlap
 
-Commit `PENDING`. No migration.
+Commit `035807b`. No migration.
 
 **Why.** On narrow phones the bottom menu label "Professional" ran into "Community", so both were hard to read.
 
@@ -689,7 +786,7 @@ Commit `PENDING`. No migration.
 
 ## 14 Oct 2026: Real Messages Between Clients and Professionals
 
-Commit `PENDING`. Migration `20261014000700_messages.sql` must be run in Supabase (it also creates the private `message-voice` storage bucket).
+Commit `67736cf`. Migration `20261014000700_messages.sql` must be run in Supabase (it also creates the private `message-voice` storage bucket).
 
 **Why.** Messages in `/messages` and `/pro/messages` were sample data kept in the browser's memory, so nothing was saved and the user side always showed "Sok Dara". Clients and professionals need a private way to talk between sessions, with text and voice, and only after a real booking.
 
@@ -727,7 +824,7 @@ Commit `PENDING`. Migration `20261014000700_messages.sql` must be run in Supabas
 
 ## 14 Oct 2026: Real Users Page, Real Audit Log, Nightly Open Times
 
-Commit `PENDING`. Migration `20261014000600_admin_users_open_times.sql` must be run in Supabase.
+Commit `48378f1`. Migration `20261014000600_admin_users_open_times.sql` must be run in Supabase.
 
 **Why.** The admin Users page and the Audit log showed sample data, while real admin actions were already being saved. And professionals' open times only moved forward when they opened their area.
 
@@ -757,7 +854,7 @@ Commit `PENDING`. Migration `20261014000600_admin_users_open_times.sql` must be 
 
 ## 14 Oct 2026: Sign Up Confirmation That Works on Any Device
 
-Commit `PENDING`. No migration. **Supabase dashboard changes needed** (see the last section).
+Commit `48378f1`. No migration. **Supabase dashboard changes needed** (see the last section).
 
 **Why.** People who opened the confirmation email on their phone saw "Link expired, let's try that again" even though their email was already confirmed. Supabase's default link only finishes signing in on the browser that signed up. Signing up again with an existing account also left people waiting for an email that never came.
 
@@ -790,7 +887,7 @@ Commit `PENDING`. No migration. **Supabase dashboard changes needed** (see the l
 
 ## 14 Oct 2026: My Appointments for Users
 
-Commit `PENDING`. No migration.
+Commit `48378f1`. No migration.
 
 **Why.** A user could book a real session but could not see it anywhere afterwards, cancel it, or find the meeting link. The sidebar "Appointments" item still said Soon.
 

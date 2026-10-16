@@ -8,7 +8,7 @@ import { useLanguage } from '../../_components/language-provider';
 import { useMoodStore } from '../../_components/mood/mood-store';
 import { PROGRESS_DAYS, PROGRESS_RANGES, type ProgressRange } from '@/lib/mood';
 import { MoodTrendChart } from './progress-charts';
-import { MascotNote, PillSwitch, ProgressShell, ProgressStatus, RANGE_LABELS, SampleBadge, RangeDates } from './progress-parts';
+import { MascotNote, PillSwitch, ProgressShell, ProgressStatus, RANGE_LABELS, RangeDates } from './progress-parts';
 import { SupportCard, needsSupport } from './support-card';
 import { TodayCheckIn } from './today-check-in';
 import { useProgress } from './use-progress';
@@ -75,12 +75,11 @@ export function ProgressDashboardView() {
                 <ChevronRight size={16} aria-hidden="true" />
               </Link>
             </div>
-            {data.sample && (
-              <div className="mt-2">
-                <SampleBadge km={km} />
+            {data.status !== 'ready' ? (
+              <div className="mt-3">
+                <ProgressStatus status={data.status} km={km} next="/progress" />
               </div>
-            )}
-            {data.checkIns === 0 ? (
+            ) : data.checkIns === 0 ? (
               <p className="mt-4 rounded-2xl bg-arom-wash px-4 py-6 text-center text-sm text-ink-muted">
                 {t('មិនទាន់មានការកត់ត្រានៅឡើយទេ។', 'No check ins yet.')}
               </p>

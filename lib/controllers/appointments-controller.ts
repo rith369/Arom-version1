@@ -9,7 +9,7 @@ import {
   type UserAppointment,
 } from "@/lib/appointments";
 import { createClient } from "@/lib/supabase/server";
-import { fail, invalidInput, json, readJson, unauthorized } from "./shared";
+import { databaseError, fail, invalidInput, json, readJson, unauthorized } from "./shared";
 
 /*
  * AROM appointments controller: the signed in user's own bookings.
@@ -18,7 +18,7 @@ import { fail, invalidInput, json, readJson, unauthorized } from "./shared";
  */
 
 const COLUMNS =
-  "id, user_id, starts_at, ends_at, session_type, status, meeting_url, intake_note, cancelled_by, cancel_reason, rescheduled_from, reschedule_reason, rescheduled_by, share_survey, share_symptom_checks, series_id, professional_id, professional:professional_profiles(slug, display_name, display_name_km, title, title_km, photo_url, office_name, office_address, office_map_url)";
+  "id, user_id, starts_at, ends_at, session_type, status, meeting_url, intake_note, cancelled_by, cancel_reason, rescheduled_from, reschedule_reason, rescheduled_by, share_survey, share_symptom_checks, share_mood_trend, series_id, professional_id, professional:professional_profiles(slug, display_name, display_name_km, title, title_km, photo_url, office_name, office_address, office_map_url)";
 
 interface ProfessionalRow {
   slug: string;
@@ -47,6 +47,7 @@ interface AppointmentRow {
   reschedule_reason: string | null;
   rescheduled_by: string | null;
   share_survey: boolean;
+  share_mood_trend: boolean;
   share_symptom_checks: boolean;
   series_id: string | null;
   professional_id: string;
@@ -78,6 +79,7 @@ function toAppointment(row: AppointmentRow, changeUntil: Map<string, string>): U
     rescheduledBy: !row.rescheduled_from ? null : row.rescheduled_by === row.user_id ? "you" : "professional",
     changeTimeUntil: changeUntil.get(row.id) ?? null,
     shareSurvey: row.share_survey,
+    shareMoodTrend: row.share_mood_trend,
     shareSymptomChecks: row.share_symptom_checks,
     seriesId: row.series_id,
     professional: professional
@@ -183,7 +185,13 @@ export async function listMoveTimes(appointmentId: string) {
 
 const actionSchema = z.discriminatedUnion("action", [
   z.object({ action: z.literal("cancel"), reason: z.string().trim().max(MAX_CANCEL_REASON).default("") }),
-  z.object({ action: z.literal("sharing"), shareSurvey: z.boolean(), shareSymptomChecks: z.boolean() }),
+  z.object({
+    action: z.literal("sharing"),
+    shareSurvey: z.boolean(),
+    shareSymptomChecks: z.boolean(),
+    // Left out by an older page: keep what was chosen before.
+    shareMoodTrend: z.boolean().optional(),
+  }),
   z.object({
     action: z.literal("reschedule"),
     slotId: z.string().uuid(),
@@ -206,7 +214,7 @@ export async function updateMyAppointment(request: NextRequest, appointmentId: s
 
   const { data: appointment } = await supabase
     .from("appointments")
-    .select("id, status, starts_at")
+    .select("id, status, starts_at, share_mood_trend")
     .eq("id", id.data)
     .eq("user_id", userId)
     .maybeSingle();
@@ -220,7 +228,7 @@ export async function updateMyAppointment(request: NextRequest, appointmentId: s
       p_appointment_id: id.data,
       p_reason: body.data.reason || null,
     });
-    if (error) return fail("invalid_input", error.message, 400);
+    if (error) return databaseError(error, "This session could not be cancelled. Please try again.");
   } else if (body.data.action === "reschedule") {
     if (appointment.status !== "booked" || Date.parse(appointment.starts_at) <= Date.now()) {
       return fail("invalid_input", "Only upcoming sessions can be moved.", 400);
@@ -232,16 +240,16 @@ export async function updateMyAppointment(request: NextRequest, appointmentId: s
       p_slot_id: body.data.slotId,
       p_reason: body.data.reason || null,
     });
-    // The database messages are written for users ("This time is no longer available").
-    if (error) return fail("invalid_input", error.message, 409);
+    if (error) return databaseError(error, "This session could not be moved. Please try again.", 409);
   } else {
     // Sharing is the user's own choice, and can be turned off at any time.
     const { error } = await supabase.rpc("set_appointment_sharing", {
       p_appointment_id: id.data,
       p_share_survey: body.data.shareSurvey,
       p_share_symptom_checks: body.data.shareSymptomChecks,
+      p_share_mood_trend: body.data.shareMoodTrend ?? appointment.share_mood_trend,
     });
-    if (error) return fail("invalid_input", error.message, 400);
+    if (error) return databaseError(error, "Your sharing choice could not be saved. Please try again.");
   }
 
   const appointments = await loadAppointments(supabase, userId);

@@ -118,6 +118,7 @@ function AppointmentCard({
   const sharedItems = [
     appointment.shareSurvey && t("ការស្ទង់មតិដំបូង", "first survey"),
     appointment.shareSymptomChecks && t("លទ្ធផលពិនិត្យរោគសញ្ញា", "symptom check results"),
+    appointment.shareMoodTrend && t("ការកត់ត្រាអារម្មណ៍", "mood check ins"),
   ].filter(Boolean);
   const fallback = t("មិនអាចរក្សាទុកបានទេ។ សូមព្យាយាមម្តងទៀត។", "That could not be saved. Please try again.");
 
@@ -145,7 +146,7 @@ function AppointmentCard({
     onChange(result.appointments);
   }
 
-  async function share(change: { shareSurvey?: boolean; shareSymptomChecks?: boolean }) {
+  async function share(change: { shareSurvey?: boolean; shareSymptomChecks?: boolean; shareMoodTrend?: boolean }) {
     if (sharingSaving) return;
     setError("");
     setSharingSaved(false);
@@ -154,6 +155,7 @@ function AppointmentCard({
       action: "sharing",
       shareSurvey: change.shareSurvey ?? appointment.shareSurvey,
       shareSymptomChecks: change.shareSymptomChecks ?? appointment.shareSymptomChecks,
+      shareMoodTrend: change.shareMoodTrend ?? appointment.shareMoodTrend,
     });
     setSharingSaving(false);
     if (!result.ok) {
@@ -299,8 +301,8 @@ function AppointmentCard({
               <legend className="sr-only">{t("ចែករំលែកជាមួយអ្នកជំនាញនេះ", "Share with this professional")}</legend>
               <p className="text-xs leading-5 text-ink-muted">
                 {t(
-                  "ជម្រើសរបស់អ្នក។ អ្នកអាចបិទវាបានគ្រប់ពេល។ កំណត់ហេតុ អារម្មណ៍ និងចម្លើយការត្រួតពិនិត្យ មិនត្រូវបានចែករំលែកឡើយ។",
-                  "Your choice, and you can turn it off at any time. Your journal and mood check ins are never shared.",
+                  "ជម្រើសរបស់អ្នក។ អ្នកអាចបិទវាបានគ្រប់ពេល។ កំណត់ហេតុរបស់អ្នក មិនត្រូវបានចែករំលែកឡើយ។",
+                  "Your choice, and you can turn it off at any time. Your journal is never shared.",
                 )}
               </p>
               <div className="mt-2.5 space-y-2 text-sm text-ink">
@@ -324,26 +326,25 @@ function AppointmentCard({
                   />
                   {t("លទ្ធផលពិនិត្យរោគសញ្ញារបស់ខ្ញុំ", "My symptom check results")}
                 </label>
-                {/* Not active until the backend shares it (BACKEND-HANDOFF.md section 22):
-                    off by default, moods only, never the journal, can be turned off any time. */}
-                <div className="flex items-start gap-2.5 text-ink-muted">
+                <label className="flex cursor-pointer items-start gap-2.5">
                   <input
                     type="checkbox"
-                    checked={false}
-                    disabled
+                    checked={appointment.shareMoodTrend}
+                    disabled={sharingSaving}
+                    onChange={(event) => void share({ shareMoodTrend: event.target.checked })}
                     aria-describedby={`mood-share-${appointment.id}`}
-                    className="mt-0.5 size-4"
+                    className="mt-0.5 size-4 accent-arom"
                   />
                   <span>
                     {t("ការកត់ត្រាអារម្មណ៍របស់ខ្ញុំ", "My mood check ins")}
-                    <span id={`mood-share-${appointment.id}`} className="block text-xs">
+                    <span id={`mood-share-${appointment.id}`} className="block text-xs text-ink-muted">
                       {t(
-                        "ឆាប់ៗនេះ។ មិនទាន់មានអ្វីត្រូវបានចែករំលែកទេ។ មានតែអារម្មណ៍ មិនមែនកំណត់ហេតុឡើយ។",
-                        "Coming soon. Nothing is shared yet. Moods only, never your journal.",
+                        "អារម្មណ៍ ៣០ ថ្ងៃចុងក្រោយ។ មានតែអារម្មណ៍ មិនមែនកំណត់ហេតុឡើយ។",
+                        "Your last 30 days of moods. Moods only, never your journal.",
                       )}
                     </span>
                   </span>
-                </div>
+                </label>
               </div>
             </fieldset>
           )}

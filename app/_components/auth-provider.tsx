@@ -26,7 +26,10 @@ type AuthContextValue = {
   status: AuthStatus;
   /** Re-reads the session from `/api/auth/me`. Call after login or signup. */
   refresh: () => Promise<void>;
-  updateProfile: (changes: ProfileUpdateValues) => Promise<UpdateResult>;
+  updateProfile: (
+    changes: ProfileUpdateValues,
+    photo?: File | null,
+  ) => Promise<UpdateResult>;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -72,12 +75,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [applyUser]);
 
   const updateProfile = useCallback(
-    async (changes: ProfileUpdateValues): Promise<UpdateResult> => {
+    async (
+      changes: ProfileUpdateValues,
+      photo?: File | null,
+    ): Promise<UpdateResult> => {
       try {
+        let requestBody: BodyInit;
+        const headers: Record<string, string> = {};
+        if (photo) {
+          const form = new FormData();
+          for (const [key, value] of Object.entries(changes)) {
+            if (value !== undefined) form.append(key, String(value));
+          }
+          form.append('photo', photo);
+          requestBody = form;
+        } else {
+          headers['Content-Type'] = 'application/json';
+          requestBody = JSON.stringify(changes);
+        }
+
         const response = await fetch("/api/profile", {
           method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(changes),
+          headers,
+          body: requestBody,
         });
 
         if (!response.ok) {
@@ -92,8 +112,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           };
         }
 
-        const body = (await response.json()) as ProfileResponse;
-        setUser(body.user);
+        const profileResponse = (await response.json()) as ProfileResponse;
+        setUser(profileResponse.user);
         return { ok: true };
       } catch {
         return { ok: false, message: "You seem to be offline. Check your connection and try again." };

@@ -36,6 +36,9 @@ export type MoodWeekResponse = { days: MoodDay[]; checkIns: number };
 
 export const PROGRESS_DAYS = 7;
 
+// What a professional sees when a client shares moods: the last 30 days.
+export const SHARED_MOOD_DAYS = 30;
+
 /**
  * Progress ranges. 7 days is connected (GET /api/progress). 30 days and
  * 3 months are sample data in the browser until the backend answers

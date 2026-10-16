@@ -60,6 +60,8 @@ function describe(row: AuditRow): { action: string; module: AuditModule; detail:
         detail: `${Number(d.total ?? 0)} helplines, ${Number(d.active ?? 0)} shown${removed ? `, ${removed} removed` : ""}`,
       };
     }
+    case "read_group_chat":
+      return { action: "Opened a support group chat", module: "community", detail: text(d.reason) };
     case "change_flag_status":
       return { action: "Changed safety flag", module: "community", detail: fromTo };
     default:
