@@ -2,7 +2,7 @@
 
 ## 16 Oct 2026: Home Page Redesign with the AROM Sprout
 
-Commit `PENDING`. No migration. Frontend only.
+Commit `e45f398`. No migration. Frontend only.
 
 **Why.** The new Figma Homescreen gives AROM a friendly character, a small leaf sprout, so the app feels warm and less clinical for people who are nervous about mental health. The home page already had the same sections with real data behind them, so this change is visual: the data and buttons work as before.
 
