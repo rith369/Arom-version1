@@ -1,36 +1,51 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AROM (អារម្មណ៍)
 
-## Getting Started
+AROM is a bilingual (English and Khmer) mental health and emotional wellness web app. People check in with their mood, learn and practise with MindGuide, join community support groups, and book sessions with verified professionals.
 
-First, run the development server:
+There are three roles: **user** (seeker), **professional** (therapist and group mentor) and **admin** (the AROM team).
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Stack
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- Next.js 16 (App Router, React 19), TypeScript
+- Supabase (Postgres with Row Level Security, Auth, Storage)
+- Tailwind CSS v4, Motion, lucide-react, react-hook-form and zod
+- Fonts: Inter (Latin) and Kantumruy Pro (Khmer)
+- Hosted on Vercel
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Run locally
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Install: `npm ci`
+2. Create `.env` with the Supabase project URL and anon key:
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+3. Start: `npm run dev`, then open http://localhost:3000
 
-## Learn More
+The service role key is never needed by the app and must never be added to it.
 
-To learn more about Next.js, take a look at the following resources:
+## Checks
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- `npm run lint`
+- `npx tsc --noEmit`
+- `npm run build`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Database
 
-## Deploy on Vercel
+Migrations live in `supabase/migrations/` and run in file name order. Each file says what it changes at the top. Run a new file once in the Supabase SQL editor, and note it in `report.md`. Every table has RLS; private content (journals, moods, detection answers, session notes) is readable only by its owner.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Where things are
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| Path | What |
+|---|---|
+| `app/<feature>/page.tsx` | User pages |
+| `app/pro/` | Professional area |
+| `app/admin/` | Admin area (English only) |
+| `app/api/**` | Route handlers. Thin: they call `lib/controllers/*.ts` |
+| `lib/` | Shared types and rules used by the browser and the API |
+| `app/_components/` | Shared components and providers |
+
+## Team docs
+
+- `AGENTS.md`: coding rules, copy style (no dashes, no sparkles icons), privacy and roles. Read first.
+- `BACKEND-HANDOFF.md`: every feature, its data shape and endpoints, and whether it is connected or still on mock data.
+- `report.md`: change log, newest first, with the commit, migrations and what to re-test.
+- `ADMIN.md`: the admin area.

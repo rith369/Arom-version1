@@ -19,7 +19,7 @@ These come from `AGENTS.md` sections 9 and 10. They are not optional.
 
 - **Server checks every permission.** Every admin endpoint starts with `requireRole("admin")` from `lib/controllers/role-controller.ts`. Never trust a role sent by the browser.
 - **RLS on every table.** Users can only read and change their own rows. Admin access goes through role checked policies or `security definer` functions.
-- **No private content in admin responses.** Admins see counts only, never journal text, mood entries, detection answers or session notes. One exception: admins may read support group chats for safety (section 14). Every opening of a chat writes an audit log entry, and members are told in the group guidelines.
+- **No private content in admin responses.** Admins see counts only, never journal text, mood entries, detection answers or session notes. One exception: admins may read support group chats for safety (section 23). Every opening of a chat writes an audit log entry, and members are told in the group guidelines.
 - **Audit log** (`admin_audit_log`) for every role change, suspension, approval and rejection.
 - **No service role key in browser code.** If a feature needs it (for example reading emails from `auth.users`), it stays in a server handler.
 - **Data minimization.** Only return the fields the page actually shows.
@@ -45,7 +45,7 @@ The yellow "Demo data on this page" banner is in `admin-shell.tsx`. Remove it fo
 | Admin overview (dashboard) | Done | Connected (`/api/admin/overview`) | none |
 | Admin users: list, details, roles, suspend | Done | Connected (`GET /api/admin/users`, `PATCH .../role`, `PATCH .../status`), migration `20261014000600` | 5 |
 | Admin professionals: review and moderation | Done | Connected, including profile change review. Stored `source` column still open (derived for now). Migrations `20261014000200`, `20261014000400` | 6 |
-| Become a professional (user applies) | Done | Connected (`/api/professional/application`), migration `20261014000100` not yet applied to Supabase | 8 |
+| Become a professional (user applies) | Done | Connected (`/api/professional/application`), migration `20261014000100` | 8 |
 | Professional area `/pro`: shell, home, my profile with preview, login entry | Done | Connected (`/api/pro/me`, `/api/pro/profile`, `/api/pro/photo`), migration `20261014000400` | 16 |
 | Professional schedule (`/pro/schedule`) | Done | Connected (`/api/pro/schedule`, open times in `availability_slots`), migration `20261014000400` | 16 |
 | Professional bookings (`/pro/bookings`) | Done | Connected: list, cancel, reschedule, outcome, session notes, meeting link (`/api/pro/bookings/:id`), migration `20261014000400` | 16 |
@@ -65,12 +65,13 @@ The yellow "Demo data on this page" banner is in `admin-shell.tsx`. Remove it fo
 | Crisis helplines and support contact: admin Settings, user "Get help now" in Profile and Settings | Done | Helplines connected (`/api/crisis-resources`, `/api/admin/crisis-resources`, migration `20261014000300`). Support contact still mock | 13 |
 | Admin bookings chart: sessions per day and new bookings per day (`/admin/bookings`) | Done on mock data | Waiting for backend | 12 |
 | MindGuide podcasts: user pages `/podcasts` and `/podcasts/<id>`, admin Podcasts tab | Done on mock data | Waiting for backend | 11 |
-| Community: professionals and admins create groups, admins read chats and shut groups down, users report a person, image, message or group (`/community`, `/admin/community`) | Done on mock data | Waiting for backend | 14 |
-| Mood check in and Your Progress on Home (`/`, journal starts from today's mood) | Done | Connected (`POST /api/mood-checkins`, `GET /api/progress`), migration `20261015000400` not yet applied to Supabase | 22 |
+| Community: professionals and admins create groups, admins read chats and shut groups down, users report a person, image, message or group (`/community`, `/admin/community`) | Done | Partly connected: group list and create, join, chat read and send (`/api/community/groups`, `/:id/join`, `/:id/messages`), migrations `20261016000000` to `20261016000700`. Shut down, reopen, reports and the admin view still use `community-store.ts` (browser only) | 23 |
+| Mood check in and Your Progress on Home (`/`, journal starts from today's mood) | Done | Connected (`POST /api/mood-checkins`, `GET /api/progress`), migration `20261015000400` | 22 |
 | Progress pages (`/progress`, `/progress/details`, from Figma): trend, bars, distribution, today's check in | Done, 30 days and 3 months on sample data | 7 days connected (`GET /api/progress`). Waiting for `GET /api/progress?range=30d\|90d`. Insights worked out in the browser (real for 7 days) | 22 |
 | Progress Activities tab (practices done, lessons read, journal entries) | Done on sample data | Waiting for backend: save finished practices and lessons, `GET /api/progress/activities?range=` | 22 |
 | Share mood check ins with my professional (My appointments switch, client file card) | Done as Coming soon, nothing is shared | Waiting for backend: `appointments.share_mood_trend`, a function for the professional to read the last 30 days, RLS | 22 |
 | Journal (Write about today, `/detection/journal`) | Done, saved in the browser only | Waiting for backend: `journal_entries` API, owner only | 22 |
+| Edit Profile for users: photo, display name, pronouns, About you (`/profile`) | Done | Connected (`/api/profile`, `/api/profile/photo`, private `user-profile-photos` bucket), migration `20261016000900`. Accounts without a profile row fixed by `20261016000800` | none |
 | Admin audit log (`/admin/audit-log`) | Done | Connected (`GET /api/admin/audit-log`). No migration | 5 |
 | Other admin pages (bookings, journal prompts, settings) | Built by Sokheng on mock data | Not started | not written yet |
 
@@ -124,16 +125,7 @@ The signed in admin is mocked as `currentAdminId`. Use the session user id inste
 
 ### Backend gaps
 
-1. **Make admin (decided: yes, allow it).** Today `set_user_role()` refuses to grant or remove `admin`. Change it so an admin can, with these guards:
-   - caller must be admin (checked in the database function, not only the API);
-   - an admin cannot change their own role;
-   - the last remaining admin cannot be removed;
-   - every change writes to `admin_audit_log`.
-2. **Promote with license details.** When an admin makes someone a professional directly, save `title`, `licenseNumber` and `issuingBody` into `professional_credentials` and create the `professional_profiles` row as `verified`, the same result as approving an application. Store the note in the audit log. Record that it came from an admin (see `source` in section 6).
-3. **Suspend and restore endpoint.** Set `account_status`, `suspended_at`, `suspended_reason`. Same guards: not yourself, audit log.
-4. **Email in the users list.** Email lives in `auth.users`. Read it in a server handler or a `security definer` function that only admins can call. Never expose it through a public view.
-5. **Last seen and activity counts.** Return counts only. No content.
-6. **Search.** The page searches by name and email. Either return all users (small scale) or add `?q=` to `GET /api/admin/users`.
+Done on 14 Oct 2026 (see Connected above): making admins with all guards, promoting with license details, suspend and restore, email in the list, activity counts. Still open: server side search (`?q=`) once there are more than 2000 accounts.
 
 ## 6. Admin professionals page
 
@@ -178,10 +170,7 @@ The signed in admin is mocked as `currentAdminId`. Use the session user id inste
 
 ### Backend gaps
 
-1. **Pending profile changes (decided rule).** When a professional changes `display_name`, `title`, `license_number` or `issuing_body`, the change must wait for admin review, and the public profile keeps the old value until approved. Other fields (bio, photo, prices, schedule) go live right away. Suggested table `professional_profile_changes (id, professional_id, field, old_value, new_value, status, reviewed_by, reviewed_at, review_note, created_at)` with RLS: the professional can insert and read their own, only admins can review.
-2. **Directory visibility after approval (open question).** Today approval sets `verified` and the profile is live immediately, even with an empty bio and photo. Proposal: only list professionals who are verified, active, and have completed their profile. Confirm with Rith.
-3. **Signed URL for license documents** from the private storage bucket, admin only, short expiry.
-4. **`source` column** on `professional_profiles` (`application` or `admin`) so admins can see how someone joined.
+Done: pending profile changes (`professional_profile_changes`, migration `20261014000400`), directory visibility (`is_listed_professional()`, section 16), and the signed license link. Still open: a stored `source` column on `professional_profiles` (derived today).
 
 ## 7. Product decisions already made
 
@@ -251,7 +240,7 @@ Validation lives in `createApplicationSchema()` in `_data/application.ts`. Repea
 
 ### Backend gaps (all done in migration `20261014000100`)
 
-Done: `phone`, `telegram` and `document_name` columns with the same checks as the form; only role `user` may insert; private `professional_contacts` table filled on approval (owner and admins read); private `licenses` bucket (5 MB, PDF, JPG, PNG; owner uploads into `<user_id>/`, admins read, nobody changes or deletes); rejecting now requires a note; `GET /api/admin/applications` returns `documentName`, `phone`, `telegram`. The row is saved before the file, and removed again if the upload fails. Still open: a signed URL endpoint for admins to open the license (section 6 gap 3).
+Done: `phone`, `telegram` and `document_name` columns with the same checks as the form; only role `user` may insert; private `professional_contacts` table filled on approval (owner and admins read); private `licenses` bucket (5 MB, PDF, JPG, PNG; owner uploads into `<user_id>/`, admins read, nobody changes or deletes); rejecting now requires a note; `GET /api/admin/applications` returns `documentName`, `phone`, `telegram`. The row is saved before the file, and removed again if the upload fails. The license opens through `GET /api/admin/applications/:id/license`, a 60 second signed link (section 6).
 
 Original list:
 
@@ -760,10 +749,72 @@ Suggested table: `professional_episodes` (columns as above, `takeaways` and `cha
 
 ## 21. Planned next (frontend not built yet)
 
-- **User side, done (14 Oct 2026):** `/appointments` lists the user's own sessions (upcoming, then past and cancelled) with Join for online sessions, the professional's move or cancel reason, cancel with an optional reason (upcoming only, frees the time), and the per booking sharing switches (`set_appointment_sharing()`). Code: `lib/controllers/appointments-controller.ts`, `app/_components/appointments/user-appointments.tsx`. The sidebar "Appointments" item now links there, and "View Appointment" after booking opens it. The Messages "Next session" strip still reads the demo session store.
+- **User side, done (14 Oct 2026):** `/appointments` lists the user's own sessions (upcoming, then past and cancelled) with Join for online sessions, the professional's move or cancel reason, cancel with an optional reason (upcoming only, frees the time), and the per booking sharing switches (`set_appointment_sharing()`). Code: `lib/controllers/appointments-controller.ts`, `app/_components/appointments/user-appointments.tsx`. The sidebar "Appointments" item now links there, and "View Appointment" after booking opens it. The Messages "Next session" strip reads the same real appointments (`GET /api/appointments`).
 - **Make professional (Way 2):** phone is optional there because the admin already knows the person. Add an optional phone field to `ProfessionalPromotion` when the backend supports it.
 
-## 14. Community: groups, chat moderation and reports
+## 22. Mood check in and Your Progress (Home)
+
+**Files:** `lib/mood.ts` (types, labels, Cambodia day helpers, shared by the browser and the API), `lib/controllers/mood-controller.ts`, `app/api/mood-checkins/route.ts`, `app/api/progress/route.ts`, `app/_components/mood/mood-store.ts` (loads the week, saves today's mood), `app/components/mood-selector.tsx` (How are you feeling today?), `app/components/progress-dashboard.tsx` (Your Progress), `app/detection/journal/page.tsx` (starts from today's check in).
+
+### Data shape
+
+| Type | Fields | Table |
+|---|---|---|
+| `MoodLevel` | `very_low`, `low`, `okay`, `good`, `great` (the existing `mood_level` enum) | none |
+| `MoodDay` | `day` (Cambodia date), `mood` (`MoodLevel` or null on a day without a check in) | `mood_checkins` |
+| `MoodWeekResponse` | `days` (last 7 Cambodia days, oldest first, today last), `checkIns` (days with a check in) | read from `mood_checkins` |
+
+### Rules (decided, do not change)
+
+- **One mood per person per Cambodia day.** Tapping another mood the same day replaces the first. The day comes from `cambodia_today()` on the server, never from the browser.
+- **A mood is private health data.** It never goes in a URL, in browser storage or in a log. The old `arom_today_mood` key in `localStorage` is removed on the first visit. The journal reads today's mood from the API, not from `?mood=`.
+- **Nothing is preselected.** "Saved" shows only after the server confirms the save. A tap selects and saves; it never leaves the page.
+- **No made up data.** Signed out visitors see a card that asks them to log in. A new account sees an empty state. Missed days stay blank in the chart, never zero. The summary counts check ins and never says better or worse.
+- **Responses carry only the day and the mood**, never notes or emotions, and are sent with `Cache-Control: private, no-store`.
+- **No admin read.** Admin Overview may later show counts only.
+
+**Connected (15 Oct 2026), migration `20261015000400_mood_checkins_api.sql`:**
+
+- **Table:** existing `mood_checkins` (owner only RLS from `20261008000200`). The migration sets `checked_in_on` to default to `cambodia_today()`, keeps only the latest row of each day, and adds the unique index `mood_checkins_one_per_day (user_id, checked_in_on)`.
+- **Function:** `save_mood_checkin(p_mood, p_source)`, `security definer`, `search_path = ''`, owner from `auth.uid()`, execute for `authenticated` only. Upserts today's row and returns the Cambodia day. Errors: `PT403` (not signed in), `22023` (unknown source).
+- **API:** `POST /api/mood-checkins { mood, source? }` returns `{ day, mood }`; `GET /api/progress` returns `MoodWeekResponse`. Both answer 401 when signed out.
+- **Still open:** the journal itself (`journal_entries`) is still saved in the browser only (`arom_journal_entries` in `localStorage`). It needs its own API before real users write in it. The weekly range is the last 7 days only; the old This week and Last week switch is gone.
+- **Applied** to Supabase on 16 Oct 2026. Not yet tested signed in on the live site.
+
+### Progress pages `/progress` and `/progress/details` (15 Oct 2026, from Figma)
+
+**Files:** `app/progress/page.tsx`, `app/progress/details/page.tsx`, `app/progress/_components/*` (views, charts, `use-progress.ts`), `app/progress/_data/sample-progress.ts` (**sample data**), `app/_components/mood/mood-visuals.ts` (mood icons and chart colors, shared with the Home check in), `lib/mood.ts` (`PROGRESS_RANGES`, `RANGE_DAYS`, `moodCounts()`). The sidebar "Progress Dashboard" item and Home "See all" link open `/progress`.
+
+**What is real and what is sample:**
+
+| Part | Data |
+|---|---|
+| 7 days: Mood Trend, Mood Statistics bars, Mood Distribution, summary card | Real, `GET /api/progress` |
+| 30 days and 3 months in Mood Statistics | Month calendars, each day colored by its mood, grey when missed (`mood-calendar.tsx`). Same data as the ranges below |
+| Today's Check in card | Real, today from the same response |
+| 30 days and 3 months | **Sample**, `sampleProgress()`, labeled "Sample data, not yours yet" on screen, shown only to signed in people |
+| Insights tab | Worked out in the browser from the same check ins (`app/progress/_components/insights.ts`): real for 7 days, sample for longer ranges. Facts only: check in count, most common mood, the span of moods, the weekday checked in most (30 days or more, only when one weekday clearly leads), and how many days were Low or Very Low. **Backend later:** a "time of day you check in" insight needs the check in time (`created_at` of `mood_checkins`) in the progress response |
+| Activities tab | **Sample** for every range, `app/progress/_data/sample-activities.ts`, labeled on screen. Counts of practices done, lessons read and journal entries, plus a Recent list (practice and lesson names come from `ALL_PRACTICES` and `ALL_LESSONS`; a journal entry is only a date, never its words) |
+
+**Backend needed for Activities:** save each finished practice (`practice_id`), each finished lesson (`lesson_id`) and each journal entry (date only here) for the signed in user, owner only RLS. Then `GET /api/progress/activities?range=7d|30d|90d` returning `ActivitiesResponse` from `sample-activities.ts`: `{ counts: { practice, lesson, journal }, recent: { id, kind, refId, day }[] }`, newest first, at most 20. Never return journal text here. Then swap `sampleActivities()` in `activities-panel.tsx` for the API and delete the sample file.
+
+**Share my mood check ins with my professional (built as "Coming soon", nothing is shared yet).** Rith decided: **off by default, moods only (never the journal, never notes), the client can turn it off at any time.**
+- **Client side today:** My appointments shows a third sharing option "My mood check ins", disabled, with "Coming soon. Nothing is shared yet." (`app/_components/appointments/user-appointments.tsx`).
+- **Professional side today:** the client file shows a "Mood check ins" card, Coming soon, with a dimmed chart labeled "An example, not this client" (`app/pro/_components/shared-mood-preview.tsx`, sample data). It must never look like the client's real moods.
+- **Backend needed:** `appointments.share_mood_trend boolean not null default false`, set through `set_appointment_sharing()` (add `p_share_mood_trend`) and returned in `GET /api/appointments` as `shareMoodTrend`; lock it in `guard_appointment_update()` like the other share columns. A `security definer` function for the professional, for example `shared_mood_checkins(p_client uuid)`, returning only `(day, mood)` for the last 30 Cambodia days, and only when that client has `share_mood_trend = true` on a booked or completed appointment with the caller. Turning the switch off must stop it at once. No admin read. Then: enable the checkbox, send it with the `sharing` action, and swap the example chart for the real one.
+
+**Backend needed:** `GET /api/progress?range=30d|90d` returning the same `MoodWeekResponse` (`{ days: MoodDay[], checkIns }`): one entry per Cambodia day, oldest first, today last, `mood` null on a missed day. Without `range` it stays 7 days. Then in `use-progress.ts` load the range instead of `sampleProgress()` and delete `app/progress/_data/sample-progress.ts`. The distribution is counted in the browser with `moodCounts()`, so no extra endpoint.
+
+**Decided with Rith (changes from the Figma, do not undo):**
+
+- **Honest wording only.** No "You're doing great", "Feeling better than last week" or "more positive this week". The cards count check ins ("You checked in 5 of the last 7 days").
+- **The app's 5 moods** (Very Low to Great), not the 4 in the Figma (Happy, Calm, Neutral, Sad).
+- **One mood per day:** a bar's height is that day's mood, and tapping it shows the mood name. No percentages per day.
+- **One range switch:** 7 days, 30 days, 3 months (the Figma's Week, Month, Year is gone).
+- **No sparkles:** the mascot (`public/progress/mascot.png`, from the Figma) had its three star shapes removed, as AGENTS.md section 7 requires.
+- **Support card (decided 16 Oct 2026):** when 3 or more of the real last 7 check ins are Low or Very Low, the dashboard shows "Some of your recent days were hard. You don't have to handle it alone." with Breathing practice, Talk to a professional and Get help now (`support-card.tsx`, `SUPPORT_MIN_HARD_DAYS`). Never from sample data. "Not now" hides it for that visit only; nothing is saved or sent. No backend needed.
+
+## 23. Community: groups, chat moderation and reports
 
 **Files:** user side `app/community/page.tsx`, `community-data.ts` (types), `community-store.ts` (mock store in localStorage, shared with admin), `components/create-group-view.tsx`, `components/report-dialog.tsx`, `components/group-hub-view.tsx` (report entry points, closed state). Admin side `app/admin/_data/community.ts`, `_components/community-view.tsx` (View chat, Shut down, Reopen, reports), actions in `admin-provider.tsx`.
 
@@ -817,73 +868,18 @@ The admin list uses `CommunityReport`: `id, groupId, targetKind, targetLabel, me
 - **Anonymous names stay anonymous** in member screens. The server can link a report to the real account for moderation (for example suspending), but the admin UI shows the anonymous label today.
 - **Closed groups** are left out of browse and search, and joining one is refused.
 
+**Partly connected (15 and 16 Oct 2026), migrations `20261016000000` to `20261016000700`:**
+
+- **API:** `GET|POST /api/community/groups` (browse and create), `POST /api/community/groups/:id/join`, `GET|POST /api/community/groups/:id/messages` (chat read and send).
+- **Tables and functions:** `community_messages` (raw rows readable only by the author and admins), `read_community_messages(group)` returns messages with display names and never the author id. `profiles.hide_identity` (default on) shows a member as "Anonymous" in Community only. Mentors no longer read raw member, waitlist, reply or check in rows. Only admins read raw safety flags.
+- **Professionals** see clients by `privacy_mode` (Anonymous Mode), never by `hide_identity`. `my_client_names()` and `my_booking_client_aliases()` follow that rule.
+
 ### Backend gaps
 
-1. Groups, members, messages and attachments tables do not exist yet. Chat images need a private storage bucket readable by members of that group and by admins.
-2. Professionals have no "My groups" list yet; it belongs in `/pro`.
-3. Admin edits to an existing group (name, description, rules) do not reach `/community` in the mock. With one database this goes away; no frontend change is needed.
-
-## 22. Mood check in and Your Progress (Home)
-
-**Files:** `lib/mood.ts` (types, labels, Cambodia day helpers, shared by the browser and the API), `lib/controllers/mood-controller.ts`, `app/api/mood-checkins/route.ts`, `app/api/progress/route.ts`, `app/_components/mood/mood-store.ts` (loads the week, saves today's mood), `app/components/mood-selector.tsx` (How are you feeling today?), `app/components/progress-dashboard.tsx` (Your Progress), `app/detection/journal/page.tsx` (starts from today's check in).
-
-### Data shape
-
-| Type | Fields | Table |
-|---|---|---|
-| `MoodLevel` | `very_low`, `low`, `okay`, `good`, `great` (the existing `mood_level` enum) | none |
-| `MoodDay` | `day` (Cambodia date), `mood` (`MoodLevel` or null on a day without a check in) | `mood_checkins` |
-| `MoodWeekResponse` | `days` (last 7 Cambodia days, oldest first, today last), `checkIns` (days with a check in) | read from `mood_checkins` |
-
-### Rules (decided, do not change)
-
-- **One mood per person per Cambodia day.** Tapping another mood the same day replaces the first. The day comes from `cambodia_today()` on the server, never from the browser.
-- **A mood is private health data.** It never goes in a URL, in browser storage or in a log. The old `arom_today_mood` key in `localStorage` is removed on the first visit. The journal reads today's mood from the API, not from `?mood=`.
-- **Nothing is preselected.** "Saved" shows only after the server confirms the save. A tap selects and saves; it never leaves the page.
-- **No made up data.** Signed out visitors see a card that asks them to log in. A new account sees an empty state. Missed days stay blank in the chart, never zero. The summary counts check ins and never says better or worse.
-- **Responses carry only the day and the mood**, never notes or emotions, and are sent with `Cache-Control: private, no-store`.
-- **No admin read.** Admin Overview may later show counts only.
-
-**Connected (15 Oct 2026), migration `20261015000400_mood_checkins_api.sql`:**
-
-- **Table:** existing `mood_checkins` (owner only RLS from `20261008000200`). The migration sets `checked_in_on` to default to `cambodia_today()`, keeps only the latest row of each day, and adds the unique index `mood_checkins_one_per_day (user_id, checked_in_on)`.
-- **Function:** `save_mood_checkin(p_mood, p_source)`, `security definer`, `search_path = ''`, owner from `auth.uid()`, execute for `authenticated` only. Upserts today's row and returns the Cambodia day. Errors: `PT403` (not signed in), `22023` (unknown source).
-- **API:** `POST /api/mood-checkins { mood, source? }` returns `{ day, mood }`; `GET /api/progress` returns `MoodWeekResponse`. Both answer 401 when signed out.
-- **Still open:** the journal itself (`journal_entries`) is still saved in the browser only (`arom_journal_entries` in `localStorage`). It needs its own API before real users write in it. The weekly range is the last 7 days only; the old This week and Last week switch is gone.
-- **Not tested yet** in the running app or against Supabase, only typecheck and lint.
-
-### Progress pages `/progress` and `/progress/details` (15 Oct 2026, from Figma)
-
-**Files:** `app/progress/page.tsx`, `app/progress/details/page.tsx`, `app/progress/_components/*` (views, charts, `use-progress.ts`), `app/progress/_data/sample-progress.ts` (**sample data**), `app/_components/mood/mood-visuals.ts` (mood icons and chart colors, shared with the Home check in), `lib/mood.ts` (`PROGRESS_RANGES`, `RANGE_DAYS`, `moodCounts()`). The sidebar "Progress Dashboard" item and Home "See all" link open `/progress`.
-
-**What is real and what is sample:**
-
-| Part | Data |
-|---|---|
-| 7 days: Mood Trend, Mood Statistics bars, Mood Distribution, summary card | Real, `GET /api/progress` |
-| 30 days and 3 months in Mood Statistics | Month calendars, each day colored by its mood, grey when missed (`mood-calendar.tsx`). Same data as the ranges below |
-| Today's Check in card | Real, today from the same response |
-| 30 days and 3 months | **Sample**, `sampleProgress()`, labeled "Sample data, not yours yet" on screen, shown only to signed in people |
-| Insights tab | Worked out in the browser from the same check ins (`app/progress/_components/insights.ts`): real for 7 days, sample for longer ranges. Facts only: check in count, most common mood, the span of moods, the weekday checked in most (30 days or more, only when one weekday clearly leads), and how many days were Low or Very Low. **Backend later:** a "time of day you check in" insight needs the check in time (`created_at` of `mood_checkins`) in the progress response |
-| Activities tab | **Sample** for every range, `app/progress/_data/sample-activities.ts`, labeled on screen. Counts of practices done, lessons read and journal entries, plus a Recent list (practice and lesson names come from `ALL_PRACTICES` and `ALL_LESSONS`; a journal entry is only a date, never its words) |
-
-**Backend needed for Activities:** save each finished practice (`practice_id`), each finished lesson (`lesson_id`) and each journal entry (date only here) for the signed in user, owner only RLS. Then `GET /api/progress/activities?range=7d|30d|90d` returning `ActivitiesResponse` from `sample-activities.ts`: `{ counts: { practice, lesson, journal }, recent: { id, kind, refId, day }[] }`, newest first, at most 20. Never return journal text here. Then swap `sampleActivities()` in `activities-panel.tsx` for the API and delete the sample file.
-
-**Share my mood check ins with my professional (built as "Coming soon", nothing is shared yet).** Rith decided: **off by default, moods only (never the journal, never notes), the client can turn it off at any time.**
-- **Client side today:** My appointments shows a third sharing option "My mood check ins", disabled, with "Coming soon. Nothing is shared yet." (`app/_components/appointments/user-appointments.tsx`).
-- **Professional side today:** the client file shows a "Mood check ins" card, Coming soon, with a dimmed chart labeled "An example, not this client" (`app/pro/_components/shared-mood-preview.tsx`, sample data). It must never look like the client's real moods.
-- **Backend needed:** `appointments.share_mood_trend boolean not null default false`, set through `set_appointment_sharing()` (add `p_share_mood_trend`) and returned in `GET /api/appointments` as `shareMoodTrend`; lock it in `guard_appointment_update()` like the other share columns. A `security definer` function for the professional, for example `shared_mood_checkins(p_client uuid)`, returning only `(day, mood)` for the last 30 Cambodia days, and only when that client has `share_mood_trend = true` on a booked or completed appointment with the caller. Turning the switch off must stop it at once. No admin read. Then: enable the checkbox, send it with the `sharing` action, and swap the example chart for the real one.
-
-**Backend needed:** `GET /api/progress?range=30d|90d` returning the same `MoodWeekResponse` (`{ days: MoodDay[], checkIns }`): one entry per Cambodia day, oldest first, today last, `mood` null on a missed day. Without `range` it stays 7 days. Then in `use-progress.ts` load the range instead of `sampleProgress()` and delete `app/progress/_data/sample-progress.ts`. The distribution is counted in the browser with `moodCounts()`, so no extra endpoint.
-
-**Decided with Rith (changes from the Figma, do not undo):**
-
-- **Honest wording only.** No "You're doing great", "Feeling better than last week" or "more positive this week". The cards count check ins ("You checked in 5 of the last 7 days").
-- **The app's 5 moods** (Very Low to Great), not the 4 in the Figma (Happy, Calm, Neutral, Sad).
-- **One mood per day:** a bar's height is that day's mood, and tapping it shows the mood name. No percentages per day.
-- **One range switch:** 7 days, 30 days, 3 months (the Figma's Week, Month, Year is gone).
-- **No sparkles:** the mascot (`public/progress/mascot.png`, from the Figma) had its three star shapes removed, as AGENTS.md section 7 requires.
-- **Support card (decided 16 Oct 2026):** when 3 or more of the real last 7 check ins are Low or Very Low, the dashboard shows "Some of your recent days were hard. You don't have to handle it alone." with Breathing practice, Talk to a professional and Get help now (`support-card.tsx`, `SUPPORT_MIN_HARD_DAYS`). Never from sample data. "Not now" hides it for that visit only; nothing is saved or sent. No backend needed.
+1. **Admin chat reads are not audited.** `read_community_messages()` lets an admin read any group without writing to `admin_audit_log`. Section 2 requires an audit entry on every open. Give admins their own audited function and remove the admin branch from this one.
+2. **Still browser only:** shutting a group down, reopening, reports, removing a message and the admin Community page use `community-store.ts`. Chat images need a private storage bucket readable by members of that group and by admins.
+3. Professionals have no "My groups" list yet; it belongs in `/pro`.
+4. Admin edits to an existing group (name, description, rules) do not reach `/community` yet.
 
 ## Template for a new feature section
 

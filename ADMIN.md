@@ -1,46 +1,41 @@
-# ARom admin frontend
+# AROM admin area
 
-## Run
+The admin area (`/admin`) is for the AROM team only. New text there is English only; keep the Khmer that already exists, and keep Khmer input fields for content users read.
 
-```sh
-npm ci
-npm run dev
-```
+## Access
 
-Open http://localhost:3000/admin for the overview or http://localhost:3000/admin/professionals for profiles.
+`/admin` is protected in `lib/supabase/proxy.ts`, and every admin API starts with `requireRole("admin")` (`lib/controllers/role-controller.ts`). The database checks the role again in every admin function and RLS policy. Admins never see private content: no journals, moods, detection answers or session notes. The one exception is community group chats, which admins may read for safety, with an audit log entry each time (BACKEND-HANDOFF.md section 23).
 
-## Included
+## Pages
 
-- Responsive admin shell using the existing ARom theme and language provider.
-- Overview counts based on shared mock professional records.
-- Professionals: review queue for applications and profile changes, approve, reject, suspend and reinstate. Admins no longer create or edit profiles.
-- Users: expandable account cards with safe details, role changes (professional, admin) and suspend or restore.
-- English and Khmer profile fields and interface labels.
-- Native modal dialog with Escape dismissal, focus containment, and form validation.
+| Page | Path | Data |
+|---|---|---|
+| Overview | `/admin` | Real (`/api/admin/overview`). The crash card is still sample data |
+| Professionals: applications, profile change review, suspend and reinstate | `/admin/professionals` | Real |
+| Users: roles, make admin, promote to professional, suspend | `/admin/users` | Real |
+| Audit log | `/admin/audit-log` | Real |
+| Settings: crisis helplines | `/admin/settings` | Real. Support contact and announcements are still sample data |
+| MindGuide content: drafts, versions, publish | `/admin/mindguide` | Sample data |
+| Podcasts | `/admin/podcasts` | Sample data |
+| Reports | `/admin/reports` | Sample data |
+| Community: view chat, shut down, reopen | `/admin/community` | Browser only (`community-store.ts`) |
+| Bookings chart | `/admin/bookings` | Sample data |
+| Journal prompts | `/admin/journal-prompts` | Sample data |
+
+The status board in `BACKEND-HANDOFF.md` (section 4) is the source of truth for what is connected.
 
 ## Code map
 
-- `app/admin/layout.tsx`: shared shell and mock state provider.
-- `app/admin/_data/professionals.ts`: typed records, adapted from existing public fixtures.
-- `app/admin/_data/users.ts`: typed user records with roles and activity counts.
-- `app/admin/_components/admin-provider.tsx`: temporary state and review, role and status actions.
-- `app/admin/_components/professionals-view.tsx`: review and moderation.
-- `app/admin/_components/users-view.tsx`: accounts, roles and status.
-- `app/admin/_components/dashboard.tsx`: overview.
-
-Changes persist while navigating within the admin layout and reset on a full refresh. They do not update the public directory. New profiles use an avatar fallback; image upload is future work. Publication status is a demo content state and does not imply credential verification. Only overview and professionals are implemented in this first milestone.
-
-## Backend handoff
-
-See `BACKEND-HANDOFF.md` for the data shapes, endpoints and backend gaps of every admin page. `/admin` is now protected by `proxy.ts` and admin APIs use `requireRole("admin")`.
+- `app/admin/layout.tsx`: shell and provider.
+- `app/admin/_components/admin-provider.tsx`: loads real data from the API and holds the actions for each page. Pages read `useAdmin()` only.
+- `app/admin/_components/<feature>-view.tsx`: one file per page.
+- `app/admin/_data/*.ts`: types (the contract with the API) and the sample data still used by pages that are not connected.
+- `lib/controllers/admin-controller.ts`, `professionals-controller.ts`, `audit-controller.ts`, `crisis-controller.ts`: the server side.
 
 ## Checks
 
 ```sh
 npx eslint app/admin
-npx next typegen
 npx tsc --noEmit
 npm run build
 ```
-
-Production build, admin ESLint, and TypeScript checks passed on 2026-10-07. Automated browser verification could not run because Chromium was unavailable and its download failed. Use the checklist in report.md for browser QA.
