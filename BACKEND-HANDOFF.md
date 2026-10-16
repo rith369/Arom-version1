@@ -84,7 +84,7 @@ The yellow "Demo data on this page" banner is in `admin-shell.tsx`. Remove it fo
 - **Audit log page** reads `GET /api/admin/audit-log` (`lib/controllers/audit-controller.ts`), which turns each action code into a readable line with who did it, who it was about (names only) and a short detail (role change, reason, note). Rows with no admin were made in the Supabase dashboard.
 - The old sample `users` list stays only for the demo Bookings page.
 - **Nightly open times:** `refresh_all_open_times()` mirrors `openSlots()` in SQL and adds missing times for every active professional's booking window. pg_cron runs it at 00:05 Cambodia time (`arom-refresh-open-times`). It only adds; saving the schedule in `/pro` still replaces times exactly.
-- Still open: `avatarUrl` (null, the page shows initials) and server side search for very large numbers of users.
+- Still open: server side search for very large numbers of users. `AdminUser.avatarUrl` stays null by design. User profile photos are private and only available to the signed in account holder.
 
 **Files:** `app/admin/_data/users.ts`, `app/admin/_components/users-view.tsx`, actions in `admin-provider.tsx`.
 
@@ -95,7 +95,7 @@ The yellow "Demo data on this page" banner is in `admin-shell.tsx`. Remove it fo
 | `id` | string (uuid) | `profiles.id` | Yes |
 | `fullName` | string | `profiles.full_name` | Yes |
 | `email` | string | `auth.users.email` | **No.** `listUsers` does not return it. Needs a server side read (see gaps) |
-| `avatarUrl` | string or null | no column yet | **No.** Return `null` for now, the page shows initials |
+| `avatarUrl` | string or null | none for the admin user list | **No by design.** User profile photos are stored privately and are not exposed in admin user records |
 | `role` | `'user' \| 'professional' \| 'admin'` | `profiles.role` | Yes |
 | `status` | `'active' \| 'suspended'` | `profiles.account_status` | Yes (returned as `accountStatus`, rename or map) |
 | `preferredLanguage` | `'en' \| 'km'` | `profiles.language` | Column yes, not returned by `listUsers` |

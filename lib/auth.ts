@@ -58,13 +58,12 @@ export const profileUpdateSchema = z
       .trim()
       .min(2, 'Enter your full name')
       .max(60, 'Name must be 60 characters or fewer'),
+    pronouns: z.string().trim().max(60, 'Pronouns must be 60 characters or fewer'),
+    aboutMe: z.string().trim().max(280, 'About you must be 280 characters or fewer'),
     language: z.enum(['en', 'km']),
     hideIdentity: z.boolean(),
   })
-  .partial()
-  .refine((values) => Object.keys(values).length > 0, {
-    message: 'Nothing to update',
-  });
+  .partial();
 
 /** The 6 digit code from the confirmation email, typed on the device that signed up. */
 export const verifyCodeSchema = z.object({
@@ -109,6 +108,9 @@ export interface AuthUser {
   id: string;
   email: string;
   fullName: string;
+  pronouns?: string;
+  aboutMe?: string;
+  avatarUrl?: string | null;
   role: UserRole;
   language: 'en' | 'km';
   accountStatus: 'active' | 'suspended';

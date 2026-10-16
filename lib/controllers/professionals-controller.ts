@@ -7,7 +7,7 @@ import type {
   VerificationStatus,
 } from "@/app/admin/_data/professionals";
 import { uuidSchema } from "@/lib/roles";
-import { NO_STORE, fail, invalidInput, json, readJson } from "./shared";
+import { NO_STORE, databaseError, fail, invalidInput, json, readJson } from "./shared";
 import { requireRole } from "./role-controller";
 
 /*
@@ -254,7 +254,7 @@ export async function setAccountStatus(request: NextRequest, userId: string) {
     p_status: body.data.status,
     p_reason: body.data.reason ?? null,
   });
-  if (error) return fail("invalid_input", error.message, 400);
+  if (error) return databaseError(error, "That change could not be saved. Please try again.");
 
   return json({ ok: true, userId: id.data, status: body.data.status });
 }
@@ -279,7 +279,7 @@ export async function reviewProfileChanges(request: NextRequest, professionalId:
     p_approve: body.data.approve,
     p_note: body.data.note ?? null,
   });
-  if (error) return fail("invalid_input", error.message, 400);
+  if (error) return databaseError(error, "That change could not be saved. Please try again.");
 
   return json({ ok: true, professionalId: id.data, approved: body.data.approve });
 }

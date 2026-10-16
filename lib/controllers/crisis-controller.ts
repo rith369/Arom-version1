@@ -6,7 +6,7 @@ import {
   type CrisisHelpline,
 } from "@/app/_components/support-contacts";
 import { createClient } from "@/lib/supabase/server";
-import { fail, invalidInput, json, readJson } from "./shared";
+import { databaseError, fail, invalidInput, json, readJson } from "./shared";
 import { requireRole } from "./role-controller";
 
 /*
@@ -115,7 +115,7 @@ export async function saveHelplines(request: NextRequest) {
   const { error } = await guard.supabase.rpc("save_crisis_resources", {
     p_items: body.data.helplines,
   });
-  if (error) return fail("invalid_input", error.message, 400);
+  if (error) return databaseError(error, "The helplines could not be saved. Please try again.");
 
   return listAllHelplines();
 }

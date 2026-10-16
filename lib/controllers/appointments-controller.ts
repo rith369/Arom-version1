@@ -7,7 +7,7 @@ import {
   type UserAppointment,
 } from "@/lib/appointments";
 import { createClient } from "@/lib/supabase/server";
-import { fail, invalidInput, json, readJson, unauthorized } from "./shared";
+import { databaseError, fail, invalidInput, json, readJson, unauthorized } from "./shared";
 
 /*
  * AROM appointments controller: the signed in user's own bookings.
@@ -146,7 +146,7 @@ export async function updateMyAppointment(request: NextRequest, appointmentId: s
       p_appointment_id: id.data,
       p_reason: body.data.reason || null,
     });
-    if (error) return fail("invalid_input", error.message, 400);
+    if (error) return databaseError(error, "This session could not be cancelled. Please try again.");
   } else {
     // Sharing is the user's own choice, and can be turned off at any time.
     const { error } = await supabase.rpc("set_appointment_sharing", {
@@ -154,7 +154,7 @@ export async function updateMyAppointment(request: NextRequest, appointmentId: s
       p_share_survey: body.data.shareSurvey,
       p_share_symptom_checks: body.data.shareSymptomChecks,
     });
-    if (error) return fail("invalid_input", error.message, 400);
+    if (error) return databaseError(error, "Your sharing choice could not be saved. Please try again.");
   }
 
   const appointments = await loadAppointments(supabase, userId);

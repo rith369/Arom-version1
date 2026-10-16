@@ -1,7 +1,7 @@
 import type { NextRequest } from "next/server";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
-import { fail, invalidInput, json, readJson, unauthorized } from "./shared";
+import { databaseError, invalidInput, json, readJson, unauthorized } from "./shared";
 
 /*
  * AROM booking controller. A signed in user books one open time.
@@ -31,8 +31,7 @@ export async function bookAppointment(request: NextRequest) {
     p_session_type: body.data.sessionType,
     p_intake_note: body.data.note || null,
   });
-  // The database messages are written for users ("This time is no longer available").
-  if (error) return fail("invalid_input", error.message, 409);
+  if (error) return databaseError(error, "We could not book this time. Please try again in a moment.", 409);
 
   return json({ appointmentId: data as string }, 201);
 }

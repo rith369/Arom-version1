@@ -23,7 +23,7 @@ import { supabaseUrl } from "@/lib/supabase/env";
 import type { SessionSuggestion } from "@/lib/sessions";
 import { loadArchivedClients } from "./messages-controller";
 import { SUGGESTION_COLUMNS, toSuggestion, type SuggestionRow } from "./sessions-controller";
-import { fail, invalidInput, json, readJson } from "./shared";
+import { databaseError, fail, invalidInput, json, readJson } from "./shared";
 import { requireRole } from "./role-controller";
 
 /*
@@ -559,7 +559,7 @@ export async function updateProBooking(request: NextRequest, appointmentId: stri
       .eq("id", id.data));
   }
 
-  if (error) return fail("invalid_input", error.message, 400);
+  if (error) return databaseError(error, "This booking could not be updated. Please try again.");
 
   const profile = await loadProfile(supabase, userId);
   const data = await loadBookings(supabase, userId, profile?.slug ?? "");

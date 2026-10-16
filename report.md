@@ -1,5 +1,51 @@
 # AROM: Change Report
 
+## 16 Oct 2026: Private Profile Editing
+
+Commit `PENDING`. Migration `20261016000900_profile_editor_fields.sql` adds private profile details and a private photo bucket. Apply it in Supabase before saving these fields.
+
+**Why.** The profile card had two separate edit controls, and the pencil could only change the name. A single Edit Profile flow gives members one place to update the details that belong to their account.
+
+**What changed for users:**
+- **One profile editor:** Edit Profile opens a compact mobile sheet or desktop dialog for a photo, display name, pronouns, and About you. The account email remains visible.
+- **Less empty space:** the sheet sizes to its content and scrolls the fields when the screen is short, with the save actions kept at the bottom.
+- **Private photos:** uploaded profile photos are served only to the signed in account holder.
+
+**What changed for the team:**
+- **Profile API:** saves the name, pronouns, and About you fields together, and validates photo type and size before upload.
+- **Private storage:** adds owner only policies for profile photo upload, read, and deletion. The admin user list does not receive profile photos.
+- **Bilingual form:** new controls support English and Khmer.
+- **Backend handoff:** documents that user photos remain private and are not part of admin user records.
+
+**What to re-test:**
+1. Apply the migration in Supabase.
+2. Open Profile & Settings and select Edit Profile. Check that the sheet has no large blank area under its actions on a phone sized screen.
+3. Change the name, photo, pronouns, and About you, save, then reload the page. Check that each value is retained.
+4. Upload a file larger than 5 MB or a non image file. Check that the form explains what to choose.
+5. Sign in as another account and confirm its photo endpoint cannot return the first account's image.
+6. Switch the app to Khmer and check the editor labels and buttons.
+
+## 16 Oct 2026: Booking Works for Every Account, and No More Database Errors on Screen
+
+Commit `PENDING`. Migration `20261016000800_backfill_missing_profiles.sql` must be run in Supabase. It is safe to run more than once.
+
+**Why.** Booking a session on the live site showed `insert or update on table "appointments" violates foreign key constraint "appointments_user_id_fkey"`. The account had signed in fine but had no row in `profiles`, which happens to accounts created while the sign up trigger was missing. Every booking needs that row. The page also showed the raw database message, which means nothing to a user and reveals how the database is built.
+
+**What changed for users:**
+- **Booking works again** for accounts that were missing a profile. They get one with the role Member, their sign up name and language.
+- **Friendly errors only:** when something goes wrong while booking, cancelling, changing sharing, updating a booking, reviewing professionals or saving helplines, people see a plain message such as "We could not book this time. Please try again in a moment." Messages written for people, such as "This time is no longer available", still show as before.
+
+**What changed for the team:**
+- **Migration:** creates the missing profiles the same way `handle_new_user()` does, and recreates the `on_auth_user_created` trigger so new accounts always get one.
+- **`databaseError(error, fallback)`** in `lib/controllers/shared.ts`: shows messages our SQL functions raise for people (code `P0001`) and hides everything else behind `fallback`. Use it instead of `fail(..., error.message, ...)`.
+- **Used in** the booking, appointments, pro bookings, crisis helpline and admin professionals controllers.
+
+**What to re-test:**
+1. In Supabase, run this to see accounts without a profile (it should list the account that failed): `select u.id, u.email from auth.users u left join public.profiles p on p.id = u.id where p.id is null;`
+2. Run the migration, then run step 1 again. Check that it returns no rows.
+3. On the live site, book a session with the same account. Check that it goes through.
+4. Try to book a time someone just took. Check that you see "This time is no longer available".
+
 ## 16 Oct 2026: Saved Schedules Stop Saying "Unsaved", and AROM's Own Confirm Window
 
 Commit `PENDING`. No migration.

@@ -32,6 +32,16 @@ export async function readJson(request: NextRequest): Promise<unknown> {
   }
 }
 
+/**
+ * Answers a failed database call. Messages our SQL functions raise for people
+ * (code P0001, for example "This time is no longer available") are shown;
+ * anything else is a database detail, so the person sees `fallback` instead.
+ */
+export function databaseError(error: { code?: string; message: string }, fallback: string, status = 400) {
+  if (error.code === "P0001") return fail("invalid_input", error.message, status);
+  return fail("server_error", fallback, 500);
+}
+
 export function invalidInput() {
   return fail('invalid_input', 'Please check the details you entered.', 400);
 }
@@ -46,15 +56,19 @@ export function isRateLimited(error: AuthError) {
 
 export interface ProfileRow {
   full_name: string | null;
+  pronouns: string | null;
+  about_me: string | null;
+  avatar_path: string | null;
   role: string;
   language: string;
   account_status: string;
   hide_identity: boolean;
   created_at: string;
+  updated_at: string;
 }
 
 export const PROFILE_COLUMNS =
-  'full_name, role, language, account_status, hide_identity, created_at';
+  'full_name, pronouns, about_me, avatar_path, role, language, account_status, hide_identity, created_at, updated_at';
 
 /** Builds the public user shape from the auth user and their profile row. */
 export function buildAuthUser(
@@ -70,6 +84,11 @@ export function buildAuthUser(
     id: user.id,
     email: user.email ?? '',
     fullName: profile?.full_name ?? metadataName,
+    pronouns: profile?.pronouns ?? '',
+    aboutMe: profile?.about_me ?? '',
+    avatarUrl: profile?.avatar_path
+      ? `/api/profile/photo?v=${encodeURIComponent(profile.updated_at)}`
+      : null,
     role: ROLES.find((value) => value === profile?.role) ?? 'user',
     language: profile?.language === 'km' ? 'km' : 'en',
     accountStatus:
