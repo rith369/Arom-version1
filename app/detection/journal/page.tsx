@@ -1163,9 +1163,10 @@ function JournalContent() {
                     <button
                       type="button"
                       onClick={() => handleSwitchSpeechLang("km")}
+                      aria-pressed={speechLang === "km"}
                       className={`flex min-h-10 min-w-0 flex-1 basis-0 items-center justify-center whitespace-nowrap rounded-xl px-1 text-[10px] transition-colors sm:px-2 sm:text-xs ${
                         speechLang === "km"
-                          ? "bg-white text-[#165746] font-bold ring-1 ring-[#dcebe7]"
+                          ? "bg-[#1f6f5b] text-white font-bold shadow-sm"
                           : "text-[#667a75] hover:bg-white/70 hover:text-[#165746]"
                       }`}
                     >
@@ -1174,9 +1175,10 @@ function JournalContent() {
                     <button
                       type="button"
                       onClick={() => handleSwitchSpeechLang("en")}
+                      aria-pressed={speechLang === "en"}
                       className={`flex min-h-10 min-w-0 flex-1 basis-0 items-center justify-center whitespace-nowrap rounded-xl px-1 text-[10px] transition-colors sm:px-2 sm:text-xs ${
                         speechLang === "en"
-                          ? "bg-white text-[#165746] font-bold ring-1 ring-[#dcebe7]"
+                          ? "bg-[#1f6f5b] text-white font-bold shadow-sm"
                           : "text-[#667a75] hover:bg-white/70 hover:text-[#165746]"
                       }`}
                     >
