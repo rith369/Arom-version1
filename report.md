@@ -2,7 +2,7 @@
 
 ## 16 Oct 2026: Home Answers Your Mood, Shows Your Next Session, and Only Counts Real Progress
 
-Commit `PENDING`. No migration. Frontend only, using APIs that already exist.
+Commit `52c9f1f`. No migration. Frontend only, using APIs that already exist.
 
 **Why.** Home showed "2/5 done" to everyone, even signed out, because two plan rows were marked done in the code. A check in only said "Saved", so it felt like a form. People with a session booked had to open My appointments to find it. Small text issues made the page feel unfinished.
 
