@@ -2,7 +2,7 @@
 
 ## 16 Oct 2026: The Mood Sprouts Everywhere There Are Five Moods
 
-Commit `PENDING`. No migration. Frontend only.
+Commit `f566e77`. No migration. Frontend only.
 
 **Why.** Rith asked for the five AROM sprouts from the new Home design to be used wherever the app shows the five moods, so a mood looks the same on every page.
 
