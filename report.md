@@ -1,5 +1,37 @@
 # AROM: Change Report
 
+## 16 Oct 2026: Your Plan For Today Becomes Your Own To Do List
+
+Commits `c4b6fcd` and `00aaa9e`. Migration `20261016001300_plan_tasks.sql` not yet applied to Supabase. It must run before this branch is merged.
+
+**Why.** Rith wanted the plan on Home to be a to do list people set up themselves, for things like drinking more water or going to bed on time, plus MindGuide items. Until now the plan was mostly fixed rows, and anything added was kept only in the browser, so it was lost on another phone and anyone on the same phone could see it.
+
+**What changed for users:**
+- **Add your own tasks:** type anything, or tap an idea (drink water, sleep before 11 pm, walk 10 minutes, no phone before bed, breakfast, message a friend, stretch, gratitude, morning sun), or add a MindGuide lesson or practice.
+- **Choose how often:** every day, some days (pick the days), or today only.
+- **Done looks done:** tap the circle and the task gets a line through it and a green check. Tap again to undo. Every day starts fresh, nothing piles up as overdue.
+- **Edit, reorder and delete** tasks in My tasks (pencil "Edit" on the card).
+- **The plan is saved to your account,** private to you, and follows you to any phone. Items an older version kept in this browser are moved in once.
+- **New people start with 4 tasks** (a lesson, a meditation, a try now step, drinking water) they can delete. The mood check in and tasks from your professional still appear automatically.
+- **Signed out:** the card shows the starter tasks and "Log in to make your own plan".
+
+**What changed for the team:**
+- **New tables** `plan_tasks`, `plan_task_checks`, `plan_starts` with owner only RLS, a 30 task limit and internal links only. **New API** under `/api/plan`. Full details in `BACKEND-HANDOFF.md` section 27.
+- **`daily-plan-store.ts`** now keeps the plan in memory and saves through the API. MindGuide screens still call `getCustomPlanItems`, `isItemInDailyPlan` and `toggleCustomPlanItem`, so they did not change. Adding while signed out goes to log in.
+- **Tips "Try now"** add to plan moved to `app/_components/tips/tips-plan.ts`, because `tips-data.ts` is also imported by server code.
+- **The old Curate window is replaced** by `plan-editor-dialog.tsx`. Its MindGuide list moved to `plan-mindguide-items.ts`. Explore Community is no longer a fixed row.
+
+**What to re-test:**
+1. Run migration `20261016001300_plan_tasks.sql` in Supabase.
+2. Log in as a new user and open Home: the 4 starter tasks show, with the mood check in on top.
+3. Tick a task: a line goes through it and the check turns green. Reload: it stays ticked. Untick it.
+4. Add your own task with Some days (only Monday) and check it only shows on Mondays. Add one with Today only.
+5. Tap two ideas, then open My tasks: move one up, rename one, delete one (it asks first).
+6. In MindGuide, Add to plan on a lesson: it shows on Home. Finish that lesson: it ticks itself.
+7. In a Tip, add a Try now step to the plan: it shows on Home with a capital letter.
+8. Log in as another user: none of the first user's tasks show.
+9. Signed out: the card shows the starter tasks and Log in to make your own plan.
+
 ## 16 Oct 2026: Home Answers Your Mood, Shows Your Next Session, and Only Counts Real Progress
 
 Commit `52c9f1f`. No migration. Frontend only, using APIs that already exist.

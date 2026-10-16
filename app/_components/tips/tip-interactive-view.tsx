@@ -19,13 +19,12 @@ import { chooseLabel, useMindGuidePick } from "../mindguide-pick";
 import { EducationalNote } from "../educational-note";
 import { ReportProblemButton } from "../report-problem";
 import {
-  getPlanTryNowItems,
   isTipBookmarked,
   toggleTipBookmark,
-  toggleTryNowInPlan,
   type TipItem,
   type TipStep,
 } from "./tips-data";
+import { getPlanTryNowItems, toggleTryNowInPlan } from "./tips-plan";
 
 type TipInteractiveViewProps = {
   tip: TipItem;
