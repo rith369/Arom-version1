@@ -1,5 +1,29 @@
 # AROM: Change Report
 
+## 16 Oct 2026: Plan Ticks Work Every Time, and the Bar Fills From the Left
+
+Commit `PENDING`. No migration. Frontend only.
+
+**Why.** Rith found that ticking a task sometimes did not work, and that the progress bar lit the segment where the done task sat (ticking the last task lit the last segment) instead of filling from the left.
+
+**What changed for users:**
+- **Easier to tap:** the check circle still looks the same, but its tap area is 44px, so a thumb no longer lands on the row by mistake.
+- **Fast taps are safe:** tapping quickly several times always ends on your last tap, also after a reload.
+- **The Mood check in circle works:** it takes you to the mood picker, because that row ticks when you choose a mood.
+- **Finished lessons and practices can be unticked:** finishing one ticks its task as a normal tick, which you can undo.
+- **The bar fills from the left:** 2 done lights the first 2 segments, whichever tasks they are.
+
+**What changed for the team:**
+- `daily-plan-store.ts`: `setPlanTaskDone` sends one save at a time per task, in tap order.
+- `daily-plan-card.tsx`: `CheckCircle` has a 44px target (and a link for the mood row); automatic ticks are saved once per visit through `setPlanTaskDone`; the bar uses the done count.
+
+**What to re-test:**
+1. Tap each circle on a phone: every tap ticks or unticks.
+2. Tap one circle 5 times fast, wait, reload: it shows what the last tap showed.
+3. Tap the Mood check in circle: the page moves to the mood picker.
+4. Tick the last task only: the first bar segment turns green.
+5. Finish a lesson that is in your plan, come back: it is ticked, and you can untick it.
+
 ## 16 Oct 2026: Your Plan For Today Becomes Your Own To Do List
 
 Commits `c4b6fcd` and `00aaa9e`. Merged in PR #17. Migration `20261016001300_plan_tasks.sql` applied to Supabase on 16 Oct 2026 (by Rith).

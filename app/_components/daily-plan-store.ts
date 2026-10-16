@@ -163,15 +163,24 @@ export async function deletePlanTask(id: string): Promise<PlanResult> {
   return { ok: true };
 }
 
+// Saves for each task wait for the one before, so fast taps reach the
+// server in the order they were made and the last tap always wins.
+const checkQueue = new Map<string, Promise<unknown>>();
+
 /** Ticks or unticks a task for today. The screen changes at once and goes back if saving fails. */
-export async function setPlanTaskDone(id: string, done: boolean): Promise<PlanResult> {
+export function setPlanTaskDone(id: string, done: boolean): Promise<PlanResult> {
   updateTasks((tasks) => tasks.map((item) => (item.id === id ? { ...item, doneToday: done } : item)));
-  const result = await send(`/api/plan/tasks/${id}/check`, "PUT", { done });
-  if (!result.ok) {
+  const save = (checkQueue.get(id) ?? Promise.resolve()).then(async (): Promise<PlanResult> => {
+    const result = await send(`/api/plan/tasks/${id}/check`, "PUT", { done });
+    if (result.ok) return { ok: true };
     updateTasks((tasks) => tasks.map((item) => (item.id === id ? { ...item, doneToday: !done } : item)));
     return { ok: false, message: result.message ?? "That could not be saved." };
-  }
-  return { ok: true };
+  });
+  checkQueue.set(id, save);
+  void save.finally(() => {
+    if (checkQueue.get(id) === save) checkQueue.delete(id);
+  });
+  return save;
 }
 
 export async function reorderPlanTasks(ids: string[]): Promise<PlanResult> {

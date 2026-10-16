@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Check, ChevronRight, LogIn, Pencil, Plus, RotateCcw } from "lucide-react";
-import { useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { PlanTaskIcon } from "./plan-task-icon";
 import { PlanEditorDialog, type PlanEditorTab } from "./plan-editor-dialog";
@@ -37,6 +37,9 @@ type Row = {
   // Missing for rows that tick themselves (the mood check in) or cannot be
   // ticked (the signed out preview).
   onToggle?: () => void;
+  // Where the circle goes when the row ticks itself.
+  checkHref?: string;
+  checkLabel?: string;
 };
 
 // Icon for a task from the professional, matching the plan's other rows.
@@ -49,11 +52,14 @@ function careIcon(task: CareTask) {
 
 // The tick settles in when a task is ticked, but not when the page loads.
 // Reduced motion: fade only.
-function CheckCircle({ done, onToggle, label }: { done: boolean; onToggle?: () => void; label: string }) {
+// The circle is drawn at 28px but the tap area is 44px, so a thumb never misses it.
+function CheckCircle({ done, onToggle, href, label }: { done: boolean; onToggle?: () => void; href?: string; label: string }) {
   const reduce = useReducedMotion();
-  const circle = `flex size-7 shrink-0 items-center justify-center rounded-full border transition-[transform,background-color,border-color] duration-[160ms] ease-[var(--ease-out)] ${
+  const circle = `flex size-7 shrink-0 items-center justify-center rounded-full border transition-[transform,background-color,border-color] duration-[160ms] ease-[var(--ease-out)] group-hover:border-white group-active:scale-90 motion-reduce:group-active:scale-100 ${
     done ? "border-[#23aa89] bg-[#23aa89] text-white shadow-sm" : "border-white/55"
   }`;
+  const target =
+    "group -my-2 -mr-2 flex size-11 shrink-0 items-center justify-center rounded-full focus-visible:outline-2 focus-visible:outline-white";
   const tick = (
     <AnimatePresence initial={false}>
       {done && (
@@ -69,23 +75,25 @@ function CheckCircle({ done, onToggle, label }: { done: boolean; onToggle?: () =
       )}
     </AnimatePresence>
   );
-  if (!onToggle) {
+  if (onToggle) {
     return (
-      <span aria-hidden="true" className={circle}>
-        {tick}
-      </span>
+      <button type="button" onClick={onToggle} aria-pressed={done} aria-label={label} className={target}>
+        <span className={circle}>{tick}</span>
+      </button>
+    );
+  }
+  // Ticks itself (the mood check in): the circle takes you to where you do it.
+  if (href) {
+    return (
+      <Link href={href} aria-label={label} className={target}>
+        <span className={circle}>{tick}</span>
+      </Link>
     );
   }
   return (
-    <button
-      type="button"
-      onClick={onToggle}
-      aria-pressed={done}
-      aria-label={label}
-      className={`${circle} hover:border-white active:scale-90 motion-reduce:active:scale-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white`}
-    >
-      {tick}
-    </button>
+    <span aria-hidden="true" className="-my-2 -mr-2 flex size-11 shrink-0 items-center justify-center">
+      <span className={circle}>{tick}</span>
+    </span>
   );
 }
 
@@ -135,7 +143,7 @@ function PlanRow({ row, km }: { row: Row; km: boolean }) {
       ) : (
         <div className={area}>{content}</div>
       )}
-      <CheckCircle done={row.done} onToggle={row.onToggle} label={toggleLabel} />
+      <CheckCircle done={row.done} onToggle={row.onToggle} href={row.checkHref} label={row.checkLabel ?? toggleLabel} />
     </li>
   );
 }
@@ -164,6 +172,18 @@ export function DailyPlanCard({ tuckBanner = false }: { tuckBanner?: boolean }) 
     (task.source === "learn" && finishedToday("lesson", task.itemKey)) ||
     (task.source === "practice" && finishedToday("practice", task.itemKey));
 
+  // A lesson or practice finished today ticks its task once, as a normal
+  // tick, so the person can still untick it.
+  const autoTicked = useRef(new Set<string>());
+  useEffect(() => {
+    if (plan.status !== "ready" || activities.status !== "ready") return;
+    for (const task of plan.tasks) {
+      if (task.doneToday || autoTicked.current.has(task.id) || !isDueOn(task, today) || !autoDone(task)) continue;
+      autoTicked.current.add(task.id);
+      void setPlanTaskDone(task.id, true);
+    }
+  });
+
   const toggleTask = async (task: PlanTask) => {
     const result = await setPlanTaskDone(task.id, !task.doneToday);
     setError(result.ok ? "" : result.message);
@@ -182,6 +202,8 @@ export function DailyPlanCard({ tuckBanner = false }: { tuckBanner?: boolean }) 
     icon: "ic_outline-mood",
     href: "/#mood-check-in",
     done: Boolean(mood.today),
+    checkHref: "/#mood-check-in",
+    checkLabel: km ? "ជ្រើសអារម្មណ៍របស់អ្នកខាងក្រោម" : "Choose your mood below",
   };
 
   // Tasks from the person's professionals that are due today.
@@ -212,7 +234,7 @@ export function DailyPlanCard({ tuckBanner = false }: { tuckBanner?: boolean }) 
             subtitle: km && task.subtitleKm ? task.subtitleKm : task.subtitle,
             icon: task.icon,
             href: task.href,
-            done: task.doneToday || autoDone(task),
+            done: task.doneToday,
             onToggle: () => void toggleTask(task),
           }))
       : plan.status === "signed_out"
@@ -275,11 +297,12 @@ export function DailyPlanCard({ tuckBanner = false }: { tuckBanner?: boolean }) 
           aria-label={km ? `រួចរាល់ ${doneCount} ក្នុងចំណោម ${rows.length}` : `${doneCount} of ${rows.length} done`}
           className="mt-3 flex items-center gap-1.5"
         >
-          {rows.map((row) => (
+          {/* Fills from the left: 2 done lights the first 2, whichever tasks they are. */}
+          {rows.map((row, index) => (
             <span
               key={row.id}
               className={`h-1.5 flex-1 rounded-full transition-colors duration-200 ${
-                row.done ? "bg-[#23aa89] shadow-[0_0_6px_rgba(35,170,137,0.6)]" : "bg-white/75"
+                index < doneCount ? "bg-[#23aa89] shadow-[0_0_6px_rgba(35,170,137,0.6)]" : "bg-white/75"
               }`}
             />
           ))}
