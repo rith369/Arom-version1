@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, type FormEvent } from 'react';
 
 import { Plus, Search, Pencil, Pause, Play, X } from 'lucide-react';
 
-import { useAdmin } from './admin-provider';
+import { useAdmin, type ActionResult } from './admin-provider';
 import { useLanguage } from '../../_components/language-provider';
 
 import type { AdminJournalPrompt } from '../_data/journal-prompts';
@@ -19,7 +19,7 @@ function PromptForm({
 }: {
   record: AdminJournalPrompt | null;
   onClose: () => void;
-  onSave: (record: AdminJournalPrompt) => void;
+  onSave: (record: AdminJournalPrompt) => Promise<ActionResult>;
 }) {
   const { journalPrompts } = useAdmin();
   const { language } = useLanguage();
@@ -27,6 +27,7 @@ function PromptForm({
 
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [error, setError] = useState('');
+  const [saving, setSaving] = useState(false);
 
   const nextOrder =
     Math.max(0, ...journalPrompts.map((prompt) => prompt.order)) + 1;
@@ -38,8 +39,9 @@ function PromptForm({
     return () => dialog?.close();
   }, []);
 
-  function submit(event: FormEvent<HTMLFormElement>) {
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (saving) return;
 
     const form = new FormData(event.currentTarget);
 
@@ -71,7 +73,9 @@ function PromptForm({
       return;
     }
 
-    onSave({
+    setError('');
+    setSaving(true);
+    const result = await onSave({
       id: record?.id ?? crypto.randomUUID(),
       question,
       kmQuestion,
@@ -80,6 +84,8 @@ function PromptForm({
       order,
       isActive: form.get('isActive') === 'on',
     });
+    setSaving(false);
+    if (!result.ok) setError(result.message);
   }
 
   return (
@@ -127,7 +133,7 @@ function PromptForm({
             name="kmQuestion"
             required
             rows={2}
-            maxLength={400}
+            maxLength={300}
             defaultValue={record?.kmQuestion ?? ''}
             className={fieldClass}
           />
@@ -194,8 +200,9 @@ function PromptForm({
 
           <button
             type="submit"
-            className="rounded-full bg-arom px-5 py-2.5 text-sm text-white hover:bg-arom-deep">
-            {km ? 'រក្សាទុក' : 'Save prompt'}
+            disabled={saving}
+            className="rounded-full bg-arom px-5 py-2.5 text-sm text-white hover:bg-arom-deep disabled:opacity-60">
+            {saving ? 'Saving...' : km ? 'រក្សាទុក' : 'Save prompt'}
           </button>
         </footer>
       </form>
@@ -204,8 +211,7 @@ function PromptForm({
 }
 
 export function JournalPromptsView() {
-  const { journalPrompts, saveJournalPrompt, setJournalPromptActive } =
-    useAdmin();
+  const { journalPrompts, journalPromptsLoad, saveJournalPrompt } = useAdmin();
 
   const { language } = useLanguage();
   const km = language === 'km';
@@ -342,8 +348,15 @@ export function JournalPromptsView() {
 
                 <button
                   type="button"
-                  onClick={() => {
-                    setJournalPromptActive(prompt.id, !prompt.isActive);
+                  onClick={async () => {
+                    const result = await saveJournalPrompt({
+                      ...prompt,
+                      isActive: !prompt.isActive,
+                    });
+                    if (!result.ok) {
+                      setNotice(result.message);
+                      return;
+                    }
                     setNotice(
                       km
                         ? 'បានធ្វើបច្ចុប្បន្នភាពស្ថានភាពសំណួរ។'
@@ -373,7 +386,17 @@ export function JournalPromptsView() {
           ))}
         </div>
 
-        {!visible.length && (
+        {journalPromptsLoad !== 'ready' && (
+          <p
+            role={journalPromptsLoad === 'error' ? 'alert' : 'status'}
+            className="p-10 text-center text-sm text-ink-muted">
+            {journalPromptsLoad === 'error'
+              ? 'Could not load journal prompts. Refresh the page to try again.'
+              : 'Loading journal prompts...'}
+          </p>
+        )}
+
+        {journalPromptsLoad === 'ready' && !visible.length && (
           <div className="p-10 text-center">
             <p className="text-sm text-ink-muted">
               {km ? 'មិនមានលទ្ធផល' : 'No matching prompts'}
@@ -406,12 +429,14 @@ export function JournalPromptsView() {
         <PromptForm
           record={editor.record}
           onClose={() => setEditor(null)}
-          onSave={(record) => {
-            saveJournalPrompt(record);
+          onSave={async (record) => {
+            const result = await saveJournalPrompt(record);
+            if (!result.ok) return result;
             setEditor(null);
             setQuery('');
             setFilter('all');
             setNotice(km ? 'បានរក្សាទុកសំណួរ។' : 'Journal prompt saved.');
+            return result;
           }}
         />
       )}

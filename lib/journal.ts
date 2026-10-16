@@ -47,6 +47,28 @@ export type JournalEntryDto = {
 
 export type JournalListResponse = { entries: JournalEntryDto[] };
 
+/** A guided question admins manage in /admin/journal-prompts (section 26). */
+export type JournalPrompt = {
+  id: string;
+  question: string;
+  kmQuestion: string;
+  placeholder: string;
+  kmPlaceholder: string;
+  order: number;
+  isActive: boolean;
+};
+
+/** PUT /api/admin/journal-prompts body `{ prompt }`. Limits match the table. */
+export const journalPromptSchema = z.object({
+  id: z.string().uuid(),
+  question: z.string().trim().min(1).max(300),
+  kmQuestion: z.string().trim().min(1).max(300),
+  placeholder: z.string().trim().max(400),
+  kmPlaceholder: z.string().trim().max(500),
+  order: z.number().int().min(1).max(1000),
+  isActive: z.boolean(),
+});
+
 const questionSchema = z.object({
   id: z.string().max(60),
   question: z.string().max(300),

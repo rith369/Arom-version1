@@ -1,5 +1,30 @@
 # AROM: Change Report
 
+## 16 Oct 2026: Journal Prompts Saved for Real and Shown in the Journal
+
+Commit `PENDING`. Migration `20261016001200_journal_prompts.sql` not yet applied to Supabase. It must run before this branch is merged.
+
+**Why.** The admin Journal prompts page ran on sample data: anything an admin added or switched off was lost on refresh, and the journal page never read it anyway. Its two guided questions were written into the code. Now the AROM team can choose the reflection questions users see without a code change.
+
+**What changed for users:**
+- **The guided questions on Write about today come from the admin list,** in the admin's order. Today they are the same two questions as before, so nothing looks different until an admin changes them.
+- **Questions you have started answering are never swapped out** while you write. If the list cannot load, the journal shows its usual two questions.
+
+**What changed for the team:**
+- **Admin Journal prompts page is real:** add, edit, activate and deactivate save to the database and stay after a refresh. Errors from the server show in the form. The demo banner is gone on this page.
+- **Rules:** up to 10 active prompts, each display number used once, questions up to 300 characters (the Khmer field limit went from 400 to 300 to match journal entries). Every change is in the Audit log.
+- **New:** table `journal_prompts` with RLS (anyone reads active, admins read all, no write policies), function `save_journal_prompt()`, `GET /api/journal-prompts`, `GET|PUT /api/admin/journal-prompts`, `lib/controllers/journal-prompts-controller.ts`. The shared type is `JournalPrompt` in `lib/journal.ts`. The sample prompts in `app/admin/_data/journal-prompts.ts` are removed.
+- **Docs:** `BACKEND-HANDOFF.md` section 26. The status board rows for Change time and in person address now say Connected.
+
+**What to re-test:**
+1. Run migration `20261016001200_journal_prompts.sql` in Supabase.
+2. As an admin, open Journal prompts. Check the three starting prompts load and the demo banner is gone.
+3. Add a prompt, refresh, and check it is still there. Try a display number that is already used and check the error.
+4. Deactivate "What was challenging or difficult?", then open Write about today as a user and check only the happy question shows. Activate it again.
+5. Activate the gratitude prompt and check the journal shows three questions in order.
+6. Open the Audit log and check the prompt changes are listed.
+7. As a normal user, call `PUT /api/admin/journal-prompts` and check it is refused.
+
 ## 16 Oct 2026: Progress, Activities, Journal and Mood Sharing All Use Real Data (Issue #13)
 
 Commit `PENDING`. Migrations `20261016001000_progress_journal_sharing.sql` and `20261016001100_audit_admin_chat_reads.sql` must be run in Supabase, after `20261015001500_client_reschedule.sql` and `20261015001600_in_person_address.sql` (from PR #11).
