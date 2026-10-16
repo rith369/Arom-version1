@@ -76,7 +76,7 @@ The yellow "Demo data on this page" banner is in `admin-shell.tsx`. Remove it fo
 | Edit Profile for users: photo, display name, pronouns, About you (`/profile`) | Done | Connected (`/api/profile`, `/api/profile/photo`, private `user-profile-photos` bucket), migration `20261016000900`. Accounts without a profile row fixed by `20261016000800` | none |
 | Admin audit log (`/admin/audit-log`) | Done | Connected (`GET /api/admin/audit-log`). No migration | 5 |
 | Journal prompts: admin page `/admin/journal-prompts`, guided questions on Write about today (`/detection/journal`) | Done | Connected (`GET /api/journal-prompts`, `GET\|PUT /api/admin/journal-prompts`), migration `20261016001200` | 26 |
-| Your Plan For Today as a to do list: own tasks, ideas, MindGuide items, repeat, tick with a line through (Home) | Done | Written on branch `rith/plan-todo-list` (`/api/plan`, `/api/plan/tasks`, `/api/plan/tasks/:id`, `/api/plan/tasks/:id/check`, `/api/plan/order`), migration `20261016001300` not yet applied to Supabase | 27 |
+| Your Plan For Today as a to do list: own tasks, ideas, MindGuide items, repeat, tick with a line through (Home) | Done | Connected, PR #17 (`/api/plan`, `/api/plan/tasks`, `/api/plan/tasks/:id`, `/api/plan/tasks/:id/check`, `/api/plan/order`), migration `20261016001300` | 27 |
 | Other admin pages (bookings, settings) | Built by Sokheng on mock data | Not started | not written yet |
 
 ## 5. Admin users page
@@ -982,7 +982,7 @@ The admin list uses `CommunityReport`: `id, groupId, targetKind, targetLabel, me
 
 ## 27. Your Plan For Today as a to do list (Home)
 
-**Written (16 Oct 2026) on branch `rith/plan-todo-list`, migration `20261016001300_plan_tasks.sql` not yet applied to Supabase.**
+**Connected (16 Oct 2026), PR #17, migration `20261016001300_plan_tasks.sql` applied to Supabase by Rith.**
 
 **Files:** `lib/plan.ts` (types, rules, ideas, starter tasks), `lib/controllers/plan-controller.ts`, routes under `app/api/plan/`, `app/_components/daily-plan-store.ts` (in memory store, no browser storage), `app/components/daily-plan-card.tsx` (Home card), `app/components/plan-editor-dialog.tsx` (Add and My tasks window), `app/components/plan-task-icon.tsx`, `app/components/plan-mindguide-items.ts`, `app/_components/tips/tips-plan.ts` (Tips "Try now" add to plan).
 
@@ -1022,7 +1022,7 @@ The admin list uses `CommunityReport`: `id, groupId, targetKind, targetLabel, me
 - **Private:** RLS lets only the owner read or change tasks and checks. No professional or admin access. Never log task text.
 - **Old browser data:** items an older version kept in `localStorage` are moved into the account once, then removed from the browser.
 - The older `plan_items` table (one item per date) is not used by this feature.
-- **Tested** on a local Postgres (PGlite): adding, links (`//other.site` refused), the weekdays rule, duplicate keys, the 30 task limit, checks cascading on delete, and that a second person cannot see, tick, edit or delete the first person's tasks or add tasks in their name. Not yet tested against Supabase or in the running app with real data.
+- **Tested** on a local Postgres (PGlite): adding, links (`//other.site` refused), the weekdays rule, duplicate keys, the 30 task limit, checks cascading on delete, and that a second person cannot see, tick, edit or delete the first person's tasks or add tasks in their name. Applied to Supabase and checked there: the three tables with RLS on, 9 policies, the limit and update triggers. Not yet clicked through in the running app with real tasks.
 
 ## Template for a new feature section
 
