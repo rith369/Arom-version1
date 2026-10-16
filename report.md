@@ -2,7 +2,7 @@
 
 ## 16 Oct 2026: Next Session on Home Only When It Is Close
 
-Commit `PENDING`. No migration. Frontend only.
+Commit `94ddfbf`. No migration. Frontend only.
 
 **Why.** Rith found the "Your next session" card too much for a session 9 days away: it took space above the plan every day and was larger than it needed to be.
 
