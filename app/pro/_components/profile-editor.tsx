@@ -11,6 +11,7 @@ import { useLanguage } from '../../_components/language-provider';
 import { useUnsavedChangesGuard } from '../../_components/unsaved-changes-guard';
 import { getTherapist } from '@/lib/therapists';
 import { MAX_PRICE_USD, formatPrice, isValidPrice, type SessionPrice } from '@/lib/pricing';
+import { MAX_OFFICE_ADDRESS, MAX_OFFICE_MAP_URL, MAX_OFFICE_NAME, hasOffice, isMapUrl } from '@/lib/office';
 import {
   LANGUAGE_OPTIONS,
   PLACEHOLDER_PHOTO,
@@ -126,12 +127,32 @@ export function ProfileEditor() {
       setNotice({ tone: 'error', text: t('សូមពិនិត្យចំនួនឆ្នាំបទពិសោធន៍។', 'Check your years of experience.') });
       return;
     }
+    if (draft.sessionTypes.includes('in_person') && !hasOffice(draft.office)) {
+      setNotice({
+        tone: 'error',
+        text: t('សូមបន្ថែមអាសយដ្ឋានដែលអ្នកជួបអតិថិជន ដើម្បីផ្តល់ការជួបផ្ទាល់។', 'Add the address where you see clients to offer in person sessions.'),
+      });
+      document.getElementById('pro-office')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+    if (draft.office.mapUrl.trim() && !isMapUrl(draft.office.mapUrl)) {
+      setNotice({
+        tone: 'error',
+        text: t('តំណផែនទីត្រូវចាប់ផ្តើមដោយ https://', 'The map link must be a full address starting with https://'),
+      });
+      return;
+    }
 
     setSaving(true);
     const result = await saveProfile({
       ...draft,
       bio: draft.bio.trim(),
       kmBio: draft.kmBio.trim(),
+      office: {
+        name: draft.office.name.trim(),
+        address: draft.office.address.trim(),
+        mapUrl: draft.office.mapUrl.trim(),
+      },
     });
     setSaving(false);
 
@@ -356,6 +377,67 @@ export function ProfileEditor() {
                   </button>
                 ))}
               </div>
+
+              {draft.sessionTypes.includes('in_person') && (
+                <div id="pro-office" className="mt-5 scroll-mt-6 space-y-3 rounded-2xl bg-arom-wash/60 p-4">
+                  <div>
+                    <p className="text-sm font-semibold text-ink">{t('កន្លែងជួបផ្ទាល់', 'Where you see clients in person')}</p>
+                    <p className="mt-0.5 text-xs leading-5 text-ink-muted">
+                      {t(
+                        'អ្នកប្រើទាំងអស់អាចឃើញព័ត៌មាននេះលើប្រវត្តិរូបរបស់អ្នក។ ត្រូវការអាសយដ្ឋានដើម្បីផ្តល់ការជួបផ្ទាល់។',
+                        'Everyone can see this on your profile. An address is needed to offer in person sessions.',
+                      )}
+                    </p>
+                  </div>
+                  <label className="block text-sm font-medium text-ink">
+                    {t('ឈ្មោះកន្លែង (ស្រេចចិត្ត)', 'Place name (optional)')}
+                    <input
+                      value={draft.office.name}
+                      onChange={(event) => set('office', { ...draft.office, name: event.target.value })}
+                      maxLength={MAX_OFFICE_NAME}
+                      placeholder={t('ឧ. គ្លីនិកចិត្តស្ងប់', 'e.g. Calm Mind Clinic')}
+                      className={fieldClass}
+                    />
+                  </label>
+                  <label className="block text-sm font-medium text-ink">
+                    {t('អាសយដ្ឋាន', 'Address')} *
+                    <textarea
+                      value={draft.office.address}
+                      onChange={(event) => set('office', { ...draft.office, address: event.target.value })}
+                      maxLength={MAX_OFFICE_ADDRESS}
+                      rows={2}
+                      placeholder={t('ឧ. ផ្លូវ 271 សង្កាត់ទួលគោក ភ្នំពេញ', 'e.g. St. 271, Toul Kork, Phnom Penh')}
+                      className={fieldClass}
+                    />
+                  </label>
+                  <label className="block text-sm font-medium text-ink">
+                    {t('តំណ Google Maps (ស្រេចចិត្ត)', 'Google Maps link (optional)')}
+                    <input
+                      type="url"
+                      inputMode="url"
+                      value={draft.office.mapUrl}
+                      onChange={(event) => set('office', { ...draft.office, mapUrl: event.target.value })}
+                      maxLength={MAX_OFFICE_MAP_URL}
+                      placeholder="https://maps.app.goo.gl/..."
+                      className={fieldClass}
+                    />
+                    <span className="mt-1 block text-xs font-normal text-ink-muted">
+                      {t(
+                        'ក្នុង Google Maps ចុច ចែករំលែក ហើយចម្លងតំណ។ បើគ្មាន យើងស្វែងរកអាសយដ្ឋានរបស់អ្នក។',
+                        'In Google Maps, tap Share and copy the link. Without one, we search for your address.',
+                      )}
+                    </span>
+                  </label>
+                  {!hasOffice(draft.office) && (
+                    <p role="status" className="text-sm font-medium text-arom-warning">
+                      {t(
+                        'អ្នកប្រើមិនអាចកក់ការជួបផ្ទាល់បានទេ រហូតដល់អ្នកបន្ថែមអាសយដ្ឋាន។',
+                        'Users cannot book in person until you add an address.',
+                      )}
+                    </p>
+                  )}
+                </div>
+              )}
             </Section>
           </div>
 

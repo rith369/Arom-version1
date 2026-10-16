@@ -1,4 +1,5 @@
 import type { UserAppointment } from "@/lib/appointments";
+import { officeLine } from "@/lib/office";
 
 const TIME_ZONE = "Asia/Phnom_Penh";
 
@@ -47,12 +48,15 @@ function fold(line: string) {
  */
 export function downloadCalendarFile(appointment: UserAppointment, professionalName: string, km: boolean) {
   const link = `${window.location.origin}/appointments`;
+  const office = appointment.professional?.office;
   const location =
     appointment.sessionType === "online"
       ? appointment.meetingUrl || (km ? "អនឡាញ" : "Online")
-      : km
-        ? "ជួបផ្ទាល់"
-        : "In person";
+      : office
+        ? officeLine(office)
+        : km
+          ? "ជួបផ្ទាល់"
+          : "In person";
 
   const lines = [
     "BEGIN:VCALENDAR",

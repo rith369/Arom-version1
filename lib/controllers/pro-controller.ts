@@ -17,6 +17,7 @@ import {
   openSlots,
   type Schedule,
 } from "@/app/pro/_data/schedule";
+import { MAX_OFFICE_ADDRESS, MAX_OFFICE_MAP_URL, MAX_OFFICE_NAME, isMapUrl } from "@/lib/office";
 import { isValidPrice, type SessionPrice } from "@/lib/pricing";
 import { toPrice } from "@/lib/professionals";
 import { supabaseUrl } from "@/lib/supabase/env";
@@ -54,7 +55,7 @@ export interface ProData {
 }
 
 const PROFILE_COLUMNS =
-  "slug, display_name, display_name_km, title, title_km, bio, bio_km, photo_url, specialties, languages, years_experience, session_types, price_kind, price_usd, price_max_usd";
+  "slug, display_name, display_name_km, title, title_km, bio, bio_km, photo_url, specialties, languages, years_experience, session_types, price_kind, price_usd, price_max_usd, office_name, office_address, office_map_url";
 
 const PHOTO_BUCKET = "professional-photos";
 
@@ -92,6 +93,11 @@ async function loadProfile(supabase: Supabase, userId: string): Promise<ProProfi
     specialties: row.specialties ?? [],
     languages: row.languages ?? [],
     sessionTypes: row.session_types ?? [],
+    office: {
+      name: row.office_name ?? "",
+      address: row.office_address ?? "",
+      mapUrl: row.office_map_url ?? "",
+    },
     price: toPrice(row.price_kind, row.price_usd, row.price_max_usd) ?? null,
     yearsExperience: row.years_experience,
     licenseNumber: credential?.license_number ?? "",
@@ -104,7 +110,7 @@ async function loadBookings(supabase: Supabase, userId: string, slug: string) {
     supabase
       .from("appointments")
       .select(
-        "id, user_id, starts_at, ends_at, session_type, status, intake_note, cancelled_by, cancel_reason, rescheduled_from, reschedule_reason, share_survey, share_symptom_checks, meeting_url, series_id, intake_answers(question_snapshot, answer)",
+        "id, user_id, starts_at, ends_at, session_type, status, intake_note, cancelled_by, cancel_reason, rescheduled_from, reschedule_reason, rescheduled_by, share_survey, share_symptom_checks, meeting_url, series_id, intake_answers(question_snapshot, answer)",
       )
       .eq("professional_id", userId)
       .order("starts_at", { ascending: false })
@@ -144,6 +150,7 @@ async function loadBookings(supabase: Supabase, userId: string, slug: string) {
     cancelReason: row.cancel_reason ?? "",
     rescheduledFrom: row.rescheduled_from ? cambodiaIso(row.rescheduled_from) : null,
     rescheduleReason: row.reschedule_reason ?? "",
+    rescheduledBy: !row.rescheduled_from ? null : row.rescheduled_by === row.user_id ? "client" : "professional",
     shareSurvey: row.share_survey,
     shareSymptomChecks: row.share_symptom_checks,
     meetingUrl: row.session_type === "online" ? row.meeting_url : null,
@@ -266,6 +273,15 @@ const profileSchema = z.object({
   specialties: z.array(z.string().trim().min(1).max(40)).max(12),
   languages: z.array(z.enum(LANGUAGE_OPTIONS)).max(5),
   sessionTypes: z.array(z.enum(["online", "in_person"])).max(2),
+  office: z.object({
+    name: z.string().trim().max(MAX_OFFICE_NAME),
+    address: z.string().trim().max(MAX_OFFICE_ADDRESS),
+    mapUrl: z
+      .string()
+      .trim()
+      .max(MAX_OFFICE_MAP_URL)
+      .refine((value) => value === "" || isMapUrl(value)),
+  }),
   price: priceSchema.nullable().refine((price) => price === null || isValidPrice(price)),
   yearsExperience: z.number().int().min(0).max(60).nullable(),
   licenseNumber: z.string().trim().max(60),
@@ -285,6 +301,11 @@ export async function saveProProfile(request: NextRequest) {
   const current = await loadProfile(supabase, userId);
   if (!current) return fail("forbidden", "Your professional profile was not found.", 404);
 
+  // In person sessions need a place clients can find (decided 15 Oct 2026).
+  if (next.sessionTypes.includes("in_person") && !next.office.address) {
+    return fail("invalid_input", "Add the address where you see clients to offer in person sessions.", 400);
+  }
+
   // Photos must come from this professional's own folder in AROM storage.
   const ownPhotos = `${supabaseUrl}/storage/v1/object/public/${PHOTO_BUCKET}/${userId}/`;
   if (next.photoUrl && next.photoUrl !== current.photoUrl && !next.photoUrl.startsWith(ownPhotos)) {
@@ -301,6 +322,10 @@ export async function saveProProfile(request: NextRequest) {
       specialties: [...new Set(next.specialties)],
       languages: [...new Set(next.languages)],
       session_types: [...new Set(next.sessionTypes)],
+      // Public and saved at once, no admin review (decided 15 Oct 2026).
+      office_name: next.office.name || null,
+      office_address: next.office.address || null,
+      office_map_url: next.office.mapUrl || null,
       years_experience: next.yearsExperience,
       price_kind: price?.kind ?? null,
       price_usd: price?.kind === "fixed" ? price.amount : price?.kind === "range" ? price.min : null,

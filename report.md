@@ -50,6 +50,66 @@ Commit `PENDING`. Migrations renamed, not new. Run the 8 files `20261016000000` 
 4. Switch that client to Anonymous Mode. Check that the professional no longer sees the name.
 5. In Community, post with Hide my identity on. Check that others see "Anonymous".
 
+## 15 Oct 2026: Address for In Person Sessions
+
+Commit `6e3cafd`. Migration `20261015001600_in_person_address.sql` **not yet applied**: Hok Chheng reviews and runs it in Supabase, then merges the pull request. Run after `20261015000200_sessions.sql`.
+
+**Why.** Professionals could offer in person sessions, and 56 in person times were open, but nowhere said where to go. A client could book and arrive nowhere. Rith decided: professionals type their own place, everyone can see it, no admin review, and an address is required to offer in person.
+
+**What changed for professionals:**
+- **Where you see clients in person** in My profile, under How you meet clients: place name (optional), address and a Google Maps link (optional). It saves at once.
+- **In person needs an address:** saving In person without one shows an error, and Home shows "Users cannot book in person until you add the address where you see clients" with a link.
+
+**What changed for users:**
+- **Public profile** shows "Where to meet in person" with the address and Open in Maps.
+- **Booking** shows the address under the In person choice, and the review and confirmation show the place.
+- **My appointments** shows the place and Open in Maps on in person sessions, and Add to calendar puts the address in the calendar event.
+- **No address, no in person:** professionals without an address offer online only until they add one.
+
+**What changed for the team:**
+- **New columns** `professional_profiles.office_name`, `office_address`, `office_map_url`; `list_public_professionals()` returns them; trigger `appointments_require_office` refuses new in person bookings without an address.
+- **New** `lib/office.ts` and `app/_components/office-card.tsx`.
+- **Tested** the migration on a local Postgres (PGlite) with 18 checks. See BACKEND-HANDOFF.md section 24.
+
+**What to re-test (after running the migration):**
+1. As a professional with In person on, open My profile, clear the address and try to save: confirm the error.
+2. Add a place name, address and map link, save, refresh, and confirm they stayed.
+3. Open your public profile and confirm "Where to meet in person" and that Open in Maps opens the right place.
+4. As a user, book In person and confirm the address shows on the choice, the review and the confirmation.
+5. Open My appointments and confirm the place and Open in Maps on the session; tap Add to calendar and check the event location.
+6. As a professional with In person but no address, confirm Home shows the reminder and users only see Online.
+
+## 15 Oct 2026: Clients Can Change the Time of Their Session
+
+Commit `4322eda`. Migration `20261015001500_client_reschedule.sql` **not yet applied**: Hok Chheng reviews and runs it in Supabase, then merges the pull request. Run after `20261015000200_sessions.sql`.
+
+**Why.** A client who could not make their session could only cancel and book again, and in between someone else could take the time they wanted. Professionals could already move sessions; clients now can too, safely in one step.
+
+**What changed for users:**
+- **Change time** on an upcoming session opens the same date and time picker as booking, with the professional's open times for the same session type.
+- **One step and safe:** the session moves and the old time opens for someone else at once. If someone just took the new time, the page says so and loads fresh times.
+- **Up to the professional's notice:** a session can be moved until the professional's minimum notice before it (for example 24 hours), and the panel says until when. After that the card says it is too close to change the time, and the client can still cancel or message the professional.
+- **Optional reason** the professional sees.
+- **Clear wording:** the card says "You moved this session from ..." or "Your professional moved this session from ...".
+
+**What changed for professionals:**
+- **My bookings shows "The client moved this session from ..."** with the client's reason.
+
+**What changed for the team:**
+- **New database functions** `client_reschedule_appointment()` and `my_change_time_deadlines()` (the deadline only, the schedule stays private), and column `appointments.rescheduled_by`. `reschedule_appointment()` and `guard_appointment_update()` are replaced with the same bodies plus `rescheduled_by` (checked against the live database first).
+- **New endpoint** `GET /api/appointments/:id/open-times` and a `reschedule` action on `POST /api/appointments/:id`.
+- **`TimeStep`** from the booking page is exported and reused.
+- **Tested** the migration on a local Postgres (PGlite) with 30 checks. See BACKEND-HANDOFF.md section 23.
+
+**What to re-test (after running the migration):**
+1. As a client with an upcoming session, tap Change time, pick another time, add a reason and confirm.
+2. Confirm the card shows the new time and "You moved this session from ...".
+3. Open the professional's My bookings and confirm the new time and "The client moved this session from ..." with the reason.
+4. Confirm the old time shows again on the professional's booking page and the new one does not.
+5. Open the same session in two browsers, move both to the same time, and confirm the second gets "This time is no longer available".
+6. With a session less than the professional's minimum notice away, confirm Change time is hidden, the "too close" note shows, and Cancel still works.
+7. Switch to Khmer and check every new label.
+
 ## 16 Oct 2026: Home Shows a Small Progress Glance
 
 Commit `0aedecc`. No migration.

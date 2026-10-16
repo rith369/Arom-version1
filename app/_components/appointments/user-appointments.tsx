@@ -27,6 +27,8 @@ import { DesktopNavigation, MobileNavigation } from "../app-navigation";
 import { useLanguage } from "../language-provider";
 import { JoinButton } from "../sessions/join-button";
 import { downloadCalendarFile, howSoon } from "./appointment-helpers";
+import { ChangeTimePanel } from "./change-time-panel";
+import { OfficeCard } from "../office-card";
 
 const TIME_ZONE = "Asia/Phnom_Penh";
 
@@ -86,6 +88,7 @@ function AppointmentCard({
   const formats = useFormats(km);
 
   const [cancelling, setCancelling] = useState(false);
+  const [moving, setMoving] = useState(false);
   const [reason, setReason] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -106,6 +109,10 @@ function AppointmentCard({
   const start = new Date(appointment.startsAt);
   const upcoming = appointment.status === "booked" && Date.parse(appointment.endsAt) > now;
   const canCancel = appointment.status === "booked" && Date.parse(appointment.startsAt) > now;
+  // Moving closes at the professional's minimum notice; cancelling stays open until the start.
+  const canChangeTime =
+    canCancel && professional !== null && appointment.changeTimeUntil !== null && Date.parse(appointment.changeTimeUntil) > now;
+  const tooLateToChange = canCancel && professional !== null && !canChangeTime;
   const canShare = appointment.status === "booked" || appointment.status === "completed";
   const soon = upcoming ? howSoon(appointment.startsAt, now, km) : null;
   const sharedItems = [
@@ -205,11 +212,29 @@ function AppointmentCard({
         </div>
       </div>
 
+      {appointment.sessionType === "in_person" && appointment.status === "booked" && (
+        <div className="mt-4 flex items-start gap-2.5 rounded-2xl bg-arom-wash/70 px-3.5 py-3">
+          <MapPin aria-hidden="true" size={17} className="mt-0.5 shrink-0 text-arom" />
+          {professional?.office ? (
+            <OfficeCard office={professional.office} km={km} />
+          ) : (
+            <p className="text-sm text-ink-muted">
+              {t(
+                "អ្នកជំនាញមិនទាន់បន្ថែមអាសយដ្ឋានទេ។ សូមផ្ញើសារសួរពួកគេ។",
+                "Your professional has not added an address yet. Please message them to ask.",
+              )}
+            </p>
+          )}
+        </div>
+      )}
+
       {appointment.rescheduledFrom && appointment.status === "booked" && (
         <p className="mt-4 flex items-start gap-2 rounded-2xl bg-arom-warning-soft px-3.5 py-3 text-sm text-ink">
           <CalendarClock aria-hidden="true" size={17} className="mt-0.5 shrink-0 text-arom-warning" />
           <span>
-            {t("អ្នកជំនាញបានប្តូរពេលពី", "Your professional moved this session from")}{" "}
+            {appointment.rescheduledBy === "you"
+              ? t("អ្នកបានប្តូរវគ្គនេះពី", "You moved this session from")
+              : t("អ្នកជំនាញបានប្តូរពេលពី", "Your professional moved this session from")}{" "}
             {formats.short.format(new Date(appointment.rescheduledFrom))}.
             {appointment.rescheduleReason && ` ${t("មូលហេតុ", "Reason")}: ${appointment.rescheduleReason}`}
           </span>
@@ -325,6 +350,27 @@ function AppointmentCard({
         </div>
       )}
 
+      {tooLateToChange && (
+        <p className="mt-4 text-sm text-ink-muted">
+          {t(
+            "ជិតដល់ពេលវគ្គពេកហើយ មិនអាចប្តូរម៉ោងបានទេ។ អ្នកនៅតែអាចបោះបង់ ឬផ្ញើសារទៅអ្នកជំនាញរបស់អ្នក។",
+            "It is too close to your session to change the time. You can still cancel it, or message your professional.",
+          )}
+        </p>
+      )}
+
+      {moving && canChangeTime && (
+        <ChangeTimePanel
+          appointment={appointment}
+          km={km}
+          onClose={() => setMoving(false)}
+          onMoved={(next) => {
+            setMoving(false);
+            onChange(next);
+          }}
+        />
+      )}
+
       {cancelling && (
         <div className="mt-4 rounded-2xl border border-arom-danger/20 p-3.5">
           <label className="block text-sm font-medium text-ink">
@@ -392,10 +438,26 @@ function AppointmentCard({
             {t("មើលប្រវត្តិរូប", "View profile")}
           </Link>
         )}
+        {canChangeTime && !moving && (
+          <button
+            type="button"
+            onClick={() => {
+              setCancelling(false);
+              setMoving(true);
+            }}
+            className="inline-flex items-center gap-1.5 rounded-full border border-arom-border px-4 py-2 text-sm font-medium text-ink hover:bg-arom-wash"
+          >
+            <CalendarClock aria-hidden="true" size={16} className="text-arom" />
+            {t("ប្តូរម៉ោង", "Change time")}
+          </button>
+        )}
         {canCancel && !cancelling && (
           <button
             type="button"
-            onClick={() => setCancelling(true)}
+            onClick={() => {
+              setMoving(false);
+              setCancelling(true);
+            }}
             className="rounded-full px-4 py-2 text-sm font-medium text-arom-danger hover:bg-arom-danger-soft/60"
           >
             {t("បោះបង់", "Cancel")}

@@ -1,5 +1,6 @@
 import { type SessionOption, type Therapist } from '@/lib/therapists';
 import type { SessionPrice } from '@/lib/pricing';
+import { hasOffice, type OfficeLocation } from '@/lib/office';
 
 // The signed in professional's own profile. Mirrors professional_profiles
 // and professional_credentials (loaded by /api/pro/me).
@@ -18,6 +19,8 @@ export type ProProfile = {
   specialties: string[];
   languages: string[];
   sessionTypes: SessionType[];
+  // Where in person sessions happen. Required to offer in person; public, saves at once.
+  office: OfficeLocation;
   // Shown to users for information only; nobody pays yet. null = not chosen.
   price: SessionPrice | null;
   yearsExperience: number | null;
@@ -96,7 +99,8 @@ export function profileChecklist(
 // preview is the real page users see.
 export function toPublicTherapist(profile: ProProfile, base?: Therapist): Therapist {
   const online = profile.sessionTypes.includes('online');
-  const inPerson = profile.sessionTypes.includes('in_person');
+  // In person is offered only with an address, the same as the public profile.
+  const inPerson = profile.sessionTypes.includes('in_person') && hasOffice(profile.office);
   const sessionOptions: SessionOption[] =
     online && inPerson ? ['Online', 'In-person', 'Both'] : online ? ['Online'] : inPerson ? ['In-person'] : [];
   const years = profile.yearsExperience;
@@ -117,6 +121,7 @@ export function toPublicTherapist(profile: ProProfile, base?: Therapist): Therap
     specialties: profile.specialties,
     languages: profile.languages,
     sessionOptions,
+    office: inPerson ? profile.office : undefined,
     price: profile.price ?? undefined,
     experience: years === null ? '' : `${years}+ years of experience`,
     kmExperience: years === null ? undefined : `បទពិសោធន៍ ${years}+ ឆ្នាំ`,
