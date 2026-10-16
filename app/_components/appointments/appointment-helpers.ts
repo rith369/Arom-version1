@@ -6,9 +6,14 @@ const TIME_ZONE = "Asia/Phnom_Penh";
 const cambodiaDay = (value: number) =>
   Date.parse(`${new Intl.DateTimeFormat("en-CA", { timeZone: TIME_ZONE }).format(value)}T00:00:00Z`);
 
+/** Calendar days from today to the session in Cambodia time: 0 today, 1 tomorrow. */
+export function daysUntil(startsAt: string, now: number) {
+  return Math.round((cambodiaDay(Date.parse(startsAt)) - cambodiaDay(now)) / 86_400_000);
+}
+
 /** "Today", "Tomorrow" or "In 3 days" in Cambodia time, or null when two weeks or more away. */
 export function howSoon(startsAt: string, now: number, km: boolean): string | null {
-  const days = Math.round((cambodiaDay(Date.parse(startsAt)) - cambodiaDay(now)) / 86_400_000);
+  const days = daysUntil(startsAt, now);
   if (days < 0 || days > 13) return null;
   if (days === 0) return km ? "ថ្ងៃនេះ" : "Today";
   if (days === 1) return km ? "ថ្ងៃស្អែក" : "Tomorrow";

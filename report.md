@@ -1,5 +1,24 @@
 # AROM: Change Report
 
+## 16 Oct 2026: Next Session on Home Only When It Is Close
+
+Commit `PENDING`. No migration. Frontend only.
+
+**Why.** Rith found the "Your next session" card too much for a session 9 days away: it took space above the plan every day and was larger than it needed to be.
+
+**What changed for users:**
+- **The card shows only for a session today, tomorrow or in 2 days.** Sessions further away are still in My appointments.
+- **The card is smaller:** one row with the details on the left and See details on the right. Join appears there once the meeting room opens.
+
+**What changed for the team:**
+- `next-session-card.tsx`: `SHOW_DAYS_BEFORE = 2` (Cambodia dates) and the compact layout; `JoinButton` uses the small size, which hides the "opens before" note.
+- `appointment-helpers.ts`: new `daysUntil()`, also used by `howSoon()`.
+
+**What to re-test:**
+1. With a session 9 days away: Home shows no session card.
+2. With a session tomorrow: the small card shows "Tomorrow, 09:00".
+3. With an online session today: Join appears shortly before the start.
+
 ## 16 Oct 2026: The Chosen Voice Language Is Easy to See
 
 Commit `9a09962`. No migration. Frontend only.
