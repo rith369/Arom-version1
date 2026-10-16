@@ -2,26 +2,15 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Check, ChevronRight, Plus, SlidersHorizontal, X } from "lucide-react";
-import { useEffect, useState, type ReactNode } from "react";
+import { Check, ChevronRight, LogIn, Pencil, Plus, RotateCcw } from "lucide-react";
+import { useState, type ReactNode } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { FigmaIcon } from "./figma-icon";
-import { DailyPlanCuratorModal } from "./daily-plan-curator-modal";
+import { PlanTaskIcon } from "./plan-task-icon";
+import { PlanEditorDialog, type PlanEditorTab } from "./plan-editor-dialog";
 import { useLanguage } from "../_components/language-provider";
-import { useAuth } from "../_components/auth-provider";
 import { MOOD_LABELS, useMoodStore } from "../_components/mood/mood-store";
 import { useActivities } from "../progress/_components/use-activities";
-import {
-  getPlanTryNowItems,
-  togglePlanTryNowComplete,
-  type PlanTryNowItem,
-} from "../_components/tips/tips-data";
-import {
-  getCustomPlanItems,
-  removeCustomPlanItem,
-  toggleCustomPlanItemComplete,
-  type DailyPlanCustomItem,
-} from "../_components/daily-plan-store";
+import { loadPlan, setPlanTaskDone, usePlan } from "../_components/daily-plan-store";
 import {
   cambodiaToday,
   isDoneToday,
@@ -33,23 +22,21 @@ import {
   useCareStore,
   type CareTask,
 } from "../_components/care/care-store";
+import { PLAN_STARTERS, isDueOn, type PlanTask } from "@/lib/plan";
 
-type PlanActivity = {
+// One line of the plan: the person's own tasks, today's mood check in and
+// tasks from their professional all look the same.
+type Row = {
   id: string;
   title: string;
-  titleKm: string;
   subtitle: string;
-  subtitleKm: string;
-  icon: string;
-  href: string;
-  completed?: boolean;
-  isTryNow?: boolean;
-  stepNumber?: number;
-  isCustom?: boolean;
+  icon: string | null;
+  href: string | null;
+  done: boolean;
   badge?: string;
-  badgeKm?: string;
-  // Given by the client's professional (Care plan).
-  careTask?: CareTask;
+  // Missing for rows that tick themselves (the mood check in) or cannot be
+  // ticked (the signed out preview).
+  onToggle?: () => void;
 };
 
 // Icon for a task from the professional, matching the plan's other rows.
@@ -60,73 +47,96 @@ function careIcon(task: CareTask) {
   return "boxicons_note-filled";
 }
 
-const baseMoodActivity: PlanActivity = {
-  id: "mood",
-  title: "Mood check in",
-  titleKm: "ពិនិត្យអារម្មណ៍ (Mood Check-in)",
-  subtitle: "Tap how you feel below",
-  subtitleKm: "ចុចលើអារម្មណ៍របស់អ្នកខាងក្រោម",
-  icon: "ic_outline-mood",
-  href: "/#mood-check-in",
-  completed: false,
-};
-
-const defaultMindGuideActivity: PlanActivity = {
-  id: "default-mindguide",
-  title: "MindGuide Lesson",
-  titleKm: "មេរៀនចិត្ត (MindGuide Lesson)",
-  subtitle: "Understanding Anxiety (5 min)",
-  subtitleKm: "ស្វែងយល់ពីការថប់បារម្ភ (Anxiety) • ៥ នាទី",
-  icon: "ant-design_play-circle-filled",
-  href: "/mindguide",
-  completed: false,
-};
-
-const defaultMeditationActivity: PlanActivity = {
-  id: "default-meditation",
-  title: "Guided Meditation",
-  titleKm: "ការហាត់សមាធិ (Guided Meditation)",
-  subtitle: "Relax and breathe (3 min)",
-  subtitleKm: "សម្រាកកាយ និងដកដង្ហើម • ៣ នាទី",
-  icon: "hugeicons_yoga-03",
-  href: "/practice",
-  completed: false,
-};
-
-const baseCommunityActivity: PlanActivity = {
-  id: "community",
-  title: "Explore Community",
-  titleKm: "ចូលរួមសហគមន៍ (Community)",
-  subtitle: "Share with each other",
-  subtitleKm: "ចែករំលែក និងលើកទឹកចិត្តគ្នា",
-  icon: "fluent_people-community-32-filled",
-  href: "/community",
-  completed: false,
-};
-
-// The tick in a plan row. The check settles in when an item is ticked, but
-// not when the page loads. Reduced motion: fade only.
-function TickIcon({ done, children }: { done: boolean; children: ReactNode }) {
+// The tick settles in when a task is ticked, but not when the page loads.
+// Reduced motion: fade only.
+function CheckCircle({ done, onToggle, label }: { done: boolean; onToggle?: () => void; label: string }) {
   const reduce = useReducedMotion();
-  return (
-    <AnimatePresence initial={false} mode="popLayout">
-      {done ? (
+  const circle = `flex size-7 shrink-0 items-center justify-center rounded-full border transition-[transform,background-color,border-color] duration-[160ms] ease-[var(--ease-out)] ${
+    done ? "border-[#23aa89] bg-[#23aa89] text-white shadow-sm" : "border-white/55"
+  }`;
+  const tick = (
+    <AnimatePresence initial={false}>
+      {done && (
         <motion.span
-          key="done"
           className="flex"
           initial={reduce ? { opacity: 0 } : { opacity: 0, scale: 0.6 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, transition: { duration: 0 } }}
           transition={{ duration: 0.18, ease: [0.23, 1, 0.32, 1] }}
         >
-          <Check size={16} strokeWidth={2.5} />
-        </motion.span>
-      ) : (
-        <motion.span key="todo" className="flex" initial={false} exit={{ opacity: 0, transition: { duration: 0 } }}>
-          {children}
+          <Check size={16} strokeWidth={2.75} aria-hidden="true" />
         </motion.span>
       )}
     </AnimatePresence>
+  );
+  if (!onToggle) {
+    return (
+      <span aria-hidden="true" className={circle}>
+        {tick}
+      </span>
+    );
+  }
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      aria-pressed={done}
+      aria-label={label}
+      className={`${circle} hover:border-white active:scale-90 motion-reduce:active:scale-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white`}
+    >
+      {tick}
+    </button>
+  );
+}
+
+function PlanRow({ row, km }: { row: Row; km: boolean }) {
+  const content: ReactNode = (
+    <>
+      <span className="flex size-7 shrink-0 items-center justify-center text-white">
+        <PlanTaskIcon icon={row.icon} size={22} className={row.icon === "ic_outline-mood" ? "brightness-0 invert" : ""} />
+      </span>
+      <span className="min-w-0 flex-1 text-left">
+        <span className="flex flex-wrap items-center gap-1.5">
+          <span
+            className={`text-xs font-medium leading-tight transition-colors duration-200 sm:text-[13px] ${
+              row.done ? "text-white/55 line-through decoration-white/70 decoration-[1.5px]" : "text-white"
+            }`}
+          >
+            {row.title}
+          </span>
+          {row.badge && (
+            <span className="rounded bg-white/15 px-1.5 py-0.5 text-[0.62rem] font-semibold text-[#83dfca]">{row.badge}</span>
+          )}
+        </span>
+        {row.subtitle && (
+          <span className={`mt-0.5 block text-[11px] font-light leading-tight ${row.done ? "text-white/45" : "text-white/80"}`}>
+            {row.subtitle}
+          </span>
+        )}
+      </span>
+      {row.href && <ChevronRight aria-hidden="true" className="size-4 shrink-0 text-white/60" />}
+    </>
+  );
+  const area = "flex min-w-0 flex-1 items-center gap-3 rounded-lg focus-visible:outline-2 focus-visible:outline-white";
+  const toggleLabel = row.done ? (km ? `មិនទាន់រួច៖ ${row.title}` : `Mark not done: ${row.title}`) : km ? `រួចរាល់៖ ${row.title}` : `Mark done: ${row.title}`;
+
+  return (
+    <li className="flex items-center gap-3 rounded-xl px-1.5 py-2.5 transition-colors duration-150 hover:bg-white/5">
+      {row.href ? (
+        <Link href={row.href} className={area}>
+          {content}
+        </Link>
+      ) : row.onToggle ? (
+        // A task with no page: tapping its words ticks it too. The check
+        // button next to it is the one screen readers and keyboards use.
+        <button type="button" onClick={row.onToggle} className={area} tabIndex={-1} aria-hidden="true">
+          {content}
+        </button>
+      ) : (
+        <div className={area}>{content}</div>
+      )}
+      <CheckCircle done={row.done} onToggle={row.onToggle} label={toggleLabel} />
+    </li>
   );
 }
 
@@ -135,163 +145,89 @@ function TickIcon({ done, children }: { done: boolean; children: ReactNode }) {
 export function DailyPlanCard({ tuckBanner = false }: { tuckBanner?: boolean }) {
   const { language } = useLanguage();
   const km = language === "km";
-  const [tryNowItems, setTryNowItems] = useState<PlanTryNowItem[]>([]);
-  const [customItems, setCustomItems] = useState<DailyPlanCustomItem[]>([]);
-  const [isCuratorOpen, setIsCuratorOpen] = useState(false);
-  const care = useCareStore("client");
-  const [today] = useState(() => cambodiaToday(Date.now()));
-  // Ticks come from real data only: today's check in, and lessons or
-  // practices finished today (activity_log). Nothing is done by default.
-  const { user } = useAuth();
+  const plan = usePlan();
   const mood = useMoodStore();
-  const { state: activities } = useActivities("7d", Boolean(user));
-  const doneToday = (kind: "lesson" | "practice") =>
-    activities.status === "ready" && activities.data.recent.some((item) => item.kind === kind && item.day === today);
+  const care = useCareStore("client");
+  const [now] = useState(() => Date.now());
+  const today = plan.day || cambodiaToday(now);
+  const [editor, setEditor] = useState<PlanEditorTab | null>(null);
+  const [error, setError] = useState("");
 
-  useEffect(() => {
-    setTryNowItems(getPlanTryNowItems());
-    setCustomItems(getCustomPlanItems());
+  // Lessons and practices finished today tick their tasks by themselves.
+  const { state: activities } = useActivities("7d", plan.status === "ready");
+  const finishedToday = (kind: "lesson" | "practice", refId?: string) =>
+    activities.status === "ready" &&
+    activities.data.recent.some((item) => item.kind === kind && item.day === today && (!refId || item.refId === refId));
+  const autoDone = (task: PlanTask) =>
+    (task.itemKey === "starter:lesson" && finishedToday("lesson")) ||
+    (task.itemKey === "starter:meditation" && finishedToday("practice")) ||
+    (task.source === "learn" && finishedToday("lesson", task.itemKey)) ||
+    (task.source === "practice" && finishedToday("practice", task.itemKey));
 
-    const handleUpdate = () => {
-      setTryNowItems(getPlanTryNowItems());
-      setCustomItems(getCustomPlanItems());
-    };
-
-    window.addEventListener("arom_plan_updated", handleUpdate);
-    return () => window.removeEventListener("arom_plan_updated", handleUpdate);
-  }, []);
-
-  const handleToggleTryNow = (e: React.MouseEvent, stepNumber: number) => {
-    e.preventDefault();
-    e.stopPropagation();
-    togglePlanTryNowComplete(stepNumber);
+  const toggleTask = async (task: PlanTask) => {
+    const result = await setPlanTaskDone(task.id, !task.doneToday);
+    setError(result.ok ? "" : result.message);
   };
 
-  const handleToggleCustom = (e: React.MouseEvent, id: string) => {
-    e.preventDefault();
-    e.stopPropagation();
-    toggleCustomPlanItemComplete(id);
+  const moodRow: Row = {
+    id: "mood",
+    title: km ? "ពិនិត្យអារម្មណ៍ (Mood Check-in)" : "Mood check in",
+    subtitle: mood.today
+      ? km
+        ? `អ្នកបានកត់ត្រា៖ ${MOOD_LABELS[mood.today].km}`
+        : `You checked in: ${MOOD_LABELS[mood.today].en}`
+      : km
+        ? "ចុចលើអារម្មណ៍របស់អ្នកខាងក្រោម"
+        : "Tap how you feel below",
+    icon: "ic_outline-mood",
+    href: "/#mood-check-in",
+    done: Boolean(mood.today),
   };
 
-  const handleToggleCare = (e: React.MouseEvent, task: CareTask) => {
-    e.preventDefault();
-    e.stopPropagation();
-    void toggleCheckIn(task, today);
-  };
-
-  // Tasks from the user's professionals that are due today.
-  const careActivities: PlanActivity[] = care.tasks
+  // Tasks from the person's professionals that are due today.
+  const careRows: Row[] = care.tasks
     .filter((task) => isDueToday(task, care.checkIns, today))
     .map((task) => {
       const professional = care.professionals.find((item) => item.slug === task.professionalId);
-      const from = professional?.name || "your professional";
-      const fromKm = professional?.kmName || professional?.name || "អ្នកជំនាញរបស់អ្នក";
+      const from = km ? professional?.kmName || professional?.name || "អ្នកជំនាញរបស់អ្នក" : professional?.name || "your professional";
       return {
         id: task.id,
-        title: taskTitle(task, false),
-        titleKm: taskTitle(task, true),
-        subtitle: task.note || (task.kind === "goal" ? "Goal, tick it when you reach it" : "From your care plan"),
-        subtitleKm: task.note || (task.kind === "goal" ? "គោលដៅ ចុចពេលអ្នកសម្រេចបាន" : "ពីផែនការថែទាំរបស់អ្នក"),
+        title: taskTitle(task, km),
+        subtitle: task.note || (km ? "ពីផែនការថែទាំរបស់អ្នក" : "From your care plan"),
         icon: careIcon(task),
         href: taskHref(task),
-        completed: isDoneToday(task, care.checkIns, today),
-        badge: `From ${from}`,
-        badgeKm: `ពី ${fromKm}`,
-        careTask: task,
+        done: isDoneToday(task, care.checkIns, today),
+        badge: km ? `ពី ${from}` : `From ${from}`,
+        onToggle: () => void toggleCheckIn(task, today),
       };
     });
 
-  const handleRemoveCustom = (e: React.MouseEvent, id: string) => {
-    e.preventDefault();
-    e.stopPropagation();
-    removeCustomPlanItem(id);
-  };
+  const taskRows: Row[] =
+    plan.status === "ready"
+      ? plan.tasks
+          .filter((task) => isDueOn(task, today))
+          .map((task) => ({
+            id: task.id,
+            title: km && task.titleKm ? task.titleKm : task.title,
+            subtitle: km && task.subtitleKm ? task.subtitleKm : task.subtitle,
+            icon: task.icon,
+            href: task.href,
+            done: task.doneToday || autoDone(task),
+            onToggle: () => void toggleTask(task),
+          }))
+      : plan.status === "signed_out"
+        ? PLAN_STARTERS.map((task) => ({
+            id: task.itemKey,
+            title: km && task.titleKm ? task.titleKm : task.title,
+            subtitle: (km && task.subtitleKm ? task.subtitleKm : task.subtitle) ?? "",
+            icon: task.icon ?? null,
+            href: task.href ?? null,
+            done: false,
+          }))
+        : [];
 
-  // Convert try now items into plan activities
-  const tryNowActivities: PlanActivity[] =
-    tryNowItems.length > 0
-      ? tryNowItems.map((item) => ({
-          id: item.id,
-          title: item.title,
-          titleKm: item.kmTitle,
-          // Tips text continues "Try now:", so it starts in lowercase there.
-          subtitle: item.subtitle.charAt(0).toUpperCase() + item.subtitle.slice(1),
-          subtitleKm: item.kmSubtitle,
-          icon: item.completed ? "mdi_check-circle" : "boxicons_note-filled",
-          href: "/tips",
-          completed: item.completed,
-          isTryNow: true,
-          stepNumber: item.stepNumber,
-        }))
-      : [
-          {
-            id: "default-try-now",
-            title: "Try now: Cut what you control",
-            titleKm: "សាកល្បង (Try now)៖ បន្ធូរបន្ថយអ្វីដែលអ្នកគ្រប់គ្រងបាន",
-            subtitle: "Drop or delay one thing this week.",
-            subtitleKm: "កាត់បន្ថយ ឬពន្យារពេលការងារមួយក្នុងសប្តាហ៍នេះ",
-            icon: "boxicons_note-filled",
-            href: "/tips",
-            completed: false,
-            isTryNow: true,
-            stepNumber: 1,
-          },
-        ];
-
-  // Convert custom items added from MindGuide into plan activities
-  const customActivities: PlanActivity[] = customItems.map((item) => ({
-    id: item.id,
-    title: item.title,
-    titleKm: item.titleKm,
-    subtitle: item.subtitle,
-    subtitleKm: item.subtitleKm,
-    icon:
-      item.icon ||
-      (item.source === "practice"
-        ? "hugeicons_yoga-03"
-        : item.source === "learn"
-        ? "ant-design_play-circle-filled"
-        : "boxicons_note-filled"),
-    href: item.href,
-    completed: item.completed,
-    isCustom: true,
-    badge: item.badge,
-    badgeKm: item.badgeKm,
-  }));
-
-  // Build the complete activities array
-  // If user has added custom items from MindGuide, display them!
-  // If none added, show the default MindGuide lesson and guided meditation
-  const mindguideOrCustomItems =
-    customActivities.length > 0
-      ? customActivities
-      : [
-          { ...defaultMindGuideActivity, completed: doneToday("lesson") },
-          { ...defaultMeditationActivity, completed: doneToday("practice") },
-        ];
-
-  const moodActivity: PlanActivity = mood.today
-    ? {
-        ...baseMoodActivity,
-        subtitle: `You checked in: ${MOOD_LABELS[mood.today].en}`,
-        subtitleKm: `អ្នកបានកត់ត្រា៖ ${MOOD_LABELS[mood.today].km}`,
-        icon: "mdi_check-circle",
-        completed: true,
-      }
-    : baseMoodActivity;
-
-  const allActivities: PlanActivity[] = [
-    moodActivity,
-    ...careActivities,
-    ...mindguideOrCustomItems,
-    ...tryNowActivities,
-    baseCommunityActivity,
-  ];
-
-  // Explore Community is a suggestion with nothing to finish, so it is not counted.
-  const trackedActivities = allActivities.filter((a) => a.id !== baseCommunityActivity.id);
-  const totalTasks = trackedActivities.length;
-  const completedTasks = trackedActivities.filter((a) => a.completed).length;
+  const rows = [moodRow, ...careRows, ...taskRows];
+  const doneCount = rows.filter((row) => row.done).length;
 
   return (
     <div>
@@ -316,147 +252,69 @@ export function DailyPlanCard({ tuckBanner = false }: { tuckBanner?: boolean }) 
           </h2>
           <div className="flex shrink-0 items-center gap-2">
             <span className="whitespace-nowrap text-xs font-semibold text-[#83dfca]">
-              {completedTasks}/{totalTasks} {km ? "រួចរាល់" : "done"}
+              {doneCount}/{rows.length} {km ? "រួចរាល់" : "done"}
             </span>
-            <button
-              type="button"
-              onClick={() => setIsCuratorOpen(true)}
-              aria-label={km ? "រៀបចំផែនការសុខុមាលភាព" : "Curate daily plan"}
-              className="flex items-center gap-1 rounded-full bg-white/15 px-2.5 py-0.5 text-xs font-medium text-white transition-all hover:bg-white/25 active:scale-95 cursor-pointer"
-            >
-              <SlidersHorizontal size={12} />
-              <span>{km ? "រៀបចំ" : "Curate"}</span>
-            </button>
+            {plan.status === "ready" && (
+              <button
+                type="button"
+                onClick={() => setEditor("manage")}
+                className="flex items-center gap-1 rounded-full bg-white/15 px-2.5 py-0.5 text-xs font-medium text-white transition-colors hover:bg-white/25 active:scale-95"
+              >
+                <Pencil size={12} aria-hidden="true" />
+                <span>{km ? "កែ" : "Edit"}</span>
+              </button>
+            )}
           </div>
         </div>
 
-        {/* Dynamic segment progress bar */}
         <div
           role="progressbar"
-          aria-valuenow={completedTasks}
+          aria-valuenow={doneCount}
           aria-valuemin={0}
-          aria-valuemax={totalTasks}
-          aria-label={`${completedTasks} of ${totalTasks} tasks completed`}
+          aria-valuemax={rows.length}
+          aria-label={km ? `រួចរាល់ ${doneCount} ក្នុងចំណោម ${rows.length}` : `${doneCount} of ${rows.length} done`}
           className="mt-3 flex items-center gap-1.5"
         >
-          {trackedActivities.map((task, idx) => (
+          {rows.map((row) => (
             <span
-              key={task.id || idx}
+              key={row.id}
               className={`h-1.5 flex-1 rounded-full transition-colors duration-200 ${
-                task.completed ? "bg-[#23aa89] shadow-[0_0_6px_rgba(35,170,137,0.6)]" : "bg-white/75"
+                row.done ? "bg-[#23aa89] shadow-[0_0_6px_rgba(35,170,137,0.6)]" : "bg-white/75"
               }`}
             />
           ))}
         </div>
 
-        {/* Plan Activity items */}
-        <div className="mt-3 divide-y divide-white/10">
-          {allActivities.map((item) => (
-            <Link
-              key={item.id}
-              href={item.href}
-              className="group flex items-center gap-3 py-2.5 transition-colors duration-150 hover:bg-white/5 rounded-xl px-1.5 focus-visible:outline-2 focus-visible:outline-white"
-            >
-              {/* Interactive check button for Try Now and Custom MindGuide items */}
-              {item.careTask ? (
-                <button
-                  type="button"
-                  onClick={(e) => handleToggleCare(e, item.careTask!)}
-                  aria-label={item.completed ? "Mark incomplete" : "Mark complete"}
-                  className={`flex size-7 items-center justify-center rounded-full shrink-0 border transition-[transform,background-color,border-color,color] duration-[160ms] ease-[var(--ease-out)] active:scale-95 motion-reduce:active:scale-100 ${
-                    item.completed
-                      ? "border-[#23aa89] bg-[#23aa89] text-white shadow-sm"
-                      : "border-white/40 bg-white/10 text-white/60 hover:border-white hover:text-white"
-                  }`}
-                >
-                  <TickIcon done={item.completed === true}>
-                    <FigmaIcon name={item.icon} size={16} className="text-white" />
-                  </TickIcon>
-                </button>
-              ) : item.isTryNow && item.stepNumber !== undefined ? (
-                <button
-                  type="button"
-                  onClick={(e) => handleToggleTryNow(e, item.stepNumber!)}
-                  aria-label={item.completed ? "Mark incomplete" : "Mark complete"}
-                  className={`flex size-7 items-center justify-center rounded-full shrink-0 border transition-[transform,background-color,border-color,color] duration-[160ms] ease-[var(--ease-out)] active:scale-95 motion-reduce:active:scale-100 ${
-                    item.completed
-                      ? "border-[#23aa89] bg-[#23aa89] text-white shadow-sm"
-                      : "border-white/40 bg-white/10 text-white/60 hover:border-white hover:text-white"
-                  }`}
-                >
-                  <TickIcon done={item.completed === true}>
-                    <FigmaIcon name="boxicons_note-filled" size={16} className="text-white" />
-                  </TickIcon>
-                </button>
-              ) : item.isCustom ? (
-                <button
-                  type="button"
-                  onClick={(e) => handleToggleCustom(e, item.id)}
-                  aria-label={item.completed ? "Mark incomplete" : "Mark complete"}
-                  className={`flex size-7 items-center justify-center rounded-full shrink-0 border transition-[transform,background-color,border-color,color] duration-[160ms] ease-[var(--ease-out)] active:scale-95 motion-reduce:active:scale-100 ${
-                    item.completed
-                      ? "border-[#23aa89] bg-[#23aa89] text-white shadow-sm"
-                      : "border-white/40 bg-white/10 text-white/60 hover:border-white hover:text-white"
-                  }`}
-                >
-                  <TickIcon done={item.completed === true}>
-                    <FigmaIcon name={item.icon} size={16} className="text-white" />
-                  </TickIcon>
-                </button>
-              ) : (
-                <div className="flex size-7 items-center justify-center shrink-0">
-                  <FigmaIcon
-                    name={item.completed ? "mdi_check-circle" : item.icon}
-                    size={22}
-                    // The mood icon file is dark green; turn it white on the card.
-                    className={item.icon === "ic_outline-mood" && !item.completed ? "brightness-0 invert" : "text-white"}
-                  />
-                </div>
-              )}
-
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-1.5 flex-wrap">
-                  <p className="text-xs font-medium leading-tight text-white sm:text-[13px]">
-                    {km ? item.titleKm : item.title}
-                  </p>
-                  {item.isTryNow && (
-                    <span className="rounded bg-[#23aa89]/30 px-1.5 py-0.5 text-[0.62rem] font-semibold text-[#a3edd9]">
-                      {km ? "សាកល្បង (Try Now)" : "Try Now"}
-                    </span>
-                  )}
-                  {item.badge && (
-                    <span className="rounded bg-white/15 px-1.5 py-0.5 text-[0.62rem] font-semibold text-[#83dfca]">
-                      {km && item.badgeKm ? item.badgeKm : item.badge}
-                    </span>
-                  )}
-                </div>
-                <p className="mt-0.5 text-[11px] font-light leading-tight text-white/80">
-                  {km ? item.subtitleKm : item.subtitle}
-                </p>
-              </div>
-
-              <div className="flex items-center gap-1 shrink-0">
-                {item.isCustom && (
-                  <button
-                    type="button"
-                    onClick={(e) => handleRemoveCustom(e, item.id)}
-                    aria-label={km ? "លុបចេញពីផែនការ" : "Remove from daily plan"}
-                    title={km ? "លុបចេញពីផែនការ" : "Remove from daily plan"}
-                    className="flex size-6 items-center justify-center rounded-md text-white/40 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white/10 hover:text-white"
-                  >
-                    <X size={14} />
-                  </button>
-                )}
-                <ChevronRight
-                  aria-hidden="true"
-                  className="size-4 shrink-0 text-white/90 transition-transform duration-150 group-hover:translate-x-0.5"
-                />
-              </div>
-            </Link>
+        <ul className="mt-3 divide-y divide-white/10">
+          {rows.map((row) => (
+            <PlanRow key={row.id} row={row} km={km} />
           ))}
-        </div>
+        </ul>
 
-        {careActivities.length > 0 && (
+        {plan.status === "loading" && (
+          <div aria-busy="true" aria-label={km ? "កំពុងផ្ទុក" : "Loading"} className="space-y-2 px-1.5 py-2">
+            <div className="h-4 w-2/3 animate-pulse rounded-full bg-white/15" />
+            <div className="h-4 w-1/2 animate-pulse rounded-full bg-white/15" />
+          </div>
+        )}
+
+        {plan.status === "error" && (
+          <p className="flex flex-wrap items-center gap-2 px-1.5 py-2 text-xs text-white/85">
+            {km ? "មិនអាចផ្ទុកផែនការរបស់អ្នកបានទេ។" : "Your plan could not load."}
+            <button type="button" onClick={() => void loadPlan()} className="inline-flex items-center gap-1 font-semibold underline-offset-2 hover:underline">
+              <RotateCcw size={12} aria-hidden="true" />
+              {km ? "ព្យាយាមម្ដងទៀត" : "Try again"}
+            </button>
+          </p>
+        )}
+
+        {plan.status === "ready" && taskRows.length === 0 && (
+          <p className="px-1.5 py-2 text-xs text-white/80">
+            {km ? "ថ្ងៃនេះមិនទាន់មានកិច្ចការទេ។ បន្ថែមអ្វីតូចមួយ។" : "Nothing planned for today. Add something small."}
+          </p>
+        )}
+
+        {care.tasks.length > 0 && (
           <Link
             href="/care-plan"
             className="mt-2 flex items-center justify-end gap-1 text-[11px] font-semibold text-[#a3edd9] hover:text-white"
@@ -466,26 +324,32 @@ export function DailyPlanCard({ tuckBanner = false }: { tuckBanner?: boolean }) 
           </Link>
         )}
 
-        {/* Bottom launcher for Daily Flow Curator */}
-        <button
-          type="button"
-          onClick={() => setIsCuratorOpen(true)}
-          className="mt-3.5 flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-white/35 bg-white/[0.08] px-3 py-2.5 text-xs font-semibold text-white/95 transition-all hover:border-white/70 hover:bg-white/15 active:scale-[0.99] cursor-pointer"
-        >
-          <Plus size={14} strokeWidth={2.5} />
-          <span>
-            {km
-              ? "+ បន្ថែមសកម្មភាពទៅផែនការប្រចាំថ្ងៃ"
-              : "+ Add Activities to Your Daily Flow"}
-          </span>
-        </button>
+        <p role="status" aria-live="polite" className="px-1.5 text-xs text-[#ffd9d9]">
+          {error}
+        </p>
 
-        {/* Daily Plan Curator Modal */}
-        <DailyPlanCuratorModal
-          isOpen={isCuratorOpen}
-          onClose={() => setIsCuratorOpen(false)}
-        />
+        {plan.status === "signed_out" ? (
+          <Link
+            href="/login?next=%2F"
+            className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-white/35 bg-white/[0.08] px-3 py-2.5 text-xs font-semibold text-white/95 transition-colors hover:border-white/70 hover:bg-white/15"
+          >
+            <LogIn size={14} aria-hidden="true" />
+            {km ? "ចូលគណនីដើម្បីបង្កើតផែនការផ្ទាល់ខ្លួន" : "Log in to make your own plan"}
+          </Link>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setEditor("add")}
+            disabled={plan.status !== "ready"}
+            className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-white/35 bg-white/[0.08] px-3 py-2.5 text-xs font-semibold text-white/95 transition-colors hover:border-white/70 hover:bg-white/15 active:scale-[0.99] disabled:opacity-60"
+          >
+            <Plus size={14} strokeWidth={2.5} aria-hidden="true" />
+            {km ? "បន្ថែមកិច្ចការ" : "Add a task"}
+          </button>
+        )}
       </section>
+
+      {editor && <PlanEditorDialog initialTab={editor} km={km} onClose={() => setEditor(null)} />}
     </div>
   );
 }
