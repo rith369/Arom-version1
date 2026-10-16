@@ -2,7 +2,7 @@
 
 ## 16 Oct 2026: Your Plan For Today Becomes Your Own To Do List
 
-Commit `92ea861`. Migration `20261016001300_plan_tasks.sql` not yet applied to Supabase. It must run before this branch is merged.
+Commits `c4b6fcd` and `00aaa9e`. Migration `20261016001300_plan_tasks.sql` not yet applied to Supabase. It must run before this branch is merged.
 
 **Why.** Rith wanted the plan on Home to be a to do list people set up themselves, for things like drinking more water or going to bed on time, plus MindGuide items. Until now the plan was mostly fixed rows, and anything added was kept only in the browser, so it was lost on another phone and anyone on the same phone could see it.
 
