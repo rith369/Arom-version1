@@ -2,7 +2,7 @@
 
 ## 16 Oct 2026: Plan Ticks Work Every Time, and the Bar Fills From the Left
 
-Commit `PENDING`. No migration. Frontend only.
+Commit `821d1f1`. No migration. Frontend only.
 
 **Why.** Rith found that ticking a task sometimes did not work, and that the progress bar lit the segment where the done task sat (ticking the last task lit the last segment) instead of filling from the left.
 
