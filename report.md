@@ -1,5 +1,20 @@
 # AROM: Change Report
 
+## 16 Oct 2026: The Chosen Voice Language Is Easy to See
+
+Commit `9a09962`. No migration. Frontend only.
+
+**Why.** On the journal page, the Voice switch (Khmer or English) showed the chosen language as white on a white background, so people could not tell which one was on.
+
+**What changed for users:**
+- **The chosen language is dark green with white text,** the other stays plain.
+
+**What changed for the team:**
+- `app/detection/journal/page.tsx`: new selected style, and both buttons report `aria-pressed` for screen readers.
+
+**What to re-test:**
+1. Open Write about today and tap Khmer, then English under Guided Reflection Questions: the one you tapped turns dark green.
+
 ## 16 Oct 2026: Plan Ticks Work Every Time, and the Bar Fills From the Left
 
 Commit `821d1f1`. No migration. Frontend only.
