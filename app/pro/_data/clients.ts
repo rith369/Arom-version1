@@ -1,3 +1,4 @@
+import type { MoodWeekResponse } from '@/lib/mood';
 import type { ProBooking } from './bookings';
 
 // A professional only ever sees people who booked with them, and only what
@@ -73,12 +74,18 @@ export function sharingFor(bookings: ProBooking[], clientId: string) {
   return {
     survey: active.some((item) => item.shareSurvey),
     symptomChecks: active.some((item) => item.shareSymptomChecks),
+    moods: active.some((item) => item.shareMoodTrend),
   };
 }
 
 // What a client shares with this professional, from GET /api/pro/clients/<id>.
 // Empty unless sharingFor() allows it (the database checks this too).
-export type SharedByClient = { survey: SharedSurvey | null; symptomChecks: SharedSymptomCheck[] };
+export type SharedByClient = {
+  survey: SharedSurvey | null;
+  symptomChecks: SharedSymptomCheck[];
+  // Last 30 days of mood check ins, only while the client shares them. Null otherwise.
+  moods: MoodWeekResponse | null;
+};
 
 export const SYMPTOM_TYPE_LABELS: Record<SymptomCheckType, { en: string; km: string }> = {
   general: { en: 'General wellbeing', km: 'សុខុមាលភាពទូទៅ' },

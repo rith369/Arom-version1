@@ -42,6 +42,15 @@ import { DesktopNavigation } from "../../_components/app-navigation";
 import { BottomNav } from "../../components/bottom-nav";
 import { TopHeader } from "../../components/top-header";
 import { useLanguage } from "../../_components/language-provider";
+import { useConfirm } from "../../_components/confirm-dialog";
+import {
+  JOURNAL_MOODS,
+  MOOD_LEVEL_JOURNAL,
+  type JournalEntryDto,
+  type JournalListResponse,
+  type JournalMood,
+} from "@/lib/journal";
+import { cambodiaDay } from "@/lib/mood";
 
 type ViewMode = "entry" | "saved" | "history";
 
@@ -133,54 +142,6 @@ const PRESET_ADDITIONAL_QUESTIONS = [
   },
 ];
 
-const DEFAULT_ENTRIES: JournalEntry[] = [
-  {
-    id: "figma-1",
-    date: "Today",
-    mood: "Good",
-    tags: ["Happy", "Proud"],
-    content:
-      "Had a productive and peaceful day! Finished my core tasks early and had time to relax with a cup of tea. Feeling proud of my progress.",
-    createdAt: "2026-09-20",
-  },
-  {
-    id: "figma-2",
-    date: "Sep 18",
-    mood: "Great",
-    tags: ["Grateful", "Energetic"],
-    content:
-      "Went for a refreshing morning walk and spent quality time with friends. Really grateful for the good conversations and positive energy today.",
-    createdAt: "2026-09-18",
-  },
-  {
-    id: "figma-3",
-    date: "Sep 15",
-    mood: "Okay",
-    tags: ["Calm"],
-    content:
-      "A quiet, balanced day. Managed to focus on my assignments without rushing and took regular breaks to recharge.",
-    createdAt: "2026-09-15",
-  },
-  {
-    id: "figma-4",
-    date: "Sep 12",
-    mood: "Good",
-    tags: ["Calm", "Hopeful"],
-    content:
-      "Started the day with a clear plan. Felt much more organized and confident in handling my responsibilities.",
-    createdAt: "2026-09-12",
-  },
-  {
-    id: "figma-5",
-    date: "Sep 8",
-    mood: "Not Good",
-    tags: ["Tired"],
-    content:
-      "Felt a bit drained after a long week. Decided to take a warm bath, disconnect from screens, and get an early night's rest.",
-    createdAt: "2026-09-08",
-  },
-];
-
 type MoodOption = {
   en: string;
   km: string;
@@ -238,17 +199,52 @@ const EMOTION_ICONS: Record<string, LucideIcon> = {
   Angry: Flame,
 };
 
-const JOURNAL_MOOD: Record<MoodLevel, string> = {
-  great: "Great",
-  good: "Good",
-  okay: "Okay",
-  low: "Not Good",
-  very_low: "Very difficult",
-};
-
 function journalMoodFor(mood: MoodLevel): string {
-  return JOURNAL_MOOD[mood];
+  return MOOD_LEVEL_JOURNAL[mood];
 }
+
+// The server keeps entries (BACKEND-HANDOFF.md section 22), owner only.
+function fromDto(entry: JournalEntryDto): JournalEntry {
+  return {
+    id: entry.id,
+    date: entry.day,
+    mood: entry.mood,
+    tags: entry.emotions,
+    content: entry.content,
+    createdAt: entry.day,
+    questions: entry.questions,
+    additionalNotes: entry.additionalNotes,
+  };
+}
+
+function journalDayLabel(day: string, km: boolean) {
+  if (day === cambodiaDay(Date.now())) return km ? "ថ្ងៃនេះ" : "Today";
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(day)) return day;
+  return new Intl.DateTimeFormat(km ? "km-KH" : "en-GB", { day: "numeric", month: "short", timeZone: "UTC" }).format(
+    new Date(`${day}T00:00:00Z`),
+  );
+}
+
+const isJournalMood = (value: string): value is JournalMood => (JOURNAL_MOODS as readonly string[]).includes(value);
+
+type JournalLoad =
+  | { status: "ready"; entries: JournalEntry[] }
+  | { status: "signed_out" | "error" };
+
+async function fetchJournal(): Promise<JournalLoad> {
+  try {
+    const response = await fetch("/api/journal", { cache: "no-store" });
+    if (response.status === 401) return { status: "signed_out" };
+    const data = (await response.json().catch(() => null)) as JournalListResponse | null;
+    if (!response.ok || !data) return { status: "error" };
+    return { status: "ready", entries: data.entries.map(fromDto) };
+  } catch {
+    return { status: "error" };
+  }
+}
+
+// Older versions kept the journal in this browser.
+const OLD_JOURNAL_KEY = "arom_journal_entries";
 
 function getDefaultEmotionsForMood(mood: string): string[] {
   if (mood === "Great") return ["Happy", "Grateful", "Energetic"];
@@ -494,7 +490,11 @@ function JournalContent() {
 
   // Saved Entry & List State with lazy local storage hydration
   const [savedEntry, setSavedEntry] = useState<JournalEntry | null>(null);
-  const [entries, setEntries] = useState<JournalEntry[]>(DEFAULT_ENTRIES);
+  const [entries, setEntries] = useState<JournalEntry[]>([]);
+  const [journalStatus, setJournalStatus] = useState<"loading" | "ready" | "signed_out" | "error">("loading");
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<"" | "signed_out" | "failed">("");
+  const { confirm, dialog: confirmDialog } = useConfirm();
   const [selectedDetailEntry, setSelectedDetailEntry] = useState<JournalEntry | null>(null);
 
   // AI Journal Summary Feature State
@@ -512,24 +512,78 @@ function JournalContent() {
     }, 850);
   };
 
+  function applyJournal(result: JournalLoad) {
+    if (result.status === "ready") setEntries(result.entries);
+    setJournalStatus(result.status);
+  }
+
+  async function loadJournal() {
+    applyJournal(await fetchJournal());
+  }
+
   useEffect(() => {
+    let active = true;
+    void fetchJournal().then((result) => {
+      if (active) applyJournal(result);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  // Entries an older version saved in this browser. They may belong to someone
+  // else who used this device, so ask before moving them into this account.
+  const askedAboutOldEntries = useRef(false);
+  useEffect(() => {
+    if (journalStatus !== "ready" || askedAboutOldEntries.current) return;
+    askedAboutOldEntries.current = true;
+    let old: JournalEntry[] = [];
     try {
-      const stored = localStorage.getItem("arom_journal_entries");
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          const isLegacyOnly = parsed.every(
-            (e: JournalEntry) => typeof e.id === "string" && e.id.startsWith("figma-")
-          );
-          if (!isLegacyOnly) {
-            setEntries(parsed);
-          }
-        }
+      const parsed: unknown = JSON.parse(localStorage.getItem(OLD_JOURNAL_KEY) ?? "[]");
+      if (Array.isArray(parsed)) {
+        old = (parsed as JournalEntry[]).filter((entry) => typeof entry?.id === "string" && !entry.id.startsWith("figma-"));
       }
     } catch {
-      // ignore
+      return;
     }
-  }, []);
+    if (old.length === 0) return;
+    void (async () => {
+      const move = await confirm({
+        title: km ? "ផ្លាស់ទីកំណត់ត្រាចាស់?" : "Move older entries to your account?",
+        message: km
+          ? `មានកំណត់ត្រា ${old.length} ដែលបានរក្សាទុកតែលើឧបករណ៍នេះ។ ផ្លាស់ទីវាទៅគណនីរបស់អ្នក ប្រសិនបើអ្នកជាអ្នកសរសេរវា។`
+          : `${old.length} journal ${old.length === 1 ? "entry was" : "entries were"} saved only on this device. Move them to your account if you wrote them.`,
+        confirmLabel: km ? "ផ្លាស់ទី" : "Move to my account",
+        cancelLabel: km ? "មិនមែនពេលនេះ" : "Not now",
+      });
+      if (!move) return;
+      const today = cambodiaDay(Date.now());
+      const results = await Promise.all(
+        old.map((entry) =>
+          fetch("/api/journal", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              mood: isJournalMood(entry.mood) ? entry.mood : "Okay",
+              emotions: (entry.tags ?? []).slice(0, 20),
+              content: (entry.content || "").slice(0, 20000) || "No notes recorded.",
+              questions: (entry.questions ?? []).slice(0, 20),
+              additionalNotes: (entry.additionalNotes ?? "").slice(0, 5000),
+              day: /^\d{4}-\d{2}-\d{2}$/.test(entry.createdAt) && entry.createdAt <= today ? entry.createdAt : today,
+            }),
+          }).then((response) => response.ok),
+        ),
+      );
+      if (results.every(Boolean)) {
+        try {
+          localStorage.removeItem(OLD_JOURNAL_KEY);
+        } catch {
+          // Storage blocked: nothing more to clear.
+        }
+      }
+      void loadJournal();
+    })();
+  }, [journalStatus, confirm, km]);
 
   const handleSelectMood = (moodName: string) => {
     moodTouched.current = true;
@@ -615,7 +669,11 @@ function JournalContent() {
     setRecordingDuration(0);
   };
 
+  // Saved with the entry as its input method. Audio itself is never kept.
+  const usedVoice = useRef(false);
+
   const startRecording = (fieldId: string, targetLang?: "km" | "en") => {
+    usedVoice.current = true;
     stopRecording();
 
     const activeLang = targetLang || speechLang;
@@ -844,8 +902,8 @@ function JournalContent() {
     }
   };
 
-  const handleSave = () => {
-    const todayStr = km ? "ថ្ងៃនេះ" : "Today";
+  const handleSave = async () => {
+    if (saving) return;
     const answeredQuestions = questions.filter((q) => q.answer.trim().length > 0);
 
     const formattedContent = [
@@ -862,43 +920,67 @@ function JournalContent() {
       getStarterReflectionForMood(selectedMood, km) ||
       (km ? "គ្មានកំណត់ត្រា" : "No notes recorded.");
 
-    const newEntry: JournalEntry = {
-      id: "entry-" + Date.now(),
-      date: todayStr,
-      mood: selectedMood,
-      tags: selectedEmotions,
-      content: finalContent,
-      createdAt: new Date().toISOString().split("T")[0],
-      questions: answeredQuestions.map((q) => ({
-        id: q.id,
-        question: q.labelEn,
-        kmQuestion: q.labelKm,
-        answer: q.answer.trim(),
-      })),
-      additionalNotes: additionalNotes.trim(),
-    };
+    const answers = answeredQuestions.map((q) => ({
+      id: q.id,
+      question: q.labelEn,
+      kmQuestion: q.labelKm,
+      answer: q.answer.trim(),
+    }));
 
-    const updated = [newEntry, ...entries.filter((e) => e.id !== newEntry.id)];
-    setEntries(updated);
-    setSavedEntry(newEntry);
+    setSaving(true);
+    setSaveError("");
+    let saved: JournalEntryDto | null = null;
     try {
-      localStorage.setItem("arom_journal_entries", JSON.stringify(updated));
+      const response = await fetch("/api/journal", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          mood: isJournalMood(selectedMood) ? selectedMood : "Okay",
+          emotions: selectedEmotions,
+          content: finalContent,
+          questions: answers,
+          additionalNotes: additionalNotes.trim(),
+          inputMethod: usedVoice.current ? "voice" : "text",
+        }),
+      });
+      if (response.status === 401) {
+        setSaveError("signed_out");
+        return;
+      }
+      saved = response.ok ? ((await response.json().catch(() => null)) as JournalEntryDto | null) : null;
     } catch {
-      // ignore
+      saved = null;
+    } finally {
+      setSaving(false);
     }
+    if (!saved) {
+      setSaveError("failed");
+      return;
+    }
+
+    const newEntry = fromDto(saved);
+    setEntries((current) => [newEntry, ...current.filter((e) => e.id !== newEntry.id)]);
+    setSavedEntry(newEntry);
 
     setView("saved");
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const handleDeleteEntry = (id: string) => {
-    const updated = entries.filter((e) => e.id !== id);
-    setEntries(updated);
-    try {
-      localStorage.setItem("arom_journal_entries", JSON.stringify(updated));
-    } catch {
-      // ignore
+  const handleDeleteEntry = async (id: string) => {
+    const remove = await confirm({
+      title: km ? "លុបកំណត់ត្រានេះ?" : "Delete this entry?",
+      message: km ? "វានឹងត្រូវលុបជាអចិន្ត្រៃយ៍ ហើយមិនអាចយកមកវិញបានទេ។" : "It will be deleted for good and cannot be brought back.",
+      confirmLabel: km ? "លុប" : "Delete",
+      cancelLabel: km ? "បោះបង់" : "Cancel",
+      tone: "danger",
+    });
+    if (!remove) return;
+    const response = await fetch(`/api/journal/${id}`, { method: "DELETE" }).catch(() => null);
+    if (!response?.ok) {
+      setSaveError("failed");
+      return;
     }
+    setEntries((current) => current.filter((e) => e.id !== id));
     if (selectedDetailEntry?.id === id) {
       setSelectedDetailEntry(null);
     }
@@ -911,6 +993,7 @@ function JournalContent() {
 
   return (
     <div className="min-h-screen bg-[#f7faf9] text-[#14221f] lg:grid lg:grid-cols-[19rem_minmax(0,1fr)]">
+      {confirmDialog}
       {/* Desktop Sidebar Navigation */}
       <DesktopNavigation active="Detection" />
 
@@ -1324,12 +1407,36 @@ function JournalContent() {
 
               {/* Section 6: Save Journal Button */}
               <div className="mt-6">
+                {saveError && (
+                  <p role="alert" className="mb-3 rounded-xl bg-arom-danger-soft/60 px-4 py-3 text-sm text-arom-danger">
+                    {saveError === "signed_out" ? (
+                      <>
+                        {km ? "សូមចូលគណនីដើម្បីរក្សាទុកកំណត់ហេតុរបស់អ្នក។ " : "Please log in to save your journal. "}
+                        <Link href="/login?next=%2Fdetection%2Fjournal" className="font-semibold underline">
+                          {km ? "ចូលគណនី" : "Log in"}
+                        </Link>
+                      </>
+                    ) : km ? (
+                      "មិនអាចរក្សាទុកបានទេ។ អ្វីដែលអ្នកសរសេរនៅតែនៅទីនេះ។ សូមព្យាយាមម្តងទៀត។"
+                    ) : (
+                      "That could not be saved. What you wrote is still here. Please try again."
+                    )}
+                  </p>
+                )}
                 <button
                   type="button"
-                  onClick={handleSave}
-                  className="min-h-14 w-full rounded-xl bg-[#1f6f5b] py-4 text-center text-base font-semibold text-white shadow-[0_3px_10px_rgba(31,111,91,0.16)] transition-colors duration-150 hover:bg-[#165746] active:scale-[0.99] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1f6f5b]"
+                  onClick={() => void handleSave()}
+                  disabled={saving}
+                  aria-busy={saving}
+                  className="min-h-14 w-full disabled:opacity-60 rounded-xl bg-[#1f6f5b] py-4 text-center text-base font-semibold text-white shadow-[0_3px_10px_rgba(31,111,91,0.16)] transition-colors duration-150 hover:bg-[#165746] active:scale-[0.99] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1f6f5b]"
                 >
-                  {km ? "រក្សាទុកកំណត់ត្រា (Save Journal)" : "Save Journal"}
+                  {saving
+                    ? km
+                      ? "កំពុងរក្សាទុក..."
+                      : "Saving..."
+                    : km
+                      ? "រក្សាទុកកំណត់ត្រា (Save Journal)"
+                      : "Save Journal"}
                 </button>
               </div>
             </div>
@@ -1664,7 +1771,7 @@ function JournalContent() {
                         <div className="flex items-center gap-2">
                           {moodObj && <FigmaIcon name={moodObj.icon} size={18} />}
                           <p className="text-base font-bold text-[#111827] transition-colors group-hover:text-[#1f6f5b]">
-                            {entry.date} • {getMoodLabel(entry.mood)}
+                            {journalDayLabel(entry.createdAt, km)} • {getMoodLabel(entry.mood)}
                           </p>
                         </div>
                         <p className="mt-1 line-clamp-2 text-xs sm:text-sm text-[#4b5563] leading-relaxed">
@@ -1741,7 +1848,7 @@ function JournalContent() {
                       return moodObj ? <FigmaIcon name={moodObj.icon} size={17} /> : <Calendar size={13} />;
                     })()}
                     <span>
-                      {selectedDetailEntry.date} • {getMoodLabel(selectedDetailEntry.mood)}
+                      {journalDayLabel(selectedDetailEntry.createdAt, km)} • {getMoodLabel(selectedDetailEntry.mood)}
                     </span>
                   </div>
                   <button
@@ -1806,7 +1913,7 @@ function JournalContent() {
                 <div className="mt-6 flex items-center justify-between border-t border-gray-100 pt-4">
                   <button
                     type="button"
-                    onClick={() => handleDeleteEntry(selectedDetailEntry.id)}
+                    onClick={() => void handleDeleteEntry(selectedDetailEntry.id)}
                     className="flex items-center gap-1.5 text-xs font-semibold text-rose-600 hover:text-rose-800 transition-colors"
                   >
                     <Trash2 size={14} />

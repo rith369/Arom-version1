@@ -11,7 +11,8 @@ import {
   Wind,
 } from "lucide-react";
 import { motion } from "motion/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { recordActivity } from "../activity-log";
 import { useLanguage } from "../language-provider";
 import {
   isLessonBookmarked,
@@ -34,6 +35,11 @@ export function LessonCompleteView({
 }: LessonCompleteViewProps) {
   const { language } = useLanguage();
   const km = language === "km";
+
+  // Counts on the Progress Activities tab (once per lesson per day).
+  useEffect(() => {
+    recordActivity("lesson", lesson.id);
+  }, [lesson.id]);
   const [saved, setSaved] = useState(() => isLessonBookmarked(lesson.id));
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 

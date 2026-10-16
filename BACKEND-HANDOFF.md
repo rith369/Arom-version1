@@ -51,6 +51,8 @@ The yellow "Demo data on this page" banner is in `admin-shell.tsx`. Remove it fo
 | Professional bookings (`/pro/bookings`) | Done | Connected: list, cancel, reschedule, outcome, session notes, meeting link (`/api/pro/bookings/:id`), migration `20261014000400` | 16 |
 | Professional clients (`/pro/clients`, client file) | Done | Connected: list from real bookings, archive (closes the conversation), summary notes, real shared survey and symptom checks (`/api/pro/clients/:id`), migration `20261015000300` | 16 |
 | Public directory and booking (`/professional`, `/professional/<slug>`, `/professional/<slug>/book`) | Done | Connected: only listed professionals, real open times, instant booking (`/api/bookings`), migration `20261014000400` | 16 |
+| Address for in person sessions (My profile, public profile, booking, My appointments) | Done, on branch `rith/in-person-address` | Written, migration `20261015001600` not yet applied to Supabase | 25 |
+| Client changes the time of a session (My appointments, Change time) | Done, on branch `rith/client-change-time` | Written, migration `20261015001500` not yet applied to Supabase | 24 |
 | My appointments for users (`/appointments`) | Done | Connected (`GET /api/appointments`, `POST /api/appointments/:id` with `cancel` or `sharing`). No migration | 21 |
 | Messages between client and professional (text and voice): `/pro/messages`, `/messages` | Done | Connected (`/api/messages`, `/api/pro/messages`, `/api/voice/:id`), archive saved (`/api/pro/clients/:id`), migration `20261014000700`. Suggestion messages and quick replies connected in section 19 | 17 |
 | Care plan: professional gives tasks, client sees them in Your Plan For Today (`/pro/clients/<id>`, `/care-plan`, home) | Done | Connected (`/api/care-plan`, `/api/pro/care`), migration `20261015000100` | 18 |
@@ -67,10 +69,10 @@ The yellow "Demo data on this page" banner is in `admin-shell.tsx`. Remove it fo
 | MindGuide podcasts: user pages `/podcasts` and `/podcasts/<id>`, admin Podcasts tab | Done on mock data | Waiting for backend | 11 |
 | Community: professionals and admins create groups, admins read chats and shut groups down, users report a person, image, message or group (`/community`, `/admin/community`) | Done | Partly connected: group list and create, join, chat read and send (`/api/community/groups`, `/:id/join`, `/:id/messages`), migrations `20261016000000` to `20261016000700`. Shut down, reopen, reports and the admin view still use `community-store.ts` (browser only) | 23 |
 | Mood check in and Your Progress on Home (`/`, journal starts from today's mood) | Done | Connected (`POST /api/mood-checkins`, `GET /api/progress`), migration `20261015000400` | 22 |
-| Progress pages (`/progress`, `/progress/details`, from Figma): trend, bars, distribution, today's check in | Done, 30 days and 3 months on sample data | 7 days connected (`GET /api/progress`). Waiting for `GET /api/progress?range=30d\|90d`. Insights worked out in the browser (real for 7 days) | 22 |
-| Progress Activities tab (practices done, lessons read, journal entries) | Done on sample data | Waiting for backend: save finished practices and lessons, `GET /api/progress/activities?range=` | 22 |
-| Share mood check ins with my professional (My appointments switch, client file card) | Done as Coming soon, nothing is shared | Waiting for backend: `appointments.share_mood_trend`, a function for the professional to read the last 30 days, RLS | 22 |
-| Journal (Write about today, `/detection/journal`) | Done, saved in the browser only | Waiting for backend: `journal_entries` API, owner only | 22 |
+| Progress pages (`/progress`, `/progress/details`, from Figma): trend, bars, distribution, today's check in | Done | Connected for every range (`GET /api/progress?range=7d\|30d\|90d`). Insights worked out in the browser from the same real check ins | 22 |
+| Progress Activities tab (practices done, lessons read, journal entries) | Done | Connected (`POST /api/activities`, `GET /api/progress/activities?range=`), migration `20261016001000` | 22 |
+| Share mood check ins with my professional (My appointments switch, client file card) | Done | Connected (`appointments.share_mood_trend`, `shared_mood_checkins()`, `GET /api/pro/clients/:id` returns `moods`), migration `20261016001000` | 22 |
+| Journal (Write about today, `/detection/journal`) | Done | Connected (`GET\|POST /api/journal`, `DELETE /api/journal/:id`, owner only). Entries an older version saved in the browser are moved only if the person agrees, migration `20261016001000` | 22 |
 | Edit Profile for users: photo, display name, pronouns, About you (`/profile`) | Done | Connected (`/api/profile`, `/api/profile/photo`, private `user-profile-photos` bucket), migration `20261016000900`. Accounts without a profile row fixed by `20261016000800` | none |
 | Admin audit log (`/admin/audit-log`) | Done | Connected (`GET /api/admin/audit-log`). No migration | 5 |
 | Other admin pages (bookings, journal prompts, settings) | Built by Sokheng on mock data | Not started | not written yet |
@@ -778,32 +780,32 @@ Suggested table: `professional_episodes` (columns as above, `takeaways` and `cha
 - **Table:** existing `mood_checkins` (owner only RLS from `20261008000200`). The migration sets `checked_in_on` to default to `cambodia_today()`, keeps only the latest row of each day, and adds the unique index `mood_checkins_one_per_day (user_id, checked_in_on)`.
 - **Function:** `save_mood_checkin(p_mood, p_source)`, `security definer`, `search_path = ''`, owner from `auth.uid()`, execute for `authenticated` only. Upserts today's row and returns the Cambodia day. Errors: `PT403` (not signed in), `22023` (unknown source).
 - **API:** `POST /api/mood-checkins { mood, source? }` returns `{ day, mood }`; `GET /api/progress` returns `MoodWeekResponse`. Both answer 401 when signed out.
-- **Still open:** the journal itself (`journal_entries`) is still saved in the browser only (`arom_journal_entries` in `localStorage`). It needs its own API before real users write in it. The weekly range is the last 7 days only; the old This week and Last week switch is gone.
+- **Journal (connected 16 Oct 2026):** `GET|POST /api/journal`, `DELETE /api/journal/:id` (`lib/journal.ts`), owner only RLS, never professionals or admins. The journal page no longer shows sample entries. Entries an older version kept in `localStorage` (`arom_journal_entries`) are moved to the account only when the person agrees in a confirm window, because they may belong to someone else who used the device; the key is cleared once they move. Deleting an entry asks first. `entry_date` defaults to Cambodia today.
 - **Applied** to Supabase on 16 Oct 2026. Not yet tested signed in on the live site.
 
 ### Progress pages `/progress` and `/progress/details` (15 Oct 2026, from Figma)
 
-**Files:** `app/progress/page.tsx`, `app/progress/details/page.tsx`, `app/progress/_components/*` (views, charts, `use-progress.ts`), `app/progress/_data/sample-progress.ts` (**sample data**), `app/_components/mood/mood-visuals.ts` (mood icons and chart colors, shared with the Home check in), `lib/mood.ts` (`PROGRESS_RANGES`, `RANGE_DAYS`, `moodCounts()`). The sidebar "Progress Dashboard" item and Home "See all" link open `/progress`.
+**Files:** `app/progress/page.tsx`, `app/progress/details/page.tsx`, `app/progress/_components/*` (views, charts, `use-progress.ts`), `use-activities.ts`, `app/_components/mood/mood-visuals.ts` (mood icons and chart colors, shared with the Home check in), `lib/mood.ts` (`PROGRESS_RANGES`, `RANGE_DAYS`, `moodCounts()`). The sidebar "Progress Dashboard" item and Home "See all" link open `/progress`.
 
-**What is real and what is sample:**
+**Where each part gets its data (all real since 16 Oct 2026):**
 
 | Part | Data |
 |---|---|
 | 7 days: Mood Trend, Mood Statistics bars, Mood Distribution, summary card | Real, `GET /api/progress` |
 | 30 days and 3 months in Mood Statistics | Month calendars, each day colored by its mood, grey when missed (`mood-calendar.tsx`). Same data as the ranges below |
 | Today's Check in card | Real, today from the same response |
-| 30 days and 3 months | **Sample**, `sampleProgress()`, labeled "Sample data, not yours yet" on screen, shown only to signed in people |
-| Insights tab | Worked out in the browser from the same check ins (`app/progress/_components/insights.ts`): real for 7 days, sample for longer ranges. Facts only: check in count, most common mood, the span of moods, the weekday checked in most (30 days or more, only when one weekday clearly leads), and how many days were Low or Very Low. **Backend later:** a "time of day you check in" insight needs the check in time (`created_at` of `mood_checkins`) in the progress response |
-| Activities tab | **Sample** for every range, `app/progress/_data/sample-activities.ts`, labeled on screen. Counts of practices done, lessons read and journal entries, plus a Recent list (practice and lesson names come from `ALL_PRACTICES` and `ALL_LESSONS`; a journal entry is only a date, never its words) |
+| 30 days and 3 months | Real, `GET /api/progress?range=30d\|90d`, loaded the first time the range is chosen and kept in `mood-store.ts` |
+| Insights tab | Worked out in the browser from the same check ins (`app/progress/_components/insights.ts`): real for every range. Facts only: check in count, most common mood, the span of moods, the weekday checked in most (30 days or more, only when one weekday clearly leads), and how many days were Low or Very Low. **Backend later:** a "time of day you check in" insight needs the check in time (`created_at` of `mood_checkins`) in the progress response |
+| Activities tab | Real, `GET /api/progress/activities?range=` (`lib/activities.ts`). Counts of practices done, lessons read and journal entries, plus a Recent list (practice and lesson names come from `ALL_PRACTICES` and `ALL_LESSONS`; a journal entry is only a date, never its words) |
 
-**Backend needed for Activities:** save each finished practice (`practice_id`), each finished lesson (`lesson_id`) and each journal entry (date only here) for the signed in user, owner only RLS. Then `GET /api/progress/activities?range=7d|30d|90d` returning `ActivitiesResponse` from `sample-activities.ts`: `{ counts: { practice, lesson, journal }, recent: { id, kind, refId, day }[] }`, newest first, at most 20. Never return journal text here. Then swap `sampleActivities()` in `activities-panel.tsx` for the API and delete the sample file.
+**Activities, connected (16 Oct 2026):** `activity_log (user_id, kind, ref_id, done_on)`, one row per practice or lesson per Cambodia day, owner reads, written only by `log_activity()`. The practice and lesson completion screens call `POST /api/activities` (`app/_components/activity-log.ts`); the API checks the id is a real item. Journal days come from `journal_entries.entry_date`, never the text.
 
-**Share my mood check ins with my professional (built as "Coming soon", nothing is shared yet).** Rith decided: **off by default, moods only (never the journal, never notes), the client can turn it off at any time.**
-- **Client side today:** My appointments shows a third sharing option "My mood check ins", disabled, with "Coming soon. Nothing is shared yet." (`app/_components/appointments/user-appointments.tsx`).
-- **Professional side today:** the client file shows a "Mood check ins" card, Coming soon, with a dimmed chart labeled "An example, not this client" (`app/pro/_components/shared-mood-preview.tsx`, sample data). It must never look like the client's real moods.
-- **Backend needed:** `appointments.share_mood_trend boolean not null default false`, set through `set_appointment_sharing()` (add `p_share_mood_trend`) and returned in `GET /api/appointments` as `shareMoodTrend`; lock it in `guard_appointment_update()` like the other share columns. A `security definer` function for the professional, for example `shared_mood_checkins(p_client uuid)`, returning only `(day, mood)` for the last 30 Cambodia days, and only when that client has `share_mood_trend = true` on a booked or completed appointment with the caller. Turning the switch off must stop it at once. No admin read. Then: enable the checkbox, send it with the `sharing` action, and swap the example chart for the real one.
+**Share my mood check ins with my professional (connected 16 Oct 2026).** Rith decided: **off by default, moods only (never the journal, never notes), the client can turn it off at any time.**
+- **Client side:** My appointments has a third sharing option "My mood check ins" ("Your last 30 days of moods. Moods only, never your journal."), sent with the `sharing` action as `shareMoodTrend` (`app/_components/appointments/user-appointments.tsx`).
+- **Professional side:** the client file shows the "Mood check ins" card with the real last 30 days only while the client shares, otherwise "This client has not shared their moods" (`app/pro/_components/shared-moods.tsx`).
+- **Backend:** `appointments.share_mood_trend` (default off), set only through `set_appointment_sharing(appointment, survey, symptoms, moods)` and locked in `guard_appointment_update()`. `shared_mood_checkins(client)` (`security definer`) returns `(day, mood)` for the last 30 Cambodia days, only while that client shares on a booked or completed session with the caller; nothing is copied, so turning it off stops it at once. No admin read.
 
-**Backend needed:** `GET /api/progress?range=30d|90d` returning the same `MoodWeekResponse` (`{ days: MoodDay[], checkIns }`): one entry per Cambodia day, oldest first, today last, `mood` null on a missed day. Without `range` it stays 7 days. Then in `use-progress.ts` load the range instead of `sampleProgress()` and delete `app/progress/_data/sample-progress.ts`. The distribution is counted in the browser with `moodCounts()`, so no extra endpoint.
+**Ranges, connected (16 Oct 2026):** `GET /api/progress?range=7d|30d|90d` returns `MoodWeekResponse`, one entry per Cambodia day, oldest first, today last, `mood` null on a missed day. Without `range` it is 7 days. `app/progress/_data/` is deleted.
 
 **Decided with Rith (changes from the Figma, do not undo):**
 
@@ -876,11 +878,69 @@ The admin list uses `CommunityReport`: `id, groupId, targetKind, targetLabel, me
 
 ### Backend gaps
 
-1. **Admin chat reads are not audited.** `read_community_messages()` lets an admin read any group without writing to `admin_audit_log`. Section 2 requires an audit entry on every open. Give admins their own audited function and remove the admin branch from this one.
+1. **Admin chat reads (done 16 Oct 2026, migration `20261016001100`):** admins open a chat only through `GET /api/admin/community/groups/:id/messages?reason=`, which calls `admin_read_community_messages()`. Every open writes `read_group_chat` to `admin_audit_log` (the reason, never message text). Admins can no longer read raw `community_messages` rows or use the member function. The admin Community page still shows its browser data and should switch to this endpoint.
 2. **Still browser only:** shutting a group down, reopening, reports, removing a message and the admin Community page use `community-store.ts`. Chat images need a private storage bucket readable by members of that group and by admins.
 3. Professionals have no "My groups" list yet; it belongs in `/pro`.
 4. Admin edits to an existing group (name, description, rules) do not reach `/community` yet.
 
+## 24. Client changes the time of a session (My appointments)
+
+**Status: written, migration `20261015001500_client_reschedule.sql` NOT yet applied to Supabase.** Branch `rith/client-change-time`. Merge only after the migration runs: `GET /api/appointments` and the professional's bookings select the new `rescheduled_by` column and fail without it.
+
+**Files:** `supabase/migrations/20261015001500_client_reschedule.sql`, `lib/controllers/appointments-controller.ts` (`listMoveTimes`, `reschedule` action), `app/api/appointments/[id]/open-times/route.ts`, `app/_components/appointments/change-time-panel.tsx`, `app/_components/therapist-booking.tsx` (`TimeStep` now exported for reuse), `lib/controllers/pro-controller.ts` and `app/pro/_components/bookings-view.tsx` (shows who moved it).
+
+### Data shape
+
+| Type | Fields | Table |
+|---|---|---|
+| `UserAppointment.rescheduledBy` | `"you"`, `"professional"` or null when never moved | `appointments.rescheduled_by` |
+| `UserAppointment.changeTimeUntil` | ISO time: the start minus the professional's minimum notice; null when not upcoming | `my_change_time_deadlines()` |
+| `ProBooking.rescheduledBy` | `'client'`, `'professional'` or null | `appointments.rescheduled_by` |
+| `MoveTimesResponse` | `times`: `{ id, startsAt, endsAt }[]` | `availability_slots` via `public_open_slots()` |
+
+### Actions
+
+- `GET /api/appointments/:id/open-times`: the professional's open times for the same session type, minimum notice applied. Only the client's own upcoming session.
+- `POST /api/appointments/:id { action: "reschedule", slotId, reason? }`: calls `client_reschedule_appointment()`, returns the updated `AppointmentsResponse`. Answers 409 with a user facing message when the time was just taken or is too soon.
+
+### Rules (decided)
+
+- **Same professional, same session type,** any open time outside the minimum notice. The meeting link stays the same.
+- **Allowed until the professional's minimum notice before the session** (for example 24 hours before), because the professional may already have prepared. Cancelling stays open until the session starts. Inside the notice the card says "It is too close to your session to change the time. You can still cancel it, or message your professional." The reason is optional (up to 300 characters) and the professional sees it.
+- **The deadline comes from `my_change_time_deadlines()`** (`security definer`, the caller's own upcoming sessions only), because clients cannot read `professional_schedules`. Only the deadline leaves the function, never the schedule.
+- **One transaction:** the appointment moves and the `appointments_refresh_slots` trigger frees the old open time and takes the new one. If two people pick the same time, the second gets "This time is no longer available".
+- **Who moved it is recorded** in `rescheduled_by`. The client sees "You moved this session from ..." or "Your professional moved this session from ...". The professional sees "The client moved this session from ...". `rescheduled_from` keeps the very first time.
+- **`reschedule_appointment()` (professional) and `guard_appointment_update()` are replaced** with the same bodies plus `rescheduled_by`. Both matched the live database before this change.
+- **Tested** on a local Postgres (PGlite) with the real trigger code: 30 checks for moving, taken times, other people's sessions, other professionals, minimum notice for the new time and for the session itself, the deadlines function, session type, reason length, cancelled sessions, the professional's version, the guard and grants. Not yet tested against Supabase or in the running app.
+- **Not built:** a notice to the professional beyond the bookings list (no message or email is sent).
+
+
+## 25. Address for in person sessions
+
+**Status: written, migration `20261015001600_in_person_address.sql` NOT yet applied to Supabase.** Branch `rith/in-person-address`. Merge only after the migration runs: My profile, the public directory and My appointments select the new columns and fail without them. Section 24 (client change time, PR #11) is a separate branch; whichever merges second may need a small merge in `appointments-controller.ts`, `lib/appointments.ts` and `user-appointments.tsx`.
+
+**Files:** `supabase/migrations/20261015001600_in_person_address.sql`, `lib/office.ts` (type, limits, map link), `app/_components/office-card.tsx`, `app/pro/_components/profile-editor.tsx` (fields under How you meet clients), `app/pro/_components/pro-home.tsx` (reminder), `lib/controllers/pro-controller.ts`, `lib/professionals.ts`, `app/_components/therapist-detail.tsx`, `app/_components/therapist-booking.tsx`, `lib/controllers/appointments-controller.ts`, `app/_components/appointments/*`.
+
+### Data shape (`OfficeLocation`)
+
+| Field | Type | Column |
+|---|---|---|
+| `name` | string, optional, up to 120 | `professional_profiles.office_name` |
+| `address` | string, up to 300, required to offer in person | `professional_profiles.office_address` |
+| `mapUrl` | https link, optional, up to 500 | `professional_profiles.office_map_url` |
+
+`ProProfile.office`, `Therapist.office` (only when in person is offered), `AppointmentProfessional.office` (null without an address).
+
+### Rules (decided by Rith, 15 Oct 2026)
+
+- **The professional types their own place** in My profile. The admin managed `clinics` table (0 rows) stays unused.
+- **Everyone can see it** on the public profile, the booking page and My appointments.
+- **No admin review.** It saves at once, like the bio (not in `REVIEWED_FIELDS`).
+- **An address is required to offer in person.** My profile refuses to save In person without one (`PATCH /api/pro/profile` answers 400 too). Without an address, the public profile and booking page offer online only, and the trigger `appointments_require_office` refuses any new in person booking (`book_appointment()`, `accept_session_suggestion()` and later paths). Bookings that already exist are not touched.
+- **Map link:** the professional's own https link, or a Google Maps search for the place name and address when there is none. Any other link is ignored.
+- **`list_public_professionals()`** returns `office_name`, `office_address`, `office_map_url`. It is dropped and created again (the return type changes) with the same body as file `20261014000400`, which matched the live database.
+- **Tested** on a local Postgres (PGlite) with the real `is_listed_professional()`: 18 checks for the public list, booking with and without an address, blank addresses, length and https limits, existing bookings and grants. Not yet tested against Supabase or in the running app.
+- **Today:** 56 in person open times exist without an address. After the migration their professionals see a reminder on Home, and users can only book them online until an address is added.
 ## Template for a new feature section
 
 ```md

@@ -1,3 +1,4 @@
+import { hasOffice, type OfficeLocation } from "./office";
 import type { SessionPrice } from "./pricing";
 import { createClient } from "./supabase/server";
 import type { SessionOption, Therapist } from "./therapists";
@@ -28,6 +29,9 @@ interface PublicRow {
   price_usd: number | string | null;
   price_max_usd: number | string | null;
   next_open_at: string | null;
+  office_name: string | null;
+  office_address: string | null;
+  office_map_url: string | null;
 }
 
 export interface OpenTime {
@@ -63,10 +67,16 @@ function availabilityLabel(nextOpenAt: string | null, now: number) {
 }
 
 function toTherapist(row: PublicRow, now: number): Therapist {
+  const office: OfficeLocation = {
+    name: row.office_name ?? "",
+    address: row.office_address ?? "",
+    mapUrl: row.office_map_url ?? "",
+  };
   const online = row.session_types?.includes("online") ?? false;
-  const inPerson = row.session_types?.includes("in_person") ?? false;
+  // In person needs an address; the database also refuses in person bookings without one.
+  const inPerson = (row.session_types?.includes("in_person") ?? false) && hasOffice(office);
   const sessionOptions: SessionOption[] =
-    online && inPerson ? ["Online", "In-person", "Both"] : online ? ["Online"] : ["In-person"];
+    online && inPerson ? ["Online", "In-person", "Both"] : online ? ["Online"] : inPerson ? ["In-person"] : [];
   const years = row.years_experience;
 
   return {
@@ -86,6 +96,7 @@ function toTherapist(row: PublicRow, now: number): Therapist {
     kmAbout: row.bio_km ?? undefined,
     languages: row.languages ?? [],
     sessionOptions,
+    office: inPerson ? office : undefined,
     price: toPrice(row.price_kind, row.price_usd, row.price_max_usd),
   };
 }

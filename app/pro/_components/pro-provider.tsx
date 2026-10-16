@@ -300,7 +300,7 @@ export function usePro() {
   return context;
 }
 
-const NOTHING_SHARED: SharedByClient = { survey: null, symptomChecks: [] };
+const NOTHING_SHARED: SharedByClient = { survey: null, symptomChecks: [], moods: null };
 
 /** What one client shares with this professional. Loads only while they share something. */
 export function useSharedByClient(clientId: string | undefined, sharing: boolean): SharedByClient {

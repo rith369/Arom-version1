@@ -1,8 +1,39 @@
 # AROM: Change Report
 
+## 16 Oct 2026: Progress, Activities, Journal and Mood Sharing All Use Real Data (Issue #13)
+
+Commit `PENDING`. Migrations `20261016001000_progress_journal_sharing.sql` and `20261016001100_audit_admin_chat_reads.sql` must be run in Supabase, after `20261015001500_client_reschedule.sql` and `20261015001600_in_person_address.sql` (from PR #11).
+
+**Why.** Issue #13 listed four Progress parts that still ran on sample data or were switched off. The journal was the most serious: people's private reflections were kept only in the browser, where anyone using the same phone could read them, and new visitors saw five made up entries. Admins could also read community chats without the audit log entry AGENTS.md requires.
+
+**What changed for users:**
+- **30 days and 3 months show your own check ins.** The "Sample data, not yours yet" badge is gone. Missed days stay blank.
+- **Activities are real:** finishing a practice or a lesson counts on the Activities tab (once per item per day). Journal entries count by date only, never their words.
+- **Your journal is saved to your account,** private to you: not your professional, not admins. No more sample entries. If you are not logged in, Save asks you to log in and keeps what you wrote. Deleting an entry asks first.
+- **Entries saved on this device before:** the journal asks once whether to move them into your account, because they might belong to someone else who used the phone. Nothing moves without a yes.
+- **Share your moods with your professional:** My appointments has a working "My mood check ins" switch (off by default). It shares only your last 30 days of moods, never your journal, and turning it off stops it at once.
+- **Professionals** see that client's real last 30 days in the client file only while the client shares; otherwise "This client has not shared their moods."
+
+**What changed for the team:**
+- **API:** `GET /api/progress?range=7d|30d|90d`, `POST /api/activities`, `GET /api/progress/activities?range=`, `GET|POST /api/journal`, `DELETE /api/journal/:id`, and `moods` in `GET /api/pro/clients/:id`. `POST /api/appointments/:id` sharing takes `shareMoodTrend`.
+- **Migration 1000:** `activity_log` with `log_activity()`; `journal_entries.entry_date` defaults to Cambodia today; `appointments.share_mood_trend`, a 4 argument `set_appointment_sharing()`, `guard_appointment_update()` locking it, and `shared_mood_checkins()`.
+- **Migration 1100:** admins read a group chat only through `admin_read_community_messages()` (`GET /api/admin/community/groups/:id/messages?reason=`), which writes `read_group_chat` to the audit log every time. The member function and the raw table no longer let admins in.
+- **Shared code:** `lib/activities.ts`, `lib/journal.ts`; `mood-store.ts` loads the longer ranges; `use-activities.ts`; `shared-moods.tsx` replaces the example chart. `app/progress/_data/` is deleted.
+- **Merge:** PR #11 merged into `hokchheng`. `BACKEND-HANDOFF.md` sections are now 23 Community, 24 Client changes the time, 25 Address for in person sessions. The client reschedule error now uses `databaseError()`.
+
+**What to re-test:**
+1. Run the four migrations in order: `20261015001500`, `20261015001600`, `20261016001000`, `20261016001100`.
+2. Check in on Home, then open Progress and switch to 30 days and 3 months. Check today shows and no sample badge appears.
+3. Finish a practice and a lesson, then open Mood & Activity Details, Activities. Check both count.
+4. Write a journal entry, reload, and check it is still there. Delete it and check the confirm window.
+5. On a browser that has old journal entries saved, open the journal and check the Move window. Press Not now and check nothing moved.
+6. In My appointments, turn on My mood check ins. As that professional, open the client file and check the 30 day chart. Turn it off and reload: the chart is replaced by "This client has not shared their moods."
+7. As an admin, call `GET /api/admin/community/groups/<id>/messages?reason=check` and check the Audit log shows "Opened a support group chat".
+8. Signed out: Progress shows Log in, and the journal Save asks you to log in.
+
 ## 16 Oct 2026: Team Docs Brought Up to Date
 
-Commit `PENDING`. No migration. Docs only.
+Commit `20b40ed`. No migration. Docs only.
 
 **Why.** The docs had fallen behind the code. Nineteen report entries had no commit, the handoff status board still said applied migrations were waiting, two sections shared the number 14, finished backend gaps were still listed as open, and README and ADMIN.md described an early mock version of the app.
 
@@ -115,6 +146,66 @@ Commit `5629343`. Migrations renamed, not new. Run the 8 files `20261016000000` 
 3. Sign in as a professional with a booked client in Private mode. Check that `/pro/clients` and Messages show the client's real name.
 4. Switch that client to Anonymous Mode. Check that the professional no longer sees the name.
 5. In Community, post with Hide my identity on. Check that others see "Anonymous".
+
+## 15 Oct 2026: Address for In Person Sessions
+
+Commit `6e3cafd`. Migration `20261015001600_in_person_address.sql` **not yet applied**: Hok Chheng reviews and runs it in Supabase, then merges the pull request. Run after `20261015000200_sessions.sql`.
+
+**Why.** Professionals could offer in person sessions, and 56 in person times were open, but nowhere said where to go. A client could book and arrive nowhere. Rith decided: professionals type their own place, everyone can see it, no admin review, and an address is required to offer in person.
+
+**What changed for professionals:**
+- **Where you see clients in person** in My profile, under How you meet clients: place name (optional), address and a Google Maps link (optional). It saves at once.
+- **In person needs an address:** saving In person without one shows an error, and Home shows "Users cannot book in person until you add the address where you see clients" with a link.
+
+**What changed for users:**
+- **Public profile** shows "Where to meet in person" with the address and Open in Maps.
+- **Booking** shows the address under the In person choice, and the review and confirmation show the place.
+- **My appointments** shows the place and Open in Maps on in person sessions, and Add to calendar puts the address in the calendar event.
+- **No address, no in person:** professionals without an address offer online only until they add one.
+
+**What changed for the team:**
+- **New columns** `professional_profiles.office_name`, `office_address`, `office_map_url`; `list_public_professionals()` returns them; trigger `appointments_require_office` refuses new in person bookings without an address.
+- **New** `lib/office.ts` and `app/_components/office-card.tsx`.
+- **Tested** the migration on a local Postgres (PGlite) with 18 checks. See BACKEND-HANDOFF.md section 24.
+
+**What to re-test (after running the migration):**
+1. As a professional with In person on, open My profile, clear the address and try to save: confirm the error.
+2. Add a place name, address and map link, save, refresh, and confirm they stayed.
+3. Open your public profile and confirm "Where to meet in person" and that Open in Maps opens the right place.
+4. As a user, book In person and confirm the address shows on the choice, the review and the confirmation.
+5. Open My appointments and confirm the place and Open in Maps on the session; tap Add to calendar and check the event location.
+6. As a professional with In person but no address, confirm Home shows the reminder and users only see Online.
+
+## 15 Oct 2026: Clients Can Change the Time of Their Session
+
+Commit `4322eda`. Migration `20261015001500_client_reschedule.sql` **not yet applied**: Hok Chheng reviews and runs it in Supabase, then merges the pull request. Run after `20261015000200_sessions.sql`.
+
+**Why.** A client who could not make their session could only cancel and book again, and in between someone else could take the time they wanted. Professionals could already move sessions; clients now can too, safely in one step.
+
+**What changed for users:**
+- **Change time** on an upcoming session opens the same date and time picker as booking, with the professional's open times for the same session type.
+- **One step and safe:** the session moves and the old time opens for someone else at once. If someone just took the new time, the page says so and loads fresh times.
+- **Up to the professional's notice:** a session can be moved until the professional's minimum notice before it (for example 24 hours), and the panel says until when. After that the card says it is too close to change the time, and the client can still cancel or message the professional.
+- **Optional reason** the professional sees.
+- **Clear wording:** the card says "You moved this session from ..." or "Your professional moved this session from ...".
+
+**What changed for professionals:**
+- **My bookings shows "The client moved this session from ..."** with the client's reason.
+
+**What changed for the team:**
+- **New database functions** `client_reschedule_appointment()` and `my_change_time_deadlines()` (the deadline only, the schedule stays private), and column `appointments.rescheduled_by`. `reschedule_appointment()` and `guard_appointment_update()` are replaced with the same bodies plus `rescheduled_by` (checked against the live database first).
+- **New endpoint** `GET /api/appointments/:id/open-times` and a `reschedule` action on `POST /api/appointments/:id`.
+- **`TimeStep`** from the booking page is exported and reused.
+- **Tested** the migration on a local Postgres (PGlite) with 30 checks. See BACKEND-HANDOFF.md section 23.
+
+**What to re-test (after running the migration):**
+1. As a client with an upcoming session, tap Change time, pick another time, add a reason and confirm.
+2. Confirm the card shows the new time and "You moved this session from ...".
+3. Open the professional's My bookings and confirm the new time and "The client moved this session from ..." with the reason.
+4. Confirm the old time shows again on the professional's booking page and the new one does not.
+5. Open the same session in two browsers, move both to the same time, and confirm the second gets "This time is no longer available".
+6. With a session less than the professional's minimum notice away, confirm Change time is hidden, the "too close" note shows, and Cancel still works.
+7. Switch to Khmer and check every new label.
 
 ## 16 Oct 2026: Home Shows a Small Progress Glance
 

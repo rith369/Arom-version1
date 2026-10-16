@@ -26,13 +26,16 @@ export type ProBooking = {
   intakeAnswers: IntakeAnswer[];
   cancelledBy: 'client' | 'professional' | 'admin' | null;
   cancelReason: string;
-  // Set when the professional moved the session; the client is told.
+  // Set when the session was moved; the other side is told.
   rescheduledFrom: string | null;
   rescheduleReason: string;
+  // Who last moved it (appointments.rescheduled_by). Null if never moved.
+  rescheduledBy: 'client' | 'professional' | null;
   // The client's choice for this booking (appointments.share_survey and
   // share_symptom_checks). Off by default; only the client can change it.
   shareSurvey: boolean;
   shareSymptomChecks: boolean;
+  shareMoodTrend: boolean;
   // Online sessions only (appointments.meeting_url). Null for in person.
   meetingUrl: string | null;
   // Set when the client booked a repeating series from a suggestion.

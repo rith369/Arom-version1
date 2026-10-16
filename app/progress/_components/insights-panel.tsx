@@ -4,7 +4,7 @@ import { Activity, CalendarCheck, Compass, HeartPulse, ShieldCheck, type LucideI
 
 import { PROGRESS_RANGES, type ProgressRange } from '@/lib/mood';
 import { moodInsights, type InsightKind } from './insights';
-import { PillSwitch, ProgressStatus, RANGE_LABELS, SampleBadge, RangeDates } from './progress-parts';
+import { PillSwitch, ProgressStatus, RANGE_LABELS, RangeDates } from './progress-parts';
 import type { ProgressData } from './use-progress';
 
 const ICONS: Record<InsightKind, LucideIcon> = {
@@ -44,7 +44,6 @@ export function InsightsPanel({
         onChange={onRange}
       />
       <RangeDates first={data.days[0]?.day} last={data.days.at(-1)?.day} km={km} />
-      {data.sample && <SampleBadge km={km} />}
 
       {insights.length === 0 ? (
         <p className="rounded-3xl border border-arom-border bg-white px-5 py-8 text-center text-sm text-ink-muted shadow-card">

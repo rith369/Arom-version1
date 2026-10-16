@@ -7,6 +7,7 @@ import {
   CalendarDays,
   ChevronLeft,
   Clock3,
+  MapPin,
   StickyNote,
   UserRound,
   UsersRound,
@@ -27,6 +28,7 @@ import {
   type MeetingType,
   type PeriodLabel,
 } from "@/lib/booking";
+import { officeLine, type OfficeLocation } from "@/lib/office";
 import type { OpenTime } from "@/lib/professionals";
 import {
   getTherapistName,
@@ -86,11 +88,14 @@ function MeetingStep({
   value,
   onChange,
   km,
+  office,
 }: {
   options: MeetingType[];
   value: MeetingType | null;
   onChange: (value: MeetingType) => void;
   km: boolean;
+  // Where in person sessions happen, shown under the In person choice.
+  office?: OfficeLocation;
 }) {
   return (
     <div>
@@ -121,6 +126,12 @@ function MeetingStep({
                   <span className="mt-1 block text-[0.82rem] leading-5 text-ink-muted">
                     {km ? meeting.kmDescription : meeting.description}
                   </span>
+                  {meeting.type === "In-person" && office && (
+                    <span className="mt-1.5 flex items-start gap-1.5 text-[0.82rem] font-medium leading-5 text-ink">
+                      <MapPin aria-hidden="true" size={15} className="mt-0.5 shrink-0 text-arom" />
+                      <span className="min-w-0 break-words">{officeLine(office)}</span>
+                    </span>
+                  )}
                 </span>
                 <span
                   aria-hidden="true"
@@ -158,7 +169,8 @@ function MeetingStep({
 
 const PERIODS: PeriodLabel[] = ["Morning", "Afternoon", "Evening"];
 
-function TimeStep({
+/** Date and time picker. Also used by "Change time" in My appointments. */
+export function TimeStep({
   days,
   times,
   date,
@@ -166,6 +178,8 @@ function TimeStep({
   onDateChange,
   onTimeChange,
   km,
+  idPrefix = "booking",
+  emptyText,
 }: {
   days: BookingDay[];
   times: BookableTime[];
@@ -174,13 +188,17 @@ function TimeStep({
   onDateChange: (value: string) => void;
   onTimeChange: (value: string) => void;
   km: boolean;
+  // Keeps radio names and ids unique when several pickers are on one page.
+  idPrefix?: string;
+  emptyText?: string;
 }) {
   if (days.length === 0) {
     return (
       <p className="rounded-xl border border-dashed border-arom/30 bg-white px-5 py-8 text-center text-sm text-ink-muted">
-        {km
-          ? "អ្នកជំនាញនេះមិនមានម៉ោងទំនេរសម្រាប់ប្រភេទនេះទេនៅពេលនេះ។ សូមសាកល្បងប្រភេទផ្សេង ឬត្រឡប់មកវិញពេលក្រោយ។"
-          : "This professional has no open times for this session type right now. Try another session type, or check back later."}
+        {emptyText ??
+          (km
+            ? "អ្នកជំនាញនេះមិនមានម៉ោងទំនេរសម្រាប់ប្រភេទនេះទេនៅពេលនេះ។ សូមសាកល្បងប្រភេទផ្សេង ឬត្រឡប់មកវិញពេលក្រោយ។"
+            : "This professional has no open times for this session type right now. Try another session type, or check back later.")}
       </p>
     );
   }
@@ -203,7 +221,7 @@ function TimeStep({
                 >
                   <input
                     type="radio"
-                    name="booking-date"
+                    name={`${idPrefix}-date`}
                     value={day.value}
                     checked={selected}
                     onChange={() => onDateChange(day.value)}
@@ -228,8 +246,8 @@ function TimeStep({
         </legend>
         <div className="mt-2 space-y-4">
           {PERIODS.filter((period) => times.some((slot) => slot.period === period)).map((period) => (
-            <div key={period} role="group" aria-labelledby={`period-${period}`}>
-              <p id={`period-${period}`} className="text-[0.94rem] font-medium text-ink">
+            <div key={period} role="group" aria-labelledby={`${idPrefix}-period-${period}`}>
+              <p id={`${idPrefix}-period-${period}`} className="text-[0.94rem] font-medium text-ink">
                 {getPeriodLabel(period, km)}
               </p>
               <div className="mt-2 grid grid-cols-3 gap-2 sm:gap-2.5">
@@ -244,7 +262,7 @@ function TimeStep({
                       >
                         <input
                           type="radio"
-                          name="booking-time"
+                          name={`${idPrefix}-time`}
                           value={slot.id}
                           checked={selected}
                           onChange={() => onTimeChange(slot.id)}
@@ -434,6 +452,11 @@ export function TherapistBooking({ therapist, openTimes }: { therapist: Therapis
 
   const selectedTimeLabel = selectedTime ? timeRangeLabel(selectedTime.startsAt, selectedTime.endsAt, km) : "";
 
+  const placeDetail =
+    meeting === "In-person" && therapist.office
+      ? [{ icon: MapPin, label: km ? "ទីកន្លែង" : "Place", value: officeLine(therapist.office) }]
+      : [];
+
   const reviewDetails = [
     { icon: CalendarDays, label: km ? "កាលបរិច្ឆេទ" : "Date", value: selectedDateLabel },
     { icon: Clock3, label: km ? "ពេលវេលា" : "Time", value: selectedTimeLabel },
@@ -442,6 +465,7 @@ export function TherapistBooking({ therapist, openTimes }: { therapist: Therapis
       label: km ? "ទម្រង់នៃការប្រឹក្សា" : "Session Type",
       value: getMeetingTypeLabel(meeting, km),
     },
+    ...placeDetail,
     ...(therapist.price
       ? [{ icon: Banknote, label: km ? "តម្លៃ" : "Price", value: formatPrice(therapist.price, km) }]
       : []),
@@ -456,6 +480,7 @@ export function TherapistBooking({ therapist, openTimes }: { therapist: Therapis
       label: km ? "ទម្រង់នៃការប្រឹក្សា" : "Session Type",
       value: getMeetingTypeLabel(meeting, km),
     },
+    ...placeDetail,
   ];
 
   const backButtonClass =
@@ -548,6 +573,7 @@ export function TherapistBooking({ therapist, openTimes }: { therapist: Therapis
                           value={meeting}
                           onChange={setMeeting}
                           km={km}
+                          office={therapist.office}
                         />
                       )}
                       {step.id === "time" && (

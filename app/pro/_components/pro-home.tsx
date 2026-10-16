@@ -11,6 +11,7 @@ import {
   Eye,
   EyeOff,
   Gift,
+  MapPin,
   Monitor,
   UserRound,
 } from 'lucide-react';
@@ -21,6 +22,7 @@ import { usePro } from './pro-provider';
 import { WeeklySessionsChart } from './weekly-sessions-chart';
 import { useLanguage } from '../../_components/language-provider';
 import { profileChecklist, type ReviewedField } from '../_data/profile';
+import { hasOffice } from '@/lib/office';
 
 const TIME_ZONE = 'Asia/Phnom_Penh';
 
@@ -87,6 +89,19 @@ export function ProHome() {
       ) : (
         <p className="mt-1 text-sm text-ink-muted">
           {t('នេះជាកន្លែងគ្រប់គ្រងប្រវត្តិរូប និងការណាត់ជួបរបស់អ្នក។', 'This is where you manage your profile and sessions.')}
+        </p>
+      )}
+
+      {profile.sessionTypes.includes('in_person') && !hasOffice(profile.office) && (
+        <p className="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1 rounded-2xl border border-arom-warning/25 bg-arom-warning-soft px-4 py-3 text-sm text-arom-warning">
+          <MapPin size={16} aria-hidden="true" className="shrink-0" />
+          {t(
+            'អ្នកប្រើមិនអាចកក់ការជួបផ្ទាល់បានទេ រហូតដល់អ្នកបន្ថែមអាសយដ្ឋាន។',
+            'Users cannot book in person until you add the address where you see clients.',
+          )}
+          <Link href="/pro/profile#pro-office" className="font-semibold underline">
+            {t('បន្ថែមអាសយដ្ឋាន', 'Add address')}
+          </Link>
         </p>
       )}
 

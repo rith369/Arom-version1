@@ -1,4 +1,5 @@
 import type { NextRequest } from "next/server";
+import { z } from "zod";
 import {
   bucketByDay,
   overviewQuerySchema,
@@ -9,7 +10,7 @@ import {
   type OverviewRange,
   type PendingApplication,
 } from "@/lib/admin-overview";
-import { fail, invalidInput, json } from "./shared";
+import { databaseError, fail, invalidInput, json } from "./shared";
 import { requireRole } from "./role-controller";
 
 /*
@@ -148,4 +149,52 @@ export async function getOverview(request: NextRequest) {
   };
 
   return json<AdminOverview>(overview);
+}
+
+export type AdminGroupMessage = {
+  id: string;
+  content: string;
+  createdAt: string;
+  displayName: string;
+  isMentor: boolean;
+  isHidden: boolean;
+};
+
+/**
+ * GET /api/admin/community/groups/:id/messages?reason=: an admin opens a
+ * support group chat for safety. admin_read_community_messages() writes an
+ * audit log entry every time (AGENTS.md section 9). Never log message text.
+ */
+export async function readGroupChatAsAdmin(request: NextRequest, groupId: string) {
+  const guard = await requireRole("admin");
+  if (!guard.ok) return guard.response;
+
+  const id = z.string().uuid().safeParse(groupId);
+  const reason = z.string().trim().max(300).safeParse(request.nextUrl.searchParams.get("reason") ?? "");
+  if (!id.success || !reason.success) return invalidInput();
+
+  const { data, error } = await guard.supabase.rpc("admin_read_community_messages", {
+    p_group_id: id.data,
+    p_reason: reason.data || null,
+  });
+  if (error) return databaseError(error, "This chat could not be opened. Please try again.");
+
+  const rows = (data ?? []) as {
+    id: string;
+    content: string;
+    created_at: string;
+    display_name: string;
+    is_mentor: boolean;
+    is_hidden: boolean;
+  }[];
+  return json<{ messages: AdminGroupMessage[] }>({
+    messages: rows.map((row) => ({
+      id: row.id,
+      content: row.content,
+      createdAt: row.created_at,
+      displayName: row.display_name,
+      isMentor: row.is_mentor,
+      isHidden: row.is_hidden,
+    })),
+  });
 }

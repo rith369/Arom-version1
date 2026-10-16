@@ -6,7 +6,7 @@ import { Archive, ArchiveRestore, ArrowLeft, CalendarCheck, FileText, Lock, Mess
 
 import { BookingDialog } from './bookings-view';
 import { CarePlanCard } from './care-plan-card';
-import { SharedMoodPreview } from './shared-mood-preview';
+import { SharedMoods } from './shared-moods';
 import { SuggestSessionDialog } from './suggest-session-dialog';
 import { usePro, useSharedByClient } from './pro-provider';
 import { useLanguage } from '../../_components/language-provider';
@@ -64,7 +64,7 @@ export function ClientFile({ clientId }: { clientId: string }) {
     .sort((a, b) => b.startsAt.localeCompare(a.startsAt));
   const archived = archivedClients.includes(clientId);
   const sharing = sharingFor(bookings, clientId);
-  const shared = useSharedByClient(clientId, sharing.survey || sharing.symptomChecks);
+  const shared = useSharedByClient(clientId, sharing.survey || sharing.symptomChecks || sharing.moods);
   const latestIntake = [...sessions].sort((a, b) => b.startsAt.localeCompare(a.startsAt))[0];
   const openBooking = sessions.find((item) => item.id === openId) ?? null;
   const savedSummary = summaryNotes[clientId];
@@ -324,7 +324,7 @@ export function ClientFile({ clientId }: { clientId: string }) {
             )}
           </Card>
 
-          <SharedMoodPreview km={km} />
+          <SharedMoods km={km} sharing={sharing.moods} moods={shared.moods} />
 
           {latestIntake && (
             <Card title={t('ចម្លើយចុងក្រោយពេលកក់', 'Latest intake answers')} icon={FileText}>
