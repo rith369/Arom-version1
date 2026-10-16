@@ -1,5 +1,31 @@
 # AROM: Change Report
 
+## 16 Oct 2026: Home Page Redesign with the AROM Sprout
+
+Commit `PENDING`. No migration. Frontend only.
+
+**Why.** The new Figma Homescreen gives AROM a friendly character, a small leaf sprout, so the app feels warm and less clinical for people who are nervous about mental health. The home page already had the same sections with real data behind them, so this change is visual: the data and buttons work as before.
+
+**What changed for users:**
+- **The sprout peeks over Your Plan For Today,** among plants, a sun and a heart. The plan title is bigger and the progress bars are thicker.
+- **The mood check in shows a sprout for each mood** (rain cloud for Very Low up to cheering for Great) instead of small round icons. The chosen mood gets a soft green frame.
+- **Your Progress stays below the mood check in,** now with a green title like the other sections. Its subtitle says "Your moods over the last 7 days" instead of repeating the quote above it.
+- **Text fixes:** "Share with each other", "Understanding Anxiety (5 min)", "Relax and breathe (3 min)".
+- **Khmer fits:** the plan's "2/5 រួចរាល់" no longer splits across two lines, and the mood question no longer runs into the Journal link.
+
+**What changed for the team:**
+- **New images in `public/home/`:** `plan-banner.webp` (57 KB) and five `mood-*.webp` files (10 to 14 KB each), cut from the Figma pictures and converted from about 4 MB of PNG. They load through `next/image`; the banner uses `preload` (Next.js 16 replaced `priority` with `preload`).
+- **The Figma banner has "Your Plan For Today", "1/5 done" and the bars painted into the picture.** Only the plants and sprout above the bar are used, so the real title, count and bars stay live and switch to Khmer.
+- **Files:** `daily-plan-card.tsx` (banner, header, bars, text), `mood-selector.tsx` (sprouts instead of `MOOD_ICONS`), `progress-dashboard.tsx` (title and subtitle). `MOOD_ICONS` is still used elsewhere.
+- **Kept on purpose:** the app's own bottom menu labels (Professional, Community) and tagline, which were already correct.
+
+**What to re-test:**
+1. Open Home on a phone. Check the sprout sits right on top of the plan card and the page does not scroll sideways.
+2. Tap each mood and check the green frame moves and "Saved" shows.
+3. Switch to Khmer and check the plan header, the mood question and the mood labels read well.
+4. Open Home on a computer and check the plan card with the sprout in the left column.
+5. Check Your Progress still opens the Progress page from See all.
+
 ## 16 Oct 2026: Journal Prompts Saved for Real and Shown in the Journal
 
 Commit `d855a3e`. Migration `20261016001200_journal_prompts.sql` applied to Supabase on 16 Oct 2026 (by Rith).

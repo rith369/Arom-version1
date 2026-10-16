@@ -1,16 +1,24 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { BookOpen, Check, ChevronRight, LogIn, RotateCcw } from "lucide-react";
-import { FigmaIcon } from "./figma-icon";
 import { useLanguage } from "../_components/language-provider";
 import { useAuth } from "../_components/auth-provider";
 import { MOOD_LABELS, MOOD_LEVELS, saveTodayMood, useMoodStore, type MoodLevel } from "../_components/mood/mood-store";
-import { MOOD_ICONS } from "../_components/mood/mood-visuals";
 
-const moods: { id: MoodLevel; icon: string }[] = MOOD_LEVELS.map((id) => ({ id, icon: MOOD_ICONS[id] }));
+// The AROM sprout for each mood (Figma Homescreen): small WebP files, 168px wide.
+const MOOD_SPROUTS: Record<MoodLevel, { src: string; height: number }> = {
+  very_low: { src: "/home/mood-very-low.webp", height: 189 },
+  low: { src: "/home/mood-low.webp", height: 154 },
+  okay: { src: "/home/mood-okay.webp", height: 153 },
+  good: { src: "/home/mood-good.webp", height: 153 },
+  great: { src: "/home/mood-great.webp", height: 150 },
+};
+
+const moods = MOOD_LEVELS.map((id) => ({ id, sprout: MOOD_SPROUTS[id] }));
 
 type SaveState = "idle" | "saving" | "saved" | "error" | "sign_in";
 
@@ -51,11 +59,11 @@ export function MoodSelector() {
 
   return (
     <section id="mood-check-in" aria-labelledby="mood-heading" className="pt-1">
-      <div className="flex items-center justify-between">
+      <div className="flex items-start justify-between gap-3">
         <h2 id="mood-heading" className="text-sm font-medium text-[#1f6f5b] sm:text-base">
           {t("តើថ្ងៃនេះអារម្មណ៍របស់អ្នកយ៉ាងណាដែរ?", "How are you feeling today?")}
         </h2>
-        <Link href="/detection/journal" className="text-xs font-semibold text-[#1f6f5b] hover:underline">
+        <Link href="/detection/journal" className="shrink-0 pt-0.5 text-xs font-semibold text-[#1f6f5b] hover:underline">
           {t("កំណត់ត្រាអារម្មណ៍ (Journal)", "Journal")} &rarr;
         </Link>
       </div>
@@ -66,7 +74,7 @@ export function MoodSelector() {
         aria-busy={saveState === "saving"}
         className="mt-3.5 grid grid-cols-5 gap-1.5 sm:gap-3"
       >
-        {moods.map(({ id, icon }) => {
+        {moods.map(({ id, sprout }) => {
           const isSelected = selected === id;
           const label = MOOD_LABELS[id];
           return (
@@ -79,15 +87,22 @@ export function MoodSelector() {
               className="group flex flex-col items-center gap-1.5 rounded-xl py-1 transition-transform focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1f6f5b] active:scale-95"
             >
               <span
-                className={`flex size-11 items-center justify-center rounded-full transition-all duration-200 sm:size-12 ${
+                className={`flex h-14 w-full max-w-16 items-center justify-center rounded-2xl p-0.5 transition-all duration-200 sm:h-16 sm:max-w-[4.5rem] ${
                   isSelected
-                    ? "bg-[#1f6f5b] shadow-[0_4px_12px_rgba(31,111,91,0.28)] ring-2 ring-[#23aa89]"
-                    : "bg-[#e0f3ed] hover:bg-[#d0ece3]"
+                    ? "bg-[#e0f3ed] shadow-[0_4px_12px_rgba(31,111,91,0.2)] ring-2 ring-[#23aa89]"
+                    : "group-hover:bg-[#e0f3ed]/60"
                 }`}
               >
-                <span className={isSelected ? "brightness-0 invert" : ""}>
-                  <FigmaIcon name={icon} size={24} />
-                </span>
+                <Image
+                  src={sprout.src}
+                  alt=""
+                  width={168}
+                  height={sprout.height}
+                  sizes="72px"
+                  className={`h-full w-auto object-contain transition-transform duration-200 ${
+                    isSelected ? "scale-105" : "group-hover:scale-105 motion-reduce:group-hover:scale-100"
+                  }`}
+                />
               </span>
               <span
                 className={`text-[11px] leading-tight transition-colors sm:text-xs ${

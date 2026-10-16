@@ -34,11 +34,11 @@ export function ProgressDashboard() {
     >
       <div className="flex items-end justify-between gap-3 px-1">
         <div>
-          <h2 id="progress-title" className="text-xl font-bold tracking-tight text-[#14221f] sm:text-2xl">
+          <h2 id="progress-title" className="text-lg font-semibold tracking-tight text-[#1f6f5b] sm:text-xl">
             {t("ដំណើរការវិវឌ្ឍរបស់អ្នក (Your Progress)", "Your Progress")}
           </h2>
           <p className="mt-0.5 text-xs text-[#4b5563] sm:text-sm">
-            {t("«រាល់ជំហានតូចៗ សុទ្ធតែជាការរីកចម្រើនដ៏មានតម្លៃ។»", "“Small steps are still progress.”")}
+            {t("អារម្មណ៍របស់អ្នកក្នុង ៧ ថ្ងៃចុងក្រោយ", "Your moods over the last 7 days")}
           </p>
         </div>
         <Link
