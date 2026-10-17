@@ -74,7 +74,7 @@ export function loadPlan(): Promise<void> {
     else {
       const plan = result.data as unknown as PlanResponse;
       setState({ status: "ready", day: plan.day, tasks: plan.tasks });
-      void moveOldBrowserItems();
+      void removeDuplicateTasks().then(moveOldBrowserItems);
     }
   })().finally(() => {
     loading = null;
@@ -99,6 +99,26 @@ function ensureLoaded() {
 // account once (they are plan items, not private writing), then remove them.
 const OLD_KEYS = ["arom_custom_daily_plan_v2", "arom_daily_plan_try_now_v1"];
 
+const sameWords = (a: string, b: string) => {
+  const clean = (text: string) => text.trim().toLowerCase().replace(/[.\s]+$/, "");
+  return clean(a) === clean(b);
+};
+
+/**
+ * An earlier move from the browser could add a ready made task twice (for
+ * example a starter and an old "Try now" with the same words). Keep the first
+ * and remove the copies. Tasks people typed themselves are never touched.
+ */
+async function removeDuplicateTasks() {
+  const kept: PlanTask[] = [];
+  const copies: PlanTask[] = [];
+  for (const task of [...state.tasks].sort((a, b) => a.sortOrder - b.sortOrder)) {
+    const twin = task.source !== "custom" && kept.some((other) => other.source !== "custom" && sameWords(other.title, task.title));
+    (twin ? copies : kept).push(task);
+  }
+  for (const copy of copies) await deletePlanTask(copy.id);
+}
+
 async function moveOldBrowserItems() {
   const old: NewPlanTask[] = [];
   try {
@@ -109,7 +129,8 @@ async function moveOldBrowserItems() {
       for (const item of Array.isArray(items) ? items : []) {
         const isTip = typeof item.stepNumber === "number";
         const id = isTip ? `tip-try-now-${item.stepNumber}` : item.id;
-        if (!id || !item.title || state.tasks.some((task) => task.itemKey === id)) continue;
+        // Skip anything already in the plan, by key or by the same words.
+        if (!id || !item.title || state.tasks.some((task) => task.itemKey === id || sameWords(task.title, item.title ?? ""))) continue;
         old.push({
           itemKey: id,
           source: isTip ? "tip" : (item.source ?? "custom"),

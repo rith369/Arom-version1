@@ -34,24 +34,23 @@ export function AromMainView() {
             {/* The user's next booked session, when there is one */}
             {nextSession && <NextSessionCard next={nextSession} km={language === "km"} />}
 
-            {/* Desktop 2-column or Mobile 1-column layout */}
+            {/* Laptops: two columns. Phones: one column in this same order
+                (plan, quote, mood check in, progress). */}
             <div className="grid gap-5 lg:grid-cols-[1.1fr_0.9fr] lg:items-start lg:gap-6">
-              {/* Daily Plan Card */}
-              <div className="w-full">
+              {/* Left: the plan, with the day's quote under it */}
+              <div className="flex w-full flex-col gap-5">
                 <DailyPlanCard tuckBanner={!nextSession} />
+                <QuoteCard />
               </div>
 
-              {/* Right column on desktop / below on mobile */}
+              {/* Right on laptops: today's mood, then the week it adds to */}
               <div className="flex flex-col gap-5">
-                <QuoteCard />
                 <div className="rounded-[20px] bg-white p-4 shadow-[0_4px_20px_rgba(0,0,0,0.03)] sm:p-5">
                   <MoodSelector />
                 </div>
+                <ProgressDashboard />
               </div>
             </div>
-
-            {/* Wellness Progress Dashboard */}
-            <ProgressDashboard />
           </div>
         </main>
       </div>

@@ -24,6 +24,8 @@ import {
 } from "../_components/care/care-store";
 import { PLAN_STARTERS, isDueOn, type PlanTask } from "@/lib/plan";
 
+const firstUpper = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
+
 // One line of the plan: the person's own tasks, today's mood check in and
 // tasks from their professional all look the same.
 type Row = {
@@ -230,8 +232,9 @@ export function DailyPlanCard({ tuckBanner = false }: { tuckBanner?: boolean }) 
           .filter((task) => isDueOn(task, today))
           .map((task) => ({
             id: task.id,
-            title: km && task.titleKm ? task.titleKm : task.title,
-            subtitle: km && task.subtitleKm ? task.subtitleKm : task.subtitle,
+            title: firstUpper(km && task.titleKm ? task.titleKm : task.title),
+            // Older saved items can start in lowercase ("drop or delay...").
+            subtitle: firstUpper(km && task.subtitleKm ? task.subtitleKm : task.subtitle),
             icon: task.icon,
             href: task.href,
             done: task.doneToday,

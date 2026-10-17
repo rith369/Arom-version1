@@ -30,7 +30,7 @@ export function ProgressDashboard() {
     <section
       id="progress-dashboard"
       aria-labelledby="progress-title"
-      className="mt-6 flex scroll-mt-6 flex-col gap-4 sm:gap-5"
+      className="mt-2 flex scroll-mt-6 flex-col gap-4 sm:gap-5"
     >
       <div className="flex items-end justify-between gap-3 px-1">
         <div>

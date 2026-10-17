@@ -1,5 +1,26 @@
 # AROM: Change Report
 
+## 17 Oct 2026: Better Home Layout on Laptops, and a Tidier Plan
+
+Commit `PENDING`. No migration. Frontend only.
+
+**Why.** On laptops the right side of Home ended after the mood check in, leaving empty space, while Your Progress sat alone at the bottom. Rith also spotted a duplicate "Try now: Cut what you control" in the plan and some lines starting in lowercase.
+
+**What changed for users:**
+- **Laptops:** the left column has Your Plan For Today with the day's quote under it; the right column has the mood check in with Your Progress under it. Both columns end at about the same height.
+- **Phones:** no change in order (plan, quote, mood check in, progress).
+- **No duplicate ready made tasks:** if the same ready made task appears twice (for example a starter and an older saved "Try now" with the same words), the copy is removed when the plan loads. Older saved items are no longer moved in if the same task is already there. Tasks people typed themselves are never removed.
+- **Plan lines start with a capital letter,** also for older saved items ("Drop or delay one thing...").
+
+**What changed for the team:**
+- `arom-main-view.tsx`: new two column layout. `progress-dashboard.tsx`: smaller top margin.
+- `daily-plan-store.ts`: `removeDuplicateTasks()` runs once after the plan loads (non custom tasks with the same words), and the browser move skips matching titles. `daily-plan-card.tsx`: `firstUpper()` on titles and subtitles.
+
+**What to re-test:**
+1. On a laptop, open Home: quote under the plan, Your Progress under the mood check in.
+2. On a phone, the order is the same as before.
+3. In an account that had two "Try now: Cut what you control", reload Home: only one remains.
+
 ## 17 Oct 2026: No Extra Profile Circle on Laptops
 
 Commit `e47ed13`. No migration. Frontend only.
