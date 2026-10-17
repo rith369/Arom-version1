@@ -1,5 +1,26 @@
 # AROM: Change Report
 
+## 17 Oct 2026: Connect Section 7 of Know When to Seek Help to AROM Private Booking
+
+Commit `PENDING`. No migration. Content and frontend only.
+
+**Why.** Section 7 of Know When to Seek Help previously only cited general Cambodian hospitals and organizations. Users in Cambodia face significant social stigma and fear of gossip when seeking mental health care. Connecting this section directly to AROM highlights how seekers can browse verified therapists, filter by language (Khmer and English), book appointments in 100% digital privacy from their phone without anyone knowing, and access 24/7 crisis hotlines.
+
+**What changed for users:**
+- **Section 7 connects directly to AROM:** Titled "Getting Support in Cambodia and on AROM", it explains how seekers can discover verified psychologists, counselors, and partner clinics in Cambodia.
+- **Private booking spotlight:** Emphasizes that booking through AROM is 100% confidential. Seekers never have to sit in public waiting rooms where acquaintances might see them, and no friends, family, or employers can ever see their bookings.
+- **New calm tip box:** Features a green "Good to know" note reinforcing AROM's clinical grade privacy guarantee.
+- **Interactive Match Me button:** Adds direct action shortcuts right inside Section 7, allowing users to immediately tap Match Me With A Professional to open the therapist directory.
+
+**What changed for the team:**
+- **`learn-data.ts`:** Updated Section 7 in `LESSON_KNOW_WHEN_TO_SEEK_HELP` with bilingual AROM feature guidance, tip alertBox, action shortcuts, and enhanced key points.
+- **Anti-AI Copywriting:** Zero em dashes, en dashes, or loose hyphens.
+
+**What to re-test:**
+1. Open `/mindguide/learn?open=know-when-to-seek-help` and navigate to Section 7.
+2. In English, verify the title reads "Getting Support in Cambodia and on AROM", the paragraphs explain AROM's private booking, the green tip box appears, and the Match Me button is clickable.
+3. Switch to Khmer and verify the Khmer translation, formatting, and buttons render cleanly.
+
 ## 17 Oct 2026: New Lesson, Know When to Seek Help
 
 Commit `82bebd6`. No migration. Content and frontend only.
