@@ -2,7 +2,7 @@
 
 ## 17 Oct 2026: Unlock Calming Racing Thoughts Tip Guide
 
-Commit `PENDING`. No migration. Content and frontend only.
+Commit `21b50bb`. No migration. Content and frontend only.
 
 **Why.** When anxiety spikes or the brain refuses to rest, intrusive looping thoughts overwhelm mental bandwidth. The "Calming Racing Thoughts" (`calming-racing-thoughts`) tip guide was previously locked under "Coming Soon". It is now fully active with 5 evidence-based cognitive and somatic steps adapted from the Anxiety and Depression Association of America (ADAA) and American Psychological Association (APA), connecting directly to AROM's private Journal, guided 4-7-8 Breathing, and professional support.
 
