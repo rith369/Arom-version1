@@ -2,7 +2,7 @@
 
 ## 17 Oct 2026: Better Home Layout on Laptops, and a Tidier Plan
 
-Commit `PENDING`. No migration. Frontend only.
+Commit `5d66001`. No migration. Frontend only.
 
 **Why.** On laptops the right side of Home ended after the mood check in, leaving empty space, while Your Progress sat alone at the bottom. Rith also spotted a duplicate "Try now: Cut what you control" in the plan and some lines starting in lowercase.
 
