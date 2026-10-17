@@ -2,7 +2,7 @@
 
 ## 17 Oct 2026: New Play Card About Healing Social Media Pages
 
-Commit `PENDING`. No migration. Frontend only.
+Commit `8225eb4`. No migration. Frontend only.
 
 **Why.** Rith added a question about the social media pages people turn to on a bad day, a natural, low pressure way to talk about what helps.
 
