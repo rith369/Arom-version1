@@ -2,7 +2,7 @@
 
 ## 17 Oct 2026: Swipe the Cards Like Flashcards
 
-Commit `PENDING`. No migration. Frontend only.
+Commit `4ce7cc7`. No migration. Frontend only.
 
 **Why.** Rith wanted the cards to work like flashcards: swipe instead of hunting for buttons while the phone is being passed around.
 
