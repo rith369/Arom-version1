@@ -1,8 +1,9 @@
 "use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
-import { AnimatePresence, motion, useIsPresent, useReducedMotion } from "motion/react";
-import { ArrowRight, CircleHelp, Feather, Hand, Heart, Leaf, LifeBuoy, MessageCircle, Users, Wind, X, type LucideIcon } from "lucide-react";
+import { AnimatePresence, animate, motion, useIsPresent, useMotionValue, useReducedMotion, useTransform, type PanInfo } from "motion/react";
+import { ArrowLeft, ArrowRight, Check, CircleHelp, Feather, Hand, Heart, Leaf, LifeBuoy, MessageCircle, Users, Wind, X, type LucideIcon } from "lucide-react";
 import { MoodSprout } from "../../_components/mood/mood-sprout";
 import { KINDS, LEVELS, lighterLevel, type CardKind, type PlayCard } from "../_data/cards";
 import { BreatheCircle } from "./breathe-circle";
@@ -16,8 +17,12 @@ const KIND_ICON: Record<CardKind, LucideIcon> = {
   together: Users,
 };
 
-// How a card leaves: "next" slides away to the left, "pass" sinks down.
-export type CardExit = "next" | "pass";
+// How a card leaves: "next" (done) flies right, "pass" flies left, "lighter" sinks down.
+export type CardExit = "next" | "pass" | "lighter";
+
+// How far (px) or how fast (px/s) a swipe must go to count.
+const SWIPE_DISTANCE = 110;
+const SWIPE_SPEED = 600;
 
 const EASE = [0.23, 1, 0.32, 1] as const;
 
@@ -28,12 +33,16 @@ function PlayingCard({
   card,
   flipped,
   onFlip,
+  onDone,
+  onPass,
   exit,
   km,
 }: {
   card: PlayCard;
   flipped: boolean;
   onFlip: () => void;
+  onDone: () => void;
+  onPass: () => void;
   exit: CardExit;
   km: boolean;
 }) {
@@ -44,11 +53,29 @@ function PlayingCard({
   const KindIcon = KIND_ICON[card.kind];
   const isDark = card.level === "real";
 
+  // Like a flashcard: once flipped, swipe right for Done, left for Pass.
+  // The card tilts with the drag and a label shows what letting go will do.
+  const x = useMotionValue(0);
+  const rotate = useTransform(x, [-220, 0, 220], [-12, 0, 12]);
+  const passLabel = useTransform(x, [-SWIPE_DISTANCE, -24], [1, 0]);
+  const doneLabel = useTransform(x, [24, SWIPE_DISTANCE], [0, 1]);
+
+  const endSwipe = (_event: unknown, info: PanInfo) => {
+    if (info.offset.x > SWIPE_DISTANCE || info.velocity.x > SWIPE_SPEED) onDone();
+    else if (info.offset.x < -SWIPE_DISTANCE || info.velocity.x < -SWIPE_SPEED) onPass();
+    else animate(x, 0, { type: "spring", stiffness: 420, damping: 32 });
+  };
+
   return (
     <motion.div
-      className={`absolute inset-0 [perspective:1400px] ${present ? "" : "pointer-events-none"}`}
+      className={`absolute inset-0 [perspective:1400px] ${present ? "" : "pointer-events-none"} ${flipped ? "cursor-grab active:cursor-grabbing" : ""}`}
+      style={{ x, rotate, touchAction: "pan-y" }}
+      drag={flipped && present ? "x" : false}
+      dragElastic={0.9}
+      dragMomentum={false}
+      onDragEnd={endSwipe}
       initial={reduce ? { opacity: 0 } : { opacity: 0, y: 40, scale: 0.94 }}
-      animate={{ opacity: 1, y: 0, x: 0, scale: 1, rotate: 0 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
       // The direction comes from AnimatePresence `custom`, so a leaving card
       // uses the latest choice, not the one from when it was drawn.
       variants={{
@@ -56,13 +83,36 @@ function PlayingCard({
           reduce
             ? { opacity: 0, transition: { duration: 0.15 } }
             : direction === "next"
-              ? { opacity: 0, x: -340, rotate: -14, transition: { duration: 0.35, ease: EASE } }
-              : { opacity: 0, y: 90, scale: 0.92, transition: { duration: 0.3, ease: EASE } },
+              ? { opacity: 0, x: 420, transition: { duration: 0.35, ease: EASE } }
+              : direction === "pass"
+                ? { opacity: 0, x: -420, transition: { duration: 0.35, ease: EASE } }
+                : { opacity: 0, y: 90, scale: 0.92, transition: { duration: 0.3, ease: EASE } },
       }}
       custom={exit}
       exit="leave"
       transition={{ duration: 0.45, ease: EASE }}
     >
+      {/* Each label sits on the side that stays on screen during its swipe. */}
+      {flipped && (
+        <>
+          <motion.span
+            aria-hidden="true"
+            style={{ opacity: passLabel }}
+            className="pointer-events-none absolute right-4 top-16 z-10 inline-flex rotate-12 items-center gap-1 rounded-xl border-2 border-white bg-[#E8895A] px-3 py-1.5 text-sm font-bold uppercase tracking-wide text-white shadow-lg"
+          >
+            <Hand size={15} aria-hidden="true" />
+            {km ? "រំលង" : "Pass"}
+          </motion.span>
+          <motion.span
+            aria-hidden="true"
+            style={{ opacity: doneLabel }}
+            className="pointer-events-none absolute left-4 top-16 z-10 inline-flex -rotate-12 items-center gap-1 rounded-xl border-2 border-white bg-[#23AA89] px-3 py-1.5 text-sm font-bold uppercase tracking-wide text-white shadow-lg"
+          >
+            <Check size={15} strokeWidth={3} aria-hidden="true" />
+            {km ? "រួចរាល់" : "Done"}
+          </motion.span>
+        </>
+      )}
       <motion.div
         className="relative h-full w-full [transform-style:preserve-3d]"
         initial={false}
@@ -176,6 +226,19 @@ export function GameScreen({
   const lighter = lighterLevel(card.level);
   const deep = card.level !== "warm";
 
+  // On a computer: right arrow is Done, left arrow is Pass, once the card is flipped.
+  useEffect(() => {
+    if (!flipped) return;
+    const onKey = (event: KeyboardEvent) => {
+      // Not while a window (How to play, End the game?) is open over the game.
+      if (document.querySelector("[role=dialog]")) return;
+      if (event.key === "ArrowRight") onNext();
+      if (event.key === "ArrowLeft") onPass();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [flipped, onNext, onPass]);
+
   return (
     <motion.div
       className="relative flex min-h-[100dvh] flex-col overflow-hidden"
@@ -271,7 +334,7 @@ export function GameScreen({
           <span aria-hidden="true" className="absolute inset-0 translate-x-3 translate-y-2 rotate-[5deg] rounded-[30px] opacity-60 shadow-lg" style={CARD_BACK} />
           <span aria-hidden="true" className="absolute inset-0 -translate-x-2 translate-y-1 -rotate-[4deg] rounded-[30px] opacity-80 shadow-lg" style={CARD_BACK} />
           <AnimatePresence initial={false} custom={exit}>
-            <PlayingCard key={card.id} card={card} flipped={flipped} onFlip={onFlip} exit={exit} km={km} />
+            <PlayingCard key={card.id} card={card} flipped={flipped} onFlip={onFlip} onDone={onNext} onPass={onPass} exit={exit} km={km} />
           </AnimatePresence>
         </div>
 
@@ -279,6 +342,11 @@ export function GameScreen({
         <div className="mt-7 min-h-[7.5rem]">
           {flipped ? (
             <motion.div initial={reduce ? false : { opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: EASE }}>
+              <p className="-mt-2 mb-3 flex items-center justify-center gap-2 text-xs font-medium text-ink-muted">
+                <ArrowLeft size={14} aria-hidden="true" />
+                {t("អូសទៅឆ្វេង ដើម្បីរំលង • អូសទៅស្តាំ ពេលរួចរាល់", "Swipe left to pass • right when done")}
+                <ArrowRight size={14} aria-hidden="true" />
+              </p>
               <div className="flex gap-2.5">
                 <button
                   type="button"

@@ -1,5 +1,30 @@
 # AROM: Change Report
 
+## 17 Oct 2026: Swipe the Cards Like Flashcards
+
+Commit `PENDING`. No migration. Frontend only.
+
+**Why.** Rith wanted the cards to work like flashcards: swipe instead of hunting for buttons while the phone is being passed around.
+
+**What changed for users:**
+- **Once a card is flipped, swipe right for Done** (the phone goes to the next person) **and left for Pass** (the same person gets a different card).
+- **While you drag,** the card tilts and a green "Done" or orange "Pass" label fades in, so you see what letting go will do. A short swipe springs back.
+- The card flies off in the direction you chose. Lighter card still sinks down.
+- A small hint under the card says "Swipe left to pass, right when done". The buttons are still there.
+- **On a computer,** the right arrow key is Done and the left arrow key is Pass (not while a window is open).
+- How to play mentions swiping.
+
+**What changed for the team:**
+- `game-screen.tsx`: the card uses Motion `drag="x"` with a 110px or 600px/s threshold, tilt and labels from the drag position; exits are now `next` (right), `pass` (left) and `lighter` (down).
+- `play-cards-view.tsx`: Lighter card uses the `lighter` exit. `how-to-play-sheet.tsx`: swipe wording.
+
+**What to re-test:**
+1. Flip a card and swipe right: the next person's turn starts.
+2. Flip a card and swipe left: the same person gets a new card.
+3. Drag a little and let go: the card springs back.
+4. Scroll the page up and down on a phone while touching the card: scrolling still works.
+5. On a computer, press the left and right arrow keys on a flipped card.
+
 ## 17 Oct 2026: Play Cards Gets How to Play and a Language Switch
 
 Commit `b457217`. No migration. Frontend only.

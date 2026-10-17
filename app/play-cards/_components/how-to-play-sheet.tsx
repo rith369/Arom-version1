@@ -10,11 +10,11 @@ import { LEVEL_THEME } from "./theme";
 const STEPS = [
   { en: "Give the phone to the person whose name is at the top.", km: "ហុចទូរស័ព្ទទៅអ្នកដែលមានឈ្មោះនៅខាងលើ។" },
   { en: "Tap the card to flip it. Read it out loud and answer your way.", km: "ចុចលើកាតដើម្បីបើក។ អានឮៗ ហើយឆ្លើយតាមចិត្តរបស់អ្នក។" },
-  { en: "Press Done to pass the phone to the next person.", km: "ចុច រួចរាល់ ដើម្បីហុចទូរស័ព្ទទៅអ្នកបន្ទាប់។" },
+  { en: "Swipe the card right (or press Done) to give the phone to the next person.", km: "អូសកាតទៅស្តាំ (ឬចុច រួចរាល់) ដើម្បីហុចទូរស័ព្ទទៅអ្នកបន្ទាប់។" },
 ];
 
 const BUTTONS: { icon: LucideIcon; en: string; km: string; enNote: string; kmNote: string }[] = [
-  { icon: Hand, en: "Pass", km: "រំលង", enNote: "Skip this card and get a different one. No reason needed.", kmNote: "រំលងកាតនេះ ហើយយកកាតផ្សេង។ មិនបាច់ប្រាប់ហេតុផលទេ។" },
+  { icon: Hand, en: "Pass", km: "រំលង", enNote: "Swipe the card left, or press Pass, to get a different card. No reason needed.", kmNote: "អូសកាតទៅឆ្វេង ឬចុច រំលង ដើម្បីយកកាតផ្សេង។ មិនបាច់ប្រាប់ហេតុផលទេ។" },
   { icon: Feather, en: "Lighter card", km: "កាតស្រាលជាងនេះ", enNote: "Too heavy? Get an easier question from the level before.", kmNote: "ធ្ងន់ពេក? យកសំណួរងាយជាងនេះពីកម្រិតមុន។" },
   { icon: LifeBuoy, en: "Need support?", km: "ត្រូវការជំនួយ?", enNote: "Opens helplines and people who can help.", kmNote: "បើកលេខទូរស័ព្ទជំនួយ និងអ្នកដែលអាចជួយបាន។" },
   { icon: X, en: "Close", km: "បិទ", enNote: "Ends the game. You can start again any time.", kmNote: "បញ្ចប់ការលេង។ អ្នកអាចចាប់ផ្តើមម្តងទៀតបានគ្រប់ពេល។" },

@@ -116,7 +116,7 @@ export function PlayCardsView() {
     const level = lighterLevel(game.card.level);
     if (!level) return;
     const drawn = draw(game.piles, level);
-    setGame({ ...game, piles: drawn.piles, card: drawn.card, flipped: false, exit: "pass" });
+    setGame({ ...game, piles: drawn.piles, card: drawn.card, flipped: false, exit: "lighter" });
   }
 
   async function leave() {
