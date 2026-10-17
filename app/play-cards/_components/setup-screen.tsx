@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, type CSSProperties, type FormEvent } from "react";
-import { ArrowRight, Check, Clock, Lock, UserPlus, X } from "lucide-react";
+import { ArrowRight, Check, CircleHelp, Clock, Lock, UserPlus, X } from "lucide-react";
 import { MoodSprout } from "../../_components/mood/mood-sprout";
 import { LEVELS, PLAY_CARDS, ROUND_OPTIONS, type CardLevel, type DeckChoice, type RoundCount } from "../_data/cards";
+import { LanguageToggle } from "./language-toggle";
 import { JOURNEY_ICON, LEVEL_THEME, PLAYER_COLORS, initialOf } from "./theme";
 
 export const MAX_PLAYERS = 8;
@@ -41,6 +42,7 @@ export function SetupScreen({
   rounds,
   onRoundsChange,
   onStart,
+  onHelp,
 }: {
   km: boolean;
   host: string;
@@ -51,6 +53,7 @@ export function SetupScreen({
   rounds: RoundCount;
   onRoundsChange: (rounds: RoundCount) => void;
   onStart: () => void;
+  onHelp: () => void;
 }) {
   const t = (kmText: string, enText: string) => (km ? kmText : enText);
   const [name, setName] = useState("");
@@ -97,6 +100,17 @@ export function SetupScreen({
             "Sit together, pass the phone, flip a card and talk for real. No points, no winners.",
           )}
         </p>
+        <div className="relative mt-4 flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={onHelp}
+            className="inline-flex min-h-10 items-center gap-1.5 rounded-full bg-white px-4 text-sm font-semibold text-arom shadow-sm hover:bg-white/90"
+          >
+            <CircleHelp size={16} aria-hidden="true" />
+            {t("របៀបលេង", "How to play")}
+          </button>
+          <LanguageToggle onDark />
+        </div>
       </section>
 
       {/* Players */}

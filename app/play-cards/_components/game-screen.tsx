@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { AnimatePresence, motion, useIsPresent, useReducedMotion } from "motion/react";
-import { ArrowRight, Feather, Hand, Heart, Leaf, LifeBuoy, MessageCircle, Users, Wind, X, type LucideIcon } from "lucide-react";
+import { ArrowRight, CircleHelp, Feather, Hand, Heart, Leaf, LifeBuoy, MessageCircle, Users, Wind, X, type LucideIcon } from "lucide-react";
 import { MoodSprout } from "../../_components/mood/mood-sprout";
 import { KINDS, LEVELS, lighterLevel, type CardKind, type PlayCard } from "../_data/cards";
 import { BreatheCircle } from "./breathe-circle";
+import { LanguageToggle } from "./language-toggle";
 import { CARD_BACK, LEVEL_THEME, PLAYER_COLORS, initialOf } from "./theme";
 
 const KIND_ICON: Record<CardKind, LucideIcon> = {
@@ -145,6 +146,7 @@ export function GameScreen({
   onPass,
   onLighter,
   onExit,
+  onHelp,
 }: {
   km: boolean;
   players: string[];
@@ -161,6 +163,7 @@ export function GameScreen({
   onPass: () => void;
   onLighter: () => void;
   onExit: () => void;
+  onHelp: () => void;
 }) {
   const t = (kmText: string, enText: string) => (km ? kmText : enText);
   const reduce = useReducedMotion();
@@ -218,9 +221,15 @@ export function GameScreen({
               />
             </div>
           </div>
-          <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-full bg-white/80 shadow-sm backdrop-blur">
-            <theme.icon size={18} className="text-arom" aria-label={km ? LEVELS[card.level].km : LEVELS[card.level].en} />
-          </span>
+          <LanguageToggle />
+          <button
+            type="button"
+            onClick={onHelp}
+            aria-label={t("របៀបលេង", "How to play")}
+            className="flex size-10 shrink-0 items-center justify-center rounded-full bg-white/80 text-arom shadow-sm backdrop-blur hover:bg-white"
+          >
+            <CircleHelp size={20} aria-hidden="true" />
+          </button>
         </header>
 
         {/* Whose turn */}

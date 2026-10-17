@@ -17,6 +17,7 @@ import {
 } from "../_data/cards";
 import { EndScreen } from "./end-screen";
 import { GameScreen, type CardExit } from "./game-screen";
+import { HowToPlaySheet } from "./how-to-play-sheet";
 import { RulesSheet } from "./rules-sheet";
 import { SetupScreen } from "./setup-screen";
 
@@ -61,6 +62,8 @@ export function PlayCardsView() {
   const [deck, setDeck] = useState<DeckChoice>("journey");
   const [rounds, setRounds] = useState<RoundCount>(15);
   const [rulesOpen, setRulesOpen] = useState(false);
+  const [helpOpen, setHelpOpen] = useState(false);
+  const help = helpOpen && <HowToPlaySheet km={km} onClose={() => setHelpOpen(false)} />;
   const [game, setGame] = useState<Game | null>(null);
   const [ended, setEnded] = useState<{ shared: number; players: number } | null>(null);
 
@@ -146,8 +149,10 @@ export function PlayCardsView() {
           onPass={pass}
           onLighter={lighter}
           onExit={() => void leave()}
+          onHelp={() => setHelpOpen(true)}
         />
         {dialog}
+        {help}
       </>
     );
   }
@@ -184,11 +189,13 @@ export function PlayCardsView() {
               rounds={rounds}
               onRoundsChange={setRounds}
               onStart={() => setRulesOpen(true)}
+              onHelp={() => setHelpOpen(true)}
             />
           </div>
         </div>
       </main>
       <MobileNavigation active="Community" />
+      {help}
       {rulesOpen && (
         <RulesSheet
           km={km}

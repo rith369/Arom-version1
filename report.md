@@ -1,5 +1,24 @@
 # AROM: Change Report
 
+## 17 Oct 2026: Play Cards Gets How to Play and a Language Switch
+
+Commit `PENDING`. No migration. Frontend only.
+
+**Why.** Rith asked for a round button that explains how to play, and for a way to switch between Khmer and English during a game, because friends at the same table may read different languages.
+
+**What changed for users:**
+- **A round "?" button** in the game's top bar, and a **How to play** button on the setup screen, open a short guide: the 3 steps, what each button does (Pass, Lighter card, Need support, Close), the 4 card types and the 3 levels.
+- **An EN / ខ្មែរ switch** in the game's top bar and on the setup screen. Switching keeps the same card and turn, only the words change. The chosen language is dark green.
+- The small level icon in the top bar was replaced by these two buttons; the level still shows on each card.
+
+**What changed for the team:**
+- New `how-to-play-sheet.tsx` and `language-toggle.tsx` in `app/play-cards/_components/`. The switch uses the app's language setting, so the rest of AROM follows the choice.
+
+**What to re-test:**
+1. On the setup screen, press How to play, read it, press Got it.
+2. In a game, press the round ? button: the guide opens over the game and closing it returns to the same card.
+3. In a game, tap ខ្មែរ then EN: the card, names and buttons switch language and the game continues.
+
 ## 17 Oct 2026: Play Cards Explains Pass and Lighter Card
 
 Commit `1b19312`. No migration. Frontend only.
