@@ -2,7 +2,7 @@
 
 ## 17 Oct 2026: Play Cards Explains Pass and Lighter Card
 
-Commit `PENDING`. No migration. Frontend only.
+Commit `1b19312`. No migration. Frontend only.
 
 **Why.** Rith did not know what Pass and Lighter card do. A hover tooltip would not help on phones, where most people play, so the explanation now sits inside each button.
 
