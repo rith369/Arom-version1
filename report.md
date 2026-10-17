@@ -2,7 +2,7 @@
 
 ## 17 Oct 2026: New Lesson, Understand Yourself
 
-Commit `34f1d18`. No migration. Content and frontend only.
+Commit `ae4d761`. No migration. Content and frontend only.
 
 **Why.** Following What Is Mental Health?, seekers need practical guidance to recognize their emotions, examine automatic thoughts, discover their personal values, and identify personal needs. This new lesson brings structured self awareness practices with Cambodian youth context, safe person communication, and clinical care pathways.
 
