@@ -1,5 +1,36 @@
 # AROM: Change Report
 
+## 17 Oct 2026: New Lesson, Know When to Seek Help
+
+Commit `PENDING`. No migration. Content and frontend only.
+
+**Why.** Seekers often wonder whether their difficulties are normal, how long they should wait before asking for help, and who they can turn to. This lesson provides clear, compassionate guidance on recognizing emotional and physical signs that need support, overcoming cultural hesitation and stigma in Cambodia, supporting friends in distress, and responding immediately to mental health emergencies.
+
+**What changed for users:**
+- **Know When to Seek Help is live in Learn,** 6 min, Beginner, in English and Khmer, with a serene monsoon rain on glass photo at the top.
+- **Categorized under Basics,** accessible directly from the Basics filter in Learn alongside What Is Mental Health?.
+- **Nine structured sections:** Identifying emotional distress, when to seek help vs wait and see, choosing someone to talk to (with sample starter phrases), overcoming shame and stigma in Cambodia, how to support a friend with care, critical emergency crisis signs, finding support services in Cambodia, an interactive personal check in reflection, and closing coping steps.
+- **Emergency alert box:** Section 6 displays a red medical warning highlighting immediate safety steps for crisis or thoughts of self harm.
+- **Calm tip box:** Section 2 features a calm green "Good to know" note reassuring users that they never have to reach a breaking point before seeking help.
+- **Interactive reflection:** Section 8 presents an interactive check in to explore where support is needed most, alongside 6 personal journal reflection prompts.
+- **Four verified health references:** Citations from NIMH (Caring for Your Mental Health, My Mental Health: Do I Need Help?), UNICEF Cambodia, and WHO.
+- **Actionable closing buttons:** Direct links to Box breathing, Match Me With A Professional, and suicide prevention notice.
+
+**What changed for the team:**
+- **`learn-data.ts`:** Added `REFERENCES_SEEK_HELP` and `LESSON_KNOW_WHEN_TO_SEEK_HELP` to `ALL_LESSONS`.
+- **Anti-AI Copywriting & Formatting:** Zero em dashes, en dashes, or loose hyphens across all English and Khmer copy. "Wellbeing" and "self care" used throughout.
+- **New hero image:** `public/mindguide/know-when-to-seek-help-hero.jpg`, photo by Max Bender on Unsplash (free Unsplash License), cropped to 2:1.
+- **Clinical & translation disclaimer:** Content needs review by a mental health professional, and the Khmer translation should be reviewed by a native speaker.
+
+**What to re-test:**
+1. Open Learn at `/mindguide/learn` and verify Know When to Seek Help appears under Basics without a lock.
+2. Read all nine sections in English.
+3. Verify section 2 shows the green "Good to know" tip box and section 6 shows the red emergency safety warning.
+4. Answer the reflection question in section 8 and verify the feedback note appears.
+5. In section 9, check the Box breathing and Match Me With A Professional buttons, and verify the suicide prevention notice.
+6. Open the references accordion and confirm all 4 external links work.
+7. Switch to Khmer and verify typography, numerals (៦ នាទី), and complete translation.
+
 ## 17 Oct 2026: New Lesson, Understand Yourself
 
 Commit `ae4d761`. No migration. Content and frontend only.

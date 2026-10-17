@@ -1489,11 +1489,394 @@ export const LESSON_UNDERSTAND_YOURSELF: Lesson = {
   ],
 };
 
+export const REFERENCES_SEEK_HELP: ReferenceItem[] = [
+  {
+    id: 1,
+    citation: "[1]",
+    source: "NIMH",
+    title: "National Institute of Mental Health, Caring for Your Mental Health",
+    url: "https://www.nimh.nih.gov/health/topics/caring-for-your-mental-health",
+  },
+  {
+    id: 2,
+    citation: "[2]",
+    source: "NIMH",
+    title: "National Institute of Mental Health, My Mental Health: Do I Need Help?",
+    url: "https://www.nimh.nih.gov/health/publications/my-mental-health-do-i-need-help",
+  },
+  {
+    id: 3,
+    citation: "[3]",
+    source: "UNICEF Cambodia",
+    title: "UNICEF Cambodia, Mental Health",
+    url: "https://www.unicef.org/cambodia/mental-health",
+  },
+  {
+    id: 4,
+    citation: "[4]",
+    source: "WHO",
+    title: "World Health Organization, Mental Well-Being Resources for the Public",
+    url: "https://www.who.int/news-room/feature-stories/mental-well-being-resources-for-the-public",
+  },
+];
+
+export const LESSON_KNOW_WHEN_TO_SEEK_HELP: Lesson = {
+  id: "know-when-to-seek-help",
+  title: "Know When to Seek Help",
+  kmTitle: "ដឹងពីពេលវេលាដែលត្រូវស្វែងរកជំនួយ (Know When to Seek Help)",
+  subtitle: "Recognize when you need support and learn where to find it",
+  kmSubtitle: "ស្គាល់ពីពេលវេលាដែលអ្នកត្រូវការការគាំទ្រ និងរៀនពីកន្លែងដែលត្រូវស្វែងរកវា",
+  category: "Basics",
+  duration: "6 min",
+  kmDuration: "៦ នាទី",
+  difficulty: "Beginner",
+  kmDifficulty: "កម្រិតដំបូង (Beginner)",
+  format: "Reading + Reflection",
+  kmFormat: "ការអាន និងការឆ្លុះបញ្ចាំង (Reading & Reflection)",
+  isAvailable: true,
+  image: "/mindguide/icon-10.svg",
+  // Photo by Max Bender on Unsplash (Unsplash License), cropped.
+  heroImage: "/mindguide/know-when-to-seek-help-hero.jpg",
+  description:
+    "Recognize when emotional difficulties need extra care, learn how to talk with trusted people or professionals, and discover support options in Cambodia.",
+  kmDescription:
+    "រៀនសម្គាល់នៅពេលដែលការលំបាកផ្លូវចិត្តត្រូវការការថែទាំបន្ថែម របៀបនិយាយជាមួយមនុស្សដែលទុកចិត្ត ឬអ្នកជំនាញ និងស្គាល់ជម្រើសជំនួយនៅក្នុងប្រទេសកម្ពុជា។",
+  totalSections: 9,
+  outcomes: [
+    {
+      en: "Recognizing emotional and physical signs that signal a need for support [1, 2]",
+      km: "ការសម្គាល់សញ្ញាអារម្មណ៍ និងរាងកាយដែលបញ្ជាក់ថាត្រូវការការគាំទ្រ [1, 2]",
+    },
+    {
+      en: "Understanding when to try self care and when to speak with a professional [1, 4]",
+      km: "ការយល់ដឹងពីពេលវេលាដែលត្រូវសាកល្បងការថែទាំខ្លួនឯង និងពេលវេលាដែលត្រូវពិគ្រោះជាមួយអ្នកជំនាញ [1, 4]",
+    },
+    {
+      en: "How to start a conversation with someone you trust or reach out to a counselor",
+      km: "របៀបចាប់ផ្តើមការសន្ទនាជាមួយមនុស្សដែលទុកចិត្ត ឬទាក់ទងទៅកាន់អ្នកប្រឹក្សាផ្លូវចិត្ត",
+    },
+    {
+      en: "Overcoming stigma and identifying supportive mental health services in Cambodia [3]",
+      km: "ការជម្នះការមាក់ងាយ និងការស្គាល់សេវាគាំទ្រសុខភាពផ្លូវចិត្តនៅក្នុងប្រទេសកម្ពុជា [3]",
+    },
+    {
+      en: "Crucial steps for handling a crisis or supporting a friend in need",
+      km: "ជំហានសំខាន់ៗសម្រាប់ដោះស្រាយវិបត្តិបន្ទាន់ ឬការជួយគាំទ្រមិត្តភក្តិដែលកំពុងជួបការលំបាក",
+    },
+  ],
+  references: REFERENCES_SEEK_HELP,
+  sections: [
+    {
+      id: 1,
+      sectionNumber: 1,
+      title: "When Might You Need More Support?",
+      kmTitle: "តើនៅពេលណាដែលអ្នកអាចត្រូវការការគាំទ្របន្ថែម?",
+      type: "reading",
+      paragraphs: [
+        "Everyone experiences difficult moments. You might feel stressed about your studies, worried about your future, lonely in a relationship, or overwhelmed by daily responsibilities.",
+        "Sometimes rest, healthy routines and talking with someone you trust can help you feel better. At other times, your feelings may become difficult to manage on your own. Knowing when to seek help is an important part of caring for your mental health.",
+        "There is no single way to experience emotional difficulties. Some people notice changes in their feelings, such as frequent sadness, anger or feeling overwhelmed. Others notice changes in their sleep, appetite, or ability to concentrate on work and study. [1, 2]",
+        "You might also notice changes in your relationships: withdrawing from friends and family, repeated conflicts, or feeling isolated even around others.",
+        "These changes do not automatically mean you have a mental health condition, but when they persist or interfere with your life, seeking support can help you understand what is happening and find a way forward.",
+      ],
+      kmParagraphs: [
+        "មនុស្សគ្រប់គ្នាសុទ្ធតែធ្លាប់ឆ្លងកាត់គ្រាលំបាក។ អ្នកអាចមានអារម្មណ៍តានតឹងរឿងការសិក្សា ព្រួយបារម្ភអំពីអនាគត ឯកោក្នុងទំនាក់ទំនង ឬលើសលប់ដោយសារទំនួលខុសត្រូវប្រចាំថ្ងៃ។",
+        "ពេលខ្លះ ការសម្រាក ទម្លាប់ល្អ និងការនិយាយជាមួយមនុស្សដែលទុកចិត្ត អាចជួយឱ្យអ្នកមានអារម្មណ៍ប្រសើរឡើង។ ប៉ុន្តែនៅពេលផ្សេងទៀត អារម្មណ៍របស់អ្នកអាចក្លាយជាពិបាកគ្រប់គ្រងដោយខ្លួនឯង។ ការដឹងពីពេលវេលាដែលត្រូវស្វែងរកជំនួយ គឺជាផ្នែកមួយដ៏សំខាន់ក្នុងការថែទាំសុខភាពផ្លូវចិត្តរបស់អ្នក។",
+        "គ្មានទម្រង់តែមួយគត់នៃការជួបប្រទះការលំបាកផ្លូវចិត្តនោះទេ។ មនុស្សមួយចំនួនសម្គាល់ឃើញការផ្លាស់ប្តូរនៅក្នុងអារម្មណ៍ ដូចជាការកើតទុក្ខញឹកញាប់ កំហឹង ឬអារម្មណ៍លើសលប់។ អ្នកខ្លះទៀតសម្គាល់ឃើញការផ្លាស់ប្តូរក្នុងដំណេក ចំណង់អាហារ ឬសមត្ថភាពផ្ដោតលើការរៀន និងការងារ។ [1, 2]",
+        "អ្នកក៏អាចកត់សម្គាល់ឃើញការផ្លាស់ប្តូរក្នុងទំនាក់ទំនងផងដែរ ដូចជាការនៅដាច់ដោយឡែកពីមិត្តភក្តិ និងគ្រួសារ ការមានជម្លោះម្តងហើយម្តងទៀត ឬអារម្មណ៍ឯកោទោះបីជានៅក្បែរអ្នកដទៃក៏ដោយ។",
+        "ការផ្លាស់ប្តូរទាំងនេះមិនមានន័យថាអ្នកមានជំងឺផ្លូវចិត្តភ្លាមៗនោះទេ ប៉ុន្តែនៅពេលដែលវានៅតែបន្តកើតមាន ឬរំខានដល់ជីវិតប្រចាំថ្ងៃរបស់អ្នក ការស្វែងរកការគាំទ្រអាចជួយឱ្យអ្នកយល់ពីអ្វីដែលកំពុងកើតឡើង និងស្វែងរកផ្លូវទៅមុខ។",
+      ],
+      keyPoints: [
+        "Emotional distress shows up in feelings, physical habits, and relationships [1].",
+        "Changes in sleep, appetite, and concentration signal a need to check in [2].",
+        "Seeking support early prevents mild difficulties from growing heavier.",
+      ],
+      kmKeyPoints: [
+        "ការពិបាកចិត្តអាចស្តែងចេញតាមរយៈអារម្មណ៍ ទម្លាប់រាងកាយ និងទំនាក់ទំនង [1]។",
+        "ការផ្លាស់ប្តូរដំណេក ចំណង់អាហារ និងការផ្ដោតអារម្មណ៍ ជាសញ្ញាដែលត្រូវពិនិត្យមើលខ្លួនឯង [2]។",
+        "ការស្វែងរកការគាំទ្រពីដំបូង ជួយការពារកុំឱ្យការលំបាកតូចតាចប្រែជាធ្ងន់ធ្ងរ។",
+      ],
+    },
+    {
+      id: 2,
+      sectionNumber: 2,
+      title: "Should You Wait and See?",
+      kmTitle: "តើអ្នកគួររង់ចាំមើលសិនដែរឬទេ?",
+      type: "reading",
+      paragraphs: [
+        "Not necessarily. Some mild emotional difficulties may improve with rest, supportive relationships and healthy daily routines. However, you do not need to wait a specific number of days before reaching out for help.",
+        "If your difficulties are mild and recent, focus on getting enough rest, eating regular meals, taking breaks and talking with someone you trust. Notice whether these steps bring relief.",
+        "If your difficulties continue, worsen, or begin affecting your daily life and relationships, consider speaking with a qualified mental health professional or healthcare provider. You do not need to prove that your situation is serious enough before asking for an appointment. [1, 2]",
+        "The severity of your symptoms and your safety matter far more than how many days or weeks you have felt this way.",
+      ],
+      kmParagraphs: [
+        "មិនចាំបាច់នោះទេ។ ការលំបាកផ្លូវចិត្តកម្រិតស្រាលមួយចំនួន អាចប្រសើរឡើងដោយសារការសម្រាក ទំនាក់ទំនងគាំទ្រ និងទម្លាប់ប្រចាំថ្ងៃល្អ។ ទោះជាយ៉ាងណាក៏ដោយ អ្នកមិនចាំបាច់រង់ចាំចំនួនថ្ងៃជាក់លាក់ណាមួយ មុនពេលស្វែងរកជំនួយនោះទេ។",
+        "ប្រសិនបើការលំបាករបស់អ្នកនៅស្រាល និងទើបតែកើតឡើង សូមផ្ដោតលើការសម្រាកឱ្យបានគ្រប់គ្រាន់ ទទួលទានអាហារទៀងទាត់ សម្រាកលំហែ និងនិយាយជាមួយមនុស្សដែលអ្នកទុកចិត្ត។ សង្កេតមើលថាតើជំហានទាំងនេះជួយសម្រាលអារម្មណ៍បានដែរឬទេ។",
+        "ប្រសិនបើការលំបាករបស់អ្នកនៅតែបន្ត កាន់តែធ្ងន់ធ្ងរ ឬចាប់ផ្តើមប៉ះពាល់ដល់ជីវិតប្រចាំថ្ងៃ និងទំនាក់ទំនង សូមពិចារណាពិគ្រោះជាមួយអ្នកជំនាញសុខភាពផ្លូវចិត្ត ឬអ្នកផ្តល់សេវាថែទាំសុខភាព។ អ្នកមិនចាំបាច់បញ្ជាក់ថាស្ថានភាពរបស់អ្នកធ្ងន់ធ្ងរខ្លាំង ទើបអាចសុំការណាត់ជួបបាននោះទេ។ [1, 2]",
+        "កម្រិតធ្ងន់ធ្ងរនៃរោគសញ្ញា និងសុវត្ថិភាពរបស់អ្នក សំខាន់ជាងចំនួនថ្ងៃ ឬសប្តាហ៍ដែលអ្នកមានអារម្មណ៍បែបនេះ។",
+      ],
+      alertBox: {
+        type: "tip",
+        text: "Good to know: You do not need to wait until you reach a breaking point before you deserve help. Seeking guidance early is a proactive act of self care.",
+        kmText: "គួរដឹង៖ អ្នកមិនចាំបាច់រង់ចាំរហូតដល់ទ្រាំលែងបាន ទើបសមនឹងទទួលបានជំនួយនោះទេ។ ការស្វែងរកការណែនាំពីដំបូង គឺជាសកម្មភាពដ៏ឆ្លាតវៃក្នុងការថែទាំខ្លួនឯង។",
+      },
+      keyPoints: [
+        "You never have to prove your pain is severe enough to deserve support.",
+        "Symptom intensity and safety matter more than how long you have felt upset [2].",
+        "Self care routines complement professional care but do not replace it when needed [4].",
+      ],
+      kmKeyPoints: [
+        "អ្នកមិនចាំបាច់បញ្ជាក់ថាការឈឺចាប់របស់អ្នកធ្ងន់ធ្ងរប៉ុនណា ទើបសមនឹងទទួលបានការគាំទ្រនោះទេ។",
+        "កម្រិតនៃរោគសញ្ញា និងសុវត្ថិភាព មានសារៈសំខាន់ជាងរយៈពេលដែលអ្នកមានអារម្មណ៍ពិបាកចិត្ត [2]។",
+        "ទម្លាប់ថែទាំខ្លួនឯង ជួយបំពេញបន្ថែមដល់ការថែទាំពីអ្នកជំនាញ ប៉ុន្តែមិនអាចជំនួសវាបានទេនៅពេលចាំបាច់ [4]។",
+      ],
+    },
+    {
+      id: 3,
+      sectionNumber: 3,
+      title: "Who Can You Talk To?",
+      kmTitle: "តើអ្នកអាចនិយាយជាមួយនរណាបានខ្លះ?",
+      type: "reading",
+      paragraphs: [
+        "Seeking help does not always begin with a formal clinic visit. There are different ways to receive support, depending on what you need.",
+        "You can start by talking to someone you trust: a close friend, family member, teacher or mentor who listens with respect. You do not have to explain everything at once. You can begin with a simple sentence:\n• \"I have been feeling stressed lately, and I just need someone to listen.\"\n• \"I am going through a difficult time, and I do not want to handle it alone.\"\n• \"You do not need to solve this for me, just being here helps.\"",
+        "If the first person you reach out to does not respond supportively, that does not mean your feelings are unimportant. Give yourself permission to reach out to someone else.",
+        "You can also speak with a qualified mental health professional, such as a counselor, psychologist or psychiatrist. They provide a confidential space to explore your concerns, understand emotional patterns and learn practical ways to cope. [1, 4]",
+        "You can seek professional help because something feels wrong, even if you do not know the clinical name for it.",
+      ],
+      kmParagraphs: [
+        "ការស្វែងរកជំនួយ មិនមែនតែងតែចាប់ផ្តើមដោយការទៅជួបគ្រូពេទ្យនៅគ្លីនិកភ្លាមៗនោះទេ។ មានវិធីជាច្រើនក្នុងការទទួលបានការគាំទ្រ អាស្រ័យលើអ្វីដែលអ្នកត្រូវការ។",
+        "អ្នកអាចចាប់ផ្តើមដោយការនិយាយជាមួយមនុស្សដែលអ្នកទុកចិត្ត៖ មិត្តភក្តិជិតស្និទ្ធ សមាជិកគ្រួសារ គ្រូបង្រៀន ឬអ្នកណែនាំដែលស្តាប់ដោយការគោរព។ អ្នកមិនចាំបាច់ពន្យល់អ្វីៗទាំងអស់ក្នុងពេលតែមួយនោះទេ។ អ្នកអាចចាប់ផ្តើមដោយឃ្លាសាមញ្ញមួយ៖\n• «ខ្ញុំមានអារម្មណ៍តានតឹងមួយរយៈនេះ ហើយខ្ញុំគ្រាន់តែត្រូវការអ្នកស្តាប់ប៉ុណ្ណោះ។»\n• «ខ្ញុំកំពុងឆ្លងកាត់គ្រាលំបាក ហើយខ្ញុំមិនចង់ប្រឈមមុខនឹងវាតែម្នាក់ឯងទេ។»\n• «អ្នកមិនចាំបាច់ដោះស្រាយវាជំនួសខ្ញុំទេ គ្រាន់តែនៅទីនេះជាមួយខ្ញុំ គឺជួយបានច្រើនណាស់។»",
+        "ប្រសិនបើមនុស្សដំបូងដែលអ្នកទាក់ទង មិនបានឆ្លើយតបដោយការយល់ចិត្ត វាមិនមានន័យថាអារម្មណ៍របស់អ្នកមិនសំខាន់នោះទេ។ សូមផ្តល់ឱកាសឱ្យខ្លួនឯងក្នុងការទាក់ទងទៅកាន់អ្នកផ្សេងទៀត។",
+        "អ្នកក៏អាចពិគ្រោះជាមួយអ្នកជំនាញសុខភាពផ្លូវចិត្តដែលមានលក្ខណៈសម្បត្តិគ្រប់គ្រាន់ ដូចជាអ្នកប្រឹក្សាផ្លូវចិត្ត អ្នកចិត្តសាស្រ្ត ឬវិកជ្ជបណ្ឌិត។ ពួកគេផ្តល់នូវទីកន្លែងសម្ងាត់ដើម្បីស្វែងយល់ពីកង្វល់របស់អ្នក យល់ពីទម្រង់អារម្មណ៍ និងរៀនពីវិធីជាក់ស្តែងដើម្បីទប់ទល់។ [1, 4]",
+        "អ្នកអាចស្វែងរកជំនួយពីអ្នកជំនាញដោយសារតែអ្នកមានអារម្មណ៍ថាមានអ្វីមួយមិនស្រួល ទោះបីជាអ្នកមិនដឹងឈ្មោះវេជ្ជសាស្ត្ររបស់វាក៏ដោយ។",
+      ],
+      keyPoints: [
+        "Simple sentences make opening up to a trusted person less intimidating.",
+        "If one person responds poorly, it is okay to choose another safe listener.",
+        "Counselors and psychologists provide private, non-judgmental guidance [4].",
+      ],
+      kmKeyPoints: [
+        "ឃ្លាសាមញ្ញៗជួយឱ្យការបើកចិត្តនិយាយជាមួយមនុស្សដែលទុកចិត្ត មិនមានភាពភ័យខ្លាច។",
+        "ប្រសិនបើនរណាម្នាក់ឆ្លើយតបមិនសមរម្យ អ្នកអាចជ្រើសរើសអ្នកស្តាប់ដែលមានសុវត្ថិភាពផ្សេងទៀត។",
+        "អ្នកប្រឹក្សា និងអ្នកចិត្តសាស្រ្ត ផ្តល់ការណែនាំជាសម្ងាត់ដោយគ្មានការវិនិច្ឆ័យ [4]។",
+      ],
+    },
+    {
+      id: 4,
+      sectionNumber: 4,
+      title: "Overcoming Hesitation and Stigma",
+      kmTitle: "ការជម្នះភាពស្ទាក់ស្ទើរ និងការមាក់ងាយ",
+      type: "reading",
+      paragraphs: [
+        "You might worry that other people will judge you, misunderstand you, or think you cannot handle your own life. You might also believe that you should solve everything completely on your own.",
+        "These worries are very common, especially in communities where mental health is rarely discussed openly [3]. But experiencing emotional difficulties does not make you weak, unsuccessful, or less worthy.",
+        "You can care about your family, respect other people's opinions, and still acknowledge that you need support.",
+        "If seeking help feels intimidating, start with one small step:\n1. Write down what you have been experiencing in a private note.\n2. Identify one person you feel relatively safe talking with.\n3. Share only as much as you feel comfortable sharing.\n4. Ask a trusted friend or family member to help you look for professional options.\n5. Inquire about confidentiality before sharing personal details.",
+        "You are allowed to take your time choosing whom to trust.",
+      ],
+      kmParagraphs: [
+        "អ្នកអាចព្រួយបារម្ភថាអ្នកដទៃនឹងវិនិច្ឆ័យអ្នក យល់ច្រឡំលើអ្នក ឬគិតថាអ្នកមិនអាចគ្រប់គ្រងជីវិតខ្លួនឯងបាន។ អ្នកក៏អាចជឿថាអ្នកគួរតែដោះស្រាយអ្វីៗគ្រប់យ៉ាងដោយខ្លួនឯងទាំងស្រុង។",
+        "ការព្រួយបារម្ភទាំងនេះកើតមានជាទូទៅ ជាពិសេសនៅក្នុងសហគមន៍ដែលសុខភាពផ្លូវចិត្តកម្រត្រូវបានលើកយកមកពិភាក្សាដោយចំហ [3]។ ប៉ុន្តែការជួបប្រទះការលំបាកផ្លូវចិត្ត មិនធ្វើឱ្យអ្នកក្លាយជាមនុស្សទន់ខ្សោយ បរាជ័យ ឬមានតម្លៃតិចជាងមុននោះទេ។",
+        "អ្នកអាចស្រឡាញ់គ្រួសារ គោរពមតិរបស់អ្នកដទៃ ហើយនៅតែអាចទទួលស្គាល់ថាអ្នកត្រូវការការគាំទ្រ។",
+        "ប្រសិនបើការស្វែងរកជំនួយមានអារម្មណ៍ថាពិបាកខ្លាំង សូមចាប់ផ្តើមដោយជំហានតូចមួយ៖\n១. កត់ត្រានូវអ្វីដែលអ្នកបានជួបប្រទះក្នុងកំណត់ត្រាឯកជន។\n២. កំណត់មនុស្សម្នាក់ដែលអ្នកមានអារម្មណ៍ថាមានសុវត្ថិភាពក្នុងការនិយាយជាមួយ។\n៣. ចែករំលែកត្រឹមតែកម្រិតណាដែលអ្នកមានអារម្មណ៍ស្រួលចិត្តប៉ុណ្ណោះ។\n៤. សុំឱ្យមិត្តភក្តិ ឬសមាជិកគ្រួសារដែលទុកចិត្ត ជួយអ្នកស្វែងរកជម្រើសអ្នកជំនាញ។\n៥. សាកសួរអំពីការរក្សាការសម្ងាត់ មុនពេលចែករំលែកព័ត៌មានផ្ទាល់ខ្លួន។",
+        "អ្នកត្រូវបានអនុញ្ញាតឱ្យចំណាយពេលក្នុងការជ្រើសរើសមនុស្សដែលអ្នកទុកចិត្ត។",
+      ],
+      keyPoints: [
+        "Needing help is a human reality, never a sign of failure or weakness.",
+        "Writing down your feelings first can make talking much easier.",
+        "You have full control over how much personal information you share.",
+      ],
+      kmKeyPoints: [
+        "ការត្រូវការជំនួយ គឺជាការពិតរបស់មនុស្ស មិនមែនជាសញ្ញានៃការបរាជ័យ ឬភាពទន់ខ្សោយឡើយ។",
+        "ការកត់ត្រាអារម្មណ៍របស់អ្នកជាមុន ជួយឱ្យការនិយាយកាន់តែងាយស្រួល។",
+        "អ្នកមានសិទ្ធិពេញលេញលើកម្រិតព័ត៌មានផ្ទាល់ខ្លួនដែលអ្នកចង់ចែករំលែក។",
+      ],
+    },
+    {
+      id: 5,
+      sectionNumber: 5,
+      title: "When Someone You Know Needs Help",
+      kmTitle: "នៅពេលនរណាម្នាក់ដែលអ្នកស្គាល់ត្រូវការជំនួយ",
+      type: "reading",
+      paragraphs: [
+        "Sometimes we notice that a friend, family member or classmate is struggling before they tell us. They may become unusually quiet, withdraw from social activities, seem persistently down, or struggle with their daily responsibilities.",
+        "You do not need to be a psychologist or have all the answers to offer meaningful support.",
+        "Start with care: You could say, \"I noticed you seem to be having a hard time lately. I am here if you ever want to talk.\"",
+        "Listen without judgment: Let them share at their own pace without interrupting, comparing their difficulties to others, or immediately telling them what they should do.",
+        "Ask what would help: For instance, \"Would you like me to just listen, help you think through this, or help you find professional support?\"",
+        "Encourage professional help gently: Offer to accompany them or help research options if they feel ready.",
+        "Remember: you can support someone with compassion without carrying the responsibility of solving all their problems alone.",
+      ],
+      kmParagraphs: [
+        "ពេលខ្លះ យើងកត់សម្គាល់ឃើញថាមិត្តភក្តិ សមាជិកគ្រួសារ ឬមិត្តរួមថ្នាក់កំពុងជួបការលំបាក មុនពេលពួកគេប្រាប់យើង។ ពួកគេអាចប្រែជាស្ងប់ស្ងាត់ខុសពីធម្មតា ដកខ្លួនចេញពីសកម្មភាពសង្គម មើលទៅស្រពោនចិត្តជាប់រហូត ឬពិបាកបំពេញកាតព្វកិច្ចប្រចាំថ្ងៃ។",
+        "អ្នកមិនចាំបាច់ជាអ្នកចិត្តសាស្រ្ត ឬមានចម្លើយទាំងអស់ ទើបអាចផ្តល់ការគាំទ្រប្រកបដោយអត្ថន័យនោះទេ។",
+        "ចាប់ផ្តើមដោយក្តីបារម្ភ៖ អ្នកអាចនិយាយថា «ខ្ញុំសម្គាល់ឃើញថាអ្នកហាក់ដូចជាកំពុងជួបការលំបាកមួយរយៈនេះ។ ខ្ញុំនៅទីនេះ ប្រសិនបើអ្នកចង់និយាយគ្នា។»",
+        "ស្តាប់ដោយគ្មានការវិនិច្ឆ័យ៖ ទុកឱ្យពួកគេចែករំលែកតាមការសម្រេចចិត្តរបស់ពួកគេ ដោយមិនកាត់សម្តី មិនប្រៀបធៀបការលំបាករបស់ពួកគេទៅនឹងអ្នកដទៃ ឬប្រាប់ភ្លាមៗនូវអ្វីដែលពួកគេគួរធ្វើនោះទេ។",
+        "សួរថាតើអ្វីអាចជួយបាន៖ ឧទាហរណ៍ «តើអ្នកចង់ឱ្យខ្ញុំគ្រាន់តែស្តាប់ ជួយគិតពិចារណា ឬជួយស្វែងរកការគាំទ្រពីអ្នកជំនាញ?»",
+        "លើកទឹកចិត្តឱ្យស្វែងរកជំនួយពីអ្នកជំនាញដោយទន់ភ្លន់៖ ផ្តល់ការកំដរពួកគេទៅជួបអ្នកជំនាញ ឬជួយស្រាវជ្រាវជម្រើសផ្សេងៗ ប្រសិនបើពួកគេត្រៀមខ្លួនរួចរាល់។",
+        "សូមចងចាំថា៖ អ្នកអាចគាំទ្រនរណាម្នាក់ដោយក្តីមេត្តា ដោយមិនចាំបាច់រែកពន់បន្ទុកក្នុងការដោះស្រាយបញ្ហាទាំងអស់របស់ពួកគេតែម្នាក់ឯងឡើយ។",
+      ],
+      keyPoints: [
+        "Notice changes in friends early and approach them with gentle care.",
+        "Listening without judgment is more helpful than giving quick advice.",
+        "You can support a loved one without taking full responsibility for their recovery.",
+      ],
+      kmKeyPoints: [
+        "សម្គាល់ឃើញការផ្លាស់ប្តូររបស់មិត្តភក្តិឱ្យបានលឿន និងចូលទៅជិតពួកគេដោយក្តីបារម្ភដ៏ទន់ភ្លន់។",
+        "ការស្តាប់ដោយគ្មានការវិនិច្ឆ័យ មានប្រយោជន៍ជាងការផ្តល់ដំបូន្មានយ៉ាងលឿនភ្លាមៗ។",
+        "អ្នកអាចគាំទ្រមនុស្សជាទីស្រឡាញ់បាន ដោយមិនចាំបាច់ទទួលខុសត្រូវទាំងស្រុងលើការជាសះស្បើយរបស់ពួកគេ។",
+      ],
+    },
+    {
+      id: 6,
+      sectionNumber: 6,
+      title: "When Is It an Emergency?",
+      kmTitle: "តើនៅពេលណាដែលជាស្ថានភាពសង្គ្រោះបន្ទាន់?",
+      type: "reading",
+      paragraphs: [
+        "Some situations require immediate medical and safety intervention rather than waiting for a regular appointment.",
+        "Seek urgent assistance right away if:\n• You feel you might act on thoughts of suicide or seriously harm yourself.\n• You have already harmed yourself or taken something dangerous.\n• You feel unable to keep yourself or another person safe.\n• You or someone else is experiencing an immediate mental health crisis.",
+        "If you are in immediate danger, do not wait for a therapy appointment or rely on an app. Reach out immediately to local emergency medical services, go to the nearest hospital emergency department, or contact a trusted person and ask them to stay with you while you get help.",
+        "If you are supporting someone in crisis, take their words seriously. Ask directly if they are thinking about suicide, help them reach urgent medical care, and never leave them alone if their safety is at risk.",
+      ],
+      kmParagraphs: [
+        "ស្ថានភាពមួយចំនួនទាមទារឱ្យមានអន្តរាគមន៍វេជ្ជសាស្ត្រ និងសុវត្ថិភាពជាបន្ទាន់ ជាជាងការរង់ចាំការណាត់ជួបធម្មតា។",
+        "សូមស្វែងរកជំនួយបន្ទាន់ភ្លាមៗប្រសិនបើ៖\n• អ្នកមានអារម្មណ៍ថាអ្នកអាចធ្វើតាមគំនិតនៃការធ្វើអត្តឃាត ឬធ្វើបាបខ្លួនឯងយ៉ាងធ្ងន់ធ្ងរ។\n• អ្នកបានធ្វើបាបខ្លួនឯងរួចហើយ ឬបានលេបអ្វីមួយដែលមានគ្រោះថ្នាក់។\n• អ្នកមានអារម្មណ៍ថាមិនអាចរក្សាសុវត្ថិភាពផ្ទាល់ខ្លួន ឬសុវត្ថិភាពរបស់អ្នកដទៃបាន។\n• អ្នក ឬនរណាម្នាក់ផ្សេងទៀតកំពុងជួបប្រទះវិបត្តិសុខភាពផ្លូវចិត្តបន្ទាន់។",
+        "ប្រសិនបើអ្នកស្ថិតក្នុងគ្រោះថ្នាក់បន្ទាន់ សូមកុំរង់ចាំការណាត់ជួប ឬពឹងផ្អែកលើកម្មវិធីទូរស័ព្ទឡើយ។ សូមទាក់ទងភ្លាមៗទៅកាន់សេវាសង្គ្រោះបន្ទាន់ក្នុងតំបន់ អញ្ជើញទៅកាន់ផ្នែកសង្គ្រោះបន្ទាន់នៃមន្ទីរពេទ្យដែលនៅជិតបំផុត ឬទាក់ទងមនុស្សដែលអ្នកទុកចិត្ត ហើយសុំឱ្យពួកគេនៅជាមួយអ្នកក្នុងពេលស្វែងរកជំនួយ។",
+        "ប្រសិនបើអ្នកកំពុងជួយគាំទ្រនរណាម្នាក់ក្នុងគ្រាមានវិបត្តិ សូមយកចិត្តទុកដាក់លើសម្តីរបស់ពួកគេដោយហ្មត់ចត់។ សួរបញ្ជាក់ដោយផ្ទាល់ថាតើពួកគេកំពុងគិតអំពីការធ្វើអត្តឃាតដែរឬទេ ជួយពួកគេឱ្យទទួលបានការថែទាំវេជ្ជសាស្ត្របន្ទាន់ និងកុំទុកពួកគេឱ្យនៅម្នាក់ឯងប្រសិនបើសុវត្ថិភាពរបស់ពួកគេកំពុងប្រឈមនឹងគ្រោះថ្នាក់។",
+      ],
+      alertBox: {
+        type: "emergency",
+        text: "Immediate Safety Warning: If you or someone you know is in immediate danger of suicide or self harm, seek emergency medical care immediately, go to the nearest hospital emergency department, or call local emergency services right away.",
+        kmText: "ការព្រមានសុវត្ថិភាពបន្ទាន់៖ ប្រសិនបើអ្នក ឬនរណាម្នាក់ដែលអ្នកស្គាល់ កំពុងស្ថិតក្នុងគ្រោះថ្នាក់បន្ទាន់នៃការធ្វើអត្តឃាត ឬការធ្វើបាបខ្លួនឯង សូមស្វែងរកជំនួយសង្គ្រោះបន្ទាន់ភ្លាមៗ អញ្ជើញទៅកាន់ផ្នែកសង្គ្រោះបន្ទាន់នៃមន្ទីរពេទ្យដែលនៅជិតបំផុត ឬទាក់ទងសេវាសង្គ្រោះបន្ទាន់ជាបន្ទាន់។",
+      },
+      keyPoints: [
+        "Crisis situations require immediate medical emergency care, not self help apps.",
+        "Never keep immediate thoughts of self harm or suicide a secret.",
+        "Emergency departments and crisis hotlines exist to keep you safe.",
+      ],
+      kmKeyPoints: [
+        "ស្ថានភាពវិបត្តិទាមទារការថែទាំវេជ្ជសាស្ត្រសង្គ្រោះបន្ទាន់ភ្លាមៗ មិនមែនកម្មវិធីទូរស័ព្ទនោះទេ។",
+        "កុំរក្សាគំនិតនៃការធ្វើបាបខ្លួនឯង ឬការធ្វើអត្តឃាតទុកជាការសម្ងាត់ឡើយ។",
+        "ផ្នែកសង្គ្រោះបន្ទាន់នៃមន្ទីរពេទ្យ និងខ្សែទូរស័ព្ទជំនួយវិបត្តិ មានតួនាទីដើម្បីការពារសុវត្ថិភាពរបស់អ្នក។",
+      ],
+    },
+    {
+      id: 7,
+      sectionNumber: 7,
+      title: "Getting Support in Cambodia",
+      kmTitle: "ការទទួលបានការគាំទ្រនៅក្នុងប្រទេសកម្ពុជា",
+      type: "reading",
+      paragraphs: [
+        "If you are in Cambodia, there are several pathways to find mental health care and emotional support [3]:\n• Public and referral hospitals: Ask about outpatient psychiatric and psychological services.\n• Qualified mental health professionals: Look for registered psychologists, psychiatrists, and trained counselors.\n• Community organizations: Non-profit organizations such as TPO Cambodia (Transcultural Psychosocial Organization) provide clinical counseling, community outreach and mental health hotlines.\n• Trusted community leaders and mentors: Supportive teachers, mentors, or family members who can help connect you with local services.",
+        "Available services, locations and fees can vary. It is always wise to contact the clinic or provider directly to confirm their current schedule, fees and confidentiality practices.",
+        "For young people in Cambodia, UNICEF Cambodia provides valuable guidance on youth wellbeing, overcoming stigma and locating supportive community resources. [3]",
+      ],
+      kmParagraphs: [
+        "ប្រសិនបើអ្នកនៅក្នុងប្រទេសកម្ពុជា មានមធ្យោបាយជាច្រើនក្នុងការស្វែងរកការថែទាំសុខភាពផ្លូវចិត្ត និងការគាំទ្រអារម្មណ៍ [3]៖\n• មន្ទីរពេទ្យរដ្ឋ និងមន្ទីរពេទ្យបង្អែក៖ សាកសួរអំពីសេវាពិគ្រោះជំងឺផ្លូវចិត្ត និងចិត្តសាស្ត្រក្រៅមន្ទីរពេទ្យ។\n• អ្នកជំនាញសុខភាពផ្លូវចិត្តដែលមានលក្ខណៈសម្បត្តិគ្រប់គ្រាន់៖ ស្វែងរកអ្នកចិត្តសាស្រ្ត វិកជ្ជបណ្ឌិត និងអ្នកប្រឹក្សាផ្លូវចិត្តដែលមានការបណ្តុះបណ្តាលត្រឹមត្រូវ។\n• អង្គការសហគមន៍៖ អង្គការមិនមែនរដ្ឋាភិបាល ដូចជាអង្គការចិត្តសង្គមអន្តរវប្បធម៌ TPO Cambodia ផ្តល់សេវាប្រឹក្សាផ្លូវចិត្តគ្លីនិក ការចុះជួយសហគមន៍ និងខ្សែទូរស័ព្ទជំនួយសុខភាពផ្លូវចិត្ត។\n• ថ្នាក់ដឹកនាំសហគមន៍ និងអ្នកណែនាំដែលទុកចិត្ត៖ គ្រូបង្រៀន ឬសមាជិកគ្រួសារដែលអាចជួយភ្ជាប់អ្នកទៅកាន់សេវាជំនួយក្នុងតំបន់។",
+        "សេវាដែលអាចរកបាន ទីតាំង និងតម្លៃអាចមានភាពខុសគ្នា។ វាជាការល្អជានិច្ចក្នុងការទាក់ទងទៅកាន់គ្លីនិក ឬអ្នកផ្តល់សេវាដោយផ្ទាល់ ដើម្បីបញ្ជាក់ពីកាលវិភាគ តម្លៃ និងការអនុវត្តការរក្សាការសម្ងាត់បច្ចុប្បន្ន។",
+        "សម្រាប់យុវជននៅកម្ពុជា អង្គការ UNICEF Cambodia ផ្តល់នូវការណែនាំដ៏មានតម្លៃអំពីសុខុមាលភាពយុវជន ការជម្នះការមាក់ងាយ និងការស្វែងរកធនធានគាំទ្រក្នុងសហគមន៍។ [3]",
+      ],
+      keyPoints: [
+        "Multiple care options exist in Cambodia, including public hospitals and TPO [3].",
+        "Always confirm consultation hours, fees, and privacy standards in advance.",
+        "UNICEF Cambodia offers verified resources on youth mental health [3].",
+      ],
+      kmKeyPoints: [
+        "ជម្រើសថែទាំជាច្រើនមាននៅក្នុងប្រទេសកម្ពុជា រួមទាំងមន្ទីរពេទ្យរដ្ឋ និងអង្គការ TPO [3]។",
+        "តែងតែបញ្ជាក់ម៉ោងពិគ្រោះ តម្លៃ និងស្តង់ដារឯកជនភាពជាមុន។",
+        "អង្គការ UNICEF Cambodia ផ្តល់ធនធានដែលបានផ្ទៀងផ្ទាត់អំពីសុខភាពផ្លូវចិត្តយុវជន [3]។",
+      ],
+    },
+    {
+      id: 8,
+      sectionNumber: 8,
+      title: "Your Personal Check-In",
+      kmTitle: "ការពិនិត្យមើលខ្លួនឯងផ្ទាល់ខ្លួន",
+      type: "reflection",
+      paragraphs: [
+        "Take a quiet moment to reflect on how you have been feeling recently. These questions are for your personal awareness and self reflection, not a clinical diagnosis or test:\n1. Have my feelings been affecting my daily activities, studies, work, or relationships?\n2. Have I noticed significant changes in my sleep, appetite, energy, or interest in hobbies?\n3. Have I been trying to carry everything alone without asking for support?\n4. Is there someone in my life I would feel safe opening up to?\n5. Would speaking with a professional counselor help me understand what I am experiencing?\n6. What is one small step I could take this week to get the support I need?",
+        "You do not need to answer every question or share your answers with anyone. Notice what feels most relevant to your life right now.",
+      ],
+      kmParagraphs: [
+        "សូមចំណាយពេលស្ងប់ស្ងាត់មួយភ្លែត ដើម្បីពិចារណាលើអារម្មណ៍របស់អ្នកមួយរយៈចុងក្រោយនេះ។ សំណួរទាំងនេះគឺសម្រាប់ការដឹងពីខ្លួនឯង និងការឆ្លុះបញ្ចាំងផ្ទាល់ខ្លួន មិនមែនជាការធ្វើរោគវិនិច្ឆ័យគ្លីនិក ឬការធ្វើតេស្តនោះទេ៖\n១. តើអារម្មណ៍របស់ខ្ញុំបានប៉ះពាល់ដល់សកម្មភាពប្រចាំថ្ងៃ ការសិក្សា ការងារ ឬទំនាក់ទំនងដែរឬទេ?\n២. តើខ្ញុំបានកត់សម្គាល់ឃើញការផ្លាស់ប្តូរសំខាន់ៗក្នុងដំណេក ចំណង់អាហារ ថាមពល ឬចំណាប់អារម្មណ៍លើចំណូលចិត្តដែរឬទេ?\n៣. តើខ្ញុំបានព្យាយាមរែកពន់អ្វីៗគ្រប់យ៉ាងតែម្នាក់ឯង ដោយមិនសុំជំនួយដែរឬទេ?\n៤. តើមាននរណាម្នាក់ក្នុងជីវិតខ្ញុំ ដែលខ្ញុំមានអារម្មណ៍ថាមានសុវត្ថិភាពក្នុងការបើកចិត្តនិយាយជាមួយដែរឬទេ?\n៥. តើការនិយាយជាមួយអ្នកប្រឹក្សាជំនាញ អាចជួយឱ្យខ្ញុំយល់ពីអ្វីដែលខ្ញុំកំពុងជួបប្រទះដែរឬទេ?\n៦. តើអ្វីជាជំហានតូចមួយដែលខ្ញុំអាចធ្វើបានក្នុងសប្តាហ៍នេះ ដើម្បីទទួលបានការគាំទ្រដែលខ្ញុំត្រូវការ?",
+        "អ្នកមិនចាំបាច់ឆ្លើយគ្រប់សំណួរ ឬចែករំលែកចម្លើយរបស់អ្នកជាមួយនរណាម្នាក់ឡើយ។ គ្រាន់តែកត់សម្គាល់នូវអ្វីដែលទាក់ទងនឹងជីវិតរបស់អ្នកបំផុតនៅពេលនេះ។",
+      ],
+      reflection: {
+        question:
+          "Reflecting on your recent feelings, what is one area where having support would help you most right now?",
+        kmQuestion:
+          "ឆ្លុះបញ្ចាំងពីអារម្មណ៍ថ្មីៗរបស់អ្នក តើផ្នែកមួយណាដែលការទទួលបានការគាំទ្រអាចជួយអ្នកបានច្រើនបំផុតនៅពេលនេះ?",
+        options: [
+          "Managing overwhelming emotions, worry or sadness",
+          "Restoring healthy sleep, appetite or daily routines",
+          "Talking through relationship conflicts or feeling lonely",
+          "Exploring whether professional counseling is right for me",
+          "Learning how to safely support a friend or loved one",
+        ],
+        kmOptions: [
+          "ការគ្រប់គ្រងអារម្មណ៍ដែលលើសលប់ ការព្រួយបារម្ភ ឬការកើតទុក្ខ",
+          "ការស្តារឡើងវិញនូវដំណេកល្អ ចំណង់អាហារ ឬទម្លាប់ប្រចាំថ្ងៃ",
+          "ការនិយាយពិភាក្សាអំពីជម្លោះក្នុងទំនាក់ទំនង ឬអារម្មណ៍ឯកោ",
+          "ការស្វែងយល់ថាតើការប្រឹក្សាជាមួយអ្នកជំនាញសមស្របសម្រាប់ខ្ញុំដែរឬទេ",
+          "ការរៀនពីរបៀបជួយគាំទ្រមិត្តភក្តិ ឬមនុស្សជាទីស្រឡាញ់ដោយសុវត្ថិភាព",
+        ],
+        feedbackMessage:
+          "Thank you for checking in with yourself. Acknowledging where you feel strained is the first courageous step toward getting the right support. You do not have to carry everything alone.",
+        kmFeedbackMessage:
+          "អរគុណដែលបានពិនិត្យមើលខ្លួនឯង។ ការទទួលស្គាល់កន្លែងដែលអ្នកមានអារម្មណ៍តានតឹង គឺជាជំហានដ៏ក្លាហានដំបូងគេឆ្ពោះទៅរកការទទួលបានការគាំទ្រត្រឹមត្រូវ។ អ្នកមិនចាំបាច់រែកពន់អ្វីៗគ្រប់យ៉ាងតែម្នាក់ឯងនោះទេ។",
+      },
+      keyPoints: [
+        "Self reflection helps you identify where you need support most right now.",
+        "Choosing one manageable step makes seeking help feel achievable.",
+      ],
+      kmKeyPoints: [
+        "ការឆ្លុះបញ្ចាំងពីខ្លួនឯង ជួយអ្នកកំណត់ផ្នែកដែលអ្នកត្រូវការការគាំទ្រច្រើនបំផុតនៅពេលនេះ។",
+        "ការជ្រើសរើសជំហានតូចមួយដែលងាយស្រួល ជួយឱ្យការស្វែងរកជំនួយអាចសម្រេចបាន។",
+      ],
+    },
+    {
+      id: 9,
+      sectionNumber: 9,
+      title: "Next Steps for Seeking Support",
+      kmTitle: "ជំហានបន្ទាប់សម្រាប់ការស្វែងរកជំនួយ",
+      type: "coping",
+      paragraphs: [
+        "Remember: you do not have to reach a breaking point before you deserve support. Mental health difficulties can affect anyone, and reaching out is a natural and healthy part of caring for your wellbeing.",
+        "If you feel nervous about reaching out, try a gentle grounding breathing exercise first to calm your nervous system. When you feel ready, explore talking to someone you trust or booking a confidential session with a verified counselor.",
+        "If you ever think about hurting yourself, get help right away. Open Profile and tap Get help now.",
+      ],
+      kmParagraphs: [
+        "សូមចងចាំថា៖ អ្នកមិនចាំបាច់រង់ចាំរហូតដល់ទ្រាំលែងបាន ទើបសមនឹងទទួលបានការគាំទ្រនោះទេ។ ការលំបាកផ្នែកសុខភាពផ្លូវចិត្តអាចកើតមានលើមនុស្សគ្រប់គ្នា ហើយការស្វែងរកជំនួយ គឺជាផ្នែកមួយដ៏ធម្មជាតិ និងល្អប្រសើរក្នុងការថែទាំសុខុមាលភាពរបស់អ្នក។",
+        "ប្រសិនបើអ្នកមានអារម្មណ៍ភ័យ ឬស្ទាក់ស្ទើរក្នុងការទាក់ទងសុំជំនួយ សូមសាកល្បងលំហាត់ដកដង្ហើមស្ងប់អារម្មណ៍ជាមុនសិន ដើម្បីជួយឱ្យប្រព័ន្ធប្រសាទរបស់អ្នកធូរស្រាល។ នៅពេលដែលអ្នកមានអារម្មណ៍ថាត្រៀមខ្លួនរួចរាល់ សូមសាកល្បងនិយាយជាមួយមនុស្សដែលអ្នកទុកចិត្ត ឬកក់ការពិគ្រោះយោបល់ជាសម្ងាត់ជាមួយអ្នកជំនាញដែលបានផ្ទៀងផ្ទាត់។",
+        "ប្រសិនបើអ្នកធ្លាប់មានគំនិតចង់ធ្វើបាបខ្លួនឯង សូមស្វែងរកជំនួយជាបន្ទាន់។ បើក Profile ហើយចុច Get help now។",
+      ],
+      actions: [
+        { label: "Box breathing", kmLabel: "លំហាត់ដកដង្ហើម (Box Breathing)", actionType: "exercise" },
+        { label: "Match Me With A Professional", kmLabel: "ស្វែងរកអ្នកជំនាញ (Match Me)", actionType: "professional" },
+      ],
+      keyPoints: [
+        "Grounding exercises help calm anxiety before opening up to someone.",
+        "Reaching out is an act of courage and self care, never weakness.",
+        "Emergency resources are always available in your Profile under Get help now.",
+      ],
+      kmKeyPoints: [
+        "លំហាត់ទប់លំនឹងអារម្មណ៍ ជួយកាត់បន្ថយការថប់បារម្ភមុនពេលបើកចិត្តនិយាយជាមួយនរណាម្នាក់។",
+        "ការស្វែងរកជំនួយ គឺជាទង្វើនៃភាពក្លាហាន និងការថែទាំខ្លួនឯង មិនមែនជាភាពទន់ខ្សោយឡើយ។",
+        "ធនធានជំនួយបន្ទាន់ តែងតែមានជានិច្ចនៅក្នុង Profile ក្រោមផ្នែក Get help now។",
+      ],
+    },
+  ],
+};
+
+
 export const ALL_LESSONS: Lesson[] = [
   LESSON_WHAT_IS_MENTAL_HEALTH,
   LESSON_ABOUT_STRESS,
   LESSON_UNDERSTANDING_ANXIETY,
   LESSON_UNDERSTAND_YOURSELF,
+  LESSON_KNOW_WHEN_TO_SEEK_HELP,
   {
     id: "better-sleep",
     title: "Better Sleep",
