@@ -1,5 +1,34 @@
 # AROM: Change Report
 
+## 17 Oct 2026: Play Cards with Friends
+
+Commit `PENDING`. No migration. Frontend only, nothing is saved.
+
+**Why.** Many people, especially young people, find it hard to start talking about feelings. A gentle card game played with friends on one phone gives them an easy way in. The sidebar has listed "Play Cards with Friends" as coming soon; now it is real.
+
+**What changed for users:**
+- **New page `/play-cards`** (log in needed), in the sidebar under Community.
+- **Set up:** add friends' names (2 to 8 players), choose a deck (Journey: start light, get real, end with care; or one level) and a length (9, 15 or 21 cards, about 10 to 25 minutes).
+- **House rules** before starting: what is shared stays here, listen don't fix, pass any time.
+- **Play:** each card flips over with a 3D turn. Whose turn it is shows at the top. Pass gives you another card with no reason needed. Lighter card swaps to an easier level. Deeper cards have "Need support?".
+- **60 cards** in English and Khmer: questions, breathing together (a guided 3 breath circle with the sprout), kind words, and everyone together cards. Each level has its own colors: warm sunrise, AROM green, soft blossom.
+- **The end:** falling leaves, "You did it together", a prompt to share what you learned about each other, a private journal note, "Plan the next hangout" (adds it to today's plan), play again or a new game.
+- **Private:** names and answers are never saved or sent anywhere.
+
+**What changed for the team:**
+- **Files:** `app/play-cards/` (page, `_data/cards.ts`, `_components/`). `/play-cards` added to `PROTECTED_PREFIXES` in `lib/supabase/proxy.ts`; the sidebar item has its link and is no longer "coming soon".
+- **Handoff:** `BACKEND-HANDOFF.md` section 28 lists later work (admin decks, play count, online rooms).
+- **Before launch:** an AROM professional should check the Getting real and Care cards. A Khmer speaker should read all Khmer card text.
+
+**What to re-test:**
+1. Log in, open Play Cards with Friends from the sidebar.
+2. Add 3 friends, choose Journey and Medium, press Start playing, agree to the rules.
+3. Flip a card, press Pass, then Lighter card on a Getting real card, then Done.
+4. Play a breathing card: press Start breathing and follow the circle.
+5. Finish the game, press Plan the next hangout, and check it appears on Home.
+6. Switch to Khmer and play a few cards.
+7. Turn on Reduce motion: cards still work, nothing floats or falls.
+
 ## 17 Oct 2026: The Mood Sprouts Come Alive
 
 Commit `77423a5`. No migration. Frontend only.

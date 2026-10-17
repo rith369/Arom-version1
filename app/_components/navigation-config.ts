@@ -181,7 +181,7 @@ export const NAVIGATION_SECTIONS: NavSection[] = [
         enTitle: "Play Cards with Friends",
         kmTitle: "លេងកាតជាមួយមិត្តភក្តិ",
         icon: Layers,
-        isComingSoon: true,
+        href: "/play-cards",
       },
     ],
   },
