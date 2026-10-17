@@ -1,12 +1,14 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { LockKeyhole, Mail, UserRound } from "lucide-react";
+import { Check, LockKeyhole, Mail, UserRound, X } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import {
+  MAX_PASSWORD_LENGTH,
+  PASSWORD_RULES,
   PENDING_CONFIRMATION_KEY,
   signupSchema,
   type AuthErrorBody,
@@ -17,6 +19,35 @@ import { AuthInput, FormAlert } from "./auth-input";
 import { useAuth } from "../auth-provider";
 import { useLanguage } from "../language-provider";
 
+/** Every password rule at once: a check when it is met, a cross when it is not yet. */
+function PasswordChecklist({ password, showMissing }: { password: string; showMissing: boolean }) {
+  return (
+    <ul aria-label="Your password needs" className="space-y-1 pb-1">
+      {PASSWORD_RULES.map((rule) => {
+        const met = rule.test(password);
+        return (
+          <li
+            key={rule.id}
+            className={`flex items-center gap-2 text-xs font-medium ${
+              met ? "text-arom" : showMissing ? "text-arom-danger" : "text-ink-muted"
+            }`}
+          >
+            {met ? (
+              <Check aria-hidden="true" size={14} strokeWidth={2.6} className="shrink-0" />
+            ) : (
+              <X aria-hidden="true" size={14} strokeWidth={2.6} className="shrink-0" />
+            )}
+            <span>
+              {rule.label}
+              <span className="sr-only">{met ? ": done" : ": not yet"}</span>
+            </span>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
 export function SignupForm() {
   const router = useRouter();
   const { refresh } = useAuth();
@@ -26,6 +57,7 @@ export function SignupForm() {
     register,
     handleSubmit,
     setError,
+    control,
     formState: { errors, isSubmitting },
   } = useForm<SignupValues>({
     resolver: zodResolver(signupSchema),
@@ -38,6 +70,10 @@ export function SignupForm() {
     },
     mode: "onBlur",
   });
+
+  const password = useWatch({ control, name: "password" }) ?? "";
+  // The checklist explains every rule, so only the length limit needs its own error line.
+  const tooLong = password.length > MAX_PASSWORD_LENGTH;
 
   const onSubmit = handleSubmit(async (values) => {
     try {
@@ -129,7 +165,9 @@ export function SignupForm() {
           autoComplete="new-password"
           placeholder="Create a strong password"
           revealable
-          error={errors.password?.message}
+          invalid={Boolean(errors.password)}
+          hint={<PasswordChecklist password={password} showMissing={Boolean(errors.password)} />}
+          error={tooLong ? errors.password?.message : undefined}
         />
 
         <AuthInput

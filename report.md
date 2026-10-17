@@ -1,5 +1,29 @@
 # AROM: Change Report
 
+## 17 Oct 2026: Password Checklist on Sign Up
+
+Commit `pending`. No migration. Frontend only, the password rules did not change.
+
+**Why.** A new password must have 8 characters, a lowercase letter, an uppercase letter, a number and a special character, but the sign up form only showed one rule at a time, after the person got it wrong. People had to guess the next rule by failing again. Rith asked for every rule to show at once, with a check when it is met and a cross when it is not.
+
+**What changed for users:**
+- **All five rules show under Password** from the start: at least 8 characters, a lowercase letter, an uppercase letter, a number and a special character.
+- **Each rule ticks as you type:** a green check when it is met, a grey cross when it is not yet.
+- **After leaving the field or pressing Create Account,** any rule still missing turns red and the field is outlined in red, so it is clear what is left.
+- Screen readers hear each rule with "done" or "not yet".
+
+**What changed for the team:**
+- `lib/auth.ts`: new `PASSWORD_RULES` (label and test for each rule) and `MAX_PASSWORD_LENGTH`. `signupSchema` checks the password with these same rules, so the form, the checklist and the server can never disagree.
+- `auth-input.tsx`: new optional `hint` (shown under the field and linked with `aria-describedby`) and `invalid` (red outline without an error line).
+- `signup-form.tsx`: new `PasswordChecklist`. The only error line left under Password is the 72 character limit.
+
+**What to re-test:**
+1. Open Sign up: all five rules show with grey crosses.
+2. Type `abc`: only "A lowercase letter" turns into a green check.
+3. Type `Abcdefg1!`: all five are green checks.
+4. Type `1222sd`, click into Confirm password: the field turns red and the missing rules (8 characters, uppercase, special character) turn red.
+5. Create an account with a password that meets every rule: sign up works as before.
+
 ## 17 Oct 2026: Spin to Choose Who Goes Next in Truth or Dare
 
 Commit `8e4ed3f`. No migration. Frontend only.
