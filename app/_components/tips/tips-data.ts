@@ -263,42 +263,105 @@ export const TIP_SLEEP_HYGIENE: TipItem = {
   ],
 };
 
+export const TIP_CALMING_RACING_THOUGHTS: TipItem = {
+  id: "calming-racing-thoughts",
+  title: "Calming Racing Thoughts",
+  kmTitle: "ការបន្ធូរបន្ថយគំនិតរវើរវាយ (Racing Thoughts)",
+  subtitle: "When Your Brain Refuses to Slow Down",
+  kmSubtitle: "នៅពេលដែលខួរក្បាលមិនព្រមសម្រាក",
+  introduction:
+    "Racing thoughts happen when unaddressed worries, fears, and imagined scenarios compete for mental bandwidth all at once. When your brain gets stuck in overdrive, trying to force your mind to be quiet often backfires. Evidence-based grounding techniques and expressive unloading give your nervous system permission to slow down. Here are 5 practical steps to regain calm when your mind refuses to rest.",
+  kmIntroduction:
+    "គំនិតរវើរវាយកើតឡើងនៅពេលដែលការព្រួយបារម្ភ ការភ័យខ្លាច និងការគិតស្រមើស្រមៃដណ្តើមគ្នាក្នុងចិត្តក្នុងពេលតែមួយ។ នៅពេលដែលខួរក្បាលដំណើរការលឿនហួសហេតុ ការបង្ខំចិត្តឱ្យនៅស្ងៀមតែងតែធ្វើឱ្យគំនិតកាន់តែរត់ខ្លាំងឡើង។ បច្ចេកទេសទប់លំនឹងចិត្ត និងការបញ្ចេញគំនិតចេញមកក្រៅ ជួយឱ្យប្រព័ន្ធប្រសាទរបស់អ្នកវិលមករកភាពស្ងប់ស្ងាត់ឡើងវិញ។ ខាងក្រោមនេះជា ៥ ជំហានជាក់ស្តែងដើម្បីគ្រប់គ្រងចិត្ត នៅពេលដែលខួរក្បាលរបស់អ្នកមិនព្រមសម្រាក។",
+  category: "Anxiety",
+  kmCategory: "ការថប់បារម្ភ (Anxiety)",
+  duration: "4 min",
+  kmDuration: "៤ នាទី",
+  difficulty: "Beginner",
+  kmDifficulty: "កម្រិតដំបូង (Beginner)",
+  format: "5 Calming Steps",
+  kmFormat: "៥ ជំហានបន្ធូរបន្ថយគំនិត",
+  isAvailable: true,
+  image: "/mindguide/icon-10.svg",
+  heroImage: "/mindguide/understanding-anxiety-hero.jpg",
+  sourceCitation:
+    "Adapted from the Anxiety and Depression Association of America (ADAA) and American Psychological Association guidelines (2024).",
+  kmSourceCitation:
+    "ដកស្រង់ចេញពីគោលការណ៍ណែនាំរបស់សមាគមថប់បារម្ភ និងបាក់ទឹកចិត្តអាមេរិក (ADAA) និងសមាគមចិត្តសាស្រ្តអាមេរិក (APA, 2024)។",
+  supportCallout: {
+    title: "Intrusive Anxiety Support",
+    kmTitle: "ជំនួយសម្រាប់គំនិតថប់បារម្ភខ្លាំង (Intrusive Anxiety)",
+    body:
+      "When racing thoughts feel uncontrollable, provoke panic, or prevent you from working, studying, and sleeping for multiple weeks, you do not have to carry them alone. On AROM, you can connect in complete privacy with verified therapists and counselors who specialize in anxiety management and mindfulness.",
+    kmBody:
+      "នៅពេលដែលគំនិតរវើរវាយពិបាកគ្រប់គ្រង បង្កឱ្យភ័យស្លន់ស្លោ ឬរំខានដល់ការងារ ការសិក្សា និងដំណេកអស់ជាច្រើនសប្តាហ៍ អ្នកមិនចាំបាច់ទ្រាំរែកពន់តែម្នាក់ឯងនោះទេ។ នៅលើកម្មវិធី AROM អ្នកអាចភ្ជាប់ទំនាក់ទំនងជាលក្ខណៈសម្ងាត់ ១០០% ជាមួយអ្នកជំនាញចិត្តសាស្រ្ត និងអ្នកប្រឹក្សាដែលមានការបញ្ជាក់ត្រឹមត្រូវ ដែលមានជំនាញក្នុងការគ្រប់គ្រងការថប់បារម្ភ និងសតិដឹង។",
+    actionLabel: "Find Anxiety Support",
+    kmActionLabel: "ស្វែងរកជំនួយការថប់បារម្ភ (Find Anxiety Support)",
+  },
+  steps: [
+    {
+      number: 1,
+      title: "Name the mental loop.",
+      kmTitle: "សម្គាល់ និងដាក់ឈ្មោះគំនិតដែលកំពុងរត់",
+      body:
+        'When thoughts race, your brain treats every imagined catastrophe as an immediate crisis. Pause and say silently: "I notice my mind is spinning with what-ifs." Naming the pattern creates psychological distance, reminding you that a thought is just mental weather, not an emergency.',
+      kmBody:
+        "នៅពេលដែលគំនិតរត់ប្រជែងគ្នា ខួរក្បាលរបស់អ្នកចាត់ទុកគ្រប់ការព្រួយបារម្ភទាំងអស់ថាជាគ្រោះអាសន្នបន្ទាន់។ សូមផ្អាកមួយភ្លែត ហើយប្រាប់ខ្លួនឯងដោយស្ងប់ស្ងាត់ថា «ខ្ញុំកំពុងកត់សម្គាល់ឃើញចិត្តរបស់ខ្ញុំកំពុងព្រួយបារម្ភរឿងដែលមិនទាន់មកដល់»។ ការដាក់ឈ្មោះឱ្យទម្រង់គំនិតនេះជួយបង្កើតគម្លាតផ្លូវចិត្ត និងរំលឹកអ្នកថា គំនិតគ្រាន់តែជាអារម្មណ៍ដែលឆ្លងកាត់ មិនមែនជាគ្រោះថ្នាក់ជាក់ស្តែងនោះឡើយ។",
+      tryNow: 'tell yourself: "This is a passing worry loop, not a fact."',
+      kmTryNow: "ប្រាប់ខ្លួនឯងថា «នេះគ្រាន់តែជាការគិតព្រួយបារម្ភដែលឆ្លងកាត់ មិនមែនជាការពិតទេ»។",
+    },
+    {
+      number: 2,
+      title: "Unload onto your private AROM Journal.",
+      kmTitle: "បញ្ចេញគំនិតចូលទៅក្នុងកំណត់ហេតុ AROM",
+      body:
+        "Keeping racing thoughts inside your head causes them to loop repeatedly like an echo chamber. Open your private AROM Journal and write freely for 3 minutes without editing, or record a quiet voice note. Because your entries are 100% private and encrypted, externalizing thoughts empties your working memory and breaks the mental loop.",
+      kmBody:
+        "ការទុកគំនិតដែលកំពុងរត់ឱ្យវិលវល់ក្នុងក្បាល ធ្វើឱ្យពួកវាបន្លឺឡើងសារចុះសារឡើងមិនចេះចប់។ សូមបើកមុខងារ «កំណត់ហេតុ (Journal)» ក្នុងកម្មវិធី AROM ដើម្បីសរសេរដោយសេរីរយៈពេល ៣ នាទី ឬកត់ត្រាសំឡេងផ្ទាល់ខ្លួនរបស់អ្នក។ ដោយសារកំណត់ហេតុ AROM ត្រូវបានការពារជាសម្ងាត់ ១០០% ការបញ្ចេញគំនិតចេញមកក្រៅជួយសម្រាលបន្ទុកខួរក្បាល និងកាត់ផ្តាច់វដ្តគំនិតដែលវិលវល់។",
+      tryNow: "open AROM Journal and type or voice record your top 3 worries.",
+      kmTryNow: "បើកកំណត់ហេតុ AROM ហើយសរសេរ ឬកត់ត្រាសំឡេងការព្រួយបារម្ភចម្បង ៣ យ៉ាង។",
+    },
+    {
+      number: 3,
+      title: "Ground your senses in the room.",
+      kmTitle: "ទាញអារម្មណ៍មកកាន់បច្ចុប្បន្នដោយវិញ្ញាណទាំង ៥",
+      body:
+        "Racing thoughts pull your mind into imagined future scenarios. Bring yourself back into your physical surroundings by naming 5 things you can see, 4 things you can touch, 3 sounds you can hear, 2 scents you can smell, and 1 slow breath you can feel.",
+      kmBody:
+        "គំនិតរវើរវាយតែងតែទាញចិត្តរបស់អ្នកឱ្យគិតទៅរកព្រឹត្តិការណ៍អវិជ្ជមានក្នុងអនាគតដែលមិនទាន់កើតឡើង។ សូមទាញស្មារតីត្រឡប់មកកាន់បរិយាកាសជាក់ស្តែងជុំវិញខ្លួន ដោយកត់សម្គាល់ ៥ យ៉ាងដែលអ្នកមើលឃើញ, ៤ យ៉ាងដែលអ្នកអាចប៉ះបាន, ៣ សំឡេងដែលអ្នកឮ, ២ ក្លិនដែលអ្នកធុំ, និង ១ ដង្ហើមចេញចូលដែលអ្នកមានអារម្មណ៍ដឹង។",
+      tryNow: "look around right now and touch 3 different physical textures.",
+      kmTryNow: "ក្រឡេកមើលជុំវិញខ្លួនឥឡូវនេះ ហើយប៉ះវត្ថុដែលមានផ្ទៃខុសគ្នា ៣ យ៉ាង។",
+    },
+    {
+      number: 4,
+      title: "Reset your nervous system with 4-7-8 breathing.",
+      kmTitle: "បន្ថយចង្វាក់ដង្ហើមដោយការហាត់ដកដង្ហើម ៤, ៧, ៨",
+      body:
+        "When your brain is on overdrive, your heart rate accelerates and breathing becomes shallow. Practicing slow rhythmic breathing sends physical signals through the vagus nerve to slow down your heart and switch off the adrenaline surge.",
+      kmBody:
+        "នៅពេលដែលខួរក្បាលដំណើរការលឿនហួសហេតុ ចង្វាក់បេះដូងរបស់អ្នកនឹងកើនឡើង ហើយការដកដង្ហើមនឹងញាប់។ ការហាត់ដកដង្ហើមយឺតៗតាមចង្វាក់ ៤, ៧, ៨ បញ្ជូនសញ្ញារាងកាយតាមរយៈសរសៃប្រសាទ Vagus ដើម្បីបន្ថយចង្វាក់បេះដូង និងបិទការបញ្ចេញអ័រម៉ូនអាដ្រេណាលីន។",
+      tryNow: "tap below to start 2 minutes of calming 4-7-8 breathing in AROM.",
+      kmTryNow: "ចុចខាងក្រោមដើម្បីហាត់ដកដង្ហើម ៤, ៧, ៨ រយៈពេល ២ នាទីក្នុង AROM។",
+      hasBreathingAction: true,
+    },
+    {
+      number: 5,
+      title: "Schedule a dedicated worry window.",
+      kmTitle: "កំណត់ពេលព្រួយបារម្ភ ១៥ នាទីក្នុងមួយថ្ងៃ",
+      body:
+        'Telling yourself "do not think about it" makes racing thoughts stronger. Instead, postpone them by telling your mind: "I will review this worry during my 15-minute worry window at 4:00 PM." If a worry appears outside that window, gently remind yourself that it has an appointment later.',
+      kmBody:
+        "ការប្រាប់ខ្លួនឯងថា «កុំគិតពីរឿងហ្នឹង» ផ្ទុយទៅវិញកាន់តែធ្វើឱ្យគំនិតនោះរត់ខ្លាំងឡើង។ វិធីដ៏មានប្រសិទ្ធភាពគឺពន្យារពេលវា ដោយប្រាប់ចិត្តរបស់អ្នកថា «ខ្ញុំនឹងពិចារណាការព្រួយបារម្ភនេះក្នុងអំឡុងពេល ១៥ នាទីនៅម៉ោង ៤ រសៀល»។ ប្រសិនបើគំនិតព្រួយបារម្ភលេចឡើងក្រៅម៉ោងនោះ សូមរំលឹកខ្លួនឯងថាយើងបានកំណត់ពេលដោះស្រាយវារួចហើយ។",
+      tryNow: "choose a 15-minute window tomorrow afternoon for productive problem solving.",
+      kmTryNow: "ជ្រើសរើសពេលវេលា ១៥ នាទីនៅរសៀលថ្ងៃស្អែកសម្រាប់ការដោះស្រាយបញ្ហាជាក់ស្តែង។",
+    },
+  ],
+};
+
 export const ALL_TIPS: TipItem[] = [
   TIP_CONTROL_STRESS,
   TIP_SLEEP_HYGIENE,
-  {
-    id: "calming-racing-thoughts",
-    title: "Calming Racing Thoughts",
-    kmTitle: "ការបន្ធូរបន្ថយគំនិតរវើរវាយ (Racing Thoughts)",
-    subtitle: "When Your Brain Refuses to Slow Down",
-    kmSubtitle: "នៅពេលដែលខួរក្បាលមិនព្រមសម្រាក",
-    introduction:
-      "Racing thoughts are often unaddressed worries competing for your attention. Externalizing them onto paper removes the cognitive load.",
-    kmIntroduction:
-      "គំនិតរវើរវាយច្រើនតែកើតចេញពីការព្រួយបារម្ភ។ ការសរសេរវាចេញមកក្រៅជួយកាត់បន្ថយបន្ទុកផ្លូវចិត្ត។",
-    category: "Anxiety",
-    kmCategory: "ការថប់បារម្ភ (Anxiety)",
-    duration: "4 min",
-    kmDuration: "៤ នាទី",
-    difficulty: "Beginner",
-    kmDifficulty: "កម្រិតដំបូង (Beginner)",
-    format: "Brain Dump Guide",
-    kmFormat: "ការណែនាំសរសេរបញ្ចេញគំនិត",
-    isAvailable: false,
-    badge: "Coming Soon",
-    image: "/mindguide/icon-10.svg",
-    sourceCitation: "Anxiety & Depression Association of America (2024).",
-    kmSourceCitation: "សមាគមថប់បារម្ភ និងបាក់ទឹកចិត្តអាមេរិក (ADAA, 2024)។",
-    supportCallout: {
-      title: "Overwhelming Anxiety",
-      kmTitle: "ការថប់បារម្ភខ្លាំង",
-      body: "When intrusive thoughts interfere with daily focus, talking to a licensed counselor offers structured grounding tools.",
-      kmBody: "នៅពេលដែលគំនិតរំខានរារាំងការផ្តោតអារម្មណ៍ប្រចាំថ្ងៃ ការពិគ្រោះជាមួយអ្នកប្រឹក្សាផ្តល់នូវឧបករណ៍ទប់លំនឹងចិត្ត។",
-      actionLabel: "Match Me Now",
-      kmActionLabel: "ផ្គូផ្គងខ្ញុំឥឡូវនេះ (Match Me)",
-    },
-    steps: [],
-  },
+  TIP_CALMING_RACING_THOUGHTS,
   {
     id: "setting-gentle-boundaries",
     title: "Setting Gentle Boundaries",

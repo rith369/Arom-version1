@@ -1,5 +1,28 @@
 # AROM: Change Report
 
+## 17 Oct 2026: Unlock Calming Racing Thoughts Tip Guide
+
+Commit `PENDING`. No migration. Content and frontend only.
+
+**Why.** When anxiety spikes or the brain refuses to rest, intrusive looping thoughts overwhelm mental bandwidth. The "Calming Racing Thoughts" (`calming-racing-thoughts`) tip guide was previously locked under "Coming Soon". It is now fully active with 5 evidence-based cognitive and somatic steps adapted from the Anxiety and Depression Association of America (ADAA) and American Psychological Association (APA), connecting directly to AROM's private Journal, guided 4-7-8 Breathing, and professional support.
+
+**What changed for users:**
+- **Calming Racing Thoughts is now unlocked:** Seekers can access the 4-minute guide "Calming Racing Thoughts (ការបន្ធូរបន្ថយគំនិតរវើរវាយ)" directly from the MindGuide Tips screen (`/mindguide/tips`).
+- **5 Grounding Steps:** Covers naming the mental loop, expressive cognitive offloading in AROM Journal, 5-4-3-2-1 sensory grounding in the physical room, 4-7-8 vagal nerve reset breathing, and scheduling a dedicated 15-minute worry window.
+- **Direct AROM tool integration:** Step 2 prompts seekers to unload looping worries into the private AROM Journal, and Step 4 features a one-tap action button to launch 4-7-8 Breathing in AROM.
+- **Intrusive Anxiety Support callout:** Connects seekers experiencing debilitating anxiety spirals directly to AROM's verified psychologists and therapists.
+
+**What changed for the team:**
+- **`tips-data.ts`:** Exported `TIP_CALMING_RACING_THOUGHTS` and marked `isAvailable: true` in `ALL_TIPS` with complete bilingual steps, tryNow actions, breathing triggers, and clinical citations.
+- **Anti-AI Copywriting:** Zero em dashes, en dashes, or loose hyphens.
+
+**What to re-test:**
+1. Open `/mindguide/tips` and verify "Calming Racing Thoughts (ការបន្ធូរបន្ថយគំនិតរវើរវាយ)" is unlocked and selectable.
+2. Open the tip detail screen and verify the hero image, 5-step checklist, and citation.
+3. Tap "Start Reading Tips" and test Step 2 (AROM Journal externalization), Step 3 (sensory grounding), and Step 4 (Start 4-7-8 Breathing action button).
+4. Complete the guide and verify XP award and dynamic completion text.
+5. Bookmark the tip and verify it renders in the "Saved Tips" screen.
+
 ## 17 Oct 2026: Unlock Sleep Hygiene Essentials Tip Guide
 
 Commit `10c2b77`. No migration. Content and frontend only.
