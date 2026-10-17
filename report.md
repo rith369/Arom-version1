@@ -2,7 +2,7 @@
 
 ## 17 Oct 2026: The Mood Sprouts Come Alive
 
-Commit `PENDING`. No migration. Frontend only.
+Commit `77423a5`. No migration. Frontend only.
 
 **Why.** Small, calm movement makes Home feel alive and friendly. Rith chose to animate the mood check in and the kind reply now, and the big banner sprout later, once the designer can export it in separate pieces (background, sprout alone, sprout with eyes closed).
 
