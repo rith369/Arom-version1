@@ -1,5 +1,32 @@
 # AROM: Change Report
 
+## 17 Oct 2026: New Lesson, What Is Mental Health?
+
+Commit `PENDING`. No migration. Content and frontend only.
+
+**Why.** Learn had no starting point for people new to the topic. This lesson, written by the team, explains what mental health is, why it matters for everyone, and small ways to look after it, with Cambodian family life in mind.
+
+**What changed for users:**
+- **What Is Mental Health? is the first lesson in Learn,** 5 min, Beginner, in English and Khmer, with a rice field photo at the top.
+- **A new Basics filter** in Learn, next to Stress and Anxiety.
+- **Nine sections:** what mental health is, why it matters, whether sad or worried feelings are normal, what affects mental health, five ways to take care of it, three check in questions (one per section), and a closing section with next steps and Get help now.
+- **Three references** (WHO Mental health, UNICEF Cambodia, WHO Self care), cited only where the page says the same thing.
+- **Tip boxes look calm now.** A lesson note marked as a tip shows in green as "Good to know". Before, every note showed as a red "Important Health Warning".
+
+**What changed for the team:**
+- **`learn-data.ts`:** new `Basics` category, `REFERENCES_MENTAL_HEALTH` and `LESSON_WHAT_IS_MENTAL_HEALTH`, first in `ALL_LESSONS`.
+- **Edits to the supplied text:** dashes and hyphens removed (the AROM style), "well-being" written as "wellbeing", the three reflection questions split into sections 6 to 8 because a section holds one question, and the closing links changed to things that exist (Stress and Anxiety lessons, breathing, Match Me). The tip "How to Handle an Overwhelming Day" and the podcast do not exist yet. A Get help now line was added to the closing section.
+- **New image** `public/mindguide/what-is-mental-health-hero.jpg`, photo by Mufid Majnun on Unsplash (free Unsplash License), cropped.
+- **`lesson-screen.tsx`:** `alertBox.type` now decides the look: `tip` is green, `emergency` is red.
+- **Needs review:** a native Khmer speaker should read the Khmer translation.
+
+**What to re-test:**
+1. Open Learn and check What Is Mental Health? is first, with no lock, and the Basics filter shows only it.
+2. Read all nine sections in English. Answer the three check in questions and check each shows its note.
+3. Check section 3 shows a green "Good to know" box, and Understanding Anxiety section 2 still shows the red warning.
+4. Switch to Khmer and read the sections again.
+5. Open the references and check there are three and each link opens.
+
 ## 17 Oct 2026: No More Fake Lesson Progress, and the Two Dev Warnings Fixed
 
 Commit `572e2ef`. No migration. Frontend only.

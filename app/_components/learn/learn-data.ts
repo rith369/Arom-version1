@@ -1,5 +1,6 @@
 export type TopicCategory =
   | "All"
+  | "Basics"
   | "Stress"
   | "Anxiety"
   | "Sleep"
@@ -100,6 +101,7 @@ export type SavedItem = {
 
 export const TOPIC_CATEGORIES: { id: TopicCategory; label: string; kmLabel: string }[] = [
   { id: "All", label: "All", kmLabel: "ទាំងអស់" },
+  { id: "Basics", label: "Basics", kmLabel: "មូលដ្ឋានគ្រឹះ (Basics)" },
   { id: "Stress", label: "Stress", kmLabel: "ភាពតានតឹង (Stress)" },
   { id: "Anxiety", label: "Anxiety", kmLabel: "ការថប់បារម្ភ (Anxiety)" },
   { id: "Sleep", label: "Sleep", kmLabel: "ដំណេក (Sleep)" },
@@ -690,7 +692,390 @@ export const LESSON_UNDERSTANDING_ANXIETY: Lesson = {
   ],
 };
 
+export const REFERENCES_MENTAL_HEALTH: ReferenceItem[] = [
+  {
+    id: 1,
+    citation: "[1]",
+    source: "WHO",
+    title: "WHO, Mental health fact sheet (2026)",
+    year: "2026",
+    url: "https://www.who.int/news-room/fact-sheets/detail/mental-health-strengthening-our-response",
+  },
+  {
+    id: 2,
+    citation: "[2]",
+    source: "UNICEF Cambodia",
+    title: "UNICEF Cambodia, Mental health",
+    url: "https://www.unicef.org/cambodia/mental-health",
+  },
+  {
+    id: 3,
+    citation: "[3]",
+    source: "WHO",
+    title: "WHO, Self care for health and wellbeing",
+    url: "https://www.who.int/health-topics/self-care",
+  },
+];
+
+export const LESSON_WHAT_IS_MENTAL_HEALTH: Lesson = {
+  id: "what-is-mental-health",
+  title: "What Is Mental Health?",
+  kmTitle: "តើសុខភាពផ្លូវចិត្តជាអ្វី? (Mental Health)",
+  subtitle: "Everyone has mental health",
+  kmSubtitle: "មនុស្សគ្រប់គ្នាសុទ្ធតែមានសុខភាពផ្លូវចិត្ត",
+  category: "Basics",
+  duration: "5 min",
+  kmDuration: "៥ នាទី",
+  difficulty: "Beginner",
+  kmDifficulty: "កម្រិតដំបូង (Beginner)",
+  format: "Reading + Reflection",
+  kmFormat: "ការអាន និងការឆ្លុះបញ្ចាំង (Reading & Reflection)",
+  isAvailable: true,
+  image: "/mindguide/icon-9.svg",
+  // Photo by Mufid Majnun on Unsplash (Unsplash License), cropped.
+  heroImage: "/mindguide/what-is-mental-health-hero.jpg",
+  description:
+    "Mental health is about how we think, feel, respond to challenges and connect with other people. Learn why it matters for everyone and small ways to take care of it.",
+  kmDescription:
+    "សុខភាពផ្លូវចិត្ត គឺអំពីរបៀបដែលយើងគិត មានអារម្មណ៍ ឆ្លើយតបនឹងបញ្ហាប្រឈម និងទាក់ទងជាមួយអ្នកដទៃ។ ស្វែងយល់ពីមូលហេតុដែលវាសំខាន់សម្រាប់មនុស្សគ្រប់គ្នា និងវិធីតូចៗដើម្បីថែរក្សាវា។",
+  totalSections: 9,
+  outcomes: [
+    {
+      en: "What mental health means, in simple words [1]",
+      km: "អត្ថន័យនៃសុខភាពផ្លូវចិត្ត ជាពាក្យសាមញ្ញ [1]",
+    },
+    {
+      en: "How mental health affects thinking, feelings, relationships and daily challenges",
+      km: "របៀបដែលសុខភាពផ្លូវចិត្តប៉ះពាល់ដល់ការគិត អារម្មណ៍ ទំនាក់ទំនង និងបញ្ហាប្រចាំថ្ងៃ",
+    },
+    {
+      en: "The difference between a difficult emotion and a mental health condition",
+      km: "ភាពខុសគ្នារវាងអារម្មណ៍ពិបាក និងបញ្ហាសុខភាពផ្លូវចិត្ត",
+    },
+    {
+      en: "What can affect our mental health [1, 2]",
+      km: "កត្តាដែលអាចប៉ះពាល់ដល់សុខភាពផ្លូវចិត្តរបស់យើង [1, 2]",
+    },
+    {
+      en: "Five small ways to take care of your mental health [3]",
+      km: "វិធីតូចៗប្រាំយ៉ាង ដើម្បីថែរក្សាសុខភាពផ្លូវចិត្តរបស់អ្នក [3]",
+    },
+  ],
+  references: REFERENCES_MENTAL_HEALTH,
+  sections: [
+    {
+      id: 1,
+      sectionNumber: 1,
+      title: "What Is Mental Health?",
+      kmTitle: "តើសុខភាពផ្លូវចិត្តជាអ្វី?",
+      type: "reading",
+      paragraphs: [
+        "When people hear the words \"mental health\", they may think about mental illness or people who need to see a psychologist. However, mental health is important for everyone, not only people experiencing mental health difficulties.",
+        "According to the World Health Organization (WHO), mental health is a state of wellbeing that helps us cope with life's stresses, recognize our abilities, learn and work effectively, and contribute to our communities. [1]",
+        "In simple words, mental health is about how we think, feel, respond to challenges and connect with other people. Just as we take care of our physical health, we also need to take care of our mental health.",
+        "For example, a university student may feel excited about an upcoming examination but also worried about passing. A young employee may feel stressed about work while trying to meet family responsibilities. Someone may feel sad after an argument with a friend.",
+        "These feelings are part of everyday life. Experiencing them does not automatically mean that someone has a mental health condition.",
+        "Mental health is not about feeling happy all the time. It is about understanding our emotions, managing life's challenges as best we can, and knowing when to seek support.",
+      ],
+      kmParagraphs: [
+        "នៅពេលមនុស្សឮពាក្យ «សុខភាពផ្លូវចិត្ត» ពួកគេអាចគិតដល់ជំងឺផ្លូវចិត្ត ឬមនុស្សដែលត្រូវជួបអ្នកចិត្តសាស្ត្រ។ ប៉ុន្តែ សុខភាពផ្លូវចិត្តសំខាន់សម្រាប់មនុស្សគ្រប់គ្នា មិនមែនតែចំពោះអ្នកដែលកំពុងជួបការលំបាកផ្លូវចិត្តប៉ុណ្ណោះទេ។",
+        "យោងតាមអង្គការសុខភាពពិភពលោក (WHO) សុខភាពផ្លូវចិត្ត គឺជាស្ថានភាពសុខុមាលភាព (Wellbeing) ដែលជួយយើងទប់ទល់នឹងភាពតានតឹងក្នុងជីវិត ស្គាល់សមត្ថភាពរបស់ខ្លួន រៀន និងធ្វើការបានល្អ ព្រមទាំងចូលរួមចំណែកដល់សហគមន៍។ [1]",
+        "និយាយឱ្យសាមញ្ញ សុខភាពផ្លូវចិត្ត គឺអំពីរបៀបដែលយើងគិត មានអារម្មណ៍ ឆ្លើយតបនឹងបញ្ហាប្រឈម និងទាក់ទងជាមួយអ្នកដទៃ។ ដូចដែលយើងថែរក្សាសុខភាពរាងកាយដែរ យើងក៏ត្រូវថែរក្សាសុខភាពផ្លូវចិត្តផងដែរ។",
+        "ឧទាហរណ៍ និស្សិតសាកលវិទ្យាល័យម្នាក់ អាចរំភើបចំពោះការប្រឡងដែលនឹងមកដល់ ប៉ុន្តែក៏ព្រួយបារម្ភថាប្រឡងមិនជាប់។ បុគ្គលិកវ័យក្មេងម្នាក់ អាចតានតឹងពីការងារ ខណៈពេលព្យាយាមបំពេញការទទួលខុសត្រូវក្នុងគ្រួសារ។ មនុស្សម្នាក់ទៀត អាចកើតទុក្ខក្រោយពីឈ្លោះប្រកែកជាមួយមិត្តភក្តិ។",
+        "អារម្មណ៍ទាំងនេះ គឺជាផ្នែកមួយនៃជីវិតប្រចាំថ្ងៃ។ ការមានអារម្មណ៍ទាំងនេះ មិនមែនមានន័យដោយស្វ័យប្រវត្តិថា មនុស្សម្នាក់នោះមានបញ្ហាសុខភាពផ្លូវចិត្តនោះទេ។",
+        "សុខភាពផ្លូវចិត្ត មិនមែនមានន័យថាត្រូវតែសប្បាយចិត្តគ្រប់ពេលនោះទេ។ វាគឺអំពីការយល់ពីអារម្មណ៍របស់ខ្លួន ការដោះស្រាយបញ្ហាក្នុងជីវិតតាមលទ្ធភាពដែលយើងអាចធ្វើបាន និងការដឹងថាពេលណាត្រូវស្វែងរកជំនួយ។",
+      ],
+      keyPoints: [
+        "Everyone has mental health, just as everyone has physical health.",
+        "Mental health is about how we think, feel, respond to challenges and connect with others [1].",
+        "Difficult feelings are part of life and are not automatically a mental health condition.",
+      ],
+      kmKeyPoints: [
+        "មនុស្សគ្រប់គ្នាមានសុខភាពផ្លូវចិត្ត ដូចដែលមនុស្សគ្រប់គ្នាមានសុខភាពរាងកាយដែរ។",
+        "សុខភាពផ្លូវចិត្ត គឺអំពីរបៀបដែលយើងគិត មានអារម្មណ៍ ឆ្លើយតបនឹងបញ្ហា និងទាក់ទងជាមួយអ្នកដទៃ [1]។",
+        "អារម្មណ៍ពិបាកៗ គឺជាផ្នែកមួយនៃជីវិត ហើយមិនមែនជាបញ្ហាសុខភាពផ្លូវចិត្តដោយស្វ័យប្រវត្តិនោះទេ។",
+      ],
+    },
+    {
+      id: 2,
+      sectionNumber: 2,
+      title: "Why Does Mental Health Matter?",
+      kmTitle: "ហេតុអ្វីសុខភាពផ្លូវចិត្តសំខាន់?",
+      type: "reading",
+      paragraphs: [
+        "Mental health affects many parts of our everyday lives.",
+        "How we think: our mental wellbeing can influence how we concentrate, solve problems, make decisions and respond to difficult situations. For example, a student who is overwhelmed by examination pressure may find it difficult to concentrate on studying. Learning to manage stress and seeking support when needed may help.",
+        "How we feel: we may feel happy, sad, worried, frustrated, calm or overwhelmed at different times. Understanding these feelings can help us recognize what we need, instead of ignoring our emotions or judging ourselves for having them. If you feel exhausted after a difficult week, you may need rest, time to reflect, or support from someone you trust.",
+        "How we connect with others: someone dealing with a lot of stress may become quieter, more irritable or less interested in social activities than usual. Recognizing these changes can help us respond with understanding, rather than blaming ourselves or others.",
+        "In Cambodia, family relationships and responsibilities are important parts of many people's lives. Balancing family expectations, education, work and personal needs can sometimes feel difficult. Taking care of your mental health does not mean that you care less about your family. It can help you understand your needs and communicate with the people around you more effectively.",
+        "How we handle daily challenges: everyone faces challenges such as examination pressure, money worries, relationship difficulties and uncertainty about the future. Good mental health does not make these problems disappear. It helps us recognize our feelings, consider our options, adapt, and reach out for support when necessary.",
+        "Sometimes handling a challenge means taking action. At other times, it means resting, talking to someone, or accepting that we cannot control everything.",
+      ],
+      kmParagraphs: [
+        "សុខភាពផ្លូវចិត្តប៉ះពាល់ដល់ផ្នែកជាច្រើននៃជីវិតប្រចាំថ្ងៃរបស់យើង។",
+        "របៀបដែលយើងគិត៖ សុខុមាលភាពផ្លូវចិត្ត អាចមានឥទ្ធិពលលើការផ្តោតអារម្មណ៍ ការដោះស្រាយបញ្ហា ការសម្រេចចិត្ត និងរបៀបឆ្លើយតបនឹងស្ថានភាពលំបាក។ ឧទាហរណ៍ សិស្សម្នាក់ដែលមានសម្ពាធខ្លាំងពីការប្រឡង អាចពិបាកផ្តោតអារម្មណ៍លើការរៀន។ ការរៀនគ្រប់គ្រងភាពតានតឹង និងការស្វែងរកជំនួយនៅពេលចាំបាច់ អាចជួយបាន។",
+        "របៀបដែលយើងមានអារម្មណ៍៖ យើងអាចមានអារម្មណ៍សប្បាយ កើតទុក្ខ ព្រួយបារម្ភ ខកចិត្ត ស្ងប់ស្ងាត់ ឬធុញថប់ខ្លាំង នៅពេលផ្សេងៗគ្នា។ ការយល់ពីអារម្មណ៍ទាំងនេះ អាចជួយយើងដឹងថាយើងត្រូវការអ្វី ជំនួសឱ្យការមិនអើពើនឹងអារម្មណ៍ ឬការបន្ទោសខ្លួនឯង។ ប្រសិនបើអ្នកហត់នឿយក្រោយសប្តាហ៍ដ៏លំបាកមួយ អ្នកប្រហែលជាត្រូវការសម្រាក ពេលវេលាដើម្បីគិតពិចារណា ឬជំនួយពីមនុស្សដែលអ្នកទុកចិត្ត។",
+        "របៀបដែលយើងទាក់ទងជាមួយអ្នកដទៃ៖ មនុស្សដែលកំពុងមានភាពតានតឹងខ្លាំង អាចស្ងៀមជាងមុន ឆាប់ខឹងជាងមុន ឬលែងសូវចាប់អារម្មណ៍នឹងសកម្មភាពសង្គមដូចធម្មតា។ ការសម្គាល់ឃើញការផ្លាស់ប្តូរទាំងនេះ អាចជួយយើងឆ្លើយតបដោយការយោគយល់ ជាជាងការបន្ទោសខ្លួនឯង ឬអ្នកដទៃ។",
+        "នៅកម្ពុជា ទំនាក់ទំនង និងការទទួលខុសត្រូវក្នុងគ្រួសារ គឺជាផ្នែកសំខាន់នៃជីវិតមនុស្សជាច្រើន។ ការរក្សាតុល្យភាពរវាងការរំពឹងទុករបស់គ្រួសារ ការសិក្សា ការងារ និងតម្រូវការផ្ទាល់ខ្លួន ពេលខ្លះអាចពិបាក។ ការថែរក្សាសុខភាពផ្លូវចិត្ត មិនមែនមានន័យថាអ្នកយកចិត្តទុកដាក់ចំពោះគ្រួសារតិចជាងមុននោះទេ។ វាអាចជួយអ្នកយល់ពីតម្រូវការរបស់ខ្លួន និងប្រាស្រ័យទាក់ទងជាមួយមនុស្សនៅជុំវិញខ្លួនបានល្អជាងមុន។",
+        "របៀបដែលយើងដោះស្រាយបញ្ហាប្រចាំថ្ងៃ៖ មនុស្សគ្រប់គ្នាជួបបញ្ហាប្រឈម ដូចជាសម្ពាធពីការប្រឡង ការព្រួយបារម្ភពីលុយកាក់ ការលំបាកក្នុងទំនាក់ទំនង និងភាពមិនប្រាកដប្រជាអំពីអនាគត។ សុខភាពផ្លូវចិត្តល្អ មិនធ្វើឱ្យបញ្ហាទាំងនេះបាត់ទៅវិញទេ។ វាជួយយើងស្គាល់អារម្មណ៍ខ្លួនឯង ពិចារណាជម្រើសនានា សម្របខ្លួន និងស្វែងរកជំនួយនៅពេលចាំបាច់។",
+        "ពេលខ្លះ ការដោះស្រាយបញ្ហាមានន័យថាត្រូវចាត់វិធានការ។ ពេលខ្លះទៀត វាមានន័យថាត្រូវសម្រាក និយាយជាមួយនរណាម្នាក់ ឬទទួលស្គាល់ថាយើងមិនអាចគ្រប់គ្រងអ្វីៗទាំងអស់បាន។",
+      ],
+      keyPoints: [
+        "Mental health shapes how we think, feel, connect and handle challenges.",
+        "Caring for your mental health does not mean caring less about your family.",
+        "Sometimes coping means acting, and sometimes it means resting or asking for help.",
+      ],
+      kmKeyPoints: [
+        "សុខភាពផ្លូវចិត្ត កំណត់របៀបដែលយើងគិត មានអារម្មណ៍ ទាក់ទង និងដោះស្រាយបញ្ហា។",
+        "ការថែរក្សាសុខភាពផ្លូវចិត្ត មិនមែនមានន័យថាយកចិត្តទុកដាក់ចំពោះគ្រួសារតិចជាងមុននោះទេ។",
+        "ពេលខ្លះការដោះស្រាយមានន័យថាត្រូវធ្វើសកម្មភាព ហើយពេលខ្លះមានន័យថាត្រូវសម្រាក ឬសុំជំនួយ។",
+      ],
+    },
+    {
+      id: 3,
+      sectionNumber: 3,
+      title: "Is It Normal to Feel Sad, Stressed or Worried?",
+      kmTitle: "តើការកើតទុក្ខ តានតឹង ឬព្រួយបារម្ភ ជារឿងធម្មតាឬទេ?",
+      type: "reading",
+      paragraphs: [
+        "Yes. Sadness, stress and worry are common human experiences. For example:",
+        "• You may feel nervous before an important examination.\n• You may feel sad after a disagreement with someone you care about.\n• You may feel worried when your family faces money difficulties.\n• You may feel disappointed when something does not go as planned.",
+        "These emotions are not automatically signs of mental illness.",
+        "Pay attention when difficult feelings become intense, last a long time, happen often, or start to get in the way of sleeping, studying, working or your relationships.",
+        "If you have been feeling sad for a long time, losing interest in things you usually enjoy, or struggling with everyday responsibilities, consider talking to a qualified mental health professional. You do not need to wait until things feel unbearable before asking for help.",
+      ],
+      kmParagraphs: [
+        "ពិតមែនហើយ។ ការកើតទុក្ខ ភាពតានតឹង និងការព្រួយបារម្ភ គឺជាបទពិសោធន៍ទូទៅរបស់មនុស្ស។ ឧទាហរណ៍៖",
+        "• អ្នកអាចភ័យមុនការប្រឡងសំខាន់មួយ។\n• អ្នកអាចកើតទុក្ខក្រោយពីមានការខ្វែងគំនិតជាមួយមនុស្សដែលអ្នកស្រលាញ់។\n• អ្នកអាចព្រួយបារម្ភនៅពេលគ្រួសារជួបការលំបាកផ្នែកលុយកាក់។\n• អ្នកអាចខកចិត្តនៅពេលអ្វីមួយមិនដំណើរការដូចការគ្រោងទុក។",
+        "អារម្មណ៍ទាំងនេះ មិនមែនជាសញ្ញានៃជំងឺផ្លូវចិត្តដោយស្វ័យប្រវត្តិនោះទេ។",
+        "សូមយកចិត្តទុកដាក់ នៅពេលអារម្មណ៍ពិបាកៗកាន់តែខ្លាំង នៅជាប់យូរ កើតឡើងញឹកញាប់ ឬចាប់ផ្តើមរំខានដល់ការគេង ការរៀន ការងារ ឬទំនាក់ទំនងរបស់អ្នក។",
+        "ប្រសិនបើអ្នកកើតទុក្ខយូរមកហើយ លែងចាប់អារម្មណ៍នឹងអ្វីដែលអ្នកធ្លាប់ចូលចិត្ត ឬពិបាកបំពេញការងារប្រចាំថ្ងៃ សូមពិចារណានិយាយជាមួយអ្នកជំនាញសុខភាពផ្លូវចិត្តដែលមានលក្ខណៈសម្បត្តិគ្រប់គ្រាន់។ អ្នកមិនចាំបាច់រង់ចាំរហូតដល់ស្ថានភាពហួសពីការទ្រាំទ្រ ទើបសុំជំនួយនោះទេ។",
+      ],
+      alertBox: {
+        type: "tip",
+        text: "There is a difference between experiencing a difficult emotion and experiencing a mental health condition. Understanding that difference can help you decide what kind of support you may need.",
+        kmText:
+          "មានភាពខុសគ្នារវាងការមានអារម្មណ៍ពិបាក និងការមានបញ្ហាសុខភាពផ្លូវចិត្ត។ ការយល់ពីភាពខុសគ្នានេះ អាចជួយអ្នកសម្រេចចិត្តថាអ្នកត្រូវការជំនួយប្រភេទណា។",
+      },
+      keyPoints: [
+        "Sadness, stress and worry are common human experiences.",
+        "Watch for feelings that are intense, long lasting, frequent or getting in the way of daily life.",
+        "You do not need to wait until things feel unbearable to ask for help.",
+      ],
+      kmKeyPoints: [
+        "ការកើតទុក្ខ ភាពតានតឹង និងការព្រួយបារម្ភ គឺជាបទពិសោធន៍ទូទៅរបស់មនុស្ស។",
+        "សូមប្រុងប្រយ័ត្នចំពោះអារម្មណ៍ដែលខ្លាំង នៅជាប់យូរ កើតញឹកញាប់ ឬរំខានដល់ជីវិតប្រចាំថ្ងៃ។",
+        "អ្នកមិនចាំបាច់រង់ចាំរហូតដល់ហួសពីការទ្រាំទ្រ ទើបសុំជំនួយនោះទេ។",
+      ],
+    },
+    {
+      id: 4,
+      sectionNumber: 4,
+      title: "What Can Affect Our Mental Health?",
+      kmTitle: "តើអ្វីខ្លះអាចប៉ះពាល់ដល់សុខភាពផ្លូវចិត្តរបស់យើង?",
+      type: "reading",
+      paragraphs: [
+        "Mental health is influenced by many factors. It is rarely explained by just one thing. [1]",
+        "Life experiences: losing someone important, conflict, money pressure or big life changes can affect our wellbeing. Positive experiences, meaningful activities and supportive relationships can help us stay well. [1]",
+        "Physical health and daily habits: sleep, physical activity, food and general health can influence how we feel. Regularly staying up late to study may leave a student tired and make it harder to concentrate the next day. Healthier routines may help, although they alone may not be enough for someone with a mental health condition.",
+        "Relationships and support: having people who listen without judging us makes difficult times easier. Healthy connections with parents, friends and mentors help us become stronger over time. [2] Support may come from a trusted friend, family member, teacher, mentor, counselor or mental health professional.",
+        "In Cambodian communities, people may turn to family, friends or religious communities for support. But not everyone feels comfortable sharing personal difficulties with people they know. Some worry about being misunderstood, judged or becoming a burden. [2] If that is you, you can speak with a qualified professional or a confidential support service.",
+        "Expectations and everyday pressure: pressure to do well in school, earn an income, support family or meet other people's expectations can affect our wellbeing. A young adult may feel they must succeed quickly because their family made sacrifices for their education. It is understandable to want to make your family proud. Struggling does not mean that you have failed as a person.",
+      ],
+      kmParagraphs: [
+        "សុខភាពផ្លូវចិត្តទទួលឥទ្ធិពលពីកត្តាជាច្រើន។ វាកម្រនឹងអាចពន្យល់បានដោយកត្តាតែមួយណាស់។ [1]",
+        "បទពិសោធន៍ជីវិត៖ ការបាត់បង់មនុស្សសំខាន់ ជម្លោះ សម្ពាធផ្នែកលុយកាក់ ឬការផ្លាស់ប្តូរធំៗក្នុងជីវិត អាចប៉ះពាល់ដល់សុខុមាលភាពរបស់យើង។ បទពិសោធន៍វិជ្ជមាន សកម្មភាពដែលមានអត្ថន័យ និងទំនាក់ទំនងដែលគាំទ្រ អាចជួយឱ្យយើងរក្សាសុខភាពល្អ។ [1]",
+        "សុខភាពរាងកាយ និងទម្លាប់ប្រចាំថ្ងៃ៖ ការគេង ការធ្វើចលនារាងកាយ អាហារ និងសុខភាពទូទៅ អាចមានឥទ្ធិពលលើអារម្មណ៍របស់យើង។ ការគេងយប់ជ្រៅជាប្រចាំដើម្បីរៀន អាចធ្វើឱ្យសិស្សហត់នឿយ និងពិបាកផ្តោតអារម្មណ៍នៅថ្ងៃបន្ទាប់។ ទម្លាប់ដែលល្អជាងមុនអាចជួយបាន ប៉ុន្តែវាតែម្នាក់ឯងប្រហែលមិនគ្រប់គ្រាន់សម្រាប់អ្នកដែលមានបញ្ហាសុខភាពផ្លូវចិត្តទេ។",
+        "ទំនាក់ទំនង និងការគាំទ្រ៖ ការមានមនុស្សដែលស្តាប់យើងដោយមិនវិនិច្ឆ័យ ធ្វើឱ្យពេលវេលាលំបាកកាន់តែងាយស្រួល។ ទំនាក់ទំនងល្អជាមួយឪពុកម្តាយ មិត្តភក្តិ និងអ្នកណែនាំ ជួយឱ្យយើងរឹងមាំជាងមុនតាមពេលវេលា។ [2] ការគាំទ្រអាចមកពីមិត្តដែលទុកចិត្ត សមាជិកគ្រួសារ គ្រូ អ្នកណែនាំ អ្នកប្រឹក្សា ឬអ្នកជំនាញសុខភាពផ្លូវចិត្ត។",
+        "នៅក្នុងសហគមន៍ខ្មែរ មនុស្សអាចស្វែងរកការគាំទ្រពីគ្រួសារ មិត្តភក្តិ ឬសហគមន៍សាសនា។ ប៉ុន្តែមិនមែនគ្រប់គ្នាសុទ្ធតែស្រួលចិត្តក្នុងការចែករំលែកការលំបាកផ្ទាល់ខ្លួនជាមួយមនុស្សដែលខ្លួនស្គាល់នោះទេ។ អ្នកខ្លះបារម្ភថាត្រូវគេយល់ខុស វិនិច្ឆ័យ ឬក្លាយជាបន្ទុកដល់អ្នកដទៃ។ [2] ប្រសិនបើអ្នកមានអារម្មណ៍បែបនេះ អ្នកអាចនិយាយជាមួយអ្នកជំនាញដែលមានលក្ខណៈសម្បត្តិគ្រប់គ្រាន់ ឬសេវាគាំទ្រដែលរក្សាការសម្ងាត់។",
+        "ការរំពឹងទុក និងសម្ពាធប្រចាំថ្ងៃ៖ សម្ពាធឱ្យរៀនពូកែ រកប្រាក់ចំណូល ជួយគ្រួសារ ឬបំពេញការរំពឹងទុករបស់អ្នកដទៃ អាចប៉ះពាល់ដល់សុខុមាលភាពរបស់យើង។ យុវជនម្នាក់អាចមានអារម្មណ៍ថាត្រូវតែជោគជ័យឱ្យបានលឿន ព្រោះគ្រួសារបានលះបង់ច្រើនសម្រាប់ការសិក្សារបស់ខ្លួន។ ការចង់ឱ្យគ្រួសារមានមោទនភាព គឺជារឿងដែលអាចយល់បាន។ ការជួបការលំបាក មិនមែនមានន័យថាអ្នកបរាជ័យក្នុងនាមជាមនុស្សម្នាក់នោះទេ។",
+      ],
+      keyPoints: [
+        "Many things shape mental health: life events, habits, relationships and pressure [1].",
+        "Supportive relationships help us cope and grow stronger [1, 2].",
+        "Struggling does not mean that you have failed as a person.",
+      ],
+      kmKeyPoints: [
+        "កត្តាជាច្រើនកំណត់សុខភាពផ្លូវចិត្ត៖ ព្រឹត្តិការណ៍ជីវិត ទម្លាប់ ទំនាក់ទំនង និងសម្ពាធ [1]។",
+        "ទំនាក់ទំនងដែលគាំទ្រ ជួយឱ្យយើងទប់ទល់ និងរឹងមាំជាងមុន [1, 2]។",
+        "ការជួបការលំបាក មិនមែនមានន័យថាអ្នកបរាជ័យក្នុងនាមជាមនុស្សម្នាក់នោះទេ។",
+      ],
+    },
+    {
+      id: 5,
+      sectionNumber: 5,
+      title: "How Can You Take Care of Your Mental Health?",
+      kmTitle: "តើអ្នកអាចថែរក្សាសុខភាពផ្លូវចិត្តរបស់អ្នកយ៉ាងដូចម្តេច?",
+      type: "reading",
+      paragraphs: [
+        "You do not need to change your whole life in one day. Small, realistic actions are a good place to start.",
+        "1. Notice your emotions. Ask yourself: How am I feeling today? What might be causing this feeling? What do I need right now? You do not have to answer every question. Simply noticing helps you understand yourself better.",
+        "2. Keep healthy daily habits. Try to get enough sleep, eat regularly, move your body in ways that suit you, and make time for rest. Problems with sleep, appetite or energy can also have medical or psychological causes.",
+        "3. Stay connected with people you trust. You do not need to explain everything. You could start with: \"I have been feeling stressed lately. Could we talk for a little while?\" If you prefer not to share details, you can simply ask someone to spend time with you.",
+        "4. Take breaks without feeling guilty. Rest is a normal part of taking care of yourself. After studying or working for several hours, take a short break, stretch, walk or do something relaxing. You do not have to be productive every moment to be valuable.",
+        "5. Ask for help when you need it. If emotional difficulties are lasting, overwhelming or affecting your daily life, consider support from a qualified mental health professional. Asking for help does not mean that you are weak. It means you are taking your wellbeing seriously.",
+        "Self care can help, but it does not replace professional assessment or treatment when these are needed. [3]",
+      ],
+      kmParagraphs: [
+        "អ្នកមិនចាំបាច់ផ្លាស់ប្តូរជីវិតទាំងមូលក្នុងមួយថ្ងៃនោះទេ។ សកម្មភាពតូចៗដែលអាចធ្វើបានពិតប្រាកដ គឺជាចំណុចចាប់ផ្តើមដ៏ល្អ។",
+        "១. សម្គាល់អារម្មណ៍របស់អ្នក។ សួរខ្លួនឯងថា៖ តើថ្ងៃនេះខ្ញុំមានអារម្មណ៍យ៉ាងណា? តើអ្វីអាចជាមូលហេតុនៃអារម្មណ៍នេះ? តើខ្ញុំត្រូវការអ្វីឥឡូវនេះ? អ្នកមិនចាំបាច់ឆ្លើយគ្រប់សំណួរទេ។ គ្រាន់តែសម្គាល់ឃើញ ក៏ជួយឱ្យអ្នកយល់ពីខ្លួនឯងកាន់តែច្បាស់ដែរ។",
+        "២. រក្សាទម្លាប់ល្អប្រចាំថ្ងៃ។ ព្យាយាមគេងឱ្យបានគ្រប់គ្រាន់ ញ៉ាំអាហារឱ្យទៀងពេល ធ្វើចលនារាងកាយតាមបែបដែលសមនឹងអ្នក និងចំណាយពេលសម្រាក។ បញ្ហាការគេង ចំណង់អាហារ ឬថាមពល ក៏អាចមានមូលហេតុផ្នែកវេជ្ជសាស្ត្រ ឬផ្លូវចិត្តដែរ។",
+        "៣. រក្សាទំនាក់ទំនងជាមួយមនុស្សដែលអ្នកទុកចិត្ត។ អ្នកមិនចាំបាច់ពន្យល់អ្វីៗទាំងអស់ទេ។ អ្នកអាចចាប់ផ្តើមដោយនិយាយថា៖ «ថ្មីៗនេះខ្ញុំមានអារម្មណ៍តានតឹង។ តើយើងអាចនិយាយគ្នាបន្តិចបានទេ?» ប្រសិនបើអ្នកមិនចង់ចែករំលែកលម្អិត អ្នកគ្រាន់តែអាចសុំឱ្យនរណាម្នាក់ចំណាយពេលនៅជាមួយអ្នក។",
+        "៤. សម្រាកដោយមិនបាច់មានអារម្មណ៍ថាមានកំហុស។ ការសម្រាកគឺជាផ្នែកធម្មតានៃការថែរក្សាខ្លួនឯង។ ក្រោយពីរៀន ឬធ្វើការជាច្រើនម៉ោង សូមសម្រាកបន្តិច លាតសន្ធឹងខ្លួន ដើរលេង ឬធ្វើអ្វីដែលធ្វើឱ្យអ្នកធូរស្រាល។ អ្នកមិនចាំបាច់ធ្វើការគ្រប់ពេលវេលា ទើបមានតម្លៃនោះទេ។",
+        "៥. សុំជំនួយនៅពេលអ្នកត្រូវការ។ ប្រសិនបើការលំបាកផ្លូវចិត្តនៅជាប់យូរ ធ្ងន់ធ្ងរពេក ឬប៉ះពាល់ដល់ជីវិតប្រចាំថ្ងៃ សូមពិចារណាស្វែងរកជំនួយពីអ្នកជំនាញសុខភាពផ្លូវចិត្តដែលមានលក្ខណៈសម្បត្តិគ្រប់គ្រាន់។ ការសុំជំនួយមិនមែនមានន័យថាអ្នកទន់ខ្សោយនោះទេ។ វាមានន័យថាអ្នកយកចិត្តទុកដាក់ចំពោះសុខុមាលភាពរបស់ខ្លួនយ៉ាងពិតប្រាកដ។",
+        "ការថែទាំខ្លួនឯង (Self care) អាចជួយបាន ប៉ុន្តែវាមិនជំនួសការវាយតម្លៃ ឬការព្យាបាលពីអ្នកជំនាញ នៅពេលដែលត្រូវការនោះទេ។ [3]",
+      ],
+      keyPoints: [
+        "Start small: notice your emotions and keep healthy habits.",
+        "Stay connected and rest without guilt.",
+        "Self care helps, but it does not replace professional care when it is needed [3].",
+      ],
+      kmKeyPoints: [
+        "ចាប់ផ្តើមពីតូចៗ៖ សម្គាល់អារម្មណ៍ខ្លួនឯង និងរក្សាទម្លាប់ល្អ។",
+        "រក្សាទំនាក់ទំនងជាមួយអ្នកដទៃ និងសម្រាកដោយមិនមានអារម្មណ៍ថាមានកំហុស។",
+        "ការថែទាំខ្លួនឯងជួយបាន ប៉ុន្តែមិនជំនួសការថែទាំពីអ្នកជំនាញ នៅពេលដែលត្រូវការនោះទេ [3]។",
+      ],
+    },
+    {
+      id: 6,
+      sectionNumber: 6,
+      title: "Let's Reflect: How Have You Been Feeling?",
+      kmTitle: "តោះឆ្លុះបញ្ចាំង៖ តើអ្នកមានអារម្មណ៍យ៉ាងណាកន្លងមក?",
+      type: "reflection",
+      paragraphs: [
+        "Take a moment to think about the past seven days. There are no right or wrong answers. These questions are for personal reflection, not a mental health diagnosis.",
+      ],
+      kmParagraphs: [
+        "ឆ្លៀតពេលបន្តិច ដើម្បីគិតអំពីរយៈពេលប្រាំពីរថ្ងៃកន្លងមក។ គ្មានចម្លើយត្រូវ ឬខុសនោះទេ។ សំណួរទាំងនេះសម្រាប់ការឆ្លុះបញ្ចាំងផ្ទាល់ខ្លួន មិនមែនជាការធ្វើរោគវិនិច្ឆ័យសុខភាពផ្លូវចិត្តនោះទេ។",
+      ],
+      reflection: {
+        question: "How have you generally been feeling?",
+        kmQuestion: "ជាទូទៅ តើអ្នកមានអារម្មណ៍យ៉ាងណា?",
+        options: [
+          "Mostly calm or content",
+          "Occasionally stressed or worried",
+          "Frequently overwhelmed",
+          "Often sad or emotionally exhausted",
+          "Unsure how I feel",
+        ],
+        kmOptions: [
+          "ភាគច្រើនស្ងប់ ឬពេញចិត្ត",
+          "ម្តងម្កាលតានតឹង ឬព្រួយបារម្ភ",
+          "ញឹកញាប់មានអារម្មណ៍ធុញថប់ខ្លាំង",
+          "ច្រើនតែកើតទុក្ខ ឬហត់នឿយផ្លូវចិត្ត",
+          "មិនច្បាស់ថាខ្លួនមានអារម្មណ៍យ៉ាងណា",
+        ],
+        feedbackMessage:
+          "Thank you for checking in with yourself. Whatever you chose, noticing how you feel is a useful first step.",
+        kmFeedbackMessage:
+          "អរគុណដែលបានពិនិត្យមើលខ្លួនឯង។ មិនថាអ្នកជ្រើសរើសអ្វីទេ ការសម្គាល់ឃើញអារម្មណ៍ខ្លួនឯង គឺជាជំហានដំបូងដ៏មានប្រយោជន៍។",
+      },
+    },
+    {
+      id: 7,
+      sectionNumber: 7,
+      title: "Let's Reflect: Your Daily Life",
+      kmTitle: "តោះឆ្លុះបញ្ចាំង៖ ជីវិតប្រចាំថ្ងៃរបស់អ្នក",
+      type: "reflection",
+      paragraphs: [
+        "Think about the past seven days again.",
+      ],
+      kmParagraphs: [
+        "សូមគិតអំពីរយៈពេលប្រាំពីរថ្ងៃកន្លងមកម្តងទៀត។",
+      ],
+      reflection: {
+        question: "Has your emotional wellbeing affected your daily life?",
+        kmQuestion: "តើសុខុមាលភាពផ្លូវចិត្តរបស់អ្នក បានប៉ះពាល់ដល់ជីវិតប្រចាំថ្ងៃដែរឬទេ?",
+        options: ["Not really", "A little", "Sometimes", "Frequently", "Significantly"],
+        kmOptions: ["មិនសូវទេ", "បន្តិចបន្តួច", "ជួនកាល", "ញឹកញាប់", "យ៉ាងខ្លាំង"],
+        feedbackMessage:
+          "Thank you for being honest with yourself. If your feelings have been affecting your daily life frequently or significantly, consider talking to a qualified mental health professional.",
+        kmFeedbackMessage:
+          "អរគុណដែលបានស្មោះត្រង់ជាមួយខ្លួនឯង។ ប្រសិនបើអារម្មណ៍របស់អ្នកបានប៉ះពាល់ដល់ជីវិតប្រចាំថ្ងៃញឹកញាប់ ឬយ៉ាងខ្លាំង សូមពិចារណានិយាយជាមួយអ្នកជំនាញសុខភាពផ្លូវចិត្តដែលមានលក្ខណៈសម្បត្តិគ្រប់គ្រាន់។",
+      },
+    },
+    {
+      id: 8,
+      sectionNumber: 8,
+      title: "Let's Reflect: What Might Help?",
+      kmTitle: "តោះឆ្លុះបញ្ចាំង៖ តើអ្វីអាចជួយបាន?",
+      type: "reflection",
+      paragraphs: [
+        "Choose the one that feels closest to what you need right now.",
+      ],
+      kmParagraphs: [
+        "ជ្រើសរើសមួយដែលជិតបំផុតនឹងអ្វីដែលអ្នកត្រូវការនៅពេលនេះ។",
+      ],
+      reflection: {
+        question: "What might help you right now?",
+        kmQuestion: "តើអ្វីអាចជួយអ្នកបាននៅពេលនេះ?",
+        options: [
+          "Getting more rest",
+          "Talking to someone I trust",
+          "Learning how to manage stress",
+          "Practicing relaxation or meditation",
+          "Understanding my emotions better",
+          "Exploring professional support",
+          "I'm not sure yet",
+        ],
+        kmOptions: [
+          "សម្រាកឱ្យបានច្រើនជាងមុន",
+          "និយាយជាមួយមនុស្សដែលខ្ញុំទុកចិត្ត",
+          "រៀនពីរបៀបគ្រប់គ្រងភាពតានតឹង",
+          "ហាត់សម្រាកកាយចិត្ត ឬសមាធិ",
+          "យល់ពីអារម្មណ៍ខ្លួនឯងកាន់តែច្បាស់",
+          "ស្វែងរកជំនួយពីអ្នកជំនាញ",
+          "ខ្ញុំមិនទាន់ប្រាកដនៅឡើយ",
+        ],
+        feedbackMessage:
+          "That is a good place to start. You can come back to these questions whenever you want to check in with yourself.",
+        kmFeedbackMessage:
+          "នោះជាចំណុចចាប់ផ្តើមដ៏ល្អ។ អ្នកអាចត្រឡប់មកសំណួរទាំងនេះវិញ គ្រប់ពេលដែលអ្នកចង់ពិនិត្យមើលខ្លួនឯង។",
+      },
+    },
+    {
+      id: 9,
+      sectionNumber: 9,
+      title: "One Thing to Remember",
+      kmTitle: "រឿងមួយដែលត្រូវចងចាំ",
+      type: "coping",
+      paragraphs: [
+        "You do not have to wait until you are struggling badly to take care of your mental health. You can start by noticing your emotions, building healthy habits, connecting with people you trust, and learning when to seek support.",
+        "Some days will be easier than others, and that is part of being human.",
+        "Your mental health matters, even when other people cannot see what you are going through. You deserve care and support, just as you would if you had a physical health problem.",
+        "Choose one small step for today:\n• Learn: read Learn About Stress or Understanding Anxiety.\n• Practice: try the short breathing exercise below.\n• Talk: tap Match Me With A Professional below if you would like support.",
+        "If you ever think about hurting yourself, get help right away. Open Profile and tap Get help now.",
+        "You do not have to do everything at once. Start with what feels manageable for you.",
+      ],
+      kmParagraphs: [
+        "អ្នកមិនចាំបាច់រង់ចាំរហូតដល់ជួបការលំបាកធ្ងន់ធ្ងរ ទើបថែរក្សាសុខភាពផ្លូវចិត្តនោះទេ។ អ្នកអាចចាប់ផ្តើមដោយការសម្គាល់អារម្មណ៍ខ្លួនឯង បង្កើតទម្លាប់ល្អ រក្សាទំនាក់ទំនងជាមួយមនុស្សដែលអ្នកទុកចិត្ត និងរៀនដឹងថាពេលណាត្រូវស្វែងរកជំនួយ។",
+        "ថ្ងៃខ្លះនឹងងាយស្រួលជាងថ្ងៃខ្លះទៀត ហើយនោះជាផ្នែកមួយនៃការជាមនុស្ស។",
+        "សុខភាពផ្លូវចិត្តរបស់អ្នកសំខាន់ ទោះបីជាអ្នកដទៃមើលមិនឃើញអ្វីដែលអ្នកកំពុងឆ្លងកាត់ក៏ដោយ។ អ្នកសមនឹងទទួលបានការថែទាំ និងការគាំទ្រ ដូចពេលដែលអ្នកមានបញ្ហាសុខភាពរាងកាយដែរ។",
+        "ជ្រើសរើសជំហានតូចមួយសម្រាប់ថ្ងៃនេះ៖\n• រៀន៖ អានមេរៀន ស្វែងយល់ពីភាពតានតឹង ឬ ស្វែងយល់ពីការថប់បារម្ភ។\n• អនុវត្ត៖ សាកល្បងលំហាត់ដកដង្ហើមខ្លីៗខាងក្រោម។\n• និយាយ៖ ចុច «ស្វែងរកអ្នកជំនាញ (Match Me)» ខាងក្រោម ប្រសិនបើអ្នកចង់បានការគាំទ្រ។",
+        "ប្រសិនបើអ្នកធ្លាប់គិតចង់ធ្វើបាបខ្លួនឯង សូមស្វែងរកជំនួយភ្លាមៗ។ បើកទំព័រប្រវត្តិរូប (Profile) ហើយចុច «ជំនួយបន្ទាន់ (Get help now)»។",
+        "អ្នកមិនចាំបាច់ធ្វើអ្វីៗទាំងអស់ក្នុងពេលតែមួយនោះទេ។ ចាប់ផ្តើមពីអ្វីដែលអ្នកអាចធ្វើបាន។",
+      ],
+      actions: [
+        { label: "Practice Calm Breathing", kmLabel: "ហាត់ដកដង្ហើមស្ងប់ចិត្ត (Breathing)", actionType: "exercise" },
+        { label: "Explore Mental Health Tips", kmLabel: "ស្វែងយល់គន្លឹះថែទាំចិត្ត (Tips)", actionType: "tips" },
+        { label: "Find a Professional (Match Me)", kmLabel: "ស្វែងរកអ្នកជំនាញចិត្តសាស្ត្រ (Match Me)", actionType: "professional" },
+      ],
+      keyPoints: [
+        "Your mental health matters, even when others cannot see what you are going through.",
+        "You deserve care and support, just like with a physical health problem.",
+        "Start with one small step that feels manageable.",
+      ],
+      kmKeyPoints: [
+        "សុខភាពផ្លូវចិត្តរបស់អ្នកសំខាន់ ទោះបីអ្នកដទៃមើលមិនឃើញអ្វីដែលអ្នកកំពុងឆ្លងកាត់ក៏ដោយ។",
+        "អ្នកសមនឹងទទួលបានការថែទាំ និងការគាំទ្រ ដូចបញ្ហាសុខភាពរាងកាយដែរ។",
+        "ចាប់ផ្តើមពីជំហានតូចមួយដែលអ្នកអាចធ្វើបាន។",
+      ],
+    },
+  ],
+};
+
 export const ALL_LESSONS: Lesson[] = [
+  LESSON_WHAT_IS_MENTAL_HEALTH,
   LESSON_ABOUT_STRESS,
   LESSON_UNDERSTANDING_ANXIETY,
   {

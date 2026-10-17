@@ -153,8 +153,25 @@ export function LessonScreen({
               ))}
             </div>
 
+            {/* Tip box: a calm note, not a warning. */}
+            {currentSection.alertBox?.type === "tip" && (
+              <div className="flex items-start gap-3.5 rounded-2xl border border-arom/25 bg-arom-wash p-4 text-ink shadow-sm">
+                <Lightbulb className="mt-0.5 size-5 shrink-0 text-arom" />
+                <div className="text-xs leading-relaxed sm:text-sm">
+                  <p className="font-bold text-arom">
+                    {km ? "គួរដឹង" : "Good to know"}
+                  </p>
+                  <p className="mt-0.5">
+                    {km && currentSection.alertBox.kmText
+                      ? currentSection.alertBox.kmText
+                      : currentSection.alertBox.text}
+                  </p>
+                </div>
+              </div>
+            )}
+
             {/* Emergency Alert Box (e.g. chest pain warning). The citation is in the alert text. */}
-            {currentSection.alertBox && (
+            {currentSection.alertBox?.type === "emergency" && (
               <div className="flex items-start gap-3.5 rounded-2xl border border-arom-danger/30 bg-arom-danger-soft p-4 text-arom-danger shadow-sm">
                 <AlertTriangle className="mt-0.5 size-5 shrink-0 text-arom-danger" />
                 <div className="text-xs leading-relaxed sm:text-sm font-medium">
