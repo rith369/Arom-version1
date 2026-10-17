@@ -2,7 +2,7 @@
 
 ## 17 Oct 2026: Simpler Players Card on the Game Hub
 
-Commit `PENDING`. No migration. Frontend only.
+Commit `3aef62d`. No migration. Frontend only.
 
 **Why.** The "Games 3" and "Winners: None, all of us" boxes looked crowded on phones and added little.
 
