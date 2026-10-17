@@ -2,7 +2,7 @@
 
 ## 17 Oct 2026: No More Fake Lesson Progress, and the Two Dev Warnings Fixed
 
-Commit `PENDING`. No migration. Frontend only.
+Commit `572e2ef`. No migration. Frontend only.
 
 **Why.** `npm run dev` showed "2 Issues" on every page. One was a hydration error: the server built the Learn page without saved progress, but the browser added a made up "3 of 5" for Learn About Stress, so the two versions did not match and React rebuilt the page. That same made up value meant every new user saw "Continue Learning, 3 of 5" and every lesson showed as bookmarked before they had opened anything. The other warning came from an old script in the page head that cleared a dark mode setting removed in September.
 
