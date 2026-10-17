@@ -2,7 +2,7 @@
 
 ## 17 Oct 2026: Connect Section 7 of Know When to Seek Help to AROM Private Booking
 
-Commit `PENDING`. No migration. Content and frontend only.
+Commit `5194692`. No migration. Content and frontend only.
 
 **Why.** Section 7 of Know When to Seek Help previously only cited general Cambodian hospitals and organizations. Users in Cambodia face significant social stigma and fear of gossip when seeking mental health care. Connecting this section directly to AROM highlights how seekers can browse verified therapists, filter by language (Khmer and English), book appointments in 100% digital privacy from their phone without anyone knowing, and access 24/7 crisis hotlines.
 
