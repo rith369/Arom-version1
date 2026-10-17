@@ -1,39 +1,51 @@
 # AROM: Change Report
 
-## 17 Oct 2026: Seven Admin Features Now Use the Database
+## 17 Oct 2026: Password Checklist on Sign Up
 
-Commit `PENDING`. Seven migrations must be run in Supabase, in order: `20261017000100_admin_bookings.sql`, `20261017000200_support_contact.sql`, `20261017000300_announcements.sql`, `20261017000400_content_reports.sql`, `20261017000500_community_moderation.sql`, `20261017000600_crash_reports.sql`, `20261017000700_mindguide_content.sql`. Each was run on a test database (PGlite with Supabase stand ins) with 120 checks, all passing.
+Commit `3f72399`. No migration. Frontend only, the password rules did not change.
 
-**Why.** Seven parts of AROM still ran on sample data or saved only in one browser: the admin bookings chart, the support contact, announcements, Report a problem, crash tracking, community moderation and the MindGuide editor. Admins saw made up records, and what users sent never reached the team.
+**Why.** A new password must have 8 characters, a lowercase letter, an uppercase letter, a number and a special character, but the sign up form only showed one rule at a time, after the person got it wrong. People had to guess the next rule by failing again. Rith asked for every rule to show at once, with a check when it is met and a cross when it is not.
 
 **What changed for users:**
-- **Announcements** that admins publish now show at the top of every page, for everyone, until they end.
-- **Get help now** shows the AROM support email, phone and hours once an admin sets them.
-- **Report a problem** on lessons, tips and practices now reaches the AROM team. Signed out visitors are asked to log in. Five reports a day each.
-- **Community:** reports on a person, message, image or group reach the team. A message the team removes shows as removed to everyone. A person the team removes cannot rejoin that group. A closed group stays readable for its members, but nobody can post, join or find it.
-- **Error screens** now say "The AROM team has been told", because crashes are sent. Only the error, the page path and the app version are sent: never anything a person wrote.
-- **Bookings:** when the AROM team cancels a session in an emergency, the client and the professional see "The AROM team cancelled this session" with the reason.
+- **All five rules show under Password** from the start: at least 8 characters, a lowercase letter, an uppercase letter, a number and a special character.
+- **Each rule ticks as you type:** a green check when it is met, a grey cross when it is not yet.
+- **After leaving the field or pressing Create Account,** any rule still missing turns red and the field is outlined in red, so it is clear what is left.
+- Screen readers hear each rule with "done" or "not yet".
 
 **What changed for the team:**
-- **Admin Bookings** lists real bookings and the chart counts them, but never shows who booked (the client column says Private). Emergency cancel frees the time and is audit logged. The sample bookings are deleted.
-- **Admin Settings:** the support contact and announcements are saved in the database and audit logged.
-- **Admin Reports** lists real reports without the reporter and closes them per item, audit logged.
-- **Admin Community** lists real groups; create, edit (verified mentor required, 2 to 10 members), shut down, reopen, and resolve reports all save in the database and are audit logged. View chat uses the audited endpoint. The group form no longer offers per group rules or an anonymous switch, which nothing stored. Group activities are still sample data.
-- **Admin Overview crash card** reads the last 7 days from the database.
-- **MindGuide editor** saves drafts, publishes versions, hides, restores and deletes in the database, with the no overwrite check and the same publish rules on the server. Items stay as written in code until an admin first changes them. User screens still read lessons, tips and practices from the code.
-- **New controllers:** `announcements-controller.ts`, `reports-controller.ts`, `community-admin-controller.ts`, `crash-controller.ts`, `content-controller.ts`; bookings in `admin-controller.ts`, support contact in `crisis-controller.ts`. The audit log page describes every new action.
-- **BACKEND-HANDOFF.md:** status board and sections 9, 10, 12, 13, 14, 15 and 23 updated.
+- `lib/auth.ts`: new `PASSWORD_RULES` (label and test for each rule) and `MAX_PASSWORD_LENGTH`. `signupSchema` checks the password with these same rules, so the form, the checklist and the server can never disagree.
+- `auth-input.tsx`: new optional `hint` (shown under the field and linked with `aria-describedby`) and `invalid` (red outline without an error line).
+- `signup-form.tsx`: new `PasswordChecklist`. The only error line left under Password is the 72 character limit.
 
 **What to re-test:**
-1. Run the seven migrations in order.
-2. Admin, Bookings: check real bookings show, the client shows as Private, and Emergency cancel needs a reason. Then sign in as that client and check "The AROM team cancelled this session" with the reason.
-3. Admin, Settings: save a support email and phone, then open Profile as a user and check Get help now shows them.
-4. Publish an announcement with a link such as /mindguide, check the banner on Home while signed out, then End it and reload.
-5. As a user, report a problem on a lesson section. As an admin, check it under Reports without the reporter, then close it as Fixed.
-6. Community: as a member, report a message. As an admin, open Reports, remove it, and check members see it as removed. Shut the group down and check members cannot post. Reopen it.
-7. Admin, Community: create a group with a verified mentor, then edit its name and check `/community`.
-8. Open the browser console on any page and run `fetch('/api/crash-reports',{method:'POST',body:JSON.stringify({kind:'render',message:'Test crash',route:'/',release:'local',digest:null,occurredAt:new Date().toISOString()})})`, then check the Overview crash card.
-9. MindGuide editor: save a draft, open the same item in a second tab, save there, and check the first tab says another admin saved it. Publish, hide, show again and restore an old version. Check each appears in the Audit log.
+1. Open Sign up: all five rules show with grey crosses.
+2. Type `abc`: only "A lowercase letter" turns into a green check.
+3. Type `Abcdefg1!`: all five are green checks.
+4. Type `1222sd`, click into Confirm password: the field turns red and the missing rules (8 characters, uppercase, special character) turn red.
+5. Create an account with a password that meets every rule: sign up works as before.
+
+## 17 Oct 2026: Spin to Choose Who Goes Next in Truth or Dare
+
+Commit `8e4ed3f`. No migration. Frontend only.
+
+**Why.** Rith wanted Truth or dare to feel more fun with a spin, like spin the bottle. A bottle was avoided because "spin the bottle" is known as a kissing game, which does not fit a mental health app for students; a big green leaf with the AROM sprout keeps it cute and on brand.
+
+**What changed for users:**
+- **Every turn starts with a spin:** a round board with a colored slice and a name chip for each player, a big green leaf as the pointer and the cheering sprout in the middle. Press Spin, the leaf turns about five times and slows down (small vibrations on phones), then lands.
+- **The picked name pops in yellow,** "Dara's turn!" shows at the top, and a moment later Dara chooses Truth or Dare. The card, Pass and Switch work as before. Done goes back to the spin.
+- **Fair spin:** everyone is picked once before anyone goes twice, and never the same person twice in a row.
+- **Reduce motion:** no long spin; the leaf moves straight to the person.
+- How to play explains the spin and that it is fair.
+
+**What changed for the team:**
+- New `app/play-cards/_components/spin-wheel.tsx`: `SpinWheel`, `spinTarget()` (lands inside the picked player's slice after five turns) and `fairPick()`.
+- `truth-or-dare-view.tsx`: each turn has phases spin, spinning, landed, choose, then the card; the game keeps the leaf angle and who is left this round.
+
+**What to re-test:**
+1. Start Truth or dare with 4 players, press Spin: the leaf spins and lands on a name, which pops in yellow.
+2. Spin 8 times: in the first 4 and the next 4, everyone is picked once, and nobody twice in a row.
+3. Choose Truth or Dare, press Done: you are back at the spin.
+4. Turn on Reduce motion: the leaf goes straight to the person.
 
 ## 17 Oct 2026: Simpler Players Card on the Game Hub
 
