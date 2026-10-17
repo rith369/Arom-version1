@@ -2,7 +2,7 @@
 
 ## 17 Oct 2026: Game Pages Use AROM's Usual Background
 
-Commit `PENDING`. No migration. Frontend only.
+Commit `8f668bb`. No migration. Frontend only.
 
 **Why.** Next to the white sidebar, the cream background made the game hub look like a different app. Pure white would have flattened the white cards, so the pages now use AROM's usual very light mint gray, like Home and Progress.
 
