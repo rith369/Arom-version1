@@ -2,7 +2,7 @@
 
 ## 17 Oct 2026: Play Cards with Friends
 
-Commit `PENDING`. No migration. Frontend only, nothing is saved.
+Commit `3911b31`. No migration. Frontend only, nothing is saved.
 
 **Why.** Many people, especially young people, find it hard to start talking about feelings. A gentle card game played with friends on one phone gives them an easy way in. The sidebar has listed "Play Cards with Friends" as coming soon; now it is real.
 
