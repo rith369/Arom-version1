@@ -2,7 +2,7 @@
 
 ## 17 Oct 2026: Connect Section 4 of Better Sleep to AROM Private Journaling
 
-Commit `PENDING`. No migration. Content and frontend only.
+Commit `1e878b0`. No migration. Content and frontend only.
 
 **Why.** When people lie down to sleep, racing worries and unaddressed tasks keep their minds hyper-alert. Instead of only recommending paper, Section 4 now directly connects to AROM's private Journal feature. Seekers can safely release their thoughts through typing or voice recording before bed, knowing their entries are 100% confidential and secure.
 
