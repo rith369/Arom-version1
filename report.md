@@ -2,7 +2,7 @@
 
 ## 17 Oct 2026: New Lesson, What Is Mental Health?
 
-Commit `PENDING`. No migration. Content and frontend only.
+Commit `e4f046e`. No migration. Content and frontend only.
 
 **Why.** Learn had no starting point for people new to the topic. This lesson, written by the team, explains what mental health is, why it matters for everyone, and small ways to look after it, with Cambodian family life in mind.
 
