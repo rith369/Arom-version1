@@ -2,7 +2,7 @@
 
 ## 17 Oct 2026: Play with Friends Becomes a Game Hub with Three Games
 
-Commit `PENDING`. No migration. Frontend only, nothing is saved.
+Commit `bad6957`. No migration. Frontend only, nothing is saved.
 
 **Why.** Rith wanted Play Cards with Friends to offer more ways to play, in a bold, fun look like a reference design: Mental health cards, Truth or dare, and Guess the animal. Lighter games make it easy for friends to start, and laughter is good for stress too.
 
