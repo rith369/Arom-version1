@@ -2,7 +2,7 @@
 
 ## 17 Oct 2026: New Lesson, Understanding Anxiety
 
-Commit `PENDING`. No migration. Content and frontend only.
+Commit `3ca5418`. No migration. Content and frontend only.
 
 **Why.** MindGuide had one finished lesson (Learn About Stress). Understanding Anxiety was a locked "Coming Soon" card with nothing inside. Anxiety is the most common mental health condition in the world, so it is the most useful next lesson. Content is now written in code, not in the admin MindGuide editor, because user screens read the code.
 
