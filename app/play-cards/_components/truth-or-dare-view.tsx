@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { ArrowRight, CircleHelp, Dice5, Hand, Heart, Lock, MessageCircle, Repeat, Shield, Zap } from "lucide-react";
+import { ArrowRight, CircleHelp, Dice5, Hand, Heart, Lock, MessageCircle, Repeat, RotateCw, Shield, Zap } from "lucide-react";
 import { TopHeader } from "../../components/top-header";
 import { DesktopNavigation, MobileNavigation } from "../../_components/app-navigation";
 import { useLanguage } from "../../_components/language-provider";
@@ -26,6 +26,7 @@ import { GuideSheet, type GuideSection } from "./guide-sheet";
 import { LanguageToggle } from "./language-toggle";
 import { usePlayers } from "./players-provider";
 import { RulesSheet, type HouseRule } from "./rules-sheet";
+import { SpinWheel, fairPick, spinTarget } from "./spin-wheel";
 
 const KIND_LOOK: Record<TodKind, { color: string; icon: typeof MessageCircle; en: string; km: string; note: string; kmNote: string }> = {
   truth: { color: BOLD_COLORS.lilac, icon: MessageCircle, en: "Truth", km: "ការពិត", note: "Answer honestly", kmNote: "ឆ្លើយដោយស្មោះត្រង់" },
@@ -62,9 +63,14 @@ const GUIDE: GuideSection[] = [
     km: "ជំហាន",
     numbered: true,
     items: [
-      { en: "Give the phone to the person whose name is at the top.", km: "ហុចទូរស័ព្ទទៅអ្នកដែលមានឈ្មោះនៅខាងលើ។" },
-      { en: "They choose Truth or Dare.", km: "ពួកគេជ្រើសរើស ការពិត ឬ ហ៊ានធ្វើ។" },
-      { en: "Answer the truth or do the dare, then press Done.", km: "ឆ្លើយការពិត ឬធ្វើការប្រកួត រួចចុច រួចរាល់។" },
+      {
+        en: "Press Spin. The leaf picks who goes next.",
+        km: "ចុច បង្វិល។ ស្លឹកឈើនឹងជ្រើសរើសអ្នកបន្ទាប់។",
+        enNote: "It is fair: everyone is picked once before anyone goes twice.",
+        kmNote: "វាយុត្តិធម៌៖ គ្រប់គ្នាត្រូវបានជ្រើសម្តង មុនពេលនរណាម្នាក់បានពីរដង។",
+      },
+      { en: "Give the phone to that person. They choose Truth or Dare.", km: "ហុចទូរស័ព្ទទៅអ្នកនោះ។ ពួកគេជ្រើសរើស ការពិត ឬ ហ៊ានធ្វើ។" },
+      { en: "Answer the truth or do the dare, then press Done to spin again.", km: "ឆ្លើយការពិត ឬធ្វើការប្រកួត រួចចុច រួចរាល់ ដើម្បីបង្វិលម្តងទៀត។" },
     ],
   },
   {
@@ -77,6 +83,9 @@ const GUIDE: GuideSection[] = [
   },
 ];
 
+// Each turn: spin, the leaf lands on someone, they choose, then the card.
+type Phase = "spin" | "spinning" | "landed" | "choose";
+
 type Game = {
   players: string[];
   level: TodLevel;
@@ -86,6 +95,12 @@ type Game = {
   playerIndex: number;
   card: TodCard | null;
   done: number;
+  phase: Phase;
+  // The leaf's angle, and the fair spin: who is left this round, who went last.
+  rotation: number;
+  picked: number | null;
+  queue: number[];
+  last: number | null;
 };
 
 export function TruthOrDareView() {
@@ -108,8 +123,47 @@ export function TruthOrDareView() {
 
   function start() {
     setEnded(null);
-    setGame({ players, level, piles: todPiles(level), total: rounds, step: 1, playerIndex: 0, card: null, done: 0 });
+    setGame({
+      players,
+      level,
+      piles: todPiles(level),
+      total: rounds,
+      step: 1,
+      playerIndex: 0,
+      card: null,
+      done: 0,
+      phase: "spin",
+      rotation: 0,
+      picked: null,
+      queue: [],
+      last: null,
+    });
     window.scrollTo({ top: 0 });
+  }
+
+  function spin() {
+    if (!game || game.phase !== "spin") return;
+    const { pick, queue } = fairPick(game.queue, game.last, game.players.length);
+    setGame({
+      ...game,
+      phase: "spinning",
+      picked: pick,
+      queue,
+      last: pick,
+      rotation: spinTarget(game.rotation, pick, game.players.length, Boolean(reduce)),
+    });
+    // Little taps that slow down with the leaf.
+    navigator.vibrate?.([12, 90, 12, 140, 12, 220, 12, 320]);
+  }
+
+  // The leaf stopped: show who it picked for a moment, then let them choose.
+  function landed() {
+    setGame((current) => (current && current.phase === "spinning" ? { ...current, phase: "landed", playerIndex: current.picked ?? 0 } : current));
+    navigator.vibrate?.(30);
+    window.setTimeout(
+      () => setGame((current) => (current && current.phase === "landed" ? { ...current, phase: "choose" } : current)),
+      reduce ? 500 : 1200,
+    );
   }
 
   function choose(kind: TodKind, avoid?: string) {
@@ -128,7 +182,7 @@ export function TruthOrDareView() {
       window.scrollTo({ top: 0 });
       return;
     }
-    setGame({ ...game, step: game.step + 1, playerIndex: (game.playerIndex + 1) % game.players.length, card: null, done });
+    setGame({ ...game, step: game.step + 1, card: null, done, phase: "spin" });
   }
 
   async function leave() {
@@ -161,8 +215,9 @@ export function TruthOrDareView() {
   // ---------- Playing ----------
   if (game) {
     const player = nameOf(game.playerIndex);
-    const nextName = nameOf((game.playerIndex + 1) % game.players.length);
     const look = game.card ? KIND_LOOK[game.card.kind] : null;
+    const wheel = game.phase === "spin" || game.phase === "spinning" || game.phase === "landed";
+    const someoneChosen = game.phase === "landed" || game.phase === "choose" || Boolean(game.card);
     return (
       <div className={`min-h-[100dvh] ${BOLD.page}`}>
         <div className="mx-auto flex w-full max-w-md flex-col px-5 pb-8 pt-4">
@@ -174,28 +229,68 @@ export function TruthOrDareView() {
           </BoldGameBar>
 
           <AnimatePresence mode="wait" initial={false}>
-            <motion.div
-              key={game.step}
-              className="mt-6 flex items-center justify-center gap-3"
-              initial={reduce ? { opacity: 0 } : { opacity: 0, y: -8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, transition: { duration: 0.1 } }}
-            >
-              <PlayerAvatar name={player} index={game.playerIndex} size="lg" />
-              <div>
-                <p className="text-xl font-black leading-tight text-[#14221f]">
-                  {hostIsYou && game.playerIndex === 0 ? t("វេនរបស់អ្នក", "Your turn") : t(`វេនរបស់ ${player}`, `${player}'s turn`)}
-                </p>
+            {someoneChosen ? (
+              <motion.div
+                key={`turn-${game.step}`}
+                className="mt-6 flex items-center justify-center gap-3"
+                initial={reduce ? { opacity: 0 } : { opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, transition: { duration: 0.1 } }}
+                transition={{ type: "spring", stiffness: 320, damping: 18 }}
+              >
+                <PlayerAvatar name={player} index={game.playerIndex} size="lg" />
+                <div>
+                  <p className="text-xl font-black leading-tight text-[#14221f]">
+                    {hostIsYou && game.playerIndex === 0 ? t("វេនរបស់អ្នក!", "Your turn!") : t(`វេនរបស់ ${player}!`, `${player}'s turn!`)}
+                  </p>
+                  <p className="text-xs font-semibold text-[#14221f]/65">
+                    {game.card ? t("ធ្វើតាមកាត ហើយចុច រួចរាល់", "Do what the card says, then press Done") : t("ជ្រើសរើស ការពិត ឬ ហ៊ានធ្វើ", "Choose truth or dare")}
+                  </p>
+                </div>
+              </motion.div>
+            ) : (
+              <motion.div
+                key={`spin-${game.step}`}
+                className="mt-6 text-center"
+                initial={reduce ? { opacity: 0 } : { opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, transition: { duration: 0.1 } }}
+              >
+                <p className="text-xl font-black leading-tight text-[#14221f]">{t("តើវេននរណាបន្ទាប់?", "Who's next?")}</p>
                 <p className="text-xs font-semibold text-[#14221f]/65">
-                  {game.card ? t("ធ្វើតាមកាត ហើយចុច រួចរាល់", "Do what the card says, then press Done") : t("ជ្រើសរើស ការពិត ឬ ហ៊ានធ្វើ", "Choose truth or dare")}
+                  {game.phase === "spinning" ? t("កំពុងបង្វិល...", "Spinning...") : t("ចុច បង្វិល ដើម្បីដឹង", "Press Spin to find out")}
                 </p>
-              </div>
-            </motion.div>
+              </motion.div>
+            )}
           </AnimatePresence>
 
           <div className="mt-6">
             <AnimatePresence mode="wait" initial={false}>
-              {!game.card ? (
+              {wheel ? (
+                <motion.div
+                  key={`wheel-${game.step}`}
+                  initial={reduce ? { opacity: 0 } : { opacity: 0, scale: 0.92 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.15 } }}
+                >
+                  <SpinWheel
+                    names={game.players.map((_, index) => nameOf(index))}
+                    rotation={game.rotation}
+                    picked={game.picked}
+                    landed={game.phase === "landed"}
+                    onLanded={landed}
+                  />
+                  <button
+                    type="button"
+                    onClick={spin}
+                    disabled={game.phase !== "spin"}
+                    className={`mx-auto mt-8 flex min-h-16 w-full max-w-[16rem] items-center justify-center gap-2 bg-[#FFD23F] text-xl text-[#14221f] ${BOLD.button}`}
+                  >
+                    <RotateCw size={22} strokeWidth={2.75} aria-hidden="true" />
+                    {game.phase === "spin" ? t("បង្វិល", "Spin") : game.phase === "spinning" ? t("កំពុងបង្វិល...", "Spinning...") : `${player}!`}
+                  </button>
+                </motion.div>
+              ) : !game.card ? (
                 <motion.div
                   key={`choose-${game.step}`}
                   className="grid grid-cols-2 gap-4"
@@ -283,7 +378,7 @@ export function TruthOrDareView() {
                 onClick={next}
                 className={`flex min-h-14 w-full items-center justify-center gap-2 bg-[#FFD23F] px-6 text-base text-[#14221f] ${BOLD.button}`}
               >
-                {game.step === game.total ? t("បញ្ចប់", "Finish") : t(`រួចរាល់ ទៅ ${nextName}`, `Done, next: ${nextName}`)}
+                {game.step === game.total ? t("បញ្ចប់", "Finish") : t("រួចរាល់ បង្វិលម្តងទៀត", "Done, spin again")}
                 <ArrowRight size={18} aria-hidden="true" />
               </button>
             </div>

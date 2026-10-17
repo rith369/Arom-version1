@@ -1,5 +1,28 @@
 # AROM: Change Report
 
+## 17 Oct 2026: Spin to Choose Who Goes Next in Truth or Dare
+
+Commit `PENDING`. No migration. Frontend only.
+
+**Why.** Rith wanted Truth or dare to feel more fun with a spin, like spin the bottle. A bottle was avoided because "spin the bottle" is known as a kissing game, which does not fit a mental health app for students; a big green leaf with the AROM sprout keeps it cute and on brand.
+
+**What changed for users:**
+- **Every turn starts with a spin:** a round board with a colored slice and a name chip for each player, a big green leaf as the pointer and the cheering sprout in the middle. Press Spin, the leaf turns about five times and slows down (small vibrations on phones), then lands.
+- **The picked name pops in yellow,** "Dara's turn!" shows at the top, and a moment later Dara chooses Truth or Dare. The card, Pass and Switch work as before. Done goes back to the spin.
+- **Fair spin:** everyone is picked once before anyone goes twice, and never the same person twice in a row.
+- **Reduce motion:** no long spin; the leaf moves straight to the person.
+- How to play explains the spin and that it is fair.
+
+**What changed for the team:**
+- New `app/play-cards/_components/spin-wheel.tsx`: `SpinWheel`, `spinTarget()` (lands inside the picked player's slice after five turns) and `fairPick()`.
+- `truth-or-dare-view.tsx`: each turn has phases spin, spinning, landed, choose, then the card; the game keeps the leaf angle and who is left this round.
+
+**What to re-test:**
+1. Start Truth or dare with 4 players, press Spin: the leaf spins and lands on a name, which pops in yellow.
+2. Spin 8 times: in the first 4 and the next 4, everyone is picked once, and nobody twice in a row.
+3. Choose Truth or Dare, press Done: you are back at the spin.
+4. Turn on Reduce motion: the leaf goes straight to the person.
+
 ## 17 Oct 2026: Simpler Players Card on the Game Hub
 
 Commit `3aef62d`. No migration. Frontend only.
