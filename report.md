@@ -2,7 +2,7 @@
 
 ## 17 Oct 2026: Info Buttons on the Game Setup Questions
 
-Commit `PENDING`. No migration. Frontend only.
+Commit `e04f559`. No migration. Frontend only.
 
 **Why.** Rith found "Time for each turn" and "How many times around the table?" unclear. Hover tooltips do not work on phones, so each question now has a small (i) button that works by tap or click.
 
