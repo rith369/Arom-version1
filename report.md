@@ -2,7 +2,7 @@
 
 ## 17 Oct 2026: Ten More Play Cards
 
-Commit `PENDING`. No migration. Frontend only.
+Commit `f8db203`. No migration. Frontend only.
 
 **Why.** Rith sent 11 questions for Play Cards with Friends. One ("What song is your #1 mood booster?") was already in the deck as "What song always makes you feel better?", so it was not added twice. The other 10 are new.
 
