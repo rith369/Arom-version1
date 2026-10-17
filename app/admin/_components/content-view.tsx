@@ -19,7 +19,7 @@ type StatusFilter = PublishState | 'all';
 
 // One content type at a time. The MindGuide page owns the header and tabs.
 export function ContentView({ activeType }: { activeType: ContentType }) {
-  const { contentRecords } = useAdmin();
+  const { contentRecords, contentLoad } = useAdmin();
   const { language } = useLanguage();
   const km = language === 'km';
   const t = (kmText: string, enText: string) => (km ? kmText : enText);
@@ -79,6 +79,15 @@ export function ContentView({ activeType }: { activeType: ContentType }) {
             'Edits are saved as drafts. Users only see them after you publish.',
           )}
         </p>
+        {contentLoad !== 'ready' && (
+          <p
+            role={contentLoad === 'error' ? 'alert' : 'status'}
+            className={`text-sm ${contentLoad === 'error' ? 'text-arom-danger' : 'text-ink-muted'}`}>
+            {contentLoad === 'error'
+              ? 'Content could not be loaded. Refresh the page to try again.'
+              : 'Loading content...'}
+          </p>
+        )}
         <p className="text-sm text-ink-muted">
           New items are written by the team with AI and arrive here as drafts to check, fix and publish.
         </p>

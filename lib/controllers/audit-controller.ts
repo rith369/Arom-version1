@@ -72,6 +72,44 @@ function describe(row: AuditRow): { action: string; module: AuditModule; detail:
         module: "content",
         detail: text(d.question),
       };
+    case "publish_content":
+      return { action: "Published content", module: "content", detail: `${text(d.item)} version ${Number(d.version ?? 0)}` };
+    case "hide_content":
+      return { action: "Hid content", module: "content", detail: text(d.item) };
+    case "show_content":
+      return { action: "Showed content again", module: "content", detail: text(d.item) };
+    case "restore_content":
+      return { action: "Restored a content version", module: "content", detail: `${text(d.item)} version ${Number(d.version ?? 0)}` };
+    case "delete_content":
+      return { action: "Deleted unpublished content", module: "content", detail: text(d.item) };
+    case "close_group":
+      return { action: "Shut down a group", module: "community", detail: text(d.reason) };
+    case "reopen_group":
+      return { action: "Reopened a group", module: "community", detail: "" };
+    case "create_group":
+      return { action: "Created a group", module: "community", detail: text(d.name) };
+    case "edit_group":
+      return { action: "Edited a group", module: "community", detail: text(d.name) };
+    case "resolve_community_report":
+      return {
+        action: text(d.status) === "removed" ? "Removed reported content" : "Dismissed a report",
+        module: "community",
+        detail: text(d.kind),
+      };
+    case "resolve_content_reports":
+      return {
+        action: text(d.status) === "fixed" ? "Closed reports as fixed" : "Closed reports as not a problem",
+        module: "content",
+        detail: `${text(d.item)} (${Number(d.count ?? 0)})`,
+      };
+    case "publish_announcement":
+      return { action: "Published an announcement", module: "settings", detail: text(d.text) };
+    case "end_announcement":
+      return { action: "Ended an announcement", module: "settings", detail: "" };
+    case "save_support_contact":
+      return { action: "Saved the support contact", module: "settings", detail: [text(d.email), text(d.phone)].filter(Boolean).join(", ") };
+    case "cancel_booking":
+      return { action: "Cancelled a booking", module: "bookings", detail: text(d.reason) };
     case "read_group_chat":
       return { action: "Opened a support group chat", module: "community", detail: text(d.reason) };
     case "change_flag_status":

@@ -60,14 +60,14 @@ The yellow "Demo data on this page" banner is in `admin-shell.tsx`. Remove it fo
 | Prepare view (`/pro/bookings/<id>`) and week calendar in My bookings | Done | Connected, including the prep plan note (`session_prep_notes`), migration `20261015000300` | 16 |
 | Professional Home dashboard (once the profile is complete) | Done | Connected (counts from real bookings and schedule). "Listed" comes from the database | 16 |
 | Professional podcasts: `/pro/podcasts`, episodes on the public profile and podcast page | Done on mock data | Waiting for backend | 20 |
-| Admin MindGuide: lessons, tips and practices with drafts, versions, publish and checks (`/admin/mindguide`, editor at `/admin/mindguide/<type>/<sourceId>`) | Done on mock data | Waiting for backend | 9 |
-| Report a problem (users) and admin Reports page (`/admin/reports`) | Done on mock data | Waiting for backend | 10 |
-| Announcements: admin Settings section, banner at the top of every user page | Done on mock data | Waiting for backend | 15 |
-| Crash tracking: error screens catch crashes, admin Overview card "Most frequent crashes, last 7 days" | Done on mock data | Waiting for backend | 14 |
-| Crisis helplines and support contact: admin Settings, user "Get help now" in Profile and Settings | Done | Helplines connected (`/api/crisis-resources`, `/api/admin/crisis-resources`, migration `20261014000300`). Support contact still mock | 13 |
-| Admin bookings chart: sessions per day and new bookings per day (`/admin/bookings`) | Done on mock data | Waiting for backend | 12 |
+| Admin MindGuide: lessons, tips and practices with drafts, versions, publish and checks (`/admin/mindguide`, editor at `/admin/mindguide/<type>/<sourceId>`) | Done | Connected for admins (`GET\|POST /api/admin/content`), migration `20261017000700`. User screens still read the code (see section 9) | 9 |
+| Report a problem (users) and admin Reports page (`/admin/reports`) | Done | Connected (`POST /api/content-reports`, `GET /api/admin/content-reports`, `POST .../resolve`), migration `20261017000400` | 10 |
+| Announcements: admin Settings section, banner at the top of every user page | Done | Connected (`GET /api/announcements/current`, `GET\|POST /api/admin/announcements`, `POST .../:id/end`), migration `20261017000300` | 15 |
+| Crash tracking: error screens catch crashes, admin Overview card "Most frequent crashes, last 7 days" | Done | Connected (`POST /api/crash-reports`, `GET /api/admin/crashes?days=7`), migration `20261017000600` | 14 |
+| Crisis helplines and support contact: admin Settings, user "Get help now" in Profile and Settings | Done | Connected: helplines (`/api/crisis-resources`, `/api/admin/crisis-resources`, migration `20261014000300`) and support contact (returned with the helplines; `GET\|PUT /api/admin/support-contact`, migration `20261017000200`) | 13 |
+| Admin bookings chart and table, emergency cancel (`/admin/bookings`) | Done | Connected (`GET /api/admin/bookings`, `POST /api/admin/bookings/:id/cancel`), migration `20261017000100`. The client is never shown | 12 |
 | MindGuide podcasts: user pages `/podcasts` and `/podcasts/<id>`, admin Podcasts tab | Done on mock data | Waiting for backend | 11 |
-| Community: professionals and admins create groups, admins read chats and shut groups down, users report a person, image, message or group (`/community`, `/admin/community`) | Done | Partly connected: group list and create, join, chat read and send (`/api/community/groups`, `/:id/join`, `/:id/messages`), migrations `20261016000000` to `20261016000700`. Shut down, reopen, reports and the admin view still use `community-store.ts` (browser only) | 23 |
+| Community: professionals and admins create groups, admins read chats and shut groups down, users report a person, image, message or group (`/community`, `/admin/community`) | Done | Partly connected: group list and create, join, chat read and send (`/api/community/groups`, `/:id/join`, `/:id/messages`), migrations `20261016000000` to `20261016000700`. Moderation connected: admin groups list, create, edit, shut down, reopen, member reports, remove message or person (`/api/admin/community/*`, `POST /api/community/reports`), migration `20261017000500`. Group activities still sample data | 23 |
 | Mood check in and Your Progress on Home (`/`, journal starts from today's mood) | Done | Connected (`POST /api/mood-checkins`, `GET /api/progress`), migration `20261015000400` | 22 |
 | Progress pages (`/progress`, `/progress/details`, from Figma): trend, bars, distribution, today's check in | Done | Connected for every range (`GET /api/progress?range=7d\|30d\|90d`). Insights worked out in the browser from the same real check ins | 22 |
 | Progress Activities tab (practices done, lessons read, journal entries) | Done | Connected (`POST /api/activities`, `GET /api/progress/activities?range=`), migration `20261016001000` | 22 |
@@ -78,7 +78,7 @@ The yellow "Demo data on this page" banner is in `admin-shell.tsx`. Remove it fo
 | Journal prompts: admin page `/admin/journal-prompts`, guided questions on Write about today (`/detection/journal`) | Done | Connected (`GET /api/journal-prompts`, `GET\|PUT /api/admin/journal-prompts`), migration `20261016001200` | 26 |
 | Your Plan For Today as a to do list: own tasks, ideas, MindGuide items, repeat, tick with a line through (Home) | Done | Connected, PR #17 (`/api/plan`, `/api/plan/tasks`, `/api/plan/tasks/:id`, `/api/plan/tasks/:id/check`, `/api/plan/order`), migration `20261016001300` | 27 |
 | Play with friends (`/play-cards`): a game hub with Mental health cards, Truth or dare and Guess the animal, one phone passed around | Done | No backend needed (cards in code, nothing saved). Later: admin managed decks, a play count in Progress, online rooms | 28 |
-| Other admin pages (bookings, settings) | Built by Sokheng on mock data | Not started | not written yet |
+| Other admin pages | Bookings and Settings are connected (sections 12, 13, 15). Group activities in admin Community still sample data | Not started for group activities | 23 |
 
 ## 5. Admin users page
 
@@ -297,6 +297,15 @@ The return type is `ContentActionResult`: `{ ok: true, updatedAt }` or `{ ok: fa
 
 **Publish rules.** Publish publishes exactly the saved draft (the editor blocks Publish while there are unsaved changes). Repeat the rules of `checkForPublish()` in the database: errors block publishing, warnings (missing Khmer text) do not. Record `published_by` and `published_at` on every version and `updated_by` on drafts.
 
+**Connected for admins (17 Oct 2026), migration `20261017000700_mindguide_content.sql`:**
+
+- **Tables:** `content_items (kind, key, live_version, deleted_at)`, `content_versions (kind, key, version, body jsonb, published_at, published_by)`, `content_drafts (kind, key, body, base_version, updated_at, updated_by)`. Admin read only (RLS); every write goes through a `security definer` function.
+- **Code first:** an item lives only in code (`initialContentRecords`) until an admin first changes it. Then `admin_init_content_item()` copies the code version in (version 1 when it was available, otherwise the draft) and the database is the record. A deleted, never published item keeps a row with `deleted_at`, so the code version does not come back.
+- **Functions:** `save_content_draft`, `publish_content`, `discard_content_draft`, `delete_content` (never published only), `set_content_hidden`, `restore_content_version`. Publish, hide, show, restore and delete write `admin_audit_log`.
+- **No overwrite:** save and publish compare the draft time the editor loaded; a different time answers `stale` (error code `PT409`) and changes nothing. Times are kept to the millisecond so they match the browser.
+- **Publish rules:** the API runs the same `checkForPublish()` the editor shows on exactly the saved draft; an error answers `shape`. The light `checkDraft()` (unique ids) runs on save.
+- **API:** `GET /api/admin/content` (records), `POST /api/admin/content { action: save | publish | discard | delete | hidden | restore, id, ... }`. Controller `lib/controllers/content-controller.ts`.
+
 ### Still frontend only
 
 The user app still reads lessons, tips and practices from `app/_components/learn/learn-data.ts`, `tips/tips-data.ts` and `practice/practice-data.ts`. Publishing in the admin does not change what users see yet. When connected: download a small manifest of live items once per app open, download a body by (type, key, version) when opened, and cache published versions forever because they never change.
@@ -331,7 +340,7 @@ The user app still reads lessons, tips and practices from `app/_components/learn
 - **Privacy:** no reporter identity in admin screens, no copy of content, no personal mental health data requested.
 - **Order on the admin page:** items with any "upsetting or harmful" report first, then most reports, then newest.
 - **Edit link** opens `/admin/mindguide/<type>/<sourceId>?part=<partId>` and jumps to that section.
-- **Mock today:** the user side only counts reports in the browser to show the daily limit message. Nothing reaches the admin page yet; the admin page uses its own mock reports.
+- **Connected (17 Oct 2026), migration `20261017000400_content_reports.sql`:** table `content_reports` with no direct access. `submit_content_report()` (signed in only, 5 a day, the API checks the item exists in code), `admin_list_content_reports()` (open reports and the last 180 days, never the reporter), `resolve_content_reports()` (closes every open report on one item, audit logged). API: `POST /api/content-reports` (signed out visitors are asked to log in), `GET /api/admin/content-reports`, `POST /api/admin/content-reports/resolve { itemId, status }`. Controller `lib/controllers/reports-controller.ts`.
 
 ## 11. MindGuide podcasts
 
@@ -393,6 +402,13 @@ The chart only needs counts, never names. Suggested endpoint, admin only:
 - Group by the Cambodia calendar day of `starts_at` for sessions and of `created_at` for `created`.
 - Return every day in the range, including zero days, so the comparison with the previous period is easy (the frontend asks for both ranges).
 
+### Connected (17 Oct 2026), migration `20261017000100_admin_bookings.sql`
+
+- **`admin_list_bookings(from)`** returns bookings that start or were made in the last 60 days and the next 14, for the chart and the table: the professional, times, type, status and who cancelled (user, professional or admin). **Never the client:** no user id, name, intake note or meeting link. A cancel reason is returned only when an admin wrote it. The page shows the client as "Private".
+- **`admin_cancel_booking(id, reason)`** cancels an upcoming booked session (reason required, up to 500 characters), frees the open time and writes `cancel_booking` to the audit log. The client and the professional see "cancelled by AROM" with the reason in their bookings; no message or email is sent.
+- **Status mapping:** `booked` shows as confirmed, `completed` as completed, `cancelled` and `no_show` as cancelled. "Pending" stays empty until a "review new clients first" setting exists.
+- **API:** `GET /api/admin/bookings`, `POST /api/admin/bookings/:id/cancel { reason }`. The chart counts in the browser from the same list. The sample bookings are deleted.
+
 ## 13. Crisis helplines and AROM support contact
 
 **Files:** shared `app/_components/support-contacts.ts` (types, empty lists, checks), user `app/_components/get-help-section.tsx` (placed in `profile-settings.tsx`), admin `app/admin/_data/settings.ts` and `_components/settings-view.tsx`, provider `crisisHelplines` and `saveCrisisHelplines`.
@@ -423,9 +439,9 @@ Users get only active helplines with a phone or website, ordered by `sortOrder`.
 - `save_crisis_resources(jsonb)` (migration `20261014000300`) replaces the list in one transaction: admin only, deletes rows left out, sets `sort_order` from the list order, and writes one `admin_audit_log` entry with the totals and the names of removed helplines. New table checks repeat the form rules (Khmer name, phone or website, 3 to 15 digits, `https://`), so an invalid row saves nothing.
 - The "I checked this number myself" confirmation is enforced in the form only; the audit log records who saved.
 
-### Still mock
+### Support contact, connected (17 Oct 2026)
 
-The AROM support contact (`SupportContact`) still reads the empty placeholder in `support-contacts.ts`. It needs the single row settings table described above.
+Migration `20261017000200_support_contact.sql`: one row table `support_contact (email, phone, hours, hours_km)`, readable by everyone, changed only through `save_support_contact()` (admin only, email and phone checked like the form, audit logged). `GET /api/crisis-resources` now returns `{ helplines, supportContact }`; admins use `GET|PUT /api/admin/support-contact`.
 
 ## 14. Crash tracking
 
@@ -454,6 +470,12 @@ The AROM support contact (`SupportContact`) still reads the empty placeholder in
 4. **Optional, "send the top ones to the developer":** a daily job that emails or Telegrams the top 5 groups to the developer. Today the admin card has a Copy for developer button that builds the same text by hand.
 5. Then replace the body of `reportCrash()` with the send, and change the error screen text to say the team has been told (it does not say so yet, because nothing is sent).
 
+### Connected (17 Oct 2026), migration `20261017000600_crash_reports.sql`
+
+- **`POST /api/crash-reports`** (anyone, sent with `sendBeacon`) calls `report_crash()`. Limits: 20 an hour per device key or account, 500 an hour in total; extra reports are dropped silently. The device key is a SHA 256 hash of the address and the Cambodia day, so it cannot be followed from day to day; the address itself is never stored. The account id is kept only to count people. Rows older than 30 days are deleted.
+- **`GET /api/admin/crashes?days=7`** calls `admin_crash_groups(days)`: groups by kind, message and page, sorted by count, with the distinct people and the newest build. Never who they were.
+- The error screens now say "The AROM team has been told." The daily message to the developer (gap 4) is not built; the card's Copy for developer still works.
+
 ## 15. Announcements
 
 **Files:** shared `app/_components/announcements.ts` (type, empty list, rules), user banner `app/_components/announcement-banner.tsx` (in `app/layout.tsx`, hidden on `/admin` and `/content-preview`), admin `app/admin/_components/announcements-section.tsx` (top of Settings), provider `announcements`, `publishAnnouncement`, `endAnnouncement`.
@@ -479,7 +501,7 @@ The AROM support contact (`SupportContact`) still reads the empty placeholder in
 
 ### Backend needs
 
-`GET /api/announcements/current` (public, returns one or none) and admin only `GET /api/admin/announcements`, `POST /api/admin/announcements`, `POST /api/admin/announcements/:id/end`. Until then the user banner reads the empty list and admin edits are mock.
+**Connected (17 Oct 2026), migration `20261017000300_announcements.sql`:** table `announcements`. Everyone reads the running ones (RLS), admins read all. `publish_announcement()` and `end_announcement()` are admin only and audit logged; the table repeats the rules (Khmer text required, links inside AROM only, end time in the future). API: `GET /api/announcements/current` (public, the banner; it never shows who wrote it), `GET|POST /api/admin/announcements`, `POST /api/admin/announcements/:id/end`.
 
 ## 16. Professional area (`/pro`)
 
@@ -823,7 +845,14 @@ Suggested table: `professional_episodes` (columns as above, `takeaways` and `cha
 
 **Files:** user side `app/community/page.tsx`, `community-data.ts` (types), `community-store.ts` (mock store in localStorage, shared with admin), `components/create-group-view.tsx`, `components/report-dialog.tsx`, `components/group-hub-view.tsx` (report entry points, closed state). Admin side `app/admin/_data/community.ts`, `_components/community-view.tsx` (View chat, Shut down, Reopen, reports), actions in `admin-provider.tsx`.
 
-**Mock today:** `community-store.ts` keeps created groups, closures and reports in this browser's localStorage, and both `/community` and the admin provider read it with `useSyncExternalStore`. So in one browser a professional can create a group, the admin sees it, shuts it down, and `/community` shows it closed. Replace every function in `community-store.ts` with API calls; the components should not need to change. Admin edits to an existing group still stay in admin state only.
+**Moderation connected (17 Oct 2026), migration `20261017000500_community_moderation.sql`:**
+
+- **Shut down and reopen:** `admin_set_group_closed()` (reason required, admins only see it). A closed group leaves Browse; its members still find and read it (new RLS rule), nobody can send (the insert policy checks it) or join.
+- **Reports:** `community_reports` (no direct access). `submit_community_report()`: members and the mentor of that group only, 5 a day, a message or image report must point at a message in that group, nobody reports their own message. A report on a person is linked to them through their message; without a message only the report closes.
+- **Resolving:** `admin_resolve_community_report(id, dismissed | removed)`. Remove hides the message or image (members see "removed", the text is not sent to them), takes the person out of the group for good (they cannot rejoin), or shuts a reported group down.
+- **Groups:** `admin_list_groups()`, `admin_save_group()` (create or edit; the mentor must be a verified, active professional; capacity 2 to 10 and never below the current members). Every action is audit logged. Per group rules and an "anonymous" switch are not stored: every group uses the standard rules, and members choose Hide my identity in Profile.
+- **API:** `GET|POST /api/admin/community/groups`, `POST /api/admin/community/groups/:id/close { reason }`, `POST .../reopen`, `GET /api/admin/community/reports`, `POST /api/admin/community/reports/:id/resolve { status }`, `POST /api/community/reports`. View chat uses the audited `GET /api/admin/community/groups/:id/messages`. Controller `lib/controllers/community-admin-controller.ts`.
+- **Still sample:** group activities in the admin Community page, and the demo groups and members that `/community` shows next to the real ones (Rith).
 
 ### Data shape
 
@@ -882,9 +911,9 @@ The admin list uses `CommunityReport`: `id, groupId, targetKind, targetLabel, me
 ### Backend gaps
 
 1. **Admin chat reads (done 16 Oct 2026, migration `20261016001100`):** admins open a chat only through `GET /api/admin/community/groups/:id/messages?reason=`, which calls `admin_read_community_messages()`. Every open writes `read_group_chat` to `admin_audit_log` (the reason, never message text). Admins can no longer read raw `community_messages` rows or use the member function. The admin Community page still shows its browser data and should switch to this endpoint.
-2. **Still browser only:** shutting a group down, reopening, reports, removing a message and the admin Community page use `community-store.ts`. Chat images need a private storage bucket readable by members of that group and by admins.
+2. **Done (17 Oct 2026):** shut down, reopen, reports, removing a message or person and the admin Community page use the database. Still open: chat images need a private storage bucket readable by members of that group and by admins.
 3. Professionals have no "My groups" list yet; it belongs in `/pro`.
-4. Admin edits to an existing group (name, description, rules) do not reach `/community` yet.
+4. **Done:** admin edits to a group are saved in the database and show on `/community`.
 
 ## 24. Client changes the time of a session (My appointments)
 

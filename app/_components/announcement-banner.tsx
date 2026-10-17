@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState, useSyncExternalStore } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { AlertTriangle, ArrowRight, CheckCircle2, Info, X } from "lucide-react";
 import { useLanguage } from "./language-provider";
 import {
@@ -84,10 +84,27 @@ export function AnnouncementBanner() {
   const [now] = useState(() => Date.now());
   const storedDismissed = useSyncExternalStore(subscribe, readDismissed, () => "");
   const [dismissedNow, setDismissedNow] = useState("");
+  const [loaded, setLoaded] = useState<Announcement[]>(ANNOUNCEMENTS);
+  const hidden = pathname.startsWith("/admin") || pathname.startsWith("/content-preview");
 
-  if (pathname.startsWith("/admin") || pathname.startsWith("/content-preview")) return null;
+  // The newest running announcement, from GET /api/announcements/current.
+  useEffect(() => {
+    if (hidden) return;
+    let active = true;
+    fetch("/api/announcements/current")
+      .then((response) => (response.ok ? response.json() : null))
+      .then((data: { announcement: Announcement | null } | null) => {
+        if (active && data) setLoaded(data.announcement ? [data.announcement] : []);
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, [hidden]);
 
-  const announcement = currentAnnouncement(ANNOUNCEMENTS, now);
+  if (hidden) return null;
+
+  const announcement = currentAnnouncement(loaded, now);
   if (!announcement || [storedDismissed, dismissedNow].includes(announcement.id)) return null;
 
   function dismiss() {

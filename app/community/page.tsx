@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useSyncExternalStore } from 'react';
+import { useState, useEffect } from 'react';
 import { DesktopNavigation } from '../_components/app-navigation';
 import { BottomNav } from '../components/bottom-nav';
 import { CommunityHomeView } from './components/community-home-view';
@@ -12,13 +12,7 @@ import { CommunityMenuModal } from './components/community-menu-modal';
 import { CreateGroupView } from './components/create-group-view';
 
 import type { AuthUser } from '@/lib/auth';
-import {
-  getCommunitySnapshot,
-  getServerCommunitySnapshot,
-  readCreatedGroups,
-  saveCreatedGroup,
-  subscribeCommunityStore,
-} from './community-store';
+import { readCreatedGroups } from './community-store';
 import {
   INITIAL_GROUPS,
   INITIAL_MESSAGES,
@@ -129,6 +123,7 @@ export default function CommunityPage() {
             maxMembers: number;
             membersCount: number;
             isJoined: boolean;
+            status: 'active' | 'closed';
           }>;
         } = await response.json();
 
@@ -151,7 +146,7 @@ export default function CommunityPage() {
           expectations: [],
           expectationsKm: [],
           isJoined: group.isJoined,
-          status: 'active',
+          status: group.status,
           createdBy: 'professional',
         }));
 
@@ -205,6 +200,7 @@ export default function CommunityPage() {
             display_name: string;
             is_own: boolean;
             is_mentor: boolean;
+            is_removed?: boolean;
           }>;
         } = await response.json();
 
@@ -227,6 +223,8 @@ export default function CommunityPage() {
             minute: '2-digit',
           }),
           avatarType: message.is_mentor ? 'mentor' : 'mask',
+          // Removed by the AROM team: the text is not sent, a placeholder shows.
+          removed: message.is_removed === true,
         }));
 
         setMessages((current) => [
@@ -245,21 +243,9 @@ export default function CommunityPage() {
     };
   }, [view, selectedGroupId, messageRefresh]);
 
-  // Admins shut groups down from /admin/community.
-
-  // Admins shut groups down from /admin/community. Read closures live so the
-  // closed notice shows without a reload.
-  const { closures, removedMessages, removedMembers } = useSyncExternalStore(
-    subscribeCommunityStore,
-    getCommunitySnapshot,
-    getServerCommunitySnapshot,
-  );
-  const groups: SupportGroup[] = savedGroups.map((group) => ({
-    ...group,
-    status: closures.some((item) => item.groupId === group.id)
-      ? 'closed'
-      : 'active',
-  }));
+  // Admins shut groups down from /admin/community; the closed state comes
+  // with each group from GET /api/community/groups.
+  const groups: SupportGroup[] = savedGroups;
 
   const [activities, setActivities] =
     useState<GroupActivity[]>(INITIAL_ACTIVITIES);
@@ -584,25 +570,11 @@ export default function CommunityPage() {
             {view === 'group-hub' && (
               <GroupHubView
                 group={activeGroup}
-                messages={messages
-                  .filter((m) => m.groupId === selectedGroupId)
-                  .map((m) =>
-                    removedMessages.some((item) => item.messageId === m.id)
-                      ? { ...m, removed: true }
-                      : m,
-                  )}
+                messages={messages.filter((m) => m.groupId === selectedGroupId)}
                 activities={activities.filter(
                   (a) => a.groupId === selectedGroupId,
                 )}
-                members={members.filter(
-                  (m) =>
-                    m.groupId === selectedGroupId &&
-                    !removedMembers.some(
-                      (item) =>
-                        item.groupId === m.groupId &&
-                        item.memberLabel === m.name,
-                    ),
-                )}
+                members={members.filter((m) => m.groupId === selectedGroupId)}
                 onBack={() => setView('home')}
                 onSendMessage={handleSendMessage}
                 onToggleActivityJoin={handleToggleActivityJoin}

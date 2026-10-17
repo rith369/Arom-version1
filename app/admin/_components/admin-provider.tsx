@@ -5,9 +5,7 @@ import {
   useCallback,
   useContext,
   useEffect,
-  useMemo,
   useState,
-  useSyncExternalStore,
   type ReactNode,
 } from 'react';
 
@@ -24,42 +22,20 @@ import {
   type UserStatus,
 } from '../_data/users';
 
-import {
-  initialContentRecords,
-  type ContentBody,
-  type ContentRecord,
-} from '../_data/content';
+import type { ContentBody, ContentRecord } from '../_data/content';
 import {
   initialPodcasts,
   type AdminPodcast,
   type PodcastStatus,
 } from '../_data/podcasts';
-import { initialBookings, type AdminBooking } from '../_data/bookings';
+import type { AdminBooking } from '../_data/bookings';
 import {
-  initialGroups,
   initialGroupActivities,
-  initialCommunityReports,
-  reportReasonLabels,
-  toAdminGroup,
   type AdminGroup,
   type AdminGroupActivity,
+  type AdminGroupMessage,
   type CommunityReport,
 } from '../_data/community';
-import {
-  closeGroup,
-  getCommunitySnapshot,
-  getServerCommunitySnapshot,
-  removeMember,
-  removeMessage,
-  reopenGroup as reopenStoredGroup,
-  saveCreatedGroup,
-  subscribeCommunityStore,
-} from '../../community/community-store';
-import {
-  DEFAULT_GROUP_RULES,
-  DEFAULT_GROUP_RULES_KM,
-  type ChatMessage,
-} from '../../community/community-data';
 import type { AdminJournalPrompt } from '../_data/journal-prompts';
 
 import {
@@ -67,24 +43,17 @@ import {
   type AdminSettings,
 } from '../_data/settings';
 import type { CrisisHelpline } from '../../_components/support-contacts';
-import {
-  ANNOUNCEMENTS,
-  type Announcement,
-} from '../../_components/announcements';
+import type { Announcement } from '../../_components/announcements';
 import { FREE_DURING_TESTING } from '@/lib/pricing';
 import { useAuth } from '../../_components/auth-provider';
 
-import {
-  initialReports,
-  type AdminContentReport,
-  type ReportStatus,
-} from '../_data/reports';
+import type { AdminContentReport, ReportStatus } from '../_data/reports';
 
 
 
 type AdminState = {
   // Sample professionals still used by the pages that run on demo data
-  // (bookings, community, podcasts). The Professionals page uses
+  // (podcasts). The Professionals page uses
   // professionalRecords, which comes from the database.
   professionals: Professional[];
   professionalRecords: Professional[];
@@ -121,53 +90,61 @@ type AdminState = {
     promotion?: ProfessionalPromotion,
   ) => Promise<ActionResult>;
 
+  // From the database, falling back to the code version of items no admin has changed yet.
   contentRecords: ContentRecord[];
+  contentLoad: LoadStatus;
   currentAdminName: string;
   saveContentDraft: (
     id: string,
     body: ContentBody,
     expectedUpdatedAt: string | null,
-  ) => ContentActionResult;
+  ) => Promise<ContentActionResult>;
   publishContent: (
     id: string,
     expectedUpdatedAt: string | null,
-  ) => ContentActionResult;
-  discardContentDraft: (id: string) => void;
-  setContentHidden: (id: string, hidden: boolean) => void;
-  restoreContentVersion: (id: string, version: number) => string;
-  deleteContent: (id: string) => void;
+  ) => Promise<ContentActionResult>;
+  discardContentDraft: (id: string) => Promise<ContentActionResult>;
+  setContentHidden: (id: string, hidden: boolean) => Promise<ContentActionResult>;
+  restoreContentVersion: (id: string, version: number) => Promise<ContentActionResult>;
+  deleteContent: (id: string) => Promise<ContentActionResult>;
 
+  // From the database, never with the reporter.
   reports: AdminContentReport[];
+  reportsLoad: LoadStatus;
   // Closes every open report on one item, e.g. "lesson:learn-about-stress".
-  resolveReports: (itemId: string, status: Exclude<ReportStatus, 'open'>) => void;
+  resolveReports: (itemId: string, status: Exclude<ReportStatus, 'open'>) => Promise<ActionResult>;
 
   podcasts: AdminPodcast[];
   savePodcast: (record: AdminPodcast) => void;
   setPodcastStatus: (id: string, status: PodcastStatus) => void;
 
+  // From the database, without the client (admins never see who booked).
   bookings: AdminBooking[];
-  saveBooking: (record: AdminBooking) => void;
+  bookingsLoad: LoadStatus;
+  cancelBooking: (id: string, reason: string) => Promise<ActionResult>;
+  // From the database. Every change is audit logged.
   groups: AdminGroup[];
-  saveGroup: (record: AdminGroup) => void;
-  shutDownGroup: (id: string, reason: string) => void;
-  reopenGroup: (id: string) => void;
-  // Every message in every group. Admins may read chats for safety; the
-  // backend writes an audit log entry each time a chat is opened.
-  communityMessages: ChatMessage[];
-  // Message ids an admin removed. View chat still shows them, marked Removed.
-  removedMessageIds: string[];
+  groupsLoad: LoadStatus;
+  saveGroup: (record: AdminGroup, isNew: boolean) => Promise<ActionResult>;
+  shutDownGroup: (id: string, reason: string) => Promise<ActionResult>;
+  reopenGroup: (id: string) => Promise<ActionResult>;
+  // Admins may read a chat for safety. Each opening writes an audit log entry.
+  openGroupChat: (groupId: string) => Promise<{ ok: true; messages: AdminGroupMessage[] } | { ok: false; message: string }>;
 
   groupActivities: AdminGroupActivity[];
   saveGroupActivity: (record: AdminGroupActivity) => void;
 
   communityReports: CommunityReport[];
-  resolveCommunityReport: (id: string, status: 'dismissed' | 'removed') => void;
+  communityReportsLoad: LoadStatus;
+  resolveCommunityReport: (id: string, status: 'dismissed' | 'removed') => Promise<ActionResult>;
   journalPrompts: AdminJournalPrompt[];
   journalPromptsLoad: LoadStatus;
   saveJournalPrompt: (record: AdminJournalPrompt) => Promise<ActionResult>;
 
+  // The AROM support contact, from the database.
   settings: AdminSettings;
-  saveSettings: (record: AdminSettings) => void;
+  settingsLoad: LoadStatus;
+  saveSettings: (record: AdminSettings) => Promise<ActionResult>;
 
   crisisHelplines: CrisisHelpline[];
   crisisHelplinesLoad: LoadStatus;
@@ -177,10 +154,11 @@ type AdminState = {
   setFreeDuringTesting: (value: boolean) => void;
 
   announcements: Announcement[];
+  announcementsLoad: LoadStatus;
   publishAnnouncement: (
     draft: Pick<Announcement, 'kmText' | 'enText' | 'tone' | 'link' | 'endsAt'>,
-  ) => void;
-  endAnnouncement: (id: string) => void;
+  ) => Promise<ActionResult>;
+  endAnnouncement: (id: string) => Promise<ActionResult>;
 
 };
 
@@ -206,11 +184,13 @@ async function sendAdminRequest(url: string, method: 'POST' | 'PATCH', body: unk
   }
 }
 
-// Mirrors the hint codes the backend will return. `stale` means another admin
-// saved after this editor loaded the item, so nothing was overwritten.
+// `stale` means another admin saved after this editor loaded the item, so
+// nothing was overwritten. `shape` means the content failed the checks.
+// `error` carries a message (not allowed, network, server).
 export type ContentActionResult =
-  | { ok: true; updatedAt: string }
-  | { ok: false; code: 'stale' | 'shape' };
+  | { ok: true; updatedAt: string | null }
+  | { ok: false; code: 'stale' | 'shape' }
+  | { ok: false; code: 'error'; message: string };
 
 // License details an admin records when promoting someone they already know.
 export type ProfessionalPromotion = {
@@ -223,15 +203,32 @@ export type ProfessionalPromotion = {
 const AdminContext = createContext<AdminState | null>(null);
 
 export function AdminProvider({ children }: { children: ReactNode }) {
-  // Sample professionals for the demo pages (bookings, community, podcasts).
+  // Sample professionals for the demo pages (podcasts).
   const [professionals] = useState<Professional[]>(initialProfessionals);
 
   // Demo accounts for the sample Bookings page only.
   const [users] = useState<AdminUser[]>(initialUsers);
 
-  const [contentRecords, setContentRecords] = useState<ContentRecord[]>(
-    initialContentRecords,
-  );
+  const [contentRecords, setContentRecords] = useState<ContentRecord[]>([]);
+  const [contentLoad, setContentLoad] = useState<LoadStatus>('loading');
+
+  useEffect(() => {
+    let active = true;
+    fetch('/api/admin/content', { cache: 'no-store' })
+      .then(async (response) => {
+        if (!response.ok) throw new Error('load failed');
+        const data = (await response.json()) as { records: ContentRecord[] };
+        if (!active) return;
+        setContentRecords(data.records);
+        setContentLoad('ready');
+      })
+      .catch(() => {
+        if (active) setContentLoad('error');
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
 
 
@@ -347,130 +344,100 @@ export function AdminProvider({ children }: { children: ReactNode }) {
   const currentUserId = signedIn?.id ?? null;
   const currentAdminName = signedIn?.fullName || 'Admin';
 
-  function updateContentRecord(
-    id: string,
-    update: (record: ContentRecord) => ContentRecord,
-  ) {
-    setContentRecords((current) =>
-      current.map((item) => (item.id === id ? update(item) : item)),
-    );
+  // Every content change goes to the server, which answers with the fresh list.
+  async function contentAction(payload: Record<string, unknown>): Promise<ContentActionResult> {
+    try {
+      const response = await fetch('/api/admin/content', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const data = (await response.json().catch(() => null)) as {
+        ok?: boolean;
+        code?: 'stale' | 'shape';
+        updatedAt?: string | null;
+        records?: ContentRecord[];
+        error?: { message?: string };
+      } | null;
+      if (data?.code === 'stale' || data?.code === 'shape') return { ok: false, code: data.code };
+      if (!response.ok || !data?.ok || !data.records) {
+        return { ok: false, code: 'error', message: data?.error?.message ?? 'That could not be saved.' };
+      }
+      setContentRecords(data.records);
+      return { ok: true, updatedAt: data.updatedAt ?? null };
+    } catch {
+      return { ok: false, code: 'error', message: 'Could not reach the server. Check your connection.' };
+    }
   }
 
-  function saveContentDraft(
-    id: string,
-    body: ContentBody,
-    expectedUpdatedAt: string | null,
-  ): ContentActionResult {
-    const record = contentRecords.find((item) => item.id === id);
-
-    if (!record) return { ok: false, code: 'shape' };
-    if ((record.draft?.updatedAt ?? null) !== expectedUpdatedAt) {
-      return { ok: false, code: 'stale' };
-    }
-
-    const updatedAt = new Date().toISOString();
-
-    updateContentRecord(id, (item) => ({
-      ...item,
-      draft: {
-        body: structuredClone(body),
-        baseVersion: item.versions.at(-1)?.version ?? null,
-        updatedAt,
-        updatedBy: currentAdminName,
-      },
-    }));
-
-    return { ok: true, updatedAt };
+  function saveContentDraft(id: string, body: ContentBody, expectedUpdatedAt: string | null) {
+    return contentAction({ action: 'save', id, body, expectedUpdatedAt });
   }
 
   // Publishes exactly the saved draft as the next version, then removes the draft.
-  function publishContent(
-    id: string,
-    expectedUpdatedAt: string | null,
-  ): ContentActionResult {
-    const record = contentRecords.find((item) => item.id === id);
-
-    if (!record?.draft) return { ok: false, code: 'shape' };
-    if (record.draft.updatedAt !== expectedUpdatedAt) {
-      return { ok: false, code: 'stale' };
-    }
-
-    const publishedAt = new Date().toISOString();
-    const version = (record.versions.at(-1)?.version ?? 0) + 1;
-
-    updateContentRecord(id, (item) => ({
-      ...item,
-      liveVersion: version,
-      versions: [
-        ...item.versions,
-        {
-          version,
-          body: item.draft!.body,
-          publishedAt,
-          publishedBy: currentAdminName,
-        },
-      ],
-      draft: null,
-    }));
-
-    return { ok: true, updatedAt: publishedAt };
+  function publishContent(id: string, expectedUpdatedAt: string | null) {
+    return contentAction({ action: 'publish', id, expectedUpdatedAt });
   }
 
   function discardContentDraft(id: string) {
-    updateContentRecord(id, (item) => ({ ...item, draft: null }));
+    return contentAction({ action: 'discard', id });
   }
 
   // Hiding keeps every version. Showing again puts the newest version live.
   function setContentHidden(id: string, hidden: boolean) {
-    updateContentRecord(id, (item) => ({
-      ...item,
-      liveVersion: hidden ? null : (item.versions.at(-1)?.version ?? null),
-    }));
+    return contentAction({ action: 'hidden', id, hidden });
   }
 
   // Copies an old version into the draft. Nothing changes for users until it is published.
   function restoreContentVersion(id: string, version: number) {
-    const updatedAt = new Date().toISOString();
-
-    updateContentRecord(id, (item) => {
-      const source = item.versions.find((entry) => entry.version === version);
-
-      if (!source) return item;
-
-      return {
-        ...item,
-        draft: {
-          body: structuredClone(source.body),
-          baseVersion: item.versions.at(-1)?.version ?? null,
-          updatedAt,
-          updatedBy: currentAdminName,
-        },
-      };
-    });
-
-    return updatedAt;
-  }
-
-  const [reports, setReports] = useState<AdminContentReport[]>(initialReports);
-
-  function resolveReports(itemId: string, status: Exclude<ReportStatus, 'open'>) {
-    const resolvedAt = new Date().toISOString();
-
-    setReports((current) =>
-      current.map((item) =>
-        item.status === 'open' &&
-        `${item.target.type}:${item.target.sourceId}` === itemId
-          ? { ...item, status, resolvedAt, resolvedBy: currentAdminName }
-          : item,
-      ),
-    );
+    return contentAction({ action: 'restore', id, version });
   }
 
   // Only items that were never published can be deleted. Published ones are hidden instead.
   function deleteContent(id: string) {
-    setContentRecords((current) =>
-      current.filter((item) => item.id !== id || item.versions.length > 0),
-    );
+    return contentAction({ action: 'delete', id });
+  }
+
+  const [reports, setReports] = useState<AdminContentReport[]>([]);
+  const [reportsLoad, setReportsLoad] = useState<LoadStatus>('loading');
+
+  useEffect(() => {
+    let active = true;
+    fetch('/api/admin/content-reports', { cache: 'no-store' })
+      .then(async (response) => {
+        if (!response.ok) throw new Error('load failed');
+        const data = (await response.json()) as { reports: AdminContentReport[] };
+        if (!active) return;
+        setReports(data.reports);
+        setReportsLoad('ready');
+      })
+      .catch(() => {
+        if (active) setReportsLoad('error');
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  async function resolveReports(itemId: string, status: Exclude<ReportStatus, 'open'>): Promise<ActionResult> {
+    try {
+      const response = await fetch('/api/admin/content-reports/resolve', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ itemId, status }),
+      });
+      const data = (await response.json().catch(() => null)) as {
+        reports?: AdminContentReport[];
+        error?: { message?: string };
+      } | null;
+      if (!response.ok || !data?.reports) {
+        return { ok: false, message: data?.error?.message ?? 'The reports could not be closed.' };
+      }
+      setReports(data.reports);
+      return { ok: true };
+    } catch {
+      return { ok: false, message: 'Could not reach the server. Check your connection.' };
+    }
   }
 
   const [podcasts, setPodcasts] = useState<AdminPodcast[]>(initialPodcasts);
@@ -489,162 +456,158 @@ export function AdminProvider({ children }: { children: ReactNode }) {
     );
   }
 
-  const [bookings, setBookings] = useState<AdminBooking[]>(initialBookings);
+  const [bookings, setBookings] = useState<AdminBooking[]>([]);
+  const [bookingsLoad, setBookingsLoad] = useState<LoadStatus>('loading');
 
-  function saveBooking(record: AdminBooking) {
-    setBookings((current) =>
-      current.map((item) => (item.id === record.id ? record : item)),
-    );
-  }
-
-  const [groupEdits, setGroupEdits] = useState<AdminGroup[]>(initialGroups);
-  const [reportDecisions, setReportDecisions] = useState<
-    Partial<Record<string, 'dismissed' | 'removed'>>
-  >({});
-
-  // Groups, closures, reports and messages made on /community in this browser.
-  const communityStore = useSyncExternalStore(
-    subscribeCommunityStore,
-    getCommunitySnapshot,
-    getServerCommunitySnapshot,
-  );
-
-  const groups = useMemo(() => {
-    const closures = new Map(
-      communityStore.closures.map((item) => [item.groupId, item.reason]),
-    );
-    const created = communityStore.createdGroups
-      .filter((group) => !groupEdits.some((item) => item.id === group.id))
-      .map(toAdminGroup);
-
-    return [...groupEdits, ...created].map((group) => ({
-      ...group,
-      status: closures.has(group.id) ? ('closed' as const) : ('active' as const),
-      closedReason: closures.get(group.id),
-    }));
-  }, [communityStore, groupEdits]);
-
-  const communityMessages = communityStore.messages;
-  const removedMessageIds = useMemo(
-    () => communityStore.removedMessages.map((item) => item.messageId),
-    [communityStore],
-  );
-
-  const [groupActivities, setGroupActivities] = useState<AdminGroupActivity[]>(
-    initialGroupActivities,
-  );
-
-  const communityReports = useMemo((): CommunityReport[] => {
-    const sent: CommunityReport[] = communityStore.reports.map((report) => {
-      const target = report.target;
-      const message =
-        'messageId' in target && target.messageId
-          ? communityStore.messages.find((item) => item.id === target.messageId)
-          : undefined;
-      const group = groups.find((item) => item.id === target.groupId);
-
-      return {
-        id: report.id,
-        groupId: target.groupId,
-        targetKind: target.kind,
-        targetLabel:
-          target.kind === 'member'
-            ? target.memberLabel
-            : target.kind === 'group'
-              ? (group?.name ?? 'Group')
-              : target.kind === 'image'
-                ? 'Image'
-                : 'Message',
-        messageId: message?.id,
-        messagePreview:
-          target.kind === 'image'
-            ? `Image: ${message?.attachment?.name ?? 'removed'}`
-            : (message?.text ?? ''),
-        reason: reportReasonLabels[report.reason],
-        note: report.note,
-        createdAt: report.createdAt,
-        status: 'pending',
-      };
-    });
-
-    // A removal is saved in the store, so it survives a reload.
-    const isRemoved = (report: CommunityReport) =>
-      report.targetKind === 'member'
-        ? communityStore.removedMembers.some(
-            (item) =>
-              item.groupId === report.groupId &&
-              item.memberLabel === report.targetLabel,
-          )
-        : Boolean(report.messageId) &&
-          communityStore.removedMessages.some(
-            (item) => item.messageId === report.messageId,
-          );
-
-    return [...initialCommunityReports, ...sent].map((report) => ({
-      ...report,
-      status:
-        reportDecisions[report.id] ??
-        (isRemoved(report) ? 'removed' : report.status),
-    }));
-  }, [communityStore, groups, reportDecisions]);
-
-  function saveGroup(record: AdminGroup) {
-    const isNew = !groups.some((item) => item.id === record.id);
-
-    setGroupEdits((current) =>
-      current.some((item) => item.id === record.id)
-        ? current.map((item) => (item.id === record.id ? record : item))
-        : [...current, record],
-    );
-
-    // New groups made here also show on /community in this browser.
-    if (isNew) {
-      const mentor = professionals.find((item) => item.id === record.mentorId);
-      const usesDefaultRules =
-        record.rules.length === 0 ||
-        record.rules.join('\n') === DEFAULT_GROUP_RULES.join('\n');
-
-      saveCreatedGroup({
-        id: record.id,
-        name: record.name,
-        nameKm: record.kmName || record.name,
-        about: record.about,
-        aboutKm: record.kmAbout || record.about,
-        membersCount: record.membersCount,
-        maxMembers: record.maxMembers,
-        iconType: 'stress',
-        isAnonymous: record.isAnonymous,
-        expectations: [],
-        expectationsKm: [],
-        rules: usesDefaultRules ? DEFAULT_GROUP_RULES : record.rules,
-        rulesKm: usesDefaultRules ? DEFAULT_GROUP_RULES_KM : record.rules,
-        mentor: mentor
-          ? {
-              name: mentor.name,
-              nameKm: mentor.kmName || mentor.name,
-              role: mentor.role,
-              roleKm: mentor.kmRole || mentor.role,
-              experience: mentor.experience,
-              experienceKm: mentor.experience,
-              avatarUrl: mentor.image || undefined,
-              badge: 'Group Mentor',
-              badgeKm: 'អ្នកណែនាំក្រុម',
-            }
-          : undefined,
-        isJoined: false,
-        status: 'active',
-        createdBy: 'admin',
+  useEffect(() => {
+    let active = true;
+    fetch('/api/admin/bookings', { cache: 'no-store' })
+      .then(async (response) => {
+        if (!response.ok) throw new Error('load failed');
+        const data = (await response.json()) as { bookings: AdminBooking[] };
+        if (!active) return;
+        setBookings(data.bookings);
+        setBookingsLoad('ready');
+      })
+      .catch(() => {
+        if (active) setBookingsLoad('error');
       });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  // Emergency cancel. The list only changes once the database has saved it.
+  async function cancelBooking(id: string, reason: string): Promise<ActionResult> {
+    try {
+      const response = await fetch(`/api/admin/bookings/${id}/cancel`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason }),
+      });
+      const data = (await response.json().catch(() => null)) as {
+        bookings?: AdminBooking[];
+        error?: { message?: string };
+      } | null;
+      if (!response.ok || !data?.bookings) {
+        return { ok: false, message: data?.error?.message ?? 'The booking could not be cancelled.' };
+      }
+      setBookings(data.bookings);
+      return { ok: true };
+    } catch {
+      return { ok: false, message: 'Could not reach the server. Check your connection.' };
     }
   }
 
+  const [groups, setGroups] = useState<AdminGroup[]>([]);
+  const [groupsLoad, setGroupsLoad] = useState<LoadStatus>('loading');
+  const [communityReports, setCommunityReports] = useState<CommunityReport[]>([]);
+  const [communityReportsLoad, setCommunityReportsLoad] = useState<LoadStatus>('loading');
+
+  useEffect(() => {
+    let active = true;
+    fetch('/api/admin/community/groups', { cache: 'no-store' })
+      .then(async (response) => {
+        if (!response.ok) throw new Error('load failed');
+        const data = (await response.json()) as { groups: AdminGroup[] };
+        if (!active) return;
+        setGroups(data.groups);
+        setGroupsLoad('ready');
+      })
+      .catch(() => {
+        if (active) setGroupsLoad('error');
+      });
+    fetch('/api/admin/community/reports', { cache: 'no-store' })
+      .then(async (response) => {
+        if (!response.ok) throw new Error('load failed');
+        const data = (await response.json()) as { reports: CommunityReport[] };
+        if (!active) return;
+        setCommunityReports(data.reports);
+        setCommunityReportsLoad('ready');
+      })
+      .catch(() => {
+        if (active) setCommunityReportsLoad('error');
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  // Sends one community action and takes the fresh list from the answer.
+  async function sendCommunity<K extends 'groups' | 'reports'>(
+    url: string,
+    key: K,
+    body: unknown,
+  ): Promise<ActionResult> {
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      const data = (await response.json().catch(() => null)) as {
+        groups?: AdminGroup[];
+        reports?: CommunityReport[];
+        error?: { message?: string };
+      } | null;
+      const list = data?.[key];
+      if (!response.ok || !list) {
+        return { ok: false, message: data?.error?.message ?? 'That change could not be saved.' };
+      }
+      if (key === 'groups') setGroups(list as AdminGroup[]);
+      else setCommunityReports(list as CommunityReport[]);
+      return { ok: true };
+    } catch {
+      return { ok: false, message: 'Could not reach the server. Check your connection.' };
+    }
+  }
+
+  function saveGroup(record: AdminGroup, isNew: boolean) {
+    return sendCommunity('/api/admin/community/groups', 'groups', { group: record, isNew });
+  }
+
   function shutDownGroup(id: string, reason: string) {
-    closeGroup(id, reason.trim());
+    return sendCommunity(`/api/admin/community/groups/${id}/close`, 'groups', { reason: reason.trim() });
   }
 
   function reopenGroup(id: string) {
-    reopenStoredGroup(id);
+    return sendCommunity(`/api/admin/community/groups/${id}/reopen`, 'groups', {});
   }
+
+  async function resolveCommunityReport(id: string, status: 'dismissed' | 'removed'): Promise<ActionResult> {
+    const result = await sendCommunity(`/api/admin/community/reports/${id}/resolve`, 'reports', { status });
+    // Removing a whole group closes it, so refresh the groups too.
+    if (result.ok && status === 'removed') {
+      fetch('/api/admin/community/groups', { cache: 'no-store' })
+        .then((response) => (response.ok ? response.json() : null))
+        .then((data: { groups: AdminGroup[] } | null) => {
+          if (data) setGroups(data.groups);
+        })
+        .catch(() => {});
+    }
+    return result;
+  }
+
+  async function openGroupChat(groupId: string) {
+    try {
+      const response = await fetch(`/api/admin/community/groups/${groupId}/messages`, { cache: 'no-store' });
+      const data = (await response.json().catch(() => null)) as {
+        messages?: AdminGroupMessage[];
+        error?: { message?: string };
+      } | null;
+      if (!response.ok || !data?.messages) {
+        return { ok: false as const, message: data?.error?.message ?? 'This chat could not be opened.' };
+      }
+      return { ok: true as const, messages: data.messages };
+    } catch {
+      return { ok: false as const, message: 'Could not reach the server. Check your connection.' };
+    }
+  }
+
+  // Group activities are not connected yet (sample data, section 23).
+  const [groupActivities, setGroupActivities] = useState<AdminGroupActivity[]>(
+    initialGroupActivities,
+  );
 
   function saveGroupActivity(record: AdminGroupActivity) {
     setGroupActivities((current) =>
@@ -654,22 +617,6 @@ export function AdminProvider({ children }: { children: ReactNode }) {
     );
   }
 
-  function resolveCommunityReport(id: string, status: 'dismissed' | 'removed') {
-    const report = communityReports.find((item) => item.id === id);
-    if (!report || report.status !== 'pending') return;
-
-    // Removing a message or image hides it for every member. Removing a
-    // person takes them out of that group; their past messages stay.
-    if (status === 'removed') {
-      if (report.targetKind === 'member') {
-        removeMember(report.groupId, report.targetLabel);
-      } else if (report.messageId) {
-        removeMessage(report.messageId);
-      }
-    }
-
-    setReportDecisions((current) => ({ ...current, [id]: status }));
-  }
   const [journalPrompts, setJournalPrompts] = useState<AdminJournalPrompt[]>([]);
   const [journalPromptsLoad, setJournalPromptsLoad] = useState<LoadStatus>('loading');
 
@@ -714,6 +661,25 @@ export function AdminProvider({ children }: { children: ReactNode }) {
     }
   }
   const [settings, setSettings] = useState<AdminSettings>(initialSettings);
+  const [settingsLoad, setSettingsLoad] = useState<LoadStatus>('loading');
+
+  useEffect(() => {
+    let active = true;
+    fetch('/api/admin/support-contact', { cache: 'no-store' })
+      .then(async (response) => {
+        if (!response.ok) throw new Error('load failed');
+        const data = (await response.json()) as { supportContact: AdminSettings };
+        if (!active) return;
+        setSettings(data.supportContact);
+        setSettingsLoad('ready');
+      })
+      .catch(() => {
+        if (active) setSettingsLoad('error');
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const [crisisHelplines, setCrisisHelplines] = useState<CrisisHelpline[]>([]);
   const [crisisHelplinesLoad, setCrisisHelplinesLoad] = useState<LoadStatus>('loading');
@@ -738,30 +704,57 @@ export function AdminProvider({ children }: { children: ReactNode }) {
 
   const [freeDuringTesting, setFreeDuringTesting] = useState(FREE_DURING_TESTING);
 
-  const [announcements, setAnnouncements] = useState<Announcement[]>(() =>
-    ANNOUNCEMENTS.map((item) => ({ ...item })),
-  );
+  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+  const [announcementsLoad, setAnnouncementsLoad] = useState<LoadStatus>('loading');
+
+  useEffect(() => {
+    let active = true;
+    fetch('/api/admin/announcements', { cache: 'no-store' })
+      .then(async (response) => {
+        if (!response.ok) throw new Error('load failed');
+        const data = (await response.json()) as { announcements: Announcement[] };
+        if (!active) return;
+        setAnnouncements(data.announcements);
+        setAnnouncementsLoad('ready');
+      })
+      .catch(() => {
+        if (active) setAnnouncementsLoad('error');
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  // Publish and End change the list only once the database has saved them.
+  async function sendAnnouncement(url: string, body?: unknown): Promise<ActionResult> {
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: body === undefined ? undefined : JSON.stringify(body),
+      });
+      const data = (await response.json().catch(() => null)) as {
+        announcements?: Announcement[];
+        error?: { message?: string };
+      } | null;
+      if (!response.ok || !data?.announcements) {
+        return { ok: false, message: data?.error?.message ?? 'That could not be saved.' };
+      }
+      setAnnouncements(data.announcements);
+      return { ok: true };
+    } catch {
+      return { ok: false, message: 'Could not reach the server. Check your connection.' };
+    }
+  }
 
   function publishAnnouncement(
     draft: Pick<Announcement, 'kmText' | 'enText' | 'tone' | 'link' | 'endsAt'>,
   ) {
-    setAnnouncements((current) => [
-      {
-        ...draft,
-        id: crypto.randomUUID(),
-        createdAt: new Date().toISOString(),
-        createdBy: currentAdminName,
-        endedAt: null,
-      },
-      ...current,
-    ]);
+    return sendAnnouncement('/api/admin/announcements', draft);
   }
 
   function endAnnouncement(id: string) {
-    const endedAt = new Date().toISOString();
-    setAnnouncements((current) =>
-      current.map((item) => (item.id === id && !item.endedAt ? { ...item, endedAt } : item)),
-    );
+    return sendAnnouncement(`/api/admin/announcements/${id}/end`);
   }
 
   // Saves the whole list in this order. The database checks every row and
@@ -787,8 +780,25 @@ export function AdminProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  function saveSettings(record: AdminSettings) {
-    setSettings(record);
+  async function saveSettings(record: AdminSettings): Promise<ActionResult> {
+    try {
+      const response = await fetch('/api/admin/support-contact', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ supportContact: record }),
+      });
+      const data = (await response.json().catch(() => null)) as {
+        supportContact?: AdminSettings;
+        error?: { message?: string };
+      } | null;
+      if (!response.ok || !data?.supportContact) {
+        return { ok: false, message: data?.error?.message ?? 'The support contact could not be saved.' };
+      }
+      setSettings(data.supportContact);
+      return { ok: true };
+    } catch {
+      return { ok: false, message: 'Could not reach the server. Check your connection.' };
+    }
   }
 
 
@@ -810,6 +820,7 @@ export function AdminProvider({ children }: { children: ReactNode }) {
         setUserStatus,
         setUserRole,
         contentRecords,
+        contentLoad,
         currentAdminName,
         saveContentDraft,
         publishContent,
@@ -818,26 +829,30 @@ export function AdminProvider({ children }: { children: ReactNode }) {
         restoreContentVersion,
         deleteContent,
         reports,
+        reportsLoad,
         resolveReports,
         podcasts,
         savePodcast,
         setPodcastStatus,
         bookings,
-        saveBooking,
+        bookingsLoad,
+        cancelBooking,
         groups,
+        groupsLoad,
         saveGroup,
         shutDownGroup,
         reopenGroup,
-        communityMessages,
-        removedMessageIds,
+        openGroupChat,
         groupActivities,
         saveGroupActivity,
         communityReports,
+        communityReportsLoad,
         resolveCommunityReport,
         journalPrompts,
         journalPromptsLoad,
         saveJournalPrompt,
         settings,
+        settingsLoad,
         saveSettings,
         crisisHelplines,
         crisisHelplinesLoad,
@@ -845,6 +860,7 @@ export function AdminProvider({ children }: { children: ReactNode }) {
         freeDuringTesting,
         setFreeDuringTesting,
         announcements,
+        announcementsLoad,
         publishAnnouncement,
         endAnnouncement,
       }}>

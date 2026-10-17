@@ -19,12 +19,13 @@ export async function GET() {
     );
   }
 
+  // RLS returns every active group, plus closed groups this person is in
+  // (they can still read those). The admin's closing reason is never sent.
   const { data: groups, error: groupsError } = await supabase
     .from('support_groups')
     .select(
-      'id, mentor_id, name, name_km, concern, description, description_km, max_members',
+      'id, mentor_id, name, name_km, concern, description, description_km, max_members, is_active',
     )
-    .eq('is_active', true)
     .order('created_at', { ascending: false });
 
   if (groupsError) {
@@ -73,6 +74,7 @@ export async function GET() {
         maxMembers: group.max_members,
         membersCount: count,
         isJoined: joinedIds.has(group.id) || group.mentor_id === user.id,
+        status: group.is_active ? 'active' : 'closed',
       };
     }),
   );

@@ -33,6 +33,16 @@ export type AdminGroupActivity = {
   status: 'scheduled' | 'cancelled';
 };
 
+// One message as an admin sees it in View chat (GET /api/admin/community/groups/:id/messages).
+export type AdminGroupMessage = {
+  id: string;
+  content: string;
+  createdAt: string;
+  displayName: string;
+  isMentor: boolean;
+  isHidden: boolean;
+};
+
 export type CommunityReportKind = 'member' | 'message' | 'image' | 'group';
 
 export type CommunityReport = {

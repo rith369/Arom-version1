@@ -41,7 +41,8 @@ const dateFormat = new Intl.DateTimeFormat('en-GB', {
 });
 
 export function AnnouncementsSection() {
-  const { announcements, publishAnnouncement, endAnnouncement } = useAdmin();
+  const { announcements, announcementsLoad, publishAnnouncement, endAnnouncement } = useAdmin();
+  const [saving, setSaving] = useState(false);
 
   const [kmText, setKmText] = useState('');
   const [enText, setEnText] = useState('');
@@ -58,8 +59,9 @@ export function AnnouncementsSection() {
   const canPublish = kmText.trim().length > 0;
   const previewLink = isValidAppLink(link.trim()) ? link.trim() : '';
 
-  function publish(event: FormEvent<HTMLFormElement>) {
+  async function publish(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (saving) return;
     const cleanLink = link.trim();
 
     if (!kmText.trim()) {
@@ -72,7 +74,8 @@ export function AnnouncementsSection() {
     }
 
     const publishedAt = Date.now();
-    publishAnnouncement({
+    setSaving(true);
+    const result = await publishAnnouncement({
       kmText: kmText.trim(),
       enText: enText.trim(),
       tone,
@@ -82,7 +85,12 @@ export function AnnouncementsSection() {
           ? null
           : new Date(publishedAt + Number(ends) * 24 * 60 * 60 * 1000).toISOString(),
     });
-    setNow(publishedAt);
+    setSaving(false);
+    if (!result.ok) {
+      setError(result.message);
+      return;
+    }
+    setNow(Date.now());
     setKmText('');
     setEnText('');
     setLink('');
@@ -207,10 +215,10 @@ export function AnnouncementsSection() {
         <div className="flex flex-wrap items-center gap-3">
           <button
             type="submit"
-            disabled={!canPublish}
+            disabled={!canPublish || saving || announcementsLoad !== 'ready'}
             className="inline-flex items-center gap-2 rounded-full bg-arom px-5 py-2.5 text-sm font-medium text-white hover:bg-arom-deep disabled:cursor-not-allowed disabled:opacity-40">
             <Send size={16} aria-hidden="true" />
-            Publish
+            {saving ? 'Saving...' : 'Publish'}
           </button>
           <p role="status" aria-live="polite" className="text-sm text-arom">
             {notice}
@@ -221,7 +229,13 @@ export function AnnouncementsSection() {
       <div className="mt-8 border-t border-arom-border pt-6">
         <h3 className="text-base font-semibold">All announcements</h3>
 
-        {announcements.length === 0 ? (
+        {announcementsLoad === 'loading' ? (
+          <p className="mt-3 text-sm text-ink-muted">Loading announcements...</p>
+        ) : announcementsLoad === 'error' ? (
+          <p role="alert" className="mt-3 text-sm text-arom-danger">
+            Announcements could not be loaded. Refresh the page to try again.
+          </p>
+        ) : announcements.length === 0 ? (
           <p className="mt-3 text-sm text-ink-muted">No announcements yet.</p>
         ) : (
           <ul className="mt-4 space-y-3">
@@ -254,11 +268,20 @@ export function AnnouncementsSection() {
                   {running && (
                     <button
                       type="button"
-                      onClick={() => {
-                        endAnnouncement(item.id);
+                      onClick={async () => {
+                        if (saving) return;
+                        setSaving(true);
+                        const result = await endAnnouncement(item.id);
+                        setSaving(false);
                         setNow(Date.now());
-                        setNotice('Announcement ended.');
+                        if (result.ok) {
+                          setNotice('Announcement ended.');
+                          setError('');
+                        } else {
+                          setError(result.message);
+                        }
                       }}
+                      disabled={saving}
                       className="mt-3 rounded-full border border-arom-border px-4 py-1.5 text-xs font-medium text-ink hover:bg-arom-wash">
                       End now
                     </button>

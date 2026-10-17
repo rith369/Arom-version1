@@ -37,13 +37,31 @@ export function buildCrashReport(
   };
 }
 
-// Mock for now: the backend endpoint does not exist yet (BACKEND-HANDOFF.md
-// section 14). When it does, send with `navigator.sendBeacon` so a report
-// still goes out if the person leaves the page. The server adds who was
-// affected (to count people) without storing it in the report itself.
+// Sends the report to POST /api/crash-reports (BACKEND-HANDOFF.md section 14)
+// with navigator.sendBeacon, so it still goes out if the person leaves the
+// page. The server counts how many people were affected without returning
+// who they were. Sending can never break the error screen.
 export function reportCrash(
   error: Error & { digest?: string },
   kind: CrashReport['kind'],
 ): CrashReport {
-  return buildCrashReport(error, kind);
+  const report = buildCrashReport(error, kind);
+  try {
+    const body = JSON.stringify(report);
+    const sent =
+      typeof navigator !== 'undefined' &&
+      typeof navigator.sendBeacon === 'function' &&
+      navigator.sendBeacon('/api/crash-reports', new Blob([body], { type: 'application/json' }));
+    if (!sent) {
+      void fetch('/api/crash-reports', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body,
+        keepalive: true,
+      }).catch(() => undefined);
+    }
+  } catch {
+    // Nothing to do: the person still sees the error screen.
+  }
+  return report;
 }

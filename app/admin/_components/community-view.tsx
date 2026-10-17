@@ -16,7 +16,6 @@ import {
   X,
   MessagesSquare,
   Ban,
-  FileText,
 } from 'lucide-react';
 
 import { useAdmin } from './admin-provider';
@@ -25,6 +24,7 @@ import { useLanguage } from '../../_components/language-provider';
 import type {
   AdminGroup,
   AdminGroupActivity,
+  AdminGroupMessage,
   CommunityReport,
 } from '../_data/community';
 
@@ -84,13 +84,20 @@ function GroupForm({
   record: AdminGroup | null;
   onClose: () => void;
 }) {
-  const { professionals, saveGroup, currentAdminName } = useAdmin();
+  const { professionalRecords, saveGroup } = useAdmin();
   const { language } = useLanguage();
   const km = language === 'km';
   const [error, setError] = useState('');
+  const [saving, setSaving] = useState(false);
+  // Only verified professionals with an active account can mentor a group.
+  const mentors = professionalRecords.filter(
+    (item) => item.verificationStatus === 'verified' && item.accountStatus === 'active',
+  );
+  const minMembers = Math.max(2, record?.membersCount ?? 0);
 
-  function submit(event: FormEvent<HTMLFormElement>) {
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (saving) return;
 
     const form = new FormData(event.currentTarget);
     const text = (key: string) => String(form.get(key) ?? '').trim();
@@ -104,36 +111,40 @@ function GroupForm({
       !name ||
       !about ||
       !Number.isInteger(maxMembers) ||
-      maxMembers < Math.max(1, record?.membersCount ?? 0) ||
-      (mentorId && !professionals.some((item) => item.id === mentorId))
+      maxMembers < minMembers ||
+      maxMembers > 10 ||
+      !mentors.some((item) => item.id === mentorId)
     ) {
       setError(
-        km
-          ? 'សូមពិនិត្យព័ត៌មាន។ ចំនួនអតិបរមាមិនអាចតិចជាងសមាជិកបច្ចុប្បន្ន។'
-          : 'Check the fields. Capacity cannot be below the current member count.',
+        'Check the fields. Choose a mentor, and keep capacity between 2 and 10 and not below the current member count.',
       );
       return;
     }
 
-    saveGroup({
-      id: record?.id ?? crypto.randomUUID(),
-      name,
-      kmName: text('kmName'),
-      about,
-      kmAbout: text('kmAbout'),
-      maxMembers,
-      membersCount: record?.membersCount ?? 0,
-      mentorId,
-      isAnonymous: form.get('isAnonymous') === 'on',
-      rules: text('rules')
-        .split('\n')
-        .map((rule) => rule.trim())
-        .filter(Boolean),
-      status: record?.status ?? 'active',
-      createdBy: record?.createdBy ?? 'admin',
-      creatorName: record?.creatorName ?? currentAdminName,
-    });
-
+    setSaving(true);
+    const result = await saveGroup(
+      {
+        id: record?.id ?? '',
+        name,
+        kmName: text('kmName'),
+        about,
+        kmAbout: text('kmAbout'),
+        maxMembers,
+        membersCount: record?.membersCount ?? 0,
+        mentorId,
+        isAnonymous: true,
+        rules: record?.rules ?? [],
+        status: record?.status ?? 'active',
+        createdBy: record?.createdBy ?? 'admin',
+        creatorName: record?.creatorName ?? 'AROM team',
+      },
+      !record,
+    );
+    setSaving(false);
+    if (!result.ok) {
+      setError(result.message);
+      return;
+    }
     onClose();
   }
 
@@ -201,7 +212,8 @@ function GroupForm({
               name="maxMembers"
               type="number"
               required
-              min={Math.max(1, record?.membersCount ?? 0)}
+              min={minMembers}
+              max={10}
               step={1}
               defaultValue={record?.maxMembers ?? 10}
               className={fieldClass}
@@ -209,14 +221,15 @@ function GroupForm({
           </label>
 
           <label className="block text-sm">
-            {km ? 'អ្នកសម្របសម្រួល' : 'Mentor'}
+            {km ? 'អ្នកសម្របសម្រួល' : 'Mentor'} *
             <select
               name="mentorId"
+              required
               defaultValue={record?.mentorId ?? ''}
               className={fieldClass}>
-              <option value="">{km ? 'មិនទាន់កំណត់' : 'Unassigned'}</option>
+              <option value="">Choose a verified professional</option>
 
-              {professionals.map((item) => (
+              {mentors.map((item) => (
                 <option key={item.id} value={item.id}>
                   {km && item.kmName ? item.kmName : item.name}
                 </option>
@@ -225,28 +238,10 @@ function GroupForm({
           </label>
         </div>
 
-        <label className="block text-sm">
-          {km
-            ? 'ច្បាប់ក្រុម (មួយក្នុងមួយបន្ទាត់)'
-            : 'Group rules (one per line)'}
-          <textarea
-            name="rules"
-            rows={4}
-            maxLength={4000}
-            defaultValue={record?.rules.join('\n') ?? ''}
-            className={fieldClass}
-          />
-        </label>
-
-        <label className="flex items-center gap-2 text-sm">
-          <input
-            name="isAnonymous"
-            type="checkbox"
-            defaultChecked={record?.isAnonymous ?? true}
-            className="accent-arom"
-          />
-          {km ? 'អនុញ្ញាតការចូលរួមដោយអនាមិក' : 'Allow anonymous participation'}
-        </label>
+        <p className="rounded-xl bg-arom-wash p-3 text-xs text-ink-muted">
+          Every group uses the standard AROM group rules. Members choose in
+          their Profile whether others see them as Anonymous.
+        </p>
 
         {error && (
           <p role="alert" className="text-sm text-arom-danger">
@@ -260,8 +255,9 @@ function GroupForm({
           </button>
           <button
             type="submit"
-            className="rounded-full bg-arom px-5 py-2.5 text-sm text-white">
-            {km ? 'រក្សាទុក' : 'Save group'}
+            disabled={saving}
+            className="rounded-full bg-arom px-5 py-2.5 text-sm text-white disabled:opacity-60">
+            {saving ? 'Saving...' : km ? 'រក្សាទុក' : 'Save group'}
           </button>
         </div>
       </form>
@@ -383,10 +379,29 @@ function ChatViewer({
   highlightMessageId?: string;
   onClose: () => void;
 }) {
-  const { communityMessages, removedMessageIds } = useAdmin();
-  const messages = communityMessages.filter(
-    (message) => message.groupId === group.id,
-  );
+  const { openGroupChat } = useAdmin();
+  const [state, setState] = useState<
+    { status: 'loading' } | { status: 'error'; message: string } | { status: 'ready'; messages: AdminGroupMessage[] }
+  >({ status: 'loading' });
+
+  // Opening the chat is what writes the audit log entry, once per opening.
+  useEffect(() => {
+    let active = true;
+    void openGroupChat(group.id).then((result) => {
+      if (!active) return;
+      setState(result.ok ? { status: 'ready', messages: result.messages } : { status: 'error', message: result.message });
+    });
+    return () => {
+      active = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [group.id]);
+
+  const timeFormat = new Intl.DateTimeFormat('en-GB', {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+    timeZone: 'Asia/Phnom_Penh',
+  });
 
   return (
     <Modal title={`Chat: ${group.name}`} onClose={onClose}>
@@ -395,13 +410,19 @@ function ChatViewer({
         told in the group guidelines that the AROM safety team can read it.
       </p>
 
-      {messages.length === 0 ? (
+      {state.status === 'loading' ? (
+        <p className="mt-5 text-center text-sm text-ink-muted">Loading messages...</p>
+      ) : state.status === 'error' ? (
+        <p role="alert" className="mt-5 text-center text-sm text-arom-danger">
+          {state.message}
+        </p>
+      ) : state.messages.length === 0 ? (
         <p className="mt-5 text-center text-sm text-ink-muted">
           No messages in this group yet.
         </p>
       ) : (
         <ol className="mt-4 space-y-3">
-          {messages.map((message) => (
+          {state.messages.map((message) => (
             <li
               key={message.id}
               className={`rounded-2xl border p-3 text-sm ${
@@ -411,7 +432,7 @@ function ChatViewer({
               }`}>
               <div className="flex flex-wrap items-baseline justify-between gap-2">
                 <span className="font-medium">
-                  {message.senderName}
+                  {message.displayName}
                   {message.isMentor && (
                     <span className="ml-2 rounded-full bg-arom-wash px-2 py-0.5 text-xs text-arom">
                       Mentor
@@ -419,41 +440,23 @@ function ChatViewer({
                   )}
                 </span>
                 <span className="text-xs text-ink-muted">
-                  {removedMessageIds.includes(message.id) && (
+                  {message.isHidden && (
                     <span className="mr-2 rounded-full bg-arom-danger/10 px-2 py-0.5 text-arom-danger">
                       Removed
                     </span>
                   )}
-                  {message.time}
+                  {timeFormat.format(new Date(message.createdAt))}
                 </span>
               </div>
 
-              {removedMessageIds.includes(message.id) && (
+              {message.isHidden && (
                 <p className="mt-1.5 text-xs text-ink-muted">
                   Members see &quot;This message was removed by the AROM
                   team.&quot; Only admins see the original below.
                 </p>
               )}
 
-              {message.text && (
-                <p className="mt-1.5 leading-6 text-ink">{message.text}</p>
-              )}
-
-              {message.attachment?.type === 'image' && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={message.attachment.url}
-                  alt={message.attachment.name}
-                  className="mt-2 max-h-56 rounded-xl border border-arom-border"
-                />
-              )}
-
-              {message.attachment?.type === 'file' && (
-                <p className="mt-2 flex items-center gap-2 text-xs text-ink-muted">
-                  <FileText size={15} aria-hidden="true" />
-                  {message.attachment.name}
-                </p>
-              )}
+              <p className="mt-1.5 leading-6 text-ink">{message.content}</p>
 
               {message.id === highlightMessageId && (
                 <p className="mt-2 text-xs text-arom-danger">Reported</p>
@@ -472,19 +475,24 @@ function ShutDownDialog({
   onClose,
 }: {
   group: AdminGroup;
-  onConfirm: (reason: string) => void;
+  onConfirm: (reason: string) => Promise<string | null>;
   onClose: () => void;
 }) {
   const [reason, setReason] = useState('');
   const [error, setError] = useState('');
+  const [saving, setSaving] = useState(false);
 
-  function submit(event: FormEvent<HTMLFormElement>) {
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (saving) return;
     if (!reason.trim()) {
       setError('Write a reason for the AROM team.');
       return;
     }
-    onConfirm(reason);
+    setSaving(true);
+    const failure = await onConfirm(reason);
+    setSaving(false);
+    if (failure) setError(failure);
   }
 
   return (
@@ -519,8 +527,9 @@ function ShutDownDialog({
           </button>
           <button
             type="submit"
-            className="rounded-full bg-arom-danger px-5 py-2.5 text-sm text-white">
-            Shut down group
+            disabled={saving}
+            className="rounded-full bg-arom-danger px-5 py-2.5 text-sm text-white disabled:opacity-60">
+            {saving ? 'Shutting down...' : 'Shut down group'}
           </button>
         </div>
       </form>
@@ -550,15 +559,18 @@ const removedStatusLabels: Record<CommunityReport['targetKind'], string> = {
   member: 'Removed from group',
   message: 'Message removed for everyone',
   image: 'Image removed for everyone',
-  group: 'Marked for removal',
+  group: 'Report closed',
 };
 
 function removalExplanation(report: CommunityReport) {
   if (report.targetKind === 'member') {
-    return `${report.targetLabel} loses access to this group and disappears from its member list. Their past messages stay.`;
+    if (!report.messageId) {
+      return 'This report is not linked to a message, so AROM cannot tell who it is about. Only the report closes.';
+    }
+    return `The person who wrote the reported message loses access to this group for good and cannot join it again. Their past messages stay.`;
   }
   if (!report.messageId) {
-    return 'This demo report is not linked to a real message, so only the report closes.';
+    return 'The reported message no longer exists, so only the report closes.';
   }
   return `Members will see "This message was removed by the AROM team." instead of the ${report.targetKind === 'image' ? 'image' : 'message'}. Admins can still see it in View chat.`;
 }
@@ -566,9 +578,11 @@ function removalExplanation(report: CommunityReport) {
 export function CommunityView() {
   const {
     groups,
+    groupsLoad,
+    communityReportsLoad,
     shutDownGroup,
     reopenGroup,
-    professionals,
+    professionalRecords,
     groupActivities,
     saveGroupActivity,
     communityReports,
@@ -613,7 +627,7 @@ export function CommunityView() {
   }
 
   function mentorName(id: string) {
-    const mentor = professionals.find((item) => item.id === id);
+    const mentor = professionalRecords.find((item) => item.id === id);
     return mentor
       ? km && mentor.kmName
         ? mentor.kmName
@@ -799,9 +813,9 @@ export function CommunityView() {
                 ) : (
                   <button
                     type="button"
-                    onClick={() => {
-                      reopenGroup(group.id);
-                      setNotice('Group reopened.');
+                    onClick={async () => {
+                      const result = await reopenGroup(group.id);
+                      setNotice(result.ok ? 'Group reopened.' : result.message);
                     }}
                     className="flex items-center gap-1.5 rounded-lg border border-arom-border px-3 py-2 text-sm text-ink-muted">
                     <RotateCcw size={17} aria-hidden="true" />
@@ -993,6 +1007,11 @@ export function CommunityView() {
         className="mt-4 min-h-5 text-sm text-arom">
         {notice}
       </p>
+      {(groupsLoad === 'error' || communityReportsLoad === 'error') && (
+        <p role="alert" className="text-sm text-arom-danger">
+          Some community records could not be loaded. Refresh the page to try again.
+        </p>
+      )}
 
       {editor && (
         <GroupForm record={editor.record} onClose={() => setEditor(null)} />
@@ -1012,10 +1031,12 @@ export function CommunityView() {
         <ShutDownDialog
           group={shutDownTarget}
           onClose={() => setShutDownTarget(null)}
-          onConfirm={(reason) => {
-            shutDownGroup(shutDownTarget.id, reason);
+          onConfirm={async (reason) => {
+            const result = await shutDownGroup(shutDownTarget.id, reason);
+            if (!result.ok) return result.message;
             setShutDownTarget(null);
             setNotice('Group shut down. Members now see it as closed.');
+            return null;
           }}
         />
       )}
@@ -1052,13 +1073,13 @@ export function CommunityView() {
             </button>
             <button
               type="button"
-              onClick={() => {
-                resolveCommunityReport(
+              onClick={async () => {
+                const result = await resolveCommunityReport(
                   reportAction.report.id,
                   reportAction.status,
                 );
                 setReportAction(null);
-                setNotice(km ? 'បានពិនិត្យរបាយការណ៍។' : 'Report reviewed.');
+                setNotice(result.ok ? (km ? 'បានពិនិត្យរបាយការណ៍។' : 'Report reviewed.') : result.message);
               }}
               className="rounded-full bg-arom px-5 py-2 text-sm text-white">
               {km ? 'បញ្ជាក់' : 'Confirm'}
