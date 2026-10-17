@@ -1,5 +1,22 @@
 # AROM: Change Report
 
+## 17 Oct 2026: Demo Data Notice Only Where Data Is Still Sample
+
+Commit `PENDING`. No migration. Frontend only.
+
+**Why.** After the backend for seven admin features was merged, the admin still showed "Demo data on this page. Changes reset when you refresh." on Bookings, Reports, Settings, MindGuide and Community. Those pages now save to the database, so the notice told admins their work would be lost when it was not. The list of real pages in the admin shell had not been updated.
+
+**What changed for users:**
+- **Nothing on user screens.** This only changes the admin area.
+
+**What changed for the team:**
+- **The page wide notice is gone.** The admin shell no longer keeps a list of real data pages.
+- **The notice now sits on the two parts still on sample data:** the Podcasts tab in MindGuide and the Activities tab in Community, through a new `DemoDataNotice` component in `app/admin/_components/demo-data-notice.tsx`.
+
+**What to re-test:**
+1. Open Admin Bookings, Reports, Settings, Community (Groups and Reports tabs), MindGuide and a lesson in the MindGuide editor. Check no demo notice shows.
+2. Open MindGuide, Podcasts tab, and Community, Activities tab. Check the notice "Demo data in this section. Changes reset when you refresh." shows.
+
 ## 17 Oct 2026: Seven Admin Features Now Use the Database
 
 Commit `c43e8dc`. Seven migrations must be run in Supabase, in order: `20261017000100_admin_bookings.sql`, `20261017000200_support_contact.sql`, `20261017000300_announcements.sql`, `20261017000400_content_reports.sql`, `20261017000500_community_moderation.sql`, `20261017000600_crash_reports.sql`, `20261017000700_mindguide_content.sql`. Each was run on a test database (PGlite with Supabase stand ins) with 120 checks, all passing.

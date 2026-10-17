@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 
 import { useAdmin } from './admin-provider';
+import { DemoDataNotice } from './demo-data-notice';
 import { useLanguage } from '../../_components/language-provider';
 
 import type {
@@ -830,6 +831,7 @@ export function CommunityView() {
 
       {section === 'activities' && (
         <div className="mt-6 space-y-4">
+          <DemoDataNotice />
           {visibleActivities.map((activity) => (
             <article
               key={activity.id}

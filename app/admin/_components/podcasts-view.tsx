@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 
 import { useAdmin } from './admin-provider';
+import { DemoDataNotice } from './demo-data-notice';
 import { useLanguage } from '../../_components/language-provider';
 
 import type { AdminPodcast, PodcastStatus } from '../_data/podcasts';
@@ -481,6 +482,7 @@ export function PodcastsView() {
 
   return (
     <>
+      <DemoDataNotice />
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-ink-muted">
           {km
