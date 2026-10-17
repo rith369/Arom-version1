@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import type { CSSProperties, ReactNode } from "react";
-import { ArrowRight, Dice5, Gamepad2, Heart, PawPrint, Users } from "lucide-react";
+import { ArrowRight, Dice5, Heart, PawPrint, Users } from "lucide-react";
 import { TopHeader } from "../../components/top-header";
 import { DesktopNavigation, MobileNavigation } from "../../_components/app-navigation";
 import { useLanguage } from "../../_components/language-provider";
@@ -126,22 +126,6 @@ export function HubView() {
                   <span className="text-[4.25rem] font-black leading-none tracking-tight text-[#1F6F5B] sm:text-[5rem]">{players.length}</span>
                   <span className="pb-2 text-base font-bold text-[#14221f]">{t("នាក់កំពុងលេង", players.length === 1 ? "player" : "players")}</span>
                 </h2>
-              </div>
-              <div className="flex gap-3">
-                <div className={`min-w-[7.5rem] bg-[#FFF6E5] px-4 py-3 ${BOLD.box}`}>
-                  <p className="flex items-center gap-1.5 text-xs font-bold text-[#14221f]/70">
-                    <Gamepad2 size={15} aria-hidden="true" className="text-[#1F6F5B]" />
-                    {t("ហ្គេម", "Games")}
-                  </p>
-                  <p className="mt-1 text-2xl font-black text-[#14221f]">{games.length}</p>
-                </div>
-                <div className={`min-w-[7.5rem] bg-[#FFF6E5] px-4 py-3 ${BOLD.box}`}>
-                  <p className="flex items-center gap-1.5 text-xs font-bold text-[#14221f]/70">
-                    <Heart size={15} aria-hidden="true" className="text-[#FF7A59]" />
-                    {t("អ្នកឈ្នះ", "Winners")}
-                  </p>
-                  <p className="mt-1 text-sm font-black leading-8 text-[#14221f]">{t("គ្មាន, គ្រប់គ្នា", "None, all of us")}</p>
-                </div>
               </div>
             </div>
             <div className="mt-5 border-t-2 border-dashed border-[#14221f]/15 pt-5">

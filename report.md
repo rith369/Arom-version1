@@ -1,5 +1,20 @@
 # AROM: Change Report
 
+## 17 Oct 2026: Simpler Players Card on the Game Hub
+
+Commit `PENDING`. No migration. Frontend only.
+
+**Why.** The "Games 3" and "Winners: None, all of us" boxes looked crowded on phones and added little.
+
+**What changed for users:**
+- **The players card on Play with friends** now shows only the "One phone" badge, the big player count and the names.
+
+**What changed for the team:**
+- `app/play-cards/_components/hub-view.tsx`: the two stat boxes are removed.
+
+**What to re-test:**
+1. Open Play with friends on a phone and a laptop: no Games or Winners boxes, and the player list still works.
+
 ## 17 Oct 2026: Home Right Column Starts Level with the Plan Card
 
 Commit `20da7d8`. No migration. Frontend only.
