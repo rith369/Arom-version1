@@ -2,7 +2,7 @@
 
 ## 17 Oct 2026: Unlock Sleep Hygiene Essentials Tip Guide
 
-Commit `PENDING`. No migration. Content and frontend only.
+Commit `10c2b77`. No migration. Content and frontend only.
 
 **Why.** Sleep difficulties and nighttime racing thoughts are among the most common reasons seekers turn to AROM. The "Sleep Hygiene Essentials" (`sleep-hygiene-essentials`) tip guide was previously locked under "Coming Soon". It is now fully active with 5 evidence-based steps adapted from the American Academy of Sleep Medicine (AASM) and National Sleep Foundation, connecting directly to AROM's private Journal, guided 4-7-8 Breathing, and professional support.
 
