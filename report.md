@@ -1,5 +1,36 @@
 # AROM: Change Report
 
+## 17 Oct 2026: New Lesson, Understand Yourself
+
+Commit `34f1d18`. No migration. Content and frontend only.
+
+**Why.** Following What Is Mental Health?, seekers need practical guidance to recognize their emotions, examine automatic thoughts, discover their personal values, and identify personal needs. This new lesson brings structured self awareness practices with Cambodian youth context, safe person communication, and clinical care pathways.
+
+**What changed for users:**
+- **Understand Yourself is live in Learn,** 7 min, Beginner, in English and Khmer, with a reflective journal photo at the top.
+- **Categorized under Emotions,** accessible directly from the Emotions filter in Learn without locks.
+- **Nine comprehensive sections:** What self awareness means, getting to know emotions, understanding and questioning thoughts, what influences mood and personal patterns, discovering needs and values, an interactive reaction check in reflection, navigating self reflection difficulties and stigma in Cambodia, a guided 6 question self reflection journaling prompt, and coping quick actions.
+- **Calm tip box:** Section 2 features a calm green "Good to know" note guiding a 3 step mood check in.
+- **Two interactive reflection sections:** Section 6 lets users explore their natural response to stress, and Section 8 helps them select which journaling prompt to explore first.
+- **Four verified health references:** Authoritative sources from UNICEF Adolescent Mental Health Hub, UNICEF Cambodia, and WHO Self Care.
+- **Actionable closing section:** Quick links to Box breathing, Match Me With A Professional, and suicide prevention hotline guidance.
+
+**What changed for the team:**
+- **`learn-data.ts`:** Added `REFERENCES_UNDERSTAND_YOURSELF` and `LESSON_UNDERSTAND_YOURSELF` to `ALL_LESSONS`, removing the coming soon placeholder.
+- **Anti-AI Copywriting & Formatting:** All em dashes, en dashes and loose hyphens removed in accordance with AROM standards. "Wellbeing" and "self care" used throughout.
+- **New hero image:** `public/mindguide/understand-yourself-hero.jpg`, photo by Aaron Burden on Unsplash (free Unsplash License), cropped to 2:1.
+- **Clinical & translation disclaimer:** Content needs review by a mental health professional, and the Khmer translation should be reviewed by a native speaker.
+
+**What to re-test:**
+1. Open Learn at `/mindguide/learn` and verify Understand Yourself appears under the Emotions category without a lock.
+2. Open the lesson and read all nine sections in English.
+3. Check section 2 shows the calm green "Good to know" tip box.
+4. Answer the reflection question in section 6 and confirm the feedback note appears.
+5. In section 8, verify the 6 self reflection journal prompts and select a focus question.
+6. In section 9, test the Box breathing and Match Me With A Professional buttons, and verify the suicide prevention notice.
+7. Expand the references accordion and check all 4 external links.
+8. Switch to Khmer and verify typography, numerals (៧ នាទី), and complete translation.
+
 ## 17 Oct 2026: New Lesson, What Is Mental Health?
 
 Commit `e4f046e`. No migration. Content and frontend only.
