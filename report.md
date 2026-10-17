@@ -2,7 +2,7 @@
 
 ## 17 Oct 2026: Home Right Column Starts Level with the Plan Card
 
-Commit `PENDING`. No migration. Frontend only.
+Commit `20da7d8`. No migration. Frontend only.
 
 **Why.** Rith wanted the quote to stay at the top of the right column on laptops, but lower, so it lines up with the top of the green plan card instead of the top of the sprout picture. The previous change had moved the quote under the plan, which was not what he meant.
 
