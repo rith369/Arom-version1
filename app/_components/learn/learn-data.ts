@@ -2058,22 +2058,27 @@ export const LESSON_BETTER_SLEEP: Lesson = {
       paragraphs: [
         "Have you ever felt exhausted all evening, only to lie awake the moment your head touches the pillow with worries racing through your mind? [4]",
         "During the busy day, work, conversations, and notifications keep your attention occupied. When you lie down in silence, your brain finally has empty space, and unaddressed concerns about exams, family responsibilities, or the future rush to the surface.",
-        "Two evidence-based techniques can help break this cycle:\n1. The Evening Brain Dump: An hour before bed, take 5 minutes to write down whatever is worrying you on paper. Listing tomorrow's tasks or unresolved thoughts lets your mind know they are safe and documented, so it does not have to stay awake holding them.",
+        "Two evidence-based techniques can help break this cycle:\n1. The Evening Brain Dump in AROM Journal: An hour before bed, take 5 minutes to release whatever is racing through your mind. You can open the private Journal in AROM (or write on paper) to record tomorrow's tasks, pending worries, or your emotional reflections. Because your AROM journal is 100% private and protected, putting thoughts into words or recording a quick voice note signals to your mind that they are safely stored, so it does not have to stay awake holding them.",
         "2. The 20-Minute Rule: If you cannot fall asleep after 20 minutes, do not toss and turn in frustration. Staying in bed agitated trains your brain to associate the mattress with stress. Get up gently, sit in dim light, read a book or do a quiet activity, and return to bed only when your eyelids feel heavy. [3, 4]",
       ],
       kmParagraphs: [
         "តើអ្នកធ្លាប់មានអារម្មណ៍ហត់នឿយពេញមួយល្ងាច ប៉ុន្តែនៅពេលក្បាលដល់ខ្នើយ ស្រាប់តែភ្នែកភ្លឺ ហើយគំនិតព្រួយបារម្ភរត់ពេញក្បាលដែរឬទេ? [4]",
         "ក្នុងអំឡុងពេលថ្ងៃដ៏រវល់ ការងារ ការសន្ទនា និងការជូនដំណឹងផ្សេងៗបានទាញយកចំណាប់អារម្មណ៍របស់អ្នក។ នៅពេលដែលអ្នកគេងក្នុងភាពស្ងប់ស្ងាត់ ខួរក្បាលរបស់អ្នកមានកន្លែងទំនេរ ហើយការព្រួយបារម្ភដែលមិនទាន់ដោះស្រាយអំពីការប្រឡង ទំនួលខុសត្រូវគ្រួសារ ឬអនាគត នឹងហក់ឡើងមកភ្លាមៗ។",
-        "បច្ចេកទេសពីរដែលផ្អែកលើភស្តុតាងវិទ្យាសាស្ត្រ អាចជួយកាត់ផ្តាច់វដ្តនេះបាន៖\n១. ការកត់ត្រាជម្រះគំនិត (The Evening Brain Dump)៖ មួយម៉ោងមុនចូលគេង សូមចំណាយពេល ៥ នាទីដើម្បីសរសេររាល់ការព្រួយបារម្ភលើក្រដាស។ ការកត់ត្រាកិច្ចការថ្ងៃស្អែក ឬគំនិតដែលនៅសេសសល់ ជួយឱ្យចិត្តរបស់អ្នកដឹងថាវាត្រូវបានកត់ទុកដោយសុវត្ថិភាព ដូច្នេះអ្នកមិនចាំបាច់នៅភ្ញាក់ដើម្បីទន្ទេញចាំវានោះឡើយ។",
+        "បច្ចេកទេសពីរដែលផ្អែកលើភស្តុតាងវិទ្យាសាស្ត្រ អាចជួយកាត់ផ្តាច់វដ្តនេះបាន៖\n១. ការកត់ត្រាជម្រះគំនិតក្នុងកំណត់ហេតុ AROM (The Evening Brain Dump)៖ មួយម៉ោងមុនចូលគេង សូមចំណាយពេល ៥ នាទីដើម្បីបញ្ចេញនូវអ្វីៗដែលកំពុងរត់ក្នុងគំនិតរបស់អ្នក។ អ្នកអាចបើកមុខងារ «កំណត់ហេតុ (Journal)» នៅក្នុងកម្មវិធី AROM (ឬសរសេរលើក្រដាស) ដើម្បីកត់ត្រាកិច្ចការថ្ងៃស្អែក ការព្រួយបារម្ភ ឬអារម្មណ៍របស់អ្នកនៅថ្ងៃនេះ។ ដោយសារតែកំណត់ហេតុ AROM របស់អ្នកត្រូវបានការពារជាសម្ងាត់ ១០០% ការសរសេរ ឬការកត់ត្រាសំឡេងនូវគំនិតរបស់អ្នក ជួយឱ្យចិត្តដឹងថាពួកវាត្រូវបានរក្សាទុកដោយសុវត្ថិភាព ដូច្នេះអ្នកមិនចាំបាច់នៅភ្ញាក់ដើម្បីទន្ទេញចាំវានោះឡើយ។",
         "២. ច្បាប់ ២០ នាទី (The 20-Minute Rule)៖ ប្រសិនបើអ្នកដេកមិនលក់លើសពី ២០ នាទី សូមកុំប្រែខ្លួនចុះឡើងដោយការខកចិត្ត។ ការបន្តដេកនៅលើគ្រែដោយភាពតានតឹង ធ្វើឱ្យខួរក្បាលរបស់អ្នកចងចាំថាពូកគឺជាកន្លែងនៃភាពតានតឹង។ សូមក្រោកឡើងថ្នមៗ អង្គុយក្នុងពន្លឺស្រអាប់ អានសៀវភៅ ឬធ្វើសកម្មភាពស្ងប់ស្ងាត់ ហើយត្រឡប់ទៅគ្រែវិញនៅពេលដែលអ្នកមានអារម្មណ៍ថាធ្ងន់ភ្នែកចង់គេង។ [3, 4]",
       ],
+      alertBox: {
+        type: "tip",
+        text: "Good to know: On AROM, you can open the private Journal at any time before bed. Whether you type your thoughts or record a private voice note, unloading racing thoughts into your secure journal helps quiet bedtime anxiety and clears your head for sleep.",
+        kmText: "គួរដឹង៖ នៅលើកម្មវិធី AROM អ្នកអាចបើកមុខងារ «កំណត់ហេតុ (Journal)» ជាលក្ខណៈឯកជនបានគ្រប់ពេលវេលាមុនចូលគេង។ មិនថាអ្នកវាយអក្សរ ឬកត់ត្រាសំឡេងផ្ទាល់ខ្លួន ការបញ្ចេញគំនិតដែលកំពុងរត់ក្នុងក្បាលចូលទៅក្នុងកំណត់ហេតុដែលមានសុវត្ថិភាព ជួយឱ្យចិត្តស្ងប់ពីការថប់បារម្ភពេលយប់ និងជួយឱ្យខួរក្បាលរបស់អ្នកស្រឡះដើម្បីគេងលក់។",
+      },
       keyPoints: [
-        "Writing down worries transfers them from your head to paper [4].",
+        "Using the AROM private Journal unloads racing worries so your mind can rest [4].",
         "Lying awake in bed for hours trains your brain to link bed with anxiety.",
         "Use the 20-minute rule: leave bed if frustrated, return only when sleepy [3].",
       ],
       kmKeyPoints: [
-        "ការសរសេរការព្រួយបារម្ភ ជួយផ្ទេរវាពីក្នុងក្បាលមកលើក្រដាស [4]។",
+        "ការប្រើកំណត់ហេតុឯកជនលើ AROM ជួយផ្ទេរការព្រួយបារម្ភចេញពីក្បាល ដើម្បីឱ្យចិត្តបានសម្រាក [4]។",
         "ការដេកមិនលក់នៅលើគ្រែរាប់ម៉ោង ធ្វើឱ្យខួរក្បាលភ្ជាប់គ្រែទៅនឹងការថប់បារម្ភ។",
         "ប្រើច្បាប់ ២០ នាទី៖ ក្រោកពីគ្រែប្រសិនបើពិបាកចិត្ត ហើយត្រឡប់មកវិញពេលងងុយ [3]។",
       ],

@@ -1,5 +1,25 @@
 # AROM: Change Report
 
+## 17 Oct 2026: Connect Section 4 of Better Sleep to AROM Private Journaling
+
+Commit `PENDING`. No migration. Content and frontend only.
+
+**Why.** When people lie down to sleep, racing worries and unaddressed tasks keep their minds hyper-alert. Instead of only recommending paper, Section 4 now directly connects to AROM's private Journal feature. Seekers can safely release their thoughts through typing or voice recording before bed, knowing their entries are 100% confidential and secure.
+
+**What changed for users:**
+- **Evening Brain Dump connects to AROM Journal:** Section 4 highlights using AROM's private Journal to unload bedtime worries, tomorrow's tasks, and emotional reflections.
+- **New calm tip box:** Adds a green "Good to know" note explaining how voice recording or typing in AROM clears bedtime anxiety and prepares the mind for deep sleep.
+- **Updated key points:** Emphasizes that transferring racing thoughts into the private journal allows the brain to release them and rest.
+
+**What changed for the team:**
+- **`learn-data.ts`:** Enhanced Section 4 in `LESSON_BETTER_SLEEP` with bilingual AROM Journal guidance, alertBox, and updated key points.
+- **Anti-AI Copywriting:** Zero em dashes, en dashes, or loose hyphens.
+
+**What to re-test:**
+1. Open `/mindguide/learn?open=better-sleep` and navigate to Section 4.
+2. In English, verify Section 4 refers to "The Evening Brain Dump in AROM Journal" and displays the green tip box about bedtime journaling.
+3. Switch to Khmer and verify natural translation, Kantumruy Pro font, and tip box rendering.
+
 ## 17 Oct 2026: New Lesson, Better Sleep
 
 Commit `44d7cb8`. No migration. Content and frontend only.
