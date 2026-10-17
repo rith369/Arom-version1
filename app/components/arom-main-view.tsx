@@ -2,7 +2,7 @@
 
 import { TopHeader } from "./top-header";
 import { GreetingSection } from "./greeting-section";
-import { DailyPlanCard } from "./daily-plan-card";
+import { DailyPlanCard, PlanBanner } from "./daily-plan-card";
 import { QuoteCard } from "./quote-card";
 import { MoodSelector } from "./mood-selector";
 import { ProgressDashboard } from "./progress-dashboard";
@@ -34,17 +34,20 @@ export function AromMainView() {
             {/* The user's next booked session, when there is one */}
             {nextSession && <NextSessionCard next={nextSession} km={language === "km"} />}
 
-            {/* Laptops: two columns. Phones: one column in this same order
-                (plan, quote, mood check in, progress). */}
-            <div className="grid gap-5 lg:grid-cols-[1.1fr_0.9fr] lg:items-start lg:gap-6">
-              {/* Left: the plan, with the day's quote under it */}
-              <div className="flex w-full flex-col gap-5">
-                <DailyPlanCard tuckBanner={!nextSession} />
-                <QuoteCard />
+            {/* Laptops: the sprout picture has a row of its own, so the right
+                column starts level with the top of the plan card. Phones: one
+                column (picture, plan, quote, mood check in, progress). */}
+            <div className="grid lg:grid-cols-[1.1fr_0.9fr] lg:items-start lg:gap-x-6">
+              <div className="lg:col-start-1 lg:row-start-1">
+                <PlanBanner tuck={!nextSession} />
+              </div>
+              <div className="w-full lg:col-start-1 lg:row-start-2">
+                <DailyPlanCard />
               </div>
 
-              {/* Right on laptops: today's mood, then the week it adds to */}
-              <div className="flex flex-col gap-5">
+              {/* Right on laptops: the day's quote, today's mood, then the week */}
+              <div className="mt-5 flex flex-col gap-5 lg:col-start-2 lg:row-start-2 lg:mt-0">
+                <QuoteCard />
                 <div className="rounded-[20px] bg-white p-4 shadow-[0_4px_20px_rgba(0,0,0,0.03)] sm:p-5">
                   <MoodSelector />
                 </div>

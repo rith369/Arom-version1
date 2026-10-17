@@ -150,9 +150,28 @@ function PlanRow({ row, km }: { row: Row; km: boolean }) {
   );
 }
 
-// tuckBanner: the picture's empty top left tucks under the greeting. Off when
-// a card sits above it, so the sun and leaves never cover that card.
-export function DailyPlanCard({ tuckBanner = false }: { tuckBanner?: boolean }) {
+/**
+ * The AROM sprout peeking over the plan (Figma Homescreen). Its own piece so
+ * Home can line up the right column with the plan card, not the picture.
+ * The picture is wider than the card so its plants meet the card's edges.
+ * tuck: its empty top left tucks under the greeting. Off when a card sits
+ * above it, so the sun and leaves never cover that card.
+ */
+export function PlanBanner({ tuck = false }: { tuck?: boolean }) {
+  return (
+    <Image
+      src="/home/plan-banner.webp"
+      alt=""
+      width={1024}
+      height={325}
+      preload
+      sizes="(min-width: 1024px) 34rem, (min-width: 640px) 36rem, 100vw"
+      className={`pointer-events-none relative -mx-[5.65%] block h-auto w-[111.3%] max-w-none select-none ${tuck ? "-mt-5" : ""}`}
+    />
+  );
+}
+
+export function DailyPlanCard() {
   const { language } = useLanguage();
   const km = language === "km";
   const plan = usePlan();
@@ -256,17 +275,6 @@ export function DailyPlanCard({ tuckBanner = false }: { tuckBanner?: boolean }) 
 
   return (
     <div>
-      {/* The AROM sprout peeking over the plan (Figma Homescreen). The picture is
-          wider than the card so its plants line up with the card's edges. */}
-      <Image
-        src="/home/plan-banner.webp"
-        alt=""
-        width={1024}
-        height={325}
-        preload
-        sizes="(min-width: 1024px) 34rem, (min-width: 640px) 36rem, 100vw"
-        className={`pointer-events-none relative -mx-[5.65%] block h-auto w-[111.3%] max-w-none select-none ${tuckBanner ? "-mt-5" : ""}`}
-      />
       <section
         aria-labelledby="daily-plan-heading"
         className="rounded-[20px] bg-[#1f6f5b] p-4 text-white shadow-[0_12px_36px_rgba(31,111,91,0.18)] sm:p-5"

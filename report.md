@@ -1,5 +1,23 @@
 # AROM: Change Report
 
+## 17 Oct 2026: Home Right Column Starts Level with the Plan Card
+
+Commit `PENDING`. No migration. Frontend only.
+
+**Why.** Rith wanted the quote to stay at the top of the right column on laptops, but lower, so it lines up with the top of the green plan card instead of the top of the sprout picture. The previous change had moved the quote under the plan, which was not what he meant.
+
+**What changed for users:**
+- **Laptops:** the right column (quote, then mood check in, then Your Progress) starts level with the top of Your Plan For Today. The sprout picture sits above the plan only.
+- **Phones:** no change (picture, plan, quote, mood check in, progress).
+
+**What changed for the team:**
+- `daily-plan-card.tsx`: the sprout picture is now its own `PlanBanner` (with `tuck`); `DailyPlanCard` no longer takes `tuckBanner`.
+- `arom-main-view.tsx`: on laptops the picture has its own grid row, so the plan and the right column share the next row.
+
+**What to re-test:**
+1. On a laptop, the top of the quote card lines up with the top of the green plan card, at different window widths.
+2. On a phone, the order is the same as before.
+
 ## 17 Oct 2026: Better Home Layout on Laptops, and a Tidier Plan
 
 Commit `5d66001`. No migration. Frontend only.
