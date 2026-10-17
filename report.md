@@ -2,7 +2,7 @@
 
 ## 17 Oct 2026: A Better Picture on the Play Cards Banner
 
-Commit `PENDING`. No migration. Frontend only.
+Commit `fb5bf48`. No migration. Frontend only.
 
 **Why.** Rith felt the right side of the Play Cards banner could look better. The cards were small and stuck to the top, the middle card blended into the green, the side cards were cut off and unclear, and the sprout covered the cards at an odd spot.
 
