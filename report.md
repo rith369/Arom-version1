@@ -2,7 +2,7 @@
 
 ## 17 Oct 2026: Password Checklist on Sign Up
 
-Commit `pending`. No migration. Frontend only, the password rules did not change.
+Commit `3f72399`. No migration. Frontend only, the password rules did not change.
 
 **Why.** A new password must have 8 characters, a lowercase letter, an uppercase letter, a number and a special character, but the sign up form only showed one rule at a time, after the person got it wrong. People had to guess the next rule by failing again. Rith asked for every rule to show at once, with a check when it is met and a cross when it is not.
 
