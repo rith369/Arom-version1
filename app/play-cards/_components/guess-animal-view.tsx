@@ -9,7 +9,7 @@ import { useLanguage } from "../../_components/language-provider";
 import { useConfirm } from "../../_components/confirm-dialog";
 import { ROUNDS_AROUND, TURN_SECONDS, shuffledAnimals, type Animal, type RoundsAround, type TurnSeconds } from "../_data/animals";
 import { BOLD, BOLD_COLORS, DOTS } from "./bold";
-import { BackToGames, BoldGameBar, NeedPlayers, PlayerAvatar } from "./bold-parts";
+import { BackToGames, BoldGameBar, HeadingWithInfo, NeedPlayers, PlayerAvatar } from "./bold-parts";
 import { BoldEndScreen } from "./bold-end-screen";
 import { GuideSheet, type GuideSection } from "./guide-sheet";
 import { LanguageToggle } from "./language-toggle";
@@ -351,7 +351,15 @@ export function GuessAnimalView() {
             </section>
 
             <section aria-labelledby="ga-time" className={`mt-5 bg-white p-5 ${BOLD.card}`}>
-              <h2 id="ga-time" className="text-base font-black text-[#14221f]">{t("ពេលសម្រាប់វេននីមួយៗ", "Time for each turn")}</h2>
+              <HeadingWithInfo
+                id="ga-time"
+                km={km}
+                title={t("ពេលសម្រាប់វេននីមួយៗ", "Time for each turn")}
+                info={{
+                  en: "How long each player has before the phone goes to the next person. In that time they can do as many animals as they can.",
+                  km: "រយៈពេលដែលអ្នកលេងម្នាក់ៗមាន មុនពេលហុចទូរស័ព្ទទៅអ្នកបន្ទាប់។ ក្នុងពេលនោះ ពួកគេអាចសម្តែងសត្វបានច្រើនតាមដែលអាចធ្វើបាន។",
+                }}
+              />
               <div role="radiogroup" aria-labelledby="ga-time" className="mt-3 grid grid-cols-3 gap-3">
                 {TURN_SECONDS.map((option) => (
                   <button
@@ -370,7 +378,15 @@ export function GuessAnimalView() {
             </section>
 
             <section aria-labelledby="ga-rounds" className={`mt-5 bg-white p-5 ${BOLD.card}`}>
-              <h2 id="ga-rounds" className="text-base font-black text-[#14221f]">{t("ហុចជុំតុប៉ុន្មានដង?", "How many times around the table?")}</h2>
+              <HeadingWithInfo
+                id="ga-rounds"
+                km={km}
+                title={t("ហុចជុំតុប៉ុន្មានដង?", "How many times around the table?")}
+                info={{
+                  en: `How many turns each person gets. 1× means everyone has one turn, 2× means two turns each. With ${players.length} players, 1× is ${players.length} turns.`,
+                  km: `ចំនួនវេនដែលម្នាក់ៗទទួលបាន។ 1× មានន័យថាម្នាក់មួយវេន 2× មានន័យថាម្នាក់ពីរវេន។ ជាមួយអ្នកលេង ${players.length} នាក់ 1× គឺ ${players.length} វេន។`,
+                }}
+              />
               <div role="radiogroup" aria-labelledby="ga-rounds" className="mt-3 grid grid-cols-3 gap-3">
                 {ROUNDS_AROUND.map((option) => (
                   <button

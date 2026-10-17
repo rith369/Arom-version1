@@ -20,7 +20,7 @@ import {
   type TodRounds,
 } from "../_data/truth-or-dare";
 import { BOLD, BOLD_COLORS, DOTS } from "./bold";
-import { BackToGames, BoldGameBar, NeedPlayers, PlayerAvatar } from "./bold-parts";
+import { BackToGames, BoldGameBar, HeadingWithInfo, NeedPlayers, PlayerAvatar } from "./bold-parts";
 import { BoldEndScreen } from "./bold-end-screen";
 import { GuideSheet, type GuideSection } from "./guide-sheet";
 import { LanguageToggle } from "./language-toggle";
@@ -342,7 +342,15 @@ export function TruthOrDareView() {
             </section>
 
             <section aria-labelledby="tod-length" className={`mt-5 bg-white p-5 ${BOLD.card}`}>
-              <h2 id="tod-length" className="text-base font-black text-[#14221f]">{t("ចំនួនវេន", "How many turns?")}</h2>
+              <HeadingWithInfo
+                id="tod-length"
+                km={km}
+                title={t("ចំនួនវេន", "How many turns?")}
+                info={{
+                  en: "One turn is one truth or dare for one person. The phone goes around the table until all the turns are used.",
+                  km: "មួយវេន គឺការពិត ឬការប្រកួតមួយសម្រាប់មនុស្សម្នាក់។ ទូរស័ព្ទត្រូវហុចជុំតុ រហូតដល់អស់វេន។",
+                }}
+              />
               <div role="radiogroup" aria-labelledby="tod-length" className="mt-3 grid grid-cols-3 gap-3">
                 {TOD_ROUNDS.map((option) => (
                   <button

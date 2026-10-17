@@ -1,5 +1,23 @@
 # AROM: Change Report
 
+## 17 Oct 2026: Info Buttons on the Game Setup Questions
+
+Commit `PENDING`. No migration. Frontend only.
+
+**Why.** Rith found "Time for each turn" and "How many times around the table?" unclear. Hover tooltips do not work on phones, so each question now has a small (i) button that works by tap or click.
+
+**What changed for users:**
+- **Guess the animal:** (i) next to "Time for each turn" explains it is how long each player has before passing the phone, doing as many animals as they can. (i) next to "How many times around the table?" explains 1× and 2×, with the real number of turns for your group.
+- **Truth or dare:** (i) next to "How many turns?" explains one turn is one truth or dare for one person.
+- Tap again, tap anywhere else or press Escape to close. In Khmer too.
+
+**What changed for the team:**
+- `bold-parts.tsx`: new `HeadingWithInfo` (button with `aria-expanded`, closes on outside tap and Escape), used in `guess-animal-view.tsx` and `truth-or-dare-view.tsx`.
+
+**What to re-test:**
+1. On a phone, open Guess the animal and tap each (i): the explanation opens, and closes when you tap elsewhere.
+2. Do the same on Truth or dare, in English and Khmer.
+
 ## 17 Oct 2026: Play with Friends Becomes a Game Hub with Three Games
 
 Commit `bad6957`. No migration. Frontend only, nothing is saved.

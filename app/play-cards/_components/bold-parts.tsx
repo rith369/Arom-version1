@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, type FormEvent, type ReactNode } from "react";
+import { useEffect, useId, useRef, useState, type FormEvent, type ReactNode } from "react";
 import Link from "next/link";
-import { ArrowLeft, CircleHelp, Lock, UserPlus, Users, X } from "lucide-react";
+import { ArrowLeft, CircleHelp, Info, Lock, UserPlus, Users, X } from "lucide-react";
 import { MoodSprout } from "../../_components/mood/mood-sprout";
 import { LanguageToggle } from "./language-toggle";
 import { MAX_NAME, MAX_PLAYERS, usePlayers } from "./players-provider";
@@ -133,6 +133,71 @@ export function BoldGameBar({
         <CircleHelp size={20} aria-hidden="true" />
       </button>
     </header>
+  );
+}
+
+/**
+ * A heading with a small (i) button that opens a short explanation. It works
+ * by tap as well as click, because phones have no hover tooltips.
+ */
+export function HeadingWithInfo({
+  id,
+  km,
+  title,
+  info,
+}: {
+  id: string;
+  km: boolean;
+  title: string;
+  info: { en: string; km: string };
+}) {
+  const [open, setOpen] = useState(false);
+  const bubbleId = useId();
+  const wrap = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const close = (event: PointerEvent) => {
+      if (!wrap.current?.contains(event.target as Node)) setOpen(false);
+    };
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpen(false);
+    };
+    window.addEventListener("pointerdown", close);
+    window.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("pointerdown", close);
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
+  return (
+    <div ref={wrap} className="relative">
+      <div className="flex items-center gap-2">
+        <h2 id={id} className="text-base font-black text-[#14221f]">
+          {title}
+        </h2>
+        <button
+          type="button"
+          onClick={() => setOpen((value) => !value)}
+          aria-expanded={open}
+          aria-controls={bubbleId}
+          aria-label={km ? "ពន្យល់" : "What does this mean?"}
+          className={`flex size-8 items-center justify-center rounded-full border-2 border-[#14221f] transition-colors ${open ? "bg-[#14221f] text-white" : "bg-[#FFD23F] text-[#14221f]"}`}
+        >
+          <Info size={15} strokeWidth={2.5} aria-hidden="true" />
+        </button>
+      </div>
+      {open && (
+        <p
+          id={bubbleId}
+          role="note"
+          className={`absolute left-0 right-0 top-full z-20 mt-2 bg-[#14221f] px-4 py-3 text-sm font-semibold leading-relaxed text-white ${BOLD.box} shadow-[3px_3px_0_0_#FFD23F]`}
+        >
+          {km ? info.km : info.en}
+        </p>
+      )}
+    </div>
   );
 }
 
