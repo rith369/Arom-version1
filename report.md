@@ -2,7 +2,7 @@
 
 ## 17 Oct 2026: Demo Data Notice Only Where Data Is Still Sample
 
-Commit `PENDING`. No migration. Frontend only.
+Commit `ef99384`. No migration. Frontend only.
 
 **Why.** After the backend for seven admin features was merged, the admin still showed "Demo data on this page. Changes reset when you refresh." on Bookings, Reports, Settings, MindGuide and Community. Those pages now save to the database, so the notice told admins their work would be lost when it was not. The list of real pages in the admin shell had not been updated.
 
