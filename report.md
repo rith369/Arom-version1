@@ -2,7 +2,7 @@
 
 ## 17 Oct 2026: New Lesson, Better Sleep
 
-Commit `PENDING`. No migration. Content and frontend only.
+Commit `44d7cb8`. No migration. Content and frontend only.
 
 **Why.** Better Sleep was previously a locked "Coming Soon" card in Learn. Sleep debt severely worsens emotional regulation, anxiety, and depression. This lesson provides practical, evidence-based guidance on sleep hygiene, circadian rhythm, managing late-night racing thoughts, and connecting to AROM evening wind-down tools and confidential therapy for chronic insomnia.
 
