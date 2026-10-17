@@ -1,5 +1,22 @@
 # AROM: Change Report
 
+## 17 Oct 2026: No Extra Profile Circle on Laptops
+
+Commit `PENDING`. No migration. Frontend only.
+
+**Why.** On laptops the top of each page showed a lone profile circle. It is there on phones, where the top bar holds the AROM logo, menu and profile, but on laptops the sidebar already has all three, including the account menu at the bottom.
+
+**What changed for users:**
+- **Laptops:** the top header (and its profile circle) is gone, so pages start with their title.
+- **Phones and tablets:** no change. The logo, menu button and profile circle are still at the top.
+
+**What changed for the team:**
+- `app/components/top-header.tsx`: the whole header is `lg:hidden`. It is used by Home, Progress, Journal, Community and the Play with friends pages.
+
+**What to re-test:**
+1. On a laptop, open Home, Progress, Journal and Play with friends: no profile circle at the top, and the sidebar account menu still opens Profile and Settings.
+2. On a phone, the top header looks the same as before.
+
 ## 17 Oct 2026: Game Pages Use AROM's Usual Background
 
 Commit `8f668bb`. No migration. Frontend only.

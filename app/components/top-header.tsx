@@ -17,10 +17,12 @@ export function TopHeader({ onOpenSidebar }: TopHeaderProps) {
 
   const handleOpenSidebar = onOpenSidebar || sidebar.openSidebar;
 
+  // Phones and tablets only. On laptops the sidebar already has the brand,
+  // the menu and the account (profile) menu, so this header is hidden there.
   return (
-    <header className="flex w-full items-center justify-between gap-3 pt-2 lg:justify-end">
-      {/* LEFT: AROM brand with tagline (desktop shows the brand in the sidebar) */}
-      <div className="lg:hidden">
+    <header className="flex w-full items-center justify-between gap-3 pt-2 lg:hidden">
+      {/* LEFT: AROM brand with tagline */}
+      <div>
         <AromBrand />
       </div>
 
