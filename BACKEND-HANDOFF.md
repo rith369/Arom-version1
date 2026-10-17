@@ -77,7 +77,7 @@ The yellow "Demo data on this page" banner is in `admin-shell.tsx`. Remove it fo
 | Admin audit log (`/admin/audit-log`) | Done | Connected (`GET /api/admin/audit-log`). No migration | 5 |
 | Journal prompts: admin page `/admin/journal-prompts`, guided questions on Write about today (`/detection/journal`) | Done | Connected (`GET /api/journal-prompts`, `GET\|PUT /api/admin/journal-prompts`), migration `20261016001200` | 26 |
 | Your Plan For Today as a to do list: own tasks, ideas, MindGuide items, repeat, tick with a line through (Home) | Done | Connected, PR #17 (`/api/plan`, `/api/plan/tasks`, `/api/plan/tasks/:id`, `/api/plan/tasks/:id/check`, `/api/plan/order`), migration `20261016001300` | 27 |
-| Play Cards with Friends (`/play-cards`): one phone passed around, 60 cards in 3 levels | Done | No backend needed for version 1 (cards in code, nothing saved). Later: admin managed decks, a play count in Progress, online rooms | 28 |
+| Play Cards with Friends (`/play-cards`): one phone passed around, 61 cards in 3 levels | Done | No backend needed for version 1 (cards in code, nothing saved). Later: admin managed decks, a play count in Progress, online rooms | 28 |
 | Other admin pages (bookings, settings) | Built by Sokheng on mock data | Not started | not written yet |
 
 ## 5. Admin users page
@@ -1029,7 +1029,7 @@ The admin list uses `CommunityReport`: `id, groupId, targetKind, targetLabel, me
 
 **Done (17 Oct 2026). No backend needed for this version.**
 
-**Files:** `app/play-cards/page.tsx`, `app/play-cards/_data/cards.ts` (60 cards in English and Khmer, levels, dealing), `app/play-cards/_components/` (setup, house rules, game, breathing card, end screen, theme). Sidebar entry in `app/_components/navigation-config.ts`; `/play-cards` is in `PROTECTED_PREFIXES` (login required).
+**Files:** `app/play-cards/page.tsx`, `app/play-cards/_data/cards.ts` (61 cards in English and Khmer, levels, dealing), `app/play-cards/_components/` (setup, house rules, game, breathing card, end screen, theme). Sidebar entry in `app/_components/navigation-config.ts`; `/play-cards` is in `PROTECTED_PREFIXES` (login required).
 
 ### How it works
 

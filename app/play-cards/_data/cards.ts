@@ -91,6 +91,13 @@ export const PLAY_CARDS: PlayCard[] = [
   card("real", "breathe", 18, "Breathe in for 4, out for 6. Let your shoulders drop.", "ដកដង្ហើមចូល ៤ ដង្ហើមចេញ ៦ ។ បន្ធូរស្មារបស់អ្នក។"),
   card("real", "kind", 19, "Tell someone here about a time they helped you.", "ប្រាប់នរណាម្នាក់នៅទីនេះពីពេលដែលពួកគេធ្លាប់ជួយអ្នក។"),
   card("real", "together", 20, "Everyone: show your energy today from 1 to 5 with your fingers.", "គ្រប់គ្នា៖ បង្ហាញកម្រិតថាមពលរបស់អ្នកថ្ងៃនេះពី ១ ដល់ ៥ ដោយប្រើម្រាមដៃ។"),
+  card(
+    "real",
+    "question",
+    21,
+    "Is there a page on social media (Instagram, Facebook, TikTok, etc.) that you go to on a bad day that gives you life? What about that page feels healing for you?",
+    "តើមានទំព័របណ្តាញសង្គម (Instagram, Facebook, TikTok ជាដើម) ណាមួយដែលអ្នកចូលមើលនៅថ្ងៃពិបាកចិត្ត ហើយវាធ្វើឱ្យអ្នកមានកម្លាំងចិត្តឡើងវិញទេ? តើអ្វីខ្លះនៅក្នុងទំព័រនោះដែលជួយព្យាបាលចិត្តអ្នក?",
+  ),
 
   // ---------- Care ----------
   card("care", "question", 1, "What is one thing you admire about the person on your left?", "តើមានចំណុចអ្វីមួយដែលអ្នកកោតសរសើរលើអ្នកនៅខាងឆ្វេងអ្នក?"),

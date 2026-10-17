@@ -1,5 +1,21 @@
 # AROM: Change Report
 
+## 17 Oct 2026: New Play Card About Healing Social Media Pages
+
+Commit `PENDING`. No migration. Frontend only.
+
+**Why.** Rith added a question about the social media pages people turn to on a bad day, a natural, low pressure way to talk about what helps.
+
+**What changed for users:**
+- **New Getting real card:** "Is there a page on social media (Instagram, Facebook, TikTok, etc.) that you go to on a bad day that gives you life? What about that page feels healing for you?", with Khmer. The deck now has 61 cards (21 in Getting real).
+- **Long cards use slightly smaller words** so they always fit on the card, in both languages.
+
+**What changed for the team:**
+- `app/play-cards/_data/cards.ts`: card `real-21`. `game-screen.tsx`: text over 110 characters uses a smaller size. `BACKEND-HANDOFF.md` section 28 says 61 cards.
+
+**What to re-test:**
+1. Play the Getting real deck until this card appears (or Pass until it does): the whole question fits, in English and Khmer.
+
 ## 17 Oct 2026: Swipe the Cards Like Flashcards
 
 Commit `4ce7cc7`. No migration. Frontend only.

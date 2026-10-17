@@ -162,7 +162,18 @@ function PlayingCard({
           </div>
 
           <div className="relative flex flex-1 flex-col items-center justify-center text-center">
-            <p className={`font-semibold tracking-tight ${km ? "text-[1.2rem] leading-[1.75]" : "text-[1.45rem] leading-snug"}`}>
+            {/* Long cards get smaller words so they always fit on the card. */}
+            <p
+              className={`font-semibold tracking-tight ${
+                (km ? card.km : card.en).length > 110
+                  ? km
+                    ? "text-[1.02rem] leading-[1.7]"
+                    : "text-[1.15rem] leading-snug"
+                  : km
+                    ? "text-[1.2rem] leading-[1.75]"
+                    : "text-[1.45rem] leading-snug"
+              }`}
+            >
               {km ? card.km : card.en}
             </p>
             {card.kind === "breathe" && flipped && <BreatheCircle km={km} light={isDark} />}
