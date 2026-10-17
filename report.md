@@ -2,7 +2,7 @@
 
 ## 17 Oct 2026: New Lesson, Know When to Seek Help
 
-Commit `PENDING`. No migration. Content and frontend only.
+Commit `82bebd6`. No migration. Content and frontend only.
 
 **Why.** Seekers often wonder whether their difficulties are normal, how long they should wait before asking for help, and who they can turn to. This lesson provides clear, compassionate guidance on recognizing emotional and physical signs that need support, overcoming cultural hesitation and stigma in Cambodia, supporting friends in distress, and responding immediately to mental health emergencies.
 
