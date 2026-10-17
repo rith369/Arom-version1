@@ -1,5 +1,32 @@
 # AROM: Change Report
 
+## 17 Oct 2026: Unlock Sleep Hygiene Essentials Tip Guide
+
+Commit `PENDING`. No migration. Content and frontend only.
+
+**Why.** Sleep difficulties and nighttime racing thoughts are among the most common reasons seekers turn to AROM. The "Sleep Hygiene Essentials" (`sleep-hygiene-essentials`) tip guide was previously locked under "Coming Soon". It is now fully active with 5 evidence-based steps adapted from the American Academy of Sleep Medicine (AASM) and National Sleep Foundation, connecting directly to AROM's private Journal, guided 4-7-8 Breathing, and professional support.
+
+**What changed for users:**
+- **Sleep Hygiene Essentials is now unlocked:** Seekers can access the 3-minute guide "Sleep Hygiene Essentials (មូលដ្ឋានគ្រឹះនៃដំណេកលក់ស្រួល)" from the MindGuide Tips screen (`/mindguide/tips`).
+- **5 Actionable Steps:** Covers consistent wake times, bedtime brain dump in AROM Journal, 4-7-8 slow breathing, a 60-minute digital sunset, and sleep sanctuary cooling and darkness.
+- **Direct AROM tool integration:** Step 2 prompts seekers to unload bedtime clutter into the private AROM Journal, and Step 3 includes a direct action button to launch 4-7-8 Breathing inside AROM.
+- **Chronic Insomnia Support callout:** Connects seekers experiencing persistent sleeplessness directly to AROM's verified psychologists and therapists.
+- **Dynamic step count and completion:** Updated tip detail header and completion cards to dynamically display the correct step counts and titles for any completed tip.
+- **Dynamic Saved Tips view:** The Saved Tips screen now displays any bookmarked tip rather than only the stress guide.
+
+**What changed for the team:**
+- **`tips-data.ts`:** Exported `TIP_SLEEP_HYGIENE` and marked `isAvailable: true` in `ALL_TIPS` with complete bilingual steps, tryNow actions, breathing triggers, and clinical citations.
+- **`tip-detail-view.tsx` and `tip-complete-view.tsx`:** Made step counts and completion summaries dynamic across all tip formats.
+- **`saved-tips-view.tsx`:** Updated to dynamically render all bookmarked items from `ALL_TIPS` and optimized state initialization without effect-based cascading renders.
+- **Anti-AI Copywriting:** Zero em dashes, en dashes, or loose hyphens.
+
+**What to re-test:**
+1. Open `/mindguide/tips` and verify "Sleep Hygiene Essentials (មូលដ្ឋានគ្រឹះនៃដំណេកលក់ស្រួល)" appears as available (no lock badge).
+2. Click the card to open detail view; verify step count shows 5 practical steps (គន្លឹះទាំង ៥).
+3. Click "Start Reading Tips" to enter interactive view: test step 2 (AROM Journal mention), step 3 (Start 4-7-8 Breathing button), and add-to-plan buttons.
+4. Complete the guide and verify the completion screen displays the dynamic title and xp badge.
+5. Bookmark the tip and verify it renders in the "Saved Tips" screen.
+
 ## 17 Oct 2026: Connect Section 4 of Better Sleep to AROM Private Journaling
 
 Commit `1e878b0`. No migration. Content and frontend only.

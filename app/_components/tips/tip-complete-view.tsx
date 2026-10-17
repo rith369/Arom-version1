@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, Bookmark, Check, Wind } from "lucide-react";
+import { ArrowLeft, Bookmark, Wind } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
 import { useState } from "react";
 import { useLanguage } from "../language-provider";
@@ -16,7 +16,7 @@ type TipCompleteViewProps = {
   tip: TipItem;
   onTryBreathing: () => void;
   onBackToTips: () => void;
-  onViewSaved: () => void;
+  onViewSaved?: () => void;
 };
 
 export function TipCompleteView({
@@ -84,8 +84,8 @@ export function TipCompleteView({
 
           <p className="mx-auto mt-2 max-w-[19rem] text-sm leading-relaxed text-ink-muted">
             {km
-              ? "អ្នកបានអានចប់គន្លឹះជាក់ស្តែងទាំង ៦ ក្នុងការគ្រប់គ្រងភាពតានតឹង។"
-              : "You completed reading the 6 practical stress control tips."}
+              ? `អ្នកបានអានចប់ ${tip.kmFormat || tip.format} នៃ «${tip.kmTitle || tip.title}»។`
+              : `You completed reading the ${tip.format.toLowerCase()} for "${tip.title}".`}
           </p>
 
           <div className="mx-auto mt-4 inline-flex items-center gap-1.5 rounded-full bg-arom-soft px-4 py-1.5 text-sm font-semibold text-arom">
@@ -111,6 +111,17 @@ export function TipCompleteView({
             >
               {km ? "ស្វែងរកគន្លឹះផ្សេងទៀត (More Tips)" : "Explore More Tips"}
             </button>
+
+            {onViewSaved && (
+              <button
+                type="button"
+                onClick={onViewSaved}
+                className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-arom-border/70 bg-white text-sm font-medium text-arom transition-all hover:bg-arom-wash active:scale-[0.98]"
+              >
+                <Bookmark aria-hidden="true" size={16} />
+                <span>{km ? "មើលគន្លឹះដែលបានរក្សាទុក (Saved)" : "View Saved Tips"}</span>
+              </button>
+            )}
 
             <Link
               href="/mindguide"

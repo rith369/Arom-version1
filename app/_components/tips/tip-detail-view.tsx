@@ -6,7 +6,6 @@ import {
   Bookmark,
   CheckCircle2,
   Clock,
-  ExternalLink,
   Play,
   ShieldCheck,
 } from "lucide-react";
@@ -111,7 +110,9 @@ export function TipDetailView({
             {/* Checklist of 6 Tips */}
             <div className="mt-6 rounded-2xl bg-[#f4f9f7] p-5">
               <h2 className="text-sm font-bold uppercase tracking-wider text-arom">
-                {km ? "គន្លឹះទាំង ៦ នៅក្នុងការណែនាំនេះ" : "6 Practical Steps Included"}
+                {km
+                  ? `គន្លឹះទាំង ${["០", "១", "២", "៣", "៤", "៥", "៦", "៧", "៨", "៩"][tip.steps.length] || tip.steps.length} នៅក្នុងការណែនាំនេះ`
+                  : `${tip.steps.length} Practical Steps Included`}
               </h2>
               <div className="mt-3 space-y-2.5">
                 {tip.steps.map((step) => (

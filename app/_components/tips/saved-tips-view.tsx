@@ -3,11 +3,11 @@
 import Image from "next/image";
 import { ArrowLeft, Bookmark, ChevronRight } from "lucide-react";
 import { motion } from "motion/react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useLanguage } from "../language-provider";
 import {
+  ALL_TIPS,
   STORAGE_TIPS_KEYS,
-  TIP_CONTROL_STRESS,
   type TipItem,
 } from "./tips-data";
 
@@ -23,18 +23,15 @@ export function SavedTipsView({
   const { language } = useLanguage();
   const km = language === "km";
 
-  const [savedIds, setSavedIds] = useState<string[]>(["how-to-control-stress"]);
-
-  useEffect(() => {
+  const [savedIds, setSavedIds] = useState<string[]>(() => {
+    if (typeof window === "undefined") return ["how-to-control-stress"];
     try {
       const raw = window.localStorage.getItem(STORAGE_TIPS_KEYS.BOOKMARKS);
-      if (raw) {
-        setSavedIds(JSON.parse(raw));
-      }
+      return raw ? JSON.parse(raw) : ["how-to-control-stress"];
     } catch {
-      // ignore
+      return ["how-to-control-stress"];
     }
-  }, []);
+  });
 
   const handleRemove = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -52,7 +49,9 @@ export function SavedTipsView({
     });
   };
 
-  const isStressTipSaved = savedIds.includes("how-to-control-stress");
+  const savedTips = ALL_TIPS.filter(
+    (item) => item.isAvailable && savedIds.includes(item.id),
+  );
 
   return (
     <div className="min-h-screen bg-canvas text-ink pb-24 lg:pb-12">
@@ -74,7 +73,7 @@ export function SavedTipsView({
       </header>
 
       <main className="mx-auto max-w-2xl px-4 pt-6 sm:px-8 sm:pt-8">
-        {!isStressTipSaved ? (
+        {savedTips.length === 0 ? (
           <div className="flex flex-col items-center justify-center rounded-3xl border border-arom-border bg-white py-14 px-4 text-center shadow-sm">
             <span className="flex size-14 items-center justify-center rounded-2xl bg-arom-soft text-arom">
               <Bookmark size={24} />
@@ -90,50 +89,51 @@ export function SavedTipsView({
           </div>
         ) : (
           <div className="space-y-3">
-            <motion.div
-              whileHover={{ y: -2 }}
-              onClick={() => onSelectTip(TIP_CONTROL_STRESS)}
-              className="group flex cursor-pointer items-center gap-4 rounded-2xl border border-arom-border bg-white p-3.5 shadow-[0_8px_24px_rgba(25,87,72,0.05)] transition-all hover:border-arom/40 hover:shadow-card sm:p-4"
-            >
-              <div className="relative size-16 shrink-0 overflow-hidden rounded-xl bg-arom-soft sm:size-20 flex items-center justify-center">
-                <Image
-                  src={TIP_CONTROL_STRESS.image}
-                  alt={TIP_CONTROL_STRESS.title}
-                  width={38}
-                  height={38}
-                  className="size-8 object-contain sm:size-9"
-                  unoptimized
-                />
-              </div>
-
-              <div className="min-w-0 flex-1">
-                <span className="inline-block rounded-md bg-arom-soft px-2 py-0.5 text-[0.68rem] font-semibold text-arom">
-                  {km ? TIP_CONTROL_STRESS.kmCategory : TIP_CONTROL_STRESS.category}
-                </span>
-                <h3 className="mt-1 truncate text-sm font-bold text-ink sm:text-base">
-                  {km && TIP_CONTROL_STRESS.kmTitle
-                    ? TIP_CONTROL_STRESS.kmTitle
-                    : TIP_CONTROL_STRESS.title}
-                </h3>
-                <p className="text-xs text-ink-muted mt-0.5">
-                  {km ? TIP_CONTROL_STRESS.kmDuration : TIP_CONTROL_STRESS.duration} • {km ? TIP_CONTROL_STRESS.kmDifficulty : TIP_CONTROL_STRESS.difficulty}
-                </p>
-              </div>
-
-              <button
-                type="button"
-                onClick={(e) => handleRemove("how-to-control-stress", e)}
-                aria-label="Remove bookmark"
-                className="flex size-9 shrink-0 items-center justify-center rounded-full border border-arom-border bg-white text-arom transition-colors hover:bg-arom-wash shadow-sm"
+            {savedTips.map((tip) => (
+              <motion.div
+                key={tip.id}
+                whileHover={{ y: -2 }}
+                onClick={() => onSelectTip(tip)}
+                className="group flex cursor-pointer items-center gap-4 rounded-2xl border border-arom-border bg-white p-3.5 shadow-[0_8px_24px_rgba(25,87,72,0.05)] transition-all hover:border-arom/40 hover:shadow-card sm:p-4"
               >
-                <Bookmark size={17} className="fill-arom" />
-              </button>
+                <div className="relative size-16 shrink-0 overflow-hidden rounded-xl bg-arom-soft sm:size-20 flex items-center justify-center">
+                  <Image
+                    src={tip.image}
+                    alt=""
+                    width={38}
+                    height={38}
+                    className="size-8 object-contain sm:size-9"
+                    unoptimized
+                  />
+                </div>
 
-              <ChevronRight
-                size={18}
-                className="shrink-0 text-arom transition-transform duration-150 group-hover:translate-x-0.5"
-              />
-            </motion.div>
+                <div className="min-w-0 flex-1">
+                  <span className="inline-block rounded-md bg-arom-soft px-2 py-0.5 text-[0.68rem] font-semibold text-arom">
+                    {km ? tip.kmCategory : tip.category}
+                  </span>
+                  <h3 className="mt-1 truncate text-sm font-bold text-ink sm:text-base">
+                    {km && tip.kmTitle ? tip.kmTitle : tip.title}
+                  </h3>
+                  <p className="text-xs text-ink-muted mt-0.5">
+                    {km ? tip.kmDuration : tip.duration} • {km ? tip.kmDifficulty : tip.difficulty}
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={(e) => handleRemove(tip.id, e)}
+                  aria-label={km ? "លុបចេញពីចំណាំ" : "Remove bookmark"}
+                  className="flex size-9 shrink-0 items-center justify-center rounded-full border border-arom-border bg-white text-arom transition-colors hover:bg-arom-wash shadow-sm"
+                >
+                  <Bookmark size={17} className="fill-arom" />
+                </button>
+
+                <ChevronRight
+                  size={18}
+                  className="shrink-0 text-arom transition-transform duration-150 group-hover:translate-x-0.5"
+                />
+              </motion.div>
+            ))}
           </div>
         )}
       </main>

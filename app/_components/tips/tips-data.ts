@@ -168,41 +168,104 @@ export const TIP_CONTROL_STRESS: TipItem = {
   ],
 };
 
+export const TIP_SLEEP_HYGIENE: TipItem = {
+  id: "sleep-hygiene-essentials",
+  title: "Sleep Hygiene Essentials",
+  kmTitle: "មូលដ្ឋានគ្រឹះនៃដំណេកលក់ស្រួល (Sleep Hygiene)",
+  subtitle: "Small Nighttime Adjustments for Restful Sleep",
+  kmSubtitle: "ការកែសម្រួលទម្លាប់ពេលយប់ដើម្បីគេងលក់ស្កប់ស្កល់",
+  introduction:
+    "Good sleep does not start the moment your head hits the pillow; it begins with the signals you send your nervous system throughout the evening. Sleep hygiene is the collection of evidence-based habits and bedroom adjustments that allow your circadian rhythm to cue natural melatonin release. Here are 5 practical evening adjustments you can practice tonight.",
+  kmIntroduction:
+    "ដំណេកប្រកបដោយគុណភាពមិនមែនចាប់ផ្តើមនៅពេលដែលក្បាលរបស់អ្នកប៉ះនឹងខ្នើយនោះទេ ប៉ុន្តែវាចាប់ផ្តើមពីសញ្ញាតូចៗដែលអ្នកបញ្ជូនទៅកាន់ប្រព័ន្ធប្រសាទពេញមួយល្ងាច។ មូលដ្ឋានគ្រឹះនៃដំណេក (Sleep Hygiene) គឺជាបណ្តុំនៃទម្លាប់ និងបរិយាកាសជុំវិញខ្លួន ដែលជួយឱ្យចង្វាក់ជីវសាស្ត្រ (Circadian Rhythm) របស់អ្នកបញ្ចុះអ័រម៉ូនស្ត្រេស និងបញ្ចេញអ័រម៉ូនមេឡាតូនីន (Melatonin) ឱ្យគេងលក់ដោយធម្មជាតិ។ ខាងក្រោមនេះជាការកែសម្រួលទម្លាប់ពេលល្ងាចចំនួន ៥ ដែលផ្អែកលើការស្រាវជ្រាវវិទ្យាសាស្ត្រ ដែលអ្នកអាចសាកល្បងបាននៅយប់នេះ។",
+  category: "Sleep",
+  kmCategory: "ដំណេក (Sleep)",
+  duration: "3 min",
+  kmDuration: "៣ នាទី",
+  difficulty: "Beginner",
+  kmDifficulty: "កម្រិតដំបូង (Beginner)",
+  format: "5 Evening Tips",
+  kmFormat: "៥ គន្លឹះពេលល្ងាច",
+  isAvailable: true,
+  image: "/mindguide/sleep.png",
+  heroImage: "/mindguide/better-sleep-hero.jpg",
+  sourceCitation:
+    "Adapted from the American Academy of Sleep Medicine (AASM) and National Sleep Foundation clinical guidelines (2024).",
+  kmSourceCitation:
+    "ដកស្រង់ចេញពីគោលការណ៍ណែនាំគ្លីនិករបស់បណ្ឌិត្យសភាវេជ្ជសាស្ត្រដំណេកអាមេរិក (AASM) និងមូលនិធិដំណេកជាតិ (2024)។",
+  supportCallout: {
+    title: "Chronic Insomnia Support",
+    kmTitle: "ជំនួយសម្រាប់បញ្ហាគេងមិនលក់រ៉ាំរ៉ៃ (Chronic Insomnia)",
+    body:
+      "If sleeplessness persists more than three nights a week for over a month despite healthy routines, that is a clinical signal. On AROM, you can match with verified therapists and counselors who specialize in cognitive behavioral therapy for insomnia (CBT-I) and stress relief.",
+    kmBody:
+      "ប្រសិនបើដំណេកមិនលក់នៅតែបន្តលើសពី ៣ យប់ក្នុងមួយសប្តាហ៍ អស់រយៈពេលជាងមួយខែ បើទោះបីជាបានកែប្រែទម្លាប់ហើយក៏ដោយ នោះគឺជាសញ្ញាដែលត្រូវការជំនួយ។ នៅលើកម្មវិធី AROM អ្នកអាចភ្ជាប់ទំនាក់ទំនងជាមួយអ្នកជំនាញចិត្តសាស្រ្ត និងអ្នកប្រឹក្សាដែលមានការបញ្ជាក់ត្រឹមត្រូវ ដែលមានជំនាញក្នុងការព្យាបាលការគេងមិនលក់ (CBT-I) និងការគ្រប់គ្រងភាពតានតឹង។",
+    actionLabel: "Find Sleep Support",
+    kmActionLabel: "ស្វែងរកជំនួយដំណេក (Find Sleep Support)",
+  },
+  steps: [
+    {
+      number: 1,
+      title: "Anchor your wake time.",
+      kmTitle: "កំណត់ម៉ោងភ្ញាក់ពីគេងឱ្យទៀងទាត់",
+      body:
+        "Your internal biological clock resets each morning with light. Waking up at the same hour every day, even on weekends, strengthens your circadian rhythm and ensures healthy sleep pressure builds up by nightfall.",
+      kmBody:
+        "នាឡិកាជីវសាស្ត្រក្នុងរាងកាយរបស់អ្នកកំណត់ឡើងវិញរៀងរាល់ព្រឹកនៅពេលជួបពន្លឺថ្ងៃ។ ការភ្ញាក់ពីគេងនៅម៉ោងដដែលជារៀងរាល់ថ្ងៃ ទោះជាថ្ងៃចុងសប្តាហ៍ក៏ដោយ ជួយពង្រឹងចង្វាក់ជីវសាស្ត្រ និងជួយឱ្យអ្នកមានអារម្មណ៍ងងុយគេងទាន់ពេលវេលានៅពេលយប់។",
+      tryNow: "pick a consistent wake-up time and stick to it tomorrow morning.",
+      kmTryNow: "ជ្រើសរើសម៉ោងភ្ញាក់ពីគេងជាក់លាក់មួយ ហើយក្រោកឱ្យចំម៉ោងនៅព្រឹកស្អែក។",
+    },
+    {
+      number: 2,
+      title: "Clear mental clutter in AROM Journal.",
+      kmTitle: "ជម្រះការព្រួយបារម្ភក្នុងកំណត់ហេតុ AROM",
+      body:
+        "When you lie down in silence, unaddressed worries and tomorrow's to-do list compete for your attention. Take 5 minutes before bed to open your private AROM Journal and type or voice record whatever is on your mind. Because your reflections are confidential, externalizing thoughts signals to your brain that they are safely stored, so it does not have to stay awake holding them.",
+      kmBody:
+        "នៅពេលអ្នកចូលគេងក្នុងភាពស្ងប់ស្ងាត់ ការព្រួយបារម្ភដែលមិនទាន់ដោះស្រាយ និងកិច្ចការថ្ងៃស្អែកនឹងដណ្តើមការយកចិត្តទុកដាក់ក្នុងចិត្ត។ សូមចំណាយពេល ៥ នាទីមុនចូលគេង បើកមុខងារ «កំណត់ហេតុ (Journal)» ក្នុងកម្មវិធី AROM ដើម្បីសរសេរ ឬកត់ត្រាសំឡេងនូវអ្វីៗដែលនៅក្នុងចិត្ត។ ដោយសារកំណត់ហេតុរបស់អ្នកមានសុវត្ថិភាពជាឯកជន ១០០% ការបញ្ចេញគំនិតទាំងនោះប្រាប់ខួរក្បាលថាពួកវាត្រូវបានរក្សាទុកដោយសុវត្ថិភាព ដូច្នេះអ្នកមិនចាំបាច់នៅភ្ញាក់ចាំវានោះឡើយ។",
+      tryNow: "record 3 thoughts or tomorrow's tasks in AROM Journal.",
+      kmTryNow: "កត់ត្រា ៣ គំនិត ឬកិច្ចការថ្ងៃស្អែកចូលក្នុងកំណត់ហេតុ AROM។",
+    },
+    {
+      number: 3,
+      title: "Slow your heart with 4-7-8 breathing.",
+      kmTitle: "បន្ថយចង្វាក់បេះដូងដោយការដកដង្ហើម ៤, ៧, ៨",
+      body:
+        "Racing bedtime thoughts trigger shallow breathing and elevate your heart rate. Practicing slow rhythmic breathing stimulates the vagus nerve and activates your parasympathetic rest response, switching your body from alert mode to deep relaxation.",
+      kmBody:
+        "ការគិតច្រើនមុនពេលគេងធ្វើឱ្យការដកដង្ហើមញាប់ និងបង្កើនចង្វាក់បេះដូង។ ការហាត់ដកដង្ហើមយឺតៗតាមចង្វាក់ ជួយភ្ញោចសរសៃប្រសាទ Vagus និងជំរុញឱ្យរាងកាយផ្លាស់ប្តូរពីសភាពប្រុងប្រយ័ត្ន មកកាន់ភាពស្ងប់ស្ងាត់ដើម្បីត្រៀមគេង។",
+      tryNow: "tap below to start 2 minutes of guided 4-7-8 breathing in AROM.",
+      kmTryNow: "ចុចខាងក្រោមដើម្បីហាត់ដកដង្ហើម ៤, ៧, ៨ រយៈពេល ២ នាទីក្នុង AROM។",
+      hasBreathingAction: true,
+    },
+    {
+      number: 4,
+      title: "Set a digital sunset 60 minutes before bed.",
+      kmTitle: "កាត់បន្ថយអេក្រង់ ៦០ នាទីមុនចូលគេង",
+      body:
+        "The short-wavelength blue light emitted from smartphones, tablets, and laptops fools your brain into thinking it is daytime, delaying the natural release of sleep hormones like melatonin. Dim bright overhead lights and switch off social feeds at least 60 minutes before sleeping.",
+      kmBody:
+        "ពន្លឺពណ៌ខៀវចេញពីអេក្រង់ទូរស័ព្ទ និងកុំព្យូទ័រ បោកបញ្ឆោតខួរក្បាលឱ្យគិតថាជាពេលថ្ងៃ ដែលធ្វើឱ្យពន្យារការបញ្ចេញអ័រម៉ូនមេឡាតូនីន (Melatonin) សម្រាប់ដំណេក។ សូមបន្ថយពន្លឺភ្លើងក្នុងបន្ទប់ និងឈប់ប្រើប្រាស់បណ្តាញសង្គមយ៉ាងហោចណាស់ ៦០ នាទីមុនពេលអ្នកចូលគេង។",
+      tryNow: "charge your phone away from your pillow and turn off notifications.",
+      kmTryNow: "សាកថ្មទូរស័ព្ទឱ្យឆ្ងាយពីគ្រែ និងបិទសំឡេងជូនដំណឹង។",
+    },
+    {
+      number: 5,
+      title: "Cool and darken your room.",
+      kmTitle: "រៀបចំបន្ទប់គេងឱ្យត្រជាក់ និងងងឹតល្អ",
+      body:
+        "To initiate deep sleep, your body temperature must drop by 1 to 2 degrees Fahrenheit. A bedroom kept cool, well ventilated, and fully dark signals your brain that it is time to rest, preventing nighttime awakenings.",
+      kmBody:
+        "ដើម្បីគេងលក់ស្កប់ សីតុណ្ហភាពរាងកាយរបស់អ្នកត្រូវការចុះត្រជាក់បន្តិច។ បន្ទប់គេងដែលមានខ្យល់ចេញចូលត្រជាក់ស្រួល និងងងឹតល្អ ផ្តល់សញ្ញាដល់ខួរក្បាលថាដល់ពេលសម្រាក ដែលជួយការពារកុំឱ្យភ្ញាក់កណ្តាលយប់។",
+      tryNow: "dim all room lights and open a window or fan for airflow.",
+      kmTryNow: "បិទភ្លើងបន្ទប់ឱ្យងងឹត និងបើកកង្ហារ ឬបង្អួចឱ្យមានខ្យល់ចេញចូលត្រជាក់។",
+    },
+  ],
+};
+
 export const ALL_TIPS: TipItem[] = [
   TIP_CONTROL_STRESS,
-  {
-    id: "sleep-hygiene-essentials",
-    title: "Sleep Hygiene Essentials",
-    kmTitle: "មូលដ្ឋានគ្រឹះនៃដំណេកលក់ស្រួល (Sleep Hygiene)",
-    subtitle: "Small Nighttime Adjustments for Restful Sleep",
-    kmSubtitle: "ការកែសម្រួលទម្លាប់ពេលយប់ដើម្បីគេងលក់ស្កប់ស្កល់",
-    introduction:
-      "Good sleep starts hours before you lie down. Creating a wind-down routine allows your circadian rhythm to cue melatonin release naturally.",
-    kmIntroduction:
-      "ការគេងឱ្យបានល្អចាប់ផ្តើមជាច្រើនម៉ោងមុនពេលអ្នកចូលគេង។ ការបង្កើតទម្លាប់សម្រាកជួយឱ្យរាងកាយបញ្ចេញអ័រម៉ូនគេងលក់ដោយធម្មជាតិ។",
-    category: "Sleep",
-    kmCategory: "ដំណេក (Sleep)",
-    duration: "3 min",
-    kmDuration: "៣ នាទី",
-    difficulty: "Beginner",
-    kmDifficulty: "កម្រិតដំបូង (Beginner)",
-    format: "5 Evening Tips",
-    kmFormat: "៥ គន្លឹះពេលល្ងាច",
-    isAvailable: false,
-    badge: "Coming Soon",
-    image: "/mindguide/sleep.png",
-    sourceCitation: "National Sleep Foundation guidelines (2024).",
-    kmSourceCitation: "គោលការណ៍ណែនាំមូលនិធិដំណេកជាតិ (2024)។",
-    supportCallout: {
-      title: "Chronic Insomnia Support",
-      kmTitle: "ជំនួយពេលគេងមិនលក់រ៉ាំរ៉ៃ",
-      body: "If sleeplessness persists more than three nights a week for over a month, consult a clinical sleep specialist.",
-      kmBody: "ប្រសិនបើដំណេកមិនលក់នៅតែបន្តលើសពី ៣ យប់ក្នុងមួយសប្តាហ៍ សូមពិគ្រោះជាមួយអ្នកជំនាញ។",
-      actionLabel: "Find Sleep Support",
-      kmActionLabel: "ស្វែងរកជំនួយដំណេក (Find Sleep Support)",
-    },
-    steps: [],
-  },
+  TIP_SLEEP_HYGIENE,
   {
     id: "calming-racing-thoughts",
     title: "Calming Racing Thoughts",
