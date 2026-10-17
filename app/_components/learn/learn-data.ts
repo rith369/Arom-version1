@@ -1880,40 +1880,409 @@ export const LESSON_KNOW_WHEN_TO_SEEK_HELP: Lesson = {
 };
 
 
+export const REFERENCES_BETTER_SLEEP: ReferenceItem[] = [
+  {
+    id: 1,
+    citation: "[1]",
+    source: "CDC",
+    title: "Centers for Disease Control and Prevention, About Sleep and Healthy Sleep Habits",
+    url: "https://www.cdc.gov/sleep/about/index.html",
+  },
+  {
+    id: 2,
+    citation: "[2]",
+    source: "NIH",
+    title: "National Institutes of Health, Sleep Deprivation and Deficiency",
+    url: "https://www.nhlbi.nih.gov/health/sleep-deprivation",
+  },
+  {
+    id: 3,
+    citation: "[3]",
+    source: "Sleep Foundation",
+    title: "Sleep Foundation, Sleep Hygiene Guidelines",
+    url: "https://www.sleepfoundation.org/sleep-hygiene",
+  },
+  {
+    id: 4,
+    citation: "[4]",
+    source: "NHS",
+    title: "NHS Every Mind Matters, How to Fall Asleep Faster and Sleep Better",
+    url: "https://www.nhs.uk/every-mind-matters/mental-wellbeing-tips/how-to-fall-asleep-faster-and-sleep-better/",
+  },
+];
+
+export const LESSON_BETTER_SLEEP: Lesson = {
+  id: "better-sleep",
+  title: "Better Sleep",
+  kmTitle: "ដំណេកប្រកបដោយគុណភាព (Better Sleep)",
+  subtitle: "Understand healthy sleep habits, evening wind-down routines, and why deep rest powers your mind",
+  kmSubtitle: "យល់ដឹងពីទម្លាប់គេងល្អ ការសម្រាកមុនចូលគេង និងសារៈសំខាន់នៃការសម្រាក",
+  category: "Sleep",
+  duration: "6 min",
+  kmDuration: "៦ នាទី",
+  difficulty: "Beginner",
+  kmDifficulty: "កម្រិតដំបូង (Beginner)",
+  format: "Reading + Reflection",
+  kmFormat: "ការអាន និងការឆ្លុះបញ្ចាំង (Reading & Reflection)",
+  isAvailable: true,
+  image: "/mindguide/sleep.png",
+  // Photo by Suhwa Lee on Unsplash (Unsplash License), cropped.
+  heroImage: "/mindguide/better-sleep-hero.jpg",
+  description:
+    "Understand healthy sleep hygiene, evening wind-down routines, and why deep rest powers your mind and emotional balance.",
+  kmDescription:
+    "យល់ដឹងពីទម្លាប់គេងប្រកបដោយសុខភាព ទម្លាប់សម្រាកមុនពេលចូលគេង និងសារៈសំខាន់នៃការសម្រាកដើម្បីពង្រឹងចិត្ត និងអារម្មណ៍របស់អ្នក។",
+  totalSections: 9,
+  outcomes: [
+    {
+      en: "The science of sleep cycles and brain recovery [1, 2]",
+      km: "វិទ្យាសាស្ត្រនៃវដ្តដំណេក និងការស្តារឡើងវិញនៃខួរក្បាល [1, 2]",
+    },
+    {
+      en: "How your body clock and light exposure control your sleep drive [1, 3]",
+      km: "របៀបដែលនាឡិកាជីវសាស្ត្ររាងកាយ និងពន្លឺគ្រប់គ្រងកម្លាំងជំរុញដំណេក [1, 3]",
+    },
+    {
+      en: "Practical ways to calm racing thoughts when lying in bed [4]",
+      km: "វិធីជាក់ស្តែងដើម្បីធ្វើឱ្យគំនិតស្ងប់ នៅពេលដេកមិនលក់នៅលើគ្រែ [4]",
+    },
+    {
+      en: "Building a realistic 30-minute evening wind-down routine [3]",
+      km: "ការបង្កើតទម្លាប់សម្រាក ៣០ នាទីមុនចូលគេងដ៏មានប្រសិទ្ធភាព [3]",
+    },
+    {
+      en: "When to seek confidential counseling for chronic sleeplessness on AROM",
+      km: "ពេលវេលាដែលត្រូវស្វែងរកការប្រឹក្សាជាសម្ងាត់លើ AROM សម្រាប់ការគេងមិនលក់រ៉ាំរ៉ៃ",
+    },
+  ],
+  references: REFERENCES_BETTER_SLEEP,
+  sections: [
+    {
+      id: 1,
+      sectionNumber: 1,
+      title: "Why Sleep Matters for Your Mind and Body",
+      kmTitle: "ហេតុអ្វីបានជាដំណេកសំខាន់សម្រាប់ចិត្ត និងរាងកាយរបស់អ្នក",
+      type: "reading",
+      paragraphs: [
+        "Sleep is not just empty time when your body shuts down. It is an active, essential process where your brain cleanses metabolic waste, consolidates memories, and repairs physical tissues. [1, 2]",
+        "When you get quality rest, your brain resets its emotional processing centers. You wake up with greater patience, better concentration, and higher resilience against daily stress.",
+        "When sleep is cut short, your brain struggles to regulate emotions. You may find yourself irritable, easily overwhelmed, anxious about small problems, or unable to focus on work and studies. [2]",
+        "In Cambodia, many students and hardworking professionals stay up late studying or working, believing they can catch up on rest later. But consistent sleep debt gradually drains your mood, memory, and immune health.",
+      ],
+      kmParagraphs: [
+        "ដំណេក មិនមែនគ្រាន់តែជាពេលវេលាទទេដែលរាងកាយរបស់អ្នកបិទដំណើរការនោះទេ។ វាគឺជាដំណើរការដ៏សកម្ម និងចាំបាច់បំផុត ដែលខួរក្បាលរបស់អ្នកសម្អាតកាកសំណល់ រៀបចំការចងចាំ និងជួសជុលកោសិការាងកាយ។ [1, 2]",
+        "នៅពេលដែលអ្នកទទួលបានការសម្រាកប្រកបដោយគុណភាព ខួរក្បាលរបស់អ្នកនឹងកំណត់ប្រព័ន្ធដំណើរការអារម្មណ៍ឡើងវិញ។ អ្នកភ្ញាក់ឡើងដោយមានការអត់ធ្មត់ខ្ពស់ ការផ្ដោតអារម្មណ៍ប្រសើរជាងមុន និងភាពធន់នឹងភាពតានតឹងប្រចាំថ្ងៃ។",
+        "នៅពេលដែលដំណេកត្រូវបានកាត់បន្ថយ ខួរក្បាលរបស់អ្នកនឹងពិបាកក្នុងការគ្រប់គ្រងអារម្មណ៍។ អ្នកអាចមានអារម្មណ៍មួម៉ៅ ឆាប់លើសលប់ ថប់បារម្ភចំពោះរឿងតូចតាច ឬមិនអាចផ្ដោតលើការងារ និងការសិក្សាបានឡើយ។ [2]",
+        "នៅក្នុងប្រទេសកម្ពុជា សិស្សានុសិស្ស និងអ្នកធ្វើការជាច្រើនតែងតែចូលគេងយឺតដោយសារតែការរៀនសូត្រ ឬការងារ ដោយជឿថាពួកគេអាចគេងប៉ះប៉ូវនៅពេលក្រោយបាន។ ប៉ុន្តែការខ្វះដំណេកជាប់រហូត នឹងធ្វើឱ្យអារម្មណ៍ ការចងចាំ និងប្រព័ន្ធការពាររាងកាយរបស់អ្នកចុះខ្សោយជាបណ្តើរៗ។",
+      ],
+      keyPoints: [
+        "Sleep is active biological recovery, not lost time [1].",
+        "Quality rest directly strengthens emotional resilience and focus [2].",
+        "Consistent sleep debt increases irritability and vulnerability to anxiety.",
+      ],
+      kmKeyPoints: [
+        "ដំណេក គឺជាការស្តារឡើងវិញនៃជីវសាស្ត្រយ៉ាងសកម្ម មិនមែនជាការខាតបង់ពេលវេលាទេ [1]។",
+        "ការសម្រាកប្រកបដោយគុណភាព ពង្រឹងភាពធន់នៃអារម្មណ៍ និងការផ្ដោតអារម្មណ៍ដោយផ្ទាល់ [2]។",
+        "ការខ្វះដំណេកជាប់រហូត បង្កើនភាពមួម៉ៅ និងធ្វើឱ្យងាយនឹងមានការថប់បារម្ភ។",
+      ],
+    },
+    {
+      id: 2,
+      sectionNumber: 2,
+      title: "The Body Clock and Sleep Drive",
+      kmTitle: "នាឡិកាជីវសាស្ត្ររាងកាយ និងកម្លាំងជំរុញដំណេក",
+      type: "reading",
+      paragraphs: [
+        "Your sleep is regulated by two powerful biological forces: your internal body clock and your sleep drive. [1, 3]",
+        "Your internal clock (the circadian rhythm) responds strongly to natural light. When morning sunlight hits your eyes, your brain produces cortisol and stops producing melatonin, signaling that it is time to wake up and feel alert.",
+        "Your sleep drive builds up pressure the longer you stay awake. By the end of the day, high sleep pressure combined with darkness signals your brain to release melatonin, preparing you for natural, deep sleep. [1]",
+        "When your sleep schedule changes wildly from day to day, your body clock becomes confused, making it difficult to fall asleep even when your body feels exhausted.",
+      ],
+      kmParagraphs: [
+        "ដំណេករបស់អ្នកត្រូវបានគ្រប់គ្រងដោយកម្លាំងជីវសាស្ត្រសំខាន់ពីរ៖ នាឡិកាជីវសាស្ត្រក្នុងខ្លួនរបស់អ្នក និងកម្លាំងជំរុញដំណេក។ [1, 3]",
+        "នាឡិកាជីវសាស្ត្ររបស់អ្នក ឆ្លើយតបយ៉ាងខ្លាំងចំពោះពន្លឺធម្មជាតិ។ នៅពេលដែលពន្លឺថ្ងៃពេលព្រឹកប៉ះភ្នែករបស់អ្នក ខួរក្បាលនឹងបញ្ឈប់ការផលិតអ័រម៉ូនមេឡាតូនីន (Melatonin) ដែលជាសញ្ញាបញ្ជាក់ថាដល់ពេលត្រូវភ្ញាក់ និងមានស្មារតីស្រស់ស្រាយ។",
+        "កម្លាំងជំរុញដំណេក បង្កើតសម្ពាធកាន់តែខ្លាំងនៅពេលអ្នកភ្ញាក់កាន់តែយូរ។ នៅចុងបញ្ចប់នៃថ្ងៃ សម្ពាធដំណេកខ្ពស់រួមផ្សំជាមួយភាពងងឹត ផ្តល់សញ្ញាឱ្យខួរក្បាលបញ្ចេញអ័រម៉ូនមេឡាតូនីន ដើម្បីរៀបចំឱ្យអ្នកគេងលក់ស្រួល និងស្កប់ស្កល់។ [1]",
+        "នៅពេលដែលម៉ោងគេងរបស់អ្នកប្រែប្រួលខ្លាំងពីមួយថ្ងៃទៅមួយថ្ងៃ នាឡិកាជីវសាស្ត្ររបស់អ្នកនឹងច្របូកច្របល់ ដែលធ្វើឱ្យពិបាកគេងលក់ ទោះបីជារាងកាយរបស់អ្នកហត់នឿយខ្លាំងក៏ដោយ។",
+      ],
+      alertBox: {
+        type: "tip",
+        text: "Good to know: Getting 10 to 15 minutes of natural morning sunlight helps anchor your body clock, making it much easier to fall asleep naturally at night.",
+        kmText: "គួរដឹង៖ ការទទួលបានពន្លឺថ្ងៃធម្មជាតិពេលព្រឹកពី ១០ ទៅ ១៥ នាទី ជួយកំណត់នាឡិកាជីវសាស្ត្ររបស់អ្នក និងធ្វើឱ្យអ្នកកាន់តែងាយស្រួលគេងលក់នៅពេលយប់។",
+      },
+      keyPoints: [
+        "Morning light sets your internal rhythm for the rest of the day [1].",
+        "Sleep drive naturally accumulates throughout your waking hours.",
+        "A consistent wake-up time is the single best anchor for restful sleep [3].",
+      ],
+      kmKeyPoints: [
+        "ពន្លឺពេលព្រឹក កំណត់ចង្វាក់ខាងក្នុងរាងកាយរបស់អ្នកសម្រាប់ពេញមួយថ្ងៃ [1]។",
+        "កម្លាំងជំរុញដំណេក កើនឡើងជាធម្មជាតិក្នុងអំឡុងពេលដែលអ្នកភ្ញាក់។",
+        "ម៉ោងភ្ញាក់ពីគេងដែលទៀងទាត់ គឺជាគ្រឹះដ៏ល្អបំផុតសម្រាប់ដំណេកស្កប់ស្កល់ [3]។",
+      ],
+    },
+    {
+      id: 3,
+      sectionNumber: 3,
+      title: "Common Sleep Disruptors",
+      kmTitle: "ឧបសគ្គទូទៅដែលរំខានដល់ដំណេក",
+      type: "reading",
+      paragraphs: [
+        "Many habits that seem harmless can severely undermine your ability to get deep rest. [3, 4]",
+        "Blue light from screens: Scrolling through short videos, social media or studying on a bright phone right before bed tricks your brain into thinking it is still daytime, suppressing the natural release of melatonin. [3]",
+        "Late caffeine and sweet drinks: Iced coffee, milk tea, and energy drinks are very popular across Cambodia. Caffeine stays in your bloodstream for up to 6 hours, keeping your nervous system on high alert even if you manage to drift off.",
+        "Hot and noisy surroundings: A warm room or unexpected street noise interrupts deep sleep cycles. Using a gentle fan, breathable cotton bedding, and keeping the bedroom as cool and dark as possible supports uninterrupted rest.",
+      ],
+      kmParagraphs: [
+        "ទម្លាប់ជាច្រើនដែលមើលទៅហាក់ដូចជាគ្មានបញ្ហា អាចរំខានយ៉ាងខ្លាំងដល់សមត្ថភាពរបស់អ្នកក្នុងការទទួលបានការសម្រាកដ៏ស្កប់ស្កល់។ [3, 4]",
+        "ពន្លឺពណ៌ខៀវពីអេក្រង់៖ ការមើលវីដេអូខ្លីៗ បណ្តាញសង្គម ឬការរៀនតាមទូរស័ព្ទភ្លឺៗមុនពេលចូលគេង ធ្វើឱ្យខួរក្បាលរបស់អ្នកយល់ច្រឡំថាជាពេលថ្ងៃ ដែលរារាំងការបញ្ចេញអ័រម៉ូនមេឡាតូនីនតាមធម្មជាតិ។ [3]",
+        "ជាតិកាហ្វេអ៊ីន និងភេសជ្ជៈផ្អែមពេលយប់៖ កាហ្វេទឹកកក តែទឹកដោះគោ និងភេសជ្ជៈប៉ូវកម្លាំង គឺមានការពេញនិយមយ៉ាងខ្លាំងនៅកម្ពុជា។ ជាតិកាហ្វេអ៊ីនស្ថិតនៅក្នុងចរន្តឈាមរបស់អ្នករហូតដល់ ៦ ម៉ោង ដែលធ្វើឱ្យប្រព័ន្ធប្រសាទរបស់អ្នកប្រុងប្រយ័ត្នខ្ពស់ ទោះបីជាអ្នកគេងលក់ក៏ដោយ។",
+        "បរិយាកាសក្តៅ និងសំឡេងរំខាន៖ បន្ទប់ដែលក្តៅ ឬសំឡេងរំខានពីផ្លូវ រំខានដល់វដ្តនៃដំណេកជ្រៅ។ ការប្រើកង្ហារខ្យល់ស្រាលៗ កម្រាលពូកកប្បាសដែលត្រជាក់ និងការរក្សាបន្ទប់ឱ្យត្រជាក់ និងងងឹតតាមដែលអាចធ្វើទៅបាន ជួយឱ្យការគេងមិនមានការភ្ញាក់កណ្តាលយប់។",
+      ],
+      keyPoints: [
+        "Screens fool your brain into delaying melatonin production [3].",
+        "Avoid caffeine for at least 6 hours before your intended bedtime.",
+        "Keep your sleeping space cool, dim, and quiet.",
+      ],
+      kmKeyPoints: [
+        "អេក្រង់ទូរស័ព្ទ បន្លំខួរក្បាលរបស់អ្នកឱ្យពន្យារពេលផលិតអ័រម៉ូនគេងលក់ [3]។",
+        "ជៀសវាងជាតិកាហ្វេអ៊ីនយ៉ាងហោចណាស់ ៦ ម៉ោងមុនពេលចូលគេង។",
+        "រក្សាកន្លែងគេងរបស់អ្នកឱ្យត្រជាក់ ស្រអាប់ និងស្ងប់ស្ងាត់។",
+      ],
+    },
+    {
+      id: 4,
+      sectionNumber: 4,
+      title: "When Racing Thoughts Keep You Awake",
+      kmTitle: "នៅពេលដែលការគិតច្រើនធ្វើឱ្យអ្នកដេកមិនលក់",
+      type: "reading",
+      paragraphs: [
+        "Have you ever felt exhausted all evening, only to lie awake the moment your head touches the pillow with worries racing through your mind? [4]",
+        "During the busy day, work, conversations, and notifications keep your attention occupied. When you lie down in silence, your brain finally has empty space, and unaddressed concerns about exams, family responsibilities, or the future rush to the surface.",
+        "Two evidence-based techniques can help break this cycle:\n1. The Evening Brain Dump: An hour before bed, take 5 minutes to write down whatever is worrying you on paper. Listing tomorrow's tasks or unresolved thoughts lets your mind know they are safe and documented, so it does not have to stay awake holding them.",
+        "2. The 20-Minute Rule: If you cannot fall asleep after 20 minutes, do not toss and turn in frustration. Staying in bed agitated trains your brain to associate the mattress with stress. Get up gently, sit in dim light, read a book or do a quiet activity, and return to bed only when your eyelids feel heavy. [3, 4]",
+      ],
+      kmParagraphs: [
+        "តើអ្នកធ្លាប់មានអារម្មណ៍ហត់នឿយពេញមួយល្ងាច ប៉ុន្តែនៅពេលក្បាលដល់ខ្នើយ ស្រាប់តែភ្នែកភ្លឺ ហើយគំនិតព្រួយបារម្ភរត់ពេញក្បាលដែរឬទេ? [4]",
+        "ក្នុងអំឡុងពេលថ្ងៃដ៏រវល់ ការងារ ការសន្ទនា និងការជូនដំណឹងផ្សេងៗបានទាញយកចំណាប់អារម្មណ៍របស់អ្នក។ នៅពេលដែលអ្នកគេងក្នុងភាពស្ងប់ស្ងាត់ ខួរក្បាលរបស់អ្នកមានកន្លែងទំនេរ ហើយការព្រួយបារម្ភដែលមិនទាន់ដោះស្រាយអំពីការប្រឡង ទំនួលខុសត្រូវគ្រួសារ ឬអនាគត នឹងហក់ឡើងមកភ្លាមៗ។",
+        "បច្ចេកទេសពីរដែលផ្អែកលើភស្តុតាងវិទ្យាសាស្ត្រ អាចជួយកាត់ផ្តាច់វដ្តនេះបាន៖\n១. ការកត់ត្រាជម្រះគំនិត (The Evening Brain Dump)៖ មួយម៉ោងមុនចូលគេង សូមចំណាយពេល ៥ នាទីដើម្បីសរសេររាល់ការព្រួយបារម្ភលើក្រដាស។ ការកត់ត្រាកិច្ចការថ្ងៃស្អែក ឬគំនិតដែលនៅសេសសល់ ជួយឱ្យចិត្តរបស់អ្នកដឹងថាវាត្រូវបានកត់ទុកដោយសុវត្ថិភាព ដូច្នេះអ្នកមិនចាំបាច់នៅភ្ញាក់ដើម្បីទន្ទេញចាំវានោះឡើយ។",
+        "២. ច្បាប់ ២០ នាទី (The 20-Minute Rule)៖ ប្រសិនបើអ្នកដេកមិនលក់លើសពី ២០ នាទី សូមកុំប្រែខ្លួនចុះឡើងដោយការខកចិត្ត។ ការបន្តដេកនៅលើគ្រែដោយភាពតានតឹង ធ្វើឱ្យខួរក្បាលរបស់អ្នកចងចាំថាពូកគឺជាកន្លែងនៃភាពតានតឹង។ សូមក្រោកឡើងថ្នមៗ អង្គុយក្នុងពន្លឺស្រអាប់ អានសៀវភៅ ឬធ្វើសកម្មភាពស្ងប់ស្ងាត់ ហើយត្រឡប់ទៅគ្រែវិញនៅពេលដែលអ្នកមានអារម្មណ៍ថាធ្ងន់ភ្នែកចង់គេង។ [3, 4]",
+      ],
+      keyPoints: [
+        "Writing down worries transfers them from your head to paper [4].",
+        "Lying awake in bed for hours trains your brain to link bed with anxiety.",
+        "Use the 20-minute rule: leave bed if frustrated, return only when sleepy [3].",
+      ],
+      kmKeyPoints: [
+        "ការសរសេរការព្រួយបារម្ភ ជួយផ្ទេរវាពីក្នុងក្បាលមកលើក្រដាស [4]។",
+        "ការដេកមិនលក់នៅលើគ្រែរាប់ម៉ោង ធ្វើឱ្យខួរក្បាលភ្ជាប់គ្រែទៅនឹងការថប់បារម្ភ។",
+        "ប្រើច្បាប់ ២០ នាទី៖ ក្រោកពីគ្រែប្រសិនបើពិបាកចិត្ត ហើយត្រឡប់មកវិញពេលងងុយ [3]។",
+      ],
+    },
+    {
+      id: 5,
+      sectionNumber: 5,
+      title: "Building an Evening Wind-Down Routine",
+      kmTitle: "ការបង្កើតទម្លាប់សម្រាកមុនពេលចូលគេង",
+      type: "reading",
+      paragraphs: [
+        "Sleep does not happen like a light switch. Your nervous system needs a gradual ramp down from high alert to calm recovery. [3, 4]",
+        "Try designing a 30 to 60 minute evening buffer before your target bedtime:\n• Dim bright overhead lights and switch to warm, soft ambient lighting.\n• Put your phone in another room or switch on \"Do Not Disturb\".\n• Take a warm shower or wash your face and feet with warm water to help your body relax.\n• Engage in low-stimulation activities: light reading, journaling, or listening to calm audio.",
+        "On AROM, you can listen to the therapist podcast \"Sleep when your mind will not stop\" (`sleep-busy-mind`), where clinicians discuss practical evening routines tailored for busy minds.",
+        "Consistency is key: when you repeat the same gentle cues each night, your brain learns to recognize that sleep is coming.",
+      ],
+      kmParagraphs: [
+        "ដំណេក មិនមែនកើតឡើងដូចជាការចុចកុងតាក់ភ្លើងបិទបើកភ្លាមៗនោះទេ។ ប្រព័ន្ធប្រសាទរបស់អ្នកត្រូវការពេលវេលាដើម្បីបន្ថយល្បឿនពីការប្រុងប្រយ័ត្នខ្ពស់ មកកាន់ការសម្រាកស្ងប់ស្ងាត់។ [3, 4]",
+        "សាកល្បងរៀបចំពេលវេលាសម្រាកពី ៣០ ទៅ ៦០ នាទី មុនម៉ោងគេងដែលអ្នកចង់បាន៖\n• បន្ថយពន្លឺភ្លើងចាំងៗពីលើពិដាន ហើយប្តូរមកប្រើពន្លឺស្រទន់កក់ក្តៅ។\n• ទុកទូរស័ព្ទរបស់អ្នកនៅបន្ទប់ផ្សេង ឬបើកមុខងារ «កុំរំខាន (Do Not Disturb)»។\n• ងូតទឹកក្តៅឧណ្ហៗ ឬលាងមុខ និងជើងដោយទឹកក្តៅឧណ្ហៗ ដើម្បីជួយឱ្យរាងកាយធូរស្រាល។\n• ធ្វើសកម្មភាពដែលមិនរំញោចខ្លាំង៖ អានសៀវភៅស្រាលៗ កត់ត្រាកំណត់ហេតុ ឬស្តាប់សំឡេងស្ងប់អារម្មណ៍។",
+        "នៅលើកម្មវិធី AROM អ្នកអាចស្តាប់ផតខាសរបស់អ្នកជំនាញ «ការគេងនៅពេលចិត្តមិនព្រមឈប់គិត (Sleep when your mind will not stop)» ដែលអ្នកជំនាញចែករំលែកទម្លាប់ពេលល្ងាចជាក់ស្តែងសម្រាប់អ្នកដែលគិតច្រើន។",
+        "ភាពទៀងទាត់គឺជាគន្លឹះ៖ នៅពេលដែលអ្នកធ្វើទម្លាប់ស្រាលៗដដែលៗរៀងរាល់យប់ ខួរក្បាលរបស់អ្នកនឹងរៀនដឹងថានេះជាពេលវេលាដែលត្រូវគេង។",
+      ],
+      keyPoints: [
+        "Your nervous system requires 30 to 60 minutes to transition into rest [3].",
+        "Dim lighting and phone boundaries signal safety to your body clock.",
+        "AROM therapist podcasts provide soothing, practical guidance before bed.",
+      ],
+      kmKeyPoints: [
+        "ប្រព័ន្ធប្រសាទរបស់អ្នកត្រូវការពេលពី ៣០ ទៅ ៦០ នាទី ដើម្បីត្រៀមខ្លួនសម្រាក [3]។",
+        "ពន្លឺស្រអាប់ និងការកម្រិតទូរស័ព្ទ បញ្ជាក់ប្រាប់រាងកាយរបស់អ្នកពីសុវត្ថិភាព។",
+        "ផតខាសអ្នកជំនាញលើ AROM ផ្តល់ការណែនាំដ៏កក់ក្តៅ និងជាក់ស្តែងមុនពេលគេង។",
+      ],
+    },
+    {
+      id: 6,
+      sectionNumber: 6,
+      title: "Check Your Sleep Knowledge",
+      kmTitle: "ពិនិត្យមើលចំណេះដឹងអំពីដំណេករបស់អ្នក",
+      type: "quiz",
+      paragraphs: [
+        "Test your understanding of healthy sleep habits and what to do when falling asleep feels difficult.",
+      ],
+      kmParagraphs: [
+        "សាកល្បងការយល់ដឹងរបស់អ្នកអំពីទម្លាប់គេងល្អ និងអ្វីដែលត្រូវធ្វើនៅពេលមានអារម្មណ៍ថាពិបាកគេងលក់។",
+      ],
+      quiz: {
+        question:
+          "If you have been lying awake in bed for over 20 minutes unable to fall asleep, what is the most helpful step to take?",
+        kmQuestion:
+          "ប្រសិនបើអ្នកដេកមិនលក់នៅលើគ្រែលើសពី ២០ នាទី តើជំហានណាដែលល្អបំផុតដែលគួរធ្វើ?",
+        options: [
+          {
+            id: "a",
+            text: "Stay in bed and keep scrolling on your phone until you feel exhausted",
+            kmText: "បន្តដេកនៅលើគ្រែ ហើយបន្តចុចទូរស័ព្ទរហូតដល់ងងុយ",
+            isCorrect: false,
+          },
+          {
+            id: "b",
+            text: "Get out of bed, do a calm activity in dim light, and return only when sleepy",
+            kmText: "ក្រោកពីគ្រែ ធ្វើសកម្មភាពស្ងប់ស្ងាត់ក្នុងពន្លឺស្រអាប់ ហើយត្រឡប់មកវិញពេលងងុយ",
+            isCorrect: true,
+          },
+          {
+            id: "c",
+            text: "Force yourself to keep your eyes tightly closed and worry about tomorrow",
+            kmText: "បង្ខំខ្លួនឯងឱ្យបិទភ្នែកឱ្យជិត ហើយបារម្ភពីរឿងថ្ងៃស្អែក",
+            isCorrect: false,
+          },
+          {
+            id: "d",
+            text: "Drink a strong cup of sweet iced tea to calm your throat",
+            kmText: "ផឹកតែផ្អែមត្រជាក់មួយកែវធំ ដើម្បីឱ្យស្រួលក",
+            isCorrect: false,
+          },
+        ],
+        explanation:
+          "Correct! If you cannot sleep after 20 minutes, getting out of bed prevents your brain from linking your bed with anxiety and frustration. Returning only when drowsy rebuilds the strong mental association between your mattress and deep sleep.",
+        kmExplanation:
+          "ត្រឹមត្រូវហើយ! ប្រសិនបើអ្នកដេកមិនលក់លើសពី ២០ នាទី ការក្រោកពីគ្រែជួយការពារកុំឱ្យខួរក្បាលរបស់អ្នកចងចាំថាគ្រែជាកន្លែងនៃការថប់បារម្ភ និងការមួម៉ៅ។ ការត្រឡប់មកគ្រែវិញនៅពេលងងុយ ជួយកសាងទំនាក់ទំនងផ្លូវចិត្តដ៏រឹងមាំរវាងពូក និងដំណេកស្កប់ស្កល់ឡើងវិញ។",
+      },
+      keyPoints: [
+        "Staying in bed while agitated trains your brain to associate bed with stress.",
+        "Leave bed after 20 minutes and do something soothing until drowsiness returns [3, 4].",
+      ],
+      kmKeyPoints: [
+        "ការបន្តដេកទាំងមួម៉ៅ ធ្វើឱ្យខួរក្បាលភ្ជាប់គ្រែទៅនឹងភាពតានតឹង។",
+        "ក្រោកពីគ្រែក្រោយ ២០ នាទី ហើយធ្វើអ្វីដែលស្ងប់ចិត្ត រហូតដល់ងងុយគេងម្តងទៀត [3, 4]។",
+      ],
+    },
+    {
+      id: 7,
+      sectionNumber: 7,
+      title: "Your Personal Sleep Check-In",
+      kmTitle: "ការពិនិត្យមើលទម្លាប់គេងផ្ទាល់ខ្លួនរបស់អ្នក",
+      type: "reflection",
+      paragraphs: [
+        "Improving your sleep does not require changing everything overnight. Choosing one small, realistic habit to focus on can create lasting momentum for your energy and mental health.",
+      ],
+      kmParagraphs: [
+        "ការកែលម្អដំណេករបស់អ្នក មិនទាមទារឱ្យអ្នកផ្លាស់ប្តូរអ្វីៗទាំងអស់ក្នុងពេលតែមួយយប់នោះទេ។ ការជ្រើសរើសទម្លាប់តូចមួយដែលស្របតាមការពិត អាចបង្កើតភាពរីកចម្រើនយូរអង្វែងសម្រាប់ថាមពល និងសុខភាពផ្លូវចិត្តរបស់អ្នក។",
+      ],
+      reflection: {
+        question:
+          "Which sleep habit would you like to focus on improving first?",
+        kmQuestion:
+          "តើទម្លាប់គេងមួយណាដែលអ្នកចង់ផ្ដោតលើការកែលម្អជាមុនសិន?",
+        options: [
+          "Setting a consistent wake-up time every morning",
+          "Putting my phone away 30 minutes before sleep",
+          "Writing down my racing worries before bed",
+          "Cutting off afternoon coffee and sweet drinks",
+        ],
+        kmOptions: [
+          "ការកំណត់ម៉ោងក្រោកពីគេងឱ្យទៀងទាត់រៀងរាល់ព្រឹក",
+          "ការទុកទូរស័ព្ទឱ្យឆ្ងាយ ៣០ នាទីមុនចូលគេង",
+          "ការសរសេរជម្រះការព្រួយបារម្ភលើក្រដាសមុនគេង",
+          "ការកាត់បន្ថយកាហ្វេ និងភេសជ្ជៈផ្អែមពេលរសៀល",
+        ],
+        feedbackMessage:
+          "Excellent choice. Focusing on just this one habit for the next seven days will help your body clock adjust naturally. Consistency always beats perfection.",
+        kmFeedbackMessage:
+          "ជាជម្រើសដ៏ល្អប្រសើរ។ ការផ្ដោតលើទម្លាប់តែមួយនេះសម្រាប់រយៈពេល ៧ ថ្ងៃខាងមុខ នឹងជួយឱ្យនាឡិកាជីវសាស្ត្ររបស់អ្នកសម្របខ្លួនតាមធម្មជាតិ។ ភាពទៀងទាត់តែងតែមានប្រសិទ្ធភាពជាងភាពល្អឥតខ្ចោះ។",
+      },
+      keyPoints: [
+        "Start small with one single habit change.",
+        "Give your body clock at least 7 to 10 days to adapt to a new routine.",
+      ],
+      kmKeyPoints: [
+        "ចាប់ផ្តើមពីតូច ដោយការផ្លាស់ប្តូរទម្លាប់តែមួយគត់។",
+        "ផ្តល់ពេលវេលាឱ្យនាឡិកាជីវសាស្ត្ររបស់អ្នកយ៉ាងហោចណាស់ពី ៧ ទៅ ១០ ថ្ងៃ ដើម្បីសម្របខ្លួន។",
+      ],
+    },
+    {
+      id: 8,
+      sectionNumber: 8,
+      title: "When Chronic Sleeplessness Needs Support on AROM",
+      kmTitle: "នៅពេលដែលការគេងមិនលក់រ៉ាំរ៉ៃត្រូវការការគាំទ្រនៅលើ AROM",
+      type: "reading",
+      paragraphs: [
+        "Occasional sleepless nights before a major exam or life change are normal. But when difficulty sleeping lasts for weeks or months, it is often intertwined with chronic stress, anxiety, or depression. [2, 4]",
+        "Sleeplessness and emotional distress feed each other: worry prevents sleep, and sleep deprivation makes anxiety feel far more severe the next morning.",
+        "If you have tried healthy sleep hygiene but still struggle with persistent insomnia, professional guidance can help. On AROM, you can connect with verified psychologists and counselors who specialize in sleep difficulties and stress management.",
+        "You can browse therapist profiles, review their clinical experience, and book confidential sessions in complete privacy from your phone. No one in your family or circle will ever know you reached out.",
+      ],
+      kmParagraphs: [
+        "ការដេកមិនលក់ម្តងម្កាលមុនការប្រឡងធំ ឬការផ្លាស់ប្តូរជីវិត គឺជារឿងធម្មតា។ ប៉ុន្តែនៅពេលដែលការពិបាកគេងកើតមានជាប់គ្នារាប់សប្តាហ៍ ឬរាប់ខែ វាច្រើនតែជាប់ទាក់ទងនឹងភាពតានតឹងរ៉ាំរ៉ៃ ការថប់បារម្ភ ឬជំងឺបាក់ទឹកចិត្ត។ [2, 4]",
+        "ការគេងមិនលក់ និងការលំបាកផ្នែកអារម្មណ៍ មានទំនាក់ទំនងគ្នាទៅវិញទៅមក៖ ការព្រួយបារម្ភរារាំងដំណេក ហើយការខ្វះដំណេកធ្វើឱ្យការថប់បារម្ភកាន់តែធ្ងន់ធ្ងរនៅព្រឹកបន្ទាប់។",
+        "ប្រសិនបើអ្នកបានសាកល្បងទម្លាប់គេងល្អហើយ ប៉ុន្តែនៅតែបន្តគេងមិនលក់ ការណែនាំពីអ្នកជំនាញអាចជួយបាន។ នៅលើកម្មវិធី AROM អ្នកអាចភ្ជាប់ទំនាក់ទំនងជាមួយអ្នកចិត្តសាស្រ្ត និងអ្នកប្រឹក្សាផ្លូវចិត្តដែលមានការបញ្ជាក់ ដែលមានជំនាញឯកទេសលើការលំបាកក្នុងការគេង និងការគ្រប់គ្រងភាពតានតឹង។",
+        "អ្នកអាចមើលប្រវត្តិអ្នកជំនាញ ពិនិត្យមើលបទពិសោធន៍គ្លីនិក និងកក់ការពិគ្រោះយោបល់ជាសម្ងាត់ដោយផ្ទាល់ពីទូរស័ព្ទរបស់អ្នក។ គ្មាននរណាម្នាក់ក្នុងគ្រួសារ ឬមជ្ឈដ្ឋានជុំវិញអ្នកដឹងថាអ្នកបានទាក់ទងសុំជំនួយឡើយ។",
+      ],
+      alertBox: {
+        type: "tip",
+        text: "Good to know: If sleeplessness has persisted for more than three nights a week for over a month, speaking with a professional on AROM can help uncover root emotional causes in complete confidence.",
+        kmText: "គួរដឹង៖ ប្រសិនបើការដេកមិនលក់បានបន្តលើសពី ៣ យប់ក្នុងមួយសប្តាហ៍ អស់រយៈពេលជាងមួយខែ ការពិគ្រោះជាមួយអ្នកជំនាញនៅលើ AROM អាចជួយស្វែងរកដើមហេតុអារម្មណ៍បានដោយការសម្ងាត់ទាំងស្រុង។",
+      },
+      keyPoints: [
+        "Chronic sleeplessness is frequently connected to unaddressed anxiety or depression [2].",
+        "Breaking long-term insomnia often requires addressing underlying stress patterns.",
+        "AROM provides 100% confidential professional support directly from your mobile device.",
+      ],
+      kmKeyPoints: [
+        "ការគេងមិនលក់រ៉ាំរ៉ៃ ច្រើនតែទាក់ទងនឹងការថប់បារម្ភ ឬការបាក់ទឹកចិត្តដែលមិនទាន់បានដោះស្រាយ [2]។",
+        "ការដោះស្រាយការគេងមិនលក់យូរអង្វែង ទាមទារឱ្យមានការស្វែងយល់ពីទម្រង់ភាពតានតឹងខាងក្នុង។",
+        "AROM ផ្តល់ការគាំទ្រប្រកបដោយវិជ្ជាជីវៈជាសម្ងាត់ ១០០% ដោយផ្ទាល់ពីទូរស័ព្ទដៃរបស់អ្នក។",
+      ],
+    },
+    {
+      id: 9,
+      sectionNumber: 9,
+      title: "Next Steps for Restful Sleep",
+      kmTitle: "ជំហានបន្ទាប់សម្រាប់ដំណេកប្រកបដោយផាសុកភាព",
+      type: "coping",
+      paragraphs: [
+        "Quality sleep is a form of self care you practice every day. Tonight, give yourself permission to step away from screens 30 minutes before bed, dim the lights, and let your body unwind.",
+        "If your mind feels restless right now, practice a gentle calming breath to slow your heart rate and prepare for rest. You can also listen to the therapist podcast \"Sleep when your mind will not stop\" on AROM.",
+        "If you ever think about hurting yourself, get help right away. Open Profile and tap Get help now.",
+      ],
+      kmParagraphs: [
+        "ដំណេកប្រកបដោយគុណភាព គឺជាទម្រង់នៃការថែទាំខ្លួនឯងដែលអ្នកអនុវត្តរៀងរាល់ថ្ងៃ។ យប់នេះ សូមផ្តល់ការអនុញ្ញាតឱ្យខ្លួនឯងដកឃ្លាពីអេក្រង់ទូរស័ព្ទ ៣០ នាទីមុនចូលគេង បន្ថយពន្លឺភ្លើង និងទុកឱ្យរាងកាយរបស់អ្នកបានសម្រាក។",
+        "ប្រសិនបើចិត្តរបស់អ្នកមានអារម្មណ៍ថាមិនស្ងប់នៅពេលនេះ សូមសាកល្បងហាត់ដកដង្ហើមវែងៗ ដើម្បីបន្ថយចង្វាក់បេះដូង និងរៀបចំខ្លួនសម្រាក។ អ្នកក៏អាចស្តាប់ផតខាសអ្នកជំនាញ «ការគេងនៅពេលចិត្តមិនព្រមឈប់គិត» នៅលើ AROM ផងដែរ។",
+        "ប្រសិនបើអ្នកធ្លាប់មានគំនិតចង់ធ្វើបាបខ្លួនឯង សូមស្វែងរកជំនួយជាបន្ទាន់។ បើក Profile ហើយចុច Get help now។",
+      ],
+      actions: [
+        { label: "Box breathing", kmLabel: "លំហាត់ដកដង្ហើម (Box Breathing)", actionType: "exercise" },
+        { label: "Match Me With A Professional", kmLabel: "ស្វែងរកអ្នកជំនាញ (Match Me)", actionType: "professional" },
+      ],
+      keyPoints: [
+        "Wind down 30 minutes before bed with dim lights and no screens.",
+        "Breathing exercises physically switch your nervous system into rest mode.",
+        "Crisis support is always available in your Profile under Get help now.",
+      ],
+      kmKeyPoints: [
+        "សម្រាក ៣០ នាទីមុនចូលគេង ដោយប្រើពន្លឺស្រអាប់ និងគ្មានអេក្រង់ទូរស័ព្ទ។",
+        "លំហាត់ដកដង្ហើម ជួយផ្លាស់ប្តូរប្រព័ន្ធប្រសាទរបស់អ្នកទៅកាន់ស្ថានភាពសម្រាក។",
+        "ជំនួយបន្ទាន់ តែងតែមានជានិច្ចនៅក្នុង Profile របស់អ្នកក្រោមផ្នែក Get help now។",
+      ],
+    },
+  ],
+};
+
+
 export const ALL_LESSONS: Lesson[] = [
   LESSON_WHAT_IS_MENTAL_HEALTH,
   LESSON_ABOUT_STRESS,
   LESSON_UNDERSTANDING_ANXIETY,
   LESSON_UNDERSTAND_YOURSELF,
   LESSON_KNOW_WHEN_TO_SEEK_HELP,
-  {
-    id: "better-sleep",
-    title: "Better Sleep",
-    kmTitle: "ដំណេកប្រកបដោយគុណភាព (Better Sleep)",
-    subtitle: "Understand healthy sleep habits and why sleep matters",
-    kmSubtitle: "ទម្លាប់គេងល្អ និងសារៈសំខាន់នៃដំណេក",
-    category: "Sleep",
-    duration: "5 min",
-    kmDuration: "៥ នាទី",
-    difficulty: "Beginner",
-    kmDifficulty: "កម្រិតដំបូង (Beginner)",
-    format: "Reading + Interactive",
-    kmFormat: "ការអាន និងអន្តរកម្ម (Reading & Interactive)",
-    isAvailable: false,
-    badge: "Coming Soon",
-    image: "/mindguide/sleep.png",
-    description:
-      "Understand healthy sleep hygiene, evening wind-down routines, and why deep rest powers your mind.",
-    kmDescription: "យល់ដឹងពីទម្លាប់គេងប្រកបដោយសុខភាព និងសារៈសំខាន់នៃការសម្រាក។",
-    totalSections: 4,
-    outcomes: [
-      { en: "The science of sleep cycles and brain recovery" },
-      { en: "Creating an evening wind-down sanctuary" },
-      { en: "What to do when racing thoughts keep you awake" },
-    ],
-    sections: [],
-    references: [],
-  },
+  LESSON_BETTER_SLEEP,
   {
     id: "burnout-recovery",
     title: "Burnout & Recovery",

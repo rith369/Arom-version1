@@ -1,5 +1,35 @@
 # AROM: Change Report
 
+## 17 Oct 2026: New Lesson, Better Sleep
+
+Commit `PENDING`. No migration. Content and frontend only.
+
+**Why.** Better Sleep was previously a locked "Coming Soon" card in Learn. Sleep debt severely worsens emotional regulation, anxiety, and depression. This lesson provides practical, evidence-based guidance on sleep hygiene, circadian rhythm, managing late-night racing thoughts, and connecting to AROM evening wind-down tools and confidential therapy for chronic insomnia.
+
+**What changed for users:**
+- **Better Sleep is unlocked and live in Learn,** 6 min, Beginner, in English and Khmer, with a serene bedroom and window light photo at the top.
+- **Categorized under Sleep,** accessible directly from the Sleep filter in Learn without locks.
+- **Nine comprehensive sections:** Why sleep matters for mind and body, body clock and sleep drive, common daily sleep disruptors (screens, late caffeine, room climate), managing late-night racing thoughts (evening brain dump and the 20-minute rule), building an evening wind-down routine, an interactive sleep quiz, a personal sleep check in reflection, when chronic insomnia needs professional support on AROM, and closing coping steps.
+- **Calm tip boxes:** Calm green "Good to know" notes on morning light anchoring circadian rhythms and when chronic insomnia warrants professional care.
+- **Interactive elements:** Section 6 quiz testing the 20-minute stimulus control rule, and Section 7 personal reflection identifying one realistic sleep habit to improve.
+- **Four verified health references:** Citations from CDC, NIH, Sleep Foundation, and NHS Every Mind Matters.
+- **Actionable closing buttons:** Direct links to Box breathing, Match Me With A Professional, and suicide prevention notice.
+
+**What changed for the team:**
+- **`learn-data.ts`:** Replaced placeholder with full `REFERENCES_BETTER_SLEEP` and `LESSON_BETTER_SLEEP` (`isAvailable: true`, removed Coming Soon badge).
+- **Anti-AI Copywriting & Formatting:** Zero em dashes, en dashes, or loose hyphens across all English and Khmer copy. "Wellbeing" and "self care" used throughout.
+- **New hero image:** `public/mindguide/better-sleep-hero.jpg`, photo by Suhwa Lee on Unsplash (free Unsplash License), cropped to 2:1.
+- **Clinical & translation disclaimer:** Content needs review by a mental health professional, and the Khmer translation should be reviewed by a native speaker.
+
+**What to re-test:**
+1. Open Learn at `/mindguide/learn` and verify Better Sleep appears under Sleep without a lock or Coming Soon badge.
+2. Read all nine sections in English.
+3. In section 6, answer the quiz question and verify the explanation note.
+4. In section 7, answer the reflection question and check the gentle feedback note.
+5. In section 9, test the Box breathing and Match Me With A Professional buttons, and verify the suicide prevention notice.
+6. Open the references accordion and check all 4 external links.
+7. Switch to Khmer and verify typography, numerals (៦ នាទី), and complete translation.
+
 ## 17 Oct 2026: Connect Section 7 of Know When to Seek Help to AROM Private Booking
 
 Commit `5194692`. No migration. Content and frontend only.
