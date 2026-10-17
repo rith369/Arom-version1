@@ -2,7 +2,7 @@
 
 ## 17 Oct 2026: Spin to Choose Who Goes Next in Truth or Dare
 
-Commit `PENDING`. No migration. Frontend only.
+Commit `8e4ed3f`. No migration. Frontend only.
 
 **Why.** Rith wanted Truth or dare to feel more fun with a spin, like spin the bottle. A bottle was avoided because "spin the bottle" is known as a kissing game, which does not fit a mental health app for students; a big green leaf with the AROM sprout keeps it cute and on brand.
 
