@@ -1,5 +1,23 @@
 # AROM: Change Report
 
+## 17 Oct 2026: Game Pages Use AROM's Usual Background
+
+Commit `PENDING`. No migration. Frontend only.
+
+**Why.** Next to the white sidebar, the cream background made the game hub look like a different app. Pure white would have flattened the white cards, so the pages now use AROM's usual very light mint gray, like Home and Progress.
+
+**What changed for users:**
+- **The game hub and the Truth or dare and Guess the animal setup pages** use the same light background as the rest of AROM. The bold cards, borders and colors stay.
+- **Full screen games and end screens keep the warm cream,** since there is no sidebar there.
+- **The sidebar item is now "Play with friends"** (លេងជាមួយមិត្តភក្តិ), the same as the page title.
+
+**What changed for the team:**
+- `hub-view.tsx`, `truth-or-dare-view.tsx`, `guess-animal-view.tsx`: pages with the sidebar use `bg-canvas`; `BOLD.page` (cream) is for full screen views. `navigation-config.ts`: new item title.
+
+**What to re-test:**
+1. Open Play with friends on a computer: the page background matches Home and the sidebar looks part of the same app.
+2. Start a game: the game screen is still cream.
+
 ## 17 Oct 2026: Info Buttons on the Game Setup Questions
 
 Commit `e04f559`. No migration. Frontend only.

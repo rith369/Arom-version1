@@ -10,6 +10,8 @@ export const BOLD = {
   // Buttons press down into their shadow.
   button:
     "rounded-full border-2 border-[#14221f] shadow-[3px_3px_0_0_#14221f] font-bold transition-[transform,box-shadow] duration-100 active:translate-x-[3px] active:translate-y-[3px] active:shadow-none disabled:opacity-50 disabled:active:translate-x-0 disabled:active:translate-y-0",
+  // The warm cream for full screen games and end screens. Pages with the
+  // sidebar use AROM's usual light background (bg-canvas) to match the app.
   page: "bg-[#FFF6E5]",
 };
 

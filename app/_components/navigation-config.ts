@@ -178,8 +178,8 @@ export const NAVIGATION_SECTIONS: NavSection[] = [
       {
         id: "play-cards",
         label: "PlayCards",
-        enTitle: "Play Cards with Friends",
-        kmTitle: "លេងកាតជាមួយមិត្តភក្តិ",
+        enTitle: "Play with friends",
+        kmTitle: "លេងជាមួយមិត្តភក្តិ",
         icon: Layers,
         href: "/play-cards",
       },
