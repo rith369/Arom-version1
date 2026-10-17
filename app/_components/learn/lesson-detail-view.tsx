@@ -294,7 +294,9 @@ export function LessonDetailView({
             >
               <span className="flex items-center gap-1.5">
                 <Info size={14} />
-                {km ? "ឯកសារយោងវេជ្ជសាស្ត្រ និងស្រាវជ្រាវ (References [1] ដល់ [6])" : "Clinical & Research References ([1] to [6])"}
+                {km
+                  ? `ឯកសារយោងវេជ្ជសាស្ត្រ និងស្រាវជ្រាវ (References [1] ដល់ [${lesson.references.length}])`
+                  : `Clinical & Research References ([1] to [${lesson.references.length}])`}
               </span>
               <span>{showReferences ? "▲ " + (km ? "បិទ" : "Hide") : "▼ " + (km ? "មើលទាំងអស់" : "Show All")}</span>
             </button>

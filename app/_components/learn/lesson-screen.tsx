@@ -153,13 +153,13 @@ export function LessonScreen({
               ))}
             </div>
 
-            {/* Emergency Alert Box (e.g. Chest pain warning [6]) */}
+            {/* Emergency Alert Box (e.g. chest pain warning). The citation is in the alert text. */}
             {currentSection.alertBox && (
               <div className="flex items-start gap-3.5 rounded-2xl border border-arom-danger/30 bg-arom-danger-soft p-4 text-arom-danger shadow-sm">
                 <AlertTriangle className="mt-0.5 size-5 shrink-0 text-arom-danger" />
                 <div className="text-xs leading-relaxed sm:text-sm font-medium">
                   <p className="font-bold text-arom-danger">
-                    {km ? "ការព្រមានផ្នែកសុខភាពបន្ទាន់ [6]" : "Important Health Warning [6]"}
+                    {km ? "ការព្រមានផ្នែកសុខភាពបន្ទាន់" : "Important Health Warning"}
                   </p>
                   <p className="mt-0.5">
                     {km && currentSection.alertBox.kmText
@@ -339,7 +339,7 @@ export function LessonScreen({
                           {km ? "ស្វែងរកអ្នកជំនាញ (Match Me)" : "Match Me With A Professional"}
                         </span>
                         <span className="text-[0.72rem] text-ink-muted">
-                          {km ? "ការស្វែងរកជំនួយជាការឆ្លាតវៃ [5]" : "Getting backup is smart [5]"}
+                          {km ? "ការស្វែងរកជំនួយជាការឆ្លាតវៃ" : "Getting backup is smart"}
                         </span>
                       </span>
                     </button>
@@ -380,7 +380,11 @@ export function LessonScreen({
                   className="inline-flex items-center gap-1.5 font-semibold text-arom hover:text-arom-deep"
                 >
                   <Info size={13} />
-                  <span>{km ? "មើលឯកសារយោង [1] ដល់ [6] (References)" : "View Citations & References [1] to [6]"}</span>
+                  <span>
+                    {km
+                      ? `មើលឯកសារយោង [1] ដល់ [${lesson.references.length}] (References)`
+                      : `View Citations & References [1] to [${lesson.references.length}]`}
+                  </span>
                 </button>
                 {!preview && (
                   <ReportProblemButton

@@ -1,5 +1,32 @@
 # AROM: Change Report
 
+## 17 Oct 2026: New Lesson, Understanding Anxiety
+
+Commit `PENDING`. No migration. Content and frontend only.
+
+**Why.** MindGuide had one finished lesson (Learn About Stress). Understanding Anxiety was a locked "Coming Soon" card with nothing inside. Anxiety is the most common mental health condition in the world, so it is the most useful next lesson. Content is now written in code, not in the admin MindGuide editor, because user screens read the code.
+
+**What changed for users:**
+- **Understanding Anxiety is open** in Learn, with a new photo at the top, 7 min, Beginner, in English and Khmer.
+- **Five sections:** what anxiety is, what it can feel like (including panic attacks and a chest pain emergency warning), a quiz on calming a panic attack, a check in question, and what helps (slow breathing, the 5 4 3 2 1 grounding method, daily habits, when to get support, and Get help now).
+- **Eight references** from WHO, NIMH, NHS and University of Rochester Medical Center, each checked online.
+- **A lesson in the Saved list opens that lesson.** Before, tapping any saved lesson opened Learn About Stress. The Saved list itself is still sample data, so bookmarking a lesson does not add it there yet.
+- **Reference counts are correct for each lesson.** The headings said "[1] to [6]" for every lesson. The health warning title and the Match Me button no longer show a Stress only citation number.
+
+**What changed for the team:**
+- **`learn-data.ts`:** new `REFERENCES_ANXIETY` and `LESSON_UNDERSTANDING_ANXIETY`, in the same shape as the Stress lesson.
+- **New image** `public/mindguide/understanding-anxiety-hero.jpg`, photo by Jared Rice on Unsplash (free Unsplash License), cropped to the hero shape.
+- **Needs review:** a professional on the team should read the content, and a native Khmer speaker should read the Khmer.
+- **Admin MindGuide editor:** the lesson now appears there as live version 1, but publishing from the editor still does not change what users see.
+
+**What to re-test:**
+1. Open Learn and check Understanding Anxiety has no lock and opens.
+2. Read all five sections in English, answer the quiz and the check in, then finish the lesson.
+3. Switch to Khmer and read the sections again.
+4. Open the references and check there are eight and each link opens.
+5. Open Saved, tap Learn About Stress, and check it still opens.
+6. Open Learn About Stress and check it still says [1] to [6] and works as before.
+
 ## 17 Oct 2026: Demo Data Notice Only Where Data Is Still Sample
 
 Commit `ef99384`. No migration. Frontend only.

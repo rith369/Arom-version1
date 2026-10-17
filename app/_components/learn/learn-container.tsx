@@ -116,8 +116,9 @@ export function LearnContainer({ initialMode = "home", initialItemId }: LearnCon
           <SavedLearningView
             onBack={() => setMode("home")}
             onSelectLesson={(lessonId) => {
-              if (lessonId === "learn-about-stress") {
-                setSelectedLesson(LESSON_ABOUT_STRESS);
+              const lesson = ALL_LESSONS.find((item) => item.id === lessonId && item.isAvailable);
+              if (lesson) {
+                setSelectedLesson(lesson);
                 setMode("detail");
               }
             }}

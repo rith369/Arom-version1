@@ -388,36 +388,311 @@ export const LESSON_ABOUT_STRESS: Lesson = {
   ],
 };
 
+export const REFERENCES_ANXIETY: ReferenceItem[] = [
+  {
+    id: 1,
+    citation: "[1]",
+    source: "WHO",
+    title: "WHO, Anxiety disorders fact sheet (2026)",
+    year: "2026",
+    url: "https://www.who.int/news-room/fact-sheets/detail/anxiety-disorders",
+  },
+  {
+    id: 2,
+    citation: "[2]",
+    source: "NIMH",
+    title: "NIMH, Anxiety Disorders",
+    url: "https://www.nimh.nih.gov/health/topics/anxiety-disorders",
+  },
+  {
+    id: 3,
+    citation: "[3]",
+    source: "NHS",
+    title: "NHS, Anxiety, fear and panic",
+    url: "https://www.nhs.uk/mental-health/feelings-symptoms-behaviours/feelings-and-symptoms/anxiety-fear-panic/",
+  },
+  {
+    id: 4,
+    citation: "[4]",
+    source: "NIMH",
+    title: "NIMH, Generalized Anxiety Disorder: What You Need to Know",
+    url: "https://www.nimh.nih.gov/health/publications/generalized-anxiety-disorder-gad",
+  },
+  {
+    id: 5,
+    citation: "[5]",
+    source: "NHS",
+    title: "NHS, Panic disorder",
+    url: "https://www.nhs.uk/mental-health/conditions/panic-disorder/",
+  },
+  {
+    id: 6,
+    citation: "[6]",
+    source: "NHS",
+    title: "NHS, Breathing exercises for stress",
+    url: "https://www.nhs.uk/mental-health/self-help/guides-tools-and-activities/breathing-exercises-for-stress/",
+  },
+  {
+    id: 7,
+    citation: "[7]",
+    source: "University of Rochester Medical Center",
+    title: "URMC, 5 4 3 2 1 Coping Technique for Anxiety (2018)",
+    year: "2018",
+    url: "https://www.urmc.rochester.edu/behavioral-health-partners/bhp-blog/april-2018/5-4-3-2-1-coping-technique-for-anxiety",
+  },
+  {
+    id: 8,
+    citation: "[8]",
+    source: "NHS",
+    title: "NHS, Heart attack",
+    url: "https://www.nhs.uk/conditions/heart-attack/",
+  },
+];
+
+export const LESSON_UNDERSTANDING_ANXIETY: Lesson = {
+  id: "understanding-anxiety",
+  title: "Understanding Anxiety",
+  kmTitle: "ស្វែងយល់ពីការថប់បារម្ភ (Anxiety)",
+  subtitle: "Anxiety 101: Your Body's Alarm",
+  kmSubtitle: "មូលដ្ឋានគ្រឹះនៃការថប់បារម្ភ៖ សញ្ញាព្រមានរបស់រាងកាយ",
+  category: "Anxiety",
+  duration: "7 min",
+  kmDuration: "៧ នាទី",
+  difficulty: "Beginner",
+  kmDifficulty: "កម្រិតដំបូង (Beginner)",
+  format: "Reading + Interactive",
+  kmFormat: "ការអាន និងអន្តរកម្ម (Reading & Interactive)",
+  isAvailable: true,
+  image: "/mindguide/icon-10.svg",
+  // Photo by Jared Rice on Unsplash (Unsplash License), cropped.
+  heroImage: "/mindguide/understanding-anxiety-hero.jpg",
+  description:
+    "Everyone feels anxious sometimes. Learn what anxiety is, how it shows up in your mind and body, and simple tools that help you feel steady again.",
+  kmDescription:
+    "មនុស្សគ្រប់គ្នាតែងមានអារម្មណ៍ថប់បារម្ភម្តងម្កាល។ ស្វែងយល់ថាការថប់បារម្ភជាអ្វី វាបង្ហាញខ្លួនក្នុងចិត្ត និងរាងកាយយ៉ាងដូចម្តេច និងវិធីសាមញ្ញៗដែលជួយឱ្យអ្នកមានអារម្មណ៍នឹងនរឡើងវិញ។",
+  totalSections: 5,
+  outcomes: [
+    {
+      en: "What anxiety is and why your body sounds the alarm [1, 2]",
+      km: "ស្វែងយល់ថាការថប់បារម្ភជាអ្វី និងហេតុអ្វីរាងកាយបញ្ចេញសញ្ញាព្រមាន [1, 2]",
+    },
+    {
+      en: "When normal worry becomes something more [2, 4]",
+      km: "ពេលណាការព្រួយបារម្ភធម្មតា ក្លាយជាបញ្ហាធំជាងនេះ [2, 4]",
+    },
+    {
+      en: "Common signs in your mind and body, including panic attacks [3, 5]",
+      km: "សញ្ញាទូទៅក្នុងចិត្ត និងរាងកាយ រួមទាំងការភ័យស្លន់ស្លោភ្លាមៗ (Panic attack) [3, 5]",
+    },
+    {
+      en: "Two quick tools: slow breathing and the 5 4 3 2 1 grounding method [6, 7]",
+      km: "វិធីរហ័សពីរ៖ ការដកដង្ហើមយឺតៗ និងវិធីទាញចិត្តមកបច្ចុប្បន្ន ៥ ៤ ៣ ២ ១ (Grounding) [6, 7]",
+    },
+    {
+      en: "When to get support from a professional [1, 4]",
+      km: "ដឹងពីពេលវេលាដែលត្រូវស្វែងរកជំនួយពីអ្នកជំនាញ (Professional) [1, 4]",
+    },
+    {
+      en: "Emergency alert: chest pain that needs help right away [8]",
+      km: "សញ្ញាអាសន្ន៖ ការឈឺទ្រូងដែលត្រូវការជំនួយភ្លាមៗ [8]",
+    },
+  ],
+  references: REFERENCES_ANXIETY,
+  sections: [
+    {
+      id: 1,
+      sectionNumber: 1,
+      title: "Anxiety 101: Your Body's Alarm",
+      kmTitle: "មូលដ្ឋានគ្រឹះនៃការថប់បារម្ភ៖ សញ្ញាព្រមានរបស់រាងកាយ",
+      type: "reading",
+      paragraphs: [
+        "Everyone feels anxious sometimes. Worry about health, money, school, work or family is a normal part of life. [1, 2]",
+        "Anxiety is your body's alarm. When your brain thinks something might go wrong, it gets you ready to act. A little of this can help you prepare for an exam or a hard conversation.",
+        "Sometimes the alarm keeps ringing. The worry does not go away, shows up in many situations, and can get worse over time. [2] That is when anxiety needs more care.",
+        "You are not alone. In 2023, about 470 million people around the world lived with an anxiety disorder, making it the most common mental health condition. [1]",
+      ],
+      kmParagraphs: [
+        "មនុស្សគ្រប់គ្នាតែងមានអារម្មណ៍ថប់បារម្ភម្តងម្កាល។ ការព្រួយបារម្ភអំពីសុខភាព លុយកាក់ ការសិក្សា ការងារ ឬគ្រួសារ គឺជាផ្នែកធម្មតានៃជីវិត។ [1, 2]",
+        "ការថប់បារម្ភ (Anxiety) គឺជាសញ្ញាព្រមានរបស់រាងកាយអ្នក។ នៅពេលខួរក្បាលគិតថាអាចមានរឿងមិនល្អកើតឡើង វាត្រៀមខ្លួនអ្នកឱ្យរួចរាល់។ ការថប់បារម្ភបន្តិចបន្តួចអាចជួយអ្នកត្រៀមខ្លួនសម្រាប់ការប្រឡង ឬការនិយាយរឿងពិបាកៗ។",
+        "ពេលខ្លះ សញ្ញាព្រមាននេះមិនព្រមឈប់។ ការព្រួយបារម្ភមិនបាត់ទៅវិញ កើតឡើងក្នុងស្ថានភាពជាច្រើន ហើយអាចកាន់តែធ្ងន់ទៅៗ។ [2] នោះហើយជាពេលដែលការថប់បារម្ភត្រូវការការថែទាំបន្ថែម។",
+        "អ្នកមិននៅម្នាក់ឯងទេ។ នៅឆ្នាំ ២០២៣ មនុស្សប្រមាណ ៤៧០ លាននាក់ទូទាំងពិភពលោក រស់នៅជាមួយជំងឺថប់បារម្ភ (Anxiety disorder) ដែលជាបញ្ហាសុខភាពផ្លូវចិត្តទូទៅបំផុត។ [1]",
+      ],
+      keyPoints: [
+        "Feeling anxious sometimes is normal and human [1, 2].",
+        "Anxiety is an alarm that helps you prepare for challenges.",
+        "When worry stays, spreads and grows, it needs more care [2].",
+      ],
+      kmKeyPoints: [
+        "ការមានអារម្មណ៍ថប់បារម្ភម្តងម្កាល គឺជារឿងធម្មតារបស់មនុស្ស [1, 2]។",
+        "ការថប់បារម្ភជាសញ្ញាព្រមានដែលជួយអ្នកត្រៀមខ្លួនប្រឈមនឹងបញ្ហា។",
+        "នៅពេលការព្រួយបារម្ភនៅជាប់ រីករាលដាល និងកាន់តែធ្ងន់ វាត្រូវការការថែទាំបន្ថែម [2]។",
+      ],
+    },
+    {
+      id: 2,
+      sectionNumber: 2,
+      title: "What Anxiety Can Feel Like",
+      kmTitle: "ការថប់បារម្ភអាចមានអារម្មណ៍បែបណា",
+      type: "reading",
+      paragraphs: [
+        "Anxiety shows up in both your mind and your body. You might notice [3, 4]:",
+        "• Worry that is hard to control or switch off\n• Feeling tense, restless or on edge\n• Trouble focusing or falling asleep\n• A racing heart, sweating or shaking\n• Stomach aches, headaches or feeling out of breath",
+        "Some people have panic attacks: a sudden rush of strong fear with a racing heart, dizziness and short breath. They feel frightening, but they are not dangerous, and most pass within 5 to 20 minutes. [5]",
+        "These signs are your alarm system working too hard, not a sign that you are weak.",
+      ],
+      kmParagraphs: [
+        "ការថប់បារម្ភបង្ហាញខ្លួនទាំងក្នុងចិត្ត និងរាងកាយ។ អ្នកអាចសម្គាល់ឃើញ [3, 4]៖",
+        "• ការព្រួយបារម្ភដែលពិបាកគ្រប់គ្រង ឬពិបាកបញ្ឈប់\n• មានអារម្មណ៍តឹងសរសៃ អង្គុយមិនស្ងៀម ឬភ័យញញើត\n• ពិបាកផ្តោតអារម្មណ៍ ឬពិបាកចូលគេង\n• បេះដូងលោតញាប់ បែកញើស ឬញ័រខ្លួន\n• ឈឺពោះ ឈឺក្បាល ឬដកដង្ហើមមិនទាន់",
+        "មនុស្សខ្លះជួបការភ័យស្លន់ស្លោភ្លាមៗ (Panic attack)៖ ការភ័យខ្លាចខ្លាំងកើតឡើងភ្លាមៗ ជាមួយនឹងបេះដូងលោតញាប់ វិលមុខ និងដកដង្ហើមខ្លី។ វាគួរឱ្យភ័យខ្លាច ប៉ុន្តែមិនមានគ្រោះថ្នាក់ទេ ហើយភាគច្រើនបាត់ទៅវិញក្នុងរយៈពេល ៥ ទៅ ២០ នាទី។ [5]",
+        "សញ្ញាទាំងនេះបង្ហាញថាប្រព័ន្ធព្រមានរបស់អ្នកកំពុងធ្វើការខ្លាំងពេក មិនមែនមានន័យថាអ្នកទន់ខ្សោយនោះទេ។",
+      ],
+      alertBox: {
+        type: "emergency",
+        text: "Chest pain that feels tight or squeezing, pain that spreads to your arm, neck or jaw, or very hard breathing can be a heart attack. Get emergency help right away, and do not drive yourself. [8]",
+        kmText:
+          "ការឈឺទ្រូងដូចមានអ្វីច្របាច់ ឬសង្កត់ ការឈឺដែលរាលដាលទៅដៃ ក ឬថ្គាម ឬការពិបាកដកដង្ហើមខ្លាំង អាចជាសញ្ញាគាំងបេះដូង (Heart attack)។ សូមស្វែងរកជំនួយសង្គ្រោះបន្ទាន់ភ្លាមៗ ហើយកុំបើកបរដោយខ្លួនឯង។ [8]",
+      },
+      keyPoints: [
+        "Anxiety affects thoughts, feelings and the body [3, 4].",
+        "Panic attacks are frightening but not dangerous, and they pass [5].",
+        "Squeezing chest pain or severe breathing trouble needs emergency care [8].",
+      ],
+      kmKeyPoints: [
+        "ការថប់បារម្ភប៉ះពាល់ដល់គំនិត អារម្មណ៍ និងរាងកាយ [3, 4]។",
+        "ការភ័យស្លន់ស្លោភ្លាមៗគួរឱ្យភ័យខ្លាច ប៉ុន្តែមិនមានគ្រោះថ្នាក់ ហើយវានឹងបាត់ទៅវិញ [5]។",
+        "ការឈឺទ្រូងដូចមានអ្វីច្របាច់ ឬពិបាកដកដង្ហើមខ្លាំង ត្រូវការការសង្គ្រោះបន្ទាន់ [8]។",
+      ],
+    },
+    {
+      id: 3,
+      sectionNumber: 3,
+      title: "Quick Question",
+      kmTitle: "សំណួររហ័ស",
+      type: "quiz",
+      paragraphs: [
+        "Let's pause and check what you have learned about calming a panic attack.",
+      ],
+      kmParagraphs: [
+        "សូមផ្អាកបន្តិច ហើយពិនិត្យមើលអ្វីដែលអ្នកបានរៀនអំពីការធ្វើឱ្យចិត្តស្ងប់ពេលភ័យស្លន់ស្លោភ្លាមៗ។",
+      ],
+      quiz: {
+        question: "During a panic attack, what can help?",
+        kmQuestion: "ពេលកំពុងភ័យស្លន់ស្លោភ្លាមៗ តើអ្វីអាចជួយបាន?",
+        options: [
+          {
+            id: "hold-breath",
+            text: "Holding your breath until it stops",
+            kmText: "ទប់ដង្ហើមរហូតដល់វាឈប់",
+            isCorrect: false,
+          },
+          {
+            id: "breathe-slowly",
+            text: "Breathing slowly and reminding yourself it will pass",
+            kmText: "ដកដង្ហើមយឺតៗ ហើយរំលឹកខ្លួនឯងថាវានឹងកន្លងផុតទៅ",
+            isCorrect: true,
+          },
+          {
+            id: "alcohol",
+            text: "Drinking alcohol to calm down",
+            kmText: "ផឹកស្រាដើម្បីឱ្យស្ងប់ចិត្ត",
+            isCorrect: false,
+          },
+          {
+            id: "avoid",
+            text: "Avoiding every place where it has happened",
+            kmText: "គេចចេញពីគ្រប់កន្លែងដែលវាធ្លាប់កើតឡើង",
+            isCorrect: false,
+          },
+        ],
+        explanation:
+          "Correct! Breathing slowly and deeply, and reminding yourself the attack will pass, helps your body settle. [5] Alcohol and avoiding places can make anxiety worse over time. [3]",
+        kmExplanation:
+          "ត្រឹមត្រូវ! ការដកដង្ហើមយឺតៗ និងជ្រៅ ព្រមទាំងរំលឹកខ្លួនឯងថាវានឹងកន្លងផុតទៅ ជួយឱ្យរាងកាយស្ងប់វិញ។ [5] ការផឹកស្រា និងការគេចចេញពីកន្លែងនានា អាចធ្វើឱ្យការថប់បារម្ភកាន់តែធ្ងន់ទៅៗ។ [3]",
+      },
+      keyPoints: [
+        "Slow, deep breaths tell your body it is safe [5].",
+        "Avoidance and alcohol bring short relief but keep anxiety going [3].",
+      ],
+      kmKeyPoints: [
+        "ការដកដង្ហើមយឺតៗ និងជ្រៅ ប្រាប់រាងកាយថាអ្នកមានសុវត្ថិភាព [5]។",
+        "ការគេចវេះ និងការផឹកស្រា ធ្វើឱ្យធូរស្រាលតែមួយភ្លែត ប៉ុន្តែធ្វើឱ្យការថប់បារម្ភនៅតែបន្ត [3]។",
+      ],
+    },
+    {
+      id: 4,
+      sectionNumber: 4,
+      title: "Reflection: Check In With Yourself",
+      kmTitle: "ការឆ្លុះបញ្ចាំង៖ ពិនិត្យមើលខ្លួនឯង (Check in)",
+      type: "reflection",
+      paragraphs: [
+        "Take a moment to notice how worry has been showing up for you lately.",
+      ],
+      kmParagraphs: [
+        "ឆ្លៀតពេលបន្តិច ដើម្បីសម្គាល់មើលថាការព្រួយបារម្ភបានកើតឡើងចំពោះអ្នកយ៉ាងណាកន្លងមក។",
+      ],
+      reflection: {
+        question: "Has worry made it hard to relax or focus in the past two weeks?",
+        kmQuestion: "ក្នុងរយៈពេលពីរសប្តាហ៍កន្លងមក តើការព្រួយបារម្ភធ្វើឱ្យអ្នកពិបាកសម្រាក ឬពិបាកផ្តោតអារម្មណ៍ដែរឬទេ?",
+        options: ["Often", "Sometimes", "Rarely", "Not sure"],
+        kmOptions: ["ញឹកញាប់", "ជួនកាល", "កម្រ", "មិនប្រាកដ"],
+        feedbackMessage:
+          "Thank you for checking in with yourself. Noticing your worry, without judging it, is the first step to feeling calmer.",
+        kmFeedbackMessage:
+          "អរគុណដែលបានពិនិត្យមើលខ្លួនឯង។ ការសម្គាល់ឃើញការព្រួយបារម្ភរបស់អ្នក ដោយមិនវិនិច្ឆ័យ គឺជាជំហានដំបូងឆ្ពោះទៅរកភាពស្ងប់ចិត្ត។",
+      },
+      keyPoints: [
+        "Noticing worry is not the same as judging yourself.",
+        "Checking in often helps you use your tools early.",
+      ],
+      kmKeyPoints: [
+        "ការសម្គាល់ឃើញការព្រួយបារម្ភ មិនមែនជាការវិនិច្ឆ័យខ្លួនឯងនោះទេ។",
+        "ការពិនិត្យមើលខ្លួនឯងជាញឹកញាប់ ជួយឱ្យអ្នកប្រើវិធីជួយសម្រាលបានទាន់ពេល។",
+      ],
+    },
+    {
+      id: 5,
+      sectionNumber: 5,
+      title: "What Helps & Getting Support",
+      kmTitle: "វិធីជួយសម្រាល និងការស្វែងរកជំនួយ",
+      type: "coping",
+      paragraphs: [
+        "Two tools you can use anywhere:",
+        "• Slow breathing: breathe in gently through your nose while counting 1 to 5, then breathe out through your mouth counting 1 to 5. Keep going for a few minutes. [6]\n• 5 4 3 2 1 grounding: name 5 things you see, 4 things you can touch, 3 things you hear, 2 things you smell and 1 thing you taste. [7]",
+        "Small daily habits help too: move your body, keep regular sleep and meals, cut down on caffeine and alcohol, and talk to someone you trust. [1, 3, 4]",
+        "Get support if worry happens most days, is hard to control, or gets in the way of school, work or family. [1, 4] Talking therapy such as cognitive behavioural therapy (CBT) works well for anxiety. [1, 4] Tap Match Me With A Professional below to get started.",
+        "If you ever think about hurting yourself, get help right away. Open Profile and tap Get help now.",
+        "Key takeaway: Anxiety is a normal alarm. You can learn to turn the volume down, one breath at a time.",
+      ],
+      kmParagraphs: [
+        "វិធីពីរយ៉ាងដែលអ្នកអាចប្រើបានគ្រប់ទីកន្លែង៖",
+        "• ការដកដង្ហើមយឺតៗ៖ ដកដង្ហើមចូលតាមច្រមុះថ្នមៗ ដោយរាប់ពី ១ ដល់ ៥ បន្ទាប់មកដកដង្ហើមចេញតាមមាត់ ដោយរាប់ពី ១ ដល់ ៥។ ធ្វើបែបនេះបន្តពីរបីនាទី។ [6]\n• វិធីទាញចិត្តមកបច្ចុប្បន្ន ៥ ៤ ៣ ២ ១ (Grounding)៖ ប្រាប់ឈ្មោះរបស់ ៥ ដែលអ្នកមើលឃើញ ៤ ដែលអ្នកអាចប៉ះបាន ៣ ដែលអ្នកឮ ២ ដែលអ្នកធុំក្លិន និង ១ ដែលអ្នកភ្លក់រសជាតិ។ [7]",
+        "ទម្លាប់តូចៗប្រចាំថ្ងៃក៏ជួយបានដែរ៖ ធ្វើចលនារាងកាយ គេង និងញ៉ាំអាហារឱ្យទៀងពេល កាត់បន្ថយកាហ្វេអ៊ីន និងស្រា ហើយនិយាយជាមួយមនុស្សដែលអ្នកទុកចិត្ត។ [1, 3, 4]",
+        "ស្វែងរកជំនួយ ប្រសិនបើការព្រួយបារម្ភកើតឡើងស្ទើររាល់ថ្ងៃ ពិបាកគ្រប់គ្រង ឬរំខានដល់ការសិក្សា ការងារ ឬគ្រួសារ។ [1, 4] ការព្យាបាលដោយការនិយាយ ដូចជាការព្យាបាលដោយការយល់ដឹង និងអាកប្បកិរិយា (CBT) មានប្រសិទ្ធភាពល្អសម្រាប់ការថប់បារម្ភ។ [1, 4] ចុច «ស្វែងរកអ្នកជំនាញ (Match Me)» ខាងក្រោម ដើម្បីចាប់ផ្តើម។",
+        "ប្រសិនបើអ្នកធ្លាប់គិតចង់ធ្វើបាបខ្លួនឯង សូមស្វែងរកជំនួយភ្លាមៗ។ បើកទំព័រប្រវត្តិរូប (Profile) ហើយចុច «ជំនួយបន្ទាន់ (Get help now)»។",
+        "ចំណុចគន្លឹះសំខាន់៖ ការថប់បារម្ភគឺជាសញ្ញាព្រមានធម្មតា។ អ្នកអាចរៀនបន្ថយកម្រិតរបស់វាបាន ម្តងមួយដង្ហើមៗ។",
+      ],
+      actions: [
+        { label: "Practice Calm Breathing", kmLabel: "ហាត់ដកដង្ហើមស្ងប់ចិត្ត (Breathing)", actionType: "exercise" },
+        { label: "Explore Mental Health Tips", kmLabel: "ស្វែងយល់គន្លឹះថែទាំចិត្ត (Tips)", actionType: "tips" },
+        { label: "Find a Professional (Match Me)", kmLabel: "ស្វែងរកអ្នកជំនាញចិត្តសាស្ត្រ (Match Me)", actionType: "professional" },
+      ],
+      keyPoints: [
+        "Slow breathing and grounding calm your body in minutes [6, 7].",
+        "Talking therapy such as CBT is well proven for anxiety [1, 4].",
+        "Asking for help early is a strong and caring choice.",
+      ],
+      kmKeyPoints: [
+        "ការដកដង្ហើមយឺតៗ និងការទាញចិត្តមកបច្ចុប្បន្ន ជួយឱ្យរាងកាយស្ងប់ក្នុងរយៈពេលប៉ុន្មាននាទី [6, 7]។",
+        "ការព្យាបាលដោយការនិយាយ ដូចជា CBT ត្រូវបានបញ្ជាក់ថាមានប្រសិទ្ធភាពសម្រាប់ការថប់បារម្ភ [1, 4]។",
+        "ការសុំជំនួយឱ្យបានឆាប់ គឺជាជម្រើសដ៏រឹងមាំ និងការថែទាំខ្លួនឯង។",
+      ],
+    },
+  ],
+};
+
 export const ALL_LESSONS: Lesson[] = [
   LESSON_ABOUT_STRESS,
-  {
-    id: "understanding-anxiety",
-    title: "Understanding Anxiety",
-    kmTitle: "ស្វែងយល់ពីការថប់បារម្ភ (Anxiety)",
-    subtitle: "What anxiety is, common signs, and what can help",
-    kmSubtitle: "ស្គាល់ការថប់បារម្ភ សញ្ញាទូទៅ និងវិធីជួយសម្រាល",
-    category: "Anxiety",
-    duration: "7 min",
-    kmDuration: "៧ នាទី",
-    difficulty: "Beginner",
-    kmDifficulty: "កម្រិតដំបូង (Beginner)",
-    format: "Reading + Video",
-    kmFormat: "ការអាន និងវីដេអូ (Reading & Video)",
-    isAvailable: false,
-    badge: "Coming Soon",
-    image: "/mindguide/icon-10.svg",
-    description:
-      "Learn what anxiety is, why it happens, and how it may affect your daily life and thoughts.",
-    kmDescription: "ស្វែងយល់ថាការថប់បារម្ភជាអ្វី ហេតុអ្វីវាកើតឡើង និងរបៀបដែលវាជះឥទ្ធិពលលើអ្នក។",
-    totalSections: 5,
-    outcomes: [
-      { en: "What anxiety is and why our brain signals danger" },
-      { en: "Common signs, triggers, and physical sensations" },
-      { en: "Simple grounding exercises to quiet anxious loops" },
-    ],
-    sections: [],
-    references: [],
-  },
+  LESSON_UNDERSTANDING_ANXIETY,
   {
     id: "better-sleep",
     title: "Better Sleep",

@@ -131,7 +131,7 @@ export function SavedLearningView({
                 whileHover={{ y: -2 }}
                 onClick={() => {
                   if (item.type === "lesson") {
-                    onSelectLesson("learn-about-stress");
+                    onSelectLesson(item.id);
                   }
                 }}
                 className="group flex cursor-pointer items-center gap-4 rounded-2xl border border-arom-border bg-white p-3.5 shadow-[0_8px_24px_rgba(25,87,72,0.05)] transition-all hover:border-arom/40 hover:shadow-card sm:p-4"
