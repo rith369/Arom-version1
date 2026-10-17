@@ -21,7 +21,7 @@ export type Announcement = {
 
 export const ANNOUNCEMENT_MAX_LENGTH = 300;
 
-// Empty until the backend serves announcements. Admin edits are mock for now.
+// Empty until GET /api/announcements/current answers.
 export const ANNOUNCEMENTS: Announcement[] = [];
 
 export function isRunning(item: Announcement, now: number) {

@@ -6,6 +6,7 @@ import { useLanguage } from "./language-provider";
 import {
   SUPPORT_CONTACT,
   type CrisisHelpline,
+  type SupportContact,
   activeHelplines,
   smsHref,
   telHref,
@@ -19,6 +20,7 @@ export function GetHelpSection() {
   const { language } = useLanguage();
   const km = language === "km";
   const [helplines, setHelplines] = useState<CrisisHelpline[]>([]);
+  const [support, setSupport] = useState<SupportContact>(SUPPORT_CONTACT);
 
   // Public list, managed by admins. The emergency services message above the
   // list always shows, so nothing is missing while this loads or if it fails.
@@ -26,15 +28,16 @@ export function GetHelpSection() {
     let active = true;
     fetch("/api/crisis-resources")
       .then((response) => (response.ok ? response.json() : null))
-      .then((data: { helplines: CrisisHelpline[] } | null) => {
-        if (active && data) setHelplines(activeHelplines(data.helplines));
+      .then((data: { helplines: CrisisHelpline[]; supportContact?: SupportContact } | null) => {
+        if (!active || !data) return;
+        setHelplines(activeHelplines(data.helplines));
+        if (data.supportContact) setSupport(data.supportContact);
       })
       .catch(() => {});
     return () => {
       active = false;
     };
   }, []);
-  const support = SUPPORT_CONTACT;
   const hasSupport = Boolean(support.email || support.phone);
 
   return (

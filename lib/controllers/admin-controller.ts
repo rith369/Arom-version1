@@ -10,7 +10,8 @@ import {
   type OverviewRange,
   type PendingApplication,
 } from "@/lib/admin-overview";
-import { databaseError, fail, invalidInput, json } from "./shared";
+import type { AdminBooking } from "@/app/admin/_data/bookings";
+import { databaseError, fail, invalidInput, json, readJson } from "./shared";
 import { requireRole } from "./role-controller";
 
 /*
@@ -197,4 +198,71 @@ export async function readGroupChatAsAdmin(request: NextRequest, groupId: string
       isHidden: row.is_hidden,
     })),
   });
+}
+
+// ---------------------------------------------------------------------------
+// Bookings (BACKEND-HANDOFF.md section 12). Never the client's identity.
+// ---------------------------------------------------------------------------
+
+interface AdminBookingRow {
+  id: string;
+  professional_slug: string;
+  professional_name: string;
+  professional_name_km: string | null;
+  starts_at: string;
+  ends_at: string;
+  session_type: "online" | "in_person";
+  status: "booked" | "completed" | "cancelled" | "no_show";
+  created_at: string;
+  cancelled_by_role: "user" | "professional" | "admin" | null;
+  admin_cancel_reason: string | null;
+}
+
+// The chart compares the last 30 days with the 30 before, and shows the next 14.
+const BOOKINGS_HISTORY_DAYS = 60;
+
+/** GET /api/admin/bookings: bookings for the chart and table, without the client. */
+export async function listAdminBookings() {
+  const guard = await requireRole("admin");
+  if (!guard.ok) return guard.response;
+
+  const from = new Date(Date.now() - BOOKINGS_HISTORY_DAYS * 86_400_000).toISOString().slice(0, 10);
+  const { data, error } = await guard.supabase.rpc("admin_list_bookings", { p_from: from });
+  if (error) return fail("server_error", "Bookings could not be loaded.", 500);
+
+  const bookings: AdminBooking[] = ((data ?? []) as AdminBookingRow[]).map((row) => ({
+    id: row.id,
+    // The client stays private: admins see who the professional is, never who booked.
+    userId: "",
+    professionalId: row.professional_slug,
+    professionalName: row.professional_name,
+    professionalKmName: row.professional_name_km ?? "",
+    startsAt: row.starts_at,
+    durationMinutes: Math.round((Date.parse(row.ends_at) - Date.parse(row.starts_at)) / 60_000),
+    meetingType: row.session_type === "online" ? "Online" : "In-person",
+    status: row.status === "booked" ? "confirmed" : row.status === "completed" ? "completed" : "cancelled",
+    createdAt: row.created_at,
+    cancelledBy: row.cancelled_by_role ?? undefined,
+    cancelReason: row.admin_cancel_reason ?? undefined,
+  }));
+  return json({ bookings });
+}
+
+const cancelBookingSchema = z.object({ reason: z.string().trim().min(1).max(500) });
+
+/** POST /api/admin/bookings/:id/cancel `{ reason }`: emergency cancel, audit logged. */
+export async function cancelAdminBooking(request: NextRequest, bookingId: string) {
+  const guard = await requireRole("admin");
+  if (!guard.ok) return guard.response;
+
+  const id = z.string().uuid().safeParse(bookingId);
+  const body = cancelBookingSchema.safeParse(await readJson(request));
+  if (!id.success || !body.success) return invalidInput();
+
+  const { error } = await guard.supabase.rpc("admin_cancel_booking", {
+    p_appointment_id: id.data,
+    p_reason: body.data.reason,
+  });
+  if (error) return databaseError(error, "The booking could not be cancelled. Please try again.");
+  return listAdminBookings();
 }

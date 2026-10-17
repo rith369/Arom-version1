@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Copy, Info } from 'lucide-react';
 
-import { initialCrashGroups, type CrashGroup } from '../_data/crashes';
+import type { CrashGroup } from '../_data/crashes';
 
 const TOP = 5;
 
@@ -38,13 +38,29 @@ function developerReport(crashes: CrashGroup[]) {
 }
 
 // "Most frequent crashes, last 7 days" for the admin Overview.
-export function CrashReportCard({
-  crashes = initialCrashGroups,
-}: {
-  crashes?: CrashGroup[];
-}) {
+export function CrashReportCard() {
   const [showInfo, setShowInfo] = useState(false);
   const [notice, setNotice] = useState('');
+  const [crashes, setCrashes] = useState<CrashGroup[]>([]);
+  const [load, setLoad] = useState<'loading' | 'ready' | 'error'>('loading');
+
+  useEffect(() => {
+    let active = true;
+    fetch('/api/admin/crashes?days=7', { cache: 'no-store' })
+      .then(async (response) => {
+        if (!response.ok) throw new Error('load failed');
+        const data = (await response.json()) as { crashes: CrashGroup[] };
+        if (!active) return;
+        setCrashes(data.crashes);
+        setLoad('ready');
+      })
+      .catch(() => {
+        if (active) setLoad('error');
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const top = [...crashes].sort((a, b) => b.count - a.count || b.people - a.people).slice(0, TOP);
   const report = developerReport(top);
@@ -97,7 +113,13 @@ export function CrashReportCard({
         )}
       </header>
 
-      {top.length === 0 ? (
+      {load === 'loading' ? (
+        <p className="px-5 py-6 text-sm text-ink-muted">Loading crashes...</p>
+      ) : load === 'error' ? (
+        <p role="alert" className="px-5 py-6 text-sm text-arom-danger">
+          Crashes could not be loaded. Refresh the page to try again.
+        </p>
+      ) : top.length === 0 ? (
         <p className="px-5 py-6 text-sm text-ink-muted">No crashes in the last 7 days.</p>
       ) : (
         <ol className="divide-y divide-arom-line">

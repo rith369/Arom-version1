@@ -1,18 +1,21 @@
 import type { NextRequest } from "next/server";
 import { z } from "zod";
 import {
+  isValidEmail,
   isValidPhone,
   isValidWebsite,
   type CrisisHelpline,
+  type SupportContact,
 } from "@/app/_components/support-contacts";
 import { createClient } from "@/lib/supabase/server";
 import { databaseError, fail, invalidInput, json, readJson } from "./shared";
 import { requireRole } from "./role-controller";
 
 /*
- * AROM crisis helplines (BACKEND-HANDOFF.md section 13).
- * Everyone, signed out visitors included, reads the active ones.
- * Only admins change them, through save_crisis_resources().
+ * AROM crisis helplines and support contact (BACKEND-HANDOFF.md section 13).
+ * Everyone, signed out visitors included, reads the active helplines and the
+ * support contact. Only admins change them, through save_crisis_resources()
+ * and save_support_contact(), both audit logged.
  */
 
 const COLUMNS =
@@ -73,19 +76,74 @@ const helplineSchema = z
 
 const saveSchema = z.object({ helplines: z.array(helplineSchema).max(50) });
 
-/** GET /api/crisis-resources: active helplines in the admin's order. Public. */
+interface SupportRow {
+  email: string;
+  phone: string;
+  hours: string;
+  hours_km: string;
+}
+
+const EMPTY_SUPPORT: SupportContact = { email: "", phone: "", hours: "", kmHours: "" };
+
+async function loadSupportContact(supabase: Awaited<ReturnType<typeof createClient>>): Promise<SupportContact | null> {
+  const { data, error } = await supabase
+    .from("support_contact")
+    .select("email, phone, hours, hours_km")
+    .maybeSingle<SupportRow>();
+  if (error) return null;
+  return data ? { email: data.email, phone: data.phone, hours: data.hours, kmHours: data.hours_km } : EMPTY_SUPPORT;
+}
+
+/** GET /api/crisis-resources: active helplines in the admin's order, and the support contact. Public. */
 export async function listActiveHelplines() {
   const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("crisis_resources")
-    .select(COLUMNS)
-    .eq("is_active", true)
-    .eq("country_code", "KH")
-    .order("sort_order", { ascending: true })
-    .returns<HelplineRow[]>();
+  const [{ data, error }, supportContact] = await Promise.all([
+    supabase
+      .from("crisis_resources")
+      .select(COLUMNS)
+      .eq("is_active", true)
+      .eq("country_code", "KH")
+      .order("sort_order", { ascending: true })
+      .returns<HelplineRow[]>(),
+    loadSupportContact(supabase),
+  ]);
   if (error) return fail("server_error", "We could not load helplines.", 500);
 
-  return json({ helplines: (data ?? []).map(toHelpline) });
+  return json({ helplines: (data ?? []).map(toHelpline), supportContact: supportContact ?? EMPTY_SUPPORT });
+}
+
+/** GET /api/admin/support-contact */
+export async function getSupportContact() {
+  const guard = await requireRole("admin");
+  if (!guard.ok) return guard.response;
+
+  const supportContact = await loadSupportContact(guard.supabase);
+  if (!supportContact) return fail("server_error", "We could not load the support contact.", 500);
+  return json({ supportContact });
+}
+
+const supportSchema = z
+  .object({ email: text(254), phone: text(40), hours: text(200), kmHours: text(250) })
+  .refine((item) => !item.email || isValidEmail(item.email))
+  .refine((item) => !item.phone || isValidPhone(item.phone));
+
+/** PUT /api/admin/support-contact body `{ supportContact }`. Empty fields hide that line for users. */
+export async function saveSupportContact(request: NextRequest) {
+  const guard = await requireRole("admin");
+  if (!guard.ok) return guard.response;
+
+  const body = z.object({ supportContact: supportSchema }).safeParse(await readJson(request));
+  if (!body.success) return invalidInput();
+
+  const item = body.data.supportContact;
+  const { error } = await guard.supabase.rpc("save_support_contact", {
+    p_email: item.email,
+    p_phone: item.phone,
+    p_hours: item.hours,
+    p_hours_km: item.kmHours,
+  });
+  if (error) return databaseError(error, "The support contact could not be saved. Please try again.");
+  return getSupportContact();
 }
 
 /** GET /api/admin/crisis-resources: every helpline, hidden ones included. */

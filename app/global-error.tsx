@@ -27,10 +27,10 @@ export default function GlobalError({
             <h1 className="text-xl font-bold">Something went wrong</h1>
             <p className="mt-1 font-khmer text-lg font-semibold">មានបញ្ហាបន្តិច</p>
             <p className="mt-3 text-sm leading-6 text-ink-muted">
-              This is not your fault. Please try again.
+              This is not your fault. The AROM team has been told. Please try again.
             </p>
             <p className="mt-1 font-khmer text-sm leading-6 text-ink-muted">
-              នេះមិនមែនជាកំហុសរបស់អ្នកទេ។ សូមព្យាយាមម្តងទៀត។
+              នេះមិនមែនជាកំហុសរបស់អ្នកទេ។ ក្រុម AROM បានទទួលដំណឹងហើយ។ សូមព្យាយាមម្តងទៀត។
             </p>
             <button
               type="button"

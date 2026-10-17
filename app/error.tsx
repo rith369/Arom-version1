@@ -39,8 +39,8 @@ export default function Error({
         </h1>
         <p className="mt-2 text-sm leading-6 text-ink-muted">
           {km
-            ? "នេះមិនមែនជាកំហុសរបស់អ្នកទេ។ សូមព្យាយាមម្តងទៀត ឬត្រឡប់ទៅទំព័រដើម។"
-            : "This is not your fault. Please try again, or go back to the home page."}
+            ? "នេះមិនមែនជាកំហុសរបស់អ្នកទេ។ ក្រុម AROM បានទទួលដំណឹងហើយ។ សូមព្យាយាមម្តងទៀត ឬត្រឡប់ទៅទំព័រដើម។"
+            : "This is not your fault. The AROM team has been told. Please try again, or go back to the home page."}
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-3">
           <button

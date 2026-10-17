@@ -19,7 +19,7 @@ import {
   X,
 } from 'lucide-react';
 
-import { useAdmin } from './admin-provider';
+import { useAdmin, type ContentActionResult } from './admin-provider';
 import { ContentMetaFields } from './content-meta-fields';
 import { ContentPreview } from './content-preview';
 import { PublishStateChip } from './content-status';
@@ -304,6 +304,21 @@ function ContentEditor({
     setRevision((current) => current + 1);
   }
 
+  const [busy, setBusy] = useState(false);
+
+  // Shows why a change was refused. Returns true when the change went through.
+  function handled(result: ContentActionResult) {
+    if (result.ok) return true;
+    if (result.code === 'error') setNotice({ tone: 'error', text: result.message });
+    else if (result.code === 'stale') staleMessage();
+    else
+      setNotice({
+        tone: 'error',
+        text: t('ពិនិត្យវាលដែលមានសញ្ញាក្រហម ហើយសាកល្បងម្តងទៀត។', 'Check the fields marked in red, then try again.'),
+      });
+    return false;
+  }
+
   function staleMessage() {
     setNotice({
       tone: 'error',
@@ -314,42 +329,51 @@ function ContentEditor({
     });
   }
 
-  function saveDraft() {
-    const result = saveContentDraft(record.id, working, loaded.updatedAt);
+  async function saveDraft() {
+    if (busy) return;
+    setBusy(true);
+    const result = await saveContentDraft(record.id, working, loaded.updatedAt);
+    setBusy(false);
 
-    if (!result.ok) {
-      staleMessage();
-      return;
-    }
+    if (!handled(result) || !result.ok) return;
 
     setLoaded({ body: working, updatedAt: result.updatedAt });
     setNotice({ tone: 'ok', text: t('បានរក្សាទុកសេចក្តីព្រាង។ អ្នកប្រើមិនទាន់ឃើញទេ។', 'Draft saved. Users do not see it yet.') });
   }
 
-  function publish() {
-    const result = publishContent(record.id, loaded.updatedAt);
+  async function publish() {
+    if (busy) return;
+    setBusy(true);
+    const result = await publishContent(record.id, loaded.updatedAt);
+    setBusy(false);
     setIsPublishing(false);
 
-    if (!result.ok) {
-      staleMessage();
-      return;
-    }
+    if (!handled(result)) return;
 
     setLoaded({ body: working, updatedAt: null });
     setNotice({
       tone: 'ok',
-      text: t(`កំណែទី ${latestVersion + 1} កំពុងបង្ហាញ។`, `Version ${latestVersion + 1} is now live.`),
+      text: t(
+        `កំណែទី ${latestVersion + 1} ត្រូវបានផ្សព្វផ្សាយ។`,
+        `Version ${latestVersion + 1} is published. Users see it once the app reads MindGuide from the database.`,
+      ),
     });
   }
 
-  function discardDraft() {
+  async function discardDraft() {
+    if (busy) return;
     if (state === 'notPublished') {
-      deleteContent(record.id);
-      router.push(backHref);
+      setBusy(true);
+      const deleted = await deleteContent(record.id);
+      setBusy(false);
+      if (handled(deleted)) router.push(backHref);
       return;
     }
 
-    discardContentDraft(record.id);
+    setBusy(true);
+    const result = await discardContentDraft(record.id);
+    setBusy(false);
+    if (!handled(result)) return;
     reload(liveBody ?? working, null);
     setNotice({ tone: 'ok', text: t('បានលុបសេចក្តីព្រាង។', 'Draft discarded. Showing the live version.') });
   }
@@ -370,10 +394,13 @@ function ContentEditor({
       return;
     }
 
-    const updatedAt = restoreContentVersion(record.id, version);
+    setBusy(true);
+    const result = await restoreContentVersion(record.id, version);
+    setBusy(false);
+    if (!handled(result) || !result.ok) return;
     const source = record.versions.find((item) => item.version === version);
 
-    if (source) reload(structuredClone(source.body), updatedAt);
+    if (source) reload(structuredClone(source.body), result.updatedAt);
     setNotice({
       tone: 'ok',
       text: t(
@@ -443,8 +470,8 @@ function ContentEditor({
       <div className="sticky top-0 z-10 -mx-1 mt-5 flex flex-wrap items-center gap-2 rounded-2xl border border-arom-border bg-white/95 p-3 shadow-sm backdrop-blur">
         <button
           type="button"
-          onClick={saveDraft}
-          disabled={!isDirty}
+          onClick={() => void saveDraft()}
+          disabled={!isDirty || busy}
           className="flex items-center gap-2 rounded-full border border-arom px-4 py-2 text-sm font-medium text-arom hover:bg-arom-soft disabled:cursor-not-allowed disabled:border-arom-border disabled:text-ink-muted">
           <Save size={16} aria-hidden="true" />
           {t('រក្សាទុកសេចក្តីព្រាង', 'Save draft')}
@@ -453,7 +480,7 @@ function ContentEditor({
         <button
           type="button"
           onClick={() => reload(loaded.body, loaded.updatedAt)}
-          disabled={!isDirty}
+          disabled={!isDirty || busy}
           className="flex items-center gap-2 rounded-full border border-arom-border px-4 py-2 text-sm text-ink-muted hover:bg-arom-wash disabled:cursor-not-allowed disabled:opacity-40">
           <Undo2 size={16} aria-hidden="true" />
           {t('មិនធ្វើការផ្លាស់ប្តូរវិញ', 'Undo changes')}
@@ -636,7 +663,11 @@ function ContentEditor({
             {state === 'hidden' ? (
               <button
                 type="button"
-                onClick={() => setContentHidden(record.id, false)}
+                onClick={async () => {
+                  if (handled(await setContentHidden(record.id, false))) {
+                    setNotice({ tone: 'ok', text: t('កំពុងបង្ហាញម្តងទៀត។', 'Shown again.') });
+                  }
+                }}
                 className="flex w-full items-center justify-center gap-2 rounded-full border border-arom-border px-4 py-2 text-sm font-medium text-arom hover:bg-arom-soft">
                 <Eye size={16} aria-hidden="true" />
                 {t(`បង្ហាញកំណែទី ${latestVersion} ម្តងទៀត`, `Show version ${latestVersion} again`)}
@@ -647,7 +678,11 @@ function ContentEditor({
                 confirmLabel={t('ចុចម្តងទៀតដើម្បីលាក់', 'Tap again to hide')}
                 icon={EyeOff}
                 disabled={record.liveVersion === null}
-                onConfirm={() => setContentHidden(record.id, true)}
+                onConfirm={async () => {
+                  if (handled(await setContentHidden(record.id, true))) {
+                    setNotice({ tone: 'ok', text: t('បានលាក់ពីអ្នកប្រើ។', 'Hidden from users.') });
+                  }
+                }}
               />
             )}
 
@@ -660,7 +695,7 @@ function ContentEditor({
               confirmLabel={t('ចុចម្តងទៀតដើម្បីលុប', 'Tap again to discard')}
               icon={Trash2}
               disabled={!record.draft}
-              onConfirm={discardDraft}
+              onConfirm={() => void discardDraft()}
             />
           </section>
         </aside>
@@ -673,7 +708,7 @@ function ContentEditor({
           changes={summarizeChanges(liveBody, working, km)}
           warnings={warnings}
           onCancel={() => setIsPublishing(false)}
-          onConfirm={publish}
+          onConfirm={() => void publish()}
         />
       )}
     </>
@@ -689,12 +724,26 @@ export function ContentEditorPage({
   sourceId: string;
   focusPart?: string;
 }) {
-  const { contentRecords } = useAdmin();
+  const { contentRecords, contentLoad } = useAdmin();
   const { language } = useLanguage();
   const km = language === 'km';
   const record = contentRecords.find(
     (item) => item.type === type && item.sourceId === sourceId,
   );
+
+  if (contentLoad !== 'ready') {
+    return (
+      <p
+        role={contentLoad === 'error' ? 'alert' : 'status'}
+        className={`rounded-3xl border border-arom-border bg-white p-10 text-center text-sm ${
+          contentLoad === 'error' ? 'text-arom-danger' : 'text-ink-muted'
+        }`}>
+        {contentLoad === 'error'
+          ? 'Content could not be loaded. Refresh the page to try again.'
+          : 'Loading content...'}
+      </p>
+    );
+  }
 
   if (!record) {
     return (

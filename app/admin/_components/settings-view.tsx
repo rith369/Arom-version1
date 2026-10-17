@@ -405,13 +405,20 @@ function PricingSection() {
 }
 
 export function SettingsView() {
-  const { settings, saveSettings } = useAdmin();
+  const { settings, settingsLoad, saveSettings } = useAdmin();
   const { language } = useLanguage();
   const km = language === 'km';
 
   const [draft, setDraft] = useState<AdminSettings>(settings);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
+  const [saving, setSaving] = useState(false);
+  // The saved contact arrives after the page opens: show it in the form.
+  const [loadedFrom, setLoadedFrom] = useState(settings);
+  if (loadedFrom !== settings) {
+    setLoadedFrom(settings);
+    setDraft(settings);
+  }
 
   function update<K extends keyof AdminSettings>(key: K, value: AdminSettings[K]) {
     setDraft((current) => ({ ...current, [key]: value }));
@@ -419,8 +426,9 @@ export function SettingsView() {
     setNotice('');
   }
 
-  function submit(event: FormEvent<HTMLFormElement>) {
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (saving) return;
 
     const cleaned: AdminSettings = {
       email: draft.email.trim(),
@@ -439,9 +447,14 @@ export function SettingsView() {
       return;
     }
 
-    saveSettings(cleaned);
-    setDraft(cleaned);
-    setNotice('Support contact saved.');
+    setSaving(true);
+    const result = await saveSettings(cleaned);
+    setSaving(false);
+    if (!result.ok) {
+      setError(result.message);
+      return;
+    }
+    setNotice('Support contact saved. Users see it in Get help now.');
   }
 
   function resetChanges() {
@@ -513,8 +526,11 @@ export function SettingsView() {
             <button type="button" onClick={resetChanges} className="rounded-full border border-arom-border bg-white px-5 py-2.5 text-sm">
               {km ? 'បោះបង់ការកែប្រែ' : 'Discard changes'}
             </button>
-            <button type="submit" className="rounded-full bg-arom px-5 py-2.5 text-sm text-white hover:bg-arom-deep">
-              Save support contact
+            <button
+              type="submit"
+              disabled={saving || settingsLoad !== 'ready'}
+              className="rounded-full bg-arom px-5 py-2.5 text-sm text-white hover:bg-arom-deep disabled:opacity-60">
+              {saving ? 'Saving...' : 'Save support contact'}
             </button>
           </div>
         </form>

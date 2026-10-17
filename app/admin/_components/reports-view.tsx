@@ -32,7 +32,9 @@ const reasonStyles: Record<ReportReason, string> = {
 };
 
 export function ReportsView() {
-  const { reports, contentRecords, resolveReports } = useAdmin();
+  const { reports, reportsLoad, contentRecords, resolveReports } = useAdmin();
+  const [error, setError] = useState('');
+  const [saving, setSaving] = useState(false);
   const { language } = useLanguage();
   const km = language === 'km';
   const t = (kmText: string, enText: string) => (km ? kmText : enText);
@@ -109,8 +111,17 @@ export function ReportsView() {
     return { exists: Boolean(record), title, partLabel };
   }
 
-  function resolve(group: ReportGroup, status: 'fixed' | 'not_a_problem', title: string) {
-    resolveReports(group.itemId, status);
+  async function resolve(group: ReportGroup, status: 'fixed' | 'not_a_problem', title: string) {
+    if (saving) return;
+    setSaving(true);
+    const result = await resolveReports(group.itemId, status);
+    setSaving(false);
+    if (!result.ok) {
+      setNotice('');
+      setError(result.message);
+      return;
+    }
+    setError('');
     setNotice(
       status === 'fixed'
         ? t(`បានបិទរបាយការណ៍លើ "${title}" ថាបានជួសជុល។`, `Reports on "${title}" closed as fixed.`)
@@ -164,8 +175,13 @@ export function ReportsView() {
       </div>
 
       <p role="status" aria-live="polite" className="mt-4 min-h-5 text-sm text-arom">
-        {notice}
+        {reportsLoad === 'loading' ? 'Loading reports...' : notice}
       </p>
+      {(error || reportsLoad === 'error') && (
+        <p role="alert" className="text-sm text-arom-danger">
+          {error || 'Reports could not be loaded. Refresh the page to try again.'}
+        </p>
+      )}
 
       <div className="mt-2 space-y-4">
         {groups.map((group) => {
@@ -212,14 +228,16 @@ export function ReportsView() {
                     <>
                       <button
                         type="button"
-                        onClick={() => resolve(group, 'fixed', title)}
+                        onClick={() => void resolve(group, 'fixed', title)}
+                        disabled={saving}
                         className="flex items-center gap-2 rounded-full bg-arom px-4 py-2 text-sm font-medium text-white hover:bg-arom-deep">
                         <CheckCircle2 size={15} aria-hidden="true" />
                         {t('បានជួសជុល', 'Fixed')}
                       </button>
                       <button
                         type="button"
-                        onClick={() => resolve(group, 'not_a_problem', title)}
+                        onClick={() => void resolve(group, 'not_a_problem', title)}
+                        disabled={saving}
                         className="flex items-center gap-2 rounded-full border border-arom-border px-4 py-2 text-sm font-medium text-ink-muted hover:bg-arom-wash">
                         <XCircle size={15} aria-hidden="true" />
                         {t('មិនមែនជាបញ្ហា', 'Not a problem')}

@@ -38,7 +38,7 @@ function BookingDialog({
   booking: AdminBooking;
   onClose: () => void;
 }) {
-  const { users, professionals, saveBooking } = useAdmin();
+  const { professionals, cancelBooking } = useAdmin();
   const { language } = useLanguage();
   const km = language === 'km';
 
@@ -47,10 +47,10 @@ function BookingDialog({
   const [reason, setReason] = useState('');
   const [error, setError] = useState('');
 
-  const user = users.find((item) => item.id === booking.userId);
   const professional = professionals.find(
     (item) => item.id === booking.professionalId,
   );
+  const [saving, setSaving] = useState(false);
 
   // Read the clock once when the popup opens, not on every render.
   const [openedAt] = useState(() => Date.now());
@@ -65,20 +65,22 @@ function BookingDialog({
     return () => dialog?.close();
   }, []);
 
-  function emergencyCancel(event: FormEvent<HTMLFormElement>) {
+  async function emergencyCancel(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (saving) return;
 
     if (!reason.trim()) {
       setError('Write the reason. The user and the professional will see it.');
       return;
     }
 
-    saveBooking({
-      ...booking,
-      status: 'cancelled',
-      cancelledBy: 'admin',
-      cancelReason: reason.trim(),
-    });
+    setSaving(true);
+    const result = await cancelBooking(booking.id, reason.trim());
+    setSaving(false);
+    if (!result.ok) {
+      setError(result.message);
+      return;
+    }
     onClose();
   }
 
@@ -107,12 +109,10 @@ function BookingDialog({
           <dt className="text-xs text-ink-muted">
             {km ? 'អ្នកប្រើប្រាស់' : 'User'}
           </dt>
-          <dd className="mt-1 font-medium">
-            {user?.fullName ?? (km ? 'មិនមាន' : 'Missing user')}
+          <dd className="mt-1 font-medium">Private</dd>
+          <dd className="mt-1 text-xs text-ink-muted">
+            Admins do not see who booked a session.
           </dd>
-          {user && (
-            <dd className="mt-1 text-xs text-ink-muted">{user.email}</dd>
-          )}
         </div>
 
         <div>
@@ -120,13 +120,15 @@ function BookingDialog({
             {km ? 'អ្នកជំនាញ' : 'Professional'}
           </dt>
           <dd className="mt-1 font-medium">
-            {professional
-              ? km && professional.kmName
-                ? professional.kmName
-                : professional.name
-              : km
-                ? 'មិនមាន'
-                : 'Missing professional'}
+            {booking.professionalName
+              ? (km && booking.professionalKmName) || booking.professionalName
+              : professional
+                ? km && professional.kmName
+                  ? professional.kmName
+                  : professional.name
+                : km
+                  ? 'មិនមាន'
+                  : 'Missing professional'}
           </dd>
         </div>
 
@@ -191,8 +193,9 @@ function BookingDialog({
             Cancel this booking?
           </h3>
           <p className="mt-1 text-xs leading-5 text-ink-muted">
-            The user and the professional will both be told, and the
-            cancellation is recorded in the audit log with your name.
+            The user and the professional will see the cancellation and
+            your reason in their bookings. It is recorded in the audit log
+            with your name.
           </p>
           <label className="mt-3 block text-sm font-medium text-ink">
             Reason *
@@ -211,8 +214,9 @@ function BookingDialog({
           <div className="mt-3 flex flex-wrap gap-3">
             <button
               type="submit"
-              className="rounded-full bg-arom-danger px-4 py-2 text-xs font-medium text-white hover:opacity-90">
-              Cancel booking and tell both
+              disabled={saving}
+              className="rounded-full bg-arom-danger px-4 py-2 text-xs font-medium text-white hover:opacity-90 disabled:opacity-60">
+              {saving ? 'Cancelling...' : 'Cancel booking'}
             </button>
             <button
               type="button"
@@ -234,17 +238,12 @@ function BookingDialog({
         </p>
       )}
 
-      <p className="mt-5 text-xs text-ink-muted">
-        {km
-          ? 'ការផ្លាស់ប្តូរនេះអនុវត្តតែលើទិន្នន័យសាកល្បង។'
-          : 'Changes affect demo records only.'}
-      </p>
     </dialog>
   );
 }
 
 export function BookingsView() {
-  const { bookings, users, professionals } = useAdmin();
+  const { bookings, bookingsLoad, professionals } = useAdmin();
   const { language } = useLanguage();
   const km = language === 'km';
 
@@ -260,14 +259,14 @@ export function BookingsView() {
     cancelled: km ? 'បានបោះបង់' : 'Cancelled',
   };
 
+  // Admins never see who booked a session.
   function userName(id: string) {
-    return (
-      users.find((item) => item.id === id)?.fullName ??
-      (km ? 'មិនមានអ្នកប្រើប្រាស់' : 'Missing user')
-    );
+    return id ? (km ? 'មិនមានអ្នកប្រើប្រាស់' : 'Missing user') : 'Private';
   }
 
   function professionalName(id: string) {
+    const booked = bookings.find((booking) => booking.professionalId === id && booking.professionalName);
+    if (booked?.professionalName) return (km && booked.professionalKmName) || booked.professionalName;
     const item = professionals.find((professional) => professional.id === id);
 
     return item
@@ -318,8 +317,18 @@ export function BookingsView() {
 
       <p className="mt-3 text-sm text-ink-muted">
         See every appointment. Users and professionals manage their own
-        bookings.
+        bookings. Who booked stays private.
       </p>
+
+      {bookingsLoad !== 'ready' && (
+        <p
+          role={bookingsLoad === 'error' ? 'alert' : 'status'}
+          className={`mt-4 text-sm ${bookingsLoad === 'error' ? 'text-arom-danger' : 'text-ink-muted'}`}>
+          {bookingsLoad === 'error'
+            ? 'Bookings could not be loaded. Refresh the page to try again.'
+            : 'Loading bookings...'}
+        </p>
+      )}
 
       <div className="mt-8 grid gap-4 sm:grid-cols-3">
         {(['pending', 'confirmed', 'completed'] as const).map((value) => (

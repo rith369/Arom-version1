@@ -1,7 +1,7 @@
-// Mock community store shared by /community and /admin/community. It lives in
-// this browser's localStorage only, so the demo works end to end in one
-// browser. The backend replaces every function here (see BACKEND-HANDOFF.md
-// section 14).
+// Community helpers. Reports go to the server (POST /api/community/reports);
+// shutting down, reopening and removals are done by admins on the server
+// (BACKEND-HANDOFF.md section 23). What is left in localStorage here only
+// serves the demo groups that are not in the database yet.
 
 import {
   INITIAL_MESSAGES,
@@ -15,12 +15,10 @@ const CREATED_KEY = "arom_community_created_groups";
 const CLOSED_KEY = "arom_community_closed_groups";
 const MESSAGES_KEY = "arom_community_messages";
 const REPORTS_KEY = "arom_community_reports";
-const REPORT_COUNT_KEY = "arom_community_reports_today";
 const REMOVED_MESSAGES_KEY = "arom_community_removed_messages";
 const REMOVED_MEMBERS_KEY = "arom_community_removed_members";
 
 export const COMMUNITY_REPORT_NOTE_MAX = 300;
-const DAILY_REPORT_LIMIT = 5;
 
 export type GroupClosure = {
   groupId: string;
@@ -197,8 +195,9 @@ export function readCommunityReports(): StoredCommunityReport[] {
   return Array.isArray(reports) ? reports : [];
 }
 
-// Demo only. The backend checks the target exists, limits each user to five
-// reports a day, and keeps the reporter id for that limit only.
+// Sends the report (POST /api/community/reports). The server checks the
+// person is in the group, links a reported person through their message,
+// allows 5 reports a day, and keeps the reporter only for that limit.
 export async function submitCommunityReport(report: {
   target: CommunityReportTarget;
   reason: CommunityReportReason;
@@ -208,23 +207,12 @@ export async function submitCommunityReport(report: {
     throw new Error("Report note is too long.");
   }
 
-  const today = new Date().toISOString().slice(0, 10);
-  const saved = read<{ date: string; count: number } | null>(REPORT_COUNT_KEY, null);
-  const count = saved?.date === today ? saved.count : 0;
-
-  if (count >= DAILY_REPORT_LIMIT) return "daily_limit";
-
-  write(REPORT_COUNT_KEY, { date: today, count: count + 1 });
-  write(REPORTS_KEY, [
-    ...readCommunityReports(),
-    {
-      id: crypto.randomUUID(),
-      target: report.target,
-      reason: report.reason,
-      note: report.note.trim(),
-      createdAt: new Date().toISOString(),
-    },
-  ]);
-
-  return "sent";
+  const response = await fetch("/api/community/reports", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ...report, note: report.note.trim() }),
+  });
+  const data = (await response.json().catch(() => null)) as { result?: "sent" | "daily_limit" } | null;
+  if (!response.ok || !data?.result) throw new Error("Report could not be sent.");
+  return data.result;
 }

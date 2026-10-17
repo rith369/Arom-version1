@@ -11,7 +11,7 @@ import {
   type ReportTarget,
 } from "./content-reports";
 
-type Step = "form" | "sent" | "daily_limit" | "error";
+type Step = "form" | "sent" | "daily_limit" | "signed_out" | "error";
 
 function ReportDialog({
   target,
@@ -211,7 +211,9 @@ function ReportDialog({
                     "អ្នកបានផ្ញើរបាយការណ៍ច្រើនហើយថ្ងៃនេះ។ សូមសាកល្បងម្តងទៀតនៅថ្ងៃស្អែក។",
                     "You have sent several reports today. Please try again tomorrow.",
                   )
-                : t("មិនអាចផ្ញើបានទេ។ សូមសាកល្បងម្តងទៀត។", "This could not be sent. Please try again.")}
+                : step === "signed_out"
+                  ? t("សូមចូលគណនីដើម្បីផ្ញើរបាយការណ៍។", "Please log in to send a report.")
+                  : t("មិនអាចផ្ញើបានទេ។ សូមសាកល្បងម្តងទៀត។", "This could not be sent. Please try again.")}
           </p>
           <button
             type="button"
