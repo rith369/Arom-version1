@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, type CSSProperties, type FormEvent } from "react";
-import { ArrowRight, Check, CircleHelp, Clock, Lock, UserPlus, X } from "lucide-react";
+import { motion, useReducedMotion } from "motion/react";
+import { ArrowRight, Check, CircleHelp, Clock, Leaf, Lock, UserPlus, X } from "lucide-react";
 import { MoodSprout } from "../../_components/mood/mood-sprout";
 import { LEVELS, PLAY_CARDS, ROUND_OPTIONS, type CardLevel, type DeckChoice, type RoundCount } from "../_data/cards";
 import { LanguageToggle } from "./language-toggle";
-import { JOURNEY_ICON, LEVEL_THEME, PLAYER_COLORS, initialOf } from "./theme";
+import { CARD_BACK, JOURNEY_ICON, LEVEL_THEME, PLAYER_COLORS, initialOf } from "./theme";
 
 export const MAX_PLAYERS = 8;
 const MAX_NAME = 20;
@@ -29,6 +30,68 @@ function MiniCard({ level, className = "", style }: { level: CardLevel; classNam
     >
       <Icon size={18} className={LEVEL_THEME[level].sub} />
     </span>
+  );
+}
+
+/** A level's card face for the hero: its colors, icon and a few lines of "text". */
+function HeroFaceCard({ level, className }: { level: CardLevel; className: string }) {
+  const theme = LEVEL_THEME[level];
+  const Icon = theme.icon;
+  const line = level === "real" ? "bg-white/45" : "bg-current opacity-25";
+  return (
+    <span
+      className={`absolute flex h-[5.25rem] w-[4rem] flex-col rounded-xl p-2 shadow-[0_16px_30px_-14px_rgba(0,0,0,0.55)] ring-1 ring-white/80 sm:h-[7.25rem] sm:w-[5.5rem] sm:rounded-2xl sm:p-3 ${theme.text} ${className}`}
+      style={theme.card}
+    >
+      <Icon size={14} className={theme.sub} />
+      <span className="mt-auto space-y-1.5">
+        <span className={`block h-1.5 w-full rounded-full ${line}`} />
+        <span className={`block h-1.5 w-4/5 rounded-full ${line}`} />
+        <span className={`block h-1.5 w-3/5 rounded-full ${line}`} />
+      </span>
+    </span>
+  );
+}
+
+/**
+ * The hero picture: a fan of real looking cards (two faces and the AROM
+ * card back from the game) with the sprout presenting them. It floats
+ * gently, and stays still when motion is reduced.
+ */
+function HeroFan() {
+  const reduce = useReducedMotion();
+  return (
+    // Phones: beside the title, clear of the buttons. Wider screens: centered.
+    <div
+      aria-hidden="true"
+      className="pointer-events-none absolute right-1 top-4 h-40 w-[8.5rem] sm:right-8 sm:top-1/2 sm:h-56 sm:w-48 sm:-translate-y-1/2"
+    >
+      <span className="absolute inset-6 rounded-full bg-[#9BE0C6]/30 blur-2xl" />
+      <motion.div
+        className="absolute inset-0"
+        animate={reduce ? undefined : { y: [0, -6, 0] }}
+        transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+      >
+        <HeroFaceCard level="warm" className="left-0 top-6 -rotate-[15deg] sm:top-8" />
+        <HeroFaceCard level="care" className="right-0 top-6 rotate-[15deg] sm:top-8" />
+        {/* The card back, as in the game */}
+        <span
+          className="absolute left-1/2 top-1 flex h-[6.5rem] w-[4.75rem] -translate-x-1/2 flex-col items-center justify-center rounded-xl text-white shadow-[0_22px_40px_-16px_rgba(0,0,0,0.6)] ring-2 ring-white/85 sm:h-[8.75rem] sm:w-[6.5rem] sm:rounded-2xl"
+          style={CARD_BACK}
+        >
+          <span className="absolute inset-1.5 rounded-xl border border-white/25" />
+          <span className="flex size-8 items-center justify-center rounded-full bg-white text-arom shadow-md sm:size-11">
+            <Leaf size={18} />
+          </span>
+          <span className="mt-1.5 text-[9px] font-bold tracking-[0.22em] sm:text-[10px]">AROM</span>
+        </span>
+      </motion.div>
+      {/* The sprout presents the cards from the front. */}
+      <span className="absolute bottom-0 left-1/2 -translate-x-1/2">
+        <span className="absolute inset-x-1 bottom-1 top-3 rounded-full bg-white/35 blur-xl" />
+        <MoodSprout mood="great" className="relative h-[3.75rem] w-auto drop-shadow-[0_10px_14px_rgba(0,0,0,0.3)] sm:h-[5rem]" />
+      </span>
+    </div>
   );
 }
 
@@ -74,27 +137,19 @@ export function SetupScreen({
   return (
     <div className="space-y-5">
       {/* Hero */}
-      <section className="relative overflow-hidden rounded-[28px] bg-[linear-gradient(135deg,#1A5E4D_0%,#1F6F5B_45%,#2E9175_100%)] px-5 pb-6 pt-5 text-white shadow-[0_24px_50px_-24px_rgba(31,111,91,0.75)] sm:px-7 sm:pt-7">
+      <section className="relative overflow-hidden rounded-[28px] bg-[linear-gradient(135deg,#1A5E4D_0%,#1F6F5B_45%,#2E9175_100%)] px-5 pb-6 pt-5 text-white shadow-[0_24px_50px_-24px_rgba(31,111,91,0.75)] sm:px-7 sm:py-8">
         <span aria-hidden="true" className="absolute -right-16 -top-16 size-56 rounded-full bg-white/10 blur-2xl" />
         <span aria-hidden="true" className="absolute -bottom-20 left-10 size-48 rounded-full bg-[#7FD6B8]/20 blur-3xl" />
 
-        {/* Three fanned cards and the sprout */}
-        <div aria-hidden="true" className="pointer-events-none absolute right-3 top-6 h-32 w-32 sm:right-8 sm:h-36 sm:w-40">
-          <MiniCard level="warm" className="right-16 top-5 h-20 w-14 -rotate-[14deg]" />
-          <MiniCard level="care" className="right-1 top-5 h-20 w-14 rotate-[14deg]" />
-          <MiniCard level="real" className="right-8 top-1 h-24 w-16" />
-          <span className="absolute -bottom-3 right-5 drop-shadow-[0_6px_10px_rgba(0,0,0,0.25)]">
-            <MoodSprout mood="great" className="h-14 w-auto" />
-          </span>
-        </div>
+        <HeroFan />
 
         <p className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-[11px] font-semibold tracking-wide backdrop-blur-sm">
           {t("ទូរស័ព្ទមួយ • មិត្ត ២ ដល់ ៨ នាក់", "One phone • 2 to 8 friends")}
         </p>
-        <h1 className="mt-3 max-w-[62%] text-[1.7rem] font-bold leading-[1.15] tracking-tight sm:max-w-[60%] sm:text-[2rem]">
+        <h1 className="relative mt-3 max-w-[56%] text-[1.7rem] font-bold leading-[1.15] tracking-tight sm:max-w-[60%] sm:text-[2rem]">
           {t("លេងកាតជាមួយមិត្តភក្តិ", "Play Cards with Friends")}
         </h1>
-        <p className="mt-2 max-w-[62%] text-sm leading-relaxed text-white/85 sm:max-w-[58%]">
+        <p className="relative mt-2 max-w-[56%] text-sm leading-relaxed text-white/85 sm:max-w-[58%]">
           {t(
             "អង្គុយជាមួយគ្នា ហុចទូរស័ព្ទជុំគ្នា បើកកាត ហើយនិយាយពីចិត្ត។ គ្មានពិន្ទុ គ្មានអ្នកឈ្នះ។",
             "Sit together, pass the phone, flip a card and talk for real. No points, no winners.",

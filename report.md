@@ -1,5 +1,24 @@
 # AROM: Change Report
 
+## 17 Oct 2026: A Better Picture on the Play Cards Banner
+
+Commit `PENDING`. No migration. Frontend only.
+
+**Why.** Rith felt the right side of the Play Cards banner could look better. The cards were small and stuck to the top, the middle card blended into the green, the side cards were cut off and unclear, and the sprout covered the cards at an odd spot.
+
+**What changed for users:**
+- **A fan of three real looking cards:** a Warm up and a Care card face (their colors, icon and a few text lines) and, in the middle, the same AROM card back as in the game, with a white border so it stands out from the green.
+- **The sprout presents the cards** from the front, with a soft glow.
+- **The cards float very gently.** They stay still when Reduce motion is on.
+- **Fits every screen:** beside the title on phones (the text never sits under the cards), centered and larger on wider screens, with a little more room in the banner.
+
+**What changed for the team:**
+- `app/play-cards/_components/setup-screen.tsx`: new `HeroFan` and `HeroFaceCard`; the title and text are 56% wide on phones.
+
+**What to re-test:**
+1. Open Play Cards on a phone, in English and Khmer: the title and text are not covered by the cards.
+2. Open it on a computer: the fan sits inside the banner and does not touch its edges.
+
 ## 17 Oct 2026: Ten More Play Cards
 
 Commit `f8db203`. No migration. Frontend only.
