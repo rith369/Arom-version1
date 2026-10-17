@@ -15,10 +15,10 @@ import { useEffect, useState } from "react";
 import { recordActivity } from "../activity-log";
 import { useLanguage } from "../language-provider";
 import {
-  isLessonBookmarked,
   toggleLessonBookmark,
   type Lesson,
 } from "./learn-data";
+import { useLessonBookmarked } from "./use-lesson-storage";
 
 type LessonCompleteViewProps = {
   lesson: Lesson;
@@ -40,12 +40,11 @@ export function LessonCompleteView({
   useEffect(() => {
     recordActivity("lesson", lesson.id);
   }, [lesson.id]);
-  const [saved, setSaved] = useState(() => isLessonBookmarked(lesson.id));
+  const saved = useLessonBookmarked(lesson.id);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const handleSaveToggle = () => {
     const nextState = toggleLessonBookmark(lesson.id);
-    setSaved(nextState);
     const msg = nextState
       ? km
         ? "បានរក្សាទុកក្នុងមេរៀនរបស់ខ្ញុំ"

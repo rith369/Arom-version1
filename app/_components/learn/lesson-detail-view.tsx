@@ -25,12 +25,11 @@ import { chooseLabel, useMindGuidePick } from "../mindguide-pick";
 import { EducationalNote } from "../educational-note";
 import { ReportProblemButton } from "../report-problem";
 import {
-  getLessonProgress,
-  isLessonBookmarked,
   toggleLessonBookmark,
   TOPIC_CATEGORIES,
   type Lesson,
 } from "./learn-data";
+import { useLessonBookmarked, useLessonProgress } from "./use-lesson-storage";
 
 type LessonDetailViewProps = {
   lesson: Lesson;
@@ -49,11 +48,11 @@ export function LessonDetailView({
   const { language } = useLanguage();
   const km = language === "km";
   const pick = useMindGuidePick();
-  const [bookmarked, setBookmarked] = useState(() => isLessonBookmarked(lesson.id));
+  const bookmarked = useLessonBookmarked(lesson.id);
   const [inPlan, setInPlan] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [showReferences, setShowReferences] = useState(false);
-  const progress = getLessonProgress(lesson.id);
+  const progress = useLessonProgress(lesson.id);
 
   useEffect(() => {
     const syncPlan = () => {
@@ -78,8 +77,7 @@ export function LessonDetailView({
 
   const handleBookmarkToggle = () => {
     if (preview) return;
-    const newState = toggleLessonBookmark(lesson.id);
-    setBookmarked(newState);
+    toggleLessonBookmark(lesson.id);
   };
 
   const handleTogglePlan = () => {

@@ -32,14 +32,6 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${inter.variable} ${kantumruyPro.variable} antialiased`}>
-      <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html:
-              "try{localStorage.removeItem('arom-theme');document.documentElement.classList.remove('dark');delete document.documentElement.dataset.theme;}catch(e){}",
-          }}
-        />
-      </head>
       <body>
         <LanguageProvider>
           <AuthProvider>

@@ -28,10 +28,10 @@ import {
   ALL_LESSONS,
   LESSON_ABOUT_STRESS,
   TOPIC_CATEGORIES,
-  getLessonProgress,
   type Lesson,
   type TopicCategory,
 } from "./learn-data";
+import { useLessonProgress } from "./use-lesson-storage";
 
 type LearnHomeViewProps = {
   onSelectLesson: (lesson: Lesson) => void;
@@ -53,7 +53,7 @@ export function LearnHomeView({
   const [planIds, setPlanIds] = useState<string[]>([]);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  const progress = getLessonProgress(LESSON_ABOUT_STRESS.id);
+  const progress = useLessonProgress(LESSON_ABOUT_STRESS.id);
   const hasProgress = progress.completedSections > 0;
 
   useEffect(() => {
@@ -316,7 +316,7 @@ export function LearnHomeView({
               </div>
               <span className="text-xs font-semibold text-arom">
                 {progress.completedSections} {km ? "នៃ" : "of"}{" "}
-                {progress.totalSections} {km ? "ផ្នែកបានបញ្ចប់" : "lessons completed"}
+                {progress.totalSections} {km ? "ផ្នែកបានបញ្ចប់" : "sections completed"}
               </span>
             </div>
 

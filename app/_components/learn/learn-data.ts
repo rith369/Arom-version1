@@ -853,22 +853,23 @@ export type ProgressData = {
   reflectionAnswer?: string;
 };
 
+export const EMPTY_LESSON_PROGRESS: ProgressData = {
+  completedSections: 0,
+  totalSections: 5,
+  isComplete: false,
+  lastVisitedSection: 1,
+};
+
+// Fired after a bookmark changes, so open screens update (see use-lesson-storage.ts).
+export const BOOKMARKS_UPDATED_EVENT = "arom_bookmarks_updated";
+
 export function getLessonProgress(lessonId: string): ProgressData {
-  if (typeof window === "undefined") {
-    return { completedSections: 0, totalSections: 5, isComplete: false, lastVisitedSection: 1 };
-  }
+  if (typeof window === "undefined") return EMPTY_LESSON_PROGRESS;
   try {
     const raw = window.localStorage.getItem(`${STORAGE_KEYS.LESSON_PROGRESS}_${lessonId}`);
-    if (!raw) {
-      // Return a default starting state for Learn About Stress as in prompt: "3 of 5 lessons completed"
-      if (lessonId === "learn-about-stress") {
-        return { completedSections: 3, totalSections: 5, isComplete: false, lastVisitedSection: 3 };
-      }
-      return { completedSections: 0, totalSections: 5, isComplete: false, lastVisitedSection: 1 };
-    }
-    return JSON.parse(raw);
+    return raw ? JSON.parse(raw) : EMPTY_LESSON_PROGRESS;
   } catch {
-    return { completedSections: 0, totalSections: 5, isComplete: false, lastVisitedSection: 1 };
+    return EMPTY_LESSON_PROGRESS;
   }
 }
 
@@ -882,14 +883,14 @@ export function saveLessonProgress(lessonId: string, data: ProgressData): void {
 }
 
 export function isLessonBookmarked(lessonId: string): boolean {
-  if (typeof window === "undefined") return true;
+  if (typeof window === "undefined") return false;
   try {
     const raw = window.localStorage.getItem(STORAGE_KEYS.BOOKMARKS);
-    if (!raw) return true; // default bookmarked for learn-about-stress
+    if (!raw) return false;
     const list: string[] = JSON.parse(raw);
     return list.includes(lessonId);
   } catch {
-    return true;
+    return false;
   }
 }
 
@@ -897,7 +898,7 @@ export function toggleLessonBookmark(lessonId: string): boolean {
   if (typeof window === "undefined") return false;
   try {
     const raw = window.localStorage.getItem(STORAGE_KEYS.BOOKMARKS);
-    let list: string[] = raw ? JSON.parse(raw) : ["learn-about-stress"];
+    let list: string[] = raw ? JSON.parse(raw) : [];
     const exists = list.includes(lessonId);
     if (exists) {
       list = list.filter((id) => id !== lessonId);
@@ -905,6 +906,7 @@ export function toggleLessonBookmark(lessonId: string): boolean {
       list.push(lessonId);
     }
     window.localStorage.setItem(STORAGE_KEYS.BOOKMARKS, JSON.stringify(list));
+    window.dispatchEvent(new Event(BOOKMARKS_UPDATED_EVENT));
     return !exists;
   } catch {
     return false;

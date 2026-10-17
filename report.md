@@ -1,5 +1,30 @@
 # AROM: Change Report
 
+## 17 Oct 2026: No More Fake Lesson Progress, and the Two Dev Warnings Fixed
+
+Commit `PENDING`. No migration. Frontend only.
+
+**Why.** `npm run dev` showed "2 Issues" on every page. One was a hydration error: the server built the Learn page without saved progress, but the browser added a made up "3 of 5" for Learn About Stress, so the two versions did not match and React rebuilt the page. That same made up value meant every new user saw "Continue Learning, 3 of 5" and every lesson showed as bookmarked before they had opened anything. The other warning came from an old script in the page head that cleared a dark mode setting removed in September.
+
+**What changed for users:**
+- **New users start at zero.** Learn no longer shows a Continue Learning card until you finish a section, and the lesson button says Start Learning.
+- **Bookmarks start empty.** A lesson shows as bookmarked only after you bookmark it.
+- **No flicker on Learn pages.** Saved progress and bookmarks appear once the page loads, without React rebuilding the page.
+- **"3 of 5 sections completed"** in English (it said "lessons", but it counts sections).
+
+**What changed for the team:**
+- **New `app/_components/learn/use-lesson-storage.ts`:** `useLessonProgress` and `useLessonBookmarked` read localStorage through `useSyncExternalStore`, so the server and the first browser render agree.
+- **`learn-data.ts`:** removed the fake Stress progress and the default bookmark; added `EMPTY_LESSON_PROGRESS`; `toggleLessonBookmark` fires `arom_bookmarks_updated` so open screens update.
+- **Learn home, lesson overview and lesson complete** use the new hooks.
+- **`app/layout.tsx`:** removed the old dark mode cleanup script.
+
+**What to re-test:**
+1. In a private window, open Learn. Check there is no Continue Learning card and no "Issues" badge in dev.
+2. Open Learn About Stress and check the button says Start Learning and the bookmark is empty.
+3. Finish two sections, go back, and check the button says Continue Learning (Section 3) and Learn shows "2 of 5 sections completed".
+4. Bookmark a lesson, reload, and check it stays bookmarked. Remove it and check it clears.
+5. Switch to Khmer and repeat step 1.
+
 ## 17 Oct 2026: New Lesson, Understanding Anxiety
 
 Commit `3ca5418`. No migration. Content and frontend only.
