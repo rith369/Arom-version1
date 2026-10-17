@@ -2,7 +2,7 @@
 
 ## 17 Oct 2026: Play Cards Gets How to Play and a Language Switch
 
-Commit `PENDING`. No migration. Frontend only.
+Commit `b457217`. No migration. Frontend only.
 
 **Why.** Rith asked for a round button that explains how to play, and for a way to switch between Khmer and English during a game, because friends at the same table may read different languages.
 
