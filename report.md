@@ -2,7 +2,7 @@
 
 ## 17 Oct 2026: No Extra Profile Circle on Laptops
 
-Commit `PENDING`. No migration. Frontend only.
+Commit `e47ed13`. No migration. Frontend only.
 
 **Why.** On laptops the top of each page showed a lone profile circle. It is there on phones, where the top bar holds the AROM logo, menu and profile, but on laptops the sidebar already has all three, including the account menu at the bottom.
 
