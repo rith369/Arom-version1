@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { PlayCardsView } from "./_components/play-cards-view";
+import { HubView } from "./_components/hub-view";
 
 export const metadata: Metadata = {
-  title: "Play Cards with Friends",
+  title: "Play with friends",
 };
 
 export default function PlayCardsPage() {
-  return <PlayCardsView />;
+  return <HubView />;
 }

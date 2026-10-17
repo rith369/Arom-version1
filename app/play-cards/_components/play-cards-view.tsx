@@ -4,7 +4,6 @@ import { useState } from "react";
 import { TopHeader } from "../../components/top-header";
 import { DesktopNavigation, MobileNavigation } from "../../_components/app-navigation";
 import { useLanguage } from "../../_components/language-provider";
-import { useFirstName } from "../../_components/auth-provider";
 import { useConfirm } from "../../_components/confirm-dialog";
 import {
   levelPlan,
@@ -15,11 +14,13 @@ import {
   type PlayCard,
   type RoundCount,
 } from "../_data/cards";
+import { NeedPlayers } from "./bold-parts";
 import { EndScreen } from "./end-screen";
 import { GameScreen, type CardExit } from "./game-screen";
 import { HowToPlaySheet } from "./how-to-play-sheet";
 import { RulesSheet } from "./rules-sheet";
 import { SetupScreen } from "./setup-screen";
+import { usePlayers } from "./players-provider";
 
 type Piles = Record<CardLevel, PlayCard[]>;
 
@@ -54,11 +55,9 @@ const toTop = () => window.scrollTo({ top: 0 });
 export function PlayCardsView() {
   const { language } = useLanguage();
   const km = language === "km";
-  const firstName = useFirstName();
-  const host = firstName || (km ? "អ្នក" : "You");
+  const { players: tablePlayers, hostIsYou } = usePlayers();
   const { confirm, dialog } = useConfirm();
 
-  const [friends, setFriends] = useState<string[]>([]);
   const [deck, setDeck] = useState<DeckChoice>("journey");
   const [rounds, setRounds] = useState<RoundCount>(15);
   const [rulesOpen, setRulesOpen] = useState(false);
@@ -68,7 +67,7 @@ export function PlayCardsView() {
   const [ended, setEnded] = useState<{ shared: number; players: number } | null>(null);
 
   function start() {
-    const players = [host, ...friends];
+    const players = tablePlayers;
     const plan = levelPlan(deck, rounds);
     const first = draw(shuffledPiles(), plan[0]);
     setEnded(null);
@@ -137,7 +136,7 @@ export function PlayCardsView() {
         <GameScreen
           km={km}
           players={game.players}
-          hostIsYou={!firstName}
+          hostIsYou={hostIsYou}
           playerIndex={game.playerIndex}
           card={game.card}
           flipped={game.flipped}
@@ -172,6 +171,8 @@ export function PlayCardsView() {
     );
   }
 
+  if (tablePlayers.length < 2) return <NeedPlayers km={km} />;
+
   return (
     <div className="min-h-screen bg-canvas lg:grid lg:grid-cols-[19rem_minmax(0,1fr)]">
       <DesktopNavigation active="PlayCards" />
@@ -181,9 +182,6 @@ export function PlayCardsView() {
           <div className="mt-6 lg:mt-2">
             <SetupScreen
               km={km}
-              host={host}
-              friends={friends}
-              onFriendsChange={setFriends}
               deck={deck}
               onDeckChange={setDeck}
               rounds={rounds}

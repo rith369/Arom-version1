@@ -77,7 +77,7 @@ The yellow "Demo data on this page" banner is in `admin-shell.tsx`. Remove it fo
 | Admin audit log (`/admin/audit-log`) | Done | Connected (`GET /api/admin/audit-log`). No migration | 5 |
 | Journal prompts: admin page `/admin/journal-prompts`, guided questions on Write about today (`/detection/journal`) | Done | Connected (`GET /api/journal-prompts`, `GET\|PUT /api/admin/journal-prompts`), migration `20261016001200` | 26 |
 | Your Plan For Today as a to do list: own tasks, ideas, MindGuide items, repeat, tick with a line through (Home) | Done | Connected, PR #17 (`/api/plan`, `/api/plan/tasks`, `/api/plan/tasks/:id`, `/api/plan/tasks/:id/check`, `/api/plan/order`), migration `20261016001300` | 27 |
-| Play Cards with Friends (`/play-cards`): one phone passed around, 71 cards in 3 levels | Done | No backend needed for version 1 (cards in code, nothing saved). Later: admin managed decks, a play count in Progress, online rooms | 28 |
+| Play with friends (`/play-cards`): a game hub with Mental health cards, Truth or dare and Guess the animal, one phone passed around | Done | No backend needed (cards in code, nothing saved). Later: admin managed decks, a play count in Progress, online rooms | 28 |
 | Other admin pages (bookings, settings) | Built by Sokheng on mock data | Not started | not written yet |
 
 ## 5. Admin users page
@@ -1025,19 +1025,19 @@ The admin list uses `CommunityReport`: `id, groupId, targetKind, targetLabel, me
 - The older `plan_items` table (one item per date) is not used by this feature.
 - **Tested** on a local Postgres (PGlite): adding, links (`//other.site` refused), the weekdays rule, duplicate keys, the 30 task limit, checks cascading on delete, and that a second person cannot see, tick, edit or delete the first person's tasks or add tasks in their name. Applied to Supabase and checked there: the three tables with RLS on, 9 policies, the limit and update triggers. Not yet clicked through in the running app with real tasks.
 
-## 28. Play Cards with Friends (version 1)
+## 28. Play with friends (game hub)
 
-**Done (17 Oct 2026). No backend needed for this version.**
+**Done (17 Oct 2026). No backend needed.**
 
-**Files:** `app/play-cards/page.tsx`, `app/play-cards/_data/cards.ts` (71 cards in English and Khmer, levels, dealing), `app/play-cards/_components/` (setup, house rules, game, breathing card, end screen, theme). Sidebar entry in `app/_components/navigation-config.ts`; `/play-cards` is in `PROTECTED_PREFIXES` (login required).
+**Files:** `app/play-cards/layout.tsx` (shared players), `app/play-cards/page.tsx` (hub), `mental-health/`, `truth-or-dare/`, `guess-animal/` pages, `app/play-cards/_data/` (`cards.ts` 71 mental health cards, `truth-or-dare.ts` 48 truths and dares, `animals.ts` 40 animals, all in English and Khmer), `app/play-cards/_components/` (hub, the three games, bold style in `bold.ts` and `bold-parts.tsx`). Sidebar entry in `app/_components/navigation-config.ts`; `/play-cards` and everything under it is in `PROTECTED_PREFIXES` (login required).
 
 ### How it works
 
-- Friends sit together and pass one phone. Only the host is logged in.
-- The host adds friends' names, picks a deck (Journey from light to deep, or one level: Warm up, Getting real, Care) and a length (9, 15 or 21 cards), then agrees to the house rules.
-- Each turn: flip the card, answer out loud, then Done passes to the next person. Pass gives the same person another card with no reason asked. Lighter card swaps to an easier level. Getting real and Care cards show "Need support?" (crisis helplines).
-- Card types: question, breathe together (a 3 breath timer), kind words, everyone together.
-- The end screen offers a private journal note and "Plan the next hangout" (adds a today only task to the plan, section 27).
+- **Hub (`/play-cards`):** the host adds friends once (2 to 8 players, in memory only) and picks a game. Bold look chosen by Rith: thick outlines, hard shadows, bright colors.
+- **Mental health cards (`/play-cards/mental-health`):** the original game. Deck (Journey or one level: Warm up, Getting real, Care) and length, house rules, flip the card, swipe right for Done and left for Pass, Lighter card, "Need support?" on deeper cards, breathing cards, end screen.
+- **Truth or dare (`/play-cards/truth-or-dare`):** Chill or Silly, 10 to 30 turns. Each turn the player picks Truth or Dare; Pass gives another of the same kind, Switch changes the kind. Truths are light, dares are silly but safe: nothing dangerous, no touching, nothing embarrassing, nothing posted online.
+- **Guess the animal (`/play-cards/guess-animal`):** 45, 60 or 90 seconds per turn, 1 to 3 times around the table. Only the player looks; they act, make sounds or give clues; Got it or Skip; a friendly total at the end, no winners.
+- Every game has How to play, an English / Khmer switch, and "Plan the next hangout" at the end (adds a today only task, section 27).
 
 ### Rules (decided by Rith, 17 Oct 2026)
 

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { motion, useReducedMotion } from "motion/react";
-import { BookOpen, CalendarPlus, Check, Ear, Home, RotateCcw, Users } from "lucide-react";
+import { BookOpen, CalendarPlus, Check, Ear, Gamepad2, RotateCcw, Users } from "lucide-react";
 import { MoodSprout } from "../../_components/mood/mood-sprout";
 import { addPlanTask } from "../../_components/daily-plan-store";
 
@@ -150,9 +150,9 @@ export function EndScreen({
             {t("ហ្គេមថ្មី", "New game")}
           </button>
         </div>
-        <Link href="/" className="mt-4 inline-flex min-h-10 items-center gap-1.5 text-sm font-semibold text-ink-muted hover:text-arom">
-          <Home size={15} aria-hidden="true" />
-          {t("ត្រឡប់ទៅទំព័រដើម", "Back to Home")}
+        <Link href="/play-cards" className="mt-4 inline-flex min-h-10 items-center gap-1.5 text-sm font-semibold text-ink-muted hover:text-arom">
+          <Gamepad2 size={15} aria-hidden="true" />
+          {t("ហ្គេមទាំងអស់", "All games")}
         </Link>
       </div>
     </div>

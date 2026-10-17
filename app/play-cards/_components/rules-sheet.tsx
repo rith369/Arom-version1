@@ -5,7 +5,9 @@ import { Ear, Hand, Lock, type LucideIcon } from "lucide-react";
 import { SheetDialog } from "../../_components/sheet-dialog";
 import { MoodSprout } from "../../_components/mood/mood-sprout";
 
-const RULES: { icon: LucideIcon; en: string; km: string; enNote: string; kmNote: string }[] = [
+export type HouseRule = { icon: LucideIcon; en: string; km: string; enNote: string; kmNote: string };
+
+const RULES: HouseRule[] = [
   {
     icon: Lock,
     en: "What is shared here stays here",
@@ -29,7 +31,18 @@ const RULES: { icon: LucideIcon; en: string; km: string; enNote: string; kmNote:
   },
 ];
 
-export function RulesSheet({ km, onAgree, onClose }: { km: boolean; onAgree: () => void; onClose: () => void }) {
+/** House rules before a game. Each game can pass its own rules. */
+export function RulesSheet({
+  km,
+  onAgree,
+  onClose,
+  rules = RULES,
+}: {
+  km: boolean;
+  onAgree: () => void;
+  onClose: () => void;
+  rules?: HouseRule[];
+}) {
   const t = (kmText: string, enText: string) => (km ? kmText : enText);
   // What to do once the closing animation finishes.
   const [closing, setClosing] = useState<null | "agree" | "back">(null);
@@ -60,7 +73,7 @@ export function RulesSheet({ km, onAgree, onClose }: { km: boolean; onAgree: () 
       </div>
 
       <ol className="mt-5 space-y-2.5">
-        {RULES.map((rule, index) => (
+        {rules.map((rule, index) => (
           <li key={rule.en} className="flex items-start gap-3 rounded-2xl border border-arom-border/70 bg-white p-3.5">
             <span className="relative flex size-10 shrink-0 items-center justify-center rounded-full bg-arom-soft text-arom">
               <rule.icon size={18} aria-hidden="true" />

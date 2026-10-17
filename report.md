@@ -1,5 +1,32 @@
 # AROM: Change Report
 
+## 17 Oct 2026: Play with Friends Becomes a Game Hub with Three Games
+
+Commit `PENDING`. No migration. Frontend only, nothing is saved.
+
+**Why.** Rith wanted Play Cards with Friends to offer more ways to play, in a bold, fun look like a reference design: Mental health cards, Truth or dare, and Guess the animal. Lighter games make it easy for friends to start, and laughter is good for stress too.
+
+**What changed for users:**
+- **`/play-cards` is now a game hub** in a bold style (thick outlines, hard shadows, bright colors): add who is playing once, see "3 players", "Games 3", "Winners: None, all of us", and pick a game from three big tiles.
+- **Mental health cards** moved to `/play-cards/mental-health` and work as before, with an "All games" link and the shared players.
+- **Truth or dare (new):** choose Chill or Silly and 10, 20 or 30 turns, agree to kind house rules (keep it kind, pass any time, safe dares only), then each player picks Truth or Dare. Pass gives another one, Switch changes truth to dare or back. 48 cards, all safe: no private questions, no danger, no touching, nothing posted online.
+- **Guess the animal (new):** choose 45, 60 or 90 seconds and how many times around the table. "Only you look!", then an animal (40, several from Cambodia) and a countdown; act, make the sound or give clues; Got it or Skip. "Time's up!" shows that turn's count; the end shows "You guessed N animals together", no winners.
+- Each game has How to play, the English / Khmer switch, "Plan the next hangout" and Play again.
+
+**What changed for the team:**
+- **Shared players:** `app/play-cards/layout.tsx` with `players-provider.tsx` (memory only).
+- **New:** `hub-view.tsx`, `truth-or-dare-view.tsx`, `guess-animal-view.tsx`, `bold.ts`, `bold-parts.tsx`, `bold-end-screen.tsx`, `guide-sheet.tsx`, `_data/truth-or-dare.ts`, `_data/animals.ts`, and pages under `mental-health/`, `truth-or-dare/`, `guess-animal/`. `rules-sheet.tsx` takes a game's own rules.
+- **Docs:** `BACKEND-HANDOFF.md` section 28 describes the hub. Still no backend needed.
+- **Before launch:** a Khmer speaker should read the new Truth or dare and animal names (drafted by Claude).
+
+**What to re-test:**
+1. Open Play with friends, add 2 friends, check the three tiles.
+2. Truth or dare: Chill, 10 turns, agree, pick Truth, press Switch, press Pass, press Done until the end.
+3. Guess the animal: 45 seconds, press I'm ready, Got it twice, Skip once, wait for Time's up, go to the next player, finish.
+4. Mental health cards: still plays as before, and All games returns to the hub with the same players.
+5. Open a game page directly without friends: it asks you to add players first.
+6. Switch to Khmer on the hub and in each game.
+
 ## 17 Oct 2026: A Better Picture on the Play Cards Banner
 
 Commit `fb5bf48`. No migration. Frontend only.
