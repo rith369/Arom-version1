@@ -69,6 +69,31 @@ export const PLAY_CARDS: PlayCard[] = [
   card("warm", "kind", 18, "Tell the person on your right one thing you like about them.", "ប្រាប់អ្នកនៅខាងស្តាំអ្នកពីចំណុចមួយដែលអ្នកចូលចិត្តលើពួកគេ។"),
   card("warm", "together", 19, "Show everyone a photo on your phone that makes you happy.", "បង្ហាញរូបថតមួយក្នុងទូរស័ព្ទរបស់អ្នកដែលធ្វើឱ្យអ្នកសប្បាយចិត្ត។"),
   card("warm", "together", 20, "Everyone: say one word that describes your day.", "គ្រប់គ្នា៖ និយាយពាក្យមួយដែលពិពណ៌នាពីថ្ងៃរបស់អ្នក។"),
+  // Added by Rith, 17 Oct 2026.
+  card(
+    "warm",
+    "question",
+    21,
+    "Talk about a time in your life when you thought, “I wouldn’t want to be anywhere else other than here in this moment.”",
+    "និយាយពីពេលមួយក្នុងជីវិតដែលអ្នកគិតថា “ខ្ញុំមិនចង់នៅកន្លែងណាផ្សេងទៀតក្រៅពីទីនេះ ក្នុងពេលនេះទេ។”",
+  ),
+  card("warm", "question", 22, "What’s the best advice you’ve ever received?", "តើដំបូន្មានល្អបំផុតដែលអ្នកធ្លាប់ទទួលបានគឺជាអ្វី?"),
+  card("warm", "question", 23, "What makes you cringe?", "តើរឿងអ្វីដែលធ្វើឱ្យអ្នកអៀនខ្មាសជំនួសគេ ឬព្រឺក្បាល?"),
+  card(
+    "warm",
+    "question",
+    24,
+    "Morning, afternoon or night: when do you feel most energetic? Why?",
+    "ពេលព្រឹក ពេលរសៀល ឬពេលយប់៖ តើពេលណាដែលអ្នកមានថាមពលច្រើនបំផុត? ហេតុអ្វី?",
+  ),
+  card("warm", "question", 25, "Where do you find joy?", "តើអ្នករកឃើញភាពរីករាយនៅកន្លែងណា?"),
+  card(
+    "warm",
+    "question",
+    26,
+    "When was your last “movie moment”? (An experience that made you feel like the main character.)",
+    "តើ “ពេលដូចក្នុងភាពយន្ត” ចុងក្រោយរបស់អ្នកគឺនៅពេលណា? (បទពិសោធន៍ដែលធ្វើឱ្យអ្នកមានអារម្មណ៍ថាជាតួឯក។)",
+  ),
 
   // ---------- Getting real ----------
   card("real", "question", 1, "What has felt heavy for you this month?", "តើអ្វីដែលធ្វើឱ្យអ្នកមានអារម្មណ៍ធ្ងន់ចិត្តក្នុងខែនេះ?"),
@@ -98,6 +123,14 @@ export const PLAY_CARDS: PlayCard[] = [
     "Is there a page on social media (Instagram, Facebook, TikTok, etc.) that you go to on a bad day that gives you life? What about that page feels healing for you?",
     "តើមានទំព័របណ្តាញសង្គម (Instagram, Facebook, TikTok ជាដើម) ណាមួយដែលអ្នកចូលមើលនៅថ្ងៃពិបាកចិត្ត ហើយវាធ្វើឱ្យអ្នកមានកម្លាំងចិត្តឡើងវិញទេ? តើអ្វីខ្លះនៅក្នុងទំព័រនោះដែលជួយព្យាបាលចិត្តអ្នក?",
   ),
+  card("real", "question", 22, "What do you do when you need to feel most like yourself?", "តើអ្នកធ្វើអ្វី នៅពេលអ្នកត្រូវការមានអារម្មណ៍ថាជាខ្លួនឯងបំផុត?"),
+  card(
+    "real",
+    "question",
+    23,
+    "Should students get mental health days, and what would you do with yours?",
+    "តើសិស្សគួរមានថ្ងៃឈប់សម្រាកដើម្បីសុខភាពផ្លូវចិត្តដែរឬទេ? ហើយបើអ្នកមាន តើអ្នកនឹងធ្វើអ្វីនៅថ្ងៃនោះ?",
+  ),
 
   // ---------- Care ----------
   card("care", "question", 1, "What is one thing you admire about the person on your left?", "តើមានចំណុចអ្វីមួយដែលអ្នកកោតសរសើរលើអ្នកនៅខាងឆ្វេងអ្នក?"),
@@ -120,6 +153,8 @@ export const PLAY_CARDS: PlayCard[] = [
   card("care", "kind", 18, "Tell the person on your left what they bring to this group.", "ប្រាប់អ្នកនៅខាងឆ្វេងអ្នកពីអ្វីដែលពួកគេនាំមកឱ្យក្រុមនេះ។"),
   card("care", "breathe", 19, "Put a hand on your heart. Breathe slowly together three times.", "ដាក់ដៃលើទ្រូង។ ដកដង្ហើមយឺតៗជាមួយគ្នាបីដង។"),
   card("care", "together", 20, "Plan one small thing to do together soon.", "រៀបចំផែនការធ្វើរឿងតូចមួយជាមួយគ្នាឆាប់ៗនេះ។"),
+  card("care", "question", 21, "Who’s your #1 supporter?", "តើនរណាជាអ្នកគាំទ្រលេខ ១ របស់អ្នក?"),
+  card("care", "question", 22, "What’s your favorite thing about yourself?", "តើអ្វីដែលអ្នកចូលចិត្តបំផុតអំពីខ្លួនឯង?"),
 ];
 
 // ---------- Dealing ----------

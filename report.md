@@ -1,5 +1,25 @@
 # AROM: Change Report
 
+## 17 Oct 2026: Ten More Play Cards
+
+Commit `PENDING`. No migration. Frontend only.
+
+**Why.** Rith sent 11 questions for Play Cards with Friends. One ("What song is your #1 mood booster?") was already in the deck as "What song always makes you feel better?", so it was not added twice. The other 10 are new.
+
+**What changed for users:**
+- **Warm up (6 new):** a time you would not want to be anywhere else, the best advice you have received, what makes you cringe, when you feel most energetic, where you find joy, your last "movie moment".
+- **Getting real (2 new):** what you do when you need to feel most like yourself, whether students should get mental health days.
+- **Care (2 new):** your #1 supporter, your favorite thing about yourself.
+- The deck now has 71 cards: 26 Warm up, 23 Getting real, 22 Care. All have Khmer.
+
+**What changed for the team:**
+- `app/play-cards/_data/cards.ts`: cards `warm-21` to `warm-26`, `real-22`, `real-23`, `care-21`, `care-22`. `BACKEND-HANDOFF.md` section 28 says 71 cards.
+- The Khmer was drafted by Claude and should be read by a Khmer speaker with the rest.
+
+**What to re-test:**
+1. On the setup screen, the deck tiles show 26, 23 and 22 cards.
+2. Play a few rounds of each level and check the new cards read well in English and Khmer.
+
 ## 17 Oct 2026: New Play Card About Healing Social Media Pages
 
 Commit `8225eb4`. No migration. Frontend only.
