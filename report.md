@@ -1,5 +1,22 @@
 # AROM: Change Report
 
+## 17 Oct 2026: Play Cards Explains Pass and Lighter Card
+
+Commit `PENDING`. No migration. Frontend only.
+
+**Why.** Rith did not know what Pass and Lighter card do. A hover tooltip would not help on phones, where most people play, so the explanation now sits inside each button.
+
+**What changed for users:**
+- **Pass** now says "Get a different card" underneath. **Lighter card** says "An easier question". Both in Khmer too.
+- **On a computer,** pointing at either button shows a fuller tooltip ("Skip this card and get another one. No reason needed." and "Swap to an easier card from the level before, when this one feels too heavy.").
+
+**What changed for the team:**
+- `app/play-cards/_components/game-screen.tsx`: two line buttons with a `title` tooltip.
+
+**What to re-test:**
+1. Play a Getting real card: both buttons show their short explanation.
+2. On a computer, point at each button and read the tooltip.
+
 ## 17 Oct 2026: Play Cards with Friends
 
 Commit `3911b31`. No migration. Frontend only, nothing is saved.

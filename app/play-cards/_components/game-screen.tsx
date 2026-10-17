@@ -20,6 +20,9 @@ export type CardExit = "next" | "pass";
 
 const EASE = [0.23, 1, 0.32, 1] as const;
 
+const secondaryButton =
+  "flex min-h-14 flex-1 flex-col items-center justify-center gap-0.5 rounded-2xl border border-white bg-white/75 px-3 py-2 text-sm font-semibold text-ink shadow-sm backdrop-blur transition-colors hover:bg-white";
+
 function PlayingCard({
   card,
   flipped,
@@ -271,19 +274,31 @@ export function GameScreen({
                 <button
                   type="button"
                   onClick={onPass}
-                  className="inline-flex min-h-13 flex-1 items-center justify-center gap-1.5 rounded-2xl border border-white bg-white/75 px-3 text-sm font-semibold text-ink shadow-sm backdrop-blur transition-colors hover:bg-white"
+                  title={t("រំលងកាតនេះ ហើយយកកាតផ្សេងទៀត។ មិនបាច់ប្រាប់ហេតុផលទេ។", "Skip this card and get another one. No reason needed.")}
+                  className={secondaryButton}
                 >
-                  <Hand size={16} aria-hidden="true" />
-                  {t("រំលង", "Pass")}
+                  <span className="inline-flex items-center gap-1.5">
+                    <Hand size={16} aria-hidden="true" />
+                    {t("រំលង", "Pass")}
+                  </span>
+                  {/* Always visible: phones have no hover tooltips. */}
+                  <span className="text-[11px] font-normal text-ink-muted">{t("យកកាតផ្សេង", "Get a different card")}</span>
                 </button>
                 {lighter && (
                   <button
                     type="button"
                     onClick={onLighter}
-                    className="inline-flex min-h-13 flex-1 items-center justify-center gap-1.5 rounded-2xl border border-white bg-white/75 px-3 text-sm font-semibold text-ink shadow-sm backdrop-blur transition-colors hover:bg-white"
+                    title={t(
+                      "ប្តូរទៅកាតដែលស្រាលជាងនេះ ពីកម្រិតមុន ពេលសំណួរនេះធ្ងន់ពេក។",
+                      "Swap to an easier card from the level before, when this one feels too heavy.",
+                    )}
+                    className={secondaryButton}
                   >
-                    <Feather size={16} aria-hidden="true" />
-                    {t("កាតស្រាលជាងនេះ", "Lighter card")}
+                    <span className="inline-flex items-center gap-1.5">
+                      <Feather size={16} aria-hidden="true" />
+                      {t("កាតស្រាលជាងនេះ", "Lighter card")}
+                    </span>
+                    <span className="text-[11px] font-normal text-ink-muted">{t("សំណួរងាយជាងនេះ", "An easier question")}</span>
                   </button>
                 )}
               </div>
