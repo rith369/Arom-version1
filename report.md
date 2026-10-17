@@ -1,5 +1,26 @@
 # AROM: Change Report
 
+## 17 Oct 2026: The Mood Sprouts Come Alive
+
+Commit `PENDING`. No migration. Frontend only.
+
+**Why.** Small, calm movement makes Home feel alive and friendly. Rith chose to animate the mood check in and the kind reply now, and the big banner sprout later, once the designer can export it in separate pieces (background, sprout alone, sprout with eyes closed).
+
+**What changed for users:**
+- **Mood check in:** the sprout you pick does a small hop, then gently sways while it stays chosen.
+- **Kind reply:** its sprout slowly "breathes" (grows a little and back, about every 4 seconds).
+- **Nothing moves for people who turn off motion** in their phone or computer settings.
+
+**What changed for the team:**
+- `mood-selector.tsx`: `SPROUT_MOTION` variants (hop once, then a slow sway) on the chosen sprout.
+- `mood-response.tsx`: a slow scale loop on the reply sprout.
+- Both use Motion with `useReducedMotion`, transforms only, no new images.
+
+**What to re-test:**
+1. Pick a mood on Home: the sprout hops, then sways slowly. Pick another: the first stops, the new one hops.
+2. The reply sprout breathes slowly.
+3. Turn on Reduce motion (phone accessibility settings) and reload: nothing moves.
+
 ## 16 Oct 2026: Next Session on Home Only When It Is Close
 
 Commit `94ddfbf`. No migration. Frontend only.

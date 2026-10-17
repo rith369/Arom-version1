@@ -55,7 +55,14 @@ export function MoodResponse({ mood, km }: { mood: MoodLevel; km: boolean }) {
       transition={{ duration: 0.22, ease: [0.23, 1, 0.32, 1] }}
       className="mt-1 flex items-start gap-3 rounded-2xl bg-[#f0f8f5] p-3"
     >
-      <MoodSprout mood={mood} className="h-14 w-auto shrink-0" />
+      {/* The sprout breathes slowly, like a calm breath (about 4 seconds). */}
+      <motion.span
+        className="flex shrink-0 origin-bottom"
+        animate={reduce ? { scale: 1 } : { scale: [1, 1.05, 1] }}
+        transition={reduce ? { duration: 0 } : { duration: 4, repeat: Infinity, ease: "easeInOut" }}
+      >
+        <MoodSprout mood={mood} className="h-14 w-auto" />
+      </motion.span>
       <div className="min-w-0">
         <p className="text-sm leading-snug text-[#14221f]">{km ? response.km : response.en}</p>
         <div className="mt-2.5 flex flex-wrap gap-2">

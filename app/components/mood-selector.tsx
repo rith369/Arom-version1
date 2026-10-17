@@ -12,6 +12,20 @@ import { MoodResponse } from "./mood-response";
 
 type SaveState = "idle" | "saving" | "saved" | "error" | "sign_in";
 
+// The chosen sprout hops once, then sways gently while it stays chosen.
+// Slow and small on purpose: it should feel alive, not busy.
+const SPROUT_MOTION = {
+  idle: { y: 0, rotate: 0, transition: { duration: 0.2 } },
+  chosen: {
+    y: [0, -9, 0],
+    rotate: [0, -4, 4, -3, 3, 0],
+    transition: {
+      y: { duration: 0.45, ease: [0.23, 1, 0.32, 1] as const },
+      rotate: { duration: 4, delay: 0.5, repeat: Infinity, repeatDelay: 1.5, ease: "easeInOut" as const },
+    },
+  },
+};
+
 /**
  * Daily mood check in on Home (BACKEND-HANDOFF.md section 22). A tap selects
  * and saves today's mood; it never leaves the page. Nothing is selected until
@@ -83,12 +97,19 @@ export function MoodSelector() {
                     : "group-hover:bg-[#e0f3ed]/60"
                 }`}
               >
-                <MoodSprout
-                  mood={id}
-                  className={`h-full w-auto transition-transform duration-200 ${
-                    isSelected ? "scale-105" : "group-hover:scale-105 motion-reduce:group-hover:scale-100"
-                  }`}
-                />
+                <motion.span
+                  className="flex h-full origin-bottom items-center justify-center"
+                  variants={SPROUT_MOTION}
+                  initial={false}
+                  animate={isSelected && !reduce ? "chosen" : "idle"}
+                >
+                  <MoodSprout
+                    mood={id}
+                    className={`h-full w-auto transition-transform duration-200 ${
+                      isSelected ? "scale-105" : "group-hover:scale-105 motion-reduce:group-hover:scale-100"
+                    }`}
+                  />
+                </motion.span>
               </span>
               <span
                 className={`text-[11px] leading-tight transition-colors sm:text-xs ${
