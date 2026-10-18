@@ -2,7 +2,7 @@
 
 ## 18 Oct 2026: New Lesson, Why Have I Lost Interest in Things I Used to Love?
 
-Commit `2932866`. No migration. Content and frontend only.
+Commit `316848f`. No migration. Content and frontend only.
 
 **Why.** When people experience chronic emotional strain, prolonged stress, or depressive episodes, they often lose interest and pleasure in their favorite activities (anhedonia). In Cambodia, this emotional numbness is frequently misunderstood by family and peers as "laziness" (ខ្ជិល) or "overthinking" (គិតច្រើន), producing severe internal shame and self-isolation. "Why Have I Lost Interest in Things I Used to Love?" (`why-lost-interest-motivation`) provides an 8-minute evidence-based psychoeducational guide adapted from NIMH, WHO, Harvard Health Publishing, NHS inform, and UNICEF Cambodia. It equips seekers with clear explanations of anhedonia and dopamine down-regulation, tools to distinguish temporary burnout from clinical depression and natural life evolution, insights to deconstruct the Cambodian "laziness" stigma, behavioral activation strategies (such as the 5-Minute Low-Pressure Rule), somatic 1-minute calming breathwork, and safe pathways to connect with confidential therapists and private journaling on AROM.
 
