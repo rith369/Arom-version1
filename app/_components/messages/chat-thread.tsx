@@ -1,6 +1,7 @@
 "use client";
 
-import { MessageSquareText, Mic, Pause, Play, Plus, Send, Square, Trash2, X } from "lucide-react";
+import { FileText, MessageSquareText, Mic, Paperclip, Pause, Play, Plus, Send, Square, Trash2, X } from "lucide-react";
+import { ATTACHMENT_ACCEPT, FILE_TYPES, IMAGE_TYPES, MAX_FILE_BYTES } from "@/lib/messages";
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { SuggestionCard } from "../sessions/suggestion-card";
 import {
@@ -25,6 +26,40 @@ const TIME_ZONE = "Asia/Phnom_Penh";
 
 const formatSeconds = (value: number) =>
   `${Math.floor(value / 60)}:${String(Math.floor(value % 60)).padStart(2, "0")}`;
+
+const formatBytes = (value: number) =>
+  value >= 1024 * 1024 ? `${(value / (1024 * 1024)).toFixed(1)} MB` : `${Math.max(1, Math.round(value / 1024))} KB`;
+
+// A photo opens full size in a new tab; a PDF opens in the browser's viewer.
+// Both stream from the server after it checks the viewer is in the chat.
+function AttachmentBubble({ message, mine }: { message: ChatMessage; mine: boolean }) {
+  const file = message.attachment;
+  if (!file) return null;
+  if (message.kind === "image") {
+    return (
+      <a href={file.url} target="_blank" rel="noreferrer" className="block">
+        {/* eslint-disable-next-line @next/next/no-img-element -- streamed from a private route, not optimisable */}
+        <img src={file.url} alt={file.name} loading="lazy" className="max-h-64 w-auto max-w-full rounded-xl object-cover" />
+      </a>
+    );
+  }
+  return (
+    <a
+      href={file.url}
+      target="_blank"
+      rel="noreferrer"
+      className={`flex min-w-48 items-center gap-2.5 rounded-xl p-2 ${mine ? "bg-white/15" : "bg-arom-wash"}`}
+    >
+      <span className={`flex size-9 shrink-0 items-center justify-center rounded-lg ${mine ? "bg-white/20" : "bg-arom-soft text-arom"}`}>
+        <FileText size={18} aria-hidden="true" />
+      </span>
+      <span className="min-w-0">
+        <span className="block truncate text-sm font-semibold">{file.name}</span>
+        <span className={`block text-[0.7rem] ${mine ? "text-white/80" : "text-ink-muted"}`}>PDF · {formatBytes(file.size)}</span>
+      </span>
+    </a>
+  );
+}
 
 function VoiceBubble({ message, mine, km }: { message: ChatMessage; mine: boolean; km: boolean }) {
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -122,6 +157,9 @@ export function ChatThread({
       : undefined);
 
   const [text, setText] = useState("");
+  // A photo or PDF chosen with the paperclip, waiting to be sent.
+  const [pending, setPending] = useState<{ file: File; preview: string | null } | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [recorder, setRecorder] = useState<RecorderState>({ phase: "idle" });
   const [error, setError] = useState("");
   const [sending, setSending] = useState(false);
@@ -165,6 +203,37 @@ export function ChatThread({
     const result = await sendMessage(conversation, viewer, { kind: "text", text: value });
     setSending(false);
     if (result.ok) setText("");
+    else setError(failureText(result));
+  }
+
+  function chooseFile(file: File | undefined) {
+    if (!file) return;
+    const allowed: readonly string[] = [...IMAGE_TYPES, ...FILE_TYPES];
+    if (!allowed.includes(file.type)) {
+      setError(t("អាចផ្ញើរូបថត (JPG, PNG, WebP) ឬឯកសារ PDF ប៉ុណ្ណោះ។", "You can send a photo (JPG, PNG or WebP) or a PDF file."));
+      return;
+    }
+    if (file.size > MAX_FILE_BYTES) {
+      setError(t("ឯកសារអាចមានទំហំរហូតដល់ 5 MB។", "A file can be up to 5 MB."));
+      return;
+    }
+    setError("");
+    if (pending?.preview) URL.revokeObjectURL(pending.preview);
+    setPending({ file, preview: file.type.startsWith("image/") ? URL.createObjectURL(file) : null });
+  }
+
+  function clearPending() {
+    if (pending?.preview) URL.revokeObjectURL(pending.preview);
+    setPending(null);
+  }
+
+  async function sendFile() {
+    if (!pending || sending) return;
+    setSending(true);
+    setError("");
+    const result = await sendMessage(conversation, viewer, { kind: "attachment", file: pending.file });
+    setSending(false);
+    if (result.ok) clearPending();
     else setError(failureText(result));
   }
 
@@ -282,6 +351,8 @@ export function ChatThread({
                 >
                   {message.kind === "voice" ? (
                     <VoiceBubble message={message} mine={mine} km={km} />
+                  ) : message.kind === "image" || message.kind === "file" ? (
+                    <AttachmentBubble message={message} mine={mine} />
                   ) : (
                     <p className="whitespace-pre-line break-words">{message.text}</p>
                   )}
@@ -456,8 +527,56 @@ export function ChatThread({
             </div>
           )}
 
+          {recorder.phase === "idle" && pending && (
+            <div className="mb-2 flex items-center gap-3 rounded-2xl border border-arom-border bg-arom-wash/60 p-2.5">
+              {pending.preview ? (
+                // eslint-disable-next-line @next/next/no-img-element -- local preview of the chosen photo
+                <img src={pending.preview} alt="" className="size-12 shrink-0 rounded-lg object-cover" />
+              ) : (
+                <span className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-arom-soft text-arom">
+                  <FileText size={20} aria-hidden="true" />
+                </span>
+              )}
+              <span className="min-w-0 flex-1">
+                <span className="block truncate text-sm font-semibold text-ink">{pending.file.name}</span>
+                <span className="block text-xs text-ink-muted">{formatBytes(pending.file.size)}</span>
+              </span>
+              <button type="button" onClick={clearPending} aria-label={t("ដកចេញ", "Remove")} className="rounded-full p-2 text-ink-muted hover:bg-white">
+                <X size={16} />
+              </button>
+              <button
+                type="button"
+                onClick={() => void sendFile()}
+                disabled={sending}
+                className="flex items-center gap-1.5 rounded-full bg-arom px-4 py-2 text-sm font-semibold text-white hover:bg-arom-deep disabled:opacity-50"
+              >
+                <Send size={15} aria-hidden="true" />
+                {t("ផ្ញើ", "Send")}
+              </button>
+            </div>
+          )}
+
           {recorder.phase === "idle" && (
             <div className="flex items-end gap-2">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept={ATTACHMENT_ACCEPT}
+                className="hidden"
+                onChange={(event) => {
+                  chooseFile(event.target.files?.[0]);
+                  event.target.value = "";
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                aria-label={t("ផ្ញើរូបថត ឬ PDF", "Send a photo or PDF")}
+                title={t("ផ្ញើរូបថត ឬ PDF", "Send a photo or PDF")}
+                className="flex size-11 shrink-0 items-center justify-center rounded-full border border-arom-border text-arom hover:bg-arom-wash"
+              >
+                <Paperclip size={19} />
+              </button>
               {quickReplyValues && (
                 <button
                   type="button"

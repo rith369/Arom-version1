@@ -13,6 +13,10 @@ type ApiMessage = {
   is_own: boolean;
   is_mentor: boolean;
   is_removed?: boolean;
+  kind?: 'text' | 'voice' | 'image' | 'file';
+  attachment_name?: string | null;
+  attachment_size?: number | null;
+  duration_seconds?: number | null;
 };
 
 // One row of GET /api/community/groups/:id/members.
@@ -108,15 +112,53 @@ export function GroupChat({
     };
   }, [groupId]);
 
+  // Sends a voice message, photo or PDF as a form; the server checks it.
+  async function postMedia(form: FormData) {
+    const response = await fetch(`/api/community/groups/${groupId}/messages`, { method: 'POST', body: form });
+    if (!response.ok) {
+      const result: { error?: string } = await response.json().catch(() => ({}));
+      throw new Error(result.error || 'Could not send message.');
+    }
+  }
+
+  async function handleSendVoice(audio: Blob, seconds: number) {
+    if (group.status === 'closed') return false;
+    setMessageError('');
+    try {
+      const form = new FormData();
+      form.set('kind', 'voice');
+      form.set('file', audio, 'voice');
+      form.set('durationSeconds', String(Math.min(120, Math.max(1, Math.round(seconds)))));
+      await postMedia(form);
+      setRefresh((value) => value + 1);
+      return true;
+    } catch (error) {
+      setMessageError(error instanceof Error ? error.message : 'Could not send message.');
+      return false;
+    }
+  }
+
   async function handleSendMessage(text: string, attachment?: ChatAttachment) {
     if (group.status === 'closed') return false;
     setMessageError('');
+    if (!text.trim() && !attachment?.file) return false;
 
-    if (attachment) {
-      setMessageError('Attachments are not available in real groups yet.');
-      return false;
+    // A photo or PDF first, then the text (if any) as its own message.
+    if (attachment?.file) {
+      try {
+        const form = new FormData();
+        form.set('kind', 'attachment');
+        form.set('file', attachment.file, attachment.file.name);
+        await postMedia(form);
+      } catch (error) {
+        setMessageError(error instanceof Error ? error.message : 'Could not send message.');
+        return false;
+      }
+      if (!text.trim()) {
+        setRefresh((value) => value + 1);
+        return true;
+      }
     }
-    if (!text.trim()) return false;
 
     try {
       const response = await fetch(`/api/community/groups/${groupId}/messages`, {
@@ -152,6 +194,7 @@ export function GroupChat({
         onBack={onBack}
         onSendMessage={handleSendMessage}
         onToggleActivityJoin={() => undefined}
+        onSendVoice={handleSendVoice}
         layout={layout}
       />
     </div>
@@ -177,7 +220,26 @@ function toChatMessage(message: ApiMessage, groupId: string): ChatMessage {
     avatarType: message.is_mentor ? 'mentor' : 'mask',
     // Removed by the AROM team: the text is not sent, a placeholder shows.
     removed: message.is_removed === true,
+    // Files stream from the server after it checks the viewer is in the group.
+    attachment:
+      (message.kind === 'image' || message.kind === 'file') && message.attachment_name
+        ? {
+            type: message.kind,
+            name: message.attachment_name,
+            url: `/api/community/messages/${message.id}/media`,
+            sizeStr: formatSize(message.attachment_size ?? 0),
+          }
+        : undefined,
+    voice:
+      message.kind === 'voice' && !message.is_removed
+        ? { url: `/api/community/messages/${message.id}/media`, seconds: message.duration_seconds ?? 0 }
+        : undefined,
   };
+}
+
+function formatSize(bytes: number) {
+  if (!bytes) return '';
+  return bytes >= 1024 * 1024 ? `${(bytes / (1024 * 1024)).toFixed(1)} MB` : `${Math.max(1, Math.round(bytes / 1024))} KB`;
 }
 
 function toMentor(row: MemberRow): GroupMentor {

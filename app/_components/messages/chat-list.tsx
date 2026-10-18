@@ -47,7 +47,19 @@ export function mergeChatRows(
           ? km
             ? "សារត្រូវបានដកចេញ"
             : "Message removed"
-          : `${sender}: ${last.text}`,
+          : `${sender}: ${
+              last.kind === "image"
+                ? km
+                  ? "រូបថត"
+                  : "Photo"
+                : last.kind === "file"
+                  ? "PDF"
+                  : last.kind === "voice"
+                    ? km
+                      ? "សារសំឡេង"
+                      : "Voice message"
+                    : last.text
+            }`,
       unread: group.unread,
       selected: group.id === options.selectedGroupId,
     };

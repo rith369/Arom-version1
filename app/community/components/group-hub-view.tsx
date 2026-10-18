@@ -14,7 +14,11 @@ import {
   Flag,
   MoreHorizontal,
   UserRound,
+  Mic,
+  Square,
 } from 'lucide-react';
+import { ATTACHMENT_ACCEPT, FILE_TYPES, IMAGE_TYPES, MAX_FILE_BYTES, MAX_VOICE_SECONDS } from '@/lib/messages';
+import { useVoiceRecorder } from '../../_components/messages/use-voice-recorder';
 import { MaskIcon, ShieldCheckIcon, PaperPlaneIcon } from './community-icons';
 import { useLanguage } from '../../_components/language-provider';
 import { ReportDialog } from './report-dialog';
@@ -39,6 +43,8 @@ type GroupHubViewProps = {
     groupId?: string,
   ) => boolean | void | Promise<boolean | void>;
   onToggleActivityJoin: (activityId: string) => void;
+  // Sends a recorded voice message. Without it the microphone is hidden.
+  onSendVoice?: (audio: Blob, seconds: number) => Promise<boolean>;
   // 'pane' fits the chat into the right side of Messages: it fills that box,
   // the content scrolls inside it, and Back only shows on phones.
   layout?: 'page' | 'pane';
@@ -52,6 +58,7 @@ export function GroupHubView({
   onBack,
   onSendMessage,
   onToggleActivityJoin,
+  onSendVoice,
   layout = 'page',
 }: GroupHubViewProps) {
   const pane = layout === 'pane';
@@ -72,6 +79,44 @@ export function GroupHubView({
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [fileError, setFileError] = useState('');
+  const voice = useVoiceRecorder();
+  // A voice can identify someone even when they are Anonymous, so the first
+  // time someone records in a group they read a short warning (decided by
+  // Rith, 19 Oct 2026). Remembered on this device.
+  const [voiceWarning, setVoiceWarning] = useState(false);
+
+  function startVoice() {
+    let acknowledged = false;
+    try {
+      acknowledged = localStorage.getItem('arom_group_voice_ack') === '1';
+    } catch {
+      // Storage blocked: show the warning every time.
+    }
+    if (acknowledged) void voice.start();
+    else setVoiceWarning(true);
+  }
+
+  function acceptVoiceWarning() {
+    try {
+      localStorage.setItem('arom_group_voice_ack', '1');
+    } catch {
+      // Storage blocked: fine, the warning shows again next time.
+    }
+    setVoiceWarning(false);
+    void voice.start();
+  }
+
+  async function sendVoice() {
+    if (voice.state.phase !== 'preview' || !onSendVoice || isSending) return;
+    setIsSending(true);
+    try {
+      const sent = await onSendVoice(voice.state.blob, voice.state.seconds);
+      if (sent) voice.reset();
+    } finally {
+      setIsSending(false);
+    }
+  }
 
   useEffect(() => {
     if (activeTab === 'chat') {
@@ -82,6 +127,22 @@ export function GroupHubView({
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
+    setFileError('');
+    const allowed: readonly string[] = [...IMAGE_TYPES, ...FILE_TYPES];
+    if (!allowed.includes(file.type)) {
+      setFileError(
+        km
+          ? 'អាចផ្ញើរូបថត (JPG, PNG, WebP) ឬឯកសារ PDF ប៉ុណ្ណោះ។'
+          : 'You can send a photo (JPG, PNG or WebP) or a PDF file.',
+      );
+      e.target.value = '';
+      return;
+    }
+    if (file.size > MAX_FILE_BYTES) {
+      setFileError(km ? 'ឯកសារអាចមានទំហំរហូតដល់ 5 MB។' : 'A file can be up to 5 MB.');
+      e.target.value = '';
+      return;
+    }
 
     const isImg = file.type.startsWith('image/');
     const sizeKb = Math.round(file.size / 1024);
@@ -96,6 +157,7 @@ export function GroupHubView({
         url: resultUrl || '#',
         type: isImg ? 'image' : 'file',
         sizeStr,
+        file,
       });
     };
     reader.readAsDataURL(file);
@@ -417,19 +479,38 @@ export function GroupHubView({
                         </p>
                       )}
 
+                      {msg.voice && !msg.removed && (
+                        <audio
+                          controls
+                          preload="none"
+                          src={msg.voice.url}
+                          className="mt-2 h-10 w-64 max-w-full"
+                          aria-label={km ? 'សារសំឡេង' : 'Voice message'}
+                        />
+                      )}
+
                       {/* Attached File or Image */}
                       {msg.attachment && !msg.removed && (
                         <div className="mt-2.5">
                           {msg.attachment.type === 'image' ? (
-                            <div className="overflow-hidden rounded-xl border border-gray-200/80 max-w-[260px] shadow-xs">
+                            <a
+                              href={msg.attachment.url}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="block overflow-hidden rounded-xl border border-gray-200/80 max-w-[260px] shadow-xs">
                               <img
                                 src={msg.attachment.url}
                                 alt={msg.attachment.name}
+                                loading="lazy"
                                 className="max-h-56 w-auto object-cover rounded-xl"
                               />
-                            </div>
+                            </a>
                           ) : (
-                            <div className="flex items-center gap-2.5 rounded-xl border border-[#cbebe1] bg-[#f2f9f6] p-2.5 text-xs text-[#1b4332] max-w-xs shadow-xs">
+                            <a
+                              href={msg.attachment.url}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="flex items-center gap-2.5 rounded-xl border border-[#cbebe1] bg-[#f2f9f6] p-2.5 text-xs text-[#1b4332] max-w-xs shadow-xs">
                               <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-[#dff3ec] text-[#1b5e4c]">
                                 <FileText size={18} />
                               </div>
@@ -443,7 +524,7 @@ export function GroupHubView({
                                   </p>
                                 )}
                               </div>
-                            </div>
+                            </a>
                           )}
                         </div>
                       )}
@@ -463,6 +544,80 @@ export function GroupHubView({
               </p>
             ) : (
               <div className="sticky bottom-3 z-30 mt-4">
+                {fileError && (
+                  <p role="alert" className="mb-2 text-xs font-medium text-red-600">
+                    {fileError}
+                  </p>
+                )}
+                {voice.error && (
+                  <p role="alert" className="mb-2 text-xs font-medium text-red-600">
+                    {voice.error === 'unsupported'
+                      ? km
+                        ? 'កម្មវិធីរុករកនេះមិនអាចថតសំឡេងបានទេ។'
+                        : 'This browser cannot record voice.'
+                      : km
+                        ? 'សូមអនុញ្ញាតឱ្យប្រើមីក្រូហ្វូន ដើម្បីថតសារសំឡេង។'
+                        : 'Allow the microphone to record a voice message.'}
+                  </p>
+                )}
+
+                {/* First voice message in a group: a voice can identify someone */}
+                {voiceWarning && (
+                  <div role="alertdialog" aria-labelledby="group-voice-warning" className="mb-2 rounded-2xl border border-amber-200 bg-amber-50 p-3.5 text-sm text-amber-900 shadow-sm">
+                    <p id="group-voice-warning" className="font-bold">
+                      {km ? 'សំឡេងរបស់អ្នកអាចបង្ហាញថាអ្នកជានរណា' : 'Your voice can identify you'}
+                    </p>
+                    <p className="mt-1 text-xs leading-relaxed">
+                      {km
+                        ? 'ទោះបីអ្នកនៅអនាមិកក៏ដោយ សមាជិកផ្សេងទៀតអាចស្គាល់អ្នកតាមរយៈសំឡេង។ សារសំឡេងក្នុងក្រុមក៏អាចអានដោយក្រុមសុវត្ថិភាព AROM ផងដែរ។'
+                        : 'Even when you are Anonymous, other members may recognise your voice. Voice messages in groups can also be heard by the AROM safety team.'}
+                    </p>
+                    <div className="mt-2.5 flex gap-2">
+                      <button type="button" onClick={acceptVoiceWarning} className="rounded-full bg-[#1b5e4c] px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-[#144b3e]">
+                        {km ? 'យល់ហើយ ថតសំឡេង' : 'I understand, record'}
+                      </button>
+                      <button type="button" onClick={() => setVoiceWarning(false)} className="rounded-full px-3.5 py-1.5 text-xs font-semibold text-amber-900 hover:bg-amber-100">
+                        {km ? 'បោះបង់' : 'Cancel'}
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {voice.state.phase === 'recording' && (
+                  <div className="flex items-center gap-3 rounded-full border border-red-200 bg-red-50 px-4 py-2.5 shadow-[0_4px_20px_rgba(0,0,0,0.12)]">
+                    <span className="size-2.5 animate-pulse rounded-full bg-red-500" aria-hidden="true" />
+                    <span className="flex-1 text-sm font-medium tabular-nums text-[#111827]" role="status">
+                      {km ? 'កំពុងថត' : 'Recording'} {Math.floor(voice.state.seconds / 60)}:{String(voice.state.seconds % 60).padStart(2, '0')} / {Math.floor(MAX_VOICE_SECONDS / 60)}:00
+                    </span>
+                    <button type="button" onClick={() => voice.stop(true)} className="rounded-full px-3 py-1 text-xs font-medium text-[#6b7280] hover:bg-white">
+                      {km ? 'បោះបង់' : 'Cancel'}
+                    </button>
+                    <button type="button" onClick={() => voice.stop()} className="flex items-center gap-1.5 rounded-full bg-red-500 px-3 py-1.5 text-xs font-semibold text-white">
+                      <Square size={12} aria-hidden="true" />
+                      {km ? 'បញ្ឈប់' : 'Stop'}
+                    </button>
+                  </div>
+                )}
+
+                {voice.state.phase === 'preview' && (
+                  <div className="flex items-center gap-2 rounded-full border border-gray-200/90 bg-white px-3 py-2 shadow-[0_4px_20px_rgba(0,0,0,0.12)]">
+                    <audio src={voice.state.url} controls className="h-9 min-w-0 flex-1" />
+                    <button type="button" onClick={voice.reset} aria-label={km ? 'លុបសារសំឡេង' : 'Discard voice message'} className="flex size-9 shrink-0 items-center justify-center rounded-full text-gray-500 hover:bg-red-50 hover:text-red-500">
+                      <X size={16} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => void sendVoice()}
+                      disabled={isSending}
+                      className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#1b5e4c] text-white disabled:opacity-40 hover:bg-[#144b3e]"
+                      aria-label={km ? 'ផ្ញើសារសំឡេង' : 'Send voice message'}>
+                      <PaperPlaneIcon className="size-4" />
+                    </button>
+                  </div>
+                )}
+
+                {voice.state.phase === 'idle' && (
+                <>
                 {/* Attachment Preview Chip (if selected) */}
                 {attachment && (
                   <div className="mb-2 flex items-center justify-between rounded-2xl border border-[#bce3d6] bg-[#eef8f4] px-3.5 py-2 shadow-sm animate-in fade-in slide-in-from-bottom-1 duration-150">
@@ -507,7 +662,7 @@ export function GroupHubView({
                   <input
                     ref={fileInputRef}
                     type="file"
-                    accept="image/*,.pdf,.doc,.docx,.txt"
+                    accept={ATTACHMENT_ACCEPT}
                     onChange={handleFileChange}
                     className="hidden"
                   />
@@ -517,8 +672,8 @@ export function GroupHubView({
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
                     className="flex size-9 shrink-0 items-center justify-center rounded-full text-gray-500 hover:text-[#1b5e4c] hover:bg-[#eaf5f1] transition-colors"
-                    title={km ? 'ភ្ជាប់ឯកសារ ឬរូបភាព' : 'Attach file or image'}
-                    aria-label={km ? 'ភ្ជាប់ឯកសារ' : 'Attach file'}>
+                    title={km ? 'ផ្ញើរូបថត ឬ PDF' : 'Send a photo or PDF'}
+                    aria-label={km ? 'ផ្ញើរូបថត ឬ PDF' : 'Send a photo or PDF'}>
                     <Paperclip size={18} />
                   </button>
 
@@ -537,6 +692,17 @@ export function GroupHubView({
                     className="flex-1 text-xs sm:text-sm text-gray-800 placeholder:text-gray-400 focus:outline-none bg-transparent"
                   />
 
+                  {onSendVoice && !inputText.trim() && !attachment && (
+                    <button
+                      type="button"
+                      onClick={startVoice}
+                      className="flex size-9 shrink-0 items-center justify-center rounded-full text-gray-500 hover:text-[#1b5e4c] hover:bg-[#eaf5f1] transition-colors"
+                      aria-label={km ? 'ថតសារសំឡេង' : 'Record a voice message'}
+                      title={km ? 'ថតសារសំឡេង' : 'Record a voice message'}>
+                      <Mic size={18} />
+                    </button>
+                  )}
+
                   {/* Send Button */}
                   <button
                     type="submit"
@@ -546,6 +712,8 @@ export function GroupHubView({
                     <PaperPlaneIcon className="size-4" />
                   </button>
                 </form>
+                </>
+                )}
               </div>
             )}
           </div>
