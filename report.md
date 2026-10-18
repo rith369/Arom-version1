@@ -2,7 +2,7 @@
 
 ## 19 Oct 2026: Messages Has the Top Bar on Phones
 
-Commit `PENDING`. No migration.
+Commit `b61db5e`. No migration.
 
 **Why.** Now that Messages is in the phone menu, it should look like the other main pages. It had no top bar, so there was no ☰ menu or profile button on the page.
 
