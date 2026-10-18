@@ -1,5 +1,36 @@
 # AROM: Change Report
 
+## 18 Oct 2026: Group Members Tab and an Honest Anonymous Banner
+
+Commit `dccaf24`. Migration `20261018080000_read_group_members.sql` must be run in the Supabase SQL Editor.
+
+**Why.** In a support group, the Members tab was empty for real groups: it never showed who leads the group or who else is in it. And the Community home always said "You are anonymous here", even for people who had turned "Hide my identity" off and whose name was showing in the chat. Someone could share something believing they were anonymous when they were not.
+
+**What changed for users:**
+
+- **Members tab shows the group:** the mentor at the top (name, title, years of experience, photo), then every member as "Anonymous" or their name, following each person's "Hide my identity" switch, the same as the chat. Your own row says "(You)" and has no report button.
+- **Empty group:** "Nobody has joined yet. New members will show here."
+- **The banner tells the truth:** with the switch on, "You are anonymous here. Other members see you as Anonymous." With it off, "Your name is shown in groups" with a link to Profile settings. Professionals read that their name is shown so members know who leads the group.
+- **Flipping the switch updates the banner straight away**, without reloading.
+
+**What changed for the team:**
+
+- **Migration:** `read_group_members(group)`, security definer, only for the group's members, mentor and admins. Never returns account ids; members who left or were removed are not listed.
+- **New route:** `GET /api/community/groups/:id/members`.
+- **`app/community/page.tsx`:** loads members and the mentor when a group chat opens (separately from messages).
+- **`group-hub-view.tsx`:** empty message, no report button on your own row. **`community-data.ts`:** `GroupMember.isYou`.
+- **`community-home-view.tsx`:** the banner follows the switch. **`profile-settings.tsx`:** refreshes the session after saving the switch.
+- **Follow up:** `is_group_member()` does not check `removed_at`, so a member removed by the AROM team may still read the chat (noted in `BACKEND-HANDOFF.md` section 23).
+- Khmer text should be checked by a Khmer speaker.
+
+**What to re-test:**
+
+1. Run the migration in Supabase.
+2. Open a group you joined, then the Members tab: the mentor card and the members show.
+3. As a client with "Hide my identity" on, you show as "Anonymous (You)"; turn it off and reopen: your name shows with "(You)".
+4. On Community home, the banner matches the switch, and changes right after flipping it in Profile settings.
+5. As a professional, the banner says your name is shown.
+
 ## 18 Oct 2026: Professionals Create Support Groups From Their Own Area
 
 Commit `408cbba`. No migration.

@@ -70,15 +70,46 @@ export function CommunityHomeView({
         <div className="flex size-12 shrink-0 items-center justify-center rounded-full bg-[#1b5e4c] text-white shadow-sm">
           <MaskIcon className="size-6 text-white" />
         </div>
+        {/* Follows the same rule as the group chat: professionals and admins
+            always show their name; a client shows as Anonymous while their
+            "Hide my identity" switch is on (the default). */}
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-bold leading-snug">
-            {km ? "អ្នកមានភាពអនាមិកនៅទីនេះ (Anonymous)" : "You are anonymous here"}
-          </p>
-          <p className="mt-0.5 text-xs text-[#2d6a54] leading-relaxed">
-            {km
-              ? "ឈ្មោះ និងព័ត៌មានផ្ទាល់ខ្លួនរបស់អ្នកនឹងមិនត្រូវបានបង្ហាញដល់សមាជិកដទៃឡើយ។"
-              : "Your name and personal information are not shown to other members."}
-          </p>
+          {canCreateGroup ? (
+            <>
+              <p className="text-sm font-bold leading-snug">
+                {km ? "ឈ្មោះរបស់អ្នកបង្ហាញក្នុងក្រុម" : "Your name is shown in groups"}
+              </p>
+              <p className="mt-0.5 text-xs text-[#2d6a54] leading-relaxed">
+                {km
+                  ? "សមាជិកឃើញឈ្មោះអ្នកជំនាញ ដើម្បីដឹងថាអ្នកណាដឹកនាំក្រុម។ សមាជិកអាចនៅអនាមិក។"
+                  : "Members see a professional's name so they know who leads the group. Members can stay anonymous."}
+              </p>
+            </>
+          ) : user && user.hideIdentity === false ? (
+            <>
+              <p className="text-sm font-bold leading-snug">
+                {km ? "ឈ្មោះរបស់អ្នកបង្ហាញក្នុងក្រុម" : "Your name is shown in groups"}
+              </p>
+              <p className="mt-0.5 text-xs text-[#2d6a54] leading-relaxed">
+                {km ? "សមាជិកផ្សេងទៀតឃើញឈ្មោះរបស់អ្នក។ អ្នកអាចលាក់វាបាននៅក្នុង " : "Other members see your name. You can hide it in "}
+                <Link href="/profile" className="font-semibold underline underline-offset-2">
+                  {km ? "ការកំណត់ប្រវត្តិរូប" : "Profile settings"}
+                </Link>
+                {km ? "។" : "."}
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="text-sm font-bold leading-snug">
+                {km ? "អ្នកមានភាពអនាមិកនៅទីនេះ (Anonymous)" : "You are anonymous here"}
+              </p>
+              <p className="mt-0.5 text-xs text-[#2d6a54] leading-relaxed">
+                {km
+                  ? "សមាជិកផ្សេងទៀតឃើញអ្នកជា អនាមិក។ ឈ្មោះ និងព័ត៌មានផ្ទាល់ខ្លួនរបស់អ្នកមិនត្រូវបានបង្ហាញឡើយ។"
+                  : "Other members see you as Anonymous. Your name and personal information are not shown."}
+              </p>
+            </>
+          )}
         </div>
       </div>
 
