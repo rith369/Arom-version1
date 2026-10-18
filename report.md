@@ -2,7 +2,7 @@
 
 ## 19 Oct 2026: Messages in the Phone Menu Instead of Community
 
-Commit `PENDING`. No migration.
+Commit `1bb58f8`. No migration.
 
 **Why.** On phones, people open their chats every day but only look for a new support group now and then. Since Messages now holds the group chats too, it deserves the bottom menu spot.
 
