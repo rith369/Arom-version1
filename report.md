@@ -1,5 +1,31 @@
 # AROM: Change Report
 
+## 19 Oct 2026: Community Home Gets Recommended for You and Always On Search
+
+Commit `PENDING`. No migration.
+
+**Why.** Rith wanted the Community home closer to the shared design: no plain link rows at the bottom, a search button that is always there, and a "Recommended for you" section ready for the matching feature planned later.
+
+**What changed for users:**
+
+- **"Recommended for you"** (up to two groups, before Popular groups): groups with the same topic as one you are in, otherwise groups with the most free places. Each card has the topic, members, a short description and "View group", which opens the details and rules.
+- **Search is always there** next to the title (except for visitors who are not logged in). It opens the group list with the cursor in the search box.
+- **Removed** the "Explore All Support Groups" and "Community Guidelines & Options" rows at the bottom. The banner's "Find your group", "See all" and the topic tiles open the full list; the guidelines still show in each group's details and in every group chat.
+- **Popular groups** no longer repeat the recommended ones.
+
+**What changed for the team:**
+
+- **`community-home-view.tsx`:** `recommended` (simple rule, marked to be replaced by matching), `onOpenSearch`, quick links removed, `onOpenMenu` removed.
+- **`all-groups-view.tsx`:** `focusSearch` puts the cursor in the search box.
+- **`page.tsx`:** `searchFocus` state; the old menu view is no longer linked from the home.
+
+**What to re-test:**
+
+1. Open Community: Recommended for you shows up to two groups you are not in; Popular groups shows others.
+2. Tap the search button: the list opens with the cursor in the search box; type a group name.
+3. The bottom of the page no longer has the two link rows.
+4. Join a group, come back: a group with the same topic is recommended first.
+
 ## 19 Oct 2026: Community Home Redesigned to Find a Group
 
 Commit `de8494f`. No migration.

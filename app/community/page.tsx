@@ -88,6 +88,8 @@ export default function CommunityPage() {
   const openGroups = groups.filter((g) => g.status !== 'closed');
   // Set when a topic tile opens the list already filtered.
   const [topicFilter, setTopicFilter] = useState<GroupTopic | null>(null);
+  // Set when the search button opens the list.
+  const [searchFocus, setSearchFocus] = useState(false);
 
   function handleSelectGroup(groupId: string) {
     const grp = groups.find((g) => g.id === groupId);
@@ -161,21 +163,28 @@ export default function CommunityPage() {
               onOpenChat={openChat}
               onOpenTopic={(topic) => {
                 setTopicFilter(topic);
+                setSearchFocus(false);
                 setView('all-groups');
               }}
               onOpenAllGroups={() => {
                 setTopicFilter(null);
+                setSearchFocus(false);
                 setView('all-groups');
               }}
-              onOpenMenu={() => setView('menu')}
+              onOpenSearch={() => {
+                setTopicFilter(null);
+                setSearchFocus(true);
+                setView('all-groups');
+              }}
               onCreateGroup={() => setView('create-group')}
             />
           )}
 
           {view === 'all-groups' && (
             <AllGroupsView
-              key={topicFilter ?? 'all'}
+              key={`${topicFilter ?? 'all'}-${searchFocus}`}
               initialTopic={topicFilter}
+              focusSearch={searchFocus}
               groups={openGroups}
               onBack={() => setView('home')}
               onSelectGroup={handleSelectGroup}

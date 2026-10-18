@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ChevronRight, MessageCircle, Plus, Search, TrendingUp, UsersRound } from "lucide-react";
+import { ChevronRight, Compass, MessageCircle, Plus, Search, TrendingUp, UsersRound } from "lucide-react";
 import { MaskIcon } from "./community-icons";
 import { useLanguage } from "../../_components/language-provider";
 import { useAuth } from "../../_components/auth-provider";
@@ -17,8 +17,8 @@ type CommunityHomeViewProps = {
   onSelectGroup: (groupId: string) => void;
   onOpenChat: (groupId: string) => void;
   onOpenAllGroups: () => void;
+  onOpenSearch: () => void;
   onOpenTopic: (topic: GroupTopic) => void;
-  onOpenMenu: () => void;
   onCreateGroup: () => void;
 };
 
@@ -34,8 +34,8 @@ export function CommunityHomeView({
   onSelectGroup,
   onOpenChat,
   onOpenAllGroups,
+  onOpenSearch,
   onOpenTopic,
-  onOpenMenu,
   onCreateGroup,
 }: CommunityHomeViewProps) {
   const { language } = useLanguage();
@@ -46,9 +46,22 @@ export function CommunityHomeView({
 
   const openGroups = groups.filter((group) => group.status !== "closed");
   const myGroups = groups.filter((group) => group.isJoined);
-  // Most members first; groups you are already in are under "Your groups".
+  const joinable = openGroups.filter((group) => !group.isJoined && group.membersCount < group.maxMembers);
+  // Recommended for you: a simple rule for now (same topic as a group you are
+  // in, otherwise the group with the most free places). A matching feature,
+  // for example from check ins, will replace this later.
+  const myTopics = new Set(myGroups.map((group) => group.iconType));
+  const recommended = [...joinable]
+    .sort(
+      (a, b) =>
+        Number(myTopics.has(b.iconType)) - Number(myTopics.has(a.iconType)) ||
+        b.maxMembers - b.membersCount - (a.maxMembers - a.membersCount),
+    )
+    .slice(0, 2);
+  const recommendedIds = new Set(recommended.map((group) => group.id));
+  // Most members first, without the ones already recommended above.
   const popular = openGroups
-    .filter((group) => !group.isJoined)
+    .filter((group) => !group.isJoined && !recommendedIds.has(group.id))
     .sort((a, b) => b.membersCount - a.membersCount)
     .slice(0, 3);
   const countFor = (topic: GroupTopic) => openGroups.filter((group) => group.iconType === topic).length;
@@ -72,11 +85,12 @@ export function CommunityHomeView({
             )}
           </p>
         </div>
-        {ready && groups.length > 0 && (
+        {groupsStatus !== "signed_out" && (
           <button
             type="button"
-            onClick={onOpenAllGroups}
+            onClick={onOpenSearch}
             aria-label={t("ស្វែងរកក្រុម", "Search groups")}
+            title={t("ស្វែងរកក្រុម", "Search groups")}
             className="flex size-11 shrink-0 items-center justify-center rounded-full border border-gray-200 bg-white text-[#1f6f5b] shadow-sm hover:bg-[#eaf5f1]"
           >
             <Search size={20} />
@@ -262,6 +276,48 @@ export function CommunityHomeView({
         </section>
       )}
 
+      {/* Recommended for you */}
+      {ready && recommended.length > 0 && (
+        <section className="mt-8">
+          <h2 className="flex items-center gap-2 text-lg font-bold text-[#111827] sm:text-xl">
+            <Compass size={20} className="text-[#1f6f5b]" aria-hidden="true" />
+            {t("ណែនាំសម្រាប់អ្នក", "Recommended for you")}
+          </h2>
+          <p className="mt-1 text-sm text-[#4b5563]">
+            {myTopics.size > 0
+              ? t("ក្រុមដែលមានប្រធានបទដូចក្រុមរបស់អ្នក ឬនៅមានកន្លែងទំនេរ។", "Groups like the ones you are in, or with places free.")
+              : t("ក្រុមដែលនៅមានកន្លែងទំនេរសម្រាប់អ្នក។", "Groups with places free for you.")}
+          </p>
+          <ul className="mt-4 grid gap-3 sm:grid-cols-2">
+            {recommended.map((group) => {
+              const topic = topicInfo(group.iconType);
+              const about = km ? group.aboutKm || group.about : group.about;
+              return (
+                <li key={group.id} className={`flex flex-col rounded-[22px] p-4 ${topic.tile}`}>
+                  <div className="flex items-start gap-3">
+                    <TopicBadge topic={group.iconType} />
+                    <div className="min-w-0">
+                      <h3 className="text-base font-bold text-[#111827]">{km ? group.nameKm : group.name}</h3>
+                      <p className="text-xs text-[#4b5563]">
+                        {km ? topic.km : topic.en} · {group.membersCount}/{group.maxMembers} {t("សមាជិក", "members")}
+                      </p>
+                    </div>
+                  </div>
+                  {about && <p className="mt-3 line-clamp-2 text-sm leading-relaxed text-[#374151]">{about}</p>}
+                  <button
+                    type="button"
+                    onClick={() => onSelectGroup(group.id)}
+                    className="mt-4 w-full rounded-full bg-[#1a5d4d] py-2.5 text-sm font-bold text-white shadow-sm hover:bg-[#144b3e]"
+                  >
+                    {t("មើលក្រុម", "View group")}
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
+
       {/* Popular groups: Join opens the details and rules first */}
       {ready && popular.length > 0 && (
         <section className="mt-8">
@@ -316,23 +372,6 @@ export function CommunityHomeView({
         </section>
       )}
 
-      {/* Quick links */}
-      <div className="mt-8 flex flex-col gap-2">
-        <button
-          onClick={onOpenAllGroups}
-          className="flex items-center justify-between rounded-xl bg-gray-50 px-4 py-3 text-sm font-medium text-[#1f6f5b] transition-colors hover:bg-[#eaf5f1]"
-        >
-          <span>{t("ស្វែងរកក្រុមគាំទ្រទាំងអស់ (Explore All Groups)", "Explore All Support Groups")}</span>
-          <ChevronRight size={18} />
-        </button>
-        <button
-          onClick={onOpenMenu}
-          className="flex items-center justify-between rounded-xl bg-gray-50 px-4 py-3 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100"
-        >
-          <span>{t("គោលការណ៍សហគមន៍ និងការកំណត់", "Community Guidelines & Options")}</span>
-          <ChevronRight size={18} />
-        </button>
-      </div>
     </div>
   );
 }

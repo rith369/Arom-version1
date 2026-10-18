@@ -12,6 +12,8 @@ type AllGroupsViewProps = {
   onSelectGroup: (groupId: string) => void;
   // Opened from a topic tile on the Community home: starts filtered.
   initialTopic?: GroupTopic | null;
+  // Opened from the search button: the cursor starts in the search box.
+  focusSearch?: boolean;
 };
 
 export function AllGroupsView({
@@ -19,6 +21,7 @@ export function AllGroupsView({
   onBack,
   onSelectGroup,
   initialTopic = null,
+  focusSearch = false,
 }: AllGroupsViewProps) {
   const { language } = useLanguage();
   const km = language === "km";
@@ -70,6 +73,8 @@ export function AllGroupsView({
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
+          autoFocus={focusSearch}
+          aria-label={km ? "ស្វែងរកក្រុម" : "Search groups"}
           placeholder={km ? "ស្វែងរកក្រុម..." : "Search Groups..."}
           className="w-full rounded-[22px] border border-gray-200 bg-white py-3.5 pl-11 pr-4 text-sm text-gray-900 shadow-sm placeholder:text-gray-400 focus:border-[#1f6f5b] focus:outline-none focus:ring-2 focus:ring-[#1f6f5b]/20"
         />
