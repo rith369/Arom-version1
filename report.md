@@ -1,5 +1,31 @@
 # AROM: Change Report
 
+## 18 Oct 2026: New Lesson, Sadness vs. Depression
+
+Commit `8d165d5`. No migration. Content and frontend only.
+
+**Why.** Everyday sadness and clinical depression are frequently conflated, causing people to either minimize severe distress or panic over normal grief and disappointment. "Sadness vs. Depression" (`sadness-vs-depression`) provides an 8-minute evidence-based psychoeducational guide adapted from WHO, NIMH, and UNICEF Cambodia. It equips seekers with clear criteria to distinguish temporary emotional sorrow from clinical depressive episodes, recognizes subtle signs like emotional numbness and exhaustion, offers guidance on supporting loved ones without toxic positivity, and seamlessly connects to AROM's private Journal, calming exercises, and verified confidential therapists.
+
+**What changed for users:**
+- **New Lesson available in MindGuide Learn:** Seekers can access "Sadness vs. Depression (ភាពក្រៀមក្រំ និងជំងឺបាក់ទឹកចិត្ត)" under the Emotions category or directly via `/mindguide/learn?open=sadness-vs-depression`.
+- **9 Comprehensive Bilingual Sections:** Covers what sadness is, clinical depression definition and causes, key differences table and interactive quiz, signs of depression across emotional and daily functioning domains, why the distinction matters for treatment, when to seek clinical help (two-week benchmark), how to support friends without dismissive positivity, a 6-prompt self-reflection for AROM Journal, and next steps connecting to AROM.
+- **Safety Alert Boxes:** Section 4 includes an emergency safety alert guiding anyone with self-harm thoughts to access immediate crisis hotlines via Profile `Get help now`, and Section 6 highlights confidential private therapist booking in AROM.
+- **Direct AROM tool integration:** Section 9 features quick actions to practice the "1-Minute Calming Breath" and "Match Me With A Professional" for private therapy sessions.
+
+**What changed for the team:**
+- **`learn-data.ts`:** Exported `REFERENCES_SADNESS_VS_DEPRESSION` with 4 peer-reviewed citations (WHO, NIMH, UNICEF Cambodia) and `LESSON_SADNESS_VS_DEPRESSION`, appending it to `ALL_LESSONS`.
+- **Hero Image:** Added `public/mindguide/sadness-vs-depression-hero.jpg` with warm morning sunlight, a journal, and a cup of tea.
+- **Strict Anti-AI Compliance:** Zero em dashes, en dashes, or loose hyphens across all English and Khmer copy.
+
+**What to re-test:**
+1. Open `/mindguide/learn` and verify "Sadness vs. Depression" card appears under "Emotions" filter.
+2. Open `/mindguide/learn?open=sadness-vs-depression` and verify hero image, outcomes, and 9 sections render smoothly.
+3. Test Section 3 quiz: verify correct feedback when selecting option 2 and explanations in both English and Khmer.
+4. Test Section 4 emergency notice box and Section 6 tip alert box.
+5. Test Section 8 self-reflection interactive choice and journal prompts.
+6. Test Section 9 action buttons: "1-Minute Calming Breath" and "Match Me With A Professional".
+7. Switch language to Khmer and verify all Kantumruy Pro translations.
+
 ## 18 Oct 2026: New Lesson, Build Healthy Relationships
 
 Commit `95e8c13`. No migration. Content and frontend only.
