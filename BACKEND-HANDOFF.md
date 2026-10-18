@@ -79,7 +79,7 @@ The yellow "Demo data on this page" banner is in `admin-shell.tsx`. Remove it fo
 | Your Plan For Today as a to do list: own tasks, ideas, MindGuide items, repeat, tick with a line through (Home) | Done | Connected, PR #17 (`/api/plan`, `/api/plan/tasks`, `/api/plan/tasks/:id`, `/api/plan/tasks/:id/check`, `/api/plan/order`), migration `20261016001300` | 27 |
 | Play with friends (`/play-cards`): a game hub with Mental health cards, Truth or dare and Guess the animal, one phone passed around | Done | No backend needed (cards in code, nothing saved). Later: admin managed decks, a play count in Progress, online rooms | 28 |
 | Other admin pages | Bookings and Settings are connected (sections 12, 13, 15). Group activities in admin Community still sample data | Not started for group activities | 23 |
-| Anonymous identity protection: professionals see client aliases, safe functions for bookings, messages, notes, suggestions, care plans and shared data | No UI change | Written (Sokheng, merged with main in `merge/anonymous-privacy`). Most SQL already applied by hand; two functions and the merge migration still to run | 29 |
+| Anonymous identity protection: professionals see client aliases, safe functions for bookings, messages, notes, suggestions, care plans and shared data | No UI change | Connected (Sokheng, merged with main in PR #19, 18 Oct). Intake note fix `20261018070000` still to run | 29 |
 
 ## 5. Admin users page
 
@@ -1083,7 +1083,7 @@ The admin list uses `CommunityReport`: `id, groupId, targetKind, targetLabel, me
 
 ## 29. Anonymous identity protection
 
-**Status:** written by Sokheng on `feature/anonymous-privacy`, merged with main on `merge/anonymous-privacy` (18 Oct 2026). Most of the SQL was already applied by hand to the shared Supabase project before the code was merged, so the live site needs this branch merged soon. This section replaces older descriptions in sections 16 to 19 wherever they mention real client ids, direct professional table reads, `my_client_names()` or signed voice links.
+**Status:** written by Sokheng on `feature/anonymous-privacy`, merged with main through PR #19 (18 Oct 2026) and live. This section replaces older descriptions in sections 16 to 19 wherever they mention real client ids, direct professional table reads, `my_client_names()` or signed voice links.
 
 ### Identity rules
 
@@ -1092,7 +1092,7 @@ The admin list uses `CommunityReport`: `id, groupId, targetKind, targetLabel, me
 - `privacy_mode` is an older field. A migration copied older anonymous choices into `hide_identity`; the name functions now use `hide_identity`.
 - Client ids that professionals see are aliases, one per professional and client pair, never `profiles.id`. The mapping lives in `professional_client_aliases`, which browsers cannot read.
 - Turning anonymity off does not change the alias.
-- For anonymous clients, professional booking data returns an empty intake note and no intake answers. The answers stay saved.
+- Professionals see the booking note ("Note for Therapist") and intake answers of every client, anonymous or not, because the client writes them for that professional. Anonymous mode hides who the client is, not what they tell their therapist (Rith, 18 Oct 2026, `20261018070000_show_intake_for_anonymous.sql`). Before that file, anonymous clients' notes and answers came back empty.
 - Anonymity gives admins no extra access to private messages, session notes, journals or other wellbeing content.
 - Clients can still identify themselves in message text, voice, calls or other free text. Anonymous Mode does not hide that.
 
@@ -1138,8 +1138,9 @@ Several original functions remain for internal use, with direct execution revoke
 - Hok Chheng's `20261016000000` to `20261016000700` names are kept. Sokheng's second renames of those files were dropped in the merge.
 - Sokheng's new files that were numbered `20261015001600` to `20261015002600` are now `20261017000900` to `20261017001900`, same order. They need `professional_client_aliases` (from `20261016000600`), and `20261015001600` was already used by `in_person_address`.
 - `20261018060000_merge_privacy_with_main.sql` (new in the merge): adds `rescheduledBy` and `shareMoodTrend` to `read_my_pro_bookings_safe()`, and adds `shared_mood_checkins_safe(alias)`.
-- **Not applied yet** (checked 18 Oct): `my_message_client_names` (`20261017001100`), `set_client_archived_safe` (`20261017001200`) and the merge migration. Without them, client names in messages, archiving a client, "rescheduled by", mood trend on bookings and the shared mood trend fail.
-- Everything else in this section was applied by hand. The project has no migration history, so do not rerun every file on it; run only the three above.
+- `20261018070000_show_intake_for_anonymous.sql`: `read_my_pro_bookings_safe()` returns the intake note and answers for anonymous clients too. Run after the merge file.
+- **Applied 18 Oct** by Rith in the SQL Editor: `20261017001100`, `20261017001200` and the merge migration. Everything else in this section was applied by hand earlier. The project has no migration history, so do not rerun every file on it.
+- **Not applied yet:** `20261018070000_show_intake_for_anonymous.sql` (PR for the intake fix). Until it runs, anonymous clients' booking notes and intake answers stay hidden from their professional.
 
 ### Still open
 
