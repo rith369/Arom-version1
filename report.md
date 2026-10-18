@@ -1,5 +1,30 @@
 # AROM: Change Report
 
+## 19 Oct 2026: Open Chats Fill the Phone Screen
+
+Commit `PENDING`. No migration.
+
+**Why.** On phones an open chat sat inside the page, under the top bar and title and above the bottom menu, so the messages had little room. Telegram opens a chat full screen.
+
+**What changed for users:**
+
+- **On phones and tablets, tapping a chat (private or group) opens it full screen.** The top bar, the page title and the bottom menu are hidden while the chat is open; the back arrow returns to the list.
+- **Laptops are unchanged:** the list on the left and the chat on the right.
+- **The same for professionals** in their Messages.
+
+**What changed for the team:**
+
+- **`user-messages.tsx` and `pro/_components/messages-view.tsx`:** when a chat is selected, the chat box is `fixed inset-0` with `h-[100dvh]` and safe area padding below the `lg` breakpoint, and the normal two column box from `lg` up. The chat column uses `h-full` instead of `h-[75vh]`.
+- Popups opened from a chat still show on top (the suggest session sheet is drawn after the chat; reports use the native dialog).
+
+**What to re-test:**
+
+1. On a phone, open Messages and tap a professional chat: it fills the screen, with no top bar or bottom menu; type, send voice and a photo.
+2. Tap the back arrow: the list returns with the top bar and bottom menu.
+3. Open a group chat: also full screen; Members tab and the composer work.
+4. As a professional on a phone, open a client chat and press "Suggest a session": the sheet shows on top.
+5. On a laptop, Messages looks the same as before.
+
 ## 19 Oct 2026: A Photo That Cannot Load Shows a Calm Card
 
 Commit `4ecd7cc`. No migration.

@@ -175,7 +175,14 @@ export function UserMessages({ professionalId, groupId }: { professionalId?: str
         )}
       </p>
 
-      <div className="mt-5 grid overflow-hidden rounded-3xl border border-arom-border bg-white shadow-card lg:h-[72vh] lg:grid-cols-[18rem_minmax(0,1fr)]">
+      {/* On phones an open chat fills the whole screen, like Telegram; laptops keep two columns. */}
+      <div
+        className={
+          hasSelection
+            ? "fixed inset-0 z-50 grid h-[100dvh] overflow-hidden bg-white pb-[env(safe-area-inset-bottom)] pt-[env(safe-area-inset-top)] lg:static lg:z-auto lg:mt-5 lg:rounded-3xl lg:border lg:border-arom-border lg:pb-0 lg:pt-0 lg:shadow-card lg:h-[72vh] lg:grid-cols-[18rem_minmax(0,1fr)]"
+            : "mt-5 grid overflow-hidden rounded-3xl border border-arom-border bg-white shadow-card lg:h-[72vh] lg:grid-cols-[18rem_minmax(0,1fr)]"
+        }
+      >
         <aside className={`border-arom-border lg:flex lg:min-h-0 lg:flex-col lg:border-r ${hasSelection ? "hidden" : "flex flex-col"}`}>
           {loading && rows.length === 0 ? (
             <p role="status" className="p-6 text-center text-sm text-ink-muted">
@@ -208,7 +215,7 @@ export function UserMessages({ professionalId, groupId }: { professionalId?: str
           )}
         </aside>
 
-        <section className={`min-h-0 flex-col ${hasSelection ? "flex h-[75vh] lg:h-auto" : "hidden lg:flex"}`}>
+        <section className={`min-h-0 flex-col ${hasSelection ? "flex h-full lg:h-auto" : "hidden lg:flex"}`}>
           {selectedGroup ? (
             <GroupChat key={selectedGroup.id} group={selectedGroup} onRead={myGroups.markRead} onBack={() => router.push("/messages")} />
           ) : selected && selectedSummary ? (
