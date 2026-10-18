@@ -115,7 +115,7 @@ export default function CommunityPage() {
 
     const groupId = selectedGroupId;
     const isRealGroup =
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(groupId);
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(groupId);
 
     if (!isRealGroup) return;
 

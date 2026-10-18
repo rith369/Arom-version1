@@ -1,5 +1,25 @@
 # AROM: Change Report
 
+## 18 Oct 2026: Group Chat Shows Its Messages
+
+Commit `PENDING`. No migration.
+
+**Why.** After the send fix, messages were saved (the database had them) but the group chat stayed empty. Before loading messages, `app/community/page.tsx` checks that the group id looks like a real id. That check (since commit `54c34f5`, 15 Oct) expected four parts, but a real id has five (`8-4-4-4-12`), so real groups never matched and the messages were never loaded.
+
+**What changed for users:**
+
+- **Group chats show their messages** again, including the ones sent earlier today, and new messages appear right after sending.
+
+**What changed for the team:**
+
+- **`app/community/page.tsx`:** the id check in the message loading effect now uses the same five part pattern as the rest of the file. All other id checks in the project were already correct.
+
+**What to re-test:**
+
+1. Open a support group you joined: earlier messages show.
+2. Send a message: it appears in the chat.
+3. As another member, open the same group: the message shows, as Anonymous or with the sender's name depending on their "Hide my identity" choice.
+
 ## 18 Oct 2026: Group Chat Messages Send Again
 
 Commit `7789840`. No migration.
