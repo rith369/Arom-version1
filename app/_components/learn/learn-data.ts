@@ -5478,7 +5478,449 @@ export const LESSON_FEAR_OF_FAILURE: Lesson = {
   ],
 };
 
+
+export const REFERENCES_BALANCE_LIFE: ReferenceItem[] = [
+  {
+    id: 1,
+    citation: "[1]",
+    source: "WHO",
+    title: "World Health Organization: Burnout an Occupational Phenomenon (ICD-11)",
+    url: "https://www.who.int/news/item/28-05-2019-burn-out-an-occupational-phenomenon-international-classification-of-diseases",
+  },
+  {
+    id: 2,
+    citation: "[2]",
+    source: "APA",
+    title: "American Psychological Association: The Myth of Multitasking and Setting Boundaries",
+    url: "https://www.apa.org/topics/stress/boundaries",
+  },
+  {
+    id: 3,
+    citation: "[3]",
+    source: "Harvard Health",
+    title: "Harvard Health Publishing: Managing Energy, Not Just Time, to Prevent Exhaustion",
+    url: "https://www.health.harvard.edu/mind-and-mood/preventing-burnout-restoring-energy",
+  },
+  {
+    id: 4,
+    citation: "[4]",
+    source: "NHS Every Mind Matters",
+    title: "NHS Every Mind Matters: Coping With Study and Work Stress",
+    url: "https://www.nhs.uk/every-mind-matters/mental-wellbeing-tips/coping-with-study-and-work-stress/",
+  },
+  {
+    id: 5,
+    citation: "[5]",
+    source: "UNICEF Cambodia",
+    title: "UNICEF Cambodia: Youth Mental Health, Education, and Economic Pressures",
+    url: "https://www.unicef.org/cambodia/mental-health",
+  },
+];
+
+export const LESSON_BALANCE_STUDY_WORK_LIFE: Lesson = {
+  id: "how-to-balance-study-work-life",
+  title: "How to Balance Study, Work, and Life",
+  kmTitle: "របៀបបង្កើតតុល្យភាពរវាងការសិក្សា ការងារ និងជីវិតផ្ទាល់ខ្លួន (How to Balance Study, Work, and Life)",
+  subtitle: "Learn realistic ways to manage competing responsibilities and protect your mental well-being",
+  kmSubtitle: "រៀនវិធីជាក់ស្តែងដើម្បីគ្រប់គ្រងទំនួលខុសត្រូវច្រើនក្នុងពេលតែមួយ និងការពារសុខុមាលភាពផ្លូវចិត្ត",
+  category: "Burnout",
+  duration: "8 min",
+  kmDuration: "៨ នាទី",
+  difficulty: "Beginner",
+  kmDifficulty: "កម្រិតដំបូង (Beginner)",
+  format: "Reading + Practice",
+  kmFormat: "ការអាន និងការអនុវត្ត (Reading & Practice)",
+  isAvailable: true,
+  image: "/mindguide/strategies.png",
+  heroImage: "/mindguide/balance-study-work-hero.jpg",
+  badge: "Essential",
+  description:
+    "Unpack realistic strategies to juggle study, jobs, and personal needs without burning out. Learn to manage your energy batteries, set healthy boundaries, practice micro-rest, and quiet guilt on AROM.",
+  kmDescription:
+    "ស្វែងយល់ពីយុទ្ធសាស្ត្រជាក់ស្តែងក្នុងការគ្រប់គ្រងការរៀនសូត្រ ការងារ និងជីវិតផ្ទាល់ខ្លួនដោយមិនអស់កម្លាំងចិត្ត។ រៀនគ្រប់គ្រងថាមពល កំណត់ព្រំដែនសុខភាពល្អ និងកាត់បន្ថយអារម្មណ៍ខុសនៅលើ AROM។",
+  totalSections: 11,
+  outcomes: [
+    {
+      en: "Understand why rigid 50/50 balance is an unhelpful myth and adopt dynamic equilibrium [1, 2]",
+      km: "យល់ដឹងពីមូលហេតុដែលតុល្យភាពស្មើគ្នា ៥០/៥០ គឺជាការស្រមើស្រមៃ និងទទួលយកលំនឹងជាក់ស្តែង [1, 2]",
+    },
+    {
+      en: "Recognize the early physical, emotional, and cognitive warning signs of systemic burnout [1, 3]",
+      km: "សម្គាល់សញ្ញាព្រមានដំបូងនៃរាងកាយ អារម្មណ៍ និងការគិតនៃការអស់កម្លាំងចិត្តកម្រិតរ៉ាំរ៉ៃ [1, 3]",
+    },
+    {
+      en: "Navigate Cambodian cultural pressures of dual-shift routines, family expectations, and rest guilt [4, 5]",
+      km: "គ្រប់គ្រងសម្ពាធវប្បធម៌កម្ពុជាក្នុងការរៀនបណ្តើរធ្វើការបណ្តើរ ការរំពឹងទុករបស់គ្រួសារ និងការបន្ទោសខ្លួន [4, 5]",
+    },
+    {
+      en: "Manage your 4 energy batteries: physical, mental, emotional, and spiritual, rather than just chasing hours [3]",
+      km: "គ្រប់គ្រងអាគុយថាមពលទាំង ៤ គឺរាងកាយ ការផ្តោតអារម្មណ៍ អារម្មណ៍ផ្លូវចិត្ត និងអត្ថន័យជីវិត [3]",
+    },
+    {
+      en: "Set assertive, respectful boundaries at university, work, and home using calm communication scripts [2, 4]",
+      km: "កំណត់ព្រំដែនដោយម៉ឺងម៉ាត់ និងទន់ភ្លន់នៅសាលារៀន កន្លែងធ្វើការ និងផ្ទះដោយប្រើពាក្យសម្តីសមរម្យ [2, 4]",
+    },
+    {
+      en: "Integrate micro-rest transitions and reflect safely with AROM Journal and professional counselors [4, 5]",
+      km: "អនុវត្តការសម្រាកខ្លីៗរវាងភារកិច្ច និងឆ្លុះបញ្ចាំងសុវត្ថិភាពជាមួយកំណត់ហេតុ និងអ្នកជំនាញ AROM [4, 5]",
+    },
+  ],
+  references: REFERENCES_BALANCE_LIFE,
+  sections: [
+    {
+      id: 1,
+      sectionNumber: 1,
+      title: "The Reality of Competing Demands: Why Perfect Balance Is a Myth",
+      kmTitle: "ការពិតនៃទំនួលខុសត្រូវចម្រុះ៖ ហេតុអ្វីតុល្យភាពដ៏ល្អឥតខ្ចោះគ្រាន់តែជាការស្រមើស្រមៃ (The Reality of Competing Demands)",
+      type: "reading",
+      paragraphs: [
+        "Do you ever feel like you are running on a treadmill that never slows down? You wake up early to commute through heavy traffic, work an eight-hour shift, rush to university evening classes, and return home only to face assignments, family responsibilities, and endless messages.",
+        "Many of us carry an unrealistic image of balance. We imagine a calm, flawless life where every single day provides equal hours for studying, career ambition, family time, social connection, and peaceful sleep. When life does not look like this fantasy, we blame ourselves for being disorganized or undisciplined.",
+        "Clinical research from the American Psychological Association shows that balance is not a static, 50/50 division of hours [2]. Life is dynamic, like riding a bicycle. Balance means making continuous micro-adjustments as conditions change, leaning into study during exam periods, leaning into work deadlines, and deliberately pulling back to recharge before exhaustion takes over.",
+      ],
+      kmParagraphs: [
+        "តើអ្នកធ្លាប់មានអារម្មណ៍ថាអ្នកកំពុងរត់នៅលើខ្សែរត់ហាត់ប្រាណដែលមិនចេះឈប់ដែរឬទេ? អ្នកក្រោកពីព្រលឹមដើម្បីធ្វើដំណើរឆ្លងកាត់ការកកស្ទះចរាចរណ៍ ធ្វើការពេញម៉ោង ៨ ម៉ោង រួចប្រញាប់ប្រញាល់ទៅរៀនថ្នាក់យប់នៅសាកលវិទ្យាល័យ ហើយត្រឡប់មកផ្ទះវិញជួបកិច្ចការស្រាវជ្រាវ ទំនួលខុសត្រូវគ្រួសារ និងសារការងារជាច្រើនទៀត។",
+        "មនុស្សជាច្រើនតែងតែស្រមើស្រមៃអំពីរូបភាពមិនពិតនៃតុល្យភាព។ យើងគិតថាជីវិតដែលមានតុល្យភាព គឺជាជីវិតដែលបែងចែកម៉ោងស្មើៗគ្នារវាងការរៀនសូត្រ ការងារ គ្រួសារ មិត្តភក្តិ និងការគេងលក់ស្កប់ស្កល់ជារៀងរាល់ថ្ងៃ។ នៅពេលដែលជីវិតមិនដូចការស្រមើស្រមៃនេះ យើងចាប់ផ្តើមបន្ទោសខ្លួនឯងថាជាមនុស្សខ្វះវិន័យ ឬមិនចេះចាត់ចែងពេលវេលា។",
+        "ការស្រាវជ្រាវគ្លីនិកពីសមាគមចិត្តវិទ្យាអាមេរិក (APA) បង្ហាញថាតុល្យភាពមិនមែនជាការចែកម៉ោង ៥០/៥០ ដ៏តឹងរ៉ឹងនោះឡើយ [2]។ ជីវិតមានភាពបត់បែន ដូចជាការជិះកង់អញ្ចឹងដែរ។ តុល្យភាពមានន័យថាជាការសម្របសម្រួលជាប្រចាំទៅតាមកាលៈទេសៈជាក់ស្តែង ផ្ដោតលើការរៀននៅរដូវប្រឡង ផ្ដោតលើគម្រោងការងារបន្ទាន់ ហើយដកថយមកសម្រាកបំពេញថាមពលវិញ មុនពេលរាងកាយអស់កម្លាំង។",
+      ],
+      keyPoints: [
+        "Balance is dynamic rhythm, not a rigid 24-hour mathematical division [2].",
+        "Having multiple responsibilities does not make you disorganized; modern life is genuinely demanding.",
+        "Sustainability comes from adjusting your pace rather than demanding perfection every day.",
+      ],
+      kmKeyPoints: [
+        "តុល្យភាពគឺជាចលនាលំនឹងដែលបត់បែន មិនមែនជាការចែកម៉ោងស្មើគ្នាដ៏តឹងតែងឡើយ [2]។",
+        "ការមានបន្ទុកទំនួលខុសត្រូវច្រើន មិនមែនមានន័យថាអ្នកខ្វះវិន័យនោះទេ ពីព្រោះជីវិតបច្ចុប្បន្នពិតជាមានភាពមមាញឹកខ្លាំង។",
+        "និរន្តរភាពកើតចេញពីការកែសម្រួលល្បឿនជីវិត មិនមែនកើតចេញពីការទាមទារភាពឥតខ្ចោះគ្រប់ពេលនោះទេ។",
+      ],
+    },
+    {
+      id: 2,
+      sectionNumber: 2,
+      title: "The Hidden Cost: Recognizing Signs of Overload and Burnout [1, 3]",
+      kmTitle: "ផលប៉ះពាល់លាក់កំបាំង៖ ការសម្គាល់សញ្ញានៃការលើសចំណុះ និងភាពអស់កម្លាំងចិត្ត (Signs of Overload and Burnout)",
+      type: "reading",
+      paragraphs: [
+        "When competing obligations overwhelm your nervous system for months without adequate rest, ordinary tiredness transforms into burnout. The World Health Organization defines burnout as a clinical syndrome resulting from chronic workplace and educational stress that has not been successfully managed [1].",
+        "Burnout rarely arrives overnight. It whispers before it shouts. Physical indicators include persistent morning exhaustion even after eight hours in bed, frequent tension headaches, stomach discomfort, and sudden susceptibility to colds.",
+        "Emotionally and cognitively, burnout surfaces as cynicism, mental detachment, chronic irritability with loved ones, and persistent brain fog [3]. You might find yourself staring at an assignment for hours unable to write a single coherent sentence, feeling deep dread before opening your messaging apps.",
+      ],
+      kmParagraphs: [
+        "នៅពេលដែលបន្ទុកការងារ និងការរៀនសូត្រលើសចំណុះនៃប្រព័ន្ធប្រសាទអស់រយៈពេលជាច្រើនខែដោយគ្មានការសម្រាកគ្រប់គ្រាន់ ការអស់កម្លាំងធម្មតានឹងប្រែទៅជាភាពអស់កម្លាំងចិត្តរ៉ាំរ៉ៃ (Burnout)។ អង្គការសុខភាពពិភពលោក (WHO) បានកំណត់ថា ភាពអស់កម្លាំងចិត្តគឺជាអាការគ្លីនិកដែលបណ្តាលមកពីភាពតានតឹងរ៉ាំរ៉ៃក្នុងបរិយាកាសការងារ និងការសិក្សាដែលមិនត្រូវបានគ្រប់គ្រងឱ្យបានត្រឹមត្រូវ [1]។",
+        "ភាពអស់កម្លាំងចិត្តកម្រកើតឡើងភ្លាមៗមួយយប់ណាស់។ វាតែងតែផ្តល់សញ្ញាព្រមានជាមុន។ សញ្ញារាងកាយរួមមាន៖ អស់កម្លាំងខ្លាំងនៅពេលព្រឹកទោះបីជាគេងបាន ៨ ម៉ោងក៏ដោយ ឈឺក្បាលតានតឹងញឹកញាប់ មិនស្រួលក្នុងក្រពះពោះវៀន និងងាយឆ្លងជំងឺផ្តាសាយ។",
+        "ចំពោះអារម្មណ៍ និងការគិតវិញ ភាពអស់កម្លាំងចិត្តស្តែងចេញតាមរយៈការអស់ទឹកចិត្ត ភាពសោះកក្រោះ ឆាប់ខឹងមួរម៉ៅជាមួយមនុស្សជុំវិញខ្លួន និងខួរក្បាលមិនដំណើរការ (Brain Fog) [3]។ អ្នកអាចនឹងអង្គុយមើលកិច្ចការរាប់ម៉ោងដោយមិនអាចសរសេរចេញមួយប្រយោគ ឬមានអារម្មណ៍ភ័យខ្លាចយ៉ាងខ្លាំងមុនពេលបើកសារទូរស័ព្ទ។",
+      ],
+      keyPoints: [
+        "Burnout has 3 clinical pillars: exhaustion, mental cynicism, and reduced efficacy [1].",
+        "Physical warning signs often precede conscious emotional distress [3].",
+        "Chronic dread and apathy are biological alarms that your system has surpassed capacity.",
+      ],
+      kmKeyPoints: [
+        "ភាពអស់កម្លាំងចិត្ត (Burnout) មានសសរស្តម្ភ ៣៖ ការអស់ថាមពល អារម្មណ៍សោះកក្រោះ និងការថយចុះប្រសិទ្ធភាព [1]។",
+        "សញ្ញាព្រមានលើរាងកាយច្រើនតែកើតឡើងមុនអារម្មណ៍តានតឹងផ្លូវចិត្ត [3]។",
+        "អារម្មណ៍ភ័យខ្លាចការភ្ញាក់ពីគេង និងភាពស្ពឹកស្រពន់ គឺជាសំឡេងរោទ៍ប្រាប់ថាប្រព័ន្ធរាងកាយរបស់អ្នកលើសកម្រិតទ្រាំទ្រហើយ។",
+      ],
+    },
+    {
+      id: 3,
+      sectionNumber: 3,
+      title: "Cambodian Context: Dual Shifts, Family Duty, and Rest Guilt [4, 5]",
+      kmTitle: "បរិបទសង្គម និងវប្បធម៌កម្ពុជា៖ ការរៀនបណ្តើរធ្វើការបណ្តើរ និងអារម្មណ៍ខុសពេលសម្រាក (Cambodian Context & Rest Guilt)",
+      type: "reading",
+      paragraphs: [
+        "In Cambodia, the pressure to juggle multiple spheres of life carries unique cultural and economic weight. Many young adults and students work full-time day jobs in companies or small family businesses, rush to evening university classes until 8:30 PM, and dedicate weekends to family gatherings, household chores, or extra freelance tasks [5].",
+        "Cultural values emphasize filial piety, hard work, and family sacrifice. Young Cambodians frequently feel an enormous responsibility to succeed financially to support their parents and siblings. While these values foster deep loyalty and resilience, they can also cultivate intense guilt whenever you attempt to take personal rest.",
+        "You may tell yourself: 'My parents worked so much harder, so I have no right to complain,' or 'If I take Sunday off, I am falling behind my peers.' UNICEF Cambodia notes that internalized pressure often leads youth to treat rest as laziness rather than a biological necessity [5]. Recognizing this cultural backdrop helps you understand that your stress is not a personal failure, but the natural outcome of carrying heavy societal expectations.",
+      ],
+      kmParagraphs: [
+        "នៅក្នុងសង្គមកម្ពុជា សម្ពាធក្នុងការបំពេញភារកិច្ចចម្រុះបង្កប់នូវទម្ងន់វប្បធម៌ និងសេដ្ឋកិច្ចជាក់លាក់។ យុវជន និងនិស្សិតជាច្រើនត្រូវធ្វើការពេញម៉ោងនៅពេលថ្ងៃ ធ្វើដំណើរប្រញាប់ប្រញាល់ទៅរៀនថ្នាក់យប់នៅសាកលវិទ្យាល័យរហូតដល់ម៉ោង ៨:៣០ យប់ ហើយចុងសប្តាហ៍ត្រូវជួយកិច្ចការគ្រួសារ ជួបជុំបងប្អូន ឬឆ្លៀតធ្វើការងារបន្ថែម [5]។",
+        "វប្បធម៌ខ្មែរផ្តល់តម្លៃខ្ពស់លើការដឹងគុណឪពុកម្តាយ ភាពឧស្សាហ៍ព្យាយាម និងការលះបង់ដើម្បីគ្រួសារ។ យុវជនកម្ពុជាច្រើនតែមានអារម្មណ៍ថាខ្លួនមានទំនួលខុសត្រូវខ្ពស់ក្នុងការជួយសម្រាលបន្ទុកជីវភាពគ្រួសារ។ ទោះបីជាគុណតម្លៃទាំងនេះបង្កើតភាពរឹងមាំ និងកត្តញ្ញុតាធម៌ក៏ដោយ វាក៏អាចបង្កើតអារម្មណ៍ខុសឆ្គងយ៉ាងខ្លាំងរាល់ពេលដែលអ្នកចង់សម្រាកផ្ទាល់ខ្លួនផងដែរ។",
+        "អ្នកប្រហែលជាធ្លាប់ប្រាប់ខ្លួនឯងថា៖ «ឪពុកម្តាយខ្ញុំលំបាកជាងខ្ញុំឆ្ងាយណាស់ ដូច្នេះខ្ញុំគ្មានសិទ្ធិរអ៊ូរទាំទេ» ឬ «បើខ្ញុំសម្រាកនៅថ្ងៃអាទិត្យ ខ្ញុំនឹងដើរយឺតជាងគេ»។ អង្គការ UNICEF Cambodia បង្ហាញថា សម្ពាធក្នុងចិត្តបែបនេះច្រើនតែធ្វើឱ្យយុវជនចាត់ទុកការសម្រាកថាជាភាពខ្ជិលច្រអូស ជំនួសឱ្យតម្រូវការធម្មជាតិនៃរាងកាយ [5]។ ការយល់ដឹងពីបរិបទនេះ ជួយឱ្យអ្នកដឹងថាភាពតានតឹងរបស់អ្នកមិនមែនជាការបរាជ័យផ្ទាល់ខ្លួនឡើយ ប៉ុន្តែជាលទ្ធផលនៃការផ្ទុកបន្ទុកសង្គមដ៏ធំធេង។",
+      ],
+      keyPoints: [
+        "Cambodian dual-shift routines (work by day, university by night) represent exceptional physical loads [5].",
+        "Filial gratitude should not require complete physical self-destruction.",
+        "Rest is not a reward earned only after total exhaustion; it is fuel required to keep going.",
+      ],
+      kmKeyPoints: [
+        "ការរៀនបណ្តើរធ្វើការបណ្តើររបស់យុវជនកម្ពុជា គឺជាបន្ទុករាងកាយ និងស្មារតីដ៏ធ្ងន់ធ្ងរ [5]។",
+        "ការដឹងគុណ និងការទទួលខុសត្រូវចំពោះគ្រួសារ មិនគួរតម្រូវឱ្យអ្នកបំផ្លាញសុខភាពខ្លួនឯងទាំងស្រុងនោះទេ។",
+        "ការសម្រាកមិនមែនជារង្វាន់ដែលត្រូវទាមទាររហូតដល់អស់កម្លាំងនោះទេ ប៉ុន្តែជាថាមពលចាំបាច់ដើម្បីបន្តដំណើរទៅមុខ។",
+      ],
+    },
+    {
+      id: 4,
+      sectionNumber: 4,
+      title: "Check Your Understanding: Burnout vs. Sustainable Productivity",
+      kmTitle: "ពិនិត្យការយល់ដឹង៖ ភាពអស់កម្លាំងចិត្ត និងផលិតភាពប្រកបដោយចីរភាព (Burnout vs. Productivity)",
+      type: "quiz",
+      paragraphs: [
+        "Sustainable performance requires honest self-awareness. Let us test your instinct about how our bodies and minds recharge under competing workloads.",
+      ],
+      kmParagraphs: [
+        "សមត្ថភាពការងារប្រកបដោយចីរភាព ទាមទារឱ្យមានការដឹងច្បាស់ពីខ្លួនឯងដោយស្មោះត្រង់។ ចូរយើងសាកល្បងពិនិត្យការយល់ដឹងអំពីរបៀបដែលរាងកាយ និងចិត្តស្តារថាមពលឡើងវិញ។",
+      ],
+      quiz: {
+        question: "Which of the following reflects a sustainable and healthy approach to managing study and work?",
+        kmQuestion: "តើចំណុចមួយណាខាងក្រោមឆ្លុះបញ្ចាំងពីវិធីសាស្ត្រប្រកបដោយចីរភាព និងសុខភាពល្អក្នុងការគ្រប់គ្រងការរៀនសូត្រ និងការងារ?",
+        options: [
+          {
+            id: "opt-a",
+            text: "Sacrificing sleep to finish all pending tasks so that you never fall behind peers",
+            kmText: "កាត់បន្ថយម៉ោងគេងដើម្បីបំពេញកិច្ចការដែលនៅសេសសល់ទាំងអស់កុំឱ្យដើរយឺតជាងគេ",
+            isCorrect: false,
+          },
+          {
+            id: "opt-b",
+            text: "Recognizing that energy fluctuates and scheduling deliberate breaks before your body forces a shutdown",
+            kmText: "ទទួលស្គាល់ថាថាមពលតែងតែមានការប្រែប្រួល និងកំណត់ពេលសម្រាកឱ្យបានច្បាស់លាស់ មុនពេលរាងកាយបង្ខំឱ្យដួល",
+            isCorrect: true,
+          },
+          {
+            id: "opt-c",
+            text: "Saying yes to every single extra request from bosses and professors to prove your dedication",
+            kmText: "យល់ព្រមទទួលយកគ្រប់សំណើបន្ថែមពីថ្នាក់លើ ឬសាស្ត្រាចារ្យ ដើម្បីបង្ហាញពីការប្តេជ្ញាចិត្ត",
+            isCorrect: false,
+          },
+          {
+            id: "opt-d",
+            text: "Pushing through intense mental exhaustion with more energy drinks and extra caffeine",
+            kmText: "បន្តខំប្រឹងទោះបីជាខួរក្បាលអស់កម្លាំងខ្លាំង ដោយពឹងផ្អែកលើភេសជ្ជៈប៉ូវកម្លាំង និងកាហ្វេ",
+            isCorrect: false,
+          },
+        ],
+        explanation:
+          "Sustainable productivity is built on biological reality. Sleep and active breaks restore your cognitive functions, memory, and emotional resilience. Pushing through exhaustion damages both the quality of your work and your health [1, 2].",
+        kmExplanation:
+          "ផលិតភាពប្រកបដោយចីរភាពពឹងផ្អែកលើការពិតនៃរាងកាយ។ ដំណេក និងការសម្រាកជួយស្តារមុខងារខួរក្បាល ការចងចាំ និងភាពរឹងមាំនៃអារម្មណ៍។ ការបង្ខំខ្លួនឯងទាំងអស់កម្លាំង នឹងបំផ្លាញទាំងគុណភាពការងារ និងសុខភាពរបស់អ្នក [1, 2]។",
+      },
+    },
+    {
+      id: 5,
+      sectionNumber: 5,
+      title: "Energy Management vs. Time Management: The 4 Life Batteries [3]",
+      kmTitle: "ការគ្រប់គ្រងថាមពលធៀបនឹងការគ្រប់គ្រងពេលវេលា៖ អាគុយជីវិតទាំង ៤ (The 4 Life Batteries)",
+      type: "reading",
+      paragraphs: [
+        "Most advice on balance tells you to download a new planner, organize color-coded calendars, and wake up at five in the morning. However, time management is useless if your energy is empty. Scheduling two hours to write a paper means nothing if your brain is too depleted to focus.",
+        "Clinical experts at Harvard Health recommend shifting focus from managing hours to managing energy [3]. Think of yourself as operating on four distinct batteries: Physical, Mental, Emotional, and Meaning.",
+        "Your physical battery charges with adequate sleep, balanced nutrition, and hydration. Your mental battery charges through single-tasking and breaks from digital screens. Your emotional battery charges through genuine connection, laughter, and feeling heard. Your meaning battery charges when your daily efforts align with what genuinely matters to your heart.",
+      ],
+      kmParagraphs: [
+        "ដំបូន្មានភាគច្រើនអំពីតុល្យភាពតែងតែប្រាប់ឱ្យអ្នកទិញសៀវភៅកត់ត្រាថ្មី គូសពណ៌លើកាលវិភាគ ឬភ្ញាក់ពីគេងនៅម៉ោង ៥ ព្រឹក។ ប៉ុន្តែការគ្រប់គ្រងពេលវេលានឹងគ្មានប្រយោជន៍ឡើយ ប្រសិនបើថាមពលរបស់អ្នកអស់ពីខ្លួននោះ។ ការទុកពេល ២ ម៉ោងដើម្បីសរសេរកិច្ចការ នឹងមិនមានលទ្ធផលទេ ប្រសិនបើខួរក្បាលរបស់អ្នកហត់នឿយរហូតដល់មិនអាចផ្ដោតអារម្មណ៍បាន។",
+        "អ្នកជំនាញគ្លីនិកនៅសាកលវិទ្យាល័យ Harvard ណែនាំឱ្យយើងប្តូរការផ្តោតអារម្មណ៍ពីការគ្រប់គ្រងម៉ោង មកជាការគ្រប់គ្រងថាមពលវិញ [3]។ សូមស្រមៃគិតថារាងកាយ និងចិត្តរបស់អ្នកដំណើរការដោយអាគុយ ៤ ប្រភេទផ្សេងគ្នា៖ អាគុយរាងកាយ អាគុយខួរក្បាល អាគុយអារម្មណ៍ និងអាគុយអត្ថន័យជីវិត។",
+        "អាគុយរាងកាយសាកពេញតាមរយៈការគេងគ្រប់គ្រាន់ អាហារូបត្ថម្ភ និងការទទួលទានទឹក។ អាគុយខួរក្បាលសាកពេញតាមរយៈការធ្វើការងារម្តងមួយមុខ និងការសម្រាកពីអេក្រង់ទូរស័ព្ទ។ អាគុយអារម្មណ៍សាកពេញតាមរយៈការជជែកជាមួយមនុស្សដែលយល់ចិត្ត និងការសើចសប្បាយ។ រីឯអាគុយអត្ថន័យជីវិតសាកពេញនៅពេលដែលការខិតខំរបស់អ្នកផ្សារភ្ជាប់ទៅនឹងគោលបំណងពិតប្រាកដដែលអ្នកស្រឡាញ់។",
+      ],
+      keyPoints: [
+        "Time is fixed at 24 hours, but your personal energy is renewable [3].",
+        "Focusing while exhausted takes twice as long and produces inferior work.",
+        "Monitoring which of your four batteries is draining helps you pick the right restorative action.",
+      ],
+      kmKeyPoints: [
+        "ពេលវេលាមានត្រឹមតែ ២៤ ម៉ោងប៉ុណ្ណោះ ប៉ុន្តែថាមពលរបស់អ្នកអាចបង្កើត និងស្តារឡើងវិញបាន [3]។",
+        "ការខំធ្វើការទាំងខួរក្បាលអស់កម្លាំង ត្រូវចំណាយពេលយូរទ្វេដង និងមិនសូវមានប្រសិទ្ធភាព។",
+        "ការតាមដានមើលថាអាគុយណាមួយកំពុងអស់ ជួយឱ្យអ្នកជ្រើសរើសវិធីសម្រាកបានត្រឹមត្រូវ។",
+      ],
+    },
+    {
+      id: 6,
+      sectionNumber: 6,
+      title: "The Power of Saying No: Setting Boundaries Without Guilt [2, 4]",
+      kmTitle: "ថាមពលនៃការបដិសេធ៖ ការកំណត់ព្រំដែនដោយមិនមានអារម្មណ៍ខុស (Setting Boundaries Without Guilt)",
+      type: "reading",
+      paragraphs: [
+        "One of the primary drivers of burnout is boundary collapse. Many of us say yes to extra workplace projects, take on our classmates' share of group assignments, and accept every social invitation because we fear disappointing people or appearing uncooperative [2].",
+        "Every time you say yes to something non-essential, you are involuntarily saying no to your sleep, your health, and your peace of mind. Setting boundaries is not selfish or rude; it is the fundamental condition for staying reliable over the long run.",
+        "Practice polite and clear boundary scripts: 'Thank you for thinking of me for this project. Given my current academic deadlines, I cannot take on this responsibility and deliver quality work,' or 'I would love to help, but my schedule is completely booked this week. Can we revisit this next month?' [4].",
+      ],
+      kmParagraphs: [
+        "មូលហេតុចម្បងមួយនៃការអស់កម្លាំងចិត្ត គឺការបាត់បង់ព្រំដែនផ្ទាល់ខ្លួន។ យើងជាច្រើនតែងតែឆ្លើយថា «បាទ/ចាស» ទទួលយកគម្រោងការងារបន្ថែម ទទួលធ្វើកិច្ចការក្រុមជំនួសមិត្តភក្តិ និងទៅចូលរួមគ្រប់ការណាត់ជួប ដោយសារតែយើងខ្លាចធ្វើឱ្យអ្នកដទៃខកចិត្ត ឬខ្លាចគេគិតថាយើងមិនចេះជួយ [2]។",
+        "រាល់ពេលដែលអ្នកយល់ព្រមទទួលយកកិច្ចការដែលមិនចាំបាច់ មានន័យថាអ្នកកំពុងតែបដិសេធពេលវេលាគេង សុខភាព និងសេចក្តីស្ងប់ក្នុងចិត្តរបស់អ្នកដោយមិនដឹងខ្លួន។ ការកំណត់ព្រំដែនមិនមែនជាភាពអត្មានិយម ឬឈ្លើយនោះទេ ប៉ុន្តែជាលក្ខខណ្ឌចាំបាច់ដើម្បីរក្សាភាពរឹងមាំក្នុងការងារ និងការរៀនសូត្រយូរអង្វែង។",
+        "សូមអនុវត្តការប្រើប្រាស់ពាក្យសម្តីច្បាស់លាស់ និងគួរសមដូចជា៖ «អរគុណច្រើនដែលបានផ្តល់ឱកាសនេះដល់ខ្ញុំ។ ដោយសារសប្តាហ៍នេះខ្ញុំត្រូវផ្ដោតលើការប្រឡង ខ្ញុំមិនអាចទទួលភារកិច្ចនេះបន្ថែមដោយធានាគុណភាពបានទេ» ឬ «ខ្ញុំចង់ជួយខ្លាំងណាស់ ប៉ុន្តែកាលវិភាគរបស់ខ្ញុំពេញអស់ហើយក្នុងសប្តាហ៍នេះ តើយើងអាចពិភាក្សាគ្នានៅខែក្រោយបានទេ?» [4]។",
+      ],
+      keyPoints: [
+        "A boundary is a parameter that protects your capacity to perform and care [2].",
+        "Saying no politely preserves your respect and credibility far more than agreeing and delivering late.",
+        "You do not need to over-explain or invent elaborate excuses; clarity and calm respect are enough.",
+      ],
+      kmKeyPoints: [
+        "ព្រំដែនគឺជាខែលការពារសមត្ថភាពរបស់អ្នកក្នុងការបំពេញការងារ និងការថែទាំខ្លួនឯង [2]។",
+        "ការបដិសេធដោយគួរសម ជួយរក្សាកិត្តិយស និងទំនុកចិត្តបានល្អជាងការទទួលយកហើយធ្វើមិនទាន់ពេលវេលា។",
+        "អ្នកមិនចាំបាច់រកលេសវែងអន្លាយនោះទេ ការបញ្ជាក់យ៉ាងច្បាស់លាស់ និងទន់ភ្លន់គឺគ្រប់គ្រាន់ហើយ។",
+      ],
+    },
+    {
+      id: 7,
+      sectionNumber: 7,
+      title: "The Priority Matrix and the 'Good Enough' Standard [2, 4]",
+      kmTitle: "តារាងអាទិភាព និងគោលការណ៍ «ល្អគ្រប់គ្រាន់» (Prioritization & Good Enough)",
+      type: "reading",
+      paragraphs: [
+        "When your task list contains twenty items, everything feels like an emergency. Psychologists recommend applying the Eisenhower Principle to separate urgent matters from truly important matters [2].",
+        "Important tasks contribute to your long-term values, health, and career growth, such as studying core concepts, resting, and preparing key work deliverables. Urgent tasks demand immediate attention but often have low real value, such as replying instantly to non-urgent group chats or formatting slides for hours.",
+        "Complement this with the 'Good Enough' standard. Perfectionism is a major cause of exhaustion. Not every email requires poetic phrasing; not every summary needs ten revisions. Ask yourself: 'What does 80% excellence look like here?' Often, delivering a solid result and going to bed at 10:30 PM is far wiser than obsessing for three more hours to reach 95% [4].",
+      ],
+      kmParagraphs: [
+        "នៅពេលដែលបញ្ជីកិច្ចការរបស់អ្នកមានរហូតដល់ម្ភៃមុខ អ្វីៗទាំងអស់នឹងមើលទៅដូចជារឿងបន្ទាន់។ អ្នកចិត្តវិទ្យាណែនាំឱ្យអនុវត្តគោលការណ៍ Eisenhower ដើម្បីបែងចែករវាងកិច្ចការបន្ទាន់ និងកិច្ចការដែលមានសារៈសំខាន់ពិតប្រាកដ [2]។",
+        "កិច្ចការសំខាន់ គឺជារឿងដែលផ្តល់ផលប្រយោជន៍ដល់តម្លៃជីវិតយូរអង្វែង សុខភាព និងការរីកចម្រើនការងារ ដូចជាការរៀនមេរៀនគ្រឹះ ការសម្រាក និងការត្រៀមគម្រោងធំ។ រីឯកិច្ចការបន្ទាន់ ជារឿយៗទាមទារការឆ្លើយតបភ្លាមៗប៉ុន្តែមិនសូវមានតម្លៃពិតប្រាកដ ដូចជាការតបសារក្នុងគ្រុបជជែកដែលមិនសំខាន់ ឬការចំណាយពេលច្រើនម៉ោងតាក់តែងពណ៌ស្លាយ។",
+        "បន្ថែមពីនេះ សូមអនុវត្តគោលការណ៍ «ល្អគ្រប់គ្រាន់» (Good Enough Standard)។ ភាពចង់បានឥតខ្ចោះ គឺជាមូលហេតុចម្បងនៃការអស់កម្លាំងចិត្ត។ មិនមែនគ្រប់សារអ៊ីមែលសុទ្ធតែត្រូវសរសេរយ៉ាងពិរោះរណ្តំ ឬគ្រប់កិច្ចការសុទ្ធតែកែសម្រួលដប់ដងនោះទេ។ សូមសួរខ្លួនឯងថា៖ «តើកម្រិត ៨០% នៃកិច្ចការនេះមានទម្រង់បែបណា?» ជារឿយៗ ការបញ្ចប់កិច្ចការឱ្យបានល្អល្មមរួចចូលគេងនៅម៉ោង ១០:៣០ យប់ មានប្រយោជន៍ជាងការចំណាយពេល ៣ ម៉ោងបន្ថែមដើម្បីឱ្យបាន ៩៥% [4]។",
+      ],
+      keyPoints: [
+        "Not everything that shouts for your attention is genuinely important [2].",
+        "Focus your peak energy on top two daily priorities before touching minor chores.",
+        "Embrace 'good enough' to protect your evening sleep and recovery.",
+      ],
+      kmKeyPoints: [
+        "មិនមែនគ្រប់រឿងដែលទាមទារការយកចិត្តទុកដាក់សុទ្ធតែជារឿងសំខាន់នោះទេ [2]។",
+        "សូមប្រើប្រាស់ថាមពលខួរក្បាលដ៏ល្អបំផុតលើអាទិភាពធំៗ ២ ក្នុងមួយថ្ងៃ មុននឹងធ្វើកិច្ចការតូចតាច។",
+        "ទទួលយកគោលការណ៍ «ល្អគ្រប់គ្រាន់» ដើម្បីការពារដំណេក និងការស្តារថាមពលពេលយប់។",
+      ],
+    },
+    {
+      id: 8,
+      sectionNumber: 8,
+      title: "Personal Energy Audit: Identifying Your Energy Leaks",
+      kmTitle: "ការពិនិត្យថាមពលផ្ទាល់ខ្លួន៖ កំណត់ចំណុចដែលថាមពលរបស់អ្នកកំពុងលេចធ្លាយ (Energy Audit)",
+      type: "reflection",
+      paragraphs: [
+        "Rebalancing begins with identifying where your vitality slips away unnoticed. Consider your typical week and select the scenario that drains you the most.",
+      ],
+      kmParagraphs: [
+        "ការស្តារតុល្យភាពឡើងវិញ ចាប់ផ្តើមពីការស្វែងរកចំណុចដែលថាមពលរបស់អ្នកកំពុងបាត់បង់ដោយមិនដឹងខ្លួន។ សូមពិចារណាពីសប្តាហ៍ធម្មតារបស់អ្នក ហើយជ្រើសរើសស្ថានភាពដែលធ្វើឱ្យអ្នកអស់កម្លាំងខ្លាំងបំផុត។",
+      ],
+      reflection: {
+        question: "When you feel completely drained at the end of the day, what is usually the biggest contributor?",
+        kmQuestion: "នៅពេលដែលអ្នកមានអារម្មណ៍ថាអស់កម្លាំងពីខ្លួនទាំងស្រុងនៅចុងបញ្ចប់នៃថ្ងៃ តើកត្តាណាដែលជាមូលហេតុចម្បងបំផុត?",
+        options: [
+          "Spending late nights scrolling on social media or watching videos while feeling too tired to sleep",
+          "Inability to say no to extra tasks from work colleagues, supervisors, or university study groups",
+          "Constantly worrying about the future, exams, and family finances even during free time",
+          "Trying to do every assignment and work deliverable with 100% perfection",
+        ],
+        kmOptions: [
+          "ការចំណាយពេលពេលយប់ជ្រៅអូសមើលបណ្តាញសង្គម ឬវីដេអូ ដោយសារតែហត់ពេកមិនចង់បិទភ្នែកគេង",
+          "ការពិបាកក្នុងការបដិសេធសំណើបន្ថែមពីមិត្តរួមការងារ មេ ឬក្រុមរៀននៅសាកលវិទ្យាល័យ",
+          "ការបារម្ភមិនឈប់អំពីអនាគត ការប្រឡង និងបញ្ហាហិរញ្ញវត្ថុគ្រួសារ សូម្បីតែក្នុងពេលទំនេរ",
+          "ការព្យាយាមធ្វើគ្រប់កិច្ចការសាលា និងការងារឱ្យបានល្អឥតខ្ចោះ ១០០% ដោយគ្មានកំហុស",
+        ],
+        feedbackMessage:
+          "Identifying your personal energy leak is the first step toward regaining balance. Acknowledging where your vitality slips away allows you to install gentle boundaries rather than fighting yourself with harsh discipline.",
+        kmFeedbackMessage:
+          "ការសម្គាល់ដឹងពីកន្លែងដែលថាមពលរបស់អ្នកលេចធ្លាយ គឺជាជំហានដំបូងក្នុងការស្តារតុល្យភាពឡើងវិញ។ នៅពេលដែលអ្នកដឹងច្បាស់ពីចំណុចនេះ អ្នកអាចបង្កើតព្រំដែនសុវត្ថិភាពដោយក្តីមេត្តា ជំនួសឱ្យការបន្ទោសខ្លួនឯង។",
+      },
+    },
+    {
+      id: 9,
+      sectionNumber: 9,
+      title: "Micro-Rest and the Daily Reset Routine [3, 4]",
+      kmTitle: "ការសម្រាកខ្លីៗ និងទម្លាប់កំណត់ជីវិតឡើងវិញប្រចាំថ្ងៃ (Micro-Rest & Daily Reset)",
+      type: "reading",
+      paragraphs: [
+        "You do not need to book an expensive vacation to experience recovery. Neuroscientists and occupational therapists emphasize the transformative power of 'micro-rest', intentional pauses lasting from two to five minutes scattered across your day [3].",
+        "When transitioning from your daytime job to your evening class, do not immediately open your notes or check group chats while stuck in traffic. Use that transition as a buffer zone: listen to calming instrumental music, take three conscious deep breaths, or notice the trees and sky.",
+        "Establish an evening shutdown ritual. When work and study finish, close your laptop screen, tidy your desk, and say out loud: 'Work is finished for today; whatever is undone can wait until tomorrow morning.' This simple verbal boundary signals your brain that it is safe to down-regulate from work arousal into restorative sleep mode [4].",
+      ],
+      kmParagraphs: [
+        "អ្នកមិនចាំបាច់រង់ចាំដល់មានពេលទៅដើរលេងកម្សាន្តឆ្ងាយទើបអាចសម្រាកបាននោះទេ។ អ្នកវិទ្យាសាស្ត្រប្រព័ន្ធប្រសាទ និងអ្នកជំនាញសុខភាពការងារបញ្ជាក់ពីអត្ថប្រយោជន៍ដ៏អស្ចារ្យនៃ «ការសម្រាកខ្លីៗ» (Micro-Rest) ដែលមានរយៈពេលត្រឹមតែ ២ ទៅ ៥ នាទីនៅចន្លោះពេលបំពេញកិច្ចការប្រចាំថ្ងៃ [3]។",
+        "នៅពេលផ្លាស់ប្តូរពីកន្លែងធ្វើការទៅថ្នាក់រៀនពេលយប់ សូមកុំប្រញាប់បើកមើលសៀវភៅ ឬតបសារក្រុមភ្លាមៗពេលកំពុងធ្វើដំណើរ។ ចូរប្រើពេលវេលានេះជាតំបន់ទ្រនាប់ (Buffer Zone)៖ ស្តាប់តន្ត្រីរំងាប់អារម្មណ៍ ដកដង្ហើមវែងៗ ៣ ដង ឬសម្លឹងមើលដើមឈើ និងផ្ទៃមេឃ។",
+        "សូមបង្កើតទម្លាប់បញ្ចប់កិច្ចការពេលយប់ (Shutdown Ritual)។ នៅពេលបញ្ចប់ការរៀន និងការងារ សូមបិទកុំព្យូទ័រ រៀបចំតុឱ្យមានរបៀប រួចនិយាយទៅកាន់ខ្លួនឯងថា៖ «ការងារសម្រាប់ថ្ងៃនេះត្រូវបានបញ្ចប់ហើយ រឿងដែលនៅសល់ទុកដល់ព្រឹកស្អែក»។ ការកំណត់ព្រំដែនបែបនេះ ជួយផ្តល់សញ្ញាដល់ខួរក្បាលថាដល់ពេលត្រូវរំងាប់អារម្មណ៍ និងរៀបចំចូលគេងដោយសុវត្ថិភាព [4]។",
+      ],
+      keyPoints: [
+        "Micro-breaks of 2 to 5 minutes reset nervous system stress levels before overwhelm builds up [3].",
+        "Create buffer zones between work, university, and home rather than jumping instantaneously.",
+        "A physical and verbal shutdown ritual prevents study anxiety from invading your bedtime.",
+      ],
+      kmKeyPoints: [
+        "ការសម្រាកខ្លីៗ ២ ទៅ ៥ នាទី ជួយសម្រួលប្រព័ន្ធប្រសាទ មុនពេលភាពតានតឹងកើនឡើងខ្ពស់ [3]។",
+        "បង្កើតចន្លោះពេលទ្រនាប់រវាងការងារ ការរៀន និងការចូលផ្ទះ កុំផ្លាស់ប្តូរភ្លាមៗដោយគ្មានពេលសម្រាក។",
+        "ទម្លាប់បិទបញ្ចប់កិច្ចការជួយការពារកុំឱ្យការព្រួយបារម្ភរំខានដល់ដំណេករបស់អ្នក។",
+      ],
+    },
+    {
+      id: 10,
+      sectionNumber: 10,
+      title: "Grounding in the Moment: The 1-Minute Transition Breath",
+      kmTitle: "ការតាំងចិត្តក្នុងពេលបច្ចុប្បន្ន៖ លំហាត់ដកដង្ហើមស្ងប់ចិត្ត ១ នាទី (1-Minute Transition Breath)",
+      type: "coping",
+      paragraphs: [
+        "Whenever you feel your chest tightening, your shoulders hunching, or your thoughts racing with twenty unfinished deadlines, pause immediately. Your body is signaling an acute stress response.",
+        "Let us practice the 1-Minute Transition Breath. Inhale slowly through your nose for a count of 4, feeling your belly expand. Hold gently for a count of 2. Exhale smoothly and slowly through your mouth for a count of 6. Repeat this cycle 4 times.",
+        "Lengthening your exhale triggers your parasympathetic nervous system, slowing your heart rate, releasing muscle tension, and bringing your cognitive mind back into the present moment.",
+      ],
+      kmParagraphs: [
+        "នៅពេលណាដែលអ្នកមានអារម្មណ៍ថាណែនទ្រូង ស្មាឡើងរឹង ឬគំនិតរវើរវាយព្រួយបារម្ភអំពីកាលកំណត់ការងារ សូមឈប់មួយភ្លែត។ រាងកាយរបស់អ្នកកំពុងផ្តល់សញ្ញាអាសន្នថាភាពតានតឹងបានកើនឡើងហើយ។",
+        "ចូរយើងអនុវត្តលំហាត់ដកដង្ហើមស្ងប់ចិត្ត ១ នាទីជាមួយគ្នា។ ដកដង្ហើមចូលយឺតៗតាមច្រមុះរាប់ដល់ ៤ ដោយឱ្យពោះប៉ោងឡើង។ ទប់ដង្ហើមថ្នមៗរាប់ដល់ ២។ បន្ទាប់មកដកដង្ហើមចេញយឺតៗតាមមាត់រាប់ដល់ ៦។ អនុវត្តបែបនេះឡើងវិញចំនួន ៤ ដង។",
+        "ការដកដង្ហើមចេញឱ្យវែងជាងដង្ហើមចូល ជួយជំរុញប្រព័ន្ធប្រសាទស្ងប់ចិត្ត (Parasympathetic Nervous System) បន្ថយចង្វាក់បេះដូង បន្ធូរសាច់ដុំ និងនាំការផ្តោតអារម្មណ៍របស់អ្នកត្រឡប់មកកាន់ពេលបច្ចុប្បន្នវិញ។",
+      ],
+      keyPoints: [
+        "A longer exhale activates your body's natural relaxation response.",
+        "You can practice this breath silently at your desk, in class, or before entering your home.",
+        "One minute of intentional respiration resets cortisol and restores emotional clarity.",
+      ],
+      kmKeyPoints: [
+        "ការដកដង្ហើមចេញវែង ជួយដាស់ប្រព័ន្ធរំងាប់អារម្មណ៍ធម្មជាតិរបស់រាងកាយ។",
+        "អ្នកអាចអនុវត្តលំហាត់ដង្ហើមនេះដោយស្ងៀមស្ងាត់នៅលើតុធ្វើការ ក្នុងថ្នាក់រៀន ឬមុនពេលចូលផ្ទះ។",
+        "ការដកដង្ហើមដោយស្មារតីត្រឹមតែ ១ នាទី ជួយកាត់បន្ថយអ័រម៉ូនស្ត្រេស និងស្តារភាពច្បាស់លាស់នៃចិត្តឡើងវិញ។",
+      ],
+      actions: [
+        {
+          label: "Try 1-Minute Calming Breath",
+          kmLabel: "អនុវត្តលំហាត់ដកដង្ហើមស្ងប់ចិត្ត ១ នាទី (1-Min Breath)",
+          actionType: "exercise",
+        },
+      ],
+    },
+    {
+      id: 11,
+      sectionNumber: 11,
+      title: "Building Your Ongoing Support System on AROM [4, 5]",
+      kmTitle: "ការកសាងប្រព័ន្ធគាំទ្របន្តនៅលើ AROM (Building Support on AROM)",
+      type: "reading",
+      paragraphs: [
+        "Balancing study, work, and personal well-being is not a one-time achievement. It is a continuous practice of self-awareness, compassionate adjustment, and mutual support.",
+        "On AROM, you have dedicated tools designed to protect your mental reserves. Open your private AROM Journal (/journal) to conduct a daily two-minute energy check-in. Record which of your four batteries felt drained, celebrate one boundary you held, and note what you can let go of without guilt.",
+        "If you find that chronic exhaustion, pervasive anxiety, or feelings of hopelessness persist despite your best efforts, you do not have to carry the burden alone. Through AROM Professional (/professional), you can connect confidentially with verified Cambodian therapists and counselors who understand the real pressures of local workplace cultures and academic expectations [5].",
+        "If work or academic pressure ever leads to overwhelming emotional crisis, despair, or thoughts of giving up, immediate confidential assistance is available. Reach out to the National Child and Youth Helpline at 1280, the National Health Hotline at 119, or TPO Cambodia at 017 222 372. Your worth as a human being is not defined by how much work you produce.",
+      ],
+      kmParagraphs: [
+        "ការបង្កើតតុល្យភាពរវាងការសិក្សា ការងារ និងសុខុមាលភាពផ្ទាល់ខ្លួន មិនមែនជាការធ្វើតែម្តងចប់នោះទេ។ វាគឺជាការអនុវត្តជាប្រចាំនូវការដឹងពីខ្លួនឯង ការកែសម្រួលដោយក្តីមេត្តា និងការស្វែងរកការគាំទ្រពីអ្នកដទៃ។",
+        "នៅលើ AROM អ្នកមានឧបករណ៍សុវត្ថិភាពជាច្រើនដើម្បីការពារថាមពលផ្លូវចិត្តរបស់អ្នក។ សូមបើកកំណត់ហេតុផ្ទាល់ខ្លួន AROM Journal (/journal) ដើម្បីពិនិត្យថាមពលប្រចាំថ្ងៃត្រឹមតែ ២ នាទី។ កត់ត្រាមើលថាអាគុយណាដែលកំពុងអស់ កោតសរសើរខ្លួនឯងចំពោះព្រំដែនមួយដែលអ្នកបានរក្សា និងកំណត់រឿងមួយដែលអ្នកអាចលះបង់ចោលបានដោយមិនមានអារម្មណ៍ខុស។",
+        "ប្រសិនបើអ្នកសង្កេតឃើញថា ភាពអស់កម្លាំងរ៉ាំរ៉ៃ ការថប់បារម្ភមិនឈប់ ឬអារម្មណ៍អស់សង្ឃឹមនៅតែបន្តទោះបីជាអ្នកបានព្យាយាមកែសម្រួលហើយក៏ដោយ អ្នកមិនចាំបាច់ទ្រាំរែកពន់បន្ទុកនេះតែម្នាក់ឯងឡើយ។ តាមរយៈ AROM Professional (/professional) អ្នកអាចភ្ជាប់ទំនាក់ទំនងប្រឹក្សាដោយសម្ងាត់ជាមួយអ្នកចិត្តវិទ្យា និងអ្នកជំនាញកម្ពុជាដែលមានការទទួលស្គាល់ត្រឹមត្រូវ ដែលយល់ច្បាស់ពីសម្ពាធការងារ និងការសិក្សាក្នុងសង្គមយើង [5]។",
+        "ប្រសិនបើសម្ពាធការងារ ឬការរៀនសូត្រឈានដល់កម្រិតវិបត្តិផ្លូវចិត្តធ្ងន់ធ្ងរ ឬមានគំនិតចង់បោះបង់ជីវិត សូមស្វែងរកជំនួយបន្ទាន់ភ្លាមៗ។ អ្នកអាចទាក់ទងខ្សែទូរស័ព្ទជំនួយកុមារ និងយុវជនលេខ 1280 ខ្សែទូរស័ព្ទសុខភាពជាតិលេខ 119 ឬអង្គការចិត្តសង្គមកម្ពុជា (TPO Cambodia) តាមលេខ 017 222 372។ តម្លៃរបស់អ្នកជាមនុស្ស មិនត្រូវបានកំណត់ដោយបរិមាណការងារដែលអ្នកធ្វើបាននោះឡើយ។",
+      ],
+      keyPoints: [
+        "Use AROM Journal (/journal) for daily 2-minute energy check-ins and boundary reflections.",
+        "Connect with verified counselors on AROM Professional (/professional) for sustainable life strategies [5].",
+        "Emergency support is always available: 1280, 119, or TPO Cambodia 017 222 372.",
+      ],
+      kmKeyPoints: [
+        "ប្រើប្រាស់កំណត់ហេតុ AROM Journal (/journal) សម្រាប់ពិនិត្យថាមពលប្រចាំថ្ងៃ និងឆ្លុះបញ្ចាំងពីព្រំដែនផ្ទាល់ខ្លួន។",
+        "ភ្ជាប់ទំនាក់ទំនងជាមួយអ្នកជំនាញលើ AROM Professional (/professional) ដើម្បីរៀបចំយុទ្ធសាស្ត្រជីវិតប្រកបដោយចីរភាព [5]។",
+        "លេខទូរស័ព្ទទាន់ហេតុការណ៍ត្រៀមជួយជានិច្ច៖ 1280, 119 ឬ TPO Cambodia 017 222 372។",
+      ],
+      alertBox: {
+        type: "tip",
+        text: "Remember: Rest is not a reward you earn after finishing everything. Rest is an essential biological requirement to sustain your life, your health, and your loved ones.",
+        kmText: "សូមចងចាំថា៖ ការសម្រាកមិនមែនជារង្វាន់ដែលអ្នកត្រូវទាមទារបន្ទាប់ពីធ្វើការងារគ្រប់យ៉ាងចប់នោះទេ។ ការសម្រាកគឺជាតម្រូវការធម្មជាតិដ៏ចាំបាច់បំផុត ដើម្បីទ្រទ្រង់ជីវិត សុខភាព និងមនុស្សជាទីស្រឡាញ់របស់អ្នក។",
+      },
+      actions: [
+        {
+          label: "Open AROM Journal",
+          kmLabel: "បើកកំណត់ហេតុ AROM Journal",
+          actionType: "tips",
+        },
+        {
+          label: "Talk to a Professional",
+          kmLabel: "ពិគ្រោះជាមួយអ្នកជំនាញ AROM",
+          actionType: "professional",
+        },
+      ],
+    },
+  ],
+};
+
 export const ALL_LESSONS: Lesson[] = [
+  LESSON_BALANCE_STUDY_WORK_LIFE,
   LESSON_WHAT_IS_MENTAL_HEALTH,
   LESSON_ABOUT_STRESS,
   LESSON_UNDERSTANDING_ANXIETY,

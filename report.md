@@ -1,5 +1,31 @@
 # AROM: Change Report
 
+## 18 Oct 2026: New Lesson, How to Balance Study, Work, and Life
+
+Commit `0b2dbe7`. No migration. Content and frontend only.
+
+**Why.** Competing demands from dual-shift university classes, daytime employment, family obligations, and societal pressures in Cambodia frequently cause cognitive overload, chronic exhaustion, boundary erosion, and systemic burnout. "How to Balance Study, Work, and Life" (`how-to-balance-study-work-life`) activates the Burnout category in MindGuide Learn with an 8-minute evidence-based psychoeducational guide adapted from WHO, APA, Harvard Health Publishing, NHS Every Mind Matters, and UNICEF Cambodia. It equips seekers with realistic, sustainable strategies to replace the unrealistic 50/50 balance myth with dynamic equilibrium, recognize early somatic and emotional burnout signals, manage their 4 core life batteries (physical, mental, emotional, meaning), set assertive boundaries without guilt, apply the Eisenhower priority matrix and "Good Enough" standard, practice micro-rest reset routines, soothe transition stress with the 1-Minute Calming Breath, and access confidential therapy on AROM.
+
+**What changed for users:**
+- **New Lesson available in MindGuide Learn:** Seekers can access "How to Balance Study, Work, and Life (របៀបបង្កើតតុល្យភាពរវាងការសិក្សា ការងារ និងជីវិតផ្ទាល់ខ្លួន)" under the Burnout category or directly via `/mindguide/learn?open=how-to-balance-study-work-life`.
+- **11 Comprehensive Bilingual Sections:** Covers why perfect balance is a myth, early warning signs of overload and clinical burnout (WHO ICD-11), Cambodian cultural context (dual shifts, family honor, rest guilt), interactive quiz on sustainable productivity, energy management across 4 life batteries (Harvard Health), boundary setting scripts for work and university, the priority matrix and "Good Enough" standard, personal energy leak audit reflection, micro-rest and evening shutdown rituals, somatic 1-minute transition breath, and ongoing support on AROM.
+- **Tip Alert Box:** Section 11 features a restorative reminder that rest is an essential biological requirement to sustain life and loved ones, not a reward earned after complete exhaustion.
+- **Direct AROM tool integration:** Section 10 links to "1-Minute Calming Breath" (`actionType: "exercise"`), and Section 11 provides direct action buttons for "Open AROM Journal" (`actionType: "tips"`) and "Talk to a Professional" (`actionType: "professional"`).
+
+**What changed for the team:**
+- **`learn-data.ts`:** Exported `REFERENCES_BALANCE_LIFE` with 5 peer-reviewed citations (WHO, APA, Harvard Health, NHS Every Mind Matters, UNICEF Cambodia) and `LESSON_BALANCE_STUDY_WORK_LIFE`, prepending it to `ALL_LESSONS` under category `"Burnout"`.
+- **Hero Image:** Added `public/mindguide/balance-study-work-hero.jpg` depicting a young Cambodian student and professional at a clean morning desk with study notes, a schedule laptop, warm tea, and sunlight.
+- **Strict Anti-AI Compliance:** Zero em dashes, en dashes, or loose hyphens across all English and Khmer copy.
+
+**What to re-test:**
+1. Open `/mindguide/learn` and verify "How to Balance Study, Work, and Life" card appears under the "Burnout" filter with the "Essential" badge.
+2. Open `/mindguide/learn?open=how-to-balance-study-work-life` and verify hero image, outcomes, and 11 sections render smoothly.
+3. Test Section 4 quiz: verify correct feedback when selecting option B and bilingual explanations.
+4. Test Section 8 self-reflection interactive choice and feedback.
+5. Test Section 10 coping exercise button: launches 1-Minute Calming Breath session.
+6. Test Section 11 tip alert box and action buttons: "Open AROM Journal" and "Talk to a Professional".
+7. Switch language to Khmer and verify all Kantumruy Pro translations.
+
 ## 18 Oct 2026: New Lesson, How to Handle Fear of Failure
 
 Commit `b821fc1`. No migration. Content and frontend only.
