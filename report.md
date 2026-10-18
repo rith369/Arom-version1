@@ -1,5 +1,33 @@
 # AROM: Change Report
 
+## 18 Oct 2026: Anonymous Clients Get a Number
+
+Commit `PENDING`. No migration.
+
+**Why.** Since the anonymous privacy work, every client with "Hide my identity" on shows as "Anonymous" to their therapist. A therapist with two anonymous clients saw "Anonymous" twice in bookings, messages and the client list, and could write a note or give a care task to the wrong person.
+
+**What changed for users:**
+
+- **Therapists see "Anonymous #4821"** (Khmer "អនាមិក #4821") instead of just "Anonymous", on every pro screen: My bookings, the week calendar, Prepare, My clients, the client file, Messages, Home, care plan and suggest session windows.
+- **The same client always has the same number**, and the number is different for each therapist, so it cannot be used to recognise someone across therapists.
+- **Searching "4821" in My clients finds that client.**
+- **Clients see no change.**
+
+**What changed for the team:**
+
+- **`app/pro/_data/clients.ts`:** `anonymousLabel()` makes the number from the client's alias id (FNV-1a hash, 1000 to 9999); `withClientLabels()` renames anonymous bookings.
+- **`pro-provider.tsx`:** applies the labels once to the bookings every pro screen reads, and again when the language changes.
+- **`clients-view.tsx`:** the avatar letter skips the number ("A", not "A#").
+- Frontend only. The server still returns "Anonymous". `BACKEND-HANDOFF.md` section 29 follow up marked done.
+
+**What to re-test:**
+
+1. As a therapist with two anonymous clients, open My clients: each shows a different "Anonymous #" number with the avatar "A".
+2. Open My bookings, Messages and a client file: the same client has the same number everywhere.
+3. Refresh the page: the numbers stay the same.
+4. Switch to Khmer: the label reads "អនាមិក #" with the same number.
+5. Type the number in the My clients search: that client is found.
+
 ## 18 Oct 2026: Sample Quick Replies Are Back
 
 Commit `7be1816`. No migration.

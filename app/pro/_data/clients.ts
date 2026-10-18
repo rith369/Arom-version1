@@ -1,6 +1,33 @@
 import type { MoodWeekResponse } from '@/lib/mood';
 import type { ProBooking } from './bookings';
 
+// The server names a client who hides their identity "Anonymous" (section 29).
+const ANONYMOUS = 'Anonymous';
+
+/**
+ * "Anonymous #4821": a 4 digit number made from the client's alias id, so a
+ * professional can tell anonymous clients apart. The alias is different for
+ * each professional, so the number cannot be compared between professionals
+ * and says nothing about the account. Same client, same number, every visit.
+ */
+export function anonymousLabel(clientId: string, language: 'en' | 'km') {
+  // FNV-1a hash of the alias id.
+  let hash = 2166136261;
+  for (let i = 0; i < clientId.length; i += 1) {
+    hash ^= clientId.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+  const number = 1000 + ((hash >>> 0) % 9000);
+  return language === 'km' ? `អនាមិក #${number}` : `${ANONYMOUS} #${number}`;
+}
+
+/** Bookings with anonymous clients renamed to their numbered label. */
+export function withClientLabels(bookings: ProBooking[], language: 'en' | 'km'): ProBooking[] {
+  return bookings.map((booking) =>
+    booking.clientName === ANONYMOUS ? { ...booking, clientName: anonymousLabel(booking.clientId, language) } : booking,
+  );
+}
+
 // A professional only ever sees people who booked with them, and only what
 // happened in those sessions. Journals, mood logs and detection answers are
 // never shown, unless the client switched sharing on for a booking.

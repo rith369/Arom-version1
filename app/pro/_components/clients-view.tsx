@@ -16,6 +16,8 @@ function initials(name: string) {
   return name
     .trim()
     .split(/\s+/)
+    // "Anonymous #4821" shows "A", not "A#".
+    .filter((part) => !part.startsWith('#'))
     .slice(0, 2)
     .map((part) => part.charAt(0))
     .join('')

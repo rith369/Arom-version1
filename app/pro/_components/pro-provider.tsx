@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 
 import { FREE_DURING_TESTING } from '@/lib/pricing';
 import type { ProData } from '@/lib/controllers/pro-controller';
@@ -13,7 +13,7 @@ import {
 } from '../_data/profile';
 import { emptySchedule, hasOpenTimes, type Schedule } from '../_data/schedule';
 import type { ProBooking, SessionNote } from '../_data/bookings';
-import type { SharedByClient } from '../_data/clients';
+import { withClientLabels, type SharedByClient } from '../_data/clients';
 import { useLanguage } from '../../_components/language-provider';
 
 // The signed in professional's own data, from /api/pro/me (BACKEND-HANDOFF.md
@@ -139,6 +139,10 @@ export function ProProvider({ children }: { children: ReactNode }) {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     void load();
   }, [load]);
+
+  // Every pro screen reads client names from here, so anonymous clients get
+  // their numbered label everywhere, in the current language.
+  const bookings = useMemo(() => (data ? withClientLabels(data.bookings, language) : []), [data, language]);
 
   if (!data) {
     return (
@@ -269,7 +273,7 @@ export function ProProvider({ children }: { children: ReactNode }) {
         hasSchedule: hasOpenTimes(schedule),
         schedule,
         saveSchedule,
-        bookings: data.bookings,
+        bookings,
         sessionNotes: data.sessionNotes,
         // The reason is shown to the client.
         cancelBooking: (id, reason) => bookingAction(id, { action: 'cancel', reason }),
