@@ -6805,7 +6805,451 @@ export const LESSON_SUPPORT_FRIEND: Lesson = {
   ],
 };
 
+
+export const REFERENCES_LONELINESS: ReferenceItem[] = [
+  {
+    id: 1,
+    citation: "[1]",
+    source: "WHO",
+    title: "World Health Organization: Commission on Social Connection and the Health Impacts of Loneliness",
+    url: "https://www.who.int/groups/commission-on-social-connection",
+  },
+  {
+    id: 2,
+    citation: "[2]",
+    source: "APA",
+    title: "American Psychological Association: The Science of Loneliness and Building Meaningful Bonds",
+    url: "https://www.apa.org/topics/stress/social-support",
+  },
+  {
+    id: 3,
+    citation: "[3]",
+    source: "Harvard Health",
+    title: "Harvard Health Publishing: Loneliness vs. Solitude: How to Turn Isolation into Restorative Care",
+    url: "https://www.health.harvard.edu/mind-and-mood/the-difference-between-loneliness-and-solitude",
+  },
+  {
+    id: 4,
+    citation: "[4]",
+    source: "NHS Every Mind Matters",
+    title: "NHS Every Mind Matters: Managing Loneliness and Building Everyday Social Connections",
+    url: "https://www.nhs.uk/every-mind-matters/lifes-challenges/loneliness/",
+  },
+  {
+    id: 5,
+    citation: "[5]",
+    source: "UNICEF Cambodia",
+    title: "UNICEF Cambodia: Youth Urban Migration, Living Away from Home, and Overcoming Isolation",
+    url: "https://www.unicef.org/cambodia/mental-health",
+  },
+];
+
+export const LESSON_LONELINESS: Lesson = {
+  id: "how-to-deal-with-loneliness",
+  title: "How to Deal With Loneliness",
+  kmTitle: "របៀបដោះស្រាយភាពឯកោ (How to Deal With Loneliness)",
+  subtitle: "Explore meaningful connection, transform solitude, and cultivate gentle self-care",
+  kmSubtitle: "ស្វែងយល់ពីការតភ្ជាប់ទំនាក់ទំនងប្រកបដោយអត្ថន័យ ការផ្លាស់ប្តូរភាពនៅម្នាក់ឯង និងការថែទាំខ្លួនឯង",
+  category: "Relationships",
+  duration: "8 min",
+  kmDuration: "៨ នាទី",
+  difficulty: "Beginner",
+  kmDifficulty: "កម្រិតដំបូង (Beginner)",
+  format: "Reading + Practice",
+  kmFormat: "ការអាន និងការអនុវត្ត (Reading & Practice)",
+  isAvailable: true,
+  image: "/mindguide/strategies.png",
+  heroImage: "/mindguide/loneliness-hero.jpg",
+  badge: "Popular",
+  description:
+    "Unpack the neurobiology and psychology of loneliness. Learn the difference between isolation and nourishing solitude, navigate Cambodian urban migration pressures, build a low-stakes connection ladder, and ground in self-compassion on AROM.",
+  kmDescription:
+    "ស្វែងយល់ពីចិត្តវិទ្យានៃភាពឯកោ។ រៀនបែងចែកភាពឯកោពីភាពនៅម្នាក់ឯងដោយស្ងប់ស្ងាត់ (Solitude) គ្រប់គ្រងសម្ពាធនៃការផ្លាស់ទីមករាជធានី និងកសាងការតភ្ជាប់ទំនាក់ទំនងតាមជំហានតូចៗនៅលើ AROM។",
+  totalSections: 11,
+  outcomes: [
+    {
+      en: "Understand loneliness as an instinctive biological signal rather than a shameful personal defect [1, 2]",
+      km: "យល់ដឹងពីភាពឯកោថាជាសញ្ញាព្រមានជីវសាស្ត្រធម្មជាតិ មិនមែនជាការខូចខាតតម្លៃផ្ទាល់ខ្លួនឡើយ [1, 2]",
+    },
+    {
+      en: "Distinguish painful social disconnection from nourishing, restorative solitude [3]",
+      km: "បែងចែកឱ្យច្បាស់រវាងការឯកោឈឺចាប់ និងភាពនៅម្នាក់ឯងដោយស្ងប់ស្ងាត់ដែលជួយស្តារថាមពល (Solitude) [3]",
+    },
+    {
+      en: "Address Cambodian urban migration realities, rented room isolation, and social media comparison [4, 5]",
+      km: "ដោះស្រាយបញ្ហាជាក់ស្តែងនៃការផ្លាស់ទីមករៀននៅរាជធានី ការនៅបន្ទប់ជួលម្នាក់ឯង និងការប្រៀបធៀបលើបណ្តាញសង្គម [4, 5]",
+    },
+    {
+      en: "Deactivate the lonely brain's social threat hypervigilance loop and re-engage with neutrality [1, 2]",
+      km: "កាត់ផ្តាច់រង្វិលជុំនៃការភ័យខ្លាចការបដិសេធក្នុងខួរក្បាល និងចាប់ផ្តើមទំនាក់ទំនងដោយចិត្តស្ងប់ [1, 2]",
+    },
+    {
+      en: "Implement the 3-tier low-stakes connection ladder to build genuine social warmth without overwhelm [2, 4]",
+      km: "អនុវត្តជណ្តើរនៃការតភ្ជាប់ ៣ កម្រិត ដើម្បីបង្កើតភាពកក់ក្តៅក្នុងសង្គមដោយគ្មានសម្ពាធ [2, 4]",
+    },
+    {
+      en: "Practice somatic self-compassion breathwork and access confidential professional counseling on AROM [4, 5]",
+      km: "អនុវត្តលំហាត់ដង្ហើមមេត្តាចំពោះខ្លួនឯង និងភ្ជាប់ការប្រឹក្សាដោយសម្ងាត់ជាមួយអ្នកជំនាញនៅលើ AROM [4, 5]",
+    },
+  ],
+  references: REFERENCES_LONELINESS,
+  sections: [
+    {
+      id: 1,
+      sectionNumber: 1,
+      title: "The Loneliness Paradox: Feeling Alone in a Crowded Room",
+      kmTitle: "ភាពផ្ទុយគ្នានៃភាពឯកោ៖ អារម្មណ៍នៅម្នាក់ឯងកណ្តាលចំណោមមនុស្សជាច្រើន (The Loneliness Paradox)",
+      type: "reading",
+      paragraphs: [
+        "Have you ever sat in a crowded lecture hall, walked through a bustling market, or scrolled through hundreds of online messages, while feeling completely invisible and alone?",
+        "This is the loneliness paradox. Loneliness is not simply the physical absence of people; it is the subjective emotional distress of feeling unseen, unknown, and misunderstood. You can be physically alone for days and feel completely at peace, or you can be surrounded by family and peers and feel an aching emotional vacuum.",
+        "Clinical psychologists at the American Psychological Association remind us that loneliness is not a personal failure, a lack of social charm, or a character flaw [2]. It is a primal biological alarm. Just as physical hunger signals that your body needs calories, loneliness signals that your emotional nervous system needs meaningful social nourishment.",
+      ],
+      kmParagraphs: [
+        "តើអ្នកធ្លាប់អង្គុយក្នុងបន្ទប់រៀនដែលមានមនុស្សពេញ ដើរក្នុងផ្សារដ៏អ៊ូអរ ឬអូសមើលសាររាប់រយក្នុងទូរស័ព្ទ ប៉ុន្តែនៅតែមានអារម្មណ៍ថាខ្លួនឯងទទេស្អាត និងឯកោខ្លាំងដែរឬទេ?",
+        "នេះគឺជាភាពផ្ទុយគ្នានៃភាពឯកោ (Loneliness Paradox)។ ភាពឯកោមិនមែនគ្រាន់តែជាការគ្មានមនុស្សនៅក្បែរនោះឡើយ ប៉ុន្តែវាគឺជាការឈឺចាប់ផ្លូវចិត្តនៅពេលមានអារម្មណ៍ថា គ្មាននរណាម្នាក់មើលឃើញ គ្មាននរណាយល់ និងគ្មានអ្នកស្គាល់ចិត្តពិតប្រាកដ។ អ្នកអាចនៅម្នាក់ឯងជាច្រើនថ្ងៃដោយមានសេចក្តីសុខពេញលេញ ឬអ្នកអាចនៅកណ្តាលក្រុមគ្រួសារ និងមិត្តភក្តិ ប៉ុន្តែមានអារម្មណ៍ឯកោដូចនៅកណ្តាលវាលខ្សាច់។",
+        "អ្នកចិត្តវិទ្យានៃសមាគមចិត្តវិទ្យាអាមេរិក (APA) រំលឹកយើងថា ភាពឯកោមិនមែនជាការបរាជ័យផ្ទាល់ខ្លួន ឬកង្វះភាពរួសរាយនោះទេ [2]។ វាគឺជាសំឡេងរោទ៍ជីវសាស្ត្រធម្មជាតិ។ ដូចគ្នានឹងអារម្មណ៍ឃ្លានបាយដែលប្រាប់ថារាងកាយត្រូវការអាហារ អារម្មណ៍ឯកោគឺជាសញ្ញាប្រាប់ថាប្រព័ន្ធប្រសាទរបស់អ្នកត្រូវការទំនាក់ទំនងដែលមានអត្ថន័យ។",
+      ],
+      keyPoints: [
+        "Loneliness is the subjective feeling of being disconnected, not physical isolation.",
+        "You can feel lonely in a crowded room, a busy office, or a large family gathering.",
+        "Loneliness is a natural biological alarm signaling a hunger for genuine connection [2].",
+      ],
+      kmKeyPoints: [
+        "ភាពឯកោគឺជាអារម្មណ៍ខាងក្នុងនៃការដាច់ទំនាក់ទំនង មិនមែនគ្រាន់តែជាការនៅម្នាក់ឯងឡើយ។",
+        "អ្នកអាចមានអារម្មណ៍ឯកោកណ្តាលបន្ទប់រៀន កន្លែងធ្វើការ ឬក្នុងចំណោមគ្រួសារធំ។",
+        "ភាពឯកោគឺជាសំឡេងរោទ៍ធម្មជាតិដែលប្រាប់ថាយើងត្រូវការការតភ្ជាប់ទំនាក់ទំនង [2]។",
+      ],
+    },
+    {
+      id: 2,
+      sectionNumber: 2,
+      title: "Loneliness vs. Solitude: The Power of Restorative Aloneness [2, 3]",
+      kmTitle: "ភាពឯកោ ធៀបនឹងភាពនៅម្នាក់ឯងដោយស្ងប់ស្ងាត់ (Loneliness vs. Solitude)",
+      type: "reading",
+      paragraphs: [
+        "To heal our relationship with loneliness, we must understand the crucial distinction between loneliness and solitude [3].",
+        "Loneliness is a state of lack and pain. It is accompanied by feelings of rejection, anxiety, emptiness, and the painful thought: 'Nobody cares about me, I am unwanted.'",
+        "Solitude, on the other hand, is the state of being peacefully alone. Solitude is rich, chosen, and restorative. In solitude, you engage in creative writing, listen to music, sip hot tea, or water your plants without feeling rushed or judged. When you learn to transform unwanted isolation into nourishing solitude, being alone shifts from an emotional prison into a quiet sanctuary of recovery [2, 3].",
+      ],
+      kmParagraphs: [
+        "ដើម្បីព្យាបាលភាពឯកោ យើងត្រូវយល់ដឹងពីភាពខុសគ្នាយ៉ាងសំខាន់រវាងភាពឯកោ (Loneliness) និងភាពនៅម្នាក់ឯងដោយស្ងប់ស្ងាត់ (Solitude) [3]។",
+        "ភាពឯកោ គឺជាស្ថានភាពនៃការខ្វះខាត និងការឈឺចាប់។ វាអមដោយអារម្មណ៍ភ័យខ្លាច ភាពទទេស្អាត និងគំនិតអវិជ្ជមានថា៖ «គ្មាននរណាម្នាក់ខ្វល់ពីខ្ញុំទេ ខ្ញុំជាមនុស្សដែលគេមិនត្រូវការ។»",
+        "ផ្ទុយទៅវិញ ភាពនៅម្នាក់ឯងដោយស្ងប់ស្ងាត់ (Solitude) គឺជាការពេញចិត្តក្នុងការនៅជាមួយខ្លួនឯង។ វាគឺជាពេលវេលាដ៏ស្ងប់ស្ងាត់ដែលអ្នកជ្រើសរើសដើម្បីស្តារថាមពល។ ក្នុងភាពនៅម្នាក់ឯងនេះ អ្នកអាចសរសេរអាន ស្តាប់តន្ត្រី ញ៉ាំតែ ឬស្រោចផ្កា ដោយគ្មានការវិនិច្ឆ័យពីអ្នកដទៃ។ នៅពេលដែលអ្នករៀនផ្លាស់ប្តូរការនៅម្នាក់ឯងឱ្យទៅជា Solitude ពេលវេលានៅម្នាក់ឯងនឹងប្រែពីគុកនៃអារម្មណ៍ ទៅជាកន្លែងសន្សំសេចក្តីស្ងប់ក្នុងចិត្តវិញ [2, 3]។",
+      ],
+      keyPoints: [
+        "Loneliness is marked by an emotional vacuum and yearning for connection [3].",
+        "Solitude is chosen, peaceful, self-nourishing time alone.",
+        "Learning to enjoy your own company turns isolation into restorative healing.",
+      ],
+      kmKeyPoints: [
+        "ភាពឯកោស្តែងចេញតាមរយៈភាពទទេស្អាត និងការឈឺចាប់នៃការដាច់ទំនាក់ទំនង [3]។",
+        "Solitude គឺជាការជ្រើសរើសនៅម្នាក់ឯងដោយស្ងប់ចិត្ត ដើម្បីស្តារថាមពលឡើងវិញ។",
+        "ការរៀនរីករាយជាមួយវត្តមានខ្លួនឯង ជួយប្តូរភាពឯកោឱ្យទៅជាការជាសះស្បើយ។",
+      ],
+    },
+    {
+      id: 3,
+      sectionNumber: 3,
+      title: "Cambodian Context: Urban Migration, Rented Rooms, and Social Media [4, 5]",
+      kmTitle: "បរិបទសង្គមកម្ពុជា៖ ការផ្លាស់ទីមករាជធានី បន្ទប់ជួល និងបណ្តាញសង្គម (Cambodian Urban Isolation)",
+      type: "reading",
+      paragraphs: [
+        "In modern Cambodia, demographic shifts have brought unprecedented waves of loneliness among young adults. Every year, thousands of students and workers leave their home provinces (ស្រុកកំណើត) to pursue university degrees or career opportunities in Phnom Penh [5].",
+        "Moving from close-knit rural villages into crowded urban centers often means living alone in small rented rooms (បន្ទប់ជួល). After long shifts or late classes, coming home to an empty, silent room can feel overwhelmingly cold. The absence of family cooking, evening chats under the house stilt, and familiar neighbors creates acute cultural homesickness.",
+        "This ache is magnified by social media. Sitting alone at night scrolling through TikTok, Instagram, and Facebook feeds filled with friends enjoying hotpot, birthday parties, or outings creates the painful illusion that everyone else is surrounded by love except you. UNICEF Cambodia emphasizes that this urban isolation is widespread and systemic, not a sign that you are unlikable [5].",
+      ],
+      kmParagraphs: [
+        "នៅក្នុងសង្គមកម្ពុជាសម័យបច្ចុប្បន្ន ការផ្លាស់ប្តូរការរស់នៅបាននាំមកនូវរលកនៃភាពឯកោដែលមិនធ្លាប់មានក្នុងចំណោមយុវជន។ ជារៀងរាល់ឆ្នាំ និស្សិត និងយុវជនរាប់ម៉ឺននាក់បានចាកចេញពីស្រុកកំណើតនៅតាមបណ្តាខេត្ត ដើម្បីមកបន្តការសិក្សានៅសាកលវិទ្យាល័យ ឬធ្វើការងារនៅរាជធានីភ្នំពេញ [5]។",
+        "ការផ្លាស់ប្តូរពីភូមិស្រុកដែលធ្លាប់មានភាពជិតស្និទ្ធ មករស់នៅក្នុងបន្ទប់ជួលតូចចង្អៀតតែម្នាក់ឯង គឺជាការផ្លាស់ប្តូរដ៏ធំធេង។ បន្ទាប់ពីការងារពេញមួយថ្ងៃ ឬថ្នាក់រៀនយប់ ការត្រឡប់មកដល់បន្ទប់ជួលដ៏ស្ងប់ស្ងាត់អាចធ្វើឱ្យមានអារម្មណ៍ត្រជាក់ស្រងាត់ និងនឹកផ្ទះយ៉ាងខ្លាំង។ ការបាត់បង់ស្នូរជជែកគ្នាក្រោមផ្ទះ និងម្ហូបម្តាយ បង្កើតបានជាភាពឯកោដ៏ឈឺចាប់។",
+        "ភាពឯកោនេះរឹតតែកើនឡើងដោយសារឥទ្ធិពលបណ្តាញសង្គម។ ការអង្គុយម្នាក់ឯងពេលយប់អូសមើល TikTok, Facebook និង Instagram ឃើញគេដើរលេង ញ៉ាំអាហារជុំគ្នា ឬជួបជុំសប្បាយ បង្កើតបានជាការបំភាន់ថា មនុស្សគ្រប់គ្នាសុទ្ធតែមានគេស្រឡាញ់លើកលែងតែខ្លួនឯង។ អង្គការ UNICEF Cambodia បញ្ជាក់ថា ភាពឯកោនៃការផ្លាស់ទីមករស់នៅទីក្រុងនេះ គឺជាបញ្ហារួមរបស់យុវជនជាច្រើន មិនមែនមានន័យថាអ្នកជាមនុស្សដែលគ្មានគេស្រឡាញ់នោះឡើយ [5]។",
+      ],
+      keyPoints: [
+        "Rural-to-urban migration in Cambodia places thousands in isolated rented rooms [5].",
+        "Social media feeds curate highlight reels that amplify perceived abandonment.",
+        "Your loneliness in the city is a common shared experience, not a personal flaw.",
+      ],
+      kmKeyPoints: [
+        "ការផ្លាស់ទីពីស្រុកកំណើតមករាជធានី ធ្វើឱ្យយុវជនជាច្រើនត្រូវរស់នៅឯកោក្នុងបន្ទប់ជួល [5]។",
+        "បណ្តាញសង្គមបង្ហាញតែទិដ្ឋភាពសប្បាយៗ ដែលធ្វើឱ្យយើងមានអារម្មណ៍ឯកោទ្វេដង។",
+        "ភាពឯកោរបស់អ្នកក្នុងទីក្រុង គឺជាបទពិសោធន៍ទូទៅរបស់មនុស្សជាច្រើន មិនមែនជាកំហុសរបស់អ្នកឡើយ។",
+      ],
+    },
+    {
+      id: 4,
+      sectionNumber: 4,
+      title: "Check Your Understanding: Myths and Facts About Loneliness",
+      kmTitle: "ពិនិត្យការយល់ដឹង៖ ការពិត និងការយល់ច្រឡំអំពីភាពឯកោ (Facts vs. Myths)",
+      type: "quiz",
+      paragraphs: [
+        "How we interpret our feelings of isolation shapes how we respond to them. Test your understanding of connection and social well-being.",
+      ],
+      kmParagraphs: [
+        "របៀបដែលយើងយល់ដឹងអំពីភាពឯកោ កំណត់វិធីដែលយើងដោះស្រាយវា។ សូមសាកល្បងពិនិត្យការយល់ដឹងអំពីការតភ្ជាប់ទំនាក់ទំនង និងសុខុមាលភាពសង្គម។",
+      ],
+      quiz: {
+        question: "Which of the following is clinically proven to reduce chronic loneliness most effectively?",
+        kmQuestion: "តើចំណុចមួយណាខាងក្រោមដែលត្រូវបានបញ្ជាក់តាមក្បួនគ្លីនិកថា ជួយកាត់បន្ថយភាពឯកោរ៉ាំរ៉ៃបានប្រកបដោយប្រសិទ្ធភាពបំផុត?",
+        options: [
+          {
+            id: "opt-a",
+            text: "Accumulating hundreds of casual online followers and constantly posting updates",
+            kmText: "ការប្រមូលអ្នកតាមដានរាប់រយនាក់លើបណ្តាញសង្គម និងការបង្ហោះរូបភាពជាប្រចាំ",
+            isCorrect: false,
+          },
+          {
+            id: "opt-b",
+            text: "Cultivating one or two genuine, authentic relationships where you can share feelings honestly without pretending",
+            kmText: "ការកសាងទំនាក់ទំនងពិតប្រាកដជាមួយមនុស្សម្នាក់ ឬពីរនាក់ ដែលអ្នកអាចចែករំលែកអារម្មណ៍ពិតដោយមិនបាច់ក្លែងបន្លំ",
+            isCorrect: true,
+          },
+          {
+            id: "opt-c",
+            text: "Forcing yourself to attend loud parties every weekend even when you feel completely disconnected",
+            kmText: "ការបង្ខំខ្លួនឯងឱ្យទៅចូលរួមពិធីជប់លៀងរៀងរាល់ចុងសប្តាហ៍ ទោះបីជាមានអារម្មណ៍មិនត្រូវគ្នាក៏ដោយ",
+            isCorrect: false,
+          },
+          {
+            id: "opt-d",
+            text: "Pretending that you never need human connection and suppressing all vulnerable emotions",
+            kmText: "ការធ្វើពុតជាមិនដែលត្រូវការអ្នកដទៃ ហើយសង្កត់សង្កិនអារម្មណ៍ឯកោចោលទាំងអស់",
+            isCorrect: false,
+          },
+        ],
+        explanation:
+          "Research across social neuroscience and the WHO confirms that relationship quality far outweighs quantity. Having just one person with whom you can be emotionally authentic and vulnerable provides greater protection against loneliness than hundreds of shallow acquaintances [1, 2].",
+        kmExplanation:
+          "ការស្រាវជ្រាវប្រព័ន្ធប្រសាទ និងអង្គការសុខភាពពិភពលោក (WHO) បញ្ជាក់ថា គុណភាពនៃទំនាក់ទំនងមានតម្លៃខ្ពស់ជាងបរិមាណ។ ការមានមនុស្សតែម្នាក់ដែលអ្នកអាចបង្ហាញភាពស្មោះត្រង់ និងអារម្មណ៍ពិតបាន ជួយការពារអ្នកពីភាពឯកោបានល្អជាងការស្គាល់មនុស្សរាប់រយនាក់តែសំបកក្រៅ [1, 2]។",
+      },
+    },
+    {
+      id: 5,
+      sectionNumber: 5,
+      title: "The Brain Under Loneliness: Breaking the Threat Alarm [1, 2]",
+      kmTitle: "ខួរក្បាលក្នុងស្ថានភាពឯកោ៖ ការកាត់ផ្តាច់រង្វិលជុំនៃការភ័យខ្លាច (The Threat Alarm)",
+      type: "reading",
+      paragraphs: [
+        "When loneliness becomes chronic, it changes the way your brain processes social interactions. Evolutionary psychologists explain that to ancient humans, being separated from the tribe was a death sentence. Therefore, a lonely brain enters a state of 'hypervigilance for social threat' [2].",
+        "If a friend takes two hours to reply to a Telegram text, a lonely brain immediately catastrophizes: 'They do not like me anymore, I am annoying.' If someone at university does not smile back, the lonely brain assumes rejection. To protect itself from pain, the mind urges you to withdraw even further into your room.",
+        "This creates a vicious loop: Loneliness leads to hypervigilance, which leads to social anxiety and withdrawal, which deepens loneliness. Recognizing this cognitive distortion is liberating: your brain is simply over-protecting you. You can gently challenge these thoughts: 'A late reply means they are busy, not that I am unloved' [1, 2].",
+      ],
+      kmParagraphs: [
+        "នៅពេលដែលភាពឯកោក្លាយជារ៉ាំរ៉ៃ វាផ្លាស់ប្តូររបៀបដែលខួរក្បាលរបស់អ្នកបកស្រាយទំនាក់ទំនងសង្គម។ អ្នកចិត្តវិទ្យាពន្យល់ថា ចំពោះមនុស្សសម័យបុរាណ ការបែកចេញពីកុលសម្ព័ន្ធមានន័យស្មើនឹងសេចក្តីស្លាប់។ ដូច្នេះហើយ ខួរក្បាលដែលឯកោនឹងចូលទៅក្នុងស្ថានភាព «ប្រុងប្រយ័ត្នហួសហេតុចំពោះការបដិសេធ» (Hypervigilance) [2]។",
+        "ប្រសិនបើមិត្តភក្តិឆ្លើយតបសារ Telegram យឺត ២ ម៉ោង ខួរក្បាលដែលឯកោនឹងគិតភ្លាមថា៖ «គេលែងចូលចិត្តខ្ញុំហើយ ខ្ញុំជាមនុស្សគួរឱ្យធុញ។» ប្រសិនបើអ្នកណាម្នាក់នៅសាលាមិនបានញញឹមតប ខួរក្បាលនឹងសន្និដ្ឋានថាគេស្អប់យើង។ ដើម្បីការពារការឈឺចាប់ ចិត្តរបស់អ្នកនឹងបង្ខំឱ្យអ្នកដកខ្លួនកាន់តែជ្រៅទៅក្នុងបន្ទប់។",
+        "រឿងនេះបង្កើតជារង្វិលជុំដ៏គ្រោះថ្នាក់៖ ភាពឯកោបង្កើតការភ័យខ្លាចការបដិសេធ ការភ័យខ្លាចនាំឱ្យដកខ្លួនចេញ ហើយការដកខ្លួនចេញរឹតតែធ្វើឱ្យឯកោខ្លាំងឡើង។ ការដឹងទាន់ការយល់ច្រឡំនេះ ជួយរំដោះចិត្តរបស់អ្នកបាន៖ ខួរក្បាលរបស់អ្នកគ្រាន់តែព្យាយាមការពារអ្នកហួសហេតុប៉ុណ្ណោះ។ អ្នកអាចកែសម្រួលការគិតនេះថា៖ «គេតបសារយឺតព្រោះគេរវល់ មិនមែនមានន័យថាគេស្អប់ខ្ញុំឡើយ» [1, 2]។",
+      ],
+      keyPoints: [
+        "Chronic loneliness makes your brain hypervigilant, misinterpreting neutral cues as rejection [2].",
+        "The loneliness loop: Distress -> Over-sensitivity -> Withdrawal -> Deeper loneliness.",
+        "Pause and reality-check assumptions before concluding that people are ignoring you.",
+      ],
+      kmKeyPoints: [
+        "ភាពឯកោរ៉ាំរ៉ៃធ្វើឱ្យខួរក្បាលប្រុងប្រយ័ត្នហួសហេតុ និងបកស្រាយខុសថាគេបដិសេធ [2]។",
+        "រង្វិលជុំនៃភាពឯកោ៖ ការឈឺចាប់ -> ការសង្ស័យហួសហេតុ -> ការដកខ្លួន -> កាន់តែឯកោ។",
+        "សូមផ្អាកមួយភ្លែតដើម្បីពិនិត្យការពិត មុននឹងសន្និដ្ឋានថាគេមិនត្រូវការអ្នក។",
+      ],
+    },
+    {
+      id: 6,
+      sectionNumber: 6,
+      title: "Building the Low-Stakes Connection Ladder: Small Daily Steps [2, 4]",
+      kmTitle: "ជណ្តើរនៃការតភ្ជាប់ទំនាក់ទំនងតាមជំហានតូចៗ (The Low-Stakes Connection Ladder)",
+      type: "reading",
+      paragraphs: [
+        "When you feel deeply isolated, the thought of attending large parties or making brand new lifelong friends feels terrifying and exhausting. Instead of huge leaps, psychologists recommend building a 'Low-Stakes Connection Ladder' [4].",
+        "Rung 1: Micro-Connections. Start with tiny, low-pressure human acknowledgments that carry zero risk of rejection. Smile and say 'Thank you, take care' to the tuk-tuk driver or iced coffee vendor. Make brief eye contact and nod to a neighbor in your building hallway. These micro-interactions signal to your nervous system that the world is friendly [2].",
+        "Rung 2: Shared-Context Interactions. Join environments where human beings gather around a common task rather than face-to-face small talk. Study in a sunlit public library, join a community clean-up, participate in a local youth workshop, or attend a group exercise session. You feel part of a collective without having to perform.",
+        "Rung 3: Deepening One Existing Spark. Reach out to one person you used to know with a warm, low-pressure message: 'Hi, I was thinking about our conversation the other day and just wanted to see how you are doing. No need to reply quickly!' [4].",
+      ],
+      kmParagraphs: [
+        "នៅពេលដែលអ្នកមានអារម្មណ៍ឯកោខ្លាំង ការគិតដល់ការទៅចូលរួមកម្មវិធីធំៗ ឬការស្វែងរកមិត្តភក្តិថ្មីភ្លាមៗ អាចជារឿងគួរឱ្យភ័យខ្លាច។ ជំនួសឱ្យការបោះជំហានធំៗ អ្នកចិត្តវិទ្យាណែនាំឱ្យអនុវត្ត «ជណ្តើរនៃការតភ្ជាប់ទំនាក់ទំនងតាមជំហានតូចៗ» [4]។",
+        "កាំជណ្តើរទី ១៖ ការតភ្ជាប់កម្រិតតូច (Micro-Connections)។ ចាប់ផ្តើមពីការស្វាគមន៍តូចៗដែលគ្មានសម្ពាធ និងគ្មានហានិភ័យនៃការបដិសេធ។ ញញឹមហើយនិយាយថា «អរគុណច្រើនបង» ទៅកាន់អ្នករត់កង់បី ឬអ្នកលក់កាហ្វេ។ ងក់ក្បាលរាក់ទាក់អ្នកជិតខាងនៅមុខបន្ទប់ជួល។ ការប្រាស្រ័យទាក់ទងតូចៗទាំងនេះ ជួយផ្តល់សញ្ញាដល់ប្រព័ន្ធប្រសាទថាពិភពលោកនៅតែមានភាពកក់ក្តៅ [2]។",
+        "កាំជណ្តើរទី ២៖ ការចូលរួមក្នុងបរិយាកាសរួម (Shared Context)។ ទៅកាន់កន្លែងដែលមនុស្សជួបជុំគ្នាធ្វើសកម្មភាពរួម ជាជាងការអង្គុយទល់មុខជជែកគ្នា។ អានសៀវភៅក្នុងបណ្ណាល័យសាធារណៈ ចូលរួមការងារស្ម័គ្រចិត្តសហគមន៍ រៀនវគ្គបណ្តុះបណ្តាលយុវជន ឬហាត់ប្រាណជាក្រុម។ អ្នកនឹងមានអារម្មណ៍ថាជាផ្នែកមួយនៃសង្គមដោយមិនបាច់បង្ខំនិយាយច្រើន។",
+        "កាំជណ្តើរទី ៣៖ ការដាស់ទំនាក់ទំនងចាស់ឡើងវិញ។ ផ្ញើសារទន់ភ្លន់ដែលគ្មានសម្ពាធទៅកាន់មិត្តចាស់ម្នាក់៖ «សួស្តីមិត្ត ថ្ងៃមុននឹកឃើញរឿងយើងជជែកគ្នា ក៏ចង់សួរសុខទុក្ខបន្តិច។ បើមិនទាន់ទំនេរ មិនបាច់ប្រញាប់តបក៏បានណា!» [4]។",
+      ],
+      keyPoints: [
+        "Do not leap into overwhelming social settings; use the 3-rung connection ladder [4].",
+        "Micro-interactions with vendors and neighbors rebuild feelings of belonging.",
+        "Shared-task spaces allow connection without social performance anxiety.",
+      ],
+      kmKeyPoints: [
+        "កុំប្រញាប់ប្រញាល់ចូលរួមកម្មវិធីសង្គមធំៗ ចូរប្រើប្រាស់ជណ្តើរតភ្ជាប់ ៣ កម្រិត [4]។",
+        "ការរាក់ទាក់តូចៗជាមួយអ្នកលក់ដូរ និងអ្នកជិតខាង ជួយស្តារអារម្មណ៍កក់ក្តៅឡើងវិញ។",
+        "ការធ្វើសកម្មភាពរួមគ្នា ជួយកាត់បន្ថយការភ័យខ្លាចក្នុងការនិយាយស្តី។",
+      ],
+    },
+    {
+      id: 7,
+      sectionNumber: 7,
+      title: "Nourishing Solitude: Learning to Befriend Yourself [3]",
+      kmTitle: "ការបង្កើតមិត្តភាពជាមួយខ្លួនឯង៖ ការថែទាំខ្លួនឯងក្នុងភាពស្ងប់ស្ងាត់ (Befriending Yourself)",
+      type: "reading",
+      paragraphs: [
+        "While building external connections is vital, learning to treat yourself with warmth when alone is equally transformative. Often, loneliness hurts not because we are alone, but because the person we are trapped with, our own inner critic, is harsh and cruel [3].",
+        "Practice 'nourishing solitude'. Treat your solitary evenings like hosting a cherished guest. Cook or buy a nourishing warm meal instead of skipping food or eating chips in bed. Clean your room, put clean sheets on your mattress, and light a small fragrant candle or open the window for fresh air.",
+        "Engage in activities that give you sensory delight without screens: sketch lines in a journal, brew fragrant ginger or green tea, read a page of an inspiring book, or stretch gently on a mat. When you discover that your own company can be safe, peaceful, and warm, the desperation fades from loneliness [2, 3].",
+      ],
+      kmParagraphs: [
+        "ទោះបីជាការកសាងទំនាក់ទំនងខាងក្រៅជារឿងសំខាន់ក៏ដោយ ការរៀនប្រព្រឹត្តចំពោះខ្លួនឯងដោយក្តីមេត្តាក្នុងពេលនៅម្នាក់ឯង ក៏មានតម្លៃធំធេងដូចគ្នាដែរ។ ជារឿយៗ ភាពឯកោធ្វើឱ្យយើងឈឺចាប់ មិនមែនដោយសារយើងនៅម្នាក់ឯងនោះទេ ប៉ុន្តែដោយសារតែសំឡេងក្នុងចិត្តរបស់យើងតែងតែស្តីបន្ទោស និងធ្វើបាបខ្លួនឯង [3]។",
+        "សូមអនុវត្ត «ភាពនៅម្នាក់ឯងដ៏មានជីវជាតិ» (Nourishing Solitude)។ សូមចាត់ទុកពេលវេលានៅម្នាក់ឯង ដូចជាការទទួលស្វាគមន៍ភ្ញៀវដ៏ពិសេសម្នាក់។ ធ្វើម្ហូបក្តៅៗ ឬទិញអាហារឆ្ងាញ់ៗញ៉ាំ ជំនួសឱ្យការបង្អត់បាយ ឬញ៉ាំនំកញ្ចប់លើគ្រែ។ រៀបចំបន្ទប់ឱ្យមានរបៀប ប្តូរកម្រាលពូក និងបើកបង្អួចឱ្យខ្យល់បរិសុទ្ធចូល។",
+        "ធ្វើសកម្មភាពដែលផ្តល់សេចក្តីសុខដល់អារម្មណ៍ដោយមិនប្រើអេក្រង់ទូរស័ព្ទ៖ គូររូបក្នុងសៀវភៅ ឆុងតែខ្ញីក្តៅៗ អានសៀវភៅល្អៗ ឬហាត់យឺតសរសៃថ្នមៗ។ នៅពេលដែលអ្នកដឹងថា វត្តមានរបស់ខ្លួនឯងគឺជាកន្លែងដែលមានសុវត្ថិភាព និងភាពកក់ក្តៅ នោះការឈឺចាប់នៃភាពឯកោនឹងចាប់ផ្តើមរលាយបាត់ [2, 3]។",
+      ],
+      keyPoints: [
+        "Loneliness is often painful because our inner dialogue is self-critical [3].",
+        "Host yourself like an honored guest: warm food, a tidy space, and fresh air.",
+        "Sensory, non-digital rituals transform empty isolation into restful solitude.",
+      ],
+      kmKeyPoints: [
+        "ភាពឯកោច្រើនតែឈឺចាប់ដោយសារតែយើងមានការបន្ទោសខ្លួនឯងក្នុងចិត្ត [3]។",
+        "ចាត់ទុកខ្លួនឯងដូចជាភ្ញៀវកិត្តិយស៖ អាហារក្តៅៗ បន្ទប់ស្អាត និងខ្យល់បរិសុទ្ធ។",
+        "ទម្លាប់ថែទាំខ្លួនដោយមិនប្រើទូរស័ព្ទ ជួយប្តូរភាពឯកោឱ្យទៅជាសេចក្តីស្ងប់។",
+      ],
+    },
+    {
+      id: 8,
+      sectionNumber: 8,
+      title: "Personal Loneliness Check-in: Understanding Your Need",
+      kmTitle: "ការពិនិត្យភាពឯកោផ្ទាល់ខ្លួន៖ ស្វែងយល់ពីតម្រូវការក្នុងចិត្ត (Personal Loneliness Check-in)",
+      type: "reflection",
+      paragraphs: [
+        "Loneliness wears different faces for each of us. Identifying the specific shape of your loneliness helps you pick the right healing remedy.",
+      ],
+      kmParagraphs: [
+        "ភាពឯកោមានទម្រង់ខុសៗគ្នាសម្រាប់មនុស្សម្នាក់ៗ។ ការដឹងច្បាស់ពីទម្រង់នៃភាពឯកោរបស់អ្នក ជួយឱ្យអ្នកជ្រើសរើសវិធីព្យាបាលបានត្រឹមត្រូវ។",
+      ],
+      reflection: {
+        question: "When you feel the ache of loneliness most acutely, what does your heart yearn for most?",
+        kmQuestion: "នៅពេលដែលអ្នកមានអារម្មណ៍ឯកោខ្លាំង តើអ្វីជាតម្រូវការដែលចិត្តរបស់អ្នកចង់បានបំផុត?",
+        options: [
+          "Having one close, trusted confidant to whom I can share my deepest thoughts without fear of judgment",
+          "Feeling like I belong to a wider community, group, or circle of friends who share my passions",
+          "Homesickness and missing the familiar warmth of my family, hometown, and childhood memories",
+          "Feeling disconnected from my own soul, numb and exhausted from constant work and digital noise",
+        ],
+        kmOptions: [
+          "ការមានមនុស្សជិតស្និទ្ធម្នាក់ដែលទុកចិត្ត ដើម្បីចែករំលែកអារម្មណ៍ក្នុងចិត្តដោយគ្មានការវិនិច្ឆ័យ",
+          "អារម្មណ៍នៃការជាផ្នែកមួយនៃសហគមន៍ ក្រុម ឬរង្វង់មិត្តភក្តិដែលមានចំណូលចិត្តដូចគ្នា",
+          "ការនឹកផ្ទះ នឹកភាពកក់ក្តៅនៃគ្រួសារ ស្រុកកំណើត និងអនុស្សាវរីយ៍កាលពីកុមារភាព",
+          "អារម្មណ៍នៃការដាច់ចេញពីខ្លួនឯង ស្ពឹកស្រពន់ និងអស់កម្លាំងដោយសារតែការងារ និងទូរស័ព្ទ",
+        ],
+        feedbackMessage:
+          "Naming your loneliness with honesty takes away its power to shame you. Whether you are craving deep intimacy, a sense of community belonging, ancestral home roots, or reunion with your inner self, your longing is profoundly human and valid.",
+        kmFeedbackMessage:
+          "ការហ៊ានទទួលស្គាល់ភាពឯកោដោយស្មោះត្រង់ ជួយដកការខ្មាសអៀនចេញពីចិត្ត។ ទោះបីជាអ្នកកំពុងស្រេកឃ្លានទំនាក់ទំនងជិតស្និទ្ធ ការជាផ្នែកមួយនៃក្រុម ភាពកក់ក្តៅនៃស្រុកកំណើត ឬការតភ្ជាប់ជាមួយខ្លួនឯងក៏ដោយ បំណងប្រាថ្នារបស់អ្នកសុទ្ធតែជារឿងធម្មជាតិរបស់មនុស្ស។",
+      },
+    },
+    {
+      id: 9,
+      sectionNumber: 9,
+      title: "The Physical Health Link and When to Seek Therapy [1, 2]",
+      kmTitle: "ទំនាក់ទំនងរវាងភាពឯកោ និងសុខភាពរាងកាយ៖ ពេលណាត្រូវស្វែងរកជំនួយ? (Health Link & Clinical Support)",
+      type: "reading",
+      paragraphs: [
+        "In 2023, the World Health Organization declared loneliness a pressing global public health threat [1]. Research demonstrates that chronic loneliness and social isolation carry health consequences equivalent to smoking up to fifteen cigarettes a day, elevating blood pressure, dampening immune function, and accelerating cardiovascular risk.",
+        "Loneliness and depression frequently reinforce one another. Prolonged emotional disconnection can deepen into persistent depressive episodes, panic attacks, or profound agoraphobia (fear of leaving your room).",
+        "If loneliness has caused you to withdraw completely for months, if you feel intense dread whenever someone speaks to you, or if thoughts of worthlessness consume you, seeking professional psychotherapy is a courageous choice. Cognitive Behavioral Therapy (CBT) and relational therapy provide a secure, confidential environment to unpack past social rejections and rebuild social confidence at your own pace [1, 2].",
+      ],
+      kmParagraphs: [
+        "នៅឆ្នាំ ២០២៣ អង្គការសុខភាពពិភពលោក (WHO) បានប្រកាសថា ភាពឯកោគឺជាការគំរាមកំហែងសុខភាពសាធារណៈដ៏ធ្ងន់ធ្ងរ [1]។ ការស្រាវជ្រាវបង្ហាញថា ភាពឯកោរ៉ាំរ៉ៃមានផលប៉ះពាល់ដល់រាងកាយស្មើនឹងការជក់បារី ១៥ ដើមក្នុងមួយថ្ងៃ ដោយបង្កើនសម្ពាធឈាម បន្ថយប្រព័ន្ធការពាររាងកាយ និងប៉ះពាល់ដល់បេះដូង។",
+        "ភាពឯកោ និងជំងឺបាក់ទឹកចិត្តតែងតែដើរទន្ទឹមគ្នា។ ការដាច់ទំនាក់ទំនងយូរអង្វែងអាចប្រែទៅជាជំងឺបាក់ទឹកចិត្តធ្ងន់ធ្ងរ ការភ័យស្លន់ស្លោ ឬការភ័យខ្លាចការចេញក្រៅបន្ទប់ (Agoraphobia)។",
+        "ប្រសិនបើភាពឯកោបានធ្វើឱ្យអ្នកដកខ្លួនចេញពីសង្គមទាំងស្រុងអស់ជាច្រើនខែ ប្រសិនបើអ្នកមានអារម្មណ៍ភ័យខ្លាចខ្លាំងរាល់ពេលមានគេមកនិយាយរក ឬមានគំនិតបន្ទោសខ្លួនឯងមិនឈប់ ការស្វែងរកជំនួយពីអ្នកចិត្តវិទ្យាគឺជាការសម្រេចចិត្តដ៏ក្លាហាន។ ការព្យាបាលចិត្តសាស្ត្របែប CBT ផ្តល់នូវលំហសុវត្ថិភាពដើម្បីស្រាយរបួសផ្លូវចិត្តកន្លងមក និងកសាងទំនុកចិត្តក្នុងសង្គមឡើងវិញ [1, 2]។",
+      ],
+      keyPoints: [
+        "Chronic loneliness produces physical health risks comparable to smoking [1].",
+        "Prolonged isolation can evolve into clinical depression and agoraphobic fear.",
+        "Psychotherapy provides a safe, structured space to rebuild relational trust.",
+      ],
+      kmKeyPoints: [
+        "ភាពឯកោរ៉ាំរ៉ៃប៉ះពាល់ដល់សុខភាពរាងកាយស្មើនឹងការជក់បារីជាប្រចាំ [1]។",
+        "ការនៅឯកោយូរពេកអាចវិវត្តទៅជាជំងឺបាក់ទឹកចិត្ត និងការភ័យខ្លាចសង្គម។",
+        "ការព្យាបាលចិត្តសាស្ត្រជួយកសាងទំនុកចិត្ត និងទំនាក់ទំនងសង្គមឡើងវិញដោយសុវត្ថិភាព។",
+      ],
+    },
+    {
+      id: 10,
+      sectionNumber: 10,
+      title: "Grounding in Warmth: The 1-Minute Self-Compassion Breath",
+      kmTitle: "ការតាំងចិត្តក្នុងភាពកក់ក្តៅ៖ លំហាត់ដកដង្ហើមមេត្តាចំពោះខ្លួនឯង ១ នាទី (Self-Compassion Breath)",
+      type: "coping",
+      paragraphs: [
+        "When loneliness feels like a cold wave in your chest, somatic touch and intentional respiration can directly soothe your nervous system.",
+        "Gently place one or both hands over your heart, or wrap your arms around your shoulders in a comforting hug. Feel the warmth of your palms transferring into your chest. Inhale slowly through your nose for 4 counts, allowing your chest and belly to expand.",
+        "Hold gently for 2 counts. As you exhale slowly through your mouth for 6 counts, silently whisper to yourself: 'I am here with myself. I am worthy of love and connection. I am not alone in my human longing.' Repeat this cycle 4 times.",
+      ],
+      kmParagraphs: [
+        "នៅពេលដែលភាពឯកោបង្កើតអារម្មណ៍ត្រជាក់ស្រងាត់ក្នុងទ្រូង ការប៉ះពាល់រាងកាយដោយក្តីមេត្តា និងការដកដង្ហើមវែងៗអាចជួយរំងាប់ប្រព័ន្ធប្រសាទបានភ្លាមៗ។",
+        "ដាក់ដៃម្ខាង ឬទាំងសងខាងលើទ្រូងរបស់អ្នក ឬឱបស្មារបស់អ្នកថ្នមៗដូចជាការឱបផ្តល់កម្លាំងចិត្ត។ ទទួលដឹងពីភាពកក់ក្តៅនៃបាតដៃរបស់អ្នកដែលជ្រួតជ្រាបចូលទៅក្នុងទ្រូង។ ដកដង្ហើមចូលយឺតៗតាមច្រមុះរាប់ដល់ ៤ ដោយឱ្យទ្រូង និងពោះប៉ោងឡើង។",
+        "ទប់ដង្ហើមថ្នមៗរាប់ដល់ ២។ នៅពេលដកដង្ហើមចេញយឺតៗតាមមាត់រាប់ដល់ ៦ សូមខ្សឹបប្រាប់ខ្លួនឯងថា៖ «ខ្ញុំនៅទីនេះជាមួយខ្លួនឯង។ ខ្ញុំសមនឹងទទួលបានក្តីស្រឡាញ់ និងទំនាក់ទំនងដ៏កក់ក្តៅ។ ខ្ញុំមិនឯកោលើលោកនេះឡើយ»។ អនុវត្តឡើងវិញ ៤ ដង។",
+      ],
+      keyPoints: [
+        "Placing hands over your heart triggers the release of oxytocin, soothing feelings of abandonment.",
+        "Lengthening the exhale signals physical safety to the brain's survival centers.",
+        "Self-compassion embraces loneliness with patience instead of self-judgment.",
+      ],
+      kmKeyPoints: [
+        "ការដាក់ដៃលើទ្រូងជួយបញ្ចេញអ័រម៉ូន Oxytocin បន្ថយអារម្មណ៍នៃការត្រូវគេបោះបង់ចោល។",
+        "ការដកដង្ហើមចេញវែងៗជួយផ្តល់សញ្ញាសុវត្ថិភាពដល់ខួរក្បាល។",
+        "ក្តីមេត្តាចំពោះខ្លួនឯងជួយទទួលយកភាពឯកោដោយការអត់ធ្មត់ ជំនួសឱ្យការបន្ទោសខ្លួនឯង។",
+      ],
+      actions: [
+        {
+          label: "Try 1-Minute Calming Breath",
+          kmLabel: "អនុវត្តលំហាត់ដកដង្ហើមស្ងប់ចិត្ត ១ នាទី (1-Min Breath)",
+          actionType: "exercise",
+        },
+      ],
+    },
+    {
+      id: 11,
+      sectionNumber: 11,
+      title: "Finding Connection and Support on AROM [4, 5]",
+      kmTitle: "ការស្វែងរកការតភ្ជាប់ និងការគាំទ្រនៅលើ AROM (Connecting on AROM)",
+      type: "reading",
+      paragraphs: [
+        "Overcoming loneliness is not about becoming a charismatic extrovert. It is about gently opening small windows to let the warmth of the world back in, one micro-connection at a time.",
+        "On AROM, you have a safe, confidential environment designed to support you. Open your private AROM Journal (/journal) to write about your feelings of isolation without fear of being judged. Logging what kind of connection you crave is often the first step to seeking it out in daily life.",
+        "If you want personalized support to navigate life transitions, homesickness, or social anxiety, connect with verified Cambodian therapists through AROM Professional (/professional). A counselor can offer compassionate guidance tailored to local life and cultural expectations [5].",
+        "If loneliness ever deepens into unbearable despair, helplessness, or thoughts of giving up on life, please know that you do not have to walk through the dark alone. Immediate free and confidential support is waiting. Contact the National Child and Youth Helpline at 1280, the National Health Hotline at 119, or TPO Cambodia at 017 222 372. Your voice matters, and your presence is deeply needed in this world.",
+      ],
+      kmParagraphs: [
+        "ការយកឈ្នះលើភាពឯកោ មិនមែនជាការបង្ខំខ្លួនឯងឱ្យក្លាយជាមនុស្សពូកែនិយាយ ឬចូលចិត្តជប់លៀងនោះទេ។ វាគឺជាការបើកបង្អួចបេះដូងបន្តិចម្តងៗ ដើម្បីទទួលយកភាពកក់ក្តៅពីពិភពលោក តាមរយៈការតភ្ជាប់តូចៗប្រចាំថ្ងៃ។",
+        "នៅលើ AROM អ្នកមានលំហសុវត្ថិភាព និងសម្ងាត់ដែលត្រៀមជួយអ្នកជានិច្ច។ សូមបើកកំណត់ហេតុផ្ទាល់ខ្លួន AROM Journal (/journal) ដើម្បីសរសេររៀបរាប់ពីអារម្មណ៍ឯកោរបស់អ្នកដោយគ្មានការវិនិច្ឆ័យ។ ការកត់ត្រាពីតម្រូវការផ្លូវចិត្ត គឺជាជំហានដំបូងក្នុងការស្វែងរកទំនាក់ទំនងពិតប្រាកដក្នុងជីវិតរស់នៅ។",
+        "ប្រសិនបើអ្នកចង់បានការណែនាំផ្ទាល់ខ្លួនដើម្បីដោះស្រាយការនឹកផ្ទះ ភាពឯកោក្នុងទីក្រុង ឬការថប់បារម្ភក្នុងសង្គម សូមភ្ជាប់ទំនាក់ទំនងជាមួយអ្នកចិត្តវិទ្យាកម្ពុជាតាមរយៈ AROM Professional (/professional)។ អ្នកប្រឹក្សាអាចជួយអ្នកស្វែងរកផ្លូវដើរដ៏កក់ក្តៅ និងសមស្របតាមវប្បធម៌រស់នៅ [5]។",
+        "ប្រសិនបើភាពឯកោវិវត្តទៅជាភាពអស់សង្ឃឹមខ្លាំង ឬមានគំនិតមិនចង់រស់នៅ សូមចងចាំថាអ្នកមិនចាំបាច់ដើរកាត់ផ្លូវងងឹតនេះតែម្នាក់ឯងឡើយ។ ជំនួយបន្ទាន់ឥតគិតថ្លៃ និងសម្ងាត់ត្រៀមជួយអ្នកជានិច្ច។ សូមទាក់ទងខ្សែទូរស័ព្ទជំនួយកុមារ និងយុវជនលេខ 1280 ខ្សែទូរស័ព្ទសុខភាពជាតិលេខ 119 ឬអង្គការចិត្តសង្គមកម្ពុជា (TPO Cambodia) តាមលេខ 017 222 372។ សំឡេងរបស់អ្នកមានតម្លៃ ហើយវត្តមានរបស់អ្នកពិតជាមានសារៈសំខាន់សម្រាប់ពិភពលោកនេះ។",
+      ],
+      keyPoints: [
+        "Use AROM Journal (/journal) to express vulnerable feelings and clarify your social needs.",
+        "Connect with licensed counselors on AROM Professional (/professional) for caring guidance [5].",
+        "Crisis support is always free, confidential, and available: 1280, 119, or TPO Cambodia 017 222 372.",
+      ],
+      kmKeyPoints: [
+        "ប្រើប្រាស់កំណត់ហេតុ AROM Journal (/journal) ដើម្បីកត់ត្រាអារម្មណ៍ និងស្វែងយល់ពីតម្រូវការសង្គម។",
+        "ភ្ជាប់ទំនាក់ទំនងជាមួយអ្នកជំនាញលើ AROM Professional (/professional) ដើម្បីទទួលបានការណែនាំ [5]។",
+        "ខ្សែទូរស័ព្ទជំនួយបន្ទាន់ត្រៀមជួយជានិច្ចដោយសម្ងាត់៖ 1280, 119 ឬ TPO Cambodia 017 222 372។",
+      ],
+      alertBox: {
+        type: "tip",
+        text: "Comforting Truth: Needing human connection is not a weakness; it is the most fundamental sign that you are human. Be patient with your journey toward belonging.",
+        kmText: "ការពិតដ៏កក់ក្តៅ៖ ការត្រូវការទំនាក់ទំនងជាមួយមនុស្សដទៃ មិនមែនជាភាពទន់ខ្សោយឡើយ ប៉ុន្តែវាជាសញ្ញាបញ្ជាក់យ៉ាងច្បាស់ថាអ្នកជាមនុស្ស។ សូមផ្តល់ការអត់ធ្មត់ដល់ខ្លួនឯងក្នុងដំណើរឆ្ពោះទៅរកភាពកក់ក្តៅ។",
+      },
+      actions: [
+        {
+          label: "Open AROM Journal",
+          kmLabel: "បើកកំណត់ហេតុ AROM Journal",
+          actionType: "tips",
+        },
+        {
+          label: "Talk to a Professional",
+          kmLabel: "ពិគ្រោះជាមួយអ្នកជំនាញ AROM",
+          actionType: "professional",
+        },
+      ],
+    },
+  ],
+};
+
 export const ALL_LESSONS: Lesson[] = [
+  LESSON_LONELINESS,
   LESSON_SUPPORT_FRIEND,
   LESSON_LOST_INTEREST,
   LESSON_BALANCE_STUDY_WORK_LIFE,

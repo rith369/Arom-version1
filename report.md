@@ -1,5 +1,31 @@
 # AROM: Change Report
 
+## 18 Oct 2026: New Lesson, How to Deal With Loneliness
+
+Commit `572a228`. No migration. Content and frontend only.
+
+**Why.** Rapid urban migration, living in small rented rooms, social media comparison, and emotional isolation cause pervasive loneliness among young people in Cambodia. Loneliness is frequently stigmatized or suffered in silence, leading to chronic physical inflammation, sleep disturbances, social anxiety, and depression. "How to Deal With Loneliness" (`how-to-deal-with-loneliness`) provides an 8-minute evidence-based psychoeducational guide adapted from WHO (Commission on Social Connection), APA, Harvard Health Publishing, NHS Every Mind Matters, and UNICEF Cambodia. It equips seekers with practical tools to understand loneliness as a natural biological alarm rather than a character defect, differentiate painful isolation from nourishing solitude, navigate Cambodian urban migration realities, deactivate the lonely brain's social threat hypervigilance loop, construct a 3-tier low-stakes connection ladder, befriend oneself through restorative rituals, soothe somatic isolation through self-compassion breathwork, and connect with confidential therapy on AROM.
+
+**What changed for users:**
+- **New Lesson available in MindGuide Learn:** Seekers can access "How to Deal With Loneliness (របៀបដោះស្រាយភាពឯកោ)" under the Relationships category or directly via `/mindguide/learn?open=how-to-deal-with-loneliness`.
+- **11 Comprehensive Bilingual Sections:** Covers the loneliness paradox (feeling alone in a crowded room), loneliness vs solitude (restorative aloneness), Cambodian context on rural-to-urban migration and social media highlight reels, an interactive quiz on relationship quality vs quantity, the brain's social threat hypervigilance loop, building the low-stakes connection ladder (micro-connections, shared spaces, rekindling sparks), nourishing solitude and befriending oneself, a personal loneliness check-in reflection, physical health impacts and when to seek psychotherapy, somatic self-compassion breathwork, and finding connection on AROM.
+- **Tip Alert Box:** Section 11 features a comforting reminder: "Needing human connection is not a weakness; it is the most fundamental sign that you are human. Be patient with your journey toward belonging."
+- **Direct AROM tool integration:** Section 10 triggers the "1-Minute Calming Breath" (`actionType: "exercise"`), and Section 11 provides direct action buttons for "Open AROM Journal" (`actionType: "tips"`) and "Talk to a Professional" (`actionType: "professional"`).
+
+**What changed for the team:**
+- **`learn-data.ts`:** Exported `REFERENCES_LONELINESS` with 5 peer-reviewed citations (WHO, APA, Harvard Health, NHS Every Mind Matters, UNICEF Cambodia) and `LESSON_LONELINESS`, prepending it to `ALL_LESSONS` under category `"Relationships"`.
+- **Hero Image:** Added `public/mindguide/loneliness-hero.jpg` depicting a young Cambodian person standing peacefully on a rooftop balcony in Phnom Penh at sunset with tea and a flowering jasmine plant.
+- **Strict Anti-AI Compliance:** Zero em dashes, en dashes, or loose hyphens across all English and Khmer copy.
+
+**What to re-test:**
+1. Open `/mindguide/learn` and verify "How to Deal With Loneliness" card appears under the "Relationships" filter with the "Popular" badge.
+2. Open `/mindguide/learn?open=how-to-deal-with-loneliness` and verify hero image, outcomes, and 11 sections render smoothly.
+3. Test Section 4 quiz: verify correct feedback when selecting option B and bilingual explanations.
+4. Test Section 8 loneliness self-check interactive choice and feedback.
+5. Test Section 10 coping exercise button: launches 1-Minute Calming Breath session.
+6. Test Section 11 tip alert box and action buttons: "Open AROM Journal" and "Talk to a Professional".
+7. Switch language to Khmer and verify all Kantumruy Pro translations.
+
 ## 18 Oct 2026: New Lesson, How to Support a Friend Who Is Struggling
 
 Commit `688062d`. No migration. Content and frontend only.
