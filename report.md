@@ -2,7 +2,7 @@
 
 ## 19 Oct 2026: Community Home Redesigned to Find a Group
 
-Commit `PENDING`. No migration.
+Commit `de8494f`. No migration.
 
 **Why.** Rith shared a design for Community as the place to find a group: a welcoming banner, topics to choose from and popular groups to join. Since chats moved to Messages, Community's job is discovery.
 
