@@ -1,5 +1,31 @@
 # AROM: Change Report
 
+## 18 Oct 2026: New Lesson, How to Handle Fear of Failure
+
+Commit `6da4a01`. No migration. Content and frontend only.
+
+**Why.** Perfectionism, fear of making mistakes, and tying personal self-worth to flawless outcomes cause task paralysis, severe procrastination, imposter syndrome, and chronic burnout. "How to Handle Fear of Failure" (`how-to-handle-fear-of-failure`) unlocks the Self-esteem category with an 8-minute evidence-based psychoeducational guide adapted from the APA, Harvard Health, NHS inform, and UNICEF Cambodia. It equips seekers with practical tools to distinguish healthy striving from toxic perfectionism, navigate Cambodian filial expectations, embrace a growth mindset where mistakes are treated as learning data, apply the "Good Enough" standard, practice intentional micro-courage experiments, soothe somatic shame, and access confidential therapy on AROM.
+
+**What changed for users:**
+- **New Lesson available in MindGuide Learn:** Seekers can access "How to Handle Fear of Failure (របៀបដោះស្រាយការភ័យខ្លាចការបរាជ័យ)" under the Self-esteem category or directly via `/mindguide/learn?open=how-to-handle-fear-of-failure`.
+- **11 Comprehensive Bilingual Sections:** Covers what fear of failure is (atychiphobia), roots of perfectionism and Cambodian family honor, the costs of avoidance (procrastination, paralysis, imposter syndrome), growth mindset with an interactive quiz on receiving criticism, practicing self-compassion via the Best Friend Rule, the "Good Enough" standard, micro-risk courage experiments, somatic grounding when shame strikes (hand-on-heart and breathwork), when to seek clinical CBT/ACT therapy, a 5-prompt reflection activity for AROM Journal, and next steps connecting to AROM.
+- **Tip Alert Boxes:** Section 8 introduces somatic calming for shame waves with the 1-Minute Calming Breath, and Section 9 details private matching with certified youth counselors and clinical psychologists on AROM.
+- **Direct AROM tool integration:** Section 11 provides direct action buttons for "1-Minute Calming Breath" and "Match Me With A Professional".
+
+**What changed for the team:**
+- **`learn-data.ts`:** Exported `REFERENCES_FEAR_OF_FAILURE` with 4 peer-reviewed citations (APA, Harvard Health, NHS inform, UNICEF Cambodia) and `LESSON_FEAR_OF_FAILURE`, appending it to `ALL_LESSONS` under category `"Self-esteem"`.
+- **Hero Image:** Added `public/mindguide/fear-of-failure-hero.jpg` depicting a young person smiling with compassionate self-acceptance while writing in a journal beside a sunny garden window.
+- **Strict Anti-AI Compliance:** Zero em dashes, en dashes, or loose hyphens across all English and Khmer copy.
+
+**What to re-test:**
+1. Open `/mindguide/learn` and verify "How to Handle Fear of Failure" card appears under "Self-esteem" filter.
+2. Open `/mindguide/learn?open=how-to-handle-fear-of-failure` and verify hero image, outcomes, and 11 sections render smoothly.
+3. Test Section 4 quiz: verify correct feedback when selecting option 2 and explanations in both English and Khmer.
+4. Test Section 8 and Section 9 tip alert boxes.
+5. Test Section 10 self-reflection interactive choice and journal prompts.
+6. Test Section 11 action buttons: "1-Minute Calming Breath" and "Match Me With A Professional".
+7. Switch language to Khmer and verify all Kantumruy Pro translations.
+
 ## 18 Oct 2026: New Lesson, How to Handle Anxiety Before an Exam
 
 Commit `6fe3367`. No migration. Content and frontend only.
