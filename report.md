@@ -2,7 +2,7 @@
 
 ## 18 Oct 2026: Community Shows Only Real Support Groups
 
-Commit `PENDING`. No migration.
+Commit `3fe8b69`. No migration.
 
 **Why.** The Community page mixed four sample groups (Stress & Burnout, Depression, Academic Stress, Anxiety Circle, with made up mentors and messages) with the real groups from the database. Everyone was shown as already in "Stress & Burnout Support", and "Recommended for you" was always the sample Academic Stress group. A person could join a sample group and share something personal, then wait for a reply that never comes. For a mental health app that is not safe.
 
