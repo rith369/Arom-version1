@@ -11,7 +11,6 @@ import { GroupHubView } from './components/group-hub-view';
 import { CommunityMenuModal } from './components/community-menu-modal';
 import { CreateGroupView } from './components/create-group-view';
 
-import type { AuthUser } from '@/lib/auth';
 import {
   SupportGroup,
   ChatMessage,
@@ -35,7 +34,6 @@ export default function CommunityPage() {
   const [previousView, setPreviousView] = useState<CommunityView>('home');
   const [selectedGroupId, setSelectedGroupId] = useState('');
 
-  const [privacyUser, setPrivacyUser] = useState<AuthUser | null>(null);
   // Only real groups from the database. The sample groups in community-data.ts
   // are no longer shown: nobody real would answer in them (18 Oct 2026).
   const [savedGroups, setGroups] = useState<SupportGroup[]>([]);
@@ -46,28 +44,6 @@ export default function CommunityPage() {
   const [joinError, setJoinError] = useState('');
   const [messageError, setMessageError] = useState('');
   const [messageRefresh, setMessageRefresh] = useState(0);
-
-  // Read the current account privacy setting.
-  useEffect(() => {
-    let active = true;
-
-    async function loadPrivacy() {
-      try {
-        const response = await fetch('/api/profile', { cache: 'no-store' });
-        if (!response.ok) return;
-
-        const result: { user: AuthUser } = await response.json();
-        if (active) setPrivacyUser(result.user);
-      } catch {
-        // Messages default to anonymous if this fails.
-      }
-    }
-
-    void loadPrivacy();
-    return () => {
-      active = false;
-    };
-  }, []);
 
   // Add real Supabase groups to the Community list.
   useEffect(() => {
@@ -321,83 +297,45 @@ export default function CommunityPage() {
     setView('joined-success');
   }
 
+  // Real groups only: the server saves the message and decides the name shown
+  // (the member's "Hide my identity" choice), then the chat reloads.
   async function handleSendMessage(
     text: string,
     attachment?: ChatAttachment,
     targetGroupId?: string,
   ) {
-    const showName =
-      privacyUser?.role === 'user' &&
-      privacyUser.hideIdentity === false &&
-      Boolean(privacyUser.fullName.trim());
-    setMessages((prev) => {
-      const updated = [...prev, newMsg];
-      try {
-        localStorage.setItem(
-          'arom_community_messages',
-          JSON.stringify(updated),
-        );
-      } catch {
-        // ignore
-      }
-      return updated;
-    });
     const gid = targetGroupId || selectedGroupId;
     if (!gid) return false;
-    if (groups.find((g) => g.id === gid)?.status === 'closed') return;
-    const isRealGroup =
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
-        gid,
-      );
+    if (groups.find((g) => g.id === gid)?.status === 'closed') return false;
+    setMessageError('');
 
-    if (isRealGroup) {
-      setMessageError('');
-
-      if (attachment) {
-        setMessageError('Attachments are not available in real groups yet.');
-        return false;
-      }
-
-      if (!text.trim()) return false;
-
-      try {
-        const response = await fetch(
-          `/api/community/groups/${gid}/messages`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ content: text.trim() }),
-          },
-        );
-
-        if (!response.ok) {
-          const result: { error?: string } = await response.json();
-          throw new Error(result.error || 'Could not send message.');
-        }
-
-        setMessageRefresh((current) => current + 1);
-        return true;
-      } catch (error) {
-        setMessageError(
-          error instanceof Error ? error.message : 'Could not send message.',
-        );
-        return false;
-      }
+    if (attachment) {
+      setMessageError('Attachments are not available in real groups yet.');
+      return false;
     }
-    const newMsg: ChatMessage = {
-      id: `msg-${Date.now()}`,
-      groupId: gid,
-      senderName: showName ? privacyUser!.fullName.trim() : 'Anonymous (You)',
-      senderNameKm: showName ? privacyUser!.fullName.trim() : 'អនាមិក (អ្នក)',
-      isAnonymous: !showName,
-      isOwn: true,
-      text,
-      textKm: text,
-      time: 'Just now',
-      timeKm: 'ទើបតែឥឡូវនេះ',
-      avatarType: showName ? 'user' : 'mask',
-      attachment,
-    };
+
+    if (!text.trim()) return false;
+
+    try {
+      const response = await fetch(`/api/community/groups/${gid}/messages`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: text.trim() }),
+      });
+
+      if (!response.ok) {
+        const result: { error?: string } = await response.json();
+        throw new Error(result.error || 'Could not send message.');
+      }
+
+      setMessageRefresh((current) => current + 1);
+      return true;
+    } catch (error) {
+      setMessageError(
+        error instanceof Error ? error.message : 'Could not send message.',
+      );
+      return false;
+    }
   }
 
   async function handleCreateGroup(group: SupportGroup) {

@@ -1,5 +1,28 @@
 # AROM: Change Report
 
+## 18 Oct 2026: Group Chat Messages Send Again
+
+Commit `PENDING`. No migration.
+
+**Why.** Sending a message in a support group did nothing, and the dev screen showed "1 Issue". In `handleSendMessage` (since commit `54c34f5`, 15 Oct) the message was added to the screen using `newMsg` before `newMsg` was created at the end of the function. JavaScript stops with an error when a variable is used before it exists, so the function stopped before the message reached the server.
+
+**What changed for users:**
+
+- **Messages send again** in support groups, and the chat reloads with the new message.
+- The name shown with a message comes from the server, following the member's "Hide my identity" choice, as before.
+
+**What changed for the team:**
+
+- **`app/community/page.tsx`:** `handleSendMessage` now only sends to `POST /api/community/groups/:id/messages`. The browser only copy of messages (used by the removed sample groups) and the extra `/api/profile` request that only fed it are gone.
+- The one existing lint error in this file (setState in an effect) is unchanged.
+
+**What to re-test:**
+
+1. Open a support group you joined and send a message: it appears in the chat.
+2. Refresh the page: the message is still there.
+3. With "Hide my identity" on, the message shows as Anonymous to other members; with it off, your name shows.
+4. Try to attach an image: "Attachments are not available in real groups yet." shows.
+
 ## 18 Oct 2026: Community Shows Only Real Support Groups
 
 Commit `3fe8b69`. No migration.
