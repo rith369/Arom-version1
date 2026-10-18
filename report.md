@@ -2,7 +2,7 @@
 
 ## 18 Oct 2026: Group Members Tab and an Honest Anonymous Banner
 
-Commit `PENDING`. Migration `20261018080000_read_group_members.sql` must be run in the Supabase SQL Editor.
+Commit `dccaf24`. Migration `20261018080000_read_group_members.sql` must be run in the Supabase SQL Editor.
 
 **Why.** In a support group, the Members tab was empty for real groups: it never showed who leads the group or who else is in it. And the Community home always said "You are anonymous here", even for people who had turned "Hide my identity" off and whose name was showing in the chat. Someone could share something believing they were anonymous when they were not.
 
