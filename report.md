@@ -2,7 +2,7 @@
 
 ## 19 Oct 2026: A Photo That Cannot Load Shows a Calm Card
 
-Commit `PENDING`. No migration.
+Commit `4ecd7cc`. No migration.
 
 **Why.** On a computer without `SUPABASE_SECRET_KEY` in `.env.local`, a sent photo showed as a broken image with its file name, and opening it showed the browser's "HTTP ERROR 500" page. The live site has the key, so it worked there.
 
