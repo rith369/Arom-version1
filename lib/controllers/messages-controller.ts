@@ -398,8 +398,9 @@ export async function sendMessage(
       500,
     );
 
+  // The safe version resolves the client alias, like text messages above.
   const { data, error } = await supabase
-    .rpc('send_message', {
+    .rpc('send_message_safe', {
       p_other: otherId,
       p_as: side,
       p_kind: 'voice',

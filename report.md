@@ -1,5 +1,28 @@
 # AROM: Change Report
 
+## 18 Oct 2026: Voice Messages Send Again and Keep Quiet Words
+
+Commit `PENDING`. Branch `merge/anonymous-privacy` (PR #19). No migration.
+
+**Why.** While testing PR #19, a professional could send text to an anonymous client but not a voice message: it said "You can send messages after a booked session." The voice path still called the old `send_message` with the client's alias, so the database found no booking. Separately, quiet words disappeared from recordings, because the browser's call settings (noise suppression and echo cancellation) treated soft speech as noise.
+
+**What changed for users:**
+
+- **Voice messages send again** to clients the professional has booked with, including anonymous clients.
+- **Quiet words stay in the recording:** soft speech is kept and evened out instead of cut to silence. Recordings are also clearer.
+
+**What changed for the team:**
+
+- **`messages-controller.ts`:** the voice path calls `send_message_safe`, the same as text.
+- **`chat-thread.tsx`:** the microphone is opened with `noiseSuppression` and `echoCancellation` off and `autoGainControl` on, and recorded at 96 kbps (about 1.4 MB for 2 minutes, under the 5 MB limit).
+
+**What to re-test:**
+
+1. As a professional, send a voice message to an anonymous client with a booking. It sends.
+2. As the client, play it.
+3. Record a sentence with one word said softly. Play it back: the soft word is heard.
+4. Record the full 2 minutes. It sends without a size error.
+
 ## 18 Oct 2026: Anonymous Privacy Merged With Main
 
 Commit `b166f74`. Branch `merge/anonymous-privacy`. Migrations to run in Supabase, in this order: `20261017001100_message_client_names.sql`, `20261017001200_alias_client_archiving.sql`, `20261018060000_merge_privacy_with_main.sql`. The rest of the privacy SQL was already applied by hand; do not rerun it. Needs `SUPABASE_SECRET_KEY` on Vercel.
