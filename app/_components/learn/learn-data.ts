@@ -5,6 +5,7 @@ export type TopicCategory =
   | "Anxiety"
   | "Sleep"
   | "Emotions"
+  | "Relationships"
   | "Self-esteem"
   | "Burnout";
 
@@ -106,6 +107,7 @@ export const TOPIC_CATEGORIES: { id: TopicCategory; label: string; kmLabel: stri
   { id: "Anxiety", label: "Anxiety", kmLabel: "ការថប់បារម្ភ (Anxiety)" },
   { id: "Sleep", label: "Sleep", kmLabel: "ដំណេក (Sleep)" },
   { id: "Emotions", label: "Emotions", kmLabel: "អារម្មណ៍ (Emotions)" },
+  { id: "Relationships", label: "Relationships", kmLabel: "ទំនាក់ទំនង (Relationships)" },
   { id: "Self-esteem", label: "Self-esteem", kmLabel: "តម្លៃខ្លួនឯង (Self-Esteem)" },
   { id: "Burnout", label: "Burnout", kmLabel: "ភាពអស់កម្លាំងចិត្ត (Burnout)" },
 ];
@@ -2281,6 +2283,466 @@ export const LESSON_BETTER_SLEEP: Lesson = {
 };
 
 
+export const REFERENCES_RELATIONSHIPS: ReferenceItem[] = [
+  {
+    id: 1,
+    citation: "[1]",
+    source: "Healthdirect Australia",
+    title: "Healthdirect Australia, Building and Maintaining Healthy Relationships",
+    url: "https://www.healthdirect.gov.au/healthy-living/emotional-wellbeing/building-and-maintaining-healthy-relationships",
+  },
+  {
+    id: 2,
+    citation: "[2]",
+    source: "NHS",
+    title: "NHS, Maintaining Healthy Relationships and Mental Wellbeing",
+    url: "https://www.nhs.uk/every-mind-matters/lifes-challenges/maintaining-healthy-relationships-and-mental-wellbeing/",
+  },
+  {
+    id: 3,
+    citation: "[3]",
+    source: "UNICEF Cambodia",
+    title: "UNICEF Cambodia, Mental Health",
+    url: "https://www.unicef.org/cambodia/mental-health",
+  },
+  {
+    id: 4,
+    citation: "[4]",
+    source: "ACOG",
+    title: "American College of Obstetricians and Gynecologists, Healthy Relationships",
+    url: "https://www.acog.org/womens-health/faqs/healthy-relationships",
+  },
+  {
+    id: 5,
+    citation: "[5]",
+    source: "NIH",
+    title: "National Institutes of Health, Social Wellness Toolkit",
+    url: "https://www.nih.gov/health-information/your-healthiest-self-wellness-toolkits/social-wellness-toolkit",
+  },
+];
+
+export const LESSON_BUILD_HEALTHY_RELATIONSHIPS: Lesson = {
+  id: "build-healthy-relationships",
+  title: "Build Healthy Relationships",
+  kmTitle: "ការកសាងទំនាក់ទំនងប្រកបដោយសុខភាពល្អ (Build Healthy Relationships)",
+  subtitle: "Communicate with respect, set healthy boundaries, and build supportive connections",
+  kmSubtitle: "រៀនប្រាស្រ័យទាក់ទងដោយការគោរព កំណត់ព្រំដែនផ្ទាល់ខ្លួន និងកសាងចំណងមេត្រីភាព",
+  category: "Relationships",
+  duration: "7 min",
+  kmDuration: "៧ នាទី",
+  difficulty: "Beginner",
+  kmDifficulty: "កម្រិតដំបូង (Beginner)",
+  format: "Reading + Practice",
+  kmFormat: "ការអាន និងការឆ្លុះបញ្ចាំង (Reading & Reflection)",
+  isAvailable: true,
+  image: "/mindguide/strategies.png",
+  heroImage: "/mindguide/build-healthy-relationships-hero.jpg",
+  description:
+    "Learn the core pillars of healthy relationships, how to communicate with 'I' statements, set gentle boundaries, navigate family expectations in Cambodia, and recognize unhealthy patterns.",
+  kmDescription:
+    "ស្វែងយល់ពីសសរស្តម្ភនៃទំនាក់ទំនងល្អ របៀបប្រើប្រាស់ពាក្យពេចន៍សមរម្យ ការកំណត់ព្រំដែនផ្ទាល់ខ្លួន ការដោះស្រាយការរំពឹងទុករបស់គ្រួសារនៅកម្ពុជា និងការសម្គាល់សញ្ញាព្រមាន។",
+  totalSections: 9,
+  outcomes: [
+    {
+      en: "The 6 core pillars of healthy connections and mutual respect [1, 2]",
+      km: "សសរស្តម្ភគ្រឹះទាំង ៦ នៃទំនាក់ទំនងល្អ និងការគោរពគ្នាទៅវិញទៅមក [1, 2]",
+    },
+    {
+      en: "Communicating with 'I' statements and active listening during conflict [2, 5]",
+      km: "ការប្រាស្រ័យទាក់ទងតាមរយៈឃ្លាផ្ទាល់ខ្លួន និងការស្តាប់ដោយយកចិត្តទុកដាក់ពេលមានជម្លោះ [2, 5]",
+    },
+    {
+      en: "Setting and honoring personal boundaries without guilt [1, 5]",
+      km: "ការកំណត់ និងការគោរពព្រំដែនផ្ទាល់ខ្លួនដោយគ្មានអារម្មណ៍ខុសឆ្គង [1, 5]",
+    },
+    {
+      en: "Recognizing warning signs of control, manipulation, and disrespect [1, 4]",
+      km: "ការសម្គាល់សញ្ញាព្រមាននៃការគ្រប់គ្រង ការបោកបញ្ឆោត និងការមិនគោរពគ្នា [1, 4]",
+    },
+    {
+      en: "Navigating family expectations and filial respect in Cambodia [3]",
+      km: "ការស្វែងយល់ និងការដោះស្រាយការរំពឹងទុករបស់គ្រួសារក្នុងបរិបទកម្ពុជា [3]",
+    },
+  ],
+  references: REFERENCES_RELATIONSHIPS,
+  sections: [
+    {
+      id: 1,
+      sectionNumber: 1,
+      title: "What Does a Healthy Relationship Look Like?",
+      kmTitle: "តើទំនាក់ទំនងប្រកបដោយសុខភាពល្អមានទម្រង់បែបណា?",
+      type: "reading",
+      paragraphs: [
+        "Relationships are an important part of our lives. Our connections with family, friends, romantic partners, classmates, and colleagues influence how we feel about ourselves and how we navigate daily challenges. A supportive relationship helps us feel understood, respected, and less alone, while repeated conflict, pressure, or feeling controlled affects our emotional wellbeing. [1, 2]",
+        "Healthy relationships do not mean that people always agree or never make mistakes. They grow through mutual care, honest communication, and a shared commitment to treat each other with dignity. A healthy connection often includes six foundational qualities [1, 4]:",
+        "1. Respect: You treat each other's feelings, opinions, choices, and personal boundaries seriously. You do not have to agree about everything, but you can disagree without insults, humiliation, or threats.",
+        "2. Trust: You can depend on each other and feel safe being honest. Trust develops over time through consistent actions. It does not require sharing every password, private thought, or personal detail.",
+        "3. Honest communication: You can express your feelings, needs, and concerns without fear of being deliberately shamed or intimidated. Both people listen to understand rather than simply waiting for their turn to speak.",
+        "4. Support: You encourage each other's personal growth and offer presence during difficult moments. Support does not mean solving every problem for the other person; sometimes, listening is enough.",
+        "5. Independence: You can enjoy time together while keeping your own interests, friendships, responsibilities, and goals. Being close never means giving up your personal identity.",
+        "6. Mutual effort: Both people contribute to the relationship. One person should not always carry the entire responsibility for apologizing, planning, or resolving conflict.",
+      ],
+      kmParagraphs: [
+        "ទំនាក់ទំនងគឺជាផ្នែកមួយដ៏សំខាន់នៃជីវិតរបស់យើង។ ចំណងមេត្រីភាពជាមួយគ្រួសារ មិត្តភក្តិ ដៃគូស្នេហា មិត្តរួមថ្នាក់ និងសហការី ជះឥទ្ធិពលយ៉ាងខ្លាំងទៅលើអារម្មណ៍របស់យើងចំពោះខ្លួនឯង និងរបៀបដែលយើងដោះស្រាយបញ្ហាប្រឈមប្រចាំថ្ងៃ។ ទំនាក់ទំនងដែលផ្តល់ការគាំទ្រ ជួយឱ្យយើងមានអារម្មណ៍ថានរណាម្នាក់យល់ពីយើង មានការគោរព និងកាត់បន្ថយភាពឯកោ។ ផ្ទុយទៅវិញ ជម្លោះដដែលៗ សម្ពាធ ឬអារម្មណ៍នៃការត្រូវគេគ្រប់គ្រង អាចប៉ះពាល់ដល់សុខុមាលភាពផ្លូវចិត្ត។ [1, 2]",
+        "ទំនាក់ទំនងល្អមិនមែនមានន័យថាភាគីទាំងសងខាងត្រូវតែយល់ស្របគ្នារាល់ពេល ឬមិនដែលខុសឆ្គងទាល់តែសោះនោះទេ។ វាចម្រើនឡើងតាមរយៈការយកចិត្តទុកដាក់គ្នា ការប្រាស្រ័យទាក់ទងដោយស្មោះត្រង់ និងការប្តេជ្ញាចិត្តរួមគ្នាក្នុងការប្រព្រឹត្តចំពោះគ្នាទៅវិញទៅមកដោយសេចក្តីថ្លៃថ្នូរ។ ទំនាក់ទំនងល្អច្រើនតែរួមបញ្ចូលនូវគុណសម្បត្តិគ្រឹះទាំង ៦ យ៉ាង [1, 4]៖",
+        "១. ការគោរពគ្នា (Respect)៖ អ្នកចាត់ទុកអារម្មណ៍ គំនិត ជម្រើស និងព្រំដែនផ្ទាល់ខ្លួនរបស់គ្នាទៅវិញទៅមកយ៉ាងហ្មត់ចត់។ អ្នកមិនចាំបាច់យល់ស្របគ្រប់រឿងទាំងអស់នោះទេ ប៉ុន្តែអ្នកអាចខ្វែងគំនិតគ្នាដោយគ្មានពាក្យប្រមាថ ការបន្ទាបបន្ថោក ឬការគំរាមកំហែង។",
+        "២. ការជឿទុកចិត្ត (Trust)៖ អ្នកអាចពឹងពាក់គ្នាទៅវិញទៅមក និងមានអារម្មណ៍កក់ក្តៅក្នុងការនិយាយពាក្យពិត។ ទំនុកចិត្តកសាងឡើងជាលំដាប់តាមរយៈសកម្មភាពជាក់ស្តែងដែលទៀងទាត់។ វាមិនមានន័យថាអ្នកត្រូវចែករំលែកគ្រប់លេខសម្ងាត់ ឬគំនិតផ្ទាល់ខ្លួនទាំងអស់នោះឡើយ។",
+        "៣. ការប្រាស្រ័យទាក់ទងដោយស្មោះត្រង់ (Honest Communication)៖ អ្នកអាចបង្ហាញពីអារម្មណ៍ សេចក្តីត្រូវការ និងការព្រួយបារម្ភដោយគ្មានការភ័យខ្លាចថាត្រូវគេបន្ទោស ឬបំភិតបំភ័យ។ មនុស្សទាំងពីរខិតខំស្តាប់ដើម្បីយល់ ជាជាងគ្រាន់តែរង់ចាំដល់វេនខ្លួននិយាយ។",
+        "៤. ការគាំទ្រគ្នា (Support)៖ អ្នកលើកទឹកចិត្តដល់ការលូតលាស់របស់គ្នា និងផ្តល់វត្តមានគាំទ្រក្នុងគ្រាលំបាក។ ការគាំទ្រមិនមែនមានន័យថាត្រូវដោះស្រាយគ្រប់បញ្ហាជំនួសគេនោះទេ ជួនកាលការស្តាប់ដោយចិត្តស្ងប់គឺគ្រប់គ្រាន់ហើយ។",
+        "៥. ភាពឯករាជ្យ (Independence)៖ អ្នកអាចរីករាយនឹងពេលវេលាជាមួយគ្នា ដោយនៅតែរក្សាបាននូវចំណង់ចំណូលចិត្ត មិត្តភាព និងគោលដៅផ្ទាល់ខ្លួន។ ភាពជិតស្និទ្ធមិនដែលតម្រូវឱ្យអ្នកលះបង់អត្តសញ្ញាណផ្ទាល់ខ្លួនឡើយ។",
+        "៦. ការខិតខំប្រឹងប្រែងទៅវិញទៅមក (Mutual Effort)៖ មនុស្សទាំងពីរនាក់រួមចំណែកដល់ទំនាក់ទំនង។ មនុស្សម្នាក់មិនគួរត្រូវទទួលខុសត្រូវរាល់ការសុំទោស ការរៀបចំគម្រោង ឬការដោះស្រាយជម្លោះតែម្នាក់ឯងរហូតនោះទេ។",
+      ],
+      alertBox: {
+        type: "tip",
+        text: "Good to know: A healthy relationship is not perfect. It is one where both people make a consistent effort to treat each other with safety, kindness, and dignity.",
+        kmText: "គួរដឹង៖ ទំនាក់ទំនងល្អមិនមែនល្អឥតខ្ចោះនោះទេ។ វាជាទំនាក់ទំនងដែលភាគីទាំងសងខាងខិតខំប្រឹងប្រែងប្រព្រឹត្តចំពោះគ្នាទៅវិញទៅមកដោយសុវត្ថិភាព សេចក្តីសប្បុរស និងសេចក្តីថ្លៃថ្នូរ។",
+      },
+      keyPoints: [
+        "Healthy relationships are grounded in mutual respect, trust, and communication [1].",
+        "Supportive connections strengthen emotional resilience and reduce isolation [2].",
+        "Independence is essential: closeness should never erase your personal identity [4].",
+      ],
+      kmKeyPoints: [
+        "ទំនាក់ទំនងល្អផ្អែកលើការគោរពគ្នា ការជឿទុកចិត្ត និងការប្រាស្រ័យទាក់ទង [1]។",
+        "ចំណងមេត្រីភាពដែលគាំទ្រគ្នា ជួយពង្រឹងភាពរឹងមាំផ្លូវចិត្ត និងកាត់បន្ថយភាពឯកោ [2]។",
+        "ភាពឯករាជ្យគឺសំខាន់៖ ភាពជិតស្និទ្ធមិនគួរលុបបំបាត់អត្តសញ្ញាណផ្ទាល់ខ្លួនឡើយ [4]។",
+      ],
+    },
+    {
+      id: 2,
+      sectionNumber: 2,
+      title: "Learn to Communicate Clearly",
+      kmTitle: "រៀនប្រាស្រ័យទាក់ទងឱ្យបានច្បាស់លាស់",
+      type: "quiz",
+      paragraphs: [
+        "Misunderstandings happen in every relationship. Sometimes we expect others to guess our feelings without explaining them. Other times, we react quickly while angry or hurt.",
+        "Learning to communicate clearly reduces unnecessary conflict and makes it easier to understand each other. Three practical habits make a powerful difference [2, 5]:",
+        "1. Use 'I' statements: When upset, describe your own experience instead of immediately blaming the other person. Instead of saying 'You never listen to me,' try: 'I feel ignored when I am speaking and you look at your phone. I would appreciate it if we could talk without distractions.' This explains what happened, how you feel, and what you need without automatically attacking the other person.",
+        "2. Listen to understand: Communication is not only about speaking; it is about receiving the other person's perspective. Give them time to finish, avoid interrupting or planning an argument while they talk, and check that you have understood: 'It sounds like you felt disappointed when I cancelled our plans. Have I understood correctly?'",
+        "3. Choose the right time: Difficult conversations become unproductive when people are exhausted, angry, or distracted. If either person feels overwhelmed, agree to take a calm pause and set a specific time to continue.",
+      ],
+      kmParagraphs: [
+        "ការយល់ច្រឡំកើតឡើងនៅក្នុងគ្រប់ទំនាក់ទំនង។ ជួនកាលយើងរំពឹងថាអ្នកដទៃអាចទាយដឹងពីអារម្មណ៍របស់យើងដោយមិនបាច់ពន្យល់។ ពេលខ្លះទៀត យើងមានប្រតិកម្មតបតភ្លាមៗនៅពេលកំពុងខឹង ឬឈឺចាប់។",
+        "ការរៀនប្រាស្រ័យទាក់ទងឱ្យបានច្បាស់លាស់ ជួយកាត់បន្ថយជម្លោះដែលមិនចាំបាច់ និងធ្វើឱ្យកាន់តែងាយស្រួលក្នុងការយល់ចិត្តគ្នា។ ទម្លាប់ជាក់ស្តែងចំនួន ៣ អាចបង្កើតភាពខុសប្លែកគ្នាជាវិជ្ជមាន [2, 5]៖",
+        "១. ប្រើប្រាស់ឃ្លាផ្ទាល់ខ្លួន (I statements)៖ នៅពេលមានអារម្មណ៍មិនសប្បាយចិត្ត សូមរៀបរាប់ពីបទពិសោធន៍ផ្ទាល់ខ្លួនរបស់អ្នក ជាជាងការស្តីបន្ទោសភ្លាមៗទៅកាន់ភាគីម្ខាងទៀត។ ជំនួសឱ្យការនិយាយថា «ឯងមិនដែលស្តាប់ខ្ញុំទេ!» សូមសាកល្បងនិយាយថា «ខ្ញុំមានអារម្មណ៍ថាមិនសូវមានគេយកចិត្តទុកដាក់ នៅពេលខ្ញុំកំពុងនិយាយ ហើយអ្នកមើលទូរស័ព្ទ។ ខ្ញុំនឹងអរគុណខ្លាំងណាស់ ប្រសិនបើយើងអាចជជែកគ្នាដោយមិនមានអ្វីរំខាន»។ វិធីនេះពន្យល់ពីអ្វីដែលបានកើតឡើង អារម្មណ៍របស់អ្នក និងអ្វីដែលអ្នកត្រូវការ ដោយមិនវាយប្រហារទៅលើភាគីម្ខាងទៀត។",
+        "២. ស្តាប់ដើម្បីយល់ (Listen to understand)៖ ការប្រាស្រ័យទាក់ទងមិនមែនត្រឹមតែការនិយាយចេញនោះទេ ប៉ុន្តែវារួមបញ្ចូលទាំងការស្តាប់ទស្សនៈរបស់អ្នកដទៃផងដែរ។ ទុកពេលឱ្យពួកគេនិយាយចប់ កុំកាត់សម្តី ឬរៀបចំគំនិតប្រកែកគ្នាក្នុងក្បាលពេលគេកំពុងនិយាយ និងផ្ទៀងផ្ទាត់ការយល់ដឹងរបស់អ្នក៖ «ដូចជាអ្នកមានអារម្មណ៍ខកចិត្តនៅពេលខ្ញុំលុបចោលគម្រោងរបស់យើង។ តើខ្ញុំយល់ត្រឹមត្រូវទេ?»",
+        "៣. ជ្រើសរើសពេលវេលាត្រឹមត្រូវ (Choose the right time)៖ ការសន្ទនាដ៏លំបាកអាចក្លាយជាគ្មានប្រសិទ្ធភាព នៅពេលដែលមនុស្សអស់កម្លាំង ខឹង ឬមានការរំខាន។ ប្រសិនបើភាគីណាម្នាក់មានអារម្មណ៍លើសលប់ សូមយល់ព្រមផ្អាកមួយរយៈសិន ហើយកំណត់ពេលបន្តជជែកគ្នានៅពេលដែលអារម្មណ៍ស្ងប់។",
+      ],
+      quiz: {
+        question: "Which of the following phrases is the most constructive example of an 'I' statement during a disagreement?",
+        kmQuestion: "តើឃ្លាមួយណាខាងក្រោមនេះជាគំរូដ៏ល្អបំផុតនៃការប្រើប្រាស់ឃ្លាផ្ទាល់ខ្លួន (I statement) នៅពេលមានការខ្វែងគំនិតគ្នា?",
+        options: [
+          {
+            id: "opt-1",
+            text: "You always ruin our plans and you never care about my time.",
+            kmText: "ឯងតែងតែធ្វើឱ្យខូចគម្រោង ហើយមិនដែលខ្វល់ពីពេលវេលារបស់ខ្ញុំទាល់តែសោះ។",
+            isCorrect: false,
+          },
+          {
+            id: "opt-2",
+            text: "I feel stressed when our plans change suddenly, and I would appreciate a message earlier.",
+            kmText: "ខ្ញុំមានអារម្មណ៍តានតឹងនៅពេលគម្រោងផ្លាស់ប្តូរភ្លាមៗ ហើយខ្ញុំនឹងអរគុណប្រសិនបើមានការប្រាប់ទុកមុន។",
+            isCorrect: true,
+          },
+          {
+            id: "opt-3",
+            text: "If you truly cared about me, you would already know why I am upset.",
+            kmText: "ប្រសិនបើអ្នកខ្វល់ពីខ្ញុំពិតប្រាកដ អ្នកច្បាស់ជាដឹងថាហេតុអ្វីបានជាខ្ញុំខឹង។",
+            isCorrect: false,
+          },
+          {
+            id: "opt-4",
+            text: "Why can you never do anything right when we talk?",
+            kmText: "ហេតុអ្វីបានជាអ្នកមិនដែលធ្វើអ្វីត្រូវសោះពេលយើងជជែកគ្នា?",
+            isCorrect: false,
+          },
+        ],
+        explanation:
+          "Expressing how a specific action affects your feelings and stating what would help creates understanding without triggering defensive arguments.",
+        kmExplanation:
+          "ការបង្ហាញពីអារម្មណ៍ផ្ទាល់ខ្លួនចំពោះស្ថានភាពជាក់លាក់ រួមជាមួយអ្វីដែលអ្នកត្រូវការ ជួយកាត់បន្ថយការប្រកាន់ខឹង និងបើកផ្លូវឱ្យមានការសហការដោះស្រាយបញ្ហាជាមួយគ្នា។",
+      },
+      keyPoints: [
+        "Use 'I' statements to explain what you feel without attacking character [5].",
+        "Listen to understand rather than preparing your next argument [2].",
+        "Pause difficult conversations when emotions are high, and return when calm.",
+      ],
+      kmKeyPoints: [
+        "ប្រើឃ្លាផ្ទាល់ខ្លួនដើម្បីពន្យល់ពីអារម្មណ៍ ដោយមិនវាយប្រហារចរិតលក្ខណៈ [5]។",
+        "ស្តាប់ដើម្បីយល់ ជាជាងរៀបចំគំនិតប្រកែកគ្នា [2]។",
+        "ផ្អាកការសន្ទនាពេលអារម្មណ៍តានតឹង ហើយត្រឡប់មកវិញពេលចិត្តស្ងប់។",
+      ],
+    },
+    {
+      id: 3,
+      sectionNumber: 3,
+      title: "Set and Respect Boundaries",
+      kmTitle: "ការកំណត់ និងការគោរពព្រំដែនផ្ទាល់ខ្លួន",
+      type: "reading",
+      paragraphs: [
+        "A boundary is a healthy limit you establish to protect your wellbeing, time, privacy, energy, and comfort. Boundaries help other people understand what is acceptable to you and what crosses your comfort line. [1, 5]",
+        "Healthy boundaries may look like: taking time to rest after a busy day before answering calls, not allowing someone to inspect your private phone without consent, declining to discuss topics you are not ready for, or stepping away if someone shouts at you.",
+        "How to express a boundary: Communicate your limit calmly and clearly. You do not need a lengthy excuse or an apology for having limits. For example: 'I value our friendship, but I cannot reply right away while I am studying. I will message you when I am free.' Or: 'I want to discuss this, but I am not comfortable while we are shouting. Let us pause and talk when we are calmer.'",
+        "Respect other people's boundaries as well. When someone expresses discomfort or says no, their boundary does not mean they do not care about you. It means they are honoring their own capacity. A healthy boundary is never a tool to control someone else; it protects your own wellbeing while respecting theirs. [4, 5]",
+      ],
+      kmParagraphs: [
+        "ព្រំដែនផ្ទាល់ខ្លួន គឺជាដែនកំណត់ដ៏ល្អមួយដែលអ្នកបង្កើតឡើងដើម្បីការពារសុខុមាលភាព ពេលវេលា ភាពឯកជន ថាមពល និងផាសុកភាពរបស់អ្នក។ ព្រំដែនជួយឱ្យអ្នកដទៃយល់ពីអ្វីដែលអ្នកអាចទទួលយកបាន និងអ្វីដែលរំលោភលើសេចក្តីសុខផ្លូវចិត្តរបស់អ្នក។ [1, 5]",
+        "ព្រំដែនល្អអាចមានទម្រង់ដូចជា៖ ការចំណាយពេលសម្រាកក្រោយថ្ងៃដ៏មមាញឹកមុនពេលទទួលទូរស័ព្ទ, ការមិនអនុញ្ញាតឱ្យនរណាម្នាក់ឆែកទូរស័ព្ទផ្ទាល់ខ្លួនដោយគ្មានការយល់ព្រម, ការបដិសេធមិនជជែកពីប្រធានបទដែលអ្នកមិនទាន់រួចរាល់, ឬការដើរចេញប្រសិនបើនរណាម្នាក់ស្រែកគំហកដាក់អ្នក។",
+        "របៀបបង្ហាញព្រំដែន៖ ប្រាស្រ័យទាក់ទងព្រំដែនរបស់អ្នកដោយស្ងប់ស្ងាត់ និងច្បាស់លាស់។ អ្នកមិនចាំបាច់មានលេសវែងអន្លាយ ឬពាក្យសុំទោសចំពោះការមានដែនកំណត់នោះឡើយ។ ឧទាហរណ៍៖ «ខ្ញុំឱ្យតម្លៃដល់មិត្តភាពរបស់យើង ប៉ុន្តែខ្ញុំមិនអាចតបសារភ្លាមៗពេលកំពុងរៀនបានទេ។ ខ្ញុំនឹងផ្ញើសារត្រឡប់ទៅវិញពេលខ្ញុំទំនេរ»។ ឬ «ខ្ញុំចង់ជជែករឿងនេះជាមួយអ្នក ប៉ុន្តែខ្ញុំមិនស្រួលចិត្តទេនៅពេលយើងស្រែកដាក់គ្នា។ យើងផ្អាកសិន ហើយចាំជជែកគ្នានៅពេលដែលចិត្តស្ងប់»។",
+        "ការគោរពព្រំដែនរបស់អ្នកដទៃក៏សំខាន់ដូចគ្នាដែរ។ នៅពេលដែលនរណាម្នាក់បង្ហាញពីភាពមិនស្រួលចិត្ត ឬនិយាយពាក្យ 'ទេ' ព្រំដែនរបស់ពួកគេមិនមែនមានន័យថាគេមិនខ្វល់ពីអ្នកនោះទេ។ វាមានន័យថាពួកគេកំពុងថែរក្សាសមត្ថភាពផ្លូវចិត្តផ្ទាល់ខ្លួន។ ព្រំដែនត្រឹមត្រូវមិនមែនជាឧបករណ៍គ្រប់គ្រងអ្នកដទៃទេ ប៉ុន្តែវាការពារសុខុមាលភាពរបស់អ្នក និងផ្តល់ការគោរពដល់អ្នកដទៃ។ [4, 5]",
+      ],
+      alertBox: {
+        type: "tip",
+        text: "Good to know: On AROM, your personal boundaries and privacy are strictly protected. Your journals and mood logs are 100% confidential, and community support groups operate with clear guidelines so everyone feels safe.",
+        kmText: "គួរដឹង៖ នៅលើកម្មវិធី AROM ព្រំដែនផ្ទាល់ខ្លួន និងភាពឯកជនរបស់អ្នកត្រូវបានការពារយ៉ាងម៉ឺងម៉ាត់។ កំណត់ហេតុ និងទិន្នន័យអារម្មណ៍របស់អ្នកត្រូវបានរក្សាទុកជាការសម្ងាត់ ១០០% ហើយក្រុមសហគមន៍ដំណើរការដោយមានគោលការណ៍ច្បាស់លាស់ដើម្បីឱ្យសមាជិកគ្រប់រូបមានអារម្មណ៍កក់ក្តៅ និងមានសុវត្ថិភាព។",
+      },
+      keyPoints: [
+        "Boundaries protect your time, privacy, energy, and values [1, 5].",
+        "State limits clearly and warmly without needing long justifications.",
+        "Respecting someone else's boundary reflects maturity and care [4].",
+      ],
+      kmKeyPoints: [
+        "ព្រំដែនផ្ទាល់ខ្លួនជួយការពារពេលវេលា ភាពឯកជន ថាមពល និងតម្លៃរបស់អ្នក [1, 5]។",
+        "បង្ហាញដែនកំណត់ដោយច្បាស់លាស់ និងទន់ភ្លន់ ដោយមិនចាំបាច់មានលេសវែងឆ្ងាយ។",
+        "ការគោរពព្រំដែនរបស់អ្នកដទៃឆ្លុះបញ្ចាំងពីភាពចាស់ទុំ និងការយកចិត្តទុកដាក់ [4]។",
+      ],
+    },
+    {
+      id: 4,
+      sectionNumber: 4,
+      title: "Handle Disagreements in a Healthy Way",
+      kmTitle: "ការដោះស្រាយការខ្វែងគំនិតគ្នាតាមវិធីត្រឹមត្រូវ",
+      type: "reading",
+      paragraphs: [
+        "Conflict is a normal part of all relationships. We all bring different backgrounds, expectations, communication habits, and needs. The goal is not to avoid every disagreement, but to learn how to resolve differences without harming each other. [2]",
+        "Try these four steps during a disagreement [2, 5]:",
+        "Step 1: Pause before reacting. If you feel anger or distress rising, take a few slow breaths or ask for a short break. You can return when you feel more able to listen and explain yourself.",
+        "Step 2: Describe the problem. Focus on the specific situation rather than attacking the other person's character. 'I felt disappointed when plans changed without letting me know' is far more constructive than 'You are always selfish.'",
+        "Step 3: Listen to each other. Give both people space to explain what happened. Disagreements often come from mismatched assumptions rather than an intention to cause harm.",
+        "Step 4: Look for a fair next step. Agree on what both people can do differently moving forward.",
+        "What if you make a mistake? Everyone makes mistakes in relationships. A meaningful apology includes acknowledging what you did, recognizing how it affected the other person, taking responsibility without excuses, and making a genuine effort to change your behavior. An apology is a beginning; rebuilding trust takes consistent actions over time. [2]",
+      ],
+      kmParagraphs: [
+        "ជម្លោះគឺជាផ្នែកធម្មតាមួយនៃគ្រប់ទំនាក់ទំនង។ យើងទាំងអស់គ្នាសុទ្ធតែមានប្រវត្តិ ការរំពឹងទុក ទម្លាប់ប្រាស្រ័យទាក់ទង និងសេចក្តីត្រូវការខុសៗគ្នា។ គោលដៅមិនមែនជាការគេចវេះពីការខ្វែងគំនិតទាំងអស់នោះទេ ប៉ុន្តែគឺរៀនពីរបៀបដោះស្រាយភាពខុសគ្នាដោយមិនធ្វើឱ្យប៉ះពាល់ដល់គ្នាទៅវិញទៅមក។ [2]",
+        "សាកល្បងអនុវត្តជំហានទាំង ៤ នេះនៅពេលមានការខ្វែងគំនិតគ្នា [2, 5]៖",
+        "ជំហានទី ១៖ ផ្អាកមួយភ្លែតមុនពេលមានប្រតិកម្ម។ ប្រសិនបើអ្នកមានអារម្មណ៍ថាខឹងខ្លាំង សូមដកដង្ហើមវែងៗយឺតៗ ឬសុំពេលសម្រាកខ្លី។ អ្នកអាចត្រឡប់មកវិញនៅពេលដែលអ្នកមានអារម្មណ៍ថាអាចស្តាប់ និងពន្យល់ខ្លួនឯងបានប្រសើរជាងមុន។",
+        "ជំហានទី ២៖ រៀបរាប់ពីបញ្ហាជាក់ស្តែង។ ផ្តោតលើស្ថានភាពជាក់លាក់ ជាជាងការវាយប្រហារលើចរិតលក្ខណៈរបស់មនុស្ស។ ការនិយាយថា «ខ្ញុំមានអារម្មណ៍ខកចិត្តនៅពេលគម្រោងផ្លាស់ប្តូរដោយមិនបានប្រាប់ខ្ញុំ» គឺមានលក្ខណៈស្ថាបនាជាងពាក្យថា «ឯងតែងតែអាត្មានិយមរហូត»។",
+        "ជំហានទី ៣៖ ស្តាប់គ្នាទៅវិញទៅមក។ ផ្តល់ឱកាសឱ្យភាគីទាំងសងខាងពន្យល់ពីអ្វីដែលបានកើតឡើង។ ការខ្វែងគំនិតគ្នាច្រើនតែកើតចេញពីការរំពឹងទុកខុសគ្នា ជាជាងចេតនាចង់ធ្វើបាបនរណាម្នាក់។",
+        "ជំហានទី ៤៖ ស្វែងរកជំហានបន្ទាប់ដែលសមរម្យ។ ព្រមព្រៀងលើអ្វីដែលមនុស្សទាំងពីរអាចធ្វើខុសពីមុននៅពេលខាងមុខ។",
+        "ចុះប្រសិនបើអ្នកជាអ្នកខុស? មនុស្សគ្រប់គ្នាសុទ្ធតែធ្លាប់ខុសក្នុងទំនាក់ទំនង។ ការសុំទោសដ៏មានអត្ថន័យរួមបញ្ចូលនូវ៖ ការទទួលស្គាល់នូវអ្វីដែលអ្នកបានធ្វើ, ការយល់ដឹងពីរបៀបដែលវាប៉ះពាល់ដល់អ្នកដទៃ, ការទទួលខុសត្រូវដោយគ្មានលេសដោះសារ, និងការខិតខំពិតប្រាកដក្នុងការផ្លាស់ប្តូរអាកប្បកិរិយារបស់អ្នក។ ការសុំទោសគឺជាចំណុចចាប់ផ្តើម ហើយការកសាងទំនុកចិត្តឡើងវិញទាមទារសកម្មភាពជាក់ស្តែងដែលទៀងទាត់។ [2]",
+      ],
+      keyPoints: [
+        "Disagreements are natural: resolve them without personal attacks [2].",
+        "Pause and breathe when anger surges before continuing the discussion.",
+        "A genuine apology includes owning mistakes and changing real behavior [2].",
+      ],
+      kmKeyPoints: [
+        "ការខ្វែងគំនិតគ្នាជារឿងធម្មតា៖ ដោះស្រាយបញ្ហាដោយមិនវាយប្រហារបុគ្គល [2]។",
+        "ផ្អាក និងដកដង្ហើមវែងៗនៅពេលកំហឹងកើតឡើង មុនពេលបន្តការសន្ទនា។",
+        "ការសុំទោសពិតប្រាកដ រួមបញ្ចូលការទទួលខុសត្រូវ និងការផ្លាស់ប្តូរអាកប្បកិរិយាជាក់ស្តែង [2]។",
+      ],
+    },
+    {
+      id: 5,
+      sectionNumber: 5,
+      title: "Recognize Unhealthy Relationship Patterns",
+      kmTitle: "សម្គាល់ទម្រង់ទំនាក់ទំនងដែលគ្មានសុខភាពល្អ",
+      type: "reading",
+      paragraphs: [
+        "Not every relationship feels smooth all the time. People can have rough days, misunderstand each other, or make mistakes and later take responsibility. However, repeated patterns of disrespect, fear, manipulation, or control should never be dismissed as normal relationship difficulties. [1, 4]",
+        "Warning signs of unhealthy patterns include [1, 4]:",
+        "• Controlling behavior: Repeatedly dictating who you can see, what you wear, where you go, or constantly demanding to know where you are.",
+        "• Disrespect and humiliation: Regularly insulting you, mocking your goals, embarrassing you on purpose, or making you feel worthless.",
+        "• Excessive monitoring: Demanding passwords, searching your private messages without permission, or tracking your location.",
+        "• Emotional manipulation: Using guilt, silent treatments, or threats to pressure you. For example, threatening self-harm if you do not obey demands. Take threats of self-harm seriously, but remember you are not responsible for managing someone's safety alone; seek professional help.",
+        "• Isolation: Trying to cut you off from friends, family, school, or work connections.",
+        "• Pressure and disregard for consent: Pressuring you into choices you do not want, ignoring your refusal, or acting as though you owe physical affection.",
+        "• Threats or physical violence: Threatening harm, causing physical injury, or making you afraid for your safety.",
+      ],
+      kmParagraphs: [
+        "មិនមែនគ្រប់ទំនាក់ទំនងសុទ្ធតែមានអារម្មណ៍ល្អគ្រប់ពេលវេលានោះទេ។ មនុស្សអាចមានថ្ងៃលំបាក យល់ច្រឡំគ្នា ឬធ្វើខុសហើយក្រោយមកទទួលខុសត្រូវ។ ប៉ុន្តែ ទម្រង់ដដែលៗនៃការមិនគោរព ការភ័យខ្លាច ការបោកបញ្ឆោត ឬការគ្រប់គ្រង មិនគួរត្រូវបានចាត់ទុកថាជាជម្លោះធម្មតានោះឡើយ។ [1, 4]",
+        "សញ្ញាព្រមាននៃទំនាក់ទំនងដែលគ្មានសុខភាពល្អរួមមាន [1, 4]៖",
+        "• អាកប្បកិរិយាគ្រប់គ្រង (Controlling behavior)៖ ព្យាយាមគ្រប់គ្រងម្តងហើយម្តងទៀតនូវមនុស្សដែលអ្នកជួប អ្វីដែលអ្នកស្លៀកពាក់ កន្លែងដែលអ្នកទៅ ឬទាមទារដឹងពីទីតាំងរបស់អ្នកគ្រប់ពេលវេលា។",
+        "• ការមិនគោរព និងការបន្ទាបបន្ថោក (Disrespect and humiliation)៖ ជេរប្រមាថជាប្រចាំ បន្ទាបបន្ថោកគោលដៅរបស់អ្នក ធ្វើឱ្យអ្នកខ្មាសគេដោយចេតនា ឬធ្វើឱ្យអ្នកមានអារម្មណ៍ថាខ្លួនឯងគ្មានតម្លៃ។",
+        "• ការតាមដានហួសហេតុ (Excessive monitoring)៖ ទាមទារលេខសម្ងាត់ លួចឆែកសារផ្ទាល់ខ្លួនដោយគ្មានការអនុញ្ញាត ឬតាមដានទីតាំងរបស់អ្នក។",
+        "• ការបោកបញ្ឆោតផ្លូវចិត្ត (Emotional manipulation)៖ ប្រើអារម្មណ៍ខុសឆ្គង ការធ្វើមិនដឹងមិនឮ ឬការគំរាមកំហែងដើម្បីបង្ខំអ្នក។ ឧទាហរណ៍ ការគំរាមធ្វើបាបខ្លួនឯងប្រសិនបើអ្នកមិនស្តាប់តាម។ សូមយកចិត្តទុកដាក់ចំពោះការគំរាមធ្វើបាបខ្លួនឯង ប៉ុន្តែចងចាំថាអ្នកមិនមែនជាអ្នកទទួលខុសត្រូវគ្រប់គ្រងសុវត្ថិភាពរបស់នរណាម្នាក់តែម្នាក់ឯងនោះទេ សូមស្វែងរកជំនួយពីអ្នកជំនាញ។",
+        "• ការផ្តាច់ទំនាក់ទំនង (Isolation)៖ ព្យាយាមរារាំងអ្នកមិនឱ្យជួបមិត្តភក្តិ គ្រួសារ ឬកន្លែងសិក្សា និងការងារ។",
+        "• សម្ពាធ និងការរំលោភលើការយល់ព្រម (Pressure and disregard for consent)៖ បង្ខំឱ្យអ្នកធ្វើរឿងដែលអ្នកមិនចង់ធ្វើ មិនអើពើចំពោះការបដិសេធ ឬធ្វើឱ្យអ្នកមានអារម្មណ៍ថាជំពាក់ការស្រឡាញ់រាងកាយ។",
+        "• ការគំរាមកំហែង ឬអំពើហិង្សា (Threats or physical violence)៖ ការគំរាមធ្វើបាប ការបង្ករបួសរាងកាយ ឬធ្វើឱ្យអ្នកមានការភ័យខ្លាចចំពោះសុវត្ថិភាព។",
+      ],
+      alertBox: {
+        type: "emergency",
+        text: "Important safety reminder: You deserve relationships where your safety, dignity, and boundaries are respected. If someone threatens you, acts violently, or makes you feel unsafe, prioritize your safety immediately. Open Profile in AROM and tap Get help now to connect with confidential emergency support.",
+        kmText: "ការរំលឹកសុវត្ថិភាពសំខាន់៖ អ្នកសមនឹងទទួលបានទំនាក់ទំនងដែលមានការគោរពសេចក្តីថ្លៃថ្នូរ និងព្រំដែនសុវត្ថិភាព។ ប្រសិនបើនរណាម្នាក់គំរាមកំហែង ប្រើអំពើហិង្សា ឬធ្វើឱ្យអ្នកមានការភ័យខ្លាច សូមផ្តល់អាទិភាពដល់សុវត្ថិភាពផ្ទាល់ខ្លួនជាបន្ទាន់។ បើក Profile ក្នុង AROM ហើយចុច Get help now ដើម្បីទាក់ទងជំនួយបន្ទាន់ជាសម្ងាត់។",
+      },
+      keyPoints: [
+        "Controlling behavior, excessive monitoring, and manipulation are clear warning signs [1, 4].",
+        "Love and jealousy never excuse intimidation or disregard for consent.",
+        "Prioritize your physical and emotional safety whenever a dynamic feels dangerous [4].",
+      ],
+      kmKeyPoints: [
+        "អាកប្បកិរិយាគ្រប់គ្រង ការតាមដានហួសហេតុ និងការបោកបញ្ឆោត ជាសញ្ញាព្រមានច្បាស់លាស់ [1, 4]។",
+        "សេចក្តីស្រឡាញ់ និងការប្រចណ្ឌ មិនអាចយកមកធ្វើជាលេសសម្រាប់ភាពគំរាមកំហែងបានឡើយ។",
+        "ផ្តល់អាទិភាពដល់សុវត្ថិភាពផ្លូវកាយ និងផ្លូវចិត្ត នៅពេលមានអារម្មណ៍មិនមានសុវត្ថិភាព [4]។",
+      ],
+    },
+    {
+      id: 6,
+      sectionNumber: 6,
+      title: "Strengthen Connections and Family in Cambodia",
+      kmTitle: "ការពង្រឹងទំនាក់ទំនងប្រចាំថ្ងៃ និងបរិបទគ្រួសារនៅកម្ពុជា",
+      type: "reading",
+      paragraphs: [
+        "Healthy relationships develop through everyday moments, not only during major conversations. Simple daily actions build strong safety over time [2, 5]: checking in with genuine curiosity ('How have things been for you lately?'), showing appreciation for small gestures, sharing quality time without phone distractions, offering support by listening first before giving advice, and accepting personal differences.",
+        "Family relationships in Cambodia: In Cambodian culture, family connections, filial gratitude, and shared responsibilities are central pillars of daily life. Many young people experience stress balancing deep respect for parents and family goals with their own personal educational aspirations, career choices, and emotional needs. [3]",
+        "Approaching family conversations with respect and clarity: Caring for your mental health does not mean you care less about your family. Approach important conversations during calm moments. Acknowledge your parents' loving intentions first: 'I understand you want me to have a stable future, and I am grateful for your sacrifices. I would also like to explain why this path matters to me, so we can explore it together.' Some conversations take time and patient compromises to unfold. [3]",
+      ],
+      kmParagraphs: [
+        "ទំនាក់ទំនងល្អចម្រើនឡើងតាមរយៈសកម្មភាពតូចៗប្រចាំថ្ងៃ មិនមែនកើតឡើងតែពេលមានការសន្ទនាធំដុំនោះឡើយ។ សកម្មភាពសាមញ្ញៗជួយកសាងសុវត្ថិភាពផ្លូវចិត្តជារៀងរាល់ថ្ងៃ [2, 5]៖ ការសួរសុខទុក្ខដោយការយកចិត្តទុកដាក់ («តើមួយរយៈនេះជីវិតយ៉ាងម៉េចដែរ?»), ការបង្ហាញការដឹងគុណចំពោះរឿងតូចតាច, ការចំណាយពេលជាមួយគ្នាដោយមិនមានការរំខានពីទូរស័ព្ទ, ការផ្តល់ការគាំទ្រដោយការស្តាប់ជាមុនសិនមុននឹងផ្តល់យោបល់, និងការទទួលយកភាពខុសគ្នារបស់បុគ្គលម្នាក់ៗ។",
+        "ទំនាក់ទំនងគ្រួសារនៅក្នុងប្រទេសកម្ពុជា៖ នៅក្នុងវប្បធម៌ខ្មែរ ចំណងមិត្តភាពគ្រួសារ ការដឹងគុណចំពោះឪពុកម្តាយ និងការទទួលខុសត្រូវរួមគ្នា គឺជាសសរស្តម្ភដ៏សំខាន់នៃជីវិត។ យុវជនជាច្រើនជួបប្រទះការលំបាកក្នុងការថ្លឹងថ្លែងរវាងការគោរពឪពុកម្តាយ និងការបំពេញតាមការរំពឹងទុករបស់គ្រួសារ ជាមួយនឹងក្តីប្រាថ្នាផ្ទាល់ខ្លួនក្នុងការសិក្សា អាជីពការងារ និងសេចក្តីត្រូវការផ្លូវចិត្ត។ [3]",
+        "ការជជែកជាមួយគ្រួសារដោយការគោរព និងភាពច្បាស់លាស់៖ ការថែទាំសុខភាពផ្លូវចិត្តរបស់អ្នកមិនមែនមានន័យថាអ្នកមិនខ្វល់ពីគ្រួសារនោះទេ។ សូមជ្រើសរើសពេលវេលាស្ងប់ស្ងាត់ដើម្បីជជែកគ្នា។ ទទួលស្គាល់នូវចេតនាល្អរបស់ឪពុកម្តាយជាមុន៖ «ខ្ញុំយល់ថាពុកម៉ែចង់ឱ្យកូនមានអនាគតល្អ ហើយកូនដឹងគុណចំពោះការលះបង់គ្រប់យ៉ាង។ កូនក៏ចង់ពន្យល់ពីមូលហេតុដែលការសិក្សានេះសំខាន់សម្រាប់កូន ដើម្បីឱ្យយើងអាចពិភាក្សាគ្នាបាន»។ ការសន្ទនាខ្លះត្រូវការពេលវេលា និងការសម្របសម្រួលដោយការអត់ធ្មត់។ [3]",
+      ],
+      keyPoints: [
+        "Small daily check-ins and genuine appreciation build lasting connection [5].",
+        "Balancing family respect with personal goals is possible through patient dialogue [3].",
+        "Acknowledge loving intentions first before discussing your personal needs.",
+      ],
+      kmKeyPoints: [
+        "ការសួរសុខទុក្ខប្រចាំថ្ងៃ និងការដឹងគុណជួយកសាងចំណងមេត្រីភាពយូរអង្វែង [5]។",
+        "ការថ្លឹងថ្លែងរវាងការគោរពគ្រួសារ និងគោលដៅផ្ទាល់ខ្លួន អាចធ្វើទៅបានតាមរយៈការសន្ទនាដោយអត់ធ្មត់ [3]។",
+        "ទទួលស្គាល់ចេតនាល្អរបស់គ្រួសារជាមុន មុននឹងពន្យល់ពីសេចក្តីត្រូវការផ្ទាល់ខ្លួន។",
+      ],
+    },
+    {
+      id: 7,
+      sectionNumber: 7,
+      title: "Healthy Relationships Include You, Too",
+      kmTitle: "ទំនាក់ទំនងល្អត្រូវគិតគូរពីសុខុមាលភាពរបស់អ្នកផងដែរ",
+      type: "reading",
+      paragraphs: [
+        "Sometimes people focus so much on keeping others happy that they forget their own wellbeing. You might agree to every demand because you fear disappointing people, hide your honest feelings to avoid conflict, or feel guilty whenever you take time for yourself. [1, 2]",
+        "Caring about others is valuable, but your own emotional health and boundaries matter just as much. A relationship where you must constantly diminish yourself to maintain peace is not emotionally sustainable.",
+        "Ask yourself these gentle reflection questions [1, 2]:",
+        "• Can I express my genuine opinions in this relationship without fear?",
+        "• Do I feel comfortable saying no when something crosses my limits?",
+        "• Can I spend time on my own interests without being made to feel guilty?",
+        "• Do I feel respected and heard when we disagree?",
+        "• Do both of us make an effort to nurture this relationship, or am I carrying it alone?",
+      ],
+      kmParagraphs: [
+        "ពេលខ្លះ មនុស្សផ្តោតខ្លាំងពេកលើការធ្វើឱ្យអ្នកដទៃសប្បាយចិត្ត រហូតដល់ភ្លេចសុខុមាលភាពផ្ទាល់ខ្លួន។ អ្នកអាចយល់ព្រមគ្រប់រឿងដោយសារខ្លាចធ្វើឱ្យគេខកចិត្ត លាក់បាំងអារម្មណ៍ពិតដើម្បីជៀសវាងជម្លោះ ឬមានអារម្មណ៍ខុសឆ្គងរាល់ពេលដែលអ្នកចំណាយពេលសម្រាកសម្រាប់ខ្លួនឯង។ [1, 2]",
+        "ការខ្វល់ខ្វាយពីអ្នកដទៃគឺជារឿងល្អ ប៉ុន្តែសុខភាពផ្លូវចិត្ត និងព្រំដែនរបស់អ្នកក៏មានសារៈសំខាន់ស្មើគ្នាដែរ។ ទំនាក់ទំនងដែលទាមទារឱ្យអ្នកបំបិទសម្លេងខ្លួនឯងជាប្រចាំដើម្បីរក្សាភាពស្ងប់ស្ងាត់ គឺជាទំនាក់ទំនងដែលមិនអាចទ្រទ្រង់បានយូរអង្វែងឡើយ។",
+        "សូមសួរសំណួរឆ្លុះបញ្ចាំងទាំងនេះទៅកាន់ខ្លួនឯង [1, 2]៖",
+        "• តើខ្ញុំអាចបញ្ចេញមតិពិតប្រាកដក្នុងទំនាក់ទំនងនេះដោយគ្មានការភ័យខ្លាចដែរឬទេ?",
+        "• តើខ្ញុំមានអារម្មណ៍ស្រួលចិត្តក្នុងការនិយាយពាក្យ 'ទេ' នៅពេលរឿងនោះហួសពីដែនកំណត់របស់ខ្ញុំដែរឬទេ?",
+        "• តើខ្ញុំអាចចំណាយពេលលើចំណង់ចំណូលចិត្តផ្ទាល់ខ្លួនដោយមិនមានអារម្មណ៍ខុសឆ្គងដែរឬទេ?",
+        "• តើខ្ញុំមានអារម្មណ៍ថាទទួលបានការគោរព និងការស្តាប់នៅពេលយើងខ្វែងគំនិតគ្នាដែរឬទេ?",
+        "• តើយើងទាំងពីរនាក់រួមចំណែកដល់ទំនាក់ទំនងនេះ ឬមានតែខ្ញុំម្នាក់ឯងដែលកំពុងរែកពន់វា?",
+      ],
+      keyPoints: [
+        "Caring for others should never require abandoning your own needs [1, 2].",
+        "Healthy connections leave room for both people to be authentic and heard.",
+        "You are allowed to care about someone while recognizing that dynamics must change.",
+      ],
+      kmKeyPoints: [
+        "ការខ្វល់ខ្វាយពីអ្នកដទៃ មិនគួរតម្រូវឱ្យអ្នកបោះបង់សេចក្តីត្រូវការផ្ទាល់ខ្លួនឡើយ [1, 2]។",
+        "ទំនាក់ទំនងល្អទុកកន្លែងឱ្យមនុស្សទាំងពីរនាក់រស់នៅជាខ្លួនឯង និងទទួលបានការស្តាប់។",
+        "អ្នកអាចស្រឡាញ់នរណាម្នាក់ ដោយនៅតែទទួលស្គាល់ថាទម្រង់ទំនាក់ទំនងនោះត្រូវការការកែសម្រួល។",
+      ],
+    },
+    {
+      id: 8,
+      sectionNumber: 8,
+      title: "Self-Reflection on an Important Relationship",
+      kmTitle: "ការឆ្លុះបញ្ចាំងពីទំនាក់ទំនងសំខាន់មួយក្នុងជីវិត",
+      type: "reflection",
+      paragraphs: [
+        "Choose one relationship you would like to understand better. It could be with a friend, family member, partner, classmate, or colleague.",
+        "You do not need to choose the most painful relationship in your life; start with one that feels safe to reflect upon. Reflection is not a test with right or wrong answers; it is an opportunity to cultivate self awareness and notice where you can invite more calm and honest communication.",
+      ],
+      kmParagraphs: [
+        "ជ្រើសរើសទំនាក់ទំនងមួយដែលអ្នកចង់ស្វែងយល់ឱ្យកាន់តែច្បាស់។ វាអាចជាទំនាក់ទំនងជាមួយមិត្តភក្តិ សមាជិកគ្រួសារ ដៃគូស្នេហា មិត្តរួមថ្នាក់ ឬសហការី។",
+        "អ្នកមិនចាំបាច់ជ្រើសរើសទំនាក់ទំនងដែលពិបាកបំផុតក្នុងជីវិតនោះទេ សូមចាប់ផ្តើមជាមួយទំនាក់ទំនងណាដែលមានអារម្មណ៍ថាសុវត្ថិភាពក្នុងការឆ្លុះបញ្ចាំង។ ការឆ្លុះបញ្ចាំងមិនមែនជាការប្រឡងដែលមានចម្លើយត្រូវឬខុសឡើយ ប៉ុន្តែវាជាឱកាសដើម្បីបង្កើនការយល់ដឹងពីខ្លួនឯង និងកត់សម្គាល់កន្លែងដែលអ្នកអាចបង្កើតការសន្ទនាដោយស្មោះត្រង់។",
+      ],
+      reflection: {
+        question: "When reflecting on your important connections right now, what is one area you would like to strengthen?",
+        kmQuestion: "នៅពេលឆ្លុះបញ្ចាំងពីទំនាក់ទំនងសំខាន់ៗរបស់អ្នកនៅពេលនេះ តើចំណុចមួយណាដែលអ្នកចង់ពង្រឹងបន្ថែម?",
+        options: [
+          "Expressing my personal boundaries and needs more calmly and clearly.",
+          "Practicing deeper active listening without getting defensive.",
+          "Sharing honest feelings and appreciation more openly with people I value.",
+          "Setting healthy distance from relationships that consistently drain my energy.",
+        ],
+        kmOptions: [
+          "ការបង្ហាញព្រំដែន និងសេចក្តីត្រូវការផ្ទាល់ខ្លួនឱ្យកាន់តែច្បាស់លាស់ និងស្ងប់ស្ងាត់។",
+          "ការហាត់ស្តាប់ដោយយកចិត្តទុកដាក់ឱ្យកាន់តែស៊ីជម្រៅ ដោយមិនប្រកាន់ខឹង។",
+          "ការចែករំលែកអារម្មណ៍ពិត និងការដឹងគុណឱ្យកាន់តែបើកចំហជាមួយមនុស្សដែលខ្ញុំស្រឡាញ់។",
+          "ការកំណត់គម្លាតសុខភាពល្អពីទំនាក់ទំនងដែលធ្វើឱ្យខ្ញុំអស់ថាមពលជាប្រចាំ។",
+        ],
+        feedbackMessage:
+          "Recognizing what you need is the foundation of healthier relationships. Growth in connections happens one honest conversation and one clear boundary at a time.",
+        kmFeedbackMessage:
+          "ការកត់សម្គាល់ឃើញនូវអ្វីដែលអ្នកត្រូវការ គឺជាមូលដ្ឋានគ្រឹះនៃទំនាក់ទំនងកាន់តែល្អប្រសើរ។ ការរីកចម្រើនក្នុងទំនាក់ទំនងកើតឡើងតាមរយៈការសន្ទនាដោយស្មោះត្រង់ និងការកំណត់ព្រំដែនម្តងមួយៗ។",
+      },
+      keyPoints: [
+        "Personal reflection brings clarity to what is working and what feels strained.",
+        "Small shifts in communication create lasting improvements in closeness.",
+        "Be patient with yourself as you practice setting boundaries and expressing needs.",
+      ],
+      kmKeyPoints: [
+        "ការឆ្លុះបញ្ចាំងជួយឱ្យយល់ច្បាស់ពីអ្វីដែលដំណើរការល្អ និងអ្វីដែលកំពុងតានតឹង។",
+        "ការផ្លាស់ប្តូរតូចៗក្នុងការប្រាស្រ័យទាក់ទង បង្កើតភាពស្និទ្ធស្នាលយូរអង្វែង។",
+        "សូមអត់ធ្មត់ចំពោះខ្លួនឯងនៅពេលអ្នកហាត់កំណត់ព្រំដែន និងបង្ហាញសេចក្តីត្រូវការ។",
+      ],
+    },
+    {
+      id: 9,
+      sectionNumber: 9,
+      title: "Next Steps and Support on AROM",
+      kmTitle: "ជំហានបន្ទាប់ និងការគាំទ្រនៅលើ AROM",
+      type: "coping",
+      paragraphs: [
+        "Healthy relationships are an ongoing journey of learning, listening, and respecting boundaries. You do not have to carry relationship stress alone.",
+        "On AROM, you have dedicated tools to nurture your relational wellbeing:",
+        "• AROM Community Support Groups: Join safe, peer-moderated community circles to discuss family dynamics, study stress, and friendship with people who understand your journey.",
+        "• AROM Private Journal: Take a few minutes after difficult conversations to type or voice record your reflections. Unloading thoughts into your confidential journal helps untangle feelings before you respond.",
+        "• AROM Professional Support: If you are experiencing ongoing family conflict, relationship grief, or unhealthy dynamics, connect in complete privacy with verified therapists and counselors specializing in family and interpersonal counseling.",
+        "Remember: If a relationship ever threatens your physical safety or makes you feel in immediate danger, prioritize your physical safety. Open your Profile and tap Get help now to access emergency support.",
+      ],
+      kmParagraphs: [
+        "ទំនាក់ទំនងល្អ គឺជាដំណើរនៃការរៀនសូត្រ ការស្តាប់ និងការគោរពព្រំដែនជាបន្តបន្ទាប់។ អ្នកមិនចាំបាច់រែកពន់ភាពតានតឹងក្នុងទំនាក់ទំនងតែម្នាក់ឯងនោះឡើយ។",
+        "នៅលើកម្មវិធី AROM អ្នកមានឧបករណ៍ជាច្រើនដើម្បីជួយដល់សុខុមាលភាពក្នុងទំនាក់ទំនងរបស់អ្នក៖",
+        "• ក្រុមសហគមន៍ AROM (Community Groups)៖ ចូលរួមក្រុមសហគមន៍ដែលមានការសម្របសម្រួលប្រកបដោយសុវត្ថិភាព ដើម្បីពិភាក្សាពីរឿងគ្រួសារ សម្ពាធការសិក្សា និងមិត្តភាពជាមួយអ្នកដទៃដែលយល់ចិត្តអ្នក។",
+        "• កំណត់ហេតុឯកជន AROM (Private Journal)៖ ចំណាយពេលពីរបីនាទីបន្ទាប់ពីការសន្ទនាដ៏លំបាក ដើម្បីសរសេរ ឬកត់ត្រាសំឡេងគំនិតរបស់អ្នក។ ការបញ្ចេញអារម្មណ៍ចូលក្នុងកំណត់ហេតុសម្ងាត់ជួយឱ្យចិត្តរបស់អ្នកស្រឡះមុនពេលឆ្លើយតប។",
+        "• ការគាំទ្រពីអ្នកជំនាញ AROM (Professional Support)៖ ប្រសិនបើអ្នកកំពុងជួបប្រទះជម្លោះគ្រួសាររ៉ាំរ៉ៃ ការបែកបាក់ ឬទម្រង់ទំនាក់ទំនងដែលប៉ះពាល់ផ្លូវចិត្តខ្លាំង អ្នកអាចភ្ជាប់ទំនាក់ទំនងជាសម្ងាត់ជាមួយអ្នកជំនាញចិត្តសាស្រ្ត និងអ្នកប្រឹក្សាដែលមានជំនាញក្នុងទំនាក់ទំនងគ្រួសារ និងអន្តរបុគ្គល។",
+        "ចងចាំថា៖ ប្រសិនបើទំនាក់ទំនងណាមួយគំរាមកំហែងដល់សុវត្ថិភាពរាងកាយ ឬធ្វើឱ្យអ្នកមានគ្រោះថ្នាក់បន្ទាន់ សូមផ្តល់អាទិភាពដល់សុវត្ថិភាពផ្ទាល់ខ្លួនជាមុន។ បើក Profile ហើយចុច Get help now ដើម្បីទាក់ទងជំនួយបន្ទាន់។",
+      ],
+      actions: [
+        {
+          label: "1-Minute Calming Breath",
+          kmLabel: "ហាត់ដកដង្ហើមស្ងប់ចិត្ត ១ នាទី (Breathing)",
+          actionType: "exercise",
+        },
+        {
+          label: "Match Me With A Professional",
+          kmLabel: "ស្វែងរកអ្នកជំនាញ (Match Me)",
+          actionType: "professional",
+        },
+      ],
+      keyPoints: [
+        "Healthy relationships take ongoing practice, patience, and mutual care [1, 2].",
+        "AROM Community and Journal provide private, safe spaces to process feelings.",
+        "Verified counselors on AROM offer confidential guidance for navigating family and relationship strain.",
+      ],
+      kmKeyPoints: [
+        "ទំនាក់ទំនងល្អទាមទារការអនុវត្ត ការអត់ធ្មត់ និងការយកចិត្តទុកដាក់បន្តបន្ទាប់ [1, 2]។",
+        "សហគមន៍ និងកំណត់ហេតុ AROM ផ្តល់ទីកន្លែងសុវត្ថិភាពជាឯកជនដើម្បីរំងាប់អារម្មណ៍។",
+        "អ្នកជំនាញលើ AROM ផ្តល់ការប្រឹក្សាជាសម្ងាត់សម្រាប់ដោះស្រាយបញ្ហាគ្រួសារ និងទំនាក់ទំនង។",
+      ],
+    },
+  ],
+};
+
 export const ALL_LESSONS: Lesson[] = [
   LESSON_WHAT_IS_MENTAL_HEALTH,
   LESSON_ABOUT_STRESS,
@@ -2288,6 +2750,7 @@ export const ALL_LESSONS: Lesson[] = [
   LESSON_UNDERSTAND_YOURSELF,
   LESSON_KNOW_WHEN_TO_SEEK_HELP,
   LESSON_BETTER_SLEEP,
+  LESSON_BUILD_HEALTHY_RELATIONSHIPS,
   {
     id: "burnout-recovery",
     title: "Burnout & Recovery",

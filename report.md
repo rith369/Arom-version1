@@ -1,5 +1,29 @@
 # AROM: Change Report
 
+## 18 Oct 2026: New Lesson, Build Healthy Relationships
+
+Commit `PENDING`. No migration. Content and frontend only.
+
+**Why.** Interpersonal connections with family, friends, partners, and colleagues deeply shape emotional wellbeing and resilience. Seekers frequently experience tension balancing family expectations, managing conflict, or asserting personal boundaries. "Build Healthy Relationships" (`build-healthy-relationships`) provides a comprehensive 7-minute guide adapted from Healthdirect Australia, NHS, UNICEF Cambodia, ACOG, and NIH, connecting directly to AROM Community support circles, private Journaling, and verified relationship therapists.
+
+**What changed for users:**
+- **New Lesson available in MindGuide Learn:** Seekers can access "Build Healthy Relationships (ការកសាងទំនាក់ទំនងប្រកបដោយសុខភាពល្អ)" under the new Relationships category filter or via `/mindguide/learn?open=build-healthy-relationships`.
+- **9 Engaging Sections:** Covers the 6 foundational qualities of healthy connection, "I" statements in communication with an interactive quiz, boundary setting without guilt, constructive disagreement resolution, recognizing warning signs of control or emotional manipulation, navigating Cambodian family expectations and filial gratitude, personal self-advocacy, self-reflection on a relationship, and practical next steps.
+- **Safety Alert:** Section 5 includes an emergency safety reminder encouraging seekers facing threats or violence to prioritize physical safety and access immediate crisis hotlines via AROM Profile.
+- **Direct AROM tool integration:** Section 9 connects seekers directly to AROM Community support groups (`/community`), private voice and text journaling (`/detection/journal`), and matching with verified therapists and counselors (`/professional`).
+
+**What changed for the team:**
+- **`learn-data.ts`:** Added `"Relationships"` to `TopicCategory` and `TOPIC_CATEGORIES`. Exported `REFERENCES_RELATIONSHIPS` with 5 clinical citations and `LESSON_BUILD_HEALTHY_RELATIONSHIPS`, adding it to `ALL_LESSONS`.
+- **Hero Image:** Added `public/mindguide/build-healthy-relationships-hero.jpg` displaying a warm, authentic conversation in a natural setting.
+- **Anti-AI Copywriting:** Zero em dashes, en dashes, or loose hyphens.
+
+**What to re-test:**
+1. Open `/mindguide/learn` and verify "Relationships (ទំនាក់ទំនង)" appears as a category pill.
+2. Verify "Build Healthy Relationships" card renders with its hero image and 9 sections.
+3. Click through sections 1 to 9: test the Section 2 "I" statement quiz, Section 5 emergency warning box, and Section 8 reflection.
+4. In Section 9, test the "1-Minute Calming Breath" and "Match Me With A Professional" action buttons.
+5. Switch language to Khmer and verify all Kantumruy Pro translations, quiz options, and reflections.
+
 ## 17 Oct 2026: Unlock Calming Racing Thoughts Tip Guide
 
 Commit `21b50bb`. No migration. Content and frontend only.
