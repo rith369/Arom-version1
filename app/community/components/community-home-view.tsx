@@ -1,16 +1,20 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { ChevronRight, Plus } from "lucide-react";
 import { MaskIcon, StressLightningIcon } from "./community-icons";
 import { useLanguage } from "../../_components/language-provider";
 import { useAuth } from "../../_components/auth-provider";
-import { SupportGroup } from "../community-data";
+import { SupportGroup, type GroupsStatus } from "../community-data";
 import { TopHeader } from "../../components/top-header";
 
 type CommunityHomeViewProps = {
-  myGroup: SupportGroup;
-  recommendedGroup: SupportGroup;
+  // Undefined when the user has not joined a real group yet.
+  myGroup?: SupportGroup;
+  // Undefined when there is no open group left to join.
+  recommendedGroup?: SupportGroup;
+  groupsStatus: GroupsStatus;
   onSelectGroup: (groupId: string) => void;
   onOpenAllGroups: () => void;
   onOpenMenu: () => void;
@@ -20,6 +24,7 @@ type CommunityHomeViewProps = {
 export function CommunityHomeView({
   myGroup,
   recommendedGroup,
+  groupsStatus,
   onSelectGroup,
   onOpenAllGroups,
   onOpenMenu,
@@ -29,6 +34,7 @@ export function CommunityHomeView({
   const { user } = useAuth();
   const km = language === "km";
   const canCreateGroup = user?.role === "professional" || user?.role === "admin";
+  const noGroupsYet = groupsStatus === "ready" && !myGroup && !recommendedGroup;
 
   return (
     <div className="w-full max-w-lg mx-auto pb-28 px-4 pt-3">
@@ -76,81 +82,136 @@ export function CommunityHomeView({
         </div>
       </div>
 
-      {/* Section: My support Group */}
-      <div className="mt-7">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-[#111827]">
-            {km ? "ក្រុមគាំទ្ររបស់ខ្ញុំ (My Support Group)" : "My support Group"}
+      {/* Real groups only: what to show while loading, signed out or empty */}
+      {groupsStatus === "loading" && (
+        <p className="mt-7 text-sm text-[#6b7280]">
+          {km ? "កំពុងផ្ទុកក្រុមគាំទ្រ..." : "Loading support groups..."}
+        </p>
+      )}
+
+      {groupsStatus === "failed" && (
+        <p role="alert" className="mt-7 text-sm text-red-600">
+          {km
+            ? "មិនអាចផ្ទុកក្រុមគាំទ្របានទេ។ សូមព្យាយាមម្តងទៀតពេលក្រោយ។"
+            : "Support groups could not be loaded. Please try again later."}
+        </p>
+      )}
+
+      {groupsStatus === "signed_out" && (
+        <div className="mt-7 rounded-[22px] border border-gray-100 bg-white p-5 shadow-[0_2px_10px_rgba(0,0,0,0.04)]">
+          <h2 className="text-base font-bold text-[#111827]">
+            {km ? "ចូលគណនីដើម្បីចូលរួមក្រុមគាំទ្រ" : "Log in to join a support group"}
           </h2>
-          <button
-            onClick={onOpenAllGroups}
-            className="text-xs font-semibold text-[#1f6f5b] hover:underline"
+          <p className="mt-1 text-sm leading-relaxed text-[#4b5563]">
+            {km
+              ? "ក្រុមគាំទ្របើកសម្រាប់សមាជិក AROM ប៉ុណ្ណោះ ដើម្បីរក្សាសុវត្ថិភាព។"
+              : "Support groups are open to AROM members only, to keep them safe."}
+          </p>
+          <Link
+            href="/login"
+            className="mt-4 inline-flex rounded-[16px] bg-[#1a5d4d] px-5 py-2.5 text-sm font-bold text-white hover:bg-[#144b3e]"
           >
-            {km ? "មើលទាំងអស់ (View All)" : "View All"}
-          </button>
+            {km ? "ចូលគណនី (Log in)" : "Log in"}
+          </Link>
         </div>
+      )}
 
-        <div
-          onClick={() => onSelectGroup(myGroup.id)}
-          className="mt-3.5 group flex cursor-pointer items-center justify-between rounded-[22px] border border-gray-100 bg-white p-4 shadow-[0_2px_10px_rgba(0,0,0,0.04)] transition-all duration-200 hover:border-[#1f6f5b]/40 hover:shadow-md"
-        >
-          <div className="flex items-center gap-3.5 min-w-0">
-            <div className="flex size-12 shrink-0 items-center justify-center rounded-full bg-[#e3f4ef] text-[#1f6f5b] transition-transform group-hover:scale-105">
-              <StressLightningIcon className="size-6 text-[#1f6f5b]" />
-            </div>
-            <div className="min-w-0">
-              <h3 className="truncate text-base font-bold text-[#111827] group-hover:text-[#1f6f5b] transition-colors">
-                {km ? myGroup.nameKm : myGroup.name}
-              </h3>
-              <p className="mt-0.5 text-xs text-[#6b7280]">
-                {myGroup.membersCount}/{myGroup.maxMembers}{" "}
-                {km ? "សមាជិក" : "members"}
-              </p>
-            </div>
-          </div>
-          <ChevronRight
-            size={22}
-            className="shrink-0 text-gray-400 group-hover:translate-x-0.5 group-hover:text-[#1f6f5b] transition-all"
-          />
+      {noGroupsYet && (
+        <div className="mt-7 rounded-[22px] border border-gray-100 bg-white p-5 shadow-[0_2px_10px_rgba(0,0,0,0.04)]">
+          <h2 className="text-base font-bold text-[#111827]">
+            {km ? "មិនទាន់មានក្រុមគាំទ្រនៅឡើយទេ" : "No support groups yet"}
+          </h2>
+          <p className="mt-1 text-sm leading-relaxed text-[#4b5563]">
+            {canCreateGroup
+              ? km
+                ? "ចាប់ផ្តើមក្រុមដំបូងដោយប្រើប៊ូតុង បង្កើតក្រុម ខាងលើ។"
+                : "Start the first one with Create a group above."
+              : km
+                ? "អ្នកជំនាញកំពុងរៀបចំក្រុម។ សូមត្រឡប់មកមើលម្តងទៀតឆាប់ៗនេះ។"
+                : "Professionals are setting them up. Please check back soon."}
+          </p>
         </div>
-      </div>
+      )}
 
-      {/* Section: Recommended for you */}
-      <div className="mt-7">
-        <h2 className="text-lg font-bold text-[#111827]">
-          {km ? "ណែនាំសម្រាប់អ្នក (Recommended for You)" : "Recommended for you"}
-        </h2>
-
-        <div className="mt-3.5 overflow-hidden rounded-[26px] border border-gray-100 bg-white shadow-[0_4px_18px_rgba(0,0,0,0.06)]">
-          {/* Banner Graphic matching Figma Screen 1 */}
-          <div className="relative h-36 sm:h-40 w-full overflow-hidden bg-[#dcf0ea]">
-            <Image
-              src="/figma/community/recommended_banner.png"
-              alt="Community peer support banner"
-              fill
-              className="object-cover object-center"
-              unoptimized
-            />
-          </div>
-
-          <div className="p-4 pt-3.5">
-            <h3 className="text-lg font-bold text-[#111827]">
-              {km ? recommendedGroup.nameKm : recommendedGroup.name}
-            </h3>
-            <p className="mt-1 text-xs text-[#6b7280]">
-              {recommendedGroup.membersCount}/{recommendedGroup.maxMembers}{" "}
-              {km ? "សមាជិក" : "members"}
-            </p>
-
+      {/* Section: My support Group (only a real group the user joined) */}
+      {myGroup && (
+        <div className="mt-7">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-bold text-[#111827]">
+              {km ? "ក្រុមគាំទ្ររបស់ខ្ញុំ (My Support Group)" : "My support Group"}
+            </h2>
             <button
-              onClick={() => onSelectGroup(recommendedGroup.id)}
-              className="mt-4 w-full rounded-[16px] bg-[#1a5d4d] py-3 text-center text-base font-bold text-white shadow-md shadow-[#1a5d4d]/20 transition-all duration-200 hover:bg-[#144b3e] active:scale-[0.99]"
+              onClick={onOpenAllGroups}
+              className="text-xs font-semibold text-[#1f6f5b] hover:underline"
             >
-              {km ? "មើលក្រុម (View Group)" : "View Group"}
+              {km ? "មើលទាំងអស់ (View All)" : "View All"}
             </button>
           </div>
+
+          <div
+            onClick={() => onSelectGroup(myGroup.id)}
+            className="mt-3.5 group flex cursor-pointer items-center justify-between rounded-[22px] border border-gray-100 bg-white p-4 shadow-[0_2px_10px_rgba(0,0,0,0.04)] transition-all duration-200 hover:border-[#1f6f5b]/40 hover:shadow-md"
+          >
+            <div className="flex items-center gap-3.5 min-w-0">
+              <div className="flex size-12 shrink-0 items-center justify-center rounded-full bg-[#e3f4ef] text-[#1f6f5b] transition-transform group-hover:scale-105">
+                <StressLightningIcon className="size-6 text-[#1f6f5b]" />
+              </div>
+              <div className="min-w-0">
+                <h3 className="truncate text-base font-bold text-[#111827] group-hover:text-[#1f6f5b] transition-colors">
+                  {km ? myGroup.nameKm : myGroup.name}
+                </h3>
+                <p className="mt-0.5 text-xs text-[#6b7280]">
+                  {myGroup.membersCount}/{myGroup.maxMembers}{" "}
+                  {km ? "សមាជិក" : "members"}
+                </p>
+              </div>
+            </div>
+            <ChevronRight
+              size={22}
+              className="shrink-0 text-gray-400 group-hover:translate-x-0.5 group-hover:text-[#1f6f5b] transition-all"
+            />
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* Section: Recommended for you (an open real group not joined yet) */}
+      {recommendedGroup && (
+        <div className="mt-7">
+          <h2 className="text-lg font-bold text-[#111827]">
+            {km ? "ណែនាំសម្រាប់អ្នក (Recommended for You)" : "Recommended for you"}
+          </h2>
+
+          <div className="mt-3.5 overflow-hidden rounded-[26px] border border-gray-100 bg-white shadow-[0_4px_18px_rgba(0,0,0,0.06)]">
+            {/* Banner Graphic matching Figma Screen 1 */}
+            <div className="relative h-36 sm:h-40 w-full overflow-hidden bg-[#dcf0ea]">
+              <Image
+                src="/figma/community/recommended_banner.png"
+                alt="Community peer support banner"
+                fill
+                className="object-cover object-center"
+                unoptimized
+              />
+            </div>
+
+            <div className="p-4 pt-3.5">
+              <h3 className="text-lg font-bold text-[#111827]">
+                {km ? recommendedGroup.nameKm : recommendedGroup.name}
+              </h3>
+              <p className="mt-1 text-xs text-[#6b7280]">
+                {recommendedGroup.membersCount}/{recommendedGroup.maxMembers}{" "}
+                {km ? "សមាជិក" : "members"}
+              </p>
+
+              <button
+                onClick={() => onSelectGroup(recommendedGroup.id)}
+                className="mt-4 w-full rounded-[16px] bg-[#1a5d4d] py-3 text-center text-base font-bold text-white shadow-md shadow-[#1a5d4d]/20 transition-all duration-200 hover:bg-[#144b3e] active:scale-[0.99]"
+              >
+                {km ? "មើលក្រុម (View Group)" : "View Group"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Quick Access to Community Accordion & Groups */}
       <div className="mt-6 flex flex-col gap-2">

@@ -12,17 +12,13 @@ import { CommunityMenuModal } from './components/community-menu-modal';
 import { CreateGroupView } from './components/create-group-view';
 
 import type { AuthUser } from '@/lib/auth';
-import { readCreatedGroups } from './community-store';
 import {
-  INITIAL_GROUPS,
-  INITIAL_MESSAGES,
-  INITIAL_ACTIVITIES,
-  INITIAL_MEMBERS,
   SupportGroup,
   ChatMessage,
   ChatAttachment,
   GroupActivity,
   GroupMember,
+  GroupsStatus,
 } from './community-data';
 
 type CommunityView =
@@ -37,47 +33,19 @@ type CommunityView =
 export default function CommunityPage() {
   const [view, setView] = useState<CommunityView>('home');
   const [previousView, setPreviousView] = useState<CommunityView>('home');
-  const [selectedGroupId, setSelectedGroupId] = useState('stress-burnout');
+  const [selectedGroupId, setSelectedGroupId] = useState('');
 
   const [privacyUser, setPrivacyUser] = useState<AuthUser | null>(null);
-  const [savedGroups, setGroups] = useState<SupportGroup[]>(INITIAL_GROUPS);
-  const [messages, setMessages] = useState<ChatMessage[]>(INITIAL_MESSAGES);
+  // Only real groups from the database. The sample groups in community-data.ts
+  // are no longer shown: nobody real would answer in them (18 Oct 2026).
+  const [savedGroups, setGroups] = useState<SupportGroup[]>([]);
+  const [groupsStatus, setGroupsStatus] = useState<GroupsStatus>('loading');
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
 
   const [createGroupError, setCreateGroupError] = useState('');
   const [joinError, setJoinError] = useState('');
   const [messageError, setMessageError] = useState('');
   const [messageRefresh, setMessageRefresh] = useState(0);
-
-  // Load the existing demo data.
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem('arom_community_groups');
-      const parsed: SupportGroup[] = stored ? JSON.parse(stored) : [];
-      const saved = Array.isArray(parsed) ? parsed : [];
-
-      const merged = [...INITIAL_GROUPS, ...readCreatedGroups()].map((base) => {
-        const existing = saved.find((item) => item.id === base.id);
-        if (!existing) return base;
-
-        return {
-          ...base,
-          isJoined: existing.isJoined,
-          membersCount: existing.membersCount ?? base.membersCount,
-        };
-      });
-      setGroups(merged);
-
-      const storedMessages = localStorage.getItem('arom_community_messages');
-      if (storedMessages) {
-        const parsedMessages = JSON.parse(storedMessages);
-        if (Array.isArray(parsedMessages) && parsedMessages.length > 0) {
-          setMessages(parsedMessages);
-        }
-      }
-    } catch {
-      // Keep the initial demo data.
-    }
-  }, []);
 
   // Read the current account privacy setting.
   useEffect(() => {
@@ -110,7 +78,10 @@ export default function CommunityPage() {
         const response = await fetch('/api/community/groups', {
           cache: 'no-store',
         });
-        if (!response.ok) return;
+        if (!response.ok) {
+          if (active) setGroupsStatus(response.status === 401 ? 'signed_out' : 'failed');
+          return;
+        }
 
         const result: {
           groups: Array<{
@@ -150,15 +121,10 @@ export default function CommunityPage() {
           createdBy: 'professional',
         }));
 
-        setGroups((current) => {
-          const realIds = new Set(realGroups.map((group) => group.id));
-          return [
-            ...current.filter((group) => !realIds.has(group.id)),
-            ...realGroups,
-          ];
-        });
+        setGroups(realGroups);
+        setGroupsStatus('ready');
       } catch {
-        // Keep the demo groups if loading fails.
+        if (active) setGroupsStatus('failed');
       }
     }
 
@@ -247,28 +213,16 @@ export default function CommunityPage() {
   // with each group from GET /api/community/groups.
   const groups: SupportGroup[] = savedGroups;
 
-  const [activities, setActivities] =
-    useState<GroupActivity[]>(INITIAL_ACTIVITIES);
-  const [members, setMembers] = useState<GroupMember[]>(INITIAL_MEMBERS);
+  // Group activities are not connected yet (section 23), so none are shown.
+  const [activities, setActivities] = useState<GroupActivity[]>([]);
+  const [members, setMembers] = useState<GroupMember[]>([]);
 
-  const activeGroup = groups.find((g) => g.id === selectedGroupId) || groups[0];
+  const activeGroup = groups.find((g) => g.id === selectedGroupId);
 
-  const myGroup =
-    groups.find(
-      (group) =>
-        group.isJoined &&
-        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
-          group.id,
-        ),
-    ) ||
-    groups.find((group) => group.isJoined) ||
-    groups[0];
+  // Undefined when the user has not joined a group, or none is open to join.
+  const myGroup = groups.find((group) => group.isJoined);
   const openGroups = groups.filter((g) => g.status !== 'closed');
-
-  const recommendedGroup =
-    openGroups.find((g) => g.id === 'academic-stress') ||
-    openGroups.find((g) => !g.isJoined) ||
-    groups[0];
+  const recommendedGroup = openGroups.find((g) => !g.isJoined);
 
   function handleSelectGroup(groupId: string) {
     const grp = groups.find((g) => g.id === groupId);
@@ -388,7 +342,8 @@ export default function CommunityPage() {
       }
       return updated;
     });
-    const gid = targetGroupId || selectedGroupId || activeGroup.id;
+    const gid = targetGroupId || selectedGroupId;
+    if (!gid) return false;
     if (groups.find((g) => g.id === gid)?.status === 'closed') return;
     const isRealGroup =
       /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
@@ -509,6 +464,7 @@ export default function CommunityPage() {
             <CommunityHomeView
               myGroup={myGroup}
               recommendedGroup={recommendedGroup}
+              groupsStatus={groupsStatus}
               onSelectGroup={handleSelectGroup}
               onOpenAllGroups={() => setView('all-groups')}
               onOpenMenu={() => setView('menu')}
@@ -524,7 +480,7 @@ export default function CommunityPage() {
             />
           )}
 
-          {view === 'group-detail' && (
+          {view === 'group-detail' && activeGroup && (
             <>
               {joinError && (
                 <p
@@ -545,7 +501,7 @@ export default function CommunityPage() {
             </>
           )}
 
-          {view === 'joined-success' && (
+          {view === 'joined-success' && activeGroup && (
             <JoinedSuccessModal
               group={activeGroup}
               onGoToGroup={(id) => {
@@ -565,7 +521,7 @@ export default function CommunityPage() {
             </p>
           )}
 
-          {view === 'group-hub' && (
+          {view === 'group-hub' && activeGroup && (
             <GroupHubView
               group={activeGroup}
               messages={messages.filter((m) => m.groupId === selectedGroupId)}

@@ -903,6 +903,8 @@ The admin list uses `CommunityReport`: `id, groupId, targetKind, targetLabel, me
 - **Anonymous names stay anonymous** in member screens. The server can link a report to the real account for moderation (for example suspending), but the admin UI shows the anonymous label today.
 - **Closed groups** are left out of browse and search, and joining one is refused.
 
+**Sample groups removed from the user page (18 Oct 2026):** `/community` shows only real groups from `GET /api/community/groups`. The four sample groups, their messages, members and activities in `community-data.ts` are no longer shown to users, because nobody real answers in them. Signed out visitors see "Log in to join a support group"; with no groups yet, users see "No support groups yet" and professionals are pointed to Create a group. "Recommended for you" is the first open real group the user has not joined. Group activities stay empty until they have a backend. The admin Community page (`app/admin/_data/community.ts`) still uses the sample data for group activities.
+
 **Partly connected (15 and 16 Oct 2026), migrations `20261016000000` to `20261016000700`:**
 
 - **API:** `GET|POST /api/community/groups` (browse and create), `POST /api/community/groups/:id/join`, `GET|POST /api/community/groups/:id/messages` (chat read and send).

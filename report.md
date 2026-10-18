@@ -1,5 +1,34 @@
 # AROM: Change Report
 
+## 18 Oct 2026: Community Shows Only Real Support Groups
+
+Commit `PENDING`. No migration.
+
+**Why.** The Community page mixed four sample groups (Stress & Burnout, Depression, Academic Stress, Anxiety Circle, with made up mentors and messages) with the real groups from the database. Everyone was shown as already in "Stress & Burnout Support", and "Recommended for you" was always the sample Academic Stress group. A person could join a sample group and share something personal, then wait for a reply that never comes. For a mental health app that is not safe.
+
+**What changed for users:**
+
+- **Only real groups:** My support Group, Recommended for you and Explore all groups show only groups professionals or admins created.
+- **No groups yet:** users see "No support groups yet. Professionals are setting them up. Please check back soon." Professionals see "Start the first one with Create a group above."
+- **Not logged in:** visitors see "Log in to join a support group" with a Log in button, because groups are for AROM members only.
+- **My support Group** appears only once the user really joined a group. **Recommended for you** is an open real group they have not joined.
+- **If loading fails,** a short message says so instead of showing sample groups.
+
+**What changed for the team:**
+
+- **`app/community/page.tsx`:** starts with no groups, messages, members or activities; removed the code that merged the sample groups and browser saved copies; tracks a `GroupsStatus` (loading, ready, signed out, failed); group screens open only for a group that exists.
+- **`community-home-view.tsx`:** the empty, loading, signed out and failed states; the group cards only show when there is a real group.
+- **`community-data.ts`:** the samples stay in the file (the admin Community page still uses them for activities) but the user page does not show them.
+- Khmer text for the new messages should be checked by a Khmer speaker.
+
+**What to re-test:**
+
+1. Log out and open Community: "Log in to join a support group" shows, and no sample groups.
+2. Log in as a user when no group exists: "No support groups yet" shows.
+3. As a professional, create a group: it opens; back on Community it is under My support Group.
+4. As another user, open Community: the new group is under Recommended for you; join it and send a message.
+5. Explore all support groups lists only real groups.
+
 ## 18 Oct 2026: Community Page Shows Again
 
 Commit `878172e`. No migration.

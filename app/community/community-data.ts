@@ -640,3 +640,6 @@ export const INITIAL_MEMBERS: GroupMember[] = [
     avatarType: 'mask',
   },
 ];
+
+// Whether the real groups from GET /api/community/groups have arrived.
+export type GroupsStatus = 'loading' | 'ready' | 'signed_out' | 'failed';
