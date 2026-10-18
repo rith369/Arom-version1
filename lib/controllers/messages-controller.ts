@@ -534,7 +534,8 @@ export async function openVoice(messageId: string) {
   if (authError || !user) return unauthorized();
 
   // Read metadata on the server. Never return the storage path.
-  const storageClient = createPrivateStorageClient();
+  const storageClient = privateStorage();
+  if (!storageClient) return fail('server_error', 'Files cannot be opened right now.', 503);
 
   const { data: message, error: messageError } = await storageClient
     .from('messages')
@@ -582,6 +583,16 @@ export async function openVoice(messageId: string) {
   });
 }
 
+// The server only client needs SUPABASE_SECRET_KEY; without it, files and
+// voice cannot be opened, so answer calmly instead of crashing.
+function privateStorage() {
+  try {
+    return createPrivateStorageClient();
+  } catch {
+    return null;
+  }
+}
+
 /** GET /api/attachments/:messageId: streams a photo or PDF to a member of that conversation. */
 export async function openAttachment(messageId: string) {
   const id = z.string().uuid().safeParse(messageId);
@@ -595,7 +606,8 @@ export async function openAttachment(messageId: string) {
   if (authError || !user) return unauthorized();
 
   // Read the metadata on the server. Never return the storage path.
-  const storageClient = createPrivateStorageClient();
+  const storageClient = privateStorage();
+  if (!storageClient) return fail('server_error', 'Files cannot be opened right now.', 503);
   const { data: message, error: messageError } = await storageClient
     .from('messages')
     .select('conversation_id, attachment_path, attachment_type, attachment_name')

@@ -16,6 +16,7 @@ import {
   UserRound,
   Mic,
   Square,
+  ImageOff,
 } from 'lucide-react';
 import { ATTACHMENT_ACCEPT, FILE_TYPES, IMAGE_TYPES, MAX_FILE_BYTES, MAX_VOICE_SECONDS } from '@/lib/messages';
 import { useVoiceRecorder } from '../../_components/messages/use-voice-recorder';
@@ -30,6 +31,34 @@ import {
   GroupActivity,
   GroupMember,
 } from '../community-data';
+
+// A group photo; if it cannot load, a calm card instead of a broken image.
+function GroupPhoto({ url, name, km }: { url: string; name: string; km: boolean }) {
+  const [broken, setBroken] = useState(false);
+  if (broken) {
+    return (
+      <div className="flex max-w-xs items-center gap-2.5 rounded-xl border border-gray-200 bg-gray-50 p-2.5 text-xs text-[#6b7280]">
+        <ImageOff size={18} aria-hidden="true" />
+        {km ? 'មិនអាចបើករូបថតបានទេ' : 'Photo could not be opened'}
+      </div>
+    );
+  }
+  return (
+    <a
+      href={url}
+      target="_blank"
+      rel="noreferrer"
+      className="block overflow-hidden rounded-xl border border-gray-200/80 max-w-[260px] shadow-xs">
+      <img
+        src={url}
+        alt={name}
+        loading="lazy"
+        onError={() => setBroken(true)}
+        className="max-h-56 w-auto object-cover rounded-xl"
+      />
+    </a>
+  );
+}
 
 type GroupHubViewProps = {
   group: SupportGroup;
@@ -493,18 +522,7 @@ export function GroupHubView({
                       {msg.attachment && !msg.removed && (
                         <div className="mt-2.5">
                           {msg.attachment.type === 'image' ? (
-                            <a
-                              href={msg.attachment.url}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="block overflow-hidden rounded-xl border border-gray-200/80 max-w-[260px] shadow-xs">
-                              <img
-                                src={msg.attachment.url}
-                                alt={msg.attachment.name}
-                                loading="lazy"
-                                className="max-h-56 w-auto object-cover rounded-xl"
-                              />
-                            </a>
+                            <GroupPhoto url={msg.attachment.url} name={msg.attachment.name} km={km} />
                           ) : (
                             <a
                               href={msg.attachment.url}

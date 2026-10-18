@@ -1,6 +1,6 @@
 "use client";
 
-import { FileText, MessageSquareText, Mic, Paperclip, Pause, Play, Plus, Send, Square, Trash2, X } from "lucide-react";
+import { FileText, ImageOff, MessageSquareText, Mic, Paperclip, Pause, Play, Plus, Send, Square, Trash2, X } from "lucide-react";
 import { ATTACHMENT_ACCEPT, FILE_TYPES, IMAGE_TYPES, MAX_FILE_BYTES } from "@/lib/messages";
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { SuggestionCard } from "../sessions/suggestion-card";
@@ -32,14 +32,31 @@ const formatBytes = (value: number) =>
 
 // A photo opens full size in a new tab; a PDF opens in the browser's viewer.
 // Both stream from the server after it checks the viewer is in the chat.
-function AttachmentBubble({ message, mine }: { message: ChatMessage; mine: boolean }) {
+function AttachmentBubble({ message, mine, km }: { message: ChatMessage; mine: boolean; km: boolean }) {
   const file = message.attachment;
+  const [broken, setBroken] = useState(false);
   if (!file) return null;
+  if (message.kind === "image" && broken) {
+    return (
+      <span className={`flex min-w-48 items-center gap-2.5 rounded-xl p-2 ${mine ? "bg-white/15" : "bg-arom-wash"}`}>
+        <span className={`flex size-9 shrink-0 items-center justify-center rounded-lg ${mine ? "bg-white/20" : "bg-arom-soft text-arom"}`}>
+          <ImageOff size={18} aria-hidden="true" />
+        </span>
+        <span className="text-sm">{km ? "មិនអាចបើករូបថតបានទេ" : "Photo could not be opened"}</span>
+      </span>
+    );
+  }
   if (message.kind === "image") {
     return (
       <a href={file.url} target="_blank" rel="noreferrer" className="block">
         {/* eslint-disable-next-line @next/next/no-img-element -- streamed from a private route, not optimisable */}
-        <img src={file.url} alt={file.name} loading="lazy" className="max-h-64 w-auto max-w-full rounded-xl object-cover" />
+        <img
+          src={file.url}
+          alt={file.name}
+          loading="lazy"
+          onError={() => setBroken(true)}
+          className="max-h-64 w-auto max-w-full rounded-xl object-cover"
+        />
       </a>
     );
   }
@@ -352,7 +369,7 @@ export function ChatThread({
                   {message.kind === "voice" ? (
                     <VoiceBubble message={message} mine={mine} km={km} />
                   ) : message.kind === "image" || message.kind === "file" ? (
-                    <AttachmentBubble message={message} mine={mine} />
+                    <AttachmentBubble message={message} mine={mine} km={km} />
                   ) : (
                     <p className="whitespace-pre-line break-words">{message.text}</p>
                   )}

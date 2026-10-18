@@ -37,8 +37,16 @@ export async function GET(_request: Request, context: RouteContext) {
     return NextResponse.json({ error: 'Not found' }, { status: 404, headers: noStore });
   }
 
-  const { data: file, error: downloadError } = await createPrivateStorageClient()
-    .storage.from('community-media')
+  // Needs SUPABASE_SECRET_KEY on the server; without it, answer calmly.
+  let storage: ReturnType<typeof createPrivateStorageClient>;
+  try {
+    storage = createPrivateStorageClient();
+  } catch {
+    return NextResponse.json({ error: 'Files cannot be opened right now' }, { status: 503, headers: noStore });
+  }
+
+  const { data: file, error: downloadError } = await storage.storage
+    .from('community-media')
     .download(data.attachment_path);
   if (downloadError || !file) {
     return NextResponse.json({ error: 'Could not load this file' }, { status: 500, headers: noStore });

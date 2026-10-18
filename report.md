@@ -1,5 +1,29 @@
 # AROM: Change Report
 
+## 19 Oct 2026: A Photo That Cannot Load Shows a Calm Card
+
+Commit `PENDING`. No migration.
+
+**Why.** On a computer without `SUPABASE_SECRET_KEY` in `.env.local`, a sent photo showed as a broken image with its file name, and opening it showed the browser's "HTTP ERROR 500" page. The live site has the key, so it worked there.
+
+**What changed for users:**
+
+- **A photo that cannot load** (in a private or group chat) shows a small card, "Photo could not be opened", instead of a broken image.
+- **Opening a file that cannot be served** returns a short error instead of a crash page.
+
+**What changed for the team:**
+
+- **`messages-controller.ts`:** `openVoice` and `openAttachment` answer 503 "Files cannot be opened right now" when the server only storage client cannot start (missing `SUPABASE_SECRET_KEY`), instead of throwing.
+- **`/api/community/messages/:id/media`:** the same.
+- **`chat-thread.tsx` and `group-hub-view.tsx`:** photos fall back to the card when they fail to load (`GroupPhoto` in the group chat).
+- **Local setup:** add `SUPABASE_SECRET_KEY` to `.env.local` (from Supabase, API Keys, the secret key) and restart `npm run dev` to open photos, PDFs and voice locally.
+
+**What to re-test:**
+
+1. Without the key locally: a photo shows "Photo could not be opened" and opening it gives a short error, not a crash page.
+2. With the key in `.env.local` and the dev server restarted: photos show and open; voice plays.
+3. On the live site: photos, PDFs and voice still work.
+
 ## 19 Oct 2026: Photos, PDF Files and Voice in Every Chat
 
 Commit `97e5a5c`. Migration `20261019000200_chat_attachments.sql` must be run in the Supabase SQL Editor.
