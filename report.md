@@ -1,5 +1,35 @@
 # AROM: Change Report
 
+## 19 Oct 2026: Group Chats Get Unread Badges and Update by Themselves
+
+Commit `PENDING`. Migration `20261019000100_group_reads.sql` must be run in the Supabase SQL Editor.
+
+**Why.** After group chats moved into Messages, they still lacked what the private chats have: no unread badge, no new messages without reopening the chat, and the list asked the server once per group.
+
+**What changed for users:**
+
+- **Unread badges on groups:** a group shows how many new messages from others arrived since you last opened it, in bold with a green number, and the badge clears when you open it. Only messages after you joined count.
+- **Group chats update by themselves:** the open group checks for new messages every 10 seconds and the Messages list every 30 seconds, while the page is on screen, the same as private chats. The chat does not jump to the bottom while you read older messages.
+- **Faster Messages list:** one request for all your groups instead of one per group.
+
+**What changed for the team:**
+
+- **Migration:** table `group_reads` (RLS on, no policies, only functions use it), `mark_group_read(group)` (members and mentor only), `my_group_chats()` (groups with newest message and unread count). Nobody can see when other members read.
+- **New routes:** `GET /api/community/chats`, `POST /api/community/groups/:id/read`.
+- **`group-api.ts`:** `useMyGroups()` uses the one call, refreshes every 30 seconds, `markRead()` clears a badge at once.
+- **`group-chat.tsx`:** refreshes every 10 seconds, marks the group read after each load, keeps the list unchanged when nothing changed.
+- **`chat-list.tsx`:** group rows use the real unread count.
+- Not instant (no Realtime), on purpose: Realtime would need members to read the message table directly.
+
+**What to re-test:**
+
+1. Run the migration in Supabase.
+2. As member A, open Messages. As member B (another browser), send a message in the shared group.
+3. Within 30 seconds, A's list shows the group in bold with a badge and the new message.
+4. A opens the group: the message is there and the badge clears; refresh: it stays cleared.
+5. With the group open on both, B sends again: it appears for A within about 10 seconds.
+6. Scroll up in a long chat and wait: the view does not jump to the bottom.
+
 ## 19 Oct 2026: Close the "Not for Emergencies" Bar in Chat
 
 Commit `eb181ec`. No migration.

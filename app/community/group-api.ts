@@ -94,21 +94,16 @@ export type GroupLastMessage = {
   removed: boolean;
 };
 
-export type MyGroup = SupportGroup & { last: GroupLastMessage | null };
+export type MyGroup = SupportGroup & { last: GroupLastMessage | null; unread: number };
 
-type ApiGroupMessage = {
-  content: string;
-  created_at: string;
-  display_name: string;
-  is_own: boolean;
-  is_removed?: boolean;
-};
+// The private chats refresh at the same pace (message-store.ts).
+const LIST_REFRESH_MS = 30_000;
 
 /**
- * The groups this person joined or leads, each with its newest message, for
- * the Messages list. There is no group unread count yet (that needs a backend
- * table, step 2 of the Messages redesign), so it reads each joined group's
- * latest messages.
+ * The groups this person joined or leads, each with its newest message and
+ * unread count, from GET /api/community/chats (one call). Refreshes every 30
+ * seconds while the page is on screen. markRead() clears a badge at once when
+ * a chat is opened; the server is told by GroupChat.
  */
 export function useMyGroups() {
   const [status, setStatus] = useState<GroupsStatus>('loading');
@@ -116,52 +111,36 @@ export function useMyGroups() {
 
   useEffect(() => {
     let active = true;
-    void (async () => {
+
+    async function load() {
       try {
-        const response = await fetch('/api/community/groups', { cache: 'no-store' });
+        const response = await fetch('/api/community/chats', { cache: 'no-store' });
         if (!response.ok) {
           if (active) setStatus(response.status === 401 ? 'signed_out' : 'failed');
           return;
         }
-        const result: { groups: ApiGroup[] } = await response.json();
-        const joined = result.groups.filter((group) => group.isJoined).map(toSupportGroup);
-
-        const withLast = await Promise.all(
-          joined.map(async (group): Promise<MyGroup> => {
-            try {
-              const messages = await fetch(`/api/community/groups/${group.id}/messages`, { cache: 'no-store' });
-              if (!messages.ok) return { ...group, last: null };
-              const body: { messages: ApiGroupMessage[] } = await messages.json();
-              const newest = body.messages.at(-1);
-              return {
-                ...group,
-                last: newest
-                  ? {
-                      text: newest.content,
-                      createdAt: newest.created_at,
-                      mine: newest.is_own,
-                      senderName: newest.display_name,
-                      removed: newest.is_removed === true,
-                    }
-                  : null,
-              };
-            } catch {
-              return { ...group, last: null };
-            }
-          }),
-        );
-
+        const result: { chats: (ApiGroup & { last: GroupLastMessage | null; unread: number })[] } = await response.json();
         if (!active) return;
-        setGroups(withLast);
+        setGroups(result.chats.map((chat) => ({ ...toSupportGroup(chat), last: chat.last, unread: chat.unread })));
         setStatus('ready');
       } catch {
         if (active) setStatus('failed');
       }
-    })();
+    }
+
+    void load();
+    const id = window.setInterval(() => {
+      if (document.visibilityState === 'visible') void load();
+    }, LIST_REFRESH_MS);
     return () => {
       active = false;
+      window.clearInterval(id);
     };
   }, []);
 
-  return { status, groups };
+  function markRead(groupId: string) {
+    setGroups((current) => current.map((group) => (group.id === groupId && group.unread ? { ...group, unread: 0 } : group)));
+  }
+
+  return { status, groups, markRead };
 }
