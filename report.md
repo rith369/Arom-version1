@@ -2,7 +2,7 @@
 
 ## 18 Oct 2026: New Lesson, How to Handle Anxiety Before an Exam
 
-Commit `f87000c`. No migration. Content and frontend only.
+Commit `6fe3367`. No migration. Content and frontend only.
 
 **Why.** Academic testing, parental expectations, and milestone evaluations such as the Grade 12 Bac II national examination in Cambodia trigger acute stress, blank minds, and sleep deprivation. "How to Handle Anxiety Before an Exam" (`how-to-handle-anxiety-before-an-exam`) provides an 8-minute evidence-based psychoeducational guide adapted from WHO, NHS, NIMH, and UNICEF Cambodia. It equips seekers with practical tools to calm physical panic through diaphragmatic breathwork, build structured 25-minute study sprints, reframe catastrophic predictions, avoid all-night cramming, execute a 5-step in-exam reset when minds freeze, stop toxic peer comparisons, and access confidential student counseling on AROM.
 
