@@ -2,7 +2,7 @@
 
 ## 18 Oct 2026: New Lesson, How to Handle Social Anxiety
 
-Commit `a3bacf5`. No migration. Content and frontend only.
+Commit `87645f7`. No migration. Content and frontend only.
 
 **Why.** Social anxiety, fear of negative evaluation, and the urge to avoid public or group settings frequently prevent seekers from pursuing education, career milestones, and authentic friendships. "How to Handle Social Anxiety" (`how-to-handle-social-anxiety`) provides an 8-minute evidence-based psychoeducational guide adapted from NIMH, NHS, NHS inform, and UNICEF Cambodia. It equips seekers with clear tools to recognize the anxiety avoidance loop, challenge cognitive catastrophizing, design a gradual exposure ladder, soothe physical fight-or-flight sensations with breathwork, debrief interactions without harsh post-event rumination, and access confidential professional therapy on AROM.
 
