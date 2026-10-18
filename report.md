@@ -1,5 +1,50 @@
 # AROM: Change Report
 
+## 18 Oct 2026: Anonymous Identity Protection Across Professional Features
+
+Commit `PENDING`. Branch: `feature/anonymous-privacy`. Integration and migration validation are still in progress.
+
+**Why.** The profile switch saved `hide_identity`, but some database functions checked the older `privacy_mode` field. Professional responses and raw database reads could also expose real client account IDs.
+
+**What changed for users:**
+
+- Anonymous users appear as "Anonymous" in professional bookings and messages. Switching anonymity off restores name visibility after refresh.
+- Professionals use stable client aliases instead of real client account IDs.
+- Anonymous users' intake notes and answers are excluded from professional booking responses. Saved intake data is retained.
+- Survey, symptom, and care-progress sharing remain separate choices.
+- Voice playback goes through the authenticated API instead of redirecting to storage URLs containing sender account IDs.
+
+**What changed for the team:**
+
+- Updated appointments, messages, professional, sessions, and care controllers.
+- Added protected database functions for alias-based reads and actions.
+- Restricted professional access to raw appointments, messages, conversations, notes, suggestions, care records, and shared-health rows.
+- Restricted several original RPCs that returned real client IDs.
+- Renumbered anonymity migrations to avoid collisions with the care-plan, sessions, private-notes, and mood migrations.
+- Added `lib/supabase/private-storage.ts`. It requires `SUPABASE_SECRET_KEY` in the server environment. Never commit its value or expose it through `NEXT_PUBLIC_` variables.
+- `hide_identity` is the active privacy setting. A migration preserves older anonymous choices before replacing the relevant `privacy_mode` checks.
+
+**Validation reported during development:**
+
+- TypeScript and the production build passed.
+- Anonymity on/off changed the professional's displayed name correctly.
+- Text and voice messaging worked for the conversation participants.
+- An unrelated professional received "Conversation not found" for another professional's conversation.
+- Voice access isolation and signed-out authentication checks were reported working.
+- Care-task creation, client visibility, and progress-sharing on/off worked before the final raw-access restrictions.
+- Git whitespace checks passed. `.env.local` is ignored and untracked.
+
+**Still to verify before merge:**
+
+1. Replay the complete migration sequence on a separate empty test database. Manual SQL success does not establish reproducibility.
+2. Reconcile migration history for the shared database; changes were applied through SQL Editor.
+3. Repeat care-progress and survey/symptom-sharing tests after the final policy restrictions.
+4. Test intake visibility with saved test answers; there were no intake-answer rows during the initial review.
+5. Complete remaining database function, view, and policy checks. Do not treat the build as proof of full privacy.
+6. Confirm deployment secrets and test the deployed application.
+
+**Limits.** Anonymous Mode controls application identity fields and access. It cannot remove identifying information users voluntarily send in message text, recordings, meeting calls, or other free text.
+
 ## 15 Oct 2026: Point Share Images at the Vercel Domain
 
 Commit `PENDING`. No migration.
@@ -7,12 +52,15 @@ Commit `PENDING`. No migration.
 **Why.** The deployed page included Open Graph and Twitter image tags, but those tags pointed to `arom.app`, which did not return the image to the preview crawler. The app is currently shared from `arom-version1.vercel.app`.
 
 **What changed for users:**
+
 - **Image previews can load from the shared domain:** Share image URLs now resolve against `https://arom-version1.vercel.app`.
 
 **What changed for the team:**
+
 - **Metadata base:** Updated the root `metadataBase` value in `app/layout.tsx`. No image assets or page copy changed.
 
 **What to re-test:**
+
 1. Deploy the change to Vercel.
 2. Confirm the page HTML points `og:image` and `twitter:image` to `arom-version1.vercel.app`.
 3. Refresh the link preview and confirm the image appears when sharing the clean URL.
@@ -24,13 +72,16 @@ Commit `PENDING`. No migration.
 **Why.** The previous share image felt generic and did not give AROM’s calm, human wellness experience a distinctive first impression.
 
 **What changed for users:**
+
 - **A more personal preview:** The share image now features a warm, editorial illustration of a Cambodian woman breathing calmly, framed by botanical forms in the AROM palette.
 - **Clearer brand and message:** The exact AROM mark and approved English copy sit in a spacious layout with a safe margin for social crops.
 
 **What changed for the team:**
+
 - **Updated image assets:** Replaced `app/opengraph-image.png` and `app/twitter-image.png` with matching 1200 by 630 PNGs. The generation prompt is embedded in both images. The existing metadata base remains in place.
 
 **What to re-test:**
+
 1. Confirm both image files are 1200 by 630 and under 5 MB.
 2. Share a deployed page in Facebook and LINE preview tools and confirm the Open Graph image appears without cropping the logo or copy.
 3. Share a deployed page on X and confirm the Twitter image appears with the same composition.
@@ -42,6 +93,7 @@ Commit `PENDING`. Migration `20261015000400_mood_checkins_api.sql` must be run i
 **Why.** Home showed every person, signed in or not, the same made up week of moods, a "Your mood is improving" headline and a fake streak. The mood check in started with "Good" already chosen, left the page as soon as you tapped, and kept the mood in browser storage where anyone on a shared phone could read it. The greeting said "Good morning" at any hour. In a mental health app these break trust. This is Phase 1 of the AROM Predictability Fix Plan.
 
 **What changed for users:**
+
 - **Mood check in that saves and stays:** nothing is chosen until you pick. A tap saves today's mood and shows "Saved" once the server confirms it, or "Could not save" with Try again. It no longer opens the journal; the "Write reflection in Journal" link does that. "low" now reads "Low".
 - **Changing your mind:** tapping another mood the same day replaces the first one. The day follows Cambodia time.
 - **Your Progress is real:** it shows your own last 7 days. Days without a check in stay blank. The summary counts check ins ("You checked in 3 times this week") instead of judging. The fake streak, statistics and the full progress window are gone.
@@ -50,6 +102,7 @@ Commit `PENDING`. Migration `20261015000400_mood_checkins_api.sql` must be run i
 - **Journal starts from today's mood:** it reads your check in from the server. The mood is no longer in the page address.
 
 **What changed for the team:**
+
 - **New API:** `POST /api/mood-checkins` and `GET /api/progress`, through `lib/controllers/mood-controller.ts`. Shared types and Cambodia day helpers are in `lib/mood.ts`.
 - **New store:** `app/_components/mood/mood-store.ts` holds the week in memory only and removes the old `arom_today_mood` browser key.
 - **Migration:** one mood per person per day (unique index), `checked_in_on` defaults to Cambodia today, and a `security definer` function `save_mood_checkin()`.
@@ -57,6 +110,7 @@ Commit `PENDING`. Migration `20261015000400_mood_checkins_api.sql` must be run i
 - **Still open:** journal entries themselves are still saved only in browser storage (`arom_journal_entries`).
 
 **What to re-test:**
+
 1. Run the migration in Supabase.
 2. Signed out, open Home. Check that Your Progress shows "Keep track of your week" and that tapping a mood shows "Log in to save your mood".
 3. Sign in with a new account. Check that nothing is selected and that Your Progress shows "Your week will show here".
@@ -74,14 +128,17 @@ Commit `PENDING`. No migration.
 **Why.** The mobile journal screen needed a calmer, more consistent visual treatment while preserving the familiar check in flow and all of its existing controls.
 
 **What changed for users:**
+
 - **Clearer selections:** Mood and feeling choices use consistent AROM green styling, accessible focus outlines, and calm line icons.
 - **Balanced voice languages:** Khmer and English now have equal width in the voice language selector.
 - **More comfortable controls:** Journal inputs, voice controls, and key actions have clearer borders, improved text contrast, and larger touch targets.
 
 **What changed for the team:**
+
 - **Journal screen styling:** Refined the existing responsive styles in `app/detection/journal/page.tsx` without changing the section order or interaction flow.
 
 **What to re-test:**
+
 - Open Detection on a phone and confirm the original section order and bottom navigation remain in place.
 - Select each mood and feeling, then switch between Khmer and English voice input and confirm both options have equal width.
 - Enter text, use the voice controls, and save a journal in English and Khmer.
@@ -95,16 +152,19 @@ Commit `PENDING`. No migration.
 **Why.** Tapping the profile picture at the top of a page, or the profile card at the bottom of the sidebar, took signed in people straight to the profile page. Logging out took extra steps, and other apps have taught people to expect a small menu here. The professional and admin areas already had this menu, so the user pages now work the same way.
 
 **What changed for users:**
+
 - **Small menu on the profile picture:** signed in people who tap their picture on Home, MindGuide, the professional directory or any page with the top header now see their name, email and role, with "My profile" and "Log out". The menu is in English and Khmer.
 - **Same menu in the sidebar:** the profile card at the bottom of the desktop sidebar opens the same menu, above the card. Its icon is now a small arrow that points up, not a gear.
 - **Closes the usual ways:** tapping outside the menu or pressing Escape closes it. The menu fades in gently, or appears without movement when the device asks for reduced motion.
 - **Visitors who are not signed in:** nothing changes. The picture still links to the profile page, which shows them how to sign in.
 
 **What changed for the team:**
+
 - **One shared menu:** `app/_components/account-menu.tsx` now has a shared panel. `AccountMenu` (pro and admin) and the new `ProfileMenu` (any avatar or card) both use it. `ProfileMenu` takes `placement="up"` for buttons at the bottom of the screen.
 - **Sidebar clips overflow:** the sidebar uses `overflow: hidden`, so the menu that opens upward is exactly as wide as the card.
 
 **What to re-test:**
+
 1. Sign in as a user and open Home. Tap the profile picture at the top right. Check the menu shows "My profile" and "Log out".
 2. Tap "My profile" and check that `/profile` opens and the menu closes.
 3. Open the menu again and tap "Log out". Check that you are signed out.
@@ -120,12 +180,15 @@ Commit `PENDING`.
 **Why.** Shared links needed a clear, branded preview that reflects AROM’s calming wellness experience and works across social and messaging platforms.
 
 **What changed for users:**
+
 - **Branded link previews:** Open Graph and X previews now use the same AROM share image with the provided logo, headline, supporting text and a calm illustration.
 
 **What changed for the team:**
+
 - **Image metadata:** Added 1200 × 630 PNG assets at `app/opengraph-image.png` and `app/twitter-image.png`, plus `metadataBase` for absolute preview URLs.
 
 **What to re-test:**
+
 - Share a deployed page in a social preview debugger and confirm the Open Graph image resolves at 1200 × 630.
 - Share a deployed page on X and confirm the Twitter image resolves.
 - Confirm the image files remain under 5 MB.
@@ -146,17 +209,21 @@ Commit `PENDING`. No migration.
 **Why.** The "Give a care task" and "Suggest a session" windows popped in and vanished with no transition, unlike the mobile menu, which slides. Ticking a care task, the client's main action between sessions, gave almost no feedback.
 
 **What changed for users:**
+
 - **Ticking a task** (Your Plan For Today and `/care-plan`): the circle presses in slightly, and the check settles in (160 to 180 ms). Nothing moves when the page loads.
 - With "Reduce motion" turned on in the device settings, the check only fades.
 
 **What changed for professionals:**
+
 - **Give a care task and Suggest a session** slide up from the bottom on phones (300 ms) and leave the same way. On larger screens they fade in from slightly smaller (200 ms). The MindGuide browser opened from Give a care task is not affected.
 
 **What changed for the team:**
+
 - New `app/pro/_components/sheet-dialog.tsx` (`SheetDialog`): bottom sheet on phones, modal from `sm`, plays the exit before the window is removed, honours reduced motion. Uses `motion/react`, `--ease-out` and the drawer curve `cubic-bezier(0.32, 0.72, 0, 1)`.
 - `TickIcon` in `daily-plan-card.tsx` (all three tick buttons there) and the tick in `user-care-plan.tsx`.
 
 **What to re-test:**
+
 - On a phone width, open Give a care task and Suggest a session, close them with Cancel, the X and after giving a task: each slides down before it disappears;
 - Tick and untick a task on the home page and `/care-plan`: the check settles in, and nothing animates on page load;
 - Turn on Reduce motion and repeat: fades only.
@@ -170,6 +237,7 @@ Commit `PENDING`. Migration `20261015000300_pro_private_notes.sql` must be run i
 **Why.** The last parts of the professional area that were not saved were the plan written before a session and the pinned summary per client. "Shared by the client" also showed sample results instead of what the client really shared. And professionals could read every column of their clients' profile rows, more than they need.
 
 **What changed for professionals:**
+
 - **Plan for this session** (Prepare page) and **Summary note** (client file) are saved, private to you. If saving fails, you are told.
 - **Shared by the client** now shows the client's real latest survey and symptom check scores, only while they share them. Scores and levels only, never their answers.
 - **Client language** in the client file is the client's real app language.
@@ -177,6 +245,7 @@ Commit `PENDING`. Migration `20261015000300_pro_private_notes.sql` must be run i
 - **The yellow note at the top of `/pro` is gone.** Everything in `/pro` is saved, except My podcasts.
 
 **What changed for the team:**
+
 - New tables `session_prep_notes` and `client_summary_notes` (owner only RLS, no admin read). Dropped the policy "Professionals read their clients' profiles". `my_client_names()` now returns `language` and respects Anonymous Mode.
 - `POST /api/pro/bookings/:id` accepts `{ action: "prep", text }`. `/api/pro/clients/:clientId` now has `GET` (shared results) and `POST { summaryNote }` next to `{ archived }` (moved to `pro-controller.ts`). `ProBooking.clientLanguage` added.
 - Removed unused demo code: `sampleBookingsFor`, demo profiles and schedule, `DEMO_MEETING_URL`, `SAMPLE_SHARED`.
@@ -184,6 +253,7 @@ Commit `PENDING`. Migration `20261015000300_pro_private_notes.sql` must be run i
 - Tested on a local Postgres: notes saved, note refused for someone who never booked, client of a note cannot be changed, other professionals, the client and admins see no notes, shared symptom checks visible and unshared survey hidden, profile row no longer readable, Anonymous Mode hides the name.
 
 **What to re-test (after running the migration):**
+
 - Open a booking's Prepare page, write a plan, save, refresh: it stays;
 - Open a client file, write a summary note, save, refresh: it stays;
 - As the client, turn on sharing of symptom checks for the booking and take a symptom check; as the professional, confirm the score shows in the client file and Prepare page; turn sharing off and confirm it disappears;
@@ -198,22 +268,26 @@ Commit `PENDING`. Migration `20261015000200_sessions.sql` must be run in Supabas
 **Why.** "Suggest a session", repeating series and quick replies only worked in the professional's own browser and were lost on refresh, so clients never saw a suggestion. Booking a series also needs to be safe: either every session is booked or none is.
 
 **What changed for users:**
+
 - **Suggested times arrive in Messages** from your professional. Pick one and tap Book: every session of a repeating series is booked at once. If any of them was just taken, nothing is booked and you are told so.
 - **Repeating sessions are marked** "Repeating" in the Next session strip.
 
 **What changed for professionals:**
+
 - **Suggest a session is saved and sent** to the client's chat. Only times open in your schedule and free for the whole series can be sent. You can withdraw it while the client has not chosen.
 - **Booked series show in My bookings** as "Session 2 of 4" and so on. Home "Needs your attention" counts suggestions still waiting.
 - **Quick replies are saved** to your account. There are no sample replies any more; add your own with Edit.
 - **The yellow note** now reads "Not saved yet: podcasts, summary notes and session prep."
 
 **What changed for the team:**
+
 - New table `session_suggestions`, `appointments.series_id`, `messages.kind 'suggestion'` with `suggestion_id`, table `quick_replies`. Functions `suggest_session`, `withdraw_session_suggestion`, `accept_session_suggestion`, `save_quick_replies`.
 - **Open times can no longer overlap a booked session:** two triggers keep `availability_slots.is_booked` in line with booked sessions, including sessions booked past the booking window.
 - New `lib/sessions.ts`, `lib/controllers/sessions-controller.ts`, routes `/api/pro/suggestions` (+ `/:id/withdraw`), `/api/suggestions/:id/accept`, `/api/pro/quick-replies`. Chat threads return their suggestions.
 - Tested on a local Postgres (see BACKEND-HANDOFF.md section 19).
 
 **What to re-test (after running the migration):**
+
 - As a professional with a schedule, open a client's chat, Suggest a session with 2 times, "Every week, 4 sessions";
 - As the client, open Messages, confirm the card, pick a time and Book 4 sessions; confirm 4 sessions on `/appointments`;
 - As the professional, confirm My bookings shows "Session 1 of 4" and the card shows Booked;
@@ -229,11 +303,13 @@ Commit `PENDING`. Migration `20261015000100_care_plans.sql` must be run in Supab
 **Why.** Care tasks between sessions were sample data in the browser's memory, always shown as "Sok Dara", and lost on refresh. Professionals need to give real clients small steps between sessions, and clients need to see and tick them, with progress private unless they choose to share it.
 
 **What changed for users:**
+
 - **Your care plan is real.** Tasks from your professional show on `/care-plan` and today's ones in Your Plan For Today on the home page, with their real name and photo.
 - **Ticks are saved.** You can tick a task on the days it is due. A one time task or goal is ticked once.
 - **Sharing is your choice and is saved.** Off by default. While it is off, your professional cannot see any of your ticks, including old ones.
 
 **What changed for professionals:**
+
 - **Give a task is saved** (MindGuide item, mission, goal or reminder), from the client file or after a session in My bookings. Errors show in the window.
 - **Stop a task** moves it to the client's past tasks.
 - **Progress** in the client file, Prepare page and Home appears only for clients who share it.
@@ -241,11 +317,13 @@ Commit `PENDING`. Migration `20261015000100_care_plans.sql` must be run in Supab
 - The yellow note now reads "Not saved yet: podcasts, quick replies, session suggestions, summary notes and session prep."
 
 **What changed for the team:**
+
 - New tables `care_tasks`, `care_check_ins`, `care_sharing` with RLS (no admin read), functions `give_care_task`, `stop_care_task`, `set_care_check_in`, `set_care_sharing`, `my_care_professionals`, `can_read_care_check_ins`, `care_task_due_on`, `cambodia_today`.
 - New `lib/care.ts` (types and rules shared by the browser and the API), `lib/controllers/care-controller.ts`, routes `/api/care-plan` (+ `/check-ins`, `/sharing`), `/api/pro/care` (+ `/:taskId/stop`). `useCareStore` now takes the side. `demo-client.ts` deleted.
 - Tested on a local Postgres (see BACKEND-HANDOFF.md section 18).
 
 **What to re-test (after running the migration):**
+
 - As a professional, open a client with a completed session, give a mission every day and a MindGuide lesson once;
 - As that client, confirm both show on `/care-plan` and today's in Your Plan For Today; tick one, refresh, confirm it stays ticked;
 - As the professional, confirm you see no progress; as the client, turn sharing on; as the professional, confirm the tick shows; turn sharing off and confirm it disappears;
@@ -261,12 +339,15 @@ Commit `PENDING`. No migration.
 **Why.** On narrow phones the bottom menu label "Professional" ran into "Community", so both were hard to read.
 
 **What changed for users:**
+
 - **Bottom menu labels fit** on phones as narrow as 320 pixels. Labels are slightly smaller below 380 pixels. A label that still does not fit (for example a long Khmer word) ends with "..." instead of covering its neighbour.
 
 **What changed for the team:**
+
 - `MobileNavigation` in `app/_components/app-navigation.tsx`: menu items get `min-w-0`, labels truncate, smaller text and side padding below 380 pixels.
 
 **What to re-test:**
+
 - Open any user page at 320 and 375 pixels wide, in English and Khmer, and confirm the five labels do not touch.
 
 ---
@@ -278,6 +359,7 @@ Commit `PENDING`. Migration `20261014000700_messages.sql` must be run in Supabas
 **Why.** Messages in `/messages` and `/pro/messages` were sample data kept in the browser's memory, so nothing was saved and the user side always showed "Sok Dara". Clients and professionals need a private way to talk between sessions, with text and voice, and only after a real booking.
 
 **What changed for users:**
+
 - **Messages are real and saved.** You see every professional you have a booked or completed session with, with their real name, photo and reply time.
 - **Text and voice messages** (up to 2 minutes) are sent to the server and kept. New messages and "Seen" appear within about 10 seconds while the chat is open.
 - **Only you and your professional can read them.** Admins cannot. Voice recordings are stored privately and open only through a link that expires after 5 minutes.
@@ -285,6 +367,7 @@ Commit `PENDING`. Migration `20261014000700_messages.sql` must be run in Supabas
 - **Read only when it should be:** if all your sessions with someone were cancelled, or the professional archived you, the chat shows why and you cannot send.
 
 **What changed for professionals:**
+
 - **Your clients' messages are real,** with unread counts on the list, Home "Needs your attention" and the Prepare page.
 - **Reply time you choose is saved** and shown to clients.
 - **Archive client is saved.** It closes the chat for both of you (messages are kept). Restore client opens it again.
@@ -292,6 +375,7 @@ Commit `PENDING`. Migration `20261014000700_messages.sql` must be run in Supabas
 - **The yellow note at the top of `/pro`** now reads "Not saved yet: care plans, podcasts, quick replies, summary notes and session prep." Messages are no longer listed, and the note stays on the same line as the language switch and account menu.
 
 **What changed for the team:**
+
 - New tables `conversations` and `messages`, column `professional_profiles.reply_time`, private bucket `message-voice`. No admin read policy on any of them.
 - Writes only through security definer functions: `open_conversation`, `send_message`, `mark_conversation_read`, `set_client_archived`; list through `my_conversations(side)`. Writing needs a booked or completed appointment and an active professional account; suspended senders are blocked.
 - New `lib/messages.ts` (types), `lib/controllers/messages-controller.ts`, routes `/api/messages`, `/api/messages/:slug` (+ `/read`), `/api/pro/messages`, `/api/pro/messages/:clientId` (+ `/read`), `/api/pro/clients/:clientId` (archive), `/api/voice/:messageId`. `GET /api/pro/me` now returns `archivedClients`.
@@ -300,6 +384,7 @@ Commit `PENDING`. Migration `20261014000700_messages.sql` must be run in Supabas
 - Tested on a local Postgres: cancelled only booking cannot write, both sides write after booking, no direct inserts, read receipts, other users and admins see 0 messages and 0 files, voice folder rules, archive closes and reopens, suspended professional and suspended client refused, signed out visitors refused.
 
 **What to re-test (after running the migration):**
+
 - As a user with a booking, open Messages, send a text and a voice message;
 - As that professional, open `/pro/messages`, confirm the unread count, open the chat, reply, and play the voice message;
 - Back as the user, confirm the reply arrives and your last message shows "Seen";
@@ -316,6 +401,7 @@ Commit `PENDING`. Migration `20261014000600_admin_users_open_times.sql` must be 
 **Why.** The admin Users page and the Audit log showed sample data, while real admin actions were already being saved. And professionals' open times only moved forward when they opened their area.
 
 **What changed for admins:**
+
 - **Users page shows every real account** with email, last sign in, and activity as counts only (days active in the last 30 days, check ins, bookings). Your own card is marked, so you cannot change yourself.
 - **Make professional** for someone you know records their title, license number and issuing body and makes them a verified professional straight away. They then fill in their own public profile.
 - **Make admin** and **remove admin** work, with the confirm box. AROM never lets you remove the last active admin, or change your own role.
@@ -324,14 +410,17 @@ Commit `PENDING`. Migration `20261014000600_admin_users_open_times.sql` must be 
 - **Audit log shows the real history:** who did what, to whom, when, with the reason or note. Nobody can edit or delete these lines.
 
 **What changed for professionals and users:**
+
 - **Open times refresh every night** at 00:05 Cambodia time for the whole booking window, even if the professional does not open AROM.
 
 **What changed for the team:**
+
 - New database functions `admin_list_users()`, `refresh_all_open_times()` and a new 6 argument `set_user_role()` (the old 2 argument version is replaced). pg_cron job `arom-refresh-open-times`.
 - New `lib/controllers/audit-controller.ts` and `GET /api/admin/audit-log`; `GET /api/admin/users` and `PATCH /api/admin/users/:id/role` rewritten.
 - Tested on a local Postgres: emails and counts, promotion with license, own role refused, last active admin protected (including when the other admin is suspended), non admins refused, the nightly job makes the right times and adds nothing the second time.
 
 **What to re-test (after running the migration):**
+
 - Open Users: confirm real accounts, emails and your own card marked;
 - Make a test account a professional with license details; confirm it appears on Professionals as live after they complete their profile;
 - Suspend it with a reason, then restore it; open Audit log and confirm both lines with the reason;
@@ -346,6 +435,7 @@ Commit `PENDING`. No migration. **Supabase dashboard changes needed** (see the l
 **Why.** People who opened the confirmation email on their phone saw "Link expired, let's try that again" even though their email was already confirmed. Supabase's default link only finishes signing in on the browser that signed up. Signing up again with an existing account also left people waiting for an email that never came.
 
 **What changed for users:**
+
 - **Confirmed means confirmed.** If the link is opened on another device, AROM says "Your email is confirmed. Log in to continue" instead of "expired".
 - **Signed in automatically** when the link is opened where it can finish, and taken home.
 - **6 digit code:** the Check your email page has a "Have a code from the email?" box. Typing the code signs you in on that device.
@@ -354,10 +444,12 @@ Commit `PENDING`. No migration. **Supabase dashboard changes needed** (see the l
 - **Passwords** are limited to 72 characters (the most Supabase can store).
 
 **What changed for the team:**
+
 - `confirmEmail` in `lib/controllers/auth-controller.ts` handles: success, a code that cannot finish on this device, an already signed in visitor, and real expiry. New `POST /api/auth/verify` checks the 6 digit code.
 - `safeNextPath` in `lib/auth.ts` is the one place that checks redirect paths; it also rejects `/\host` and control characters (open redirect protection).
 
 **Supabase dashboard (Authentication):**
+
 1. **Email Templates, Confirm signup:** use a link that works on every device and include the code:
    `<a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email">Confirm your email</a>` and `Or enter this code: {{ .Token }}`
 2. **URL Configuration:** Site URL is the Vercel URL, and both the Vercel and `http://localhost:3000` addresses are in Redirect URLs.
@@ -365,6 +457,7 @@ Commit `PENDING`. No migration. **Supabase dashboard changes needed** (see the l
 4. **Email OTP expiration:** 1 hour is a good balance.
 
 **What to re-test:**
+
 - Sign up on a laptop, open the email on a phone: you are signed in on the phone (new template) or told your email is confirmed (old template), never "expired";
 - Type the 6 digit code on the laptop and confirm you land on Home signed in;
 - Open the same link twice: the second time you go home if signed in, or see "This Link Can't Be Used" with Log in first;
@@ -379,6 +472,7 @@ Commit `PENDING`. No migration.
 **Why.** A user could book a real session but could not see it anywhere afterwards, cancel it, or find the meeting link. The sidebar "Appointments" item still said Soon.
 
 **What changed for users:**
+
 - **New My appointments page** (`/appointments`, sidebar "Appointments"): upcoming sessions first, then past and cancelled ones, with the professional's photo, date and time in Cambodia time, and online or in person.
 - **Join** opens the professional's meeting room from 10 minutes before an online session.
 - **Cancel** an upcoming session, with an optional reason the professional sees. The time opens again for others.
@@ -387,11 +481,13 @@ Commit `PENDING`. No migration.
 - **"View Appointment"** after booking now opens this page, and a "Get help now" link stays at the top.
 
 **What changed for the team:**
+
 - **New endpoints** `GET /api/appointments` and `POST /api/appointments/:id` (`cancel` or `sharing`), in `lib/controllers/appointments-controller.ts`. They run as the user, so RLS returns only their own appointments.
 - **`JoinButton`** now accepts any session with the fields it needs, not only `ProBooking`.
 - **`/appointments`** is added to `PROTECTED_PREFIXES`.
 
 **What to re-test:**
+
 - Book a session as a user, tap View Appointment, and confirm it shows under Upcoming;
 - Turn on "My symptom check results", refresh, and confirm it stayed on; turn it off again;
 - Cancel it with a reason; confirm it moves to Past and cancelled, and the professional sees the reason in My bookings;
@@ -407,15 +503,18 @@ Commit `bbcf651`. Migration `20261014000500_admin_test_profile.sql` must be run 
 **Why.** Admins open the professional area to test it, but an admin account had no professional profile, so the page failed with "We could not load your professional area."
 
 **What changed for admins:**
+
 - **Opening `/pro` creates your own test profile** the first time. You can fill in the profile, open times, and see bookings, exactly like a professional.
 - **Test profiles stay private:** only admins see them in Find a professional and only admins can book them. A note on the professional Home says so.
 - **Clear messages** when an account cannot use the area (for example a normal user), instead of a vague error.
 
 **What changed for the team:**
+
 - New column `professional_profiles.is_test` and function `ensure_admin_test_profile()`; `is_listed_professional`, `sync_availability_slots` and three policies now allow admins for their own test profile.
 - Tested on a local Postgres: real users and signed out visitors never see the test profile, a normal user cannot create one or book it, a second admin can book it.
 
 **What to re-test (after running the migration):**
+
 - As an admin, open `/pro`; confirm the test profile note and your name;
 - Complete the profile and open hours; confirm Find a professional shows you while signed in as admin, and not when signed out or as a normal user;
 - Book it from a second admin account and confirm it appears in My bookings.
@@ -429,14 +528,17 @@ Commit `b54ad45`. No database changes.
 **Why.** The top of these pages showed a level, XP bar, streak and coins that are not real yet. That felt like a game more than a calm wellness space. The header now matches MindGuide and Find a professional: the AROM logo with its tagline, a menu button and the profile picture.
 
 **What changed for users:**
+
 - **New header on mobile:** AROM logo and "A calmer mind, a brighter you" on the left, the menu button and profile picture on the right.
 - **Level, XP, streak and coins are gone** from the top of Home, Detection, Journal and Community.
 - **On desktop** only the profile picture shows at the top right, because the sidebar already has the logo and menu.
 
 **What changed for the team:**
+
 - **`TopHeader` (`app/components/top-header.tsx`) no longer takes `level`, `currentXp`, `maxXp`, `streak` or `coins`.** It only takes an optional `onOpenSidebar`.
 
 **What to re-test:**
+
 1. On a phone, open Home, Detection, Detection Journal and Community. Check the logo, tagline, menu button and profile picture show in one row.
 2. Tap the menu button and check the side menu opens.
 3. Tap the profile picture and check it opens your profile.
@@ -452,6 +554,7 @@ Commit `ba16e09`. Migration `20261014000400_pro_profile_booking.sql` must be run
 **Why.** AROM's main job is to let someone find a therapist and book a session. Until now every step was pretend: profiles, open times and bookings vanished on refresh, and the list of professionals was sample data. Now the whole path is real.
 
 **What changed for professionals:**
+
 - **My profile is saved.** Photo, bio in both languages, specialties, languages, session types, price and years of experience save at once. Name, title and license changes wait for an admin, and the public profile keeps the old value until then.
 - **My schedule is saved** and turns into real open times for the booking window. Saving never cancels a booked session.
 - **My bookings are real:** cancel or move a session with a reason, mark completed or did not come (only after it ends), write a private note, change the meeting link.
@@ -459,20 +562,24 @@ Commit `ba16e09`. Migration `20261014000400_pro_profile_booking.sql` must be run
 - **The demo switch is gone.** A small note says what is still demo (messages, care plans, podcasts, summary notes, session prep).
 
 **What changed for users:**
+
 - **Find a professional** shows only real professionals whose profile is complete and who have open times. Until the first one is ready, it says no professionals are available yet.
 - **Booking shows real open times** in Cambodia time, grouped by morning, afternoon and evening, and books instantly. If someone else just took the time, the page says so and offers another time.
 - **Ratings are hidden** while a professional has no reviews.
 
 **What changed for admins:**
+
 - **Profile changes to review** now arrive on the Professionals page; approve or decline them together (declining needs a reason).
 
 **What changed for the team:**
+
 - **New endpoints:** `/api/pro/me`, `/api/pro/profile`, `/api/pro/profile/changes`, `/api/pro/photo`, `/api/pro/schedule`, `/api/pro/bookings/:id`, `/api/bookings`, `/api/admin/professionals/:id/changes/review`.
 - **New database pieces:** `professional_profile_changes`, `professional_schedules`, `professional-photos` bucket, and functions `review_profile_changes`, `sync_availability_slots`, `is_listed_professional`, `list_public_professionals`, `public_open_slots`, `reschedule_appointment`, `my_client_names`. `book_appointment` and two guard triggers were updated.
 - **Tested** every migration and the full flow on a local Postgres (see BACKEND-HANDOFF.md section 16).
 - **Known gaps:** open times roll forward only when the professional opens `/pro` (a daily job is better); old photos are not deleted; users have no "My appointments" page yet.
 
 **What to re-test (after running the migration):**
+
 - As a professional: fill in photo, both bios, specialties, languages, session types and price; save; refresh and confirm it stayed;
 - Change your name and confirm it shows as waiting; approve it as an admin on Professionals and confirm it changes;
 - Open weekday hours in My schedule and save; confirm Home says your profile is live and View profile opens;
@@ -490,20 +597,24 @@ Commit `ba16e09`. Migration `20261014000300_crisis_resources.sql` must be run in
 **Why.** The Overview page warned "No crisis hotlines added yet" (real), but the Settings page that should fix it only saved in the browser, so users in crisis never saw a number. On a mental health app this is the most important thing to get right.
 
 **What changed for users:**
+
 - **"Get help now"** in Profile and Settings now shows the helplines the AROM team adds, with Call, Text and Website buttons. Signed out visitors can see them too. The message to contact local emergency services always stays on top.
 
 **What changed for admins:**
+
 - **Crisis helplines in Settings are saved for real:** add, edit, hide, reorder and delete. The Urgent alert on Overview clears once an active helpline exists.
 - **Clear errors** inside the edit window if the server refuses a helpline.
 - **Every save is in the audit log,** including the names of removed helplines.
 
 **What changed for the team:**
+
 - **New endpoints** `GET /api/crisis-resources` (public) and `GET`/`PUT /api/admin/crisis-resources`.
 - **New database function** `save_crisis_resources()` saves the whole list in one go; the table now has the same checks as the form.
 - **Removed** the empty mock list `CRISIS_HELPLINES` and `initialCrisisHelplines`.
 - **Still mock:** the AROM support contact (email and phone for app questions).
 
 **What to re-test (after running the migration):**
+
 - In Admin, Settings, add a helpline with a phone number and both names; refresh and confirm it is still there;
 - Confirm the Urgent alert on Overview is gone;
 - Open Profile as a user, and the page signed out, and confirm the helpline shows under Get help now with a working Call button;
@@ -519,6 +630,7 @@ Commit `ba16e09`. Migration `20261014000200_account_status.sql` must be run in S
 **Why.** The Professionals page showed sample therapists, so admins could not review the real people who apply. Now it shows real applicants and professionals, and every decision is saved.
 
 **What changed for admins:**
+
 - **Real list:** new applicants, live professionals, suspended and rejected, all from the database. The demo banner is gone on this page.
 - **Open the license file** from the review window. It opens a private link that works for one minute.
 - **Approve and reject** are saved; rejecting needs a reason the applicant sees.
@@ -526,12 +638,14 @@ Commit `ba16e09`. Migration `20261014000200_account_status.sql` must be run in S
 - **Errors show in the window** if something fails, instead of pretending it worked.
 
 **What changed for the team:**
+
 - **New endpoints:** `GET /api/admin/professionals`, `GET /api/admin/applications/:id/license`, `PATCH /api/admin/users/:id/status`.
 - **New database function** `set_account_status()`; the Users page can use it too.
 - **Provider:** `professionalRecords` holds the real list; the old sample `professionals` stays for the demo pages that still use it.
 - **Not built yet:** reviewing profile changes (needs a new table) and a stored `source` column.
 
 **What to re-test (after running the migration):**
+
 - Open Professionals and confirm your real applicant shows as New application;
 - Open them, click Open file, and confirm the license opens;
 - Approve one and confirm they become Live; reject another with a reason;
@@ -547,14 +661,17 @@ Commit `59b737a`. No migration.
 **Why.** Admins and professionals had no quick way to see who they are signed in as or to log out from their area. And the dashboard Reject button sent no reason, which the database now refuses, so admins saw an error with nowhere to type.
 
 **What changed for admins and professionals:**
+
 - **Account button at the top right** of `/admin` and `/pro`: initials, name and role. It opens a menu with My profile and Log out. English only in the admin area, bilingual in `/pro`.
 - **Reject asks for a reason** on the admin Overview. "Confirm reject" stays off until a reason is typed; the applicant sees it.
 
 **What changed for the team:**
+
 - **New** `app/_components/account-menu.tsx`, used in `admin-shell.tsx` and `pro-shell.tsx`.
 - **`dashboard.tsx`** sends `note` with a rejection.
 
 **What to re-test:**
+
 - Open `/admin` and `/pro`, open the account menu, use My profile, then Log out;
 - On the admin Overview, Reject an application, confirm the button is off until you type, then reject and check the applicant sees the reason;
 - Check the menu on a phone width.
@@ -568,22 +685,26 @@ Commit `59b737a`. Migration `20261014000100_professional_applications.sql` must 
 **Why.** The "Become a Professional" page only pretended to send. Nothing reached the AROM team, so no one could actually apply. This is the first step of the professional journey: apply, admin approves, then the professional sets up their profile.
 
 **What changed for users:**
+
 - **Applications are really sent.** The form and the license file go to AROM, and the page shows "We're reviewing your application" after a reload or on another device.
 - **One application at a time.** Sending a second one while the first waits shows "You already have an application waiting for review."
 - **Clear errors** if sending fails, in English and Khmer.
 - **The yellow demo bar is gone.**
 
 **What changed for admins:**
+
 - **Applications list now includes phone, Telegram and the license file name.**
 - **Rejecting needs a reason,** so the applicant knows what to fix.
 
 **What changed for the team:**
+
 - **New endpoint** `GET` and `POST /api/professional/application` (`lib/controllers/application-controller.ts`). The server repeats every form rule and checks the file really is a PDF, JPG or PNG.
 - **License files** go to a new private `licenses` storage bucket. Only the owner can upload into their own folder, only admins can read, nobody can change or delete.
 - **Phone and Telegram** are copied on approval into a new private `professional_contacts` table, never into the public profile.
 - **No service role key used.** Everything runs as the signed in user, so RLS applies.
 
 **What to re-test (after running the migration):**
+
 - Sign in as a normal user, open Profile, Become a Professional, fill the form with a PDF license and submit; confirm the pending card shows;
 - Reload the page and confirm the pending card is still there;
 - In Supabase, confirm the row in `professional_applications` and the file in `licenses/<user id>/`;
@@ -600,6 +721,7 @@ Commit `eacfa97`. No migration. Frontend only.
 **Why.** The Give a care task window listed MindGuide items in a short plain list. That works for three items, but MindGuide will grow to many lessons, practices and tips, and professionals need to read an item before giving it.
 
 **What changed for professionals:**
+
 - **"Browse MindGuide" button** in Give a care task (MindGuide type). It opens MindGuide on top of the window, so the half filled form is kept.
 - **The same screens users see:** Lessons, Practices and Tips tabs, with search, categories, cards and the full item page.
 - **"Choose for <client>"** replaces the user's "Add to plan" buttons in this mode, on the item page and on the list cards. Choosing returns to the form with the item filled in, and a Change link to pick another.
@@ -607,13 +729,16 @@ Commit `eacfa97`. No migration. Frontend only.
 - **Works with Give and add another,** which clears the chosen item for the next task.
 
 **What changed for users:**
+
 - **Nothing.** MindGuide looks and works the same; the choose mode only exists inside the professional area.
 
 **What changed for the team:**
+
 - **New** `app/_components/mindguide-pick.tsx` (choose mode) and `app/pro/_components/mindguide-picker.tsx` (the overlay).
 - **MindGuide screens** (learn, practice and tips containers, list and detail views) check choose mode: no app sidebar, "Back to MindGuide" closes the browser, and plan buttons choose instead. Lint shows no new problems in these files.
 
 **What to re-test:**
+
 - In a client file, Give a task, MindGuide, Browse MindGuide; switch between Lessons, Practices and Tips and search;
 - Open a lesson, read it, tap Choose for <client>, and confirm the form shows it; use Change to pick a practice instead and confirm How often becomes Every day;
 - Use Give and add another and confirm the item is cleared;
@@ -629,15 +754,18 @@ Commit `eb1eebf`. No migration. Frontend only.
 **Why.** After a session a professional often wants to give more than one thing (for example two goals and a practice). Each task closed the window, so they had to reopen it every time.
 
 **What changed for professionals:**
+
 - **New "Give and add another" button** in the Give a care task window. It saves the task, keeps the type, schedule and dates, clears the text, and stays open.
 - **A green box lists what was given so far,** for example "2 tasks given to Chan Sreyneang", with each title.
 - **Cancel becomes Done** once at least one task was given. "Give task" still saves and closes.
 - **Khmer and English.**
 
 **What changed for the team:**
+
 - **Frontend only** in `app/pro/_components/care-plan-card.tsx`; each task is still saved one by one with `addCareTasks`, so the backend shape is unchanged.
 
 **What to re-test:**
+
 - Open a client file, Give a task, choose Goal, write one, click Give and add another; write a second goal and click Give and add another again;
 - Confirm the box lists both, then click Done and see both goals in the Care plan card;
 - Mix types: give a MindGuide item, then switch to Reminder and give one;
@@ -654,14 +782,17 @@ Commit `e86bef6`. No migration.
 **Why.** Lessons, tips and practices are written by the team with AI; admins only check, correct and publish them. The admin page had Add lesson, Add tip and Add practice buttons that let an admin start an empty item by hand, which goes against that rule.
 
 **What changed for admins:**
+
 - **The Add lesson, Add tip and Add practice buttons are gone.** A line explains that new items arrive as drafts to check, fix and publish.
 - **Editing, drafts, publishing and history are unchanged.**
 - **Podcasts keep Add podcast,** because admins create podcasts fully.
 
 **What changed for the team:**
+
 - **`createContent` was removed** from `admin-provider.tsx`, and `BACKEND-HANDOFF.md` section 9 now says new items are inserted as drafts by the team (for example with a seed script or migration), not created in the app.
 
 **What to re-test:**
+
 - Open Admin, MindGuide, and check the Lessons, Tips and Practices tabs have no Add button and the new line shows;
 - Edit an item, save a draft and publish, as before;
 - Open the Podcasts tab and confirm Add podcast is still there.
@@ -675,6 +806,7 @@ Commit `67318f3`. No migration yet. Frontend only, on mock data.
 **Why.** After a professional finished setting up, Home kept showing a checklist that was all ticked. Now it shows what they need every day: the next session, a few numbers, how busy the last weeks were, and what is waiting for them.
 
 **What changed for professionals:**
+
 - **While the profile is incomplete,** Home still shows the setup checklist (unchanged).
 - **Once it is complete,** the checklist becomes a small "Your profile is live" line with View profile, and Home shows:
 - **Next session** with Join, Prepare and Message;
@@ -685,10 +817,12 @@ Commit `67318f3`. No migration yet. Frontend only, on mock data.
 - **Khmer and English,** and it stacks on phones.
 
 **What changed for the team:**
+
 - **New files** `app/pro/_components/pro-dashboard.tsx` and `weekly-sessions-chart.tsx`; the chart reuses the admin bookings chart colours, which passed the colour blind check.
 - **`BACKEND-HANDOFF.md` section 16** lists how each number is counted. No new tables.
 
 **What to re-test:**
+
 - As Established professional, check the numbers match My bookings (this week, next 7 days) and My clients;
 - Hover the chart bars and open View as table;
 - Click each Needs your attention item and confirm it opens the right page;
@@ -705,12 +839,15 @@ Commit `e5de030`. No migration. Text and documentation only.
 **Why.** Professionals make their own episodes, so the product decision is that only they manage them: no reporting by users and no hiding or deleting by admins. The editor had promised that the AROM team could hide an episode, which was never going to be built.
 
 **What changed for professionals:**
+
 - **The checklist note in the episode editor** now says "Only you can hide or delete your episodes." instead of saying the AROM team can hide them.
 
 **What changed for the team:**
+
 - **`BACKEND-HANDOFF.md`** section 7 and section 20 now say there is no Report a problem on episodes and no admin hide, edit or delete; the planned "admin hide" item is removed.
 
 **What to re-test:**
+
 - Open My podcasts, New episode, and read the note under "Before it goes live" in English and Khmer.
 
 ---
@@ -722,6 +859,7 @@ Commit `511db19`. No migration yet. Frontend only, on mock data.
 **Why.** Hearing a professional's voice helps people feel safe enough to book, especially for a first session. Each sample professional had one fixed episode in code; now professionals record and manage their own episodes, and they appear on their public profile.
 
 **What changed for professionals:**
+
 - **"My podcasts" is open** in the professional area (it said Soon before): a list of episodes with Draft, On your profile or Hidden, plus Edit, View as a user, Hide from profile, Show again and Delete.
 - **New episode editor:** upload an audio file (MP3, M4A or WAV, up to 100 MB and 60 minutes) and listen back, title, short summary, topic, description and quote in English and Khmer, up to 4 key points and up to 10 chapters.
 - **"Before it goes live" checklist:** no client stories or identifying details, for learning only, and I own this recording. Publishing needs all three.
@@ -729,16 +867,19 @@ Commit `511db19`. No migration yet. Frontend only, on mock data.
 - **Khmer and English.**
 
 **What changed for users:**
+
 - **The profile shows the newest episode** with up to 5 more under it, and the podcast page opens the chosen one.
 - **Uploaded episodes play their real audio** in the same player (sample episodes keep the calm demo tone).
 - **A professional with no episodes** shows a friendly "No podcast episodes" page instead of an error.
 
 **What changed for the team:**
+
 - **New shared store** `app/_components/podcasts/pro-podcast-store.ts`, seeded from the sample episodes in `lib/therapists.ts`.
 - **Podcast player cleanup:** the player no longer calls hooks after an early return (13 lint errors fixed), and the current chapter is calculated instead of copied in an effect.
 - **`BACKEND-HANDOFF.md` section 20** lists the table, storage, limits and rules; decision recorded in section 7. Admin hiding of an episode is still to build.
 
 **What to re-test:**
+
 - As admin, open Professional area, My podcasts; create a New episode with a real MP3, play it back, add a key point and a chapter;
 - Try Publish without ticking the checklist and confirm the message; tick all three and publish;
 - Click View as a user and confirm the new episode plays real audio, chapters jump, and the profile shows it first with Episode 12 below;
@@ -755,16 +896,19 @@ Commit `e85a17d`. No migration yet. Frontend only, on mock data.
 **Why.** Before each session a professional had to open the client file, the last booking, the chat and the care plan one by one. Now one page gathers what matters for the next few minutes. Bookings were also only a list, which made it hard to see how full a week is.
 
 **What changed for professionals:**
+
 - **New "Prepare" page for each session** (from the booking window or Home "Today's sessions"): time, type, "Session 5 with you", Join, a private **Plan for this session**, the **last session** with its note, **care plan progress since then** (only if the client shares it), this booking's answers, the summary note, **messages since the last session** (count and unread) and shared symptom checks.
 - **Week calendar in My bookings:** switch between List and Week. Monday to Sunday, open hours shaded, time off marked, sessions colored by state (booked, add outcome, completed, did not come), a line for now. Tap a session to open it. Phones show one day at a time with day buttons.
 - **Sample notes for Sok Dara** so the Prepare page and client file show something in the demo.
 - **Khmer and English.**
 
 **What changed for the team:**
+
 - **New route** `/pro/bookings/<id>` (Prepare) and `?open=<id>` on My bookings.
 - **New private note per booking** (`prepNotes`), documented in `BACKEND-HANDOFF.md` section 16 with where each Prepare block reads from.
 
 **What to re-test:**
+
 - On Home, click Prepare on a session (or open a booking and click Prepare); write a plan, save, leave and come back without refreshing;
 - Check the last session note, care plan counts and message count match the client file and the chat;
 - Turn off "Share my progress" on the user Care plan page and confirm Prepare no longer shows counts;
@@ -782,11 +926,13 @@ Commit `5b5d618`. No migration yet. Frontend only, on mock data.
 **Why.** Online sessions had no way to actually meet, and after a session the professional had to remember several separate steps. Booking the next session meant the client starting from scratch. Now the meeting link travels with the booking, the booking window walks the professional through what to do after a session, and the client books the next session (or a weekly series) with one tap in the chat.
 
 **What changed for users:**
+
 - **"Next session" at the top of the chat** with your professional, with a **Join session** button that opens 10 minutes before the start.
 - **Suggested times in Messages:** your professional can send up to 3 times for your next session, sometimes repeating (for example every week, 4 sessions). Tap a time, see all the dates, and book. "No payment during testing" is shown.
 - **If a time was just taken,** you are told and nothing is booked.
 
 **What changed for professionals:**
+
 - **Meeting link in My schedule:** your own Google Meet, Zoom or Jitsi room, added to every online session. Changing it moves upcoming sessions to the new room. You can also change the link for one session.
 - **Join session** in the booking window, in My bookings rows and on Home, from 10 minutes before the start.
 - **"After the session" in the booking window:** step 1 outcome (completed or did not come), then next steps: give a care task, suggest the next session, and write the private note.
@@ -797,12 +943,14 @@ Commit `5b5d618`. No migration yet. Frontend only, on mock data.
 - **Khmer and English** everywhere.
 
 **What changed for the team:**
+
 - **Bookings moved into a shared store** (`app/_components/sessions/session-store.ts`) used by `/pro` and the user side; `ProBooking` gained `professionalId`, `meetingUrl` and `seriesId`, and `Schedule` gained `meetingUrl`.
 - **Chat messages can carry a suggestion** (`kind: 'suggestion'`), and the chat supports quick replies for professionals.
 - **`BACKEND-HANDOFF.md` section 19** lists the new tables and the accept function that books a whole series in one transaction; decisions recorded in section 7.
 - **Mock only:** everything resets on refresh. Admin Bookings does not show follow ups booked from suggestions yet.
 
 **What to re-test:**
+
 - In My schedule, change the meeting link to something without https and save: confirm the error; then save a valid link and confirm an upcoming online booking uses it;
 - Open an online session starting within 10 minutes (or change a sample time) and confirm Join session opens the link in a new tab; earlier it says "Join opens 10 min before";
 - Open a past session that needs an outcome; mark Completed and confirm the next steps appear; give a care task from there;
@@ -821,12 +969,14 @@ Commit `5637b57`. No migration yet. Frontend only, on mock data.
 **Why.** After a session, clients often forget what they agreed to try, and professionals had no way to give practice between sessions or see whether it helped. Now the professional gives small tasks, they appear in the client's daily plan, and the client decides whether their progress is shared.
 
 **What changed for users:**
+
 - **Tasks from your professional in "Your Plan For Today"** on the home page, marked "From Dr. ...". Tick them off like any other item; MindGuide tasks open the right lesson, tip or practice directly.
 - **New "Your care plan" page** (`/care-plan`, linked from the home plan) with all tasks from each professional, what is due today, and past tasks.
 - **"Share my progress" switch** per professional. When on, they see only which tasks you ticked, never your journal, mood or other answers. You can turn it off at any time.
 - **Medicine reminders say "Only take medicine as prescribed by your doctor."**
 
 **What changed for professionals:**
+
 - **New "Care plan" card in each client file** with a "Give a task" window: MindGuide item, mission, goal or reminder, a note to the client, how often (once, every day or some days), an end date and an optional reminder time.
 - **Progress dots for the last 7 days** when the client shares progress; otherwise "has not shared their progress. That is their choice."
 - **Stop a task** at any time; stopped and ended tasks move to "Past tasks".
@@ -834,6 +984,7 @@ Commit `5637b57`. No migration yet. Frontend only, on mock data.
 - **Khmer and English** on both sides.
 
 **What changed for the team:**
+
 - **New shared store** `app/_components/care/care-store.ts` used by `/pro`, the home plan and `/care-plan`; `/care-plan` added to the login protected pages in `lib/supabase/proxy.ts`.
 - **MindGuide pages accept `?open=<id>`** to open one item directly (learn, tips, practice).
 - **The demo user (Sok Dara)** now lives in `app/_components/demo-client.ts`, shared with Messages.
@@ -841,6 +992,7 @@ Commit `5637b57`. No migration yet. Frontend only, on mock data.
 - **`BACKEND-HANDOFF.md` section 18** lists the tables, who can read and tick, the sharing rule, and the data the Telegram bot needs for reminders. Decision recorded in section 7.
 
 **What to re-test:**
+
 - As admin, open Professional area, My clients, Sok Dara; confirm the Care plan card shows four tasks and progress dots;
 - Give a task of each kind; try saving a mission with no text, a goal with no date, and "Some days" with no day, and confirm the messages;
 - Without refreshing, open Home and confirm today's new tasks show "From Dr. Sopheap Chan"; tick one, then return to the client file and confirm the dot for today;
@@ -859,23 +1011,27 @@ Commit `59ff819`. No migration yet. Frontend only, on mock data.
 **Why.** Clients and professionals had no way to talk between sessions, for example to share how a practice went or ask a quick question. Many people in Cambodia find it easier to speak than type, especially in Khmer, so voice messages are included from the start.
 
 **What changed for users:**
+
 - **New "Messages" in the sidebar** (under Professional). It lists the professionals you have booked with; you cannot message anyone before booking.
 - **Chat with text and voice messages:** tap the microphone, record up to 2 minutes, listen back, then send or discard. Enter sends, Shift and Enter adds a new line.
 - **"Messages are not for emergencies"** banner in every chat, linking to Get help now.
 - **Each professional's reply time** shows at the top, for example "Usually replies within 1 working day", and "Seen" shows when they have read your message.
 
 **What changed for professionals:**
+
 - **New "Messages" inbox in the professional area:** unread first, search by client, last message preview, and the reply time clients see.
 - **"Message" on the client file and "Message client" in every booking.**
 - **Private:** "Admins cannot read them". Chats with archived clients become read only.
 - **Khmer and English** on both sides.
 
 **What changed for the team:**
+
 - **New shared chat** in `app/_components/messages/` used by both sides, routes `/messages` and `/pro/messages`, and `/messages` added to the login protected pages in `lib/supabase/proxy.ts`.
 - **Mock store in memory only:** messages are never saved in the browser and reset on refresh. The user side views as Sok Dara.
 - **`BACKEND-HANDOFF.md` section 17** lists the tables, voice storage, who can read and write, and that admins have no access. Decisions recorded in section 7 (messages only after booking, meeting links for calls, Telegram reminders built separately).
 
 **What to re-test:**
+
 - As admin, open Professional area, Messages; open Sok Dara and confirm her unread messages become read; send a text and a voice message (allow the microphone);
 - Without refreshing, go to Messages in the app sidebar, open Dr. Sopheap Chan, and confirm the new messages are there; reply, then go back to the professional inbox and confirm the unread badge;
 - Confirm the emergency banner link opens Get help now in Profile;
@@ -892,6 +1048,7 @@ Commit `8a43f31`. No migration yet. Frontend only, on mock data.
 **Why.** Therapists think about the person, not the calendar. Before a session they need to find the client quickly, see their history and read what they wrote last time, without rewriting the background every time. AROM's database already lets clients share their survey and symptom checks with their professional, so the file shows those too, only when the client chose to share.
 
 **What changed for professionals:**
+
 - **New "My clients" page:** search by name, filters (upcoming session, new, not seen in 30 days, past clients) with counts, and each client's next session, last session and completed sessions.
 - **Client file:** client since, sessions completed, next session and preferred language at the top.
 - **Pinned summary note:** one note kept up to date (main concerns, goals, what helps, things to remember). Private.
@@ -903,11 +1060,13 @@ Commit `8a43f31`. No migration yet. Frontend only, on mock data.
 - **Khmer and English.**
 
 **What changed for the team:**
+
 - **New `app/pro/_data/clients.ts`, `clients-view.tsx`, `client-file.tsx`, `/pro/clients` and `/pro/clients/[clientId]`.** The booking window from My bookings is reused in the client file.
 - **Demo sharing:** Sok Dara shares both; Heng Rachana shares symptom checks only; others share nothing.
 - **`BACKEND-HANDOFF.md` section 16** lists the tables and rules, notes that sharing already exists in the database, and that professional reschedule needs a new function.
 
 **What to re-test:**
+
 - Open My clients; search "dara" and confirm only Sok Dara shows; try each filter;
 - Open Sok Dara; write a summary note, save, leave and come back, and confirm it is still there;
 - Open a past session from her file, write a note, save, and confirm it appears under that session and can be found with the note search;
@@ -925,6 +1084,7 @@ Commit `edc8203`. No migration yet. Frontend only, on mock data.
 **Why.** We decided only the client and the professional manage a booking, not admins. Professionals now have their own page to prepare for sessions, move or cancel them with a reason the client sees, record how a session went, and keep private notes.
 
 **What changed for professionals:**
+
 - **New "My bookings" page** (no longer "Soon") with **Upcoming** and **Past** tabs, grouped by day, showing time, length, client name, online or in person, and status.
 - **Before the session:** each booking shows the client's note and intake answers (what they want help with, whether they have seen a counselor before, what would help).
 - **Reschedule:** choose a new open time from your schedule (same session type, booked times left out) and write a reason. The client is told and can cancel if it does not suit them.
@@ -935,11 +1095,13 @@ Commit `edc8203`. No migration yet. Frontend only, on mock data.
 - **Khmer and English.**
 
 **What changed for the team:**
+
 - **New `app/pro/_data/bookings.ts`, `bookings-view.tsx` and `/pro/bookings`.** The provider holds bookings and notes and resets them with the demo switch.
 - **Sample bookings** come from the admin samples for Dr. Sopheap Chan, with "pending" shown as "booked" because booking is instant. A few fall on weekends, as if booked before the schedule changed.
 - **`BACKEND-HANDOFF.md` section 16** lists every action, rule and the private notes policy for `session_notes`.
 
 **What to re-test:**
+
 - Open My bookings as the established professional; confirm Upcoming and Past counts and day groups;
 - Open an upcoming booking; confirm the intake answers; press Reschedule, pick a time, try without a reason, then with one; confirm the session moves and shows "Moved from";
 - Cancel another session with a reason and confirm it moves to Past as cancelled, and disappears from Home today if it was today;
@@ -956,6 +1118,7 @@ Commit `86226bc`. No migration yet. Frontend only, on mock data.
 **Why.** Booking at AROM is instant: users book any open time straight away. Professionals needed a way to say when they are free, and a new professional cannot appear to users until they have at least one open time.
 
 **What changed for professionals:**
+
 - **New "My schedule" page** in the professional area (no longer "Soon").
 - **Weekly hours:** turn each day on or off and add one or more blocks of time, for example 09:00 to 12:00 and 14:00 to 17:00, each marked online, in person or both. "Copy Monday to Tuesday to Friday" fills a work week in one tap.
 - **Session settings:** session length (45, 60 or 90 minutes), break between sessions (none, 10 or 15 minutes), how far ahead people can book (2, 4 or 8 weeks) and minimum notice (2, 12 or 24 hours).
@@ -966,11 +1129,13 @@ Commit `86226bc`. No migration yet. Frontend only, on mock data.
 - **Home checklist:** "Open times in your schedule" now links here and ticks once a day has open hours.
 
 **What changed for the team:**
+
 - **New `app/pro/_data/schedule.ts`** with the rules and `openSlots()`, `schedule-editor.tsx`, and the `/pro/schedule` route. The provider now works out "has open times" from the schedule.
 - **`BACKEND-HANDOFF.md` section 16** describes how to store the schedule and keep `availability_slots` filled.
 - **Mock today:** the user booking page still shows its own sample times until it reads real open slots.
 
 **What to re-test:**
+
 - Open My schedule as the established professional; confirm weekday hours and the 7 day preview, with weekends closed and booked times missing;
 - Change session length to 90 minutes and confirm the preview times change;
 - Add a block that overlaps another and one shorter than a session; confirm red messages and that Save refuses;
@@ -987,13 +1152,16 @@ Commit `3f7e215`. No migration.
 **Why.** Admins can open the professional area to check how it works, but they had to type `/pro` into the address bar. There are no real professional accounts yet, so admins are the main way to see it.
 
 **What changed for users (admins):**
+
 - **"Professional area" under Admin** in the app sidebar and the phone menu, below "Admin panel".
 - **"Professional area" link at the bottom of the admin sidebar,** next to "View website".
 
 **What changed for the team:**
+
 - **`navigation-config.ts`:** a second item in the admin only section. **`admin-shell.tsx`:** one added link (English only). Professionals keep their own "Professional area" link.
 
 **What to re-test:**
+
 - Log in as admin, open the app sidebar and the phone menu, and confirm "Professional area" opens `/pro`;
 - In the admin panel, confirm the link at the bottom of the sidebar opens `/pro`;
 - Log in as a normal user and confirm neither link shows.
@@ -1007,22 +1175,27 @@ Commit `c19be78`. No migration.
 **Why.** Users want to know what a session would cost before they book, even while AROM is in testing. Prices are now shown for information only: nobody pays, and a note says so.
 
 **What changed for users:**
+
 - **Each professional shows a price:** "Free", "$20 a session" or "$30 to $50 a session". It appears on the professional list cards, under Book Appointment on the profile, and as a Price row on the booking review step.
 - **"No payment during testing"** shows under the price on the profile and the booking review.
 - **Sample prices:** Dr. Sopheap Chan $20, Dr. Ratanak Pich $30 to $50, Dr. Malika Sok free.
 
 **What changed for professionals:**
+
 - **My profile, Session price:** choose Free, One price or Price range, enter the amounts (1 to 500 USD, the lowest below the highest), and see exactly what users will see.
 - **Choosing a price (Free counts) is now a step** before the profile becomes visible.
 
 **What changed for admins:**
+
 - **The Settings switch is now "No payments during testing".** On: users see prices with the no payment note. Off: the note is hidden, meant for when a payment system exists.
 
 **What changed for the team:**
+
 - **New `lib/pricing.ts`** (`SessionPrice`, `formatPrice`, `noPaymentNote`, `isValidPrice`, `FREE_DURING_TESTING`) replaces `app/_components/pricing.ts`. `Therapist` has an optional `price`.
 - **`BACKEND-HANDOFF.md` sections 7 and 16** updated with the price rules and storage.
 
 **What to re-test:**
+
 - Open the professionals list and confirm each card shows its price;
 - Open a profile and the booking review step and confirm the price and "No payment during testing";
 - In `/pro`, My profile, switch between Free, One price and Price range; try 0, 600, or a range where From is above To and confirm Save refuses it;
@@ -1037,9 +1210,11 @@ Commit `82b7e91`. No migration yet. Frontend only, on mock data.
 **Why.** Approved professionals had nowhere to manage themselves: admins were not meant to write their profiles, and nothing told a new professional what was missing before users could find them. During testing, sessions with real professionals are free, but nothing told users that either.
 
 **What changed for users:**
+
 - **"Free during testing"** shows under Book Appointment on every professional's profile and on the booking review step.
 
 **What changed for professionals:**
+
 - **They land on `/pro` after logging in,** and a "Professional area" link appears in their sidebar.
 - **Home** shows whether users can see their profile, a checklist of what is missing (photo, bios, specialties, languages, how they meet clients, open times), changes waiting for admin review, today's sessions, and a "Free during testing" note.
 - **My profile:** upload a photo, edit name and title in both languages, bios in English and Khmer with minimum lengths, years of experience, what they help with, session languages, online or in person, a price saved for later, and license details.
@@ -1049,15 +1224,18 @@ Commit `82b7e91`. No migration yet. Frontend only, on mock data.
 - **Khmer and English** throughout. My schedule, My bookings and My podcasts show as coming soon.
 
 **What changed for admins:**
+
 - **New switch in Settings: "Sessions are free during testing"** (on). Turning it off is meant for when a payment system exists.
 
 **What changed for the team:**
+
 - **Decisions recorded in `BACKEND-HANDOFF.md` section 7:** instant booking, professionals appear only when their profile is complete, session notes private to the professional, no payments yet.
 - **New `app/pro/`** (layout, home, profile, provider, preview) and `app/_components/pricing.ts`. The admin preview frame also draws a professional profile.
 - **`BACKEND-HANDOFF.md` section 16** maps every field to `professional_profiles` and `professional_credentials`.
 - **Mock today:** a demo switch shows an established or a newly approved professional; nothing is saved after a refresh.
 
 **What to re-test:**
+
 - Log in as a professional and confirm you land on `/pro` and see "Professional area" in the sidebar; log in as a normal user and confirm you do not;
 - On Home, switch the demo to "Newly approved" and confirm "Users cannot see your profile yet" with the missing steps, each linking to the right field;
 - In My profile, upload a photo, write both bios and choose online; save and confirm the checklist updates on Home;
@@ -1075,14 +1253,17 @@ Commit `8c58ac2`. No migration.
 **Why.** The Overview warns "No crisis hotlines added yet", and helplines are added in Admin, Settings, but there was no way to get from one to the other. The warning and the Settings section do different jobs (a reminder and the place to fix it), so both stay and are now connected.
 
 **What changed for users (admins):**
+
 - **The hotline warning in "Needs attention" is now a link,** and an "Add helplines" link sits next to the Urgent label. Both open Admin, Settings and jump to Crisis helplines.
 
 **What changed for the team:**
+
 - **`dashboard.tsx`:** `AttentionItem` has an optional `href`; the two hotline items use it. Nothing removed. New link text is English only.
 - **`settings-view.tsx`:** the Crisis helplines section has `id="crisis-helplines"`.
 - **Note:** the warning reads the real database, while Settings is still mock, so adding a helpline in Settings does not clear the warning until the backend is connected.
 
 **What to re-test:**
+
 - Open the Overview with no hotlines in the database and confirm the warning title and "Add helplines" both open Settings at the Crisis helplines section.
 
 ---
@@ -1094,24 +1275,28 @@ Commit `45bbbe4`. No migration yet. Frontend only, on mock data.
 **Why.** The team had no way to tell everyone something at once, for example a planned pause, a new lesson or an important change. Admins can now post a short message that every user sees until it ends.
 
 **What changed for users:**
+
 - **A slim banner at the top of every page,** guests included, in one of three calm colours: Information, Good news or Important.
 - **Khmer and English.** English readers see the English text, or the Khmer when no English was written.
 - **An optional "Open" button** that goes to a page inside AROM.
 - **A close button.** Closing hides that announcement on this device; a new announcement shows again.
 
 **What changed for admins:**
+
 - **New "Announcements" section at the top of Admin, Settings:** Khmer text (required, 300 characters with a counter), English text (optional), colour, optional link inside the app, and when it ends (1 day, 7 days, 30 days, or when you end it).
 - **Live preview** of the banner in Khmer and English before publishing.
 - **"All announcements"** lists each one with Showing, "Not showing, a newer one is" or Ended, who published it and when it ends, and an **End now** button.
 - **One shows at a time:** the newest that is still running. New admin text is English only.
 
 **What changed for the team:**
+
 - **New `app/_components/announcements.ts`** and `announcement-banner.tsx`, added once in `app/layout.tsx` and hidden on `/admin` and the admin preview frame.
 - **Admin:** `announcements-section.tsx` and provider `announcements`, `publishAnnouncement`, `endAnnouncement`.
 - **`BACKEND-HANDOFF.md` section 15** lists the data shape, rules and endpoints.
 - **Mock today:** what admins publish resets on refresh and does not reach users until the backend is connected.
 
 **What to re-test:**
+
 - In Admin, Settings, type Khmer text and confirm the counter and the Khmer and English previews update;
 - Try a link like `https://google.com` or `mindguide` without the slash and confirm it is refused;
 - Publish one, then publish another, and confirm the older one says "Not showing, a newer one is";
@@ -1127,12 +1312,15 @@ Commit `b11dd9a`. No migration.
 **Why.** The team shares bugs on Telegram, so the "Email developer" button on the crashes card was not needed. One button keeps the card simpler.
 
 **What changed for users (admins):**
+
 - **"Email developer" was removed** from "Most frequent crashes, last 7 days". **"Copy for developer"** still copies the top 5 crashes as text to paste into Telegram or GitHub.
 
 **What changed for the team:**
+
 - **`crash-report-card.tsx`** no longer builds an email link. `BACKEND-HANDOFF.md` section 14 updated.
 
 **What to re-test:**
+
 - Open the admin Overview, confirm only "Copy for developer" shows on the crashes card, press it and paste the text into Telegram.
 
 ---
@@ -1144,20 +1332,24 @@ Commit `fcc3366`. No migration yet. Admin card is on mock data.
 **Why.** When a page broke, people saw the default error page and the team never found out. A crash is an error that broke a screen for someone, and on a wellbeing app a broken screen at the wrong moment matters. The team now has a calm error screen for users and one place to see which crashes happen most, so the developer can fix the worst ones first.
 
 **What changed for users:**
+
 - **A calm error screen** when a page breaks: "Something went wrong on this screen. This is not your fault." with **Try again** and **Go to home**, in Khmer and English.
 - **After an app update,** "Try again" reloads the page, which fixes the "failed to fetch module" kind of crash.
 - **A simple bilingual fallback** if the whole app fails to load.
 
 **What changed for admins:**
+
 - **New card at the bottom of the Overview:** "Most frequent crashes, last 7 days". Each crash shows the error, how many times it happened, how many different people hit it, when it last happened, the page, and the app version. The ⓘ explains what a crash is.
 - **Copy for developer** and **Email developer** build a ready to paste report of the top 5 crashes.
 
 **What changed for the team:**
+
 - **New `app/error.tsx` and `app/global-error.tsx`** using the Next.js 16 `retry` prop, and `app/_components/crash-reporting.ts` that builds a privacy safe report (no query strings, no user content).
 - **Hok Chheng's `dashboard.tsx`:** 6 lines added to show the card. Nothing removed.
 - **Mock today:** reports are built but not sent, and the card shows sample crashes. `BACKEND-HANDOFF.md` section 14 lists the endpoint, table and optional daily email to the developer.
 
 **What to re-test:**
+
 - Log in as admin, open the Overview and confirm the crashes card is at the bottom with 4 sample crashes, most frequent first;
 - Tap the ⓘ and confirm the explanation shows;
 - Press Copy for developer and paste somewhere; confirm the text lists each crash with times, people, last seen, page and version;
@@ -1173,23 +1365,27 @@ Commit `0ac7f04`. No migration (uses the existing `crisis_resources` table later
 **Why.** We decided content screens would not carry a crisis card because users can find helplines in Settings, but no helplines existed anywhere in the app, and admins had no page to add them even though the admin dashboard flags "No crisis hotlines added yet" as urgent. On a mental health app, help must always be easy to find. The admin Settings page also held a support contact users never saw, plus two settings that no longer made sense.
 
 **What changed for users:**
+
 - **New "Get help now" section in Profile and Settings.** It always shows a calm message to contact local emergency services if someone is in danger.
 - **Crisis helplines added by the team appear there,** each with Call, Text and Website buttons, hours, and names in Khmer and English.
 - **"AROM support"** (email and phone for app questions, clearly not for emergencies) appears there once the team fills it in.
 
 **What changed for admins:**
+
 - **New "Crisis helplines" section** at the top of Admin, Settings: add, edit, reorder, hide or delete (two taps). A warning shows while no helpline is visible to users.
 - **Stricter checks for helplines:** English and Khmer name, a phone or website, valid number and `https://` website, and a required "I checked this number myself" tick on every save.
 - **Support contact** now checks the email and phone and explains where users see it.
 - **Removed** "Platform name" and "Admin language". New text on the page is English only.
 
 **What changed for the team:**
+
 - **New `app/_components/support-contacts.ts`** shared by the user section and the admin page. Helpline and support lists start empty; no number was invented.
 - **`AdminSettings` is now the support contact only.** Provider has `crisisHelplines` and `saveCrisisHelplines`.
 - **`BACKEND-HANDOFF.md` section 13** maps everything to `crisis_resources` and lists the rules to enforce in the database.
 - **Mock today:** what admins type resets on refresh and does not reach users until the backend is connected.
 
 **What to re-test:**
+
 - Open Profile and Settings as a user; confirm "Get help now" shows the emergency message and no support block while nothing is set;
 - In Admin, Settings, confirm the yellow warning, then add a helpline: try saving without a Khmer name, without phone and website, with "12" as the phone, with an `http://` website, and without the tick; confirm each is refused with a clear message;
 - Save a valid helpline, reorder it, hide and show it, then delete it with two taps;
@@ -1205,10 +1401,12 @@ Commit `f668534`. No migration. Frontend only, on mock data in the browser.
 **Why.** In the Reports tab, "Mark for removal" only changed the report's label. The harmful message or picture stayed in the chat for every member, so an admin could believe it was gone when it was not. On a mental health platform that is a safety gap.
 
 **What changed for users:**
+
 - **A removed message or picture is replaced** with "This message was removed by the AROM team." (in English or Khmer). The report menu is no longer offered on it.
 - **A person removed from a group** disappears from that group's Members list. Their past messages stay.
 
 **What changed for users (admins):**
+
 - **The remove button now says what it does:** "Remove message", "Remove image" or "Remove from group", depending on what was reported. Group reports have no remove button; use "Shut down group".
 - **The confirm step explains the result**, for example that members will see the removed placeholder, or that the person loses access to the group.
 - **View chat marks removed messages** with a "Removed" tag and still shows the original to admins.
@@ -1216,11 +1414,13 @@ Commit `f668534`. No migration. Frontend only, on mock data in the browser.
 - The sample reports that are not linked to a real message say so in the confirm step, and only the report closes.
 
 **What changed for the team:**
+
 - **`community-store.ts`** gained `removeMessage` and `removeMember`; removals live in localStorage next to closures.
 - **`ChatMessage.removed`** flags a removed message for the user page. Admin provider exposes `removedMessageIds`.
 - **`BACKEND-HANDOFF.md` section 14:** the removal endpoints and rules (members never receive removed text or image links), and the remaining gap about admin group edits.
 
 **What to re-test:**
+
 - As a user, report a message and an image in a group, and report a person from the Members tab;
 - As an admin, open each report, press the remove button, read the confirm text, and confirm;
 - Open View chat and confirm the message shows "Removed" but the original is visible;
@@ -1237,18 +1437,21 @@ Commit `70f03fa`. No migration. Frontend only, on mock data in the browser.
 **Why.** Support groups need clear safety rules. Professionals should be able to start groups for the people they help, the AROM team needs to see what happens in a chat and close a group that goes wrong, and members need a simple way to flag a person, an image or a whole group that makes the space feel unsafe.
 
 **What changed for users:**
+
 - **"Create a group" on the Community home** for professionals and admins only. The form takes the name and description in English and Khmer, topic, maximum members (2 to 20), rules (filled with the default rules) and anonymous mode. The group goes live right away with the creator as its mentor.
 - **Report from inside a group.** The "..." button on each message offers "Report this person", "Report message" and "Report image" (for pictures). The Members tab has a flag on each member, and the group header has a flag to report the whole group. Users pick a reason, can add a short note, and see "Thank you. The AROM team will review this." There is a limit of 5 reports a day.
 - **Members are told the chat can be read.** The group guidelines and the group rules page now say "The AROM safety team can read this chat to keep it safe."
 - **Closed groups.** When an admin shuts a group down, members see "This group was closed by the AROM team.", can still read the history, but cannot send. The group disappears from Browse groups and cannot be joined.
 
 **What changed for users (admins):**
+
 - **View chat** on every group card opens the full chat, read only, with pictures and file names. A note says opening a chat is recorded in the audit log.
 - **Shut down** replaces Archive. It asks for a reason (only admins see it). Closed groups show a Closed badge, the reason, and a **Reopen** button.
 - **Groups made by professionals** appear in the list with "Created by professional: name". Groups an admin adds also appear on `/community`.
 - **Reports tab** shows what was reported (Person, Message, Image or Group), the reason, the reporter's note and the time, never who reported. Each report has **View chat** (the reported message is highlighted), and group reports have **Shut down group**.
 
 **What changed for the team:**
+
 - **New `app/community/community-store.ts`** keeps created groups, closures and reports in localStorage so the user page and the admin page see the same demo data in one browser. The backend replaces this file.
 - **`AdminGroup.status` is now `'active' | 'closed'`** (no more `archived`) with `closedReason`, `createdBy` and `creatorName`. `CommunityReport` gained `targetKind`, `targetLabel`, `messageId`, `note` and `createdAt`.
 - **Privacy rule updated:** admins may read support group chats, with an audit log entry every time and a notice to members. Written in `AGENTS.md` section 9 and `BACKEND-HANDOFF.md` sections 2 and 7.
@@ -1256,6 +1459,7 @@ Commit `70f03fa`. No migration. Frontend only, on mock data in the browser.
 - **New admin text is English only,** following the admin rule.
 
 **What to re-test:**
+
 - Log in as a user, open `/community`, and confirm there is no "Create a group" button;
 - Open a group, report a message, a person (from a message and from the Members tab), an image and the group; the sixth report in one day shows the limit message;
 - Log in as a professional, create a group in English and Khmer, and confirm it opens with you as mentor and shows in Browse groups;
@@ -1272,6 +1476,7 @@ Commit `0ad951c`. No migration.
 **Why.** A therapy booking is an agreement between the user and the professional. Admins could confirm, move and cancel any booking, which could clash with a professional's real schedule, touches private arrangements, and makes it unclear who changed what. Now only the user and the professional manage their own bookings, and admins only step in for emergencies.
 
 **What changed for users (admins):**
+
 - **The booking popup is read only.** "Confirm booking" and the "Reschedule" section are gone.
 - **A short note** explains that only the user and the professional confirm, reschedule or cancel.
 - **"Emergency cancel"** stays for upcoming pending or confirmed bookings, for example when a professional is suspended. It needs a written reason and a confirm step, and says both people will be told and the audit log records it.
@@ -1279,12 +1484,14 @@ Commit `0ad951c`. No migration.
 - **Page subtitle** now says users and professionals manage their own bookings.
 
 **What changed for the team:**
+
 - **`AdminBooking` has optional `cancelledBy` and `cancelReason`.** They match the existing `cancelled_by` and `cancel_reason` columns on `appointments`.
 - **Removed** the admin reschedule and confirm logic (and its clash check) from `bookings-view.tsx`. Confirming and rescheduling move to the `/pro` area.
 - **New text in the popup is English only,** following the admin rule.
 - **`BACKEND-HANDOFF.md`:** new product decision in section 7 and the emergency cancel contract in section 12.
 
 **What to re-test:**
+
 - Open `/admin/bookings`, open an upcoming confirmed booking, and confirm there is no Confirm or Reschedule, only the note and "Emergency cancel";
 - Press "Emergency cancel" and submit with no reason; confirm it asks for one;
 - Cancel with a reason and confirm the booking shows as cancelled, the chart updates, and reopening it shows "Cancelled by an admin" with the reason;
@@ -1299,6 +1506,7 @@ Commit `1f3f976`. No migration. Frontend only, on sample bookings.
 **Why.** Admins could only see bookings as a long list, which made it hard to tell whether today is busier than yesterday or whether bookings are growing. A day by day chart makes that clear at a glance and helps the team spot busy days and cancellations early.
 
 **What changed for users (admins):**
+
 - **New chart at the top of `/admin/bookings`** with one column per day.
 - **Switch between "Sessions per day"** (when sessions happen, split into completed or confirmed, pending and cancelled) **and "New bookings per day"** (when people booked).
 - **Ranges:** last 7 days, last 30 days, and next 14 days for upcoming sessions.
@@ -1308,12 +1516,14 @@ Commit `1f3f976`. No migration. Frontend only, on sample bookings.
 - **English only,** following the new admin rule.
 
 **What changed for the team:**
+
 - **New `bookings-chart.tsx`** (Recharts columns, 24px wide, rounded tops, 2px gaps between stacked parts). Colours were checked with the dataviz palette validator: green and amber pass the colour blind checks, cancelled uses a quiet gray on purpose, and the legend plus table view carry the values.
 - **No grow in animation:** with the custom column shape it could stall at zero height.
 - **Sample data:** `app/admin/_data/bookings.ts` now generates about 105 extra demo bookings around 13 Oct 2026, with no double bookings.
 - **`BACKEND-HANDOFF.md` section 12** suggests a counts only daily endpoint for Hok Chheng.
 
 **What to re-test:**
+
 - Open `/admin/bookings`; confirm the chart shows 7 columns ending with "Today" and the total, comparison and busiest day above it;
 - Hover a column and confirm the tooltip numbers match "View as table";
 - Click a column and confirm the list below jumps to that date;
@@ -1330,15 +1540,18 @@ Commit `a2c4a9c`. No migration.
 **Why.** The admin area is used only by the AROM team, and everyone on the team reads English. Translating every admin label into Khmer takes time and adds code without helping anyone. User facing pages are not affected.
 
 **What changed for users:**
+
 - **Nothing.** Seekers and professionals see the same bilingual app as before.
 
 **What changed for the team:**
+
 - **New rule in `AGENTS.md` section 4:** new admin labels, buttons, headings and messages are English only.
 - **Existing Khmer in the admin stays.** Nothing was removed.
 - **Khmer content fields stay,** for example "Title (Khmer)" in the MindGuide editor, because users read that content.
 - **AI assistants** on every teammate's machine read `AGENTS.md`, so they follow the same rule.
 
 **What to re-test:**
+
 - Nothing to test in the app. Check that the next admin screen built uses English labels only and still has Khmer fields for user facing content.
 
 ---
@@ -1350,16 +1563,19 @@ Commit `52f54f5`. No migration.
 **Why.** MindGuide lessons, tips, practices and podcasts teach people about their mental health, but they are not a diagnosis or treatment. Users need to see that clearly, and it protects AROM too. Because it is a safety message, it is written into the app and cannot be deleted by editing content.
 
 **What changed for users:**
+
 - **A short calm note** on the lesson overview, inside every lesson section, the tip overview and steps page, the practice overview and every podcast episode: "For learning only. This is not a diagnosis or treatment. If you are worried about your mental health, talk to a professional."
 - **"Talk to a professional"** links to the professional directory.
 - **Khmer and English.**
 
 **What changed for the team:**
+
 - **New `EducationalNote`** in `app/_components/educational-note.tsx`, placed in the five MindGuide screens and the podcast episode page.
 - **It is fixed app text, not content,** so it also shows in the admin preview and no admin edit can remove it.
 - **Decision recorded:** no crisis helpline card on content screens, because helpline information is in Settings. Noted in `BACKEND-HANDOFF.md` section 7.
 
 **What to re-test:**
+
 - Open a lesson overview and step through the lesson; confirm the note shows on the overview and in every section;
 - Open a tip overview, its steps page and a practice overview; confirm the note shows;
 - Open a podcast episode and confirm the note is at the bottom;
@@ -1376,6 +1592,7 @@ Commit `33fe5a2`. No migration yet. Frontend only, on sample episodes.
 **Why.** AROM has two kinds of podcasts. Professionals publish their own on their profile so users can hear them before booking. The AROM team also makes general podcasts for MindGuide. Before this change the MindGuide "Podcast" icon went nowhere, and the admin Podcasts tab required every episode to belong to a professional.
 
 **What changed for users:**
+
 - **The MindGuide "Podcast" icon now opens a Podcasts page** (`/podcasts`) listing AROM team episodes with topic, length, guest and date.
 - **Episode page** with a calm audio player: play and pause, 15 seconds back and forward, a position slider, speed 1x, 1.25x and 1.5x, and a chapter list that jumps to each part.
 - **Key points** under the player, and a guest card that links to the professional's profile when a professional joined the episode.
@@ -1383,16 +1600,19 @@ Commit `33fe5a2`. No migration yet. Frontend only, on sample episodes.
 - **Khmer and English** for every label and episode text.
 
 **What changed for admins:**
+
 - **MindGuide, Podcasts tab** now holds the AROM team episodes. "Professional" became an optional **"Guest professional"**, and only verified, active professionals can be picked.
 - **A note on the tab** explains that podcasts on professional profiles are managed by the professionals themselves.
 
 **What changed for the team:**
+
 - **New files:** `app/_components/podcasts/` (data, player, views) and routes `app/podcasts/`.
 - **`AdminPodcast.professionalId` is now `guestProfessionalId`** and can be empty. Admin podcasts are seeded from the same sample episodes users see.
 - **Three sample episodes** were written as placeholders. Replace them with real episodes and audio.
 - **`BACKEND-HANDOFF.md` section 11** has the data shape and backend gaps.
 
 **What to re-test:**
+
 - Open MindGuide and tap the Podcast icon; confirm three episodes show, newest first;
 - Open "Why stress shows up in your body"; confirm the "audio coming soon" note, chapters, key points and the guest card for Dr. Sopheap Chan with a working profile link;
 - In the admin, add a real HTTPS audio URL to an episode and confirm the form accepts it (users will hear it once the backend is connected);
@@ -1408,6 +1628,7 @@ Commit `b8b77d3`. No migration yet. Frontend only, on mock data.
 **Why.** Users are the first to notice a wrong fact, a broken button or wording that feels hurtful. On a mental health app the last one matters most. Users now have a calm way to tell the team, and admins have one place to see and fix what was reported, starting with anything upsetting or harmful.
 
 **What changed for users:**
+
 - **Quiet "Report a problem" link** at the end of the lesson overview, inside every lesson section, on the tip overview and steps page, and on the practice overview.
 - **Short form:** pick wrong information, upsetting or harmful, something broken, or other, and optionally add a note. The form asks not to write personal or health details and says it goes to the content team, not a counselor.
 - **Gentle support line** when "upsetting or harmful" is chosen, with a link to talk to a professional.
@@ -1415,6 +1636,7 @@ Commit `b8b77d3`. No migration yet. Frontend only, on mock data.
 - **Inside a lesson, the report points at that exact section.**
 
 **What changed for admins:**
+
 - **New "Reports" page** in the admin sidebar with a count of open reports.
 - **One card per item,** with "upsetting or harmful" items first and outlined in red, then the items with the most reports.
 - **Each card shows** the reasons with counts, and every report with its section, date and note. Reporters are never shown.
@@ -1423,6 +1645,7 @@ Commit `b8b77d3`. No migration yet. Frontend only, on mock data.
 - **The MindGuide sidebar link stays highlighted** while editing an item.
 
 **What changed for the team:**
+
 - **`ReportProblemButton`** in `app/_components/report-problem.tsx` and types plus mock submit in `app/_components/content-reports.ts`.
 - **Admin:** `app/admin/_data/reports.ts`, `reports-view.tsx`, `/admin/reports`, provider `reports` and `resolveReports`.
 - **Editor accepts `?part=`** to open at a section or step.
@@ -1430,6 +1653,7 @@ Commit `b8b77d3`. No migration yet. Frontend only, on mock data.
 - **Mock today:** user reports do not reach the admin page yet; the admin page uses sample reports.
 
 **What to re-test:**
+
 - Open a lesson, go to section 2 and press "Report a problem"; confirm the dialog shows "Section 2", needs a reason, and shows the support line for "Upsetting or harmful";
 - Send a report and confirm the thank you message; send five more today and confirm the daily limit message;
 - Open a tip and a practice and confirm the link is at the bottom; open the admin preview and confirm the link is hidden there;
@@ -1447,6 +1671,7 @@ Commit `bbeb916`. No migration.
 **Why.** Admins fix text, but they also need to see how it will actually look to users before publishing. A preview that copies the design would drift from the real app, so the editor now shows the exact screens users get.
 
 **What changed for users (admins):**
+
 - **Edit and Preview switch** at the top of the MindGuide editor.
 - **The preview is the real user screen** (lesson overview and lesson sections, tip overview and steps, practice overview), drawn from the current edits, including unsaved ones, and updated while typing.
 - **Phone and Desktop toggle.** Phone shows a real 390px phone layout, not a squeezed desktop page.
@@ -1457,12 +1682,14 @@ Commit `bbeb916`. No migration.
 - **A half finished draft cannot break the editor.** If a screen cannot draw it yet, the preview says to fix the problems in Checks.
 
 **What changed for the team:**
+
 - **New page `/content-preview`** that only draws what the editor sends it (same site messages only) and is hidden from search engines. It lives outside `/admin` so the admin sidebar does not wrap it.
 - **`preview` prop** on `LessonDetailView`, `LessonScreen`, `TipDetailView`, `TipInteractiveView` and `PracticeDetailView` turns off saving to the browser. Normal use is unchanged.
 - **`app/admin/_data/content-preview.ts`** converts an editor body into the objects the user screens take.
 - **Known gap:** practice instructions and breathing settings are edited in the admin but the user app does not show them yet, and the preview says so.
 
 **What to re-test:**
+
 - Open a lesson in the editor, switch to Preview and confirm it looks like `/mindguide/learn`; press Start and step through sections;
 - Change a section title in Edit, switch to Preview and confirm the new text shows without saving;
 - Switch Phone and Desktop and confirm the layout changes like a real phone and a real computer;
@@ -1480,6 +1707,7 @@ Commit `ab0a85e`. No migration yet. Frontend only, on mock data.
 **Why.** Lessons, tips and practices are written and designed by the team with Claude. Admins only need to fix mistakes, but before this change every save went straight to "live" with no history, no review and no way to undo. On a mental health app, a half finished or broken lesson must never reach users, and every live text needs a responsible admin.
 
 **What changed for users (admins):**
+
 - **One Edit button per item** in the MindGuide list, which opens a full editor page instead of three separate popups.
 - **Status chips:** Live, Live with a draft, Not published, Hidden. The list also shows the live version number and who changed it last and when.
 - **Edits are drafts first.** "Save draft" keeps work without users seeing it. "Undo changes" goes back to the last saved state.
@@ -1491,6 +1719,7 @@ Commit `ab0a85e`. No migration yet. Frontend only, on mock data.
 - **New items** open straight in the editor as a draft.
 
 **What changed for the team:**
+
 - **New data model** in `app/admin/_data/content.ts`: `ContentRecord` with `versions` (never changed once published), one optional `draft`, and `liveVersion` (null means hidden or never published). Seed items that were available start as version 1 by "AROM team"; the rest start as drafts.
 - **Sokheng's three editors are now field panels** (`LessonFields`, `TipFields`, `PracticeFields`) plus `ContentMetaFields`. All fields stayed the same; the popup, Save button and validation moved to the editor page. `content-form.tsx` was removed.
 - **Publish rules** live in `content-checks.ts`; the change summary in `content-diff.ts`.
@@ -1500,6 +1729,7 @@ Commit `ab0a85e`. No migration yet. Frontend only, on mock data.
 - **Users still see the content from the code files.** Publishing changes the admin view only until the backend is connected.
 
 **What to re-test:**
+
 - Open MindGuide as admin and confirm status chips, version numbers and "Last change" show on Lessons, Tips and Practices;
 - Edit a live lesson title, confirm "Unsaved changes", try clicking the MindGuide back link and confirm the warning appears;
 - Save draft, confirm the chip becomes "Live, has draft"; press Publish and confirm the dialog lists "Title (English)" and version 2; publish and confirm the chip is "Live" and history shows version 2 by you;
@@ -1519,16 +1749,19 @@ Commit `bceb0cb`. No migration.
 **Why.** Admins logged in and landed on the normal user home page with no way to reach the admin area except typing `/admin` by hand. It looked like their admin access was missing.
 
 **What changed for users:**
+
 - **New "Admin" section with an "Admin panel" link** at the top of the sidebar (desktop and the mobile drawer). Only admins see it. Normal users and professionals see no change.
 - **Admins go straight to `/admin` after logging in.** Normal users still go to the home page.
 - **Coming back to a page still works.** If someone was sent to log in from a specific page (the `?next=` link), they return to that page instead, admins included.
 
 **What changed for the team:**
+
 - **`NavSection` has an optional `roles` list** in `app/_components/navigation-config.ts`, and `sectionsForRole(role)` filters sections. Both `DesktopNavigation` and `MobileSidebarDrawer` use it. Hiding a link is only for convenience: `proxy.ts` and `requireRole` still guard the pages and APIs.
 - **`login-form.tsx` reads the role** from the `/api/auth/login` response to pick where to go.
 - **If an admin is sent back to home from `/admin`,** their login token has no `user_role` claim. Check that the Customize Access Token hook (`public.custom_access_token_hook`) is turned on in Supabase, then log out and in.
 
 **What to re-test:**
+
 - Log in as an admin and confirm you land on `/admin`;
 - Click "View website" in the admin panel, then confirm the sidebar shows the Admin section with "Admin panel", and that it opens `/admin`;
 - Open the mobile drawer on a phone size screen as an admin and confirm the same link;
@@ -1544,6 +1777,7 @@ Commit `bceb0cb`. No migration.
 **Why.** Lessons, tips, practices and podcasts are all part of MindGuide for users, but admins had to manage them on two separate pages (Content and Podcasts). One page with the same name users see makes the admin area simpler and easier to find things in.
 
 **What changed for users (admins):**
+
 - **One "MindGuide" item in the admin sidebar** replaces "Content" and "Podcasts".
 - **Four tabs on one page:** Lessons, Tips, Practices and Podcasts, each with a count. Search, filters and editors work the same as before.
 - **The add button matches the tab:** Add lesson, Add tip, Add practice or Add podcast.
@@ -1551,12 +1785,14 @@ Commit `bceb0cb`. No migration.
 - **Old links still work.** `/admin/content` opens the Lessons tab and `/admin/podcasts` opens the Podcasts tab.
 
 **What changed for the team:**
+
 - **New page** `app/admin/mindguide/page.tsx` and component `app/admin/_components/mindguide-view.tsx`, which owns the header and tabs.
 - **`ContentView` now takes `activeType`** and shows one content type. **`PodcastsView`** no longer has its own header. All editors (lesson, tip, practice, podcast) are unchanged.
 - **Tab list** lives in `app/admin/_data/mindguide.ts` (`MINDGUIDE_TABS`, `parseMindGuideTab`).
 - **`/admin/content` and `/admin/podcasts`** are now redirects.
 
 **What to re-test:**
+
 - Log in as admin and confirm the sidebar shows MindGuide and no longer shows Content or Podcasts;
 - Open MindGuide and switch between all four tabs; confirm counts, search, status filters and the add button label change with the tab;
 - Edit a lesson, a tip, a practice and a podcast to confirm each editor still opens and saves;
@@ -1573,15 +1809,18 @@ Commit `bceb0cb`. No migration.
 **Why.** The application form only offered nine fixed specialties. Therapists who work in other areas, such as addiction or postpartum support, had no way to say so.
 
 **What changed for users:**
+
 - **New "Other" chip** at the end of the specialties list. Tapping it opens a text box where they type their own specialties, separated by commas (up to 5).
 - **They can mix both.** For example, tick Anxiety and Family, and type "Addiction" under Other. One chip or one typed specialty is enough to submit.
 - **Apply again keeps them.** When a rejected applicant applies again, their typed specialties come back in the Other box.
 
 **What changed for the team:**
+
 - **`createApplicationSchema` has two new fields,** `hasOtherSpecialty` and `otherSpecialties`. The schema merges them into one `specialties` list on submit, so the saved data shape did not change.
 - **`BACKEND-HANDOFF.md` section 8** notes that specialties can now be free text, so the backend must not treat them as a fixed list.
 
 **What to re-test:**
+
 - Tick only "Other", leave the box empty and submit; confirm "Type your specialty";
 - Type six specialties separated by commas; confirm the "up to 5" error;
 - Tick Anxiety and type "Addiction, Anxiety" under Other; submit and confirm Anxiety is listed once;
@@ -1597,6 +1836,7 @@ Commit `c2ed1c0`. No migration yet. Frontend only, using mock data in `app/profi
 **Why.** Licensed therapists who sign up as normal users had no way to ask to become a professional on AROM. They now have a clear form and can see where their application stands. Admins get the details they need to verify a license, including a phone number and Telegram so they can follow up quickly.
 
 **What changed for users:**
+
 - **New "Become a Professional" link in Profile.** Only shown to normal users, not to professionals or admins.
 - **Application form** at `/profile/become-professional`: full name, phone number, "Same number on Telegram" (or a Telegram username), professional title, license number, issuing body, license photo or PDF, specialties, session languages, years of experience, an optional note on why they want to join, and a confirmation that the details are true.
 - **Clear privacy note.** Phone, Telegram and the license file are visible to the AROM team only and never appear on the public profile.
@@ -1604,9 +1844,11 @@ Commit `c2ed1c0`. No migration yet. Frontend only, using mock data in `app/profi
 - **Bilingual.** Every label, hint, error message and status is in Khmer and English.
 
 **What changed for admins:**
+
 - **Phone and Telegram in the review panel** on `/admin/professionals`, with a tap to call link and a note that contact details are admin only.
 
 **What changed for the team:**
+
 - **New route** `app/profile/become-professional/` with its page, component and data file. It sits under `/profile`, so the existing login guard covers it.
 - **Form uses `react-hook-form` and `zod`** like the login and signup forms. `createApplicationSchema(km)` holds every validation rule with Khmer and English messages.
 - **Demo bar** on the page previews each status (Not applied, Pending, Approved, Rejected). Remove it when the backend is connected.
@@ -1614,6 +1856,7 @@ Commit `c2ed1c0`. No migration yet. Frontend only, using mock data in `app/profi
 - **`BACKEND-HANDOFF.md` section 8** lists the data shape, validation rules, endpoints, new `phone` and `telegram` columns and private license upload that Hok Chheng needs to build.
 
 **What to re-test:**
+
 - Log in as a normal user, open Profile and confirm "Become a Professional" shows; log in as admin and confirm it does not;
 - Open `/profile/become-professional` and submit an empty form; confirm each required field shows an error;
 - Enter `12345` as the phone and confirm the Cambodian number error; enter `012 345 678` and confirm it passes;
@@ -1633,6 +1876,7 @@ Commit `c2ed1c0`. No migration yet. Frontend only, using mock data in `app/admin
 **Why.** Admins need one place to look up an account and change what that person can do. Sometimes the team already knows a therapist personally, so an admin should be able to make them a professional directly instead of waiting for an application. Admins also need a safe way to add or remove other admins.
 
 **What changed for users (admins):**
+
 - **Expandable account cards.** Each account shows name, email, role badge (Admin, Professional), a "You" badge on your own account, and when they were last seen. Tap a card to open the details.
 - **Safe details only.** Joined date, last seen, language, status, days active in the last 30 days, check in count and booking count. Counts only, with a note that admins cannot read journals, moods or session notes.
 - **Make professional.** For people you know. You must still enter their title, license number and issuing body. They then show on the Professionals page as "Promoted by admin" and fill in their own public profile.
@@ -1642,11 +1886,13 @@ Commit `c2ed1c0`. No migration yet. Frontend only, using mock data in `app/admin
 - **Role and status filters** next to search, and four summary cards: Total accounts, Professionals, Admins, Suspended.
 
 **What changed for the team:**
+
 - **`AdminUser` now has `role`, `lastSeenAt`, `daysActive30`, `checkInCount` and `bookingCount`.** `currentAdminId` stands in for the signed in admin until the backend provides it.
 - **New provider action `setUserRole(userId, role, promotion?)`** in `admin-provider.tsx`. Promoting to professional also creates or updates their entry on the Professionals page. `Professional` has a new `source` field (`application` or `admin`).
 - **Backend needed (Hok Chheng).** The database currently blocks granting or removing `admin` through the API on purpose. To support Make admin it needs an admin only path with an audit log entry and a "last admin" guard. `PATCH /api/admin/users/:id/role` also needs to accept and save the license number, issuing body and title when promoting to professional. The users list needs last seen and the activity counts.
 
 **What to re-test:**
+
 - Log in as admin and open `/admin/users`; tap a card to open it and tap again to close;
 - Open your own card (marked "You") and confirm there are no action buttons;
 - Make Sok Dara a professional with a license number; confirm the Professional badge, then find them on `/admin/professionals` marked "Promoted by admin";
@@ -1664,6 +1910,7 @@ Commit `c2ed1c0`. No migration. Frontend only, using mock data in `app/admin/_da
 **Why.** Admins were typing and editing therapist profiles by hand. That does not scale, and therapists know their own details best. Professionals will now edit their own profiles, and the admin's job is to check licenses, approve or reject applications, and control who appears in the directory.
 
 **What changed for users (admins):**
+
 - **No more add or edit form.** The admin Professionals page no longer lets admins write profiles.
 - **Review queue.** Cards for Needs review, Live in directory, Suspended and Rejected. New applications and profile changes are listed first.
 - **Review panel.** Opening a professional shows their license number, issuing body, license document name, profile, and any changes waiting for review (old value crossed out, new value next to it).
@@ -1671,12 +1918,14 @@ Commit `c2ed1c0`. No migration. Frontend only, using mock data in `app/admin/_da
 - **Safety rule.** A change to name, title, license number or issuing body waits for admin review. The public profile keeps the old details until then.
 
 **What changed for the team:**
+
 - **New mock data shape.** `Professional` now has `verificationStatus` (`pending`, `verified`, `rejected`) and `accountStatus` (`active`, `suspended`), matching `professional_profiles.verification_status` and `profiles.account_status`. It also has `credential`, `pendingChanges` and `reviewNote`. The old `status` (published, draft, archived) is gone.
 - **New provider actions.** `save` was replaced by `reviewApplication`, `reviewProfileChanges` and `setProfessionalAccess` in `admin-provider.tsx`. The backend can swap each one for an API call without touching the page.
 - **Backend still needed (Hok Chheng).** A table or column for pending profile changes, a review endpoint for those changes, a suspend and reinstate endpoint, and a signed URL for the private license document.
 - **Removed `professional-form.tsx`.** The profile editing form will be rebuilt for professionals under `/pro`.
 
 **What to re-test:**
+
 - Log in as admin and open `/admin/professionals`; confirm the four cards show 3, 3, 1 and 1;
 - Open Vanna Keo, approve, and confirm the status becomes Live;
 - Open Dara Lim, click Reject with an empty reason, and confirm it asks for a reason;
@@ -1693,6 +1942,7 @@ Commit `e6819e1`. No migration. Uses `admin_stats()` and existing tables. New de
 **Why.** The admin overview only counted demo professionals. Admins need to see what needs them first (safety flags, missing crisis hotlines, waiting therapist applications) and how the platform is growing, from real Supabase data, without ever seeing private content.
 
 **What changed for users (admins):**
+
 - **Needs attention queue.** Self harm risk flags come first, then other flags, missing crisis hotline numbers, and waiting therapist applications. Applications can be approved or rejected right in the list, with a confirm step.
 - **Real numbers.** Accounts, verified professionals, upcoming sessions and open safety flags come from the database.
 - **New accounts line graph.** Daily sign ups for the last 7, 30 or 90 days with a hover tooltip and a "View as table" option.
@@ -1700,12 +1950,14 @@ Commit `e6819e1`. No migration. Uses `admin_stats()` and existing tables. New de
 - **Clearer layout.** Panels now sit on a slightly darker background with stronger borders, so each box is easy to see. The demo data banner only shows on pages that still use demo data.
 
 **What changed for the team:**
+
 - **`GET /api/admin/overview?days=7|30|90`** in `lib/controllers/admin-controller.ts`. Admin only (uses `requireRole`). Returns counts and queue metadata only; flag details, emails and private content are never selected.
 - **`lib/admin-overview.ts`** holds the response types and the Cambodia time day bucketing for the graph.
 - **`app/admin/_components/signups-chart.tsx`** is a Recharts line chart (2px line, light wash, crosshair tooltip).
 - **New tokens in `app/index.css`:** `arom-warning`, `arom-warning-soft`, `arom-grid`, `arom-line`, `admin-canvas`, `shadow-panel`.
 
 **What to re-test:**
+
 - Log in as admin and open `/admin`; confirm the four numbers match Supabase;
 - With no crisis hotlines added, confirm "No crisis hotlines added yet" shows as Urgent;
 - Switch the graph between 7d, 30d and 90d and hover a point to see the date and count;
@@ -1722,14 +1974,17 @@ Commit `fa17d76`. No database migration required.
 **Why.** The Main Page section previously contained three placeholder Coming Soon items (Quests, Shop, and Friends). Removing these items streamlines the sidebar navigation, eliminating unused placeholders and focusing users on core features: Home, MindGuide, Detection, and Progress Dashboard.
 
 **What changed for users:**
+
 - **Simplified Main Navigation.** The "Coming Soon" section under Main Page has been removed. Users now see only available, active navigation destinations (Home, MindGuide, Detection, Progress Dashboard) without distracting unreleased placeholders.
 - **Unified Mobile Drawer.** The slide-out mobile navigation drawer is updated identically, offering a clean, uncluttered browsing experience.
 
 **What changed for the team:**
+
 - **Updated `NAVIGATION_SECTIONS` in `app/_components/navigation-config.ts`.** Removed `quests`, `shop`, and `friends` from the main section array. Cleaned up unused Lucide icon imports (`Compass`, `ShoppingBag`, `Users`).
 - **Refined `NavigationLabel` in `app/_components/app-navigation.tsx`.** Removed obsolete label types `Quests`, `Shop`, and `Friends`.
 
 **What to re-test:**
+
 - Check desktop sidebar to verify the Main Page section contains only Home, MindGuide, Detection, and Progress Dashboard with no Coming Soon section underneath;
 - Open mobile sidebar drawer and confirm the same streamlined Main Page section;
 - Verify TypeScript checks pass without errors.
@@ -1743,10 +1998,12 @@ Commit pending. Migration: run `supabase/migrations/20261008000900_role_claims.s
 **Why.** AROM has three roles: `user`, `professional` and `admin`. Each needs a clear, safe way to be given, and the app needs to know a person's role quickly on every page. Therapists must only be promoted by an admin, and nobody should be able to make themselves an admin through the app.
 
 **What changed for users:**
+
 - **Admin and therapist pages are protected.** Anything under `/admin` is for admins only, and anything under `/pro` is for professionals and admins. Everyone else is sent home, and signed out visitors are sent to log in.
 - **Language is remembered from sign up.** Signing up while AROM is in Khmer now saves Khmer to the new account.
 
 **What changed for the team:**
+
 - **How each role is given.** `user`: automatically at sign up. `professional`: only by an admin, by approving an application or with the set role endpoint. `admin`: only by hand in the Supabase SQL editor. The database now blocks granting or removing `admin` through the API, even by another admin.
 - **Role in the JWT.** New `custom_access_token_hook` adds `user_role` and `account_status` claims to every access token. `proxy.ts` uses `user_role` to guard pages without a database query. A role change shows up in the token at its next refresh (within about an hour, or right away after logging out and in).
 - **Role controller in `lib/controllers/role-controller.ts`.** `requireRole(...)` checks the role in the database (not the token), so APIs react to a role change immediately. Endpoints: `GET /api/admin/users`, `PATCH /api/admin/users/:id/role` (`user` or `professional` only), `GET /api/admin/applications`, `POST /api/admin/applications/:id/review`. All are admin only.
@@ -1755,6 +2012,7 @@ Commit pending. Migration: run `supabase/migrations/20261008000900_role_claims.s
 - **Profile code now matches the team schema.** `locale` became `language`, and the profile also returns `accountStatus`.
 
 **What to re-test:**
+
 - Run the cleanup SQL (only if `0001_profiles_auth.sql` was run before), then files `0100` to `0900` in order;
 - Turn on the Customize Access Token hook with `public.custom_access_token_hook`;
 - Make your account admin in the SQL editor, log out and log back in;
@@ -1772,6 +2030,7 @@ Commit `a67dd1c`. No new migration. The `profiles` table now comes from `2026100
 **Why.** Every screen greeted everyone as "Muoyly" and showed the same avatar, even after real accounts arrived. Now that people sign in with their own accounts, AROM should know who they are: their name in the greeting and sidebar, and a profile page that shows their real details and saves their choices.
 
 **What changed for users:**
+
 - **Your name everywhere.** The home greeting says "Good morning" with your first name, and the sidebar shows your full name. Guests see "Good morning!" and "Guest".
 - **Your own avatar.** The shared illustration is replaced by a calm initials avatar (for example "SD"). Guests see a neutral person icon.
 - **Real profile details.** The Profile page shows your name, email, role (Member, Professional or Admin) and the year you joined.
@@ -1780,6 +2039,7 @@ Commit `a67dd1c`. No new migration. The `profiles` table now comes from `2026100
 - **Switch Account works.** It now signs you out and opens the login page.
 
 **What changed for the team:**
+
 - **`AuthProvider` and `useAuth()` in `app/_components/auth-provider.tsx`.** Wraps the app in `app/layout.tsx`, fetches `/api/auth/me` once, and exposes `user`, `status` (`loading`, `authenticated`, `guest`), `refresh()` and `updateProfile()`. `useFirstName()` helps greetings.
 - **`UserAvatar` in `app/_components/user-avatar.tsx`.** Replaces the hardcoded avatar image in 7 places: sidebar, mobile drawer, top header, home, MindGuide, professional directory and profile.
 - **Profile API.** `GET /api/profile` and `PATCH /api/profile` (accepts only `fullName` and `locale`; role can never be sent) in `lib/controllers/profile-controller.ts`.
@@ -1788,6 +2048,7 @@ Commit `a67dd1c`. No new migration. The `profiles` table now comes from `2026100
 - **Still mock data.** Profile stats (day streak, sessions, mindful minutes), journal entries, moods and community messages still live only in the browser and are not tied to an account yet.
 
 **What to re-test:**
+
 - Signed out, open `/` and confirm the greeting says "Good morning!" and the sidebar shows "Guest";
 - Log in and confirm the greeting shows your first name and the sidebar shows your full name and initials;
 - Open `/profile` and confirm your name, email, "Member" badge and join year are correct;
@@ -1804,6 +2065,7 @@ Commit `a67dd1c`. The original `0001_profiles_auth.sql` was later replaced by th
 **Why.** Login and signup were a demo that only accepted one hardcoded account and stored it in the browser. AROM holds sensitive mental health data, so every seeker, therapist and admin needs a real, private account before journals, mood logs or bookings can be saved. This change connects AROM to Supabase Auth and sets up the role system (user, professional, admin) that later features build on.
 
 **What changed for users:**
+
 - **Create a real account.** The signup form now creates a Supabase account. When email confirmation is on, users go to a new "Check Your Email" page (`/signup/confirm`) with simple steps.
 - **Resend or recover the confirmation email.** The confirm page has a resend button with a 60 second wait between sends. If a link is old or broken, users land on the same page with a "Link expired" message and can send a new link.
 - **Log in with your own email and password.** The demo account and the "Use demo account" button are gone. Wrong details show a clear, private message that does not reveal whether an email is registered.
@@ -1811,6 +2073,7 @@ Commit `a67dd1c`. The original `0001_profiles_auth.sql` was later replaced by th
 - **Log out works.** "Log out" in Profile now ends the session on this device.
 
 **What changed for the team:**
+
 - **New auth controller in `lib/controllers/auth-controller.ts`.** Holds `register`, `login`, `logout`, `me` and `confirmEmail`. It validates input with the shared zod schemas in `lib/auth.ts`, returns stable error codes (`invalid_input`, `invalid_credentials`, `email_not_confirmed`, `rate_limited`, `unauthorized`, `server_error`) and never logs passwords or tokens.
 - **Thin endpoints.** `POST /api/auth/register`, `POST /api/auth/login`, `POST /api/auth/logout`, `POST /api/auth/resend`, `GET /api/auth/me` and `GET /auth/confirm` only call the controller.
 - **Confirm page in `app/signup/confirm/page.tsx` and `app/_components/auth/confirm-email-form.tsx`.** Reuses `AuthShell` and `AuthInput`. The signup email reaches the page through `sessionStorage`, never the URL. The resend endpoint answers the same way for any email, so it cannot be used to check who has an account.
@@ -1821,6 +2084,7 @@ Commit `a67dd1c`. The original `0001_profiles_auth.sql` was later replaced by th
 - **Not done yet.** The name "Muoyly" is still hardcoded in the header, greeting and profile. Password reset, Google and Apple sign in are still "coming soon".
 
 **What to re-test:**
+
 - Run the migration SQL in Supabase, then confirm `profiles` exists with RLS enabled;
 - In Supabase Auth settings, set Site URL to your app URL and add `http://localhost:3000/auth/confirm` to Redirect URLs;
 - Sign up at `/signup` with a new email and confirm you land on `/signup/confirm` with your email filled in;
@@ -1842,15 +2106,18 @@ Commit `7996830`. No database migration required.
 **Why.** Previously, the sidebar displayed two separate upcoming navigation items for "Booking History" and "Schedule Management". Consolidating these into a single "Appointments" item simplifies navigation for users and unifies client booking history and therapist schedule management under one cohesive destination.
 
 **What changed for users:**
+
 - **Consolidated Appointments Navigation.** In the Professional section of both the desktop sidebar and mobile navigation drawer, "Booking History" and "Schedule Management" have been merged into a single item titled "ការណាត់ជួប (Appointments)" with a calendar check icon and "Soon" badge.
 - **Cleaner Sidebar Interface.** Removing the duplicate upcoming items reduces clutter in the Professional menu while clearly communicating future appointment management features.
 
 **What changed for the team:**
+
 - **Updated `NAVIGATION_SECTIONS` in `app/_components/navigation-config.ts`.** Replaced separate `booking-history` and `schedule` nav items with a unified `appointments` item using `CalendarCheck` icon and `isComingSoon: true`.
 - **Refined `NavigationLabel` in `app/_components/app-navigation.tsx`.** Updated type definition to include `Appointments` and removed obsolete separate labels.
 - **Unused Icons Cleaned Up.** Removed unused `CalendarClock` icon import in `navigation-config.ts`.
 
 **What to re-test:**
+
 - Check desktop sidebar under "អ្នកជំនាញ (Professional)" to verify "Booking History" and "Schedule Management" are replaced by a single "Appointments" item with the "Soon" badge;
 - Toggle language to Khmer to confirm the bilingual label renders as "ការណាត់ជួប" with "ឆាប់ៗ" badge;
 - Open the mobile navigation drawer to confirm the same unified "Appointments" item renders properly;
@@ -1865,10 +2132,12 @@ Commit `af64361`. Database migration: 2 new SQL files, `20261008000700_symptom_l
 **Why.** The team agreed how AROM should respond to a symptom check result. A user with no symptoms should not be pushed anywhere. A user with low or medium symptoms should try self help first, and only be pointed to a professional if things are not better after two weeks. A user with serious symptoms should get professional help and self help at the same time. Any answer that suggests self harm must show crisis hotlines immediately. Putting these rules in the database means every screen gets the same answer.
 
 **What changed for users:**
+
 - **Nothing visible yet for symptom checks.** Those screens are not built. These rules will drive them.
 - **Journal "Grateful" emotion now shows a sunflower (🌻)** instead of the sparkles symbol, following the project rule against AI style sparkle icons.
 
 **What changed for the team:**
+
 - **New "none" symptom level.** Results can now be none, low, medium or high.
 - **Automatic support path.** Saving a row in `symptom_checks` sets `recommended_path` by itself: none gives no path, low and medium give `self_help`, high gives `self_help_and_professional`.
 - **14 day review.** New table `support_journeys` keeps one active journey per user per concern, with `review_due_on` set 14 days ahead (Cambodia time). At the review, the same or a higher level recommends a professional, a lower level starts another 14 days, and none marks the journey improved. A high result at any time recommends a professional straight away.
@@ -1878,6 +2147,7 @@ Commit `af64361`. Database migration: 2 new SQL files, `20261008000700_symptom_l
 - **App flow guide.** A web guide for developers explains the full user, therapist and admin flows, these rules, what is built today, and where each screen's data goes.
 
 **What to re-test:**
+
 - Run files `0700` and then `0800` in the AROM SQL Editor and confirm both finish without errors;
 - Insert a `symptom_checks` row with level `low` for a test user and confirm `recommended_path` becomes `self_help` and a `support_journeys` row appears due in 14 days;
 - Insert a row with level `high` and confirm the path is `self_help_and_professional`;
@@ -1892,9 +2162,11 @@ Commit `442b605`. Database migration: 6 new SQL files in `supabase/migrations/`.
 **Why.** Every piece of user data in AROM (journal, mood, daily plan, saved lessons, community messages) lives only in the browser today. It disappears when a user clears their browser or switches phones, and bookings are not saved anywhere. This design gives every feature in the UX brief a proper, private home in Supabase, for all three roles (seeker, therapist, admin), so the next step can connect the app to it one feature at a time.
 
 **What changed for users:**
+
 - **Nothing visible yet.** The app still uses browser storage. This entry only prepares the database.
 
 **What changed for the team:**
+
 - **28 tables across 6 areas.** Accounts (`profiles`), onboarding and detection (survey, initial insight, mood check ins, journal, symptom checks), therapists (clinics, therapist profiles, credentials, schedule slots, appointments, podcasts), MindGuide and Today's Plan (saved and completed content, plan items), community (groups, members, waitlist, discussions, replies, group check ins, safety flags), and professional and admin tools (therapist applications, intake questions and answers, session notes, crisis hotlines, admin audit log).
 - **Therapist tools.** Apply as a therapist (an admin approves, which verifies the account in one step), custom intake questions, private session notes that only the writing therapist can read, and marking sessions completed or no show.
 - **Client controlled sharing.** A client can choose, per booking, to share their survey and insight or their symptom checks with that therapist. It is off by default and can be turned off at any time.
@@ -1909,6 +2181,7 @@ Commit `442b605`. Database migration: 6 new SQL files in `supabase/migrations/`.
 - **Tested locally.** All 6 files ran on a fresh Postgres, and 94 privacy, booking and admin checks passed.
 
 **What to re-test:**
+
 - In the AROM Supabase SQL Editor, run the 6 files in order (`...0100` to `...0600`) and confirm each finishes without errors;
 - Sign up a test user and confirm a row appears in `profiles` with role `user`;
 - Promote a second account to `professional` in the Table Editor, add its `professional_profiles` row, then set `verification_status` to `verified`;
@@ -1923,18 +2196,21 @@ Commit `8a2c720`. Introduced an interactive Daily Plan Curator Sheet on the Home
 **Why.** Previously, inline buttons crammed inside recommendation cards looked clumsy and truncated titles, while users on the Home screen had no central place to discover and curate their wellness routine. This release delivers a cohesive, Figma-grade system: an interactive Daily Plan Curator sheet directly on the Home Screen, plus quiet, floating corner pins on cards that preserve full typography and spaciousness.
 
 **What changed for users:**
+
 - **Interactive Daily Plan Curator Sheet.** On the Home Screen, users can tap "Curate" in the header or the dashed "+ Add Activities to Your Daily Flow" card to open a full wellness picker sheet.
 - **Categorized Curation & Live Metrics.** The Curator sheet organizes activities across Practice, Learn, Stress Guides, and Micro-Tips, displaying total chosen activities and estimated minutes in real time with instant 1-tap toggling.
 - **Ambient Floating Corner Pin on Cards.** In MindGuide Daily Recommendations, each card features a discreet floating corner pin. It sits gracefully in the top-right corner without compressing or truncating activity titles.
 - **Harmonious Status Feedback.** Tapping the corner pin instantly updates the card state, shows a gentle toast confirmation, and synchronizes live with the Home Screen schedule.
 
 **What changed for the team:**
+
 - **Created `DailyPlanCuratorModal` in `app/components/daily-plan-curator-modal.tsx`.** Built a reusable curation sheet with live store subscription, category filtering, metric counters, and accessible keyboard dismissal.
 - **Updated `DailyPlanCard` in `app/components/daily-plan-card.tsx`.** Added the header "Curate" trigger and bottom flow builder card.
 - **Refined `MindGuideHome` in `app/_components/mindguide-home.tsx`.** Positioned the floating pin with absolute corner anchoring and generous text padding to prevent any title ellipsis.
 - **Verified Build.** Next.js production build cleanly compiled with zero errors across all 27 routes.
 
 **What to re-test:**
+
 - Open Home page (`/`) and tap "Curate" or "+ Add Activities to Your Daily Flow" on the Daily Plan card;
 - Verify the Daily Plan Curator sheet opens with categorized tabs and live minutes counter;
 - Toggle activities to confirm instant addition and removal;
@@ -1951,15 +2227,18 @@ Commit `e3e66a8`. Removed cramped inline buttons from Daily Recommendation cards
 **Why.** Adding inline buttons directly into the 3-column recommendation card grid caused visual crowding and truncated activity titles into short ellipses. Removing the cramped button restores Figma-level aesthetics, clean card padding, and full readability, while keeping the plan addition feature cleanly accessible inside the activity details modal.
 
 **What changed for users:**
+
 - **Restored Full Title Readability.** Recommendation cards under "For Today" in MindGuide no longer squeeze text. Full titles such as "Interactive Breathing Exercise" and "Managing Daily Stress" display without truncation.
 - **Clean Single-Action Cards.** Tapping any recommendation card smoothly opens the activity details modal, providing full breathing room.
 - **Dedicated Plan Action in Modal.** Users can still add or remove any activity from their Home Screen Daily Plan using the spacious primary button inside the activity details modal.
 
 **What changed for the team:**
+
 - **Streamlined `MindGuideHome` in `app/_components/mindguide-home.tsx`.** Removed inline button nesting and redundant icon imports, restoring single button card triggers with clean hover transitions.
 - **Verified Build.** Clean production build check passed with zero errors across all 27 routes.
 
 **What to re-test:**
+
 - Navigate to MindGuide (`/mindguide`) and view the Daily Recommendations section;
 - Verify that titles on all three recommendation cards are fully visible without truncation or clutter;
 - Click any card to open the activity modal;
@@ -1975,15 +2254,18 @@ Commit `9708f0e`. Added prominent small "+ Add to Plan" and "In Plan" buttons di
 **Why.** Users exploring Daily Recommendations in MindGuide wanted an immediate, small button on each recommendation card to quickly add or remove activities from their Home Screen plan without ambiguous icons.
 
 **What changed for users:**
+
 - **Explicit Small Button on Recommendation Cards.** Each card under Daily Recommendations (For Today) now features a dedicated small "+ Add to Plan" (or "+ ផែនការ") pill button that toggles to "In Plan" (or "ក្នុងផែនការ") upon selection.
 - **Top Header Quick Button in Activity Modal.** The activity details modal now displays a matching small button in the top header next to the category badge for instant toggling.
 - **Immediate Visual Status.** Users can instantly see which recommended activities are already in their Home Screen plan and toggle them with a single click.
 
 **What changed for the team:**
+
 - **Refined `MindGuideHome` in `app/_components/mindguide-home.tsx`.** Replaced icon-only controls with labeled, responsive small buttons featuring clear Plus and Check icons and accessible labels.
 - **Verified Build.** Clean production build with zero errors across all 27 routes.
 
 **What to re-test:**
+
 - Navigate to MindGuide (`/mindguide`) and view the Daily Recommendations (For Today) section;
 - Verify each card shows the small "+ Add to Plan" button;
 - Click the button to confirm it updates to "In Plan" with a check icon;
@@ -1999,6 +2281,7 @@ Commit `f43a44c`. Added ability for users to customize their Home Screen "Your P
 **Why.** Users exploring MindGuide frequently discover specific breathing exercises, mindfulness lessons, or stress management routines that resonate with them. Previously, the Home Screen daily plan was fixed and only allowed adding micro tips. Users can now actively curate their daily wellness plan with any MindGuide activity they like, tailoring their daily routine to their personal emotional needs.
 
 **What changed for users:**
+
 - **Add to Daily Plan from MindGuide Activities.** Under the "For Today" section in MindGuide, users can tap the calendar icon on any activity card or open the details modal to tap "Add to Daily Plan at Home Screen" (បន្ថែមទៅផែនការទំព័រដើម).
 - **Personalized Home Screen Daily Plan.** Any activity added from MindGuide instantly appears in "Your Plan For Today" on the Home page with dedicated tags, bilingual descriptions, and interactive completion checkboxes.
 - **Support Across Hubs.** Users can add exercises directly from Practice Hub (Interactive Breathing, Mindful Body Scan), lessons from Learn Hub (Learn About Stress), and guides from Managing Daily Stress.
@@ -2006,12 +2289,14 @@ Commit `f43a44c`. Added ability for users to customize their Home Screen "Your P
 - **Easy Management.** Users can toggle or remove curated items anytime with immediate feedback toasts.
 
 **What changed for the team:**
+
 - **Created Unified Daily Plan Store in `app/_components/daily-plan-store.ts`.** Centralized storage utility managing custom daily plan items, toggle status, and real-time cross-component event broadcasting.
 - **Updated `DailyPlanCard` in `app/components/daily-plan-card.tsx`.** Extended the home screen card to dynamically render user-curated items alongside default baseline checks.
 - **Integrated Plan Toggles Across MindGuide Components.** Added calendar buttons and notification toasts in `mindguide-home.tsx`, `managing-daily-stress.tsx`, `practice-detail-view.tsx`, `practice-home-view.tsx`, `lesson-detail-view.tsx`, and `learn-home-view.tsx`.
 - **Verified Build.** Next.js production build cleanly compiled with zero errors across all 27 routes.
 
 **What to re-test:**
+
 - Navigate to MindGuide (`/mindguide`) and click the calendar icon on "Interactive Breathing Exercise";
 - Verify the feedback toast notification appears and the button toggles to active;
 - Open the Home screen (`/`) and verify "Interactive Breathing Exercise" appears in "Your Plan For Today";
@@ -2028,17 +2313,20 @@ Commit `2c8f4d1`. Expanded the desktop sidebar layout grid from 15rem (240px) to
 **Why.** The previous 15rem desktop sidebar was overly narrow, causing labels like "Progress Dashboard" and "Find Clinic & Hospital" to truncate with ellipses while leaving excessive empty whitespace on the right side of the screen. Expanding to 19rem gives all navigation items generous breathing room and creates a well-proportioned desktop layout.
 
 **What changed for users:**
+
 - **Zero Text Truncation.** All navigation labels, including "Progress Dashboard", "Find Clinic & Hospital", and "Schedule Management", now render fully and cleanly without any cutoffs or trailing ellipses.
 - **Spacious 19rem Desktop Navigation.** Expanded sidebar width by 64px (+27% wider) provides comfortable breathing room for both English and natural Khmer script.
 - **Harmonious Desktop Proportions.** Better utilizes available screen real estate on laptops and monitors, balancing the sidebar against a generous `max-w-5xl` main wellness canvas.
 - **Unified Across All Sections.** Home, Journal, MindGuide, Professional Directory, Community, Practice, and Settings all maintain the exact same spacious 19rem sidebar layout.
 
 **What changed for the team:**
+
 - **Updated Layout Grids in 14 Page Views.** Replaced `lg:grid-cols-[15rem_minmax(0,1fr)]` with `lg:grid-cols-[19rem_minmax(0,1fr)]` across all desktop layout files.
 - **Refined `DesktopNavigation` in `app/_components/app-navigation.tsx`.** Expanded container padding to `px-4.5`, increased island card spacing, and removed restrictive text truncation classes.
 - **Verified Build.** Next.js production build completed cleanly with zero warnings or errors across all 27 routes.
 
 **What to re-test:**
+
 - View the home page on laptop screen width and confirm the sidebar is visibly wider;
 - Verify "Progress Dashboard" displays completely on one line without trailing dots;
 - Verify "Find Clinic & Hospital" displays completely without truncation;
@@ -2054,14 +2342,17 @@ Commit `9886839`. Removed the redundant Level 4, XP bar, and streak badge card f
 **Why.** The mobile top header already features the gamified Level 4 progress ring, streak counter, coins, and XP bar. Having this card duplicated inside the slide-over sidebar drawer was unnecessary and consumed significant vertical screen space. Removing it lets the navigation sections start immediately at the top of the drawer, making browsing faster and eliminating scrolling.
 
 **What changed for users:**
+
 - **Instant Access to Navigation.** Opening the mobile drawer immediately displays the navigation categories (**Main Page**, **Professional**, **Community**) right below the brand logo without an unnecessary level banner taking up screen height.
 - **Clean and Spacious Mobile Experience.** More working features are instantly visible without requiring users to scroll downward.
 
 **What changed for the team:**
+
 - **Cleaned Up `app/_components/mobile-sidebar-drawer.tsx`.** Removed the duplicate progress card markup and purged the unused `Flame` icon import.
 - **Verified Build.** Production build succeeded with zero errors across all 27 application routes.
 
 **What to re-test:**
+
 - Tap the green hamburger menu button on phone screen width;
 - Confirm the drawer opens with the AROM logo at the top and the **Main Page** section starting immediately;
 - Verify that the Level and XP card is gone from the drawer while remaining intact in the top page header;
@@ -2076,6 +2367,7 @@ Commit `3147e75`. Redesigned desktop sidebar and mobile navigation drawer into c
 **Why.** Users experienced difficulty scanning navigation on mobile devices due to small 12px text, monochromatic bare icons, and unreleased Coming Soon items placed right between working tools. Upgrading to distinct icon tiles, 14px typography, and active-first grouping makes navigation immediately legible and intuitive to browse.
 
 **What changed for users:**
+
 - **Dedicated Wellness Icon Tiles.** Every active tool now features a rounded tile with crisp mint borders and AROM brand green icons (`#1f6f5b`), turning solid emerald with a white icon when selected.
 - **Enlarged 14px High-Contrast Typography.** Item labels are enlarged to 14px (`text-sm font-semibold`) with deep contrast text (`#14221f`), dramatically improving readability for both Khmer (Kantumruy Pro) and English.
 - **Active-First Layout with Clean Separation.** Working features (Home, MindGuide, Detection, Progress) are grouped at the top of each category. Unreleased features (Quests, Shop, Friends) are neatly organized below a subtle hairline divider with quiet styling and Soon badges.
@@ -2083,12 +2375,14 @@ Commit `3147e75`. Redesigned desktop sidebar and mobile navigation drawer into c
 - **Comfortable 46px Mobile Tap Targets.** Expanded touch areas ensure easy, comfortable tapping on mobile phone screens.
 
 **What changed for the team:**
+
 - **Updated `NAVIGATION_SECTIONS` in `app/_components/navigation-config.ts`.** Reordered Main Page items so working features precede unreleased items.
 - **Upgraded `DesktopNavigation` in `app/_components/app-navigation.tsx`.** Implemented card-based island layout with icon tiles and active-first separation.
 - **Upgraded `MobileSidebarDrawer` in `app/_components/mobile-sidebar-drawer.tsx`.** Applied matching island containers and icon tiles for seamless mobile responsiveness.
 - **Verified Build.** Next.js production build succeeded with zero errors across all 27 routes.
 
 **What to re-test:**
+
 - Open the mobile navigation drawer on phone and confirm the card-based sections render cleanly;
 - Verify the active tools (Home, MindGuide, Detection, Progress) appear first with 14px text and rounded icon tiles;
 - Verify Coming Soon items appear below the divider line with quiet styling;
@@ -2105,6 +2399,7 @@ Commit `16e4a0a`. Reverted sidebar and mobile drawer navigation to a single Dete
 **Why.** Having separate Journal and Detection Symptoms items in the sidebar caused navigation ambiguity and mismatched active highlights when writing reflections. Reverting to the proven pattern where touching Detection opens the Track Your Mind dialog provides a clean, unified mental model with direct choices for Journal (Ready) and Symptom Detection (Coming Soon).
 
 **What changed for users:**
+
 - **Single Intuitive Detection Item in Navigation.** The sidebar under Main Page now features a single clean entry: `ពិនិត្យអារម្មណ៍ (Detection)` with the activity pulse icon. The duplicate Journal link has been removed.
 - **Track Your Mind Choice Modal Restored.** Clicking or tapping `Detection` opens the dialog asking users to choose:
   - **Journal:** Ready to write daily reflections, directly linking to `/detection/journal`.
@@ -2113,6 +2408,7 @@ Commit `16e4a0a`. Reverted sidebar and mobile drawer navigation to a single Dete
 - **Direct Link Support.** Visiting `/detection` renders the platform cleanly and immediately presents the Track Your Mind dialog without flickering or navigation glitches.
 
 **What changed for the team:**
+
 - **Updated `NAVIGATION_SECTIONS` in `app/_components/navigation-config.ts`.** Removed the separate `journal` item and standardized `detection` with `enTitle: "Detection"` and `kmTitle: "ពិនិត្យអារម្មណ៍"`.
 - **Enhanced `DetectionProvider` in `app/_components/detection-provider.tsx`.** Added automatic modal opening when visiting `/detection` and clean router redirection to `/` when dismissing the dialog.
 - **Streamlined `app/detection/page.tsx`.** Simplified the detection route to render `AromMainView`, allowing the provider modal overlay to handle interaction seamlessly.
@@ -2120,6 +2416,7 @@ Commit `16e4a0a`. Reverted sidebar and mobile drawer navigation to a single Dete
 - **Verified Build.** Next.js production build check completed successfully across all 27 application routes.
 
 **What to re-test:**
+
 - Click `ពិនិត្យអារម្មណ៍ (Detection)` in the desktop sidebar and verify the Track Your Mind modal opens smoothly;
 - Click `Journal` inside the modal and verify it navigates to `/detection/journal`;
 - Verify that on `/detection/journal`, the Detection item in the sidebar remains highlighted;
@@ -2136,16 +2433,19 @@ Commit `16e4a0a`. Complete audit and elimination of residual dark utility classe
 **Why.** When dark mode was previously enabled, specific components received `dark:*` Tailwind utility classes. When the toggle button was removed, Tailwind CSS v4 fell back to its default `@media (prefers-color-scheme: dark)` system query. On devices with OS dark mode active, the desktop sidebar and header streak pill turned dark while the main page remained white. This created a jarring mixed appearance that needed a thorough audit and permanent resolution.
 
 **What changed for users:**
+
 - **100% Unified Light Wellness Theme.** The desktop sidebar, top gamified header, streak pill, and main content now share a single, harmonious light palette with soft borders (`#dcebe7`), crisp white backgrounds, and AROM emerald accents (`#1f6f5b`).
 - **No Inconsistent Dark Panels.** The left sidebar and header streak pill will never switch to dark, regardless of whether the operating system or browser prefers dark mode.
 - **Consistent 3-Category Navigation.** Main Page, Professional, and Community sections remain cleanly organized with Coming Soon badges and smooth navigation.
 
 **What changed for the team:**
+
 - **Purged All `dark:*` Utilities across Codebase.** Audited the repository with ripgrep to ensure zero lingering `dark:` prefixes in `DesktopNavigation`, `MobileNavigation`, `MobileSidebarDrawer`, `TopHeader`, `MindGuideHome`, `TherapistDirectory`, and `ProfileSettings`.
 - **Automatic Client Storage Reset in `app/layout.tsx`.** Added a defensive initialization snippet in `<head>` to clear any legacy `localStorage['arom-theme']` keys or `.dark` class attributes from the user's browser.
 - **Verified Full Production Build.** Successfully validated that all 27 Next.js static and dynamic routes compile cleanly with zero TypeScript or styling warnings.
 
 **What to re-test:**
+
 - Reload the browser at `http://localhost:3000` or `http://localhost:3000/detection`;
 - Confirm the left desktop sidebar displays with a pure white background and soft emerald borders;
 - Confirm the top header streak pill and XP bar display in clean white and light tones matching the rest of the page;
@@ -2161,6 +2461,7 @@ Commit `pending`. Introduction of complete dark and light mode theme architectur
 **Why.** Users seeking mental wellness and emotional rest frequently browse in low-light evening environments. Providing an accessible, eye-comforting dark mode with soothing emerald tones reduces visual strain and respects user sensory preferences.
 
 **What changed for users:**
+
 - **Dark and Light Mode Support.** Users can freely toggle between soothing Light Mode and night-comforting Dark Mode across the entire platform.
 - **Top Header Quick Toggle.** A clean, responsive Sun/Moon button in the top header allows instant 1-tap switching between modes on both mobile and desktop with animated icon transitions.
 - **In-Sidebar Segmented Theme Switcher.** Both the desktop sidebar footer and mobile drawer feature an intuitive segmented pill switcher: `ពន្លឺ (Light)` and `ងងឹត (Dark)`.
@@ -2170,6 +2471,7 @@ Commit `pending`. Introduction of complete dark and light mode theme architectur
 - **Persistent Preference.** Theme choices automatically persist across sessions via local storage and respect system preferences by default.
 
 **What changed for the team:**
+
 - **Created `app/_components/theme-provider.tsx`.** Context provider managing theme state, HTML `.dark` class, `data-theme`, and local storage synchronization.
 - **Created `app/_components/theme-toggle.tsx`.** Exports `ThemeToggleButton` (compact animated icon button), `ThemeSwitcher` (segmented pill slider), and `ThemeModeSelectCards` (visual preview selection cards).
 - **Updated `app/index.css`.** Added dark mode CSS tokens, `@custom-variant dark`, and automatic dark surface color rules.
@@ -2177,6 +2479,7 @@ Commit `pending`. Introduction of complete dark and light mode theme architectur
 - **Integrated into `TopHeader`, `DesktopNavigation`, `MobileSidebarDrawer`, `ProfileSettings`, `MindGuideHome`, and `TherapistDirectory`.** Placed controls consistently across all key touchpoints.
 
 **What to re-test:**
+
 - Click the Sun/Moon button in the top header and verify the application switches smoothly between light and dark modes;
 - Open the desktop sidebar or mobile drawer and test the segmented `ពន្លឺ (Light)` / `ងងឹត (Dark)` toggle;
 - Visit `/profile` and test switching themes using the visual theme cards;
@@ -2193,6 +2496,7 @@ Commit `pending`. Restructuring of desktop sidebar and mobile navigation drawer 
 **Why.** Users need a structured, intuitive mental model when navigating AROM. Grouping features into Main Page (daily wellness and personal tools), Professional (therapy and clinical services), and Community (peer support and social activities), while clearly indicating unreleased features with Coming Soon badges, provides clarity without broken links.
 
 **What changed for users:**
+
 - **Three Core Navigation Categories.** The sidebar navigation on both laptop and mobile is now organized into three distinct sections:
   - **ទំព័រចម្បង (Main Page):** Home Page, Quests (Coming Soon), Shop (Coming Soon), Friends (Coming Soon), MindGuide, Journal, Detection Symptoms, and Progress Dashboard.
   - **អ្នកជំនាញ (Professional):** Professional, Find Clinic & Hospital (Coming Soon), Booking History (Coming Soon), and Schedule Management (Coming Soon).
@@ -2201,12 +2505,14 @@ Commit `pending`. Restructuring of desktop sidebar and mobile navigation drawer 
 - **Direct Section Anchoring.** Clicking Progress Dashboard scrolls directly to the interactive wellness progress card on the page.
 
 **What changed for the team:**
+
 - **Created `app/_components/navigation-config.ts`.** Centralized single source of truth for all 3 navigation sections, metadata, bilingual titles, and coming-soon status.
 - **Updated `DesktopNavigation` in `app/_components/app-navigation.tsx`.** Adapted to render the 3 categorized sections with scrollable container and section headings.
 - **Updated `MobileSidebarDrawer` in `app/_components/mobile-sidebar-drawer.tsx`.** Synchronized with `navigation-config.ts` so mobile users experience the exact same 3-section navigation.
 - **Added anchor ID in `app/components/progress-dashboard.tsx`.** Added `id="progress-dashboard"` for smooth anchor navigation.
 
 **What to re-test:**
+
 - Check sidebar navigation on laptop to verify all 3 categories (Main Page, Professional, Community) render cleanly with section headings;
 - Verify active links (Home, MindGuide, Journal, Detection, Progress Dashboard, Professional, Community) navigate correctly;
 - Verify Coming Soon items (Quests, Shop, Friends, Find Clinic & Hospital, Booking History, Schedule Management, Play Cards) show the "Soon" badge and do not trigger broken routes;
@@ -2222,18 +2528,21 @@ Commit `pending`. Introduction of phone gamified header HUD matching screenshot 
 **Why.** On mobile phones, users need immediate visibility into their personal wellness level and daily streaks, as well as an accessible slide-over sidebar drawer containing all existing navigation destinations. On laptop screens, the sidebar remains automatically open as designed.
 
 **What changed for users:**
+
 - **Gamified Phone Header in AROM Brand Green.** The mobile header now uses AROM's signature forest and mint green palette (`#1f6f5b`) for the circular progress arc, the central level number, the XP progress bar, and the hamburger menu button instead of purple, creating complete visual harmony with the platform.
 - **Slide-over Mobile Sidebar Drawer in Native AROM Style.** Tapping the green hamburger button opens an accessible, smooth slide-out drawer matching `DesktopNavigation` directly: ទំព័រដើម (Home), មគ្គុទ្ទេសក៍ចិត្ត (MindGuide), ពិនិត្យអារម្មណ៍ (Detection), អ្នកជំនាញ (Professional), សហគមន៍ (Community), and ប្រវត្តិរូប និងការកំណត់ (Profile & Settings).
 - **In-Drawer Progress & Quick Controls.** The drawer includes a serene wellness level overview with green progress indicators, a bilingual language switcher (Khmer and English), and an encouraging mindfulness reminder card matching the desktop sidebar card.
 - **Laptop Auto-Open Sidebar Continuity.** On laptop and desktop screens, the desktop sidebar remains automatically open and fixed on the left side of the screen.
 
 **What changed for the team:**
+
 - **Created `app/_components/sidebar-provider.tsx`.** Context provider managing open, close, and toggle states with automatic route change listener and Escape key handling.
 - **Created `app/_components/mobile-sidebar-drawer.tsx`.** Accessible drawer component animated with Motion, supporting bilingual labeling and existing navigation routes.
 - **Updated `app/components/top-header.tsx`.** Re-architected top header to render the gamified mobile HUD and responsive desktop controls.
 - **Updated `app/layout.tsx`.** Wrapped application body with `SidebarProvider` and mounted `MobileSidebarDrawer`.
 
 **What to re-test:**
+
 - Open the application on mobile screen width (e.g. 390px) and verify the Level 4 circular arc, progress bar, 54 / 100 XP, streak pill, coins pill, and purple hamburger menu button match the design;
 - Tap the hamburger menu button and verify the sidebar drawer slides in smoothly from the left;
 - Verify all navigation links in the drawer work and that tapping backdrop, close button, or pressing Escape closes the drawer;
@@ -2249,13 +2558,16 @@ Commit `95a1406`. Architectural standard defining user, professional (therapist)
 **Why.** AROM serves three distinct groups with very different workflows: everyday seekers who need personal self-care, licensed therapists who manage clients and appointments, and administrators who oversee safety and verified credentials. Explicitly defining these roles in the project guidelines ensures all database schemas and UI permissions enforce strict access control.
 
 **What changed for users:**
+
 - **Dedicated Role Protection.** Seekers receive a clean wellness journey, therapists receive private client management, and administrators ensure clinical safety and therapist verification.
 
 **What changed for the team:**
+
 - **Defined 3 Core Roles in AGENTS.md.** Added `user`, `professional`, and `admin` to Section 1 and created Section 10.
 - **Database Architecture Standard.** Mandates an explicit `user_role` enum and strict role-based Row Level Security (RLS) policies in Supabase.
 
 **What to re-test:**
+
 - Check Section 1 and Section 10 in `AGENTS.md` for role specifications;
 - Verify no em dashes or loose hyphens exist in the documentation.
 
@@ -2268,12 +2580,15 @@ Commit `d3e1252`. Documentation update establishing team collaboration workflow 
 **Why.** Two developers actively collaborate on this project. Establishing a strict agent rule to verify git status and pull the latest changes before starting work guarantees that neither teammate's commits are accidentally overwritten, preventing costly merge conflicts.
 
 **What changed for users:**
+
 - **Smooth Team Development.** Features and bug fixes ship reliably without accidental regressions or overwritten updates.
 
 **What changed for the team:**
+
 - **Added Mandatory Git Pull Rule in AGENTS.md.** AI assistants and team members must verify `git status` and run `git pull origin main` prior to editing files or writing new code.
 
 **What to re-test:**
+
 - Check Section 5 in `AGENTS.md` and verify the new `Always Check Git and Pull First` rule is clearly listed;
 - Ensure no em dashes or loose hyphens exist in the documentation.
 
@@ -2286,15 +2601,18 @@ Commit `4898d0c`. Integration of @supabase/supabase-js and @supabase/ssr with lo
 **Why.** Preparing the platform for real authentication and clinical grade database persistence. Establishing a standardized client helper allows features across the app to communicate with Supabase while strictly keeping credentials safe.
 
 **What changed for users:**
+
 - **Zero Disruption.** Existing pages continue functioning seamlessly while preparing the foundation for real user accounts and private data persistence.
 
 **What changed for the team:**
+
 - **Installed Supabase SDKs.** Added `@supabase/supabase-js` and `@supabase/ssr` to `package.json`.
 - **Created `lib/supabase.ts`.** Provides a standard Supabase client singleton reading `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
 - **Configured `.env.local`.** Added project credentials locally (ignored by Git to ensure zero credential leakage).
 - **Verified Build.** Next.js production build compiled 27 pages cleanly with zero errors.
 
 **What to re-test:**
+
 - Run `npm run build` and ensure Next.js builds successfully;
 - Check that `.env.local` is ignored by Git and not tracked;
 - Inspect `lib/supabase.ts` for clean environment variable resolution.
@@ -2308,13 +2626,16 @@ Commit `79344a6`. Documentation update establishing mental health data confident
 **Why.** AROM is an emotional wellness and mental health application dealing with sensitive personal reflections, vulnerability states, mood tracking, and therapist appointments. Explicitly mandating user privacy, Row Level Security (RLS), and credential hygiene in the core agent guidelines ensures that every AI and developer treats user data with strict clinical grade confidentiality.
 
 **What changed for users:**
+
 - **Guaranteed Privacy Protection.** All future database and API implementations must enforce strict isolation so no user can ever access another user's personal journals, mood records, or appointments.
 
 **What changed for the team:**
+
 - **Added Official Repository Link in AGENTS.md.** Recorded `https://github.com/rith369/Arom-version1` in Section 1.
 - **Added Section 9 in AGENTS.md.** Established permanent rules for clinical grade confidentiality, strict Supabase Row Level Security (RLS), environment key segregation, data minimization, and zero unauthorized logging of vulnerable user reflections.
 
 **What to re-test:**
+
 - Open `AGENTS.md` and verify the repository link is present under Section 1;
 - Verify that Section 9 contains all 5 privacy and security directives;
 - Ensure no em dashes or loose hyphens are present in the documentation text.

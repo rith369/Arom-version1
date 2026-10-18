@@ -40,8 +40,13 @@ The yellow "Demo data on this page" banner is in `admin-shell.tsx`. Remove it fo
 
 ## 4. Status board
 
-| Feature | Frontend | Backend | Section |
-|---|---|---|---|
+| Feature                       | Frontend                    | Backend                                                                        | Section |
+| ----------------------------- | --------------------------- | ------------------------------------------------------------------------------ | ------- |
+| Feature                       | Frontend                    | Backend                                                                        | Section |
+| ---                           | ---                         | ---                                                                            | ---     |
+| Anonymous identity protection | Connected on feature branch | Implemented; migration replay and final privacy checks pending. See section 23 | 23      |
+| Admin overview (dashboard)    | Done                        | Connected (`/api/admin/overview`)                                              | none    |
+
 | Admin overview (dashboard) | Done | Connected (`/api/admin/overview`) | none |
 | Admin users: list, details, roles, suspend | Done | Connected (`GET /api/admin/users`, `PATCH .../role`, `PATCH .../status`), migration `20261014000600` | 5 |
 | Admin professionals: review and moderation | Done | Connected, including profile change review. Stored `source` column still open (derived for now). Migrations `20261014000200`, `20261014000400` | 6 |
@@ -86,36 +91,41 @@ The yellow "Demo data on this page" banner is in `admin-shell.tsx`. Remove it fo
 
 ### Data shape the page expects (`AdminUser`)
 
-| Field | Type | Database source | Exists today? |
-|---|---|---|---|
-| `id` | string (uuid) | `profiles.id` | Yes |
-| `fullName` | string | `profiles.full_name` | Yes |
-| `email` | string | `auth.users.email` | **No.** `listUsers` does not return it. Needs a server side read (see gaps) |
-| `avatarUrl` | string or null | no column yet | **No.** Return `null` for now, the page shows initials |
-| `role` | `'user' \| 'professional' \| 'admin'` | `profiles.role` | Yes |
-| `status` | `'active' \| 'suspended'` | `profiles.account_status` | Yes (returned as `accountStatus`, rename or map) |
-| `preferredLanguage` | `'en' \| 'km'` | `profiles.language` | Column yes, not returned by `listUsers` |
-| `createdAt` | ISO string | `profiles.created_at` | Yes |
-| `lastSeenAt` | ISO string | `auth.users.last_sign_in_at` or a new `profiles.last_seen_at` | **No** |
-| `daysActive30` | number | count of distinct active days in last 30 days | **No** |
-| `checkInCount` | number | count of the user's `mood_checkins` rows | **No** |
-| `bookingCount` | number | count of `appointments` for the user | **No** |
+| Field               | Type                                  | Database source                                               | Exists today?                                                               |
+| ------------------- | ------------------------------------- | ------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| `id`                | string (uuid)                         | `profiles.id`                                                 | Yes                                                                         |
+| `fullName`          | string                                | `profiles.full_name`                                          | Yes                                                                         |
+| `email`             | string                                | `auth.users.email`                                            | **No.** `listUsers` does not return it. Needs a server side read (see gaps) |
+| `avatarUrl`         | string or null                        | no column yet                                                 | **No.** Return `null` for now, the page shows initials                      |
+| `role`              | `'user' \| 'professional' \| 'admin'` | `profiles.role`                                               | Yes                                                                         |
+| `status`            | `'active' \| 'suspended'`             | `profiles.account_status`                                     | Yes (returned as `accountStatus`, rename or map)                            |
+| `preferredLanguage` | `'en' \| 'km'`                        | `profiles.language`                                           | Column yes, not returned by `listUsers`                                     |
+| `createdAt`         | ISO string                            | `profiles.created_at`                                         | Yes                                                                         |
+| `lastSeenAt`        | ISO string                            | `auth.users.last_sign_in_at` or a new `profiles.last_seen_at` | **No**                                                                      |
+| `daysActive30`      | number                                | count of distinct active days in last 30 days                 | **No**                                                                      |
+| `checkInCount`      | number                                | count of the user's `mood_checkins` rows                      | **No**                                                                      |
+| `bookingCount`      | number                                | count of `appointments` for the user                          | **No**                                                                      |
 
 The signed in admin is mocked as `currentAdminId`. Use the session user id instead (the page hides action buttons on your own card).
 
 ### Actions
 
-| Frontend action | Meaning | Endpoint | Exists today? |
-|---|---|---|---|
-| `setUserRole(id, 'professional', promotion)` | Admin promotes someone they know | `PATCH /api/admin/users/:id/role` | Partly. Must also accept `promotion` (below) |
-| `setUserRole(id, 'admin')` | Make admin | `PATCH /api/admin/users/:id/role` | **No.** Database blocks it on purpose |
-| `setUserRole(id, 'user')` | Remove professional role or admin access | `PATCH /api/admin/users/:id/role` | Yes for professional. **No** for removing admin |
-| `setUserStatus(id, 'suspended' \| 'active')` | Suspend or restore account | suggest `PATCH /api/admin/users/:id/status` body `{ status, reason? }` | **No** endpoint. Columns `account_status`, `suspended_at`, `suspended_reason` already exist |
+| Frontend action                              | Meaning                                  | Endpoint                                                               | Exists today?                                                                               |
+| -------------------------------------------- | ---------------------------------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| `setUserRole(id, 'professional', promotion)` | Admin promotes someone they know         | `PATCH /api/admin/users/:id/role`                                      | Partly. Must also accept `promotion` (below)                                                |
+| `setUserRole(id, 'admin')`                   | Make admin                               | `PATCH /api/admin/users/:id/role`                                      | **No.** Database blocks it on purpose                                                       |
+| `setUserRole(id, 'user')`                    | Remove professional role or admin access | `PATCH /api/admin/users/:id/role`                                      | Yes for professional. **No** for removing admin                                             |
+| `setUserStatus(id, 'suspended' \| 'active')` | Suspend or restore account               | suggest `PATCH /api/admin/users/:id/status` body `{ status, reason? }` | **No** endpoint. Columns `account_status`, `suspended_at`, `suspended_reason` already exist |
 
 `promotion` shape (`ProfessionalPromotion` in `admin-provider.tsx`):
 
 ```ts
-{ title: string; licenseNumber: string; issuingBody: string; note: string }
+{
+  title: string;
+  licenseNumber: string;
+  issuingBody: string;
+  note: string;
+}
 ```
 
 ### Backend gaps
@@ -141,36 +151,36 @@ The signed in admin is mocked as `currentAdminId`. Use the session user id inste
 
 ### Data shape the page expects (`Professional`)
 
-| Field | Database source | Notes |
-|---|---|---|
-| `id` | `professional_profiles.id` (same as user id) | For a pending application, see the note below |
-| `name`, `kmName` | `display_name`, `display_name_km` | |
-| `role`, `kmRole` | `title`, `title_km` | |
-| `about`, `kmAbout` | `bio`, `bio_km` | |
-| `image` | `photo_url` | |
-| `specialties`, `languages` | same names | |
-| `session` | `session_types` | `['online']` maps to `'Online'`, `['in_person']` to `'In-person'`, both to `'Both'` |
-| `experience` | not in `professional_profiles` | applications have `years_experience`. Add a column or derive it |
-| `verificationStatus` | `verification_status` | `pending`, `verified`, `rejected` |
-| `accountStatus` | `profiles.account_status` | |
-| `credential.licenseNumber`, `issuingBody` | `professional_credentials` | |
-| `credential.documentName` | `professional_credentials.document_path` | Show file name only. Open through a short lived signed URL, never a public URL |
-| `credential.submittedAt` | `professional_credentials.submitted_at` | |
-| `phone`, `telegram` | `professional_applications.phone`, `.telegram` (new) | Private, admins only. Never return them from public directory queries |
-| `pendingChanges` | **does not exist** | see gap 1 |
-| `reviewNote` | `review_note` | |
-| `source` | **does not exist** | `'application'` or `'admin'`. See gap 4 |
-| `joinedAt` | `professional_profiles.created_at` | |
+| Field                                     | Database source                                      | Notes                                                                               |
+| ----------------------------------------- | ---------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| `id`                                      | `professional_profiles.id` (same as user id)         | For a pending application, see the note below                                       |
+| `name`, `kmName`                          | `display_name`, `display_name_km`                    |                                                                                     |
+| `role`, `kmRole`                          | `title`, `title_km`                                  |                                                                                     |
+| `about`, `kmAbout`                        | `bio`, `bio_km`                                      |                                                                                     |
+| `image`                                   | `photo_url`                                          |                                                                                     |
+| `specialties`, `languages`                | same names                                           |                                                                                     |
+| `session`                                 | `session_types`                                      | `['online']` maps to `'Online'`, `['in_person']` to `'In-person'`, both to `'Both'` |
+| `experience`                              | not in `professional_profiles`                       | applications have `years_experience`. Add a column or derive it                     |
+| `verificationStatus`                      | `verification_status`                                | `pending`, `verified`, `rejected`                                                   |
+| `accountStatus`                           | `profiles.account_status`                            |                                                                                     |
+| `credential.licenseNumber`, `issuingBody` | `professional_credentials`                           |                                                                                     |
+| `credential.documentName`                 | `professional_credentials.document_path`             | Show file name only. Open through a short lived signed URL, never a public URL      |
+| `credential.submittedAt`                  | `professional_credentials.submitted_at`              |                                                                                     |
+| `phone`, `telegram`                       | `professional_applications.phone`, `.telegram` (new) | Private, admins only. Never return them from public directory queries               |
+| `pendingChanges`                          | **does not exist**                                   | see gap 1                                                                           |
+| `reviewNote`                              | `review_note`                                        |                                                                                     |
+| `source`                                  | **does not exist**                                   | `'application'` or `'admin'`. See gap 4                                             |
+| `joinedAt`                                | `professional_profiles.created_at`                   |                                                                                     |
 
 **Pending applications:** the page shows new applicants in the same list. They live in `professional_applications`, not `professional_profiles`. Either merge both into one list in the controller (keep the application id so review calls the right endpoint), or return two lists and let the provider merge them. Tell Rith which, so the type can get an `applicationId` field if needed.
 
 ### Actions
 
-| Frontend action | Meaning | Endpoint | Exists today? |
-|---|---|---|---|
-| `reviewApplication(id, 'approve' \| 'reject', note)` | Approve or reject a new applicant. Reject needs a reason | `POST /api/admin/applications/:id/review` body `{ approve, note }` | Yes |
-| `reviewProfileChanges(id, 'approve' \| 'reject', note)` | Approve or decline changes to name, title, license number or issuing body | new, for example `POST /api/admin/professionals/:id/changes/review` | **No** |
-| `setProfessionalAccess(id, 'suspended' \| 'active', note)` | Suspend (hide from directory, no new bookings) or reinstate | can reuse the suspend endpoint from section 5 | **No** |
+| Frontend action                                            | Meaning                                                                   | Endpoint                                                            | Exists today? |
+| ---------------------------------------------------------- | ------------------------------------------------------------------------- | ------------------------------------------------------------------- | ------------- |
+| `reviewApplication(id, 'approve' \| 'reject', note)`       | Approve or reject a new applicant. Reject needs a reason                  | `POST /api/admin/applications/:id/review` body `{ approve, note }`  | Yes           |
+| `reviewProfileChanges(id, 'approve' \| 'reject', note)`    | Approve or decline changes to name, title, license number or issuing body | new, for example `POST /api/admin/professionals/:id/changes/review` | **No**        |
+| `setProfessionalAccess(id, 'suspended' \| 'active', note)` | Suspend (hide from directory, no new bookings) or reinstate               | can reuse the suspend endpoint from section 5                       | **No**        |
 
 ### Backend gaps
 
@@ -217,33 +227,33 @@ Do not change these without asking Rith.
 
 ### Data shape the page expects (`ProfessionalApplication`)
 
-| Field | Type | Database source | Exists today? |
-|---|---|---|---|
-| `id` | string (uuid) | `professional_applications.id` | Yes |
-| `fullName` | string | `full_name` | Yes |
-| `title` | string | `title` | Yes |
-| `licenseNumber` | string | `license_number` | Yes |
-| `issuingBody` | string | `issuing_body` | Yes |
-| `documentName` | string | file name from `document_path` | Column yes, upload flow **No** |
-| `specialties` | string[]. Chosen chips plus free text typed under "Other" (up to 5 extra, 40 characters each, duplicates removed) | `specialties` | Yes. Free text values are not from a fixed list, so do not use an enum |
-| `languages` | string[] | `languages` | Yes |
-| `yearsExperience` | number | `years_experience` | Yes |
-| `phone` | string, Cambodian number, spaces removed, for example `012345678` | **new column `phone`** | **No** |
-| `telegram` | string. Equals `phone` when the user ticked "Same number on Telegram", otherwise a username or empty | **new column `telegram`** | **No** |
-| `motivation` | string | `motivation` | Yes |
-| `status` | `'pending' \| 'approved' \| 'rejected'` | `status` | Yes |
-| `reviewNote` | string | `review_note` | Yes |
-| `createdAt` | ISO string | `created_at` | Yes |
+| Field             | Type                                                                                                              | Database source                | Exists today?                                                          |
+| ----------------- | ----------------------------------------------------------------------------------------------------------------- | ------------------------------ | ---------------------------------------------------------------------- |
+| `id`              | string (uuid)                                                                                                     | `professional_applications.id` | Yes                                                                    |
+| `fullName`        | string                                                                                                            | `full_name`                    | Yes                                                                    |
+| `title`           | string                                                                                                            | `title`                        | Yes                                                                    |
+| `licenseNumber`   | string                                                                                                            | `license_number`               | Yes                                                                    |
+| `issuingBody`     | string                                                                                                            | `issuing_body`                 | Yes                                                                    |
+| `documentName`    | string                                                                                                            | file name from `document_path` | Column yes, upload flow **No**                                         |
+| `specialties`     | string[]. Chosen chips plus free text typed under "Other" (up to 5 extra, 40 characters each, duplicates removed) | `specialties`                  | Yes. Free text values are not from a fixed list, so do not use an enum |
+| `languages`       | string[]                                                                                                          | `languages`                    | Yes                                                                    |
+| `yearsExperience` | number                                                                                                            | `years_experience`             | Yes                                                                    |
+| `phone`           | string, Cambodian number, spaces removed, for example `012345678`                                                 | **new column `phone`**         | **No**                                                                 |
+| `telegram`        | string. Equals `phone` when the user ticked "Same number on Telegram", otherwise a username or empty              | **new column `telegram`**      | **No**                                                                 |
+| `motivation`      | string                                                                                                            | `motivation`                   | Yes                                                                    |
+| `status`          | `'pending' \| 'approved' \| 'rejected'`                                                                           | `status`                       | Yes                                                                    |
+| `reviewNote`      | string                                                                                                            | `review_note`                  | Yes                                                                    |
+| `createdAt`       | ISO string                                                                                                        | `created_at`                   | Yes                                                                    |
 
 Validation lives in `createApplicationSchema()` in `_data/application.ts`. Repeat the same rules on the server: required fields, phone matches `^(?:\+?855|0)[1-9]\d{7,8}$` after removing spaces, Telegram username `^@?[A-Za-z0-9_]{5,32}$`, at least one specialty with up to 5 "Other" entries of 40 characters each, document PDF, JPG or PNG up to 5 MB, years 0 to 60, motivation up to 2000 characters.
 
 ### Actions
 
-| Frontend action | Meaning | Suggested endpoint | Exists today? |
-|---|---|---|---|
-| load latest application | Show the right status when the page opens | `GET /api/professional/application` (the caller's own latest, or `null`) | **No** |
-| `submitApplication(values, documentName)` | Submit or resubmit | `POST /api/professional/application` (multipart, or upload first then JSON with `documentPath`) | **No** |
-| "Log out and log in again" | Refresh the role in the token after approval | existing `POST /api/auth/logout` | Yes |
+| Frontend action                           | Meaning                                      | Suggested endpoint                                                                              | Exists today? |
+| ----------------------------------------- | -------------------------------------------- | ----------------------------------------------------------------------------------------------- | ------------- |
+| load latest application                   | Show the right status when the page opens    | `GET /api/professional/application` (the caller's own latest, or `null`)                        | **No**        |
+| `submitApplication(values, documentName)` | Submit or resubmit                           | `POST /api/professional/application` (multipart, or upload first then JSON with `documentPath`) | **No**        |
+| "Log out and log in again"                | Refresh the role in the token after approval | existing `POST /api/auth/logout`                                                                | Yes           |
 
 ### Backend gaps (all done in migration `20261014000100`)
 
@@ -267,14 +277,14 @@ Original list:
 
 One item is a `ContentRecord`:
 
-| Field | Meaning | Suggested database |
-|---|---|---|
-| `id` | `<type>:<sourceId>` | primary key (`kind`, `key`) of `content_items` |
-| `type` | `'lesson' \| 'tip' \| 'practice'` | `kind` |
-| `sourceId` | slug or uuid, used in the editor URL | `key` |
-| `liveVersion` | number shown to users, or `null` when never published or hidden | `content_items.version` |
-| `versions[]` | `{ version, body, publishedAt, publishedBy }`. Never changed once written | `content_versions` (`body jsonb`) |
-| `draft` | `{ body, baseVersion, updatedAt, updatedBy }` or `null`. At most one | `content_drafts` (`body jsonb`) |
+| Field         | Meaning                                                                   | Suggested database                             |
+| ------------- | ------------------------------------------------------------------------- | ---------------------------------------------- |
+| `id`          | `<type>:<sourceId>`                                                       | primary key (`kind`, `key`) of `content_items` |
+| `type`        | `'lesson' \| 'tip' \| 'practice'`                                         | `kind`                                         |
+| `sourceId`    | slug or uuid, used in the editor URL                                      | `key`                                          |
+| `liveVersion` | number shown to users, or `null` when never published or hidden           | `content_items.version`                        |
+| `versions[]`  | `{ version, body, publishedAt, publishedBy }`. Never changed once written | `content_versions` (`body jsonb`)              |
+| `draft`       | `{ body, baseVersion, updatedAt, updatedBy }` or `null`. At most one      | `content_drafts` (`body jsonb`)                |
 
 `body` is `ContentBody`: `{ type, meta, details }`. `meta` is `ContentMeta` (title, kmTitle, description, kmDescription, category, duration, difficulty, image). `details` is `AdminLessonDetails`, `AdminTipDetails` or `AdminPracticeDetails` from the `_data/*-details.ts` files. Keep these TypeScript types as the JSON contract.
 
@@ -284,14 +294,14 @@ Status shown in the list comes from `getPublishState()`: `live`, `liveDraft` (li
 
 ### Actions (all admin only, all through `security definer` functions)
 
-| Frontend action | Meaning | Hint codes |
-|---|---|---|
-| `saveContentDraft(id, body, expectedUpdatedAt)` | Save the draft. Light check only (unique ids), so half finished work can be saved | `stale`, `shape` |
-| `publishContent(id, expectedUpdatedAt)` | Run the full check in the database, write version N+1 from the saved draft, delete the draft, set it live | `stale`, `shape` |
-| `discardContentDraft(id)` | Delete the draft. Live version stays | none |
-| `deleteContent(id)` | Only for items that were never published | none |
-| `setContentHidden(id, hidden)` | Hide: set `liveVersion` to null. Show: set it to the newest version | none |
-| `restoreContentVersion(id, version)` | Copy that version into the draft. Returns the new draft `updatedAt` | none |
+| Frontend action                                 | Meaning                                                                                                   | Hint codes       |
+| ----------------------------------------------- | --------------------------------------------------------------------------------------------------------- | ---------------- |
+| `saveContentDraft(id, body, expectedUpdatedAt)` | Save the draft. Light check only (unique ids), so half finished work can be saved                         | `stale`, `shape` |
+| `publishContent(id, expectedUpdatedAt)`         | Run the full check in the database, write version N+1 from the saved draft, delete the draft, set it live | `stale`, `shape` |
+| `discardContentDraft(id)`                       | Delete the draft. Live version stays                                                                      | none             |
+| `deleteContent(id)`                             | Only for items that were never published                                                                  | none             |
+| `setContentHidden(id, hidden)`                  | Hide: set `liveVersion` to null. Show: set it to the newest version                                       | none             |
+| `restoreContentVersion(id, version)`            | Copy that version into the draft. Returns the new draft `updatedAt`                                       | none             |
 
 The return type is `ContentActionResult`: `{ ok: true, updatedAt }` or `{ ok: false, code: 'stale' | 'shape' }`. Also return `not_admin` from the backend; the editor will show it as an error.
 
@@ -311,22 +321,22 @@ The user app still reads lessons, tips and practices from `app/_components/learn
 
 ### Data shape
 
-| Field | Type | Notes |
-|---|---|---|
-| `target` | `{ type: 'lesson' \| 'tip' \| 'practice', sourceId, partId? }` | A reference only, never a copy of the text. Written as `lesson:learn-about-stress#3` by `reportTargetKey()`. `partId` is a lesson section id (never reused, see section 9) |
-| `reason` | `'wrong_info' \| 'harmful' \| 'broken' \| 'other'` | |
-| `note` | string, up to 500 characters, optional | The form asks users not to write personal or health details |
-| `createdAt` | ISO string | |
-| `status` | `'open' \| 'fixed' \| 'not_a_problem'` | |
-| `resolvedAt`, `resolvedBy` | set when closed | `resolvedBy` is the admin's name |
+| Field                      | Type                                                           | Notes                                                                                                                                                                      |
+| -------------------------- | -------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `target`                   | `{ type: 'lesson' \| 'tip' \| 'practice', sourceId, partId? }` | A reference only, never a copy of the text. Written as `lesson:learn-about-stress#3` by `reportTargetKey()`. `partId` is a lesson section id (never reused, see section 9) |
+| `reason`                   | `'wrong_info' \| 'harmful' \| 'broken' \| 'other'`             |                                                                                                                                                                            |
+| `note`                     | string, up to 500 characters, optional                         | The form asks users not to write personal or health details                                                                                                                |
+| `createdAt`                | ISO string                                                     |                                                                                                                                                                            |
+| `status`                   | `'open' \| 'fixed' \| 'not_a_problem'`                         |                                                                                                                                                                            |
+| `resolvedAt`, `resolvedBy` | set when closed                                                | `resolvedBy` is the admin's name                                                                                                                                           |
 
 ### Actions
 
-| Frontend action | Meaning | Suggested backend |
-|---|---|---|
-| `submitContentReport({ target, reason, note })` | User sends a report. Returns `'sent'` or `'daily_limit'` | `security definer` function that checks the target exists, caps each user at 5 reports per day, and stores the reporter id only for that limit |
-| `reports` | Admin list | admin only read. Never return the reporter id to the admin UI |
-| `resolveReports(itemId, 'fixed' \| 'not_a_problem')` | Closes every open report on one item | admin only, writes `resolved_by`, `resolved_at`, and an audit log entry |
+| Frontend action                                      | Meaning                                                  | Suggested backend                                                                                                                              |
+| ---------------------------------------------------- | -------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `submitContentReport({ target, reason, note })`      | User sends a report. Returns `'sent'` or `'daily_limit'` | `security definer` function that checks the target exists, caps each user at 5 reports per day, and stores the reporter id only for that limit |
+| `reports`                                            | Admin list                                               | admin only read. Never return the reporter id to the admin UI                                                                                  |
+| `resolveReports(itemId, 'fixed' \| 'not_a_problem')` | Closes every open report on one item                     | admin only, writes `resolved_by`, `resolved_at`, and an audit log entry                                                                        |
 
 ### Rules
 
@@ -343,16 +353,16 @@ The user app still reads lessons, tips and practices from `app/_components/learn
 
 ### Data shape (`MindGuidePodcast`)
 
-| Field | Type | Notes |
-|---|---|---|
-| `id` | slug | used in `/podcasts/<id>` |
-| `title`, `kmTitle`, `description`, `kmDescription`, `topic`, `kmTopic` | string | |
-| `durationSeconds` | number | the player uses the real file length once loaded |
-| `audioUrl` | HTTPS URL or empty | empty shows "audio coming soon" and the admin cannot publish |
-| `publishedDate` | `YYYY-MM-DD` | |
-| `guestProfessionalId` | professional slug or empty | optional; only verified, active professionals can be picked |
-| `takeaways` | `{ en, km }[]` | key points under the player |
-| `chapters` | `{ id, seconds, title, kmTitle }[]` | the admin form edits them as `MM:SS` text; convert to seconds |
+| Field                                                                  | Type                                | Notes                                                         |
+| ---------------------------------------------------------------------- | ----------------------------------- | ------------------------------------------------------------- |
+| `id`                                                                   | slug                                | used in `/podcasts/<id>`                                      |
+| `title`, `kmTitle`, `description`, `kmDescription`, `topic`, `kmTopic` | string                              |                                                               |
+| `durationSeconds`                                                      | number                              | the player uses the real file length once loaded              |
+| `audioUrl`                                                             | HTTPS URL or empty                  | empty shows "audio coming soon" and the admin cannot publish  |
+| `publishedDate`                                                        | `YYYY-MM-DD`                        |                                                               |
+| `guestProfessionalId`                                                  | professional slug or empty          | optional; only verified, active professionals can be picked   |
+| `takeaways`                                                            | `{ en, km }[]`                      | key points under the player                                   |
+| `chapters`                                                             | `{ id, seconds, title, kmTitle }[]` | the admin form edits them as `MM:SS` text; convert to seconds |
 
 ### Backend gaps
 
@@ -366,6 +376,7 @@ The user app still reads lessons, tips and practices from `app/_components/learn
 **Files:** `app/admin/_components/bookings-chart.tsx`, placed at the top of Sokheng's `bookings-view.tsx`. Sample data: `app/admin/_data/bookings.ts` now generates about 105 deterministic demo bookings around 13 Oct 2026 (no double bookings) on top of the original four.
 
 **What it shows:** columns per day, with a switch between:
+
 - **Sessions per day** by session date (`startsAt`), stacked as completed or confirmed, pending, cancelled. Ranges: last 7 days, last 30 days, next 14 days.
 - **New bookings per day** by the day the booking was made (`createdAt`). Ranges: last 7 and last 30 days.
 
@@ -375,8 +386,8 @@ It also shows the total for the range, the difference from the same number of da
 
 The booking popup is read only, with one exception:
 
-| Frontend action | Meaning | Suggested backend |
-|---|---|---|
+| Frontend action                                                                        | Meaning                                                                                                    | Suggested backend                                                                                                                                                                                                                                               |
+| -------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `saveBooking({ ...booking, status: 'cancelled', cancelledBy: 'admin', cancelReason })` | Emergency cancel of an upcoming pending or confirmed booking, for example when a professional is suspended | Admin only `security definer` function. Set `appointments.status = 'cancelled'`, `cancelled_by` (the admin), `cancelled_at`, `cancel_reason` (required, up to 500 characters), free the slot, write `admin_audit_log`, and notify the user and the professional |
 
 Confirming and rescheduling are not admin actions. They belong in the user booking pages and the `/pro` area.
@@ -388,7 +399,17 @@ The chart only needs counts, never names. Suggested endpoint, admin only:
 `GET /api/admin/bookings/daily?from=YYYY-MM-DD&to=YYYY-MM-DD` returning
 
 ```json
-{ "days": [{ "date": "2026-10-13", "going": 3, "pending": 0, "cancelled": 1, "created": 4 }] }
+{
+  "days": [
+    {
+      "date": "2026-10-13",
+      "going": 3,
+      "pending": 0,
+      "cancelled": 1,
+      "created": 4
+    }
+  ]
+}
 ```
 
 - `going` counts `appointments.status` in (`booked`, `completed`); `pending` maps to the frontend "pending" state if the backend adds one, otherwise 0; `cancelled` counts `cancelled` and `no_show`. Tell Rith if the mapping should differ.
@@ -406,6 +427,7 @@ The chart only needs counts, never names. Suggested endpoint, admin only:
 Matches the existing `crisis_resources` table: `name`, `kmName` (`name_km`), `description`, `kmDescription`, `phone`, `sms`, `website`, `hours`, `kmHours` (`available_hours`, `available_hours_km`), `isActive` (`is_active`), `sortOrder` (`sort_order`). `country_code` stays `KH`.
 
 Rules the admin form enforces, repeat them in the database:
+
 - English and Khmer name required.
 - A phone number or a website is required.
 - Phone and SMS: 3 to 15 digits (short codes allowed), spaces and `+` allowed.
@@ -437,14 +459,14 @@ The AROM support contact (`SupportContact`) still reads the empty placeholder in
 
 ### Report sent by the browser (`CrashReport`)
 
-| Field | Notes |
-|---|---|
-| `kind` | `'render'` or `'app'` |
-| `message` | error message, cut to 300 characters, query strings removed from any URL |
-| `route` | `window.location.pathname` only, never the query string or hash |
-| `release` | first 7 characters of `NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA`, `local` otherwise |
-| `digest` | Next.js error digest for server errors, to match server logs |
-| `occurredAt` | ISO time |
+| Field        | Notes                                                                        |
+| ------------ | ---------------------------------------------------------------------------- |
+| `kind`       | `'render'` or `'app'`                                                        |
+| `message`    | error message, cut to 300 characters, query strings removed from any URL     |
+| `route`      | `window.location.pathname` only, never the query string or hash              |
+| `release`    | first 7 characters of `NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA`, `local` otherwise |
+| `digest`     | Next.js error digest for server errors, to match server logs                 |
+| `occurredAt` | ISO time                                                                     |
 
 **Privacy:** no journal text, mood answers, form contents, names or user ids in the report. Do not add them.
 
@@ -462,16 +484,16 @@ The AROM support contact (`SupportContact`) still reads the empty placeholder in
 
 ### Data shape (`Announcement`)
 
-| Field | Notes |
-|---|---|
-| `id` | uuid |
-| `kmText` | required, up to 300 characters |
-| `enText` | optional, up to 300; English readers see `kmText` when empty |
-| `tone` | `'info' \| 'good' \| 'important'` |
-| `link` | optional path inside AROM, must match `^/(?!/)[A-Za-z0-9-._~/]*$` (no outside websites) |
-| `createdAt`, `createdBy` | admin name |
-| `endsAt` | ISO time, or null for "until an admin ends it" |
-| `endedAt` | set by "End now" |
+| Field                    | Notes                                                                                   |
+| ------------------------ | --------------------------------------------------------------------------------------- |
+| `id`                     | uuid                                                                                    |
+| `kmText`                 | required, up to 300 characters                                                          |
+| `enText`                 | optional, up to 300; English readers see `kmText` when empty                            |
+| `tone`                   | `'info' \| 'good' \| 'important'`                                                       |
+| `link`                   | optional path inside AROM, must match `^/(?!/)[A-Za-z0-9-._~/]*$` (no outside websites) |
+| `createdAt`, `createdBy` | admin name                                                                              |
+| `endsAt`                 | ISO time, or null for "until an admin ends it"                                          |
+| `endedAt`                | set by "End now"                                                                        |
 
 ### Rules
 
@@ -508,26 +530,26 @@ The AROM support contact (`SupportContact`) still reads the empty placeholder in
 
 ### Data shape (`ProProfile`)
 
-| Field | Database |
-|---|---|
-| `slug` | `professional_profiles.slug` |
-| `displayName`, `kmDisplayName` | `display_name`, `display_name_km` (reviewed) |
-| `title`, `kmTitle` | `title`, `title_km` (reviewed) |
-| `bio`, `kmBio` | `bio`, `bio_km` |
-| `photoUrl` | `photo_url` (upload to a storage bucket; the mock keeps a data URL) |
-| `specialties`, `languages` | same names |
-| `sessionTypes` | `session_types` (`online`, `in_person`) |
-| `price` | `SessionPrice` from `lib/pricing.ts`: `{ kind: 'free' }`, `{ kind: 'fixed', amount }` or `{ kind: 'range', min, max }` in USD, 1 to 500, min below max. Store as `price_kind` plus `price_usd` and `price_max_usd` (or jsonb). Display only |
-| `yearsExperience` | add a column (only in applications today) |
-| `licenseNumber`, `issuingBody` | `professional_credentials` (reviewed, never public) |
+| Field                          | Database                                                                                                                                                                                                                                    |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `slug`                         | `professional_profiles.slug`                                                                                                                                                                                                                |
+| `displayName`, `kmDisplayName` | `display_name`, `display_name_km` (reviewed)                                                                                                                                                                                                |
+| `title`, `kmTitle`             | `title`, `title_km` (reviewed)                                                                                                                                                                                                              |
+| `bio`, `kmBio`                 | `bio`, `bio_km`                                                                                                                                                                                                                             |
+| `photoUrl`                     | `photo_url` (upload to a storage bucket; the mock keeps a data URL)                                                                                                                                                                         |
+| `specialties`, `languages`     | same names                                                                                                                                                                                                                                  |
+| `sessionTypes`                 | `session_types` (`online`, `in_person`)                                                                                                                                                                                                     |
+| `price`                        | `SessionPrice` from `lib/pricing.ts`: `{ kind: 'free' }`, `{ kind: 'fixed', amount }` or `{ kind: 'range', min, max }` in USD, 1 to 500, min below max. Store as `price_kind` plus `price_usd` and `price_max_usd` (or jsonb). Display only |
+| `yearsExperience`              | add a column (only in applications today)                                                                                                                                                                                                   |
+| `licenseNumber`, `issuingBody` | `professional_credentials` (reviewed, never public)                                                                                                                                                                                         |
 
 ### Actions
 
-| Frontend action | Meaning | Backend |
-|---|---|---|
-| `saveProfile(next)` | Non reviewed fields update the profile at once. Changed reviewed fields become pending changes; the public profile keeps the live value | `PATCH /api/pro/profile` for normal fields; reviewed fields go to the pending changes table from section 6 |
-| `withdrawChange(field)` | Cancel a waiting change | delete the pending change |
-| `profileChecklist()` | What is missing before the profile is visible | same rule in the directory query |
+| Frontend action         | Meaning                                                                                                                                 | Backend                                                                                                    |
+| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `saveProfile(next)`     | Non reviewed fields update the profile at once. Changed reviewed fields become pending changes; the public profile keeps the live value | `PATCH /api/pro/profile` for normal fields; reviewed fields go to the pending changes table from section 6 |
+| `withdrawChange(field)` | Cancel a waiting change                                                                                                                 | delete the pending change                                                                                  |
+| `profileChecklist()`    | What is missing before the profile is visible                                                                                           | same rule in the directory query                                                                           |
 
 The demo switch ("Established professional" or "Newly approved") and today's sessions (from the admin sample bookings) are mock only. Remove them when connected.
 
@@ -537,12 +559,12 @@ The demo switch ("Established professional" or "Newly approved") and today's ses
 
 `ProBooking`: `id`, `professionalId`, `clientName`, `startsAt`, `durationMinutes`, `sessionType` (`online`, `in_person`), `status` (`booked`, `completed`, `cancelled`, `no_show`, as in `appointments`; no pending, booking is instant), `intakeNote` (`appointments.intake_note`), `intakeAnswers` (`intake_answers` with their `intake_questions`), `cancelledBy`, `cancelReason`, `rescheduledFrom`, `rescheduleReason`, `meetingUrl` (`appointments.meeting_url`), `seriesId` (see section 19).
 
-| Frontend action | Rule | Backend |
-|---|---|---|
-| `cancelBooking(id, reason)` | Upcoming sessions only, reason required (up to 300), shown to the client | `cancel_appointment` already exists; record `cancelled_by` (the professional) and `cancel_reason`, free the slot, notify the client |
-| `rescheduleBooking(id, startsAt, reason)` | New time must be an open slot of the same session type, not the current time; reason required | new function: move the appointment to the new slot, free the old one, keep the original time, notify the client, who can cancel |
-| `setBookingOutcome(id, 'completed' \| 'no_show')` | Only after the session has ended | update `appointments.status` |
-| `saveSessionNote(id, text)` | Up to 5000 characters | `session_notes`: readable and writable only by the professional who owns the appointment. No admin read, no client read |
+| Frontend action                                   | Rule                                                                                          | Backend                                                                                                                             |
+| ------------------------------------------------- | --------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `cancelBooking(id, reason)`                       | Upcoming sessions only, reason required (up to 300), shown to the client                      | `cancel_appointment` already exists; record `cancelled_by` (the professional) and `cancel_reason`, free the slot, notify the client |
+| `rescheduleBooking(id, startsAt, reason)`         | New time must be an open slot of the same session type, not the current time; reason required | new function: move the appointment to the new slot, free the old one, keep the original time, notify the client, who can cancel     |
+| `setBookingOutcome(id, 'completed' \| 'no_show')` | Only after the session has ended                                                              | update `appointments.status`                                                                                                        |
+| `saveSessionNote(id, text)`                       | Up to 5000 characters                                                                         | `session_notes`: readable and writable only by the professional who owns the appointment. No admin read, no client read             |
 
 Clients see their name only to their own professional. The client list shows names, not emails or phone numbers.
 
@@ -552,16 +574,16 @@ Clients see their name only to their own professional. The client list shows nam
 
 Everything is counted from the professional's own data; nothing needs a new table. A backend may want one summary function (`pro_dashboard()`) to avoid loading every booking.
 
-| Block | How it is counted |
-|---|---|
-| Next session | first `booked` appointment that has not ended, with Join, Prepare and Message |
-| Sessions this week | appointments this Monday to Sunday (Cambodia time), not cancelled; compared with last week |
-| Next 7 days | `booked` appointments starting in the next 7 days |
-| Active clients | clients with any appointment, minus archived |
-| How full your week is | sessions this week divided by every slot the weekly hours offer this week (time off removed), capped at 100% |
-| Sessions per week, last 8 weeks | per Monday week: completed or booked, did not come, cancelled |
-| Needs your attention | sessions waiting for an outcome, unread messages, open suggestions, clients with a completed session but no active care task |
-| Care plans | clients who share progress out of active clients; done days out of due days in the last 7 days, only from clients who share |
+| Block                           | How it is counted                                                                                                            |
+| ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| Next session                    | first `booked` appointment that has not ended, with Join, Prepare and Message                                                |
+| Sessions this week              | appointments this Monday to Sunday (Cambodia time), not cancelled; compared with last week                                   |
+| Next 7 days                     | `booked` appointments starting in the next 7 days                                                                            |
+| Active clients                  | clients with any appointment, minus archived                                                                                 |
+| How full your week is           | sessions this week divided by every slot the weekly hours offer this week (time off removed), capped at 100%                 |
+| Sessions per week, last 8 weeks | per Monday week: completed or booked, did not come, cancelled                                                                |
+| Needs your attention            | sessions waiting for an outcome, unread messages, open suggestions, clients with a completed session but no active care task |
+| Care plans                      | clients who share progress out of active clients; done days out of due days in the last 7 days, only from clients who share  |
 
 Not shown on purpose: money (no payments during testing), comparisons with other professionals, and clients' mood or symptom scores.
 
@@ -571,15 +593,15 @@ Not shown on purpose: money (no payments during testing), comparisons with other
 
 **Prepare** is one private page to read before a session. It only reads data that already exists, plus one new note:
 
-| Block | Source |
-|---|---|
+| Block                                            | Source                                                                                                                                                            |
+| ------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Plan for this session (new, private, up to 5000) | provider `prepNotes` / `savePrepNote(bookingId, text)`. Suggested: a `plan` column on `session_notes` (same owner only rules), or its own table with the same RLS |
-| Last session (date, outcome, private note) | `appointments` and `session_notes` of this client with this professional |
-| Care plan since the last session | `care_tasks` and `care_check_ins` (section 18); check ins only while the client shares progress |
-| Answers for this booking | `appointments.intake_note`, `intake_answers` |
-| Summary note | the pinned client note (My clients) |
-| Messages since the last session | count and unread count from `messages` of that conversation, no message text |
-| Shared by the client | symptom checks, only if the client shares them for a booked or completed appointment |
+| Last session (date, outcome, private note)       | `appointments` and `session_notes` of this client with this professional                                                                                          |
+| Care plan since the last session                 | `care_tasks` and `care_check_ins` (section 18); check ins only while the client shares progress                                                                   |
+| Answers for this booking                         | `appointments.intake_note`, `intake_answers`                                                                                                                      |
+| Summary note                                     | the pinned client note (My clients)                                                                                                                               |
+| Messages since the last session                  | count and unread count from `messages` of that conversation, no message text                                                                                      |
+| Shared by the client                             | symptom checks, only if the client shares them for a booked or completed appointment                                                                              |
 
 **Week calendar:** Monday to Sunday in Cambodia time, open hours from the schedule shaded, time off shown, sessions placed by start time and length, cancelled sessions hidden, red line for now. Phones show one day at a time. No new data.
 
@@ -591,13 +613,13 @@ Not shown on purpose: money (no payments during testing), comparisons with other
 
 **Decided:** called "Clients", not "Patients". A professional only ever sees people who booked with them.
 
-| Part | Data | Backend |
-|---|---|---|
-| Client list | Built from the professional's appointments: name, first session, last session, next session, completed count. Filters: upcoming session, new, not seen in 30 days, past clients | a view or query over `appointments` for `professional_id = auth.uid()` |
-| Summary note | One pinned note per client (`summaryNotes[clientId]`), up to 5000 characters | new table, for example `client_summary_notes (professional_id, client_id, text, updated_at)`, readable and writable only by that professional |
-| Session notes | Same `session_notes` as My bookings, shown under each session and searchable | as section 16 above |
-| Archive | `archivedClients` | a per professional flag (for example `client_relationships.archived_at`); notes are kept |
-| Shared by the client | Survey and symptom checks, only when the client turned sharing on for a booked or completed session with this professional | already in the database: `appointments.share_survey`, `share_symptom_checks`, `client_shares_with_me()` and the RLS policies on `onboarding_surveys`, `mental_health_insights`, `symptom_checks` |
+| Part                 | Data                                                                                                                                                                            | Backend                                                                                                                                                                                          |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Client list          | Built from the professional's appointments: name, first session, last session, next session, completed count. Filters: upcoming session, new, not seen in 30 days, past clients | a view or query over `appointments` for `professional_id = auth.uid()`                                                                                                                           |
+| Summary note         | One pinned note per client (`summaryNotes[clientId]`), up to 5000 characters                                                                                                    | new table, for example `client_summary_notes (professional_id, client_id, text, updated_at)`, readable and writable only by that professional                                                    |
+| Session notes        | Same `session_notes` as My bookings, shown under each session and searchable                                                                                                    | as section 16 above                                                                                                                                                                              |
+| Archive              | `archivedClients`                                                                                                                                                               | a per professional flag (for example `client_relationships.archived_at`); notes are kept                                                                                                         |
+| Shared by the client | Survey and symptom checks, only when the client turned sharing on for a booked or completed session with this professional                                                      | already in the database: `appointments.share_survey`, `share_symptom_checks`, `client_shares_with_me()` and the RLS policies on `onboarding_surveys`, `mental_health_insights`, `symptom_checks` |
 
 **Privacy rules:** no email or phone; never journals, mood logs or detection answers unless shared; notes never readable by admins or clients. Still to decide with Rith: what happens to notes when a client deletes their account (record keeping rules).
 
@@ -610,6 +632,7 @@ Not shown on purpose: money (no payments during testing), comparisons with other
 `Schedule` = weekly hours (`week`: per weekday, `enabled` and `ranges` of `{ start, end, sessionTypes }` in `HH:MM`, Cambodia time), `sessionMinutes` (45, 60, 90), `breakMinutes` (0, 10, 15), `bookingWindowWeeks` (2, 4, 8), `minNoticeHours` (2, 12, 24), and `timeOff` (`{ from, to, note }` dates, inclusive).
 
 Rules the editor enforces, repeat them on the server:
+
 - Ranges between 06:00 and 22:00, at least one session long, no overlaps on the same day.
 - A range's session types must be ones the profile offers.
 - Open times = each range cut into `sessionMinutes` steps plus `breakMinutes`, for the booking window, minus time off, minus booked slots, minus anything inside `minNoticeHours`. See `openSlots()`.
@@ -617,18 +640,17 @@ Rules the editor enforces, repeat them on the server:
 
 Backend needs: store the weekly hours, settings and time off (a `professional_schedules` table or jsonb on `professional_profiles`), and keep `availability_slots` filled for the booking window from them (a function run on save and daily). Users book from `availability_slots` (instant booking). "Has open times" is the schedule step of the visibility checklist. The user booking page still shows its own sample days and times until it reads `availability_slots`.
 
-
 ## 17. Messages (client and professional)
 
 **Files:** `app/_components/messages/message-store.ts` (types, in memory mock store, actions), `chat-thread.tsx` (shared chat with voice recorder), `user-messages.tsx` (user side), routes `app/messages/` and `app/messages/[professionalId]`; professional side `app/pro/_components/messages-view.tsx`, routes `app/pro/messages/` and `[clientId]`. Links: sidebar "Messages" (users), `/pro` menu, client file "Message", booking window "Message client". `/messages` is added to `PROTECTED_PREFIXES` in `lib/supabase/proxy.ts`.
 
 ### Data shape
 
-| Type | Fields | Suggested table |
-|---|---|---|
-| `Conversation` | `id` (`<professionalId>:<clientId>`), `professionalId`, `clientId`, names | `conversations (id, professional_id, client_id, created_at, closed_at)`, unique pair |
-| `ChatMessage` | `id`, `conversationId`, `sender` (`client`, `professional`), `kind` (`text`, `voice`), `text` (up to 2000), `audioUrl`, `durationSeconds` (up to 120), `createdAt`, `readAt` | `messages`; voice files in a private storage bucket, served with short lived signed URLs |
-| Reply time | `few_hours`, `one_day`, `two_days` per professional | a column on `professional_profiles` |
+| Type           | Fields                                                                                                                                                                       | Suggested table                                                                          |
+| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| `Conversation` | `id` (`<professionalId>:<clientId>`), `professionalId`, `clientId`, names                                                                                                    | `conversations (id, professional_id, client_id, created_at, closed_at)`, unique pair     |
+| `ChatMessage`  | `id`, `conversationId`, `sender` (`client`, `professional`), `kind` (`text`, `voice`), `text` (up to 2000), `audioUrl`, `durationSeconds` (up to 120), `createdAt`, `readAt` | `messages`; voice files in a private storage bucket, served with short lived signed URLs |
+| Reply time     | `few_hours`, `one_day`, `two_days` per professional                                                                                                                          | a column on `professional_profiles`                                                      |
 
 ### Rules
 
@@ -656,11 +678,11 @@ Backend needs: store the weekly hours, settings and time off (a `professional_sc
 
 ### Data shape
 
-| Type | Fields | Suggested table |
-|---|---|---|
-| `CareTask` | `id`, `professionalId`, `clientId`, `bookingId` (session it was given after, nullable), `kind` (`mindguide`, `mission`, `goal`, `reminder`), `mindguide` (`{ type: lesson, tip or practice, itemId }`, only for kind mindguide), `title` (up to 120, empty for MindGuide), `note` (up to 300), `repeat` (`{ type: 'once' }` or `{ type: 'days', days: 1..7 }`, 1 is Monday), `startDate`, `endDate` (nullable; for a goal it is "reach by"), `reminderTime` (`HH:MM` Cambodia time, nullable, never for goals), `createdAt`, `stoppedAt` | `care_tasks`; `days` as `smallint[]` |
-| `CareCheckIn` | `taskId`, `date` (Cambodia date), `doneAt` | `care_check_ins`, unique `(task_id, date)`. A one time task or goal has at most one row |
-| Progress sharing | per professional and client, boolean, default off | `care_sharing (professional_id, client_id, share_progress, updated_at)` |
+| Type             | Fields                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | Suggested table                                                                         |
+| ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| `CareTask`       | `id`, `professionalId`, `clientId`, `bookingId` (session it was given after, nullable), `kind` (`mindguide`, `mission`, `goal`, `reminder`), `mindguide` (`{ type: lesson, tip or practice, itemId }`, only for kind mindguide), `title` (up to 120, empty for MindGuide), `note` (up to 300), `repeat` (`{ type: 'once' }` or `{ type: 'days', days: 1..7 }`, 1 is Monday), `startDate`, `endDate` (nullable; for a goal it is "reach by"), `reminderTime` (`HH:MM` Cambodia time, nullable, never for goals), `createdAt`, `stoppedAt` | `care_tasks`; `days` as `smallint[]`                                                    |
+| `CareCheckIn`    | `taskId`, `date` (Cambodia date), `doneAt`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | `care_check_ins`, unique `(task_id, date)`. A one time task or goal has at most one row |
+| Progress sharing | per professional and client, boolean, default off                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | `care_sharing (professional_id, client_id, share_progress, updated_at)`                 |
 
 ### Rules
 
@@ -693,14 +715,14 @@ The bot needs, for each active task with a `reminderTime`: client id (to find th
 
 ### Data shape
 
-| Type | Fields | Suggested table |
-|---|---|---|
-| `Schedule.meetingUrl` | the professional's default room, `https://` only | a column on `professional_profiles` (or the schedule settings) |
-| `ProBooking.meetingUrl` | copied from the default when booked, editable per session | `appointments.meeting_url` (exists) |
-| `ProBooking.seriesId` | shared by every session of a repeating series | `appointments.series_id` (nullable) |
-| `SessionSuggestion` | `id`, `professionalId`, `clientId`, `sessionType`, `durationMinutes`, `times` (1 to 3 starts), `repeat` (`{ everyWeeks: 1 or 2, count }`), `note` (up to 300), `meetingUrl`, `createdAt`, `status` (`open`, `booked`, `withdrawn`), `chosenTime`, `bookingIds` | `session_suggestions` |
-| `ChatMessage.kind = 'suggestion'` + `suggestionId` | the chat message that carries a suggestion | `messages.suggestion_id` (nullable) |
-| `QuickReply` | `id`, `text` (up to 500), up to 20 per professional; `{name}`, `{link}`, `{next}` are filled in the browser before sending | `quick_replies (professional_id, text, position)`, readable only by that professional |
+| Type                                               | Fields                                                                                                                                                                                                                                                         | Suggested table                                                                       |
+| -------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| `Schedule.meetingUrl`                              | the professional's default room, `https://` only                                                                                                                                                                                                               | a column on `professional_profiles` (or the schedule settings)                        |
+| `ProBooking.meetingUrl`                            | copied from the default when booked, editable per session                                                                                                                                                                                                      | `appointments.meeting_url` (exists)                                                   |
+| `ProBooking.seriesId`                              | shared by every session of a repeating series                                                                                                                                                                                                                  | `appointments.series_id` (nullable)                                                   |
+| `SessionSuggestion`                                | `id`, `professionalId`, `clientId`, `sessionType`, `durationMinutes`, `times` (1 to 3 starts), `repeat` (`{ everyWeeks: 1 or 2, count }`), `note` (up to 300), `meetingUrl`, `createdAt`, `status` (`open`, `booked`, `withdrawn`), `chosenTime`, `bookingIds` | `session_suggestions`                                                                 |
+| `ChatMessage.kind = 'suggestion'` + `suggestionId` | the chat message that carries a suggestion                                                                                                                                                                                                                     | `messages.suggestion_id` (nullable)                                                   |
+| `QuickReply`                                       | `id`, `text` (up to 500), up to 20 per professional; `{name}`, `{link}`, `{next}` are filled in the browser before sending                                                                                                                                     | `quick_replies (professional_id, text, position)`, readable only by that professional |
 
 ### Rules
 
@@ -732,13 +754,13 @@ The bot needs, for each active task with a `reminderTime`: client id (to find th
 
 `ProEpisode` is `TherapistPodcast` (`lib/therapists.ts`) plus:
 
-| Field | Notes |
-|---|---|
-| `professionalId` | owner |
-| `status` | `draft`, `published`, `hidden` |
-| `audioUrl`, `audioName` | file in storage; MP3, M4A, AAC, WAV, OGG or WebM, up to 100 MB and 60 minutes. Duration is read from the file |
-| `updatedAt`, `publishedAt` | |
-| `episodeNumber`, `kmEpisodeNumber` | given on first publish, continuing the professional's numbering |
+| Field                              | Notes                                                                                                         |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| `professionalId`                   | owner                                                                                                         |
+| `status`                           | `draft`, `published`, `hidden`                                                                                |
+| `audioUrl`, `audioName`            | file in storage; MP3, M4A, AAC, WAV, OGG or WebM, up to 100 MB and 60 minutes. Duration is read from the file |
+| `updatedAt`, `publishedAt`         |                                                                                                               |
+| `episodeNumber`, `kmEpisodeNumber` | given on first publish, continuing the professional's numbering                                               |
 
 Text limits: title 120, short summary 200, topic 60, description 1500, quote 200, key points up to 4 of 160, chapters up to 10 (title 80, start time before the end). Each text has English and Khmer; an empty language is filled from the other on save. Up to 20 episodes per professional.
 
@@ -769,10 +791,10 @@ Suggested table: `professional_episodes` (columns as above, `takeaways` and `cha
 
 `SupportGroup` (user side) gains:
 
-| Field | Type | Notes |
-|---|---|---|
-| `status` | `'active' \| 'closed'` | derived from closures |
-| `createdBy` | `'admin' \| 'professional'` | new column on groups |
+| Field       | Type                        | Notes                 |
+| ----------- | --------------------------- | --------------------- |
+| `status`    | `'active' \| 'closed'`      | derived from closures |
+| `createdBy` | `'admin' \| 'professional'` | new column on groups  |
 
 `AdminGroup` gains `status: 'active' | 'closed'` (replaces the old `archived`), `closedReason?`, `createdBy`, `creatorName`.
 
@@ -782,29 +804,29 @@ A closure: `{ groupId, reason, closedAt }`. Suggested columns on the groups tabl
 
 A report sent by a user (`StoredCommunityReport`):
 
-| Field | Type | Notes |
-|---|---|---|
-| `target` | `{ kind: 'member', groupId, memberLabel, memberId?, messageId? }`, `{ kind: 'message' \| 'image', groupId, messageId }` or `{ kind: 'group', groupId }` | A reference, never a copy of the content. A member report from a chat message carries `messageId` so the backend can find the real sender |
-| `reason` | `'harassment' \| 'spam' \| 'harmful' \| 'inappropriate_image' \| 'safety_concern' \| 'other'` | Which reasons show depends on `kind` |
-| `note` | string, up to 300 characters, optional | The form asks users not to write personal or health details |
-| `createdAt` | ISO string | |
+| Field       | Type                                                                                                                                                    | Notes                                                                                                                                     |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `target`    | `{ kind: 'member', groupId, memberLabel, memberId?, messageId? }`, `{ kind: 'message' \| 'image', groupId, messageId }` or `{ kind: 'group', groupId }` | A reference, never a copy of the content. A member report from a chat message carries `messageId` so the backend can find the real sender |
+| `reason`    | `'harassment' \| 'spam' \| 'harmful' \| 'inappropriate_image' \| 'safety_concern' \| 'other'`                                                           | Which reasons show depends on `kind`                                                                                                      |
+| `note`      | string, up to 300 characters, optional                                                                                                                  | The form asks users not to write personal or health details                                                                               |
+| `createdAt` | ISO string                                                                                                                                              |                                                                                                                                           |
 
 The admin list uses `CommunityReport`: `id, groupId, targetKind, targetLabel, messageId?, messagePreview, reason (label), note, createdAt, status ('pending' | 'dismissed' | 'removed')`.
 
 ### Actions
 
-| Frontend action | Who | Meaning | Suggested backend |
-|---|---|---|---|
-| `saveCreatedGroup(group)` from the Community "Create a group" button | `professional`, `admin` | Create a live group; the creator becomes mentor and member | `POST /api/community/groups`. Check the role on the server; set `created_by` and the mentor from the session, never from the body |
-| admin `saveGroup` (new record) | `admin` | Admin "Add group" also publishes to users | same endpoint |
-| `shutDownGroup(id, reason)` | `admin` | Close the group, reason required | `POST /api/admin/community/groups/:id/close`, audit log entry |
-| `reopenGroup(id)` | `admin` | Reopen | `POST /api/admin/community/groups/:id/reopen`, audit log entry |
-| `communityMessages` (View chat) | `admin` | Read every message of one group, read only, including images and file names | `GET /api/admin/community/groups/:id/messages`. **Write an audit log entry on every call** (who, which group, when) |
-| `submitCommunityReport({ target, reason, note })` | signed in member of that group | Returns `'sent'` or `'daily_limit'` | `security definer` function: checks the target exists and the reporter is a member, 5 reports per user per day, keeps the reporter id only for that limit |
-| `resolveCommunityReport(id, 'dismissed')` | `admin` | Close a report, nothing changes in the group | admin only, audit log entry |
-| `resolveCommunityReport(id, 'removed')` on a message or image report (`removeMessage`) | `admin` | Hide that message for every member. Members see "This message was removed by the AROM team."; admins still see the original in View chat, marked Removed | `POST /api/admin/community/messages/:id/remove`: set `removed_at`, `removed_by` on the message (keep the row for moderation), audit log entry. Member reads must return the placeholder flag only, never the removed text or image URL |
-| `resolveCommunityReport(id, 'removed')` on a person report (`removeMember`) | `admin` | Take that person out of the group. They disappear from the member list; their past messages stay | `POST /api/admin/community/groups/:id/members/:userId/remove`, audit log entry. Resolve the real user from the reported message's sender on the server. They cannot rejoin unless an admin allows it |
-| group reports | `admin` | No remove button; use Shut down | none |
+| Frontend action                                                                        | Who                            | Meaning                                                                                                                                                  | Suggested backend                                                                                                                                                                                                                      |
+| -------------------------------------------------------------------------------------- | ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `saveCreatedGroup(group)` from the Community "Create a group" button                   | `professional`, `admin`        | Create a live group; the creator becomes mentor and member                                                                                               | `POST /api/community/groups`. Check the role on the server; set `created_by` and the mentor from the session, never from the body                                                                                                      |
+| admin `saveGroup` (new record)                                                         | `admin`                        | Admin "Add group" also publishes to users                                                                                                                | same endpoint                                                                                                                                                                                                                          |
+| `shutDownGroup(id, reason)`                                                            | `admin`                        | Close the group, reason required                                                                                                                         | `POST /api/admin/community/groups/:id/close`, audit log entry                                                                                                                                                                          |
+| `reopenGroup(id)`                                                                      | `admin`                        | Reopen                                                                                                                                                   | `POST /api/admin/community/groups/:id/reopen`, audit log entry                                                                                                                                                                         |
+| `communityMessages` (View chat)                                                        | `admin`                        | Read every message of one group, read only, including images and file names                                                                              | `GET /api/admin/community/groups/:id/messages`. **Write an audit log entry on every call** (who, which group, when)                                                                                                                    |
+| `submitCommunityReport({ target, reason, note })`                                      | signed in member of that group | Returns `'sent'` or `'daily_limit'`                                                                                                                      | `security definer` function: checks the target exists and the reporter is a member, 5 reports per user per day, keeps the reporter id only for that limit                                                                              |
+| `resolveCommunityReport(id, 'dismissed')`                                              | `admin`                        | Close a report, nothing changes in the group                                                                                                             | admin only, audit log entry                                                                                                                                                                                                            |
+| `resolveCommunityReport(id, 'removed')` on a message or image report (`removeMessage`) | `admin`                        | Hide that message for every member. Members see "This message was removed by the AROM team."; admins still see the original in View chat, marked Removed | `POST /api/admin/community/messages/:id/remove`: set `removed_at`, `removed_by` on the message (keep the row for moderation), audit log entry. Member reads must return the placeholder flag only, never the removed text or image URL |
+| `resolveCommunityReport(id, 'removed')` on a person report (`removeMember`)            | `admin`                        | Take that person out of the group. They disappear from the member list; their past messages stay                                                         | `POST /api/admin/community/groups/:id/members/:userId/remove`, audit log entry. Resolve the real user from the reported message's sender on the server. They cannot rejoin unless an admin allows it                                   |
+| group reports                                                                          | `admin`                        | No remove button; use Shut down                                                                                                                          | none                                                                                                                                                                                                                                   |
 
 ### Rules for the backend
 
@@ -825,10 +847,10 @@ The admin list uses `CommunityReport`: `id, groupId, targetKind, targetLabel, me
 
 ### Data shape
 
-| Type | Fields | Table |
-|---|---|---|
-| `MoodLevel` | `very_low`, `low`, `okay`, `good`, `great` (the existing `mood_level` enum) | none |
-| `MoodDay` | `day` (Cambodia date), `mood` (`MoodLevel` or null on a day without a check in) | `mood_checkins` |
+| Type               | Fields                                                                                     | Table                     |
+| ------------------ | ------------------------------------------------------------------------------------------ | ------------------------- |
+| `MoodLevel`        | `very_low`, `low`, `okay`, `good`, `great` (the existing `mood_level` enum)                | none                      |
+| `MoodDay`          | `day` (Cambodia date), `mood` (`MoodLevel` or null on a day without a check in)            | `mood_checkins`           |
 | `MoodWeekResponse` | `days` (last 7 Cambodia days, oldest first, today last), `checkIns` (days with a check in) | read from `mood_checkins` |
 
 ### Rules (decided, do not change)
@@ -848,6 +870,103 @@ The admin list uses `CommunityReport`: `id, groupId, targetKind, targetLabel, me
 - **Still open:** the journal itself (`journal_entries`) is still saved in the browser only (`arom_journal_entries` in `localStorage`). It needs its own API before real users write in it. The weekly range is the last 7 days only; the old This week and Last week switch is gone.
 - **Not tested yet** in the running app or against Supabase, only typecheck and lint.
 
+## 23. Anonymous identity protection
+
+**Status:** implemented on `feature/anonymous-privacy`; not yet ready to merge. This section supersedes older implementation descriptions in sections 16–19 where they refer to real client IDs, direct professional table reads, `my_client_names()`, or signed voice redirects.
+
+### Identity rules
+
+- The user-role privacy switch reads and writes `profiles.hide_identity`.
+- `hide_identity = true` displays "Anonymous" in the updated professional booking and client flows.
+- `privacy_mode` is a legacy field. The transition migration preserves older anonymous choices; the updated name functions then use `hide_identity`.
+- Professional-facing client IDs are stable aliases scoped to the professional–user pair. They are not `profiles.id`.
+- The identity mapping is stored in `professional_client_aliases`, with direct access revoked from browser roles.
+- Turning anonymity off does not change the alias.
+- For anonymous users, professional booking responses return an empty intake note and no intake answers. Stored intake data is retained.
+- Anonymity does not grant admins access to private messages, session notes, journals, or other private wellbeing content. Existing admin restrictions still apply.
+- Users can identify themselves through message text, recordings, calls, or other free text. Anonymous Mode does not automatically redact those contents.
+
+### Protected API implementation
+
+HTTP routes remain the same. The controllers now use protected functions that check the signed-in account and resolve aliases internally.
+
+| Area                           | Functions used by the updated controllers                                                            |
+| ------------------------------ | ---------------------------------------------------------------------------------------------------- |
+| Professional bookings          | `read_my_pro_bookings_safe`, `owns_professional_appointment`, `update_pro_booking_safe`              |
+| Schedule and availability      | `my_upcoming_booked_times`, `refresh_pro_meeting_links_safe`                                         |
+| Conversations and messages     | `my_conversations_safe`, `read_private_messages_safe`, `open_conversation_safe`, `send_message_safe` |
+| Client names and archive       | `my_message_client_names`, `my_archived_client_aliases`, `set_client_archived_safe`                  |
+| Summary notes                  | `my_client_summary_notes_safe`, `save_client_summary_note_safe`                                      |
+| Shared survey and symptom data | `get_shared_client_data_safe`                                                                        |
+| Suggestions                    | `suggest_session_safe`, `withdraw_session_suggestion_safe`, `read_session_suggestions_safe`          |
+| Care plans                     | `read_pro_care_plan_safe`, `give_care_task_safe`                                                     |
+| Appointment sharing            | `set_appointment_sharing_safe`                                                                       |
+
+The three-argument appointment-sharing wrapper preserves the existing mood-trend sharing value when updating survey and symptom-sharing choices.
+
+Several original functions remain for internal calls, with direct authenticated execution revoked. Do not restore their grants or switch controllers back to them without checking identity exposure.
+
+### Sharing and table access
+
+- Professional reads of raw appointments, conversations, messages, summary notes, suggestions, care tasks, sharing rows, and shared-health data have been restricted.
+- User access to their own appointments, care tasks, check-ins, surveys, symptom checks, and moods remains subject to owner policies.
+- Survey and symptom-sharing choices remain separate from Anonymous Mode.
+- Care progress is returned to the professional only while progress sharing is enabled. Turning it off hides previous check-ins too.
+- Protected functions must preserve ownership and sharing checks even though they run as `security definer`.
+- Professional note-creation policies use `owns_professional_appointment()` instead of depending on raw appointment visibility.
+
+### Voice playback and server configuration
+
+`GET /api/voice/:messageId` now returns audio through the server. It does not redirect to a signed storage URL.
+
+The handler:
+
+1. Authenticates the caller using the normal cookie-based client.
+2. Reads message metadata using the server-only storage client.
+3. Checks conversation membership as the signed-in caller.
+4. Downloads and returns audio only after that check succeeds.
+
+Server helper: `lib/supabase/private-storage.ts`.
+
+Required environment variable: `SUPABASE_SECRET_KEY`.
+
+- Configure it in `.env.local` for development and in the hosting environment for deployment.
+- Never commit its value or prefix it with `NEXT_PUBLIC_`.
+- The privileged client bypasses RLS. Never use it to serve audio without the membership check.
+- Direct voice-storage reads are limited to the sender's own files. Recipients use the API.
+- Failed uploads may be removed only while they are not attached to a saved message.
+
+### Migration handoff
+
+- Earlier anonymity migration numbers collided with teammate migrations.
+- The anonymity files formerly numbered `20261015000100` through `20261015000700` were renamed to `20261015000900` through `20261015001500`.
+- The safe-conversations migration is `20261015001600`.
+- Later alias, access-control, booking, care, sharing, and intake changes are recorded in the subsequent feature-branch migrations.
+- Changes were applied manually through SQL Editor on the development project. A matching migration-history record has not been established.
+- Do not blindly rerun all migrations on that shared database.
+- Validate the complete sequence on a separate empty test database and reconcile the shared database's actual schema with migration history before deployment.
+- Renamed files must be reviewed for dependencies and function-signature changes, not only unique timestamps.
+
+### Validation
+
+Reported development checks:
+
+- TypeScript and production build passed.
+- Anonymity on/off changed displayed names correctly after refresh.
+- Participants could exchange messages and play voice recordings.
+- An unrelated professional could not retrieve another professional's conversation.
+- Voice isolation and signed-out access checks were reported working.
+- Care-task delivery and progress-sharing on/off worked before the final policy restrictions.
+
+Still pending:
+
+- Complete migration replay on an empty test database.
+- Migration-history reconciliation.
+- Repeat sharing and care-plan checks after the final restrictions.
+- Intake testing with saved test answers.
+- Remaining function, view, policy, and direct-access checks.
+- Deployment configuration and deployed smoke tests.
+
 ## Template for a new feature section
 
 ```md
@@ -856,11 +975,14 @@ The admin list uses `CommunityReport`: `id, groupId, targetKind, targetLabel, me
 **Files:** <data file>, <view file>, <provider actions>
 
 ### Data shape the page expects
+
 | Field | Type | Database source | Exists today? |
 
 ### Actions
+
 | Frontend action | Meaning | Endpoint | Exists today? |
 
 ### Backend gaps
+
 1. ...
 ```
