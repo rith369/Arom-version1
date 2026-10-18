@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, CalendarCheck, LifeBuoy, Lock, MessageCircle, Monitor, Repeat, UserRound } from "lucide-react";
+import { ArrowLeft, CalendarCheck, LifeBuoy, Lock, MessageCircle, Monitor, Repeat, UserRound, X } from "lucide-react";
 import type { AppointmentsResponse, UserAppointment } from "@/lib/appointments";
 import { DesktopNavigation, MobileNavigation } from "../app-navigation";
 import { useLanguage } from "../language-provider";
@@ -18,6 +18,46 @@ import {
   type Conversation,
   type ConversationSummary,
 } from "./message-store";
+
+// The "not for emergencies" bar is shown until the person closes it once.
+// The choice is kept in this browser only (not their account). The server
+// render counts it as closed, so someone who closed it never sees it flash.
+const NOTICE_KEY = "arom_messages_emergency_notice_closed";
+const NOTICE_EVENT = "arom_messages_emergency_notice_updated";
+
+function subscribeToNotice(onChange: () => void) {
+  window.addEventListener("storage", onChange);
+  window.addEventListener(NOTICE_EVENT, onChange);
+  return () => {
+    window.removeEventListener("storage", onChange);
+    window.removeEventListener(NOTICE_EVENT, onChange);
+  };
+}
+
+// Used when the browser blocks storage: the bar then hides until the page reloads.
+let noticeClosedInMemory = false;
+
+function readNoticeClosed(): boolean {
+  try {
+    return noticeClosedInMemory || window.localStorage.getItem(NOTICE_KEY) === "1";
+  } catch {
+    return noticeClosedInMemory;
+  }
+}
+
+function useEmergencyNoticeClosed() {
+  const closed = useSyncExternalStore(subscribeToNotice, readNoticeClosed, () => true);
+  const close = () => {
+    noticeClosedInMemory = true;
+    try {
+      window.localStorage.setItem(NOTICE_KEY, "1");
+    } catch {
+      // Blocked storage: the in memory flag above still hides it for now.
+    }
+    window.dispatchEvent(new Event(NOTICE_EVENT));
+  };
+  return [closed, close] as const;
+}
 
 function Shell({ children }: { children: React.ReactNode }) {
   return (
@@ -40,6 +80,7 @@ export function UserMessages({ professionalId, groupId }: { professionalId?: str
   const router = useRouter();
   const list = useConversations("client");
   const myGroups = useMyGroups();
+  const [noticeDismissed, dismissNotice] = useEmergencyNoticeClosed();
   const [now] = useState(() => Date.now());
   const [appointments, setAppointments] = useState<UserAppointment[]>([]);
 
@@ -195,16 +236,26 @@ export function UserMessages({ professionalId, groupId }: { professionalId?: str
                   )}
                 </div>
               )}
-              <p className="flex items-start gap-2 border-b border-arom-warning/20 bg-arom-warning-soft px-4 py-2.5 text-xs leading-5 text-arom-warning sm:px-6">
-                <LifeBuoy size={15} aria-hidden="true" className="mt-0.5 shrink-0" />
-                <span>
-                  {t("សារមិនមែនសម្រាប់ករណីបន្ទាន់ទេ។ ប្រសិនបើអ្នកកំពុងមានគ្រោះថ្នាក់ឥឡូវនេះ ", "Messages are not for emergencies. If you are in danger right now, ")}
-                  <Link href="/profile#get-help-title" className="font-semibold underline">
-                    {t("ទៅកាន់ជំនួយបន្ទាន់", "go to Get help now")}
-                  </Link>
-                  .
-                </span>
-              </p>
+              {!noticeDismissed && (
+                <div className="flex items-start gap-2 border-b border-arom-warning/20 bg-arom-warning-soft px-4 py-2.5 text-xs leading-5 text-arom-warning sm:px-6">
+                  <LifeBuoy size={15} aria-hidden="true" className="mt-0.5 shrink-0" />
+                  <p className="min-w-0 flex-1">
+                    {t("សារមិនមែនសម្រាប់ករណីបន្ទាន់ទេ។ ប្រសិនបើអ្នកកំពុងមានគ្រោះថ្នាក់ឥឡូវនេះ ", "Messages are not for emergencies. If you are in danger right now, ")}
+                    <Link href="/profile#get-help-title" className="font-semibold underline">
+                      {t("ទៅកាន់ជំនួយបន្ទាន់", "go to Get help now")}
+                    </Link>
+                    .
+                  </p>
+                  <button
+                    type="button"
+                    onClick={dismissNotice}
+                    aria-label={t("បិទការជូនដំណឹងនេះ", "Close this notice")}
+                    className="-my-1 -mr-1.5 flex size-7 shrink-0 items-center justify-center rounded-full transition-colors hover:bg-arom-warning/10 focus-visible:outline-2 focus-visible:outline-arom-warning cursor-pointer"
+                  >
+                    <X size={15} aria-hidden="true" />
+                  </button>
+                </div>
+              )}
               <div className="min-h-0 flex-1">
                 <ChatThread conversation={selected} viewer="client" km={km} />
               </div>
