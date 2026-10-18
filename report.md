@@ -76,7 +76,7 @@ Commit `dccaf24`. Migration `20261018080000_read_group_members.sql` must be run 
 - **`app/community/page.tsx`:** loads members and the mentor when a group chat opens (separately from messages).
 - **`group-hub-view.tsx`:** empty message, no report button on your own row. **`community-data.ts`:** `GroupMember.isYou`.
 - **`community-home-view.tsx`:** the banner follows the switch. **`profile-settings.tsx`:** refreshes the session after saving the switch.
-- **Follow up:** `is_group_member()` does not check `removed_at`, so a member removed by the AROM team may still read the chat (noted in `BACKEND-HANDOFF.md` section 23).
+- **Removed members (checked 19 Oct):** they cannot read or send. Removing a member sets `left_at` together with `removed_at`, which `is_group_member()` checks, and rejoining is refused. An earlier note here said otherwise; it was wrong.
 - Khmer text should be checked by a Khmer speaker.
 
 **What to re-test:**
