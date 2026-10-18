@@ -79,6 +79,7 @@ The yellow "Demo data on this page" banner is in `admin-shell.tsx`. Remove it fo
 | Your Plan For Today as a to do list: own tasks, ideas, MindGuide items, repeat, tick with a line through (Home) | Done | Connected, PR #17 (`/api/plan`, `/api/plan/tasks`, `/api/plan/tasks/:id`, `/api/plan/tasks/:id/check`, `/api/plan/order`), migration `20261016001300` | 27 |
 | Play with friends (`/play-cards`): a game hub with Mental health cards, Truth or dare and Guess the animal, one phone passed around | Done | No backend needed (cards in code, nothing saved). Later: admin managed decks, a play count in Progress, online rooms | 28 |
 | Other admin pages | Bookings and Settings are connected (sections 12, 13, 15). Group activities in admin Community still sample data | Not started for group activities | 23 |
+| Anonymous identity protection: professionals see client aliases, safe functions for bookings, messages, notes, suggestions, care plans and shared data | No UI change | Written (Sokheng, merged with main in `merge/anonymous-privacy`). Most SQL already applied by hand; two functions and the merge migration still to run | 29 |
 
 ## 5. Admin users page
 
@@ -906,7 +907,7 @@ The admin list uses `CommunityReport`: `id, groupId, targetKind, targetLabel, me
 
 - **API:** `GET|POST /api/community/groups` (browse and create), `POST /api/community/groups/:id/join`, `GET|POST /api/community/groups/:id/messages` (chat read and send).
 - **Tables and functions:** `community_messages` (raw rows readable only by the author and admins), `read_community_messages(group)` returns messages with display names and never the author id. `profiles.hide_identity` (default on) shows a member as "Anonymous" in Community only. Mentors no longer read raw member, waitlist, reply or check in rows. Only admins read raw safety flags.
-- **Professionals** see clients by `privacy_mode` (Anonymous Mode), never by `hide_identity`. `my_client_names()` and `my_booking_client_aliases()` follow that rule.
+- **Professionals** saw clients by `privacy_mode` (Anonymous Mode), never by `hide_identity`. Section 29 changes this to `hide_identity`, and that choice is still open for the team (see section 29, Decision needed).
 
 ### Backend gaps
 
@@ -1079,6 +1080,74 @@ The admin list uses `CommunityReport`: `id, groupId, targetKind, targetLabel, me
 1. Admins manage decks in English and Khmer (like journal prompts, section 26).
 2. A "played a card game" count in Progress activities (needs a new `activity_log` kind).
 3. Online rooms: friends join on their own phones with a code (needs realtime).
+
+## 29. Anonymous identity protection
+
+**Status:** written by Sokheng on `feature/anonymous-privacy`, merged with main on `merge/anonymous-privacy` (18 Oct 2026). Most of the SQL was already applied by hand to the shared Supabase project before the code was merged, so the live site needs this branch merged soon. This section replaces older descriptions in sections 16 to 19 wherever they mention real client ids, direct professional table reads, `my_client_names()` or signed voice links.
+
+### Identity rules
+
+- The user privacy switch ("Hide my identity" in Profile settings) reads and writes `profiles.hide_identity`.
+- `hide_identity = true` shows the client as "Anonymous" in the professional booking and client screens.
+- `privacy_mode` is an older field. A migration copied older anonymous choices into `hide_identity`; the name functions now use `hide_identity`.
+- Client ids that professionals see are aliases, one per professional and client pair, never `profiles.id`. The mapping lives in `professional_client_aliases`, which browsers cannot read.
+- Turning anonymity off does not change the alias.
+- For anonymous clients, professional booking data returns an empty intake note and no intake answers. The answers stay saved.
+- Anonymity gives admins no extra access to private messages, session notes, journals or other wellbeing content.
+- Clients can still identify themselves in message text, voice, calls or other free text. Anonymous Mode does not hide that.
+
+### Decision needed
+
+`hide_identity` is on by default, so with this rule most clients show as "Anonymous" to their own professional unless they turn the switch off. Section 23 previously followed `privacy_mode` for professionals (only Community used `hide_identity`). Rith chose to merge with Sokheng's rule because it is what the live database already does. Rith, Sokheng and Hok Chheng should confirm it together.
+
+### Protected functions
+
+HTTP routes stay the same. The controllers call functions that check the signed in account and resolve aliases inside the database.
+
+| Area | Functions used by the controllers |
+|---|---|
+| Professional bookings | `read_my_pro_bookings_safe`, `owns_professional_appointment`, `update_pro_booking_safe` |
+| Schedule and open times | `my_upcoming_booked_times`, `refresh_pro_meeting_links_safe` |
+| Conversations and messages | `my_conversations_safe`, `read_private_messages_safe`, `open_conversation_safe`, `send_message_safe` |
+| Client names and archive | `my_message_client_names`, `my_archived_client_aliases`, `set_client_archived_safe` |
+| Summary notes | `my_client_summary_notes_safe`, `save_client_summary_note_safe` |
+| Shared survey and symptom checks | `get_shared_client_data_safe` |
+| Shared mood trend | `shared_mood_checkins_safe` (added in the merge) |
+| Suggestions | `suggest_session_safe`, `withdraw_session_suggestion_safe`, `read_session_suggestions_safe` |
+| Care plans | `read_pro_care_plan_safe`, `give_care_task_safe` |
+| Appointment sharing (client) | `set_appointment_sharing` with four choices, as on main. Sokheng's three choice `set_appointment_sharing_safe` stays in the database but the merged code does not use it |
+
+Several original functions remain for internal use, with direct execution revoked. Do not restore their grants or switch the controllers back to them.
+
+### Table access
+
+- Professionals no longer read raw appointments, conversations, messages, summary notes, suggestions, care tasks, sharing rows or shared health data.
+- Clients keep reading their own appointments, care tasks, check ins, surveys, symptom checks and moods.
+- Survey, symptom check and mood trend sharing stay separate from Anonymous Mode.
+- Care progress reaches the professional only while progress sharing is on. Turning it off hides earlier check ins too.
+- Session note and prep note policies use `owns_professional_appointment()`.
+
+### Voice playback
+
+`GET /api/voice/:messageId` now sends the audio through the server instead of redirecting to a signed storage link. It signs the caller in, reads the message with the server only client (`lib/supabase/private-storage.ts`), checks conversation membership as the caller, and only then returns the audio. Voice storage reads are limited to the sender's own files; recipients use the API.
+
+**Needs `SUPABASE_SECRET_KEY`** in `.env.local` and on Vercel. Never commit it or prefix it with `NEXT_PUBLIC_`.
+
+### Migrations
+
+- Hok Chheng's `20261016000000` to `20261016000700` names are kept. Sokheng's second renames of those files were dropped in the merge.
+- Sokheng's new files that were numbered `20261015001600` to `20261015002600` are now `20261017000900` to `20261017001900`, same order. They need `professional_client_aliases` (from `20261016000600`), and `20261015001600` was already used by `in_person_address`.
+- `20261018060000_merge_privacy_with_main.sql` (new in the merge): adds `rescheduledBy` and `shareMoodTrend` to `read_my_pro_bookings_safe()`, and adds `shared_mood_checkins_safe(alias)`.
+- **Not applied yet** (checked 18 Oct): `my_message_client_names` (`20261017001100`), `set_client_archived_safe` (`20261017001200`) and the merge migration. Without them, client names in messages, archiving a client, "rescheduled by", mood trend on bookings and the shared mood trend fail.
+- Everything else in this section was applied by hand. The project has no migration history, so do not rerun every file on it; run only the three above.
+
+### Still open
+
+- The community chat returns the oldest 100 messages instead of the newest 100 (`read_community_messages`, latest in `20261017000500`). Sokheng fixed this in an older file that later migrations replace, so the fix needs a new migration based on the latest version.
+- `shared_mood_checkins(client id)` still accepts a real client id. Nothing in the merged code calls it directly; revoke it once the alias version is live.
+- **Telling anonymous clients apart (frontend, after this merges):** the pro screens show only `clientName`, so two anonymous clients both read "Anonymous" in bookings, messages, the client list and the care plan dialog. A professional could write a note or give a task to the wrong person. Show a short label that stays the same for each client, made from the alias id (for example "Anonymous client #4821"). It must come from the alias, never the account id, and it must look the same on every pro screen.
+- `messages-controller.ts`, `sessions-controller.ts` and `care-controller.ts` keep Sokheng's single quote formatting.
+- Test with a professional and a client account after the three migrations run: bookings list and actions, messages and voice, client file (summary note, archive, shared data, mood trend), suggestions, care plan.
 
 ## Template for a new feature section
 

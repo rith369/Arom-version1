@@ -199,8 +199,14 @@ export function ChatThread({
       return;
     }
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const media = new MediaRecorder(stream);
+      // Noise suppression and echo cancellation are made for calls and cut quiet
+      // words to silence in a recording, so they are off. Gain control keeps
+      // soft and loud speech at an even level.
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: { noiseSuppression: false, echoCancellation: false, autoGainControl: true },
+      });
+      // About 1.4 MB for 2 minutes, well under MAX_VOICE_BYTES.
+      const media = new MediaRecorder(stream, { audioBitsPerSecond: 96_000 });
       chunksRef.current = [];
       secondsRef.current = 0;
       cancelledRef.current = false;
