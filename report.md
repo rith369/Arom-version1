@@ -2,7 +2,7 @@
 
 ## 18 Oct 2026: Anonymous Privacy Merged With Main
 
-Commit `PENDING`. Branch `merge/anonymous-privacy`. Migrations to run in Supabase, in this order: `20261017001100_message_client_names.sql`, `20261017001200_alias_client_archiving.sql`, `20261018060000_merge_privacy_with_main.sql`. The rest of the privacy SQL was already applied by hand; do not rerun it. Needs `SUPABASE_SECRET_KEY` on Vercel.
+Commit `b166f74`. Branch `merge/anonymous-privacy`. Migrations to run in Supabase, in this order: `20261017001100_message_client_names.sql`, `20261017001200_alias_client_archiving.sql`, `20261018060000_merge_privacy_with_main.sql`. The rest of the privacy SQL was already applied by hand; do not rerun it. Needs `SUPABASE_SECRET_KEY` on Vercel.
 
 **Why.** Sokheng built anonymous privacy for professionals on a branch that started from main on 15 Oct and was 159 commits behind, so it could not merge (11 conflicts). Most of its SQL was already applied to the shared database, which blocked messages, therapist bookings, care plans and shared client data for the code on main. This merge brings the privacy work in without losing anything from main.
 
