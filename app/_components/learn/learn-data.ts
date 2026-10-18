@@ -6362,7 +6362,451 @@ export const LESSON_LOST_INTEREST: Lesson = {
   ],
 };
 
+
+export const REFERENCES_SUPPORT_FRIEND: ReferenceItem[] = [
+  {
+    id: 1,
+    citation: "[1]",
+    source: "WHO",
+    title: "World Health Organization: Psychological First Aid Guide for Field Workers",
+    url: "https://www.who.int/publications/i/item/9789241548205",
+  },
+  {
+    id: 2,
+    citation: "[2]",
+    source: "Mental Health Foundation",
+    title: "Mental Health Foundation: How to Support Someone with a Mental Health Problem",
+    url: "https://www.mentalhealth.org.uk/explore-mental-health/articles/how-support-someone-mental-health-problem",
+  },
+  {
+    id: 3,
+    citation: "[3]",
+    source: "APA",
+    title: "American Psychological Association: Listening to Friends in Distress and Preventing Burnout",
+    url: "https://www.apa.org/topics/stress/support-network",
+  },
+  {
+    id: 4,
+    citation: "[4]",
+    source: "UNICEF Cambodia",
+    title: "UNICEF Cambodia: Peer Support and Mental Well-Being Among Cambodian Youth",
+    url: "https://www.unicef.org/cambodia/mental-health",
+  },
+  {
+    id: 5,
+    citation: "[5]",
+    source: "TPO Cambodia",
+    title: "TPO Cambodia: Community Guidelines for Recognizing Emotional Distress and Crisis Response",
+    url: "https://tpocambodia.org/",
+  },
+];
+
+export const LESSON_SUPPORT_FRIEND: Lesson = {
+  id: "how-to-support-a-struggling-friend",
+  title: "How to Support a Friend Who Is Struggling",
+  kmTitle: "របៀបជួយគាំទ្រមិត្តភក្តិដែលកំពុងជួបការលំបាក (How to Support a Struggling Friend)",
+  subtitle: "Learn how to listen with empathy, avoid unhelpful advice, and encourage appropriate care",
+  kmSubtitle: "រៀនស្តាប់ដោយក្តីមេត្តា ជៀសវាងការផ្តល់ដំបូន្មានខុសកាលៈទេសៈ និងជួយនាំផ្លូវរកជំនួយត្រឹមត្រូវ",
+  category: "Relationships",
+  duration: "8 min",
+  kmDuration: "៨ នាទី",
+  difficulty: "Beginner",
+  kmDifficulty: "កម្រិតដំបូង (Beginner)",
+  format: "Reading + Practice",
+  kmFormat: "ការអាន និងការអនុវត្ត (Reading & Practice)",
+  isAvailable: true,
+  image: "/mindguide/strategies.png",
+  heroImage: "/mindguide/support-friend-hero.jpg",
+  badge: "Essential",
+  description:
+    "Master the core principles of Psychological First Aid (Look, Listen, Link). Learn active emotional validation, establish healthy helper boundaries, overcome local stigma, and guide friends safely to care on AROM.",
+  kmDescription:
+    "ស្វែងយល់ពីគោលការណ៍គ្រឹះនៃជំនួយសង្គ្រោះបឋមផ្លូវចិត្ត (មើល ស្តាប់ ភ្ជាប់)។ រៀនស្តាប់ដោយក្តីមេត្តា បង្កើតព្រំដែនសុវត្ថិភាពផ្ទាល់ខ្លួន បំបាត់ការរើសអើង និងជួយណែនាំមិត្តភក្តិទៅរកអ្នកជំនាញនៅលើ AROM។",
+  totalSections: 11,
+  outcomes: [
+    {
+      en: "Apply Psychological First Aid principles: Look, Listen, and Link, to support friends ethically [1]",
+      km: "អនុវត្តគោលការណ៍ជំនួយសង្គ្រោះបឋមផ្លូវចិត្ត (មើល ស្តាប់ ភ្ជាប់) ដើម្បីជួយមិត្តភក្តិដោយត្រឹមត្រូវ [1]",
+    },
+    {
+      en: "Avoid the 'fix-it' trap and toxic positivity by practicing compassionate emotional validation [2, 3]",
+      km: "ជៀសវាងអន្ទាក់នៃការចង់ដោះស្រាយជំនួស និងពាក្យលួងលោមដែលគ្មានប្រយោជន៍ ដោយអនុវត្តការយល់ចិត្ត [2, 3]",
+    },
+    {
+      en: "Navigate Cambodian cultural nuances by replacing 'do not overthink' with genuine emotional presence [4, 5]",
+      km: "យល់ដឹងពីបរិបទសង្គមខ្មែរ ដោយជំនួសពាក្យ «កុំគិតច្រើន» មកជាការនៅក្បែរដោយស្មោះត្រង់ [4, 5]",
+    },
+    {
+      en: "Maintain healthy personal boundaries to prevent caregiver burnout and compassion fatigue [2, 3]",
+      km: "រក្សាព្រំដែនសុខភាពល្អផ្ទាល់ខ្លួន ដើម្បីការពារការអស់កម្លាំងចិត្ត និងការហត់នឿយក្នុងការជួយអ្នកដទៃ [2, 3]",
+    },
+    {
+      en: "Identify acute crisis warning signs and understand when confidentiality must give way to physical safety [1, 5]",
+      km: "សម្គាល់សញ្ញាអាសន្នធ្ងន់ធ្ងរ និងដឹងច្បាស់ពីពេលដែលត្រូវស្វែងរកជំនួយសង្គ្រោះបន្ទាន់ភ្លាមៗ [1, 5]",
+    },
+    {
+      en: "Encourage professional counseling gently on AROM and access national Cambodian crisis hotlines [4, 5]",
+      km: "លើកទឹកចិត្តឱ្យស្វែងរកការប្រឹក្សាលើ AROM ដោយទន់ភ្លន់ និងស្គាល់ខ្សែទូរស័ព្ទទាន់ហេតុការណ៍កម្ពុជា [4, 5]",
+    },
+  ],
+  references: REFERENCES_SUPPORT_FRIEND,
+  sections: [
+    {
+      id: 1,
+      sectionNumber: 1,
+      title: "The Urge to Fix vs. The Gift of Presence: What Friends Truly Need",
+      kmTitle: "ចង់ជួយដោះស្រាយ ឬការនៅក្បែរដោយស្មោះត្រង់៖ អ្វីដែលមិត្តភក្តិកំពុងត្រូវការពិតប្រាកដ (Presence vs Fixing)",
+      type: "reading",
+      paragraphs: [
+        "When a close friend opens up about feeling broken, exhausted, or overwhelmed, our immediate human instinct is to jump into problem-solving mode. We offer advice, suggest schedules, or rush to cheer them up by saying: 'Look on the bright side, things could be worse!'",
+        "While this reaction comes from genuine love, psychologists at the American Psychological Association point out that unsolicited advice often backfires [3]. When someone is carrying intense grief or anxiety, being handed quick fixes makes them feel unheard, misunderstood, and even more isolated.",
+        "What struggling friends need most is not a lecture or a motivational speech. They need your compassionate presence: a safe human space where they can be messy, imperfect, and vulnerable without being judged, rushed, or dismissed [2, 3].",
+      ],
+      kmParagraphs: [
+        "នៅពេលដែលមិត្តភក្តិជិតស្និទ្ធបើកចិត្តប្រាប់ពីការឈឺចាប់ ភាពអស់កម្លាំង ឬវិបត្តិផ្លូវចិត្ត អារម្មណ៍ដំបូងបង្អស់របស់យើងគឺចង់ជួយដោះស្រាយបញ្ហាភ្លាមៗ។ យើងប្រញាប់ផ្តល់ដំបូន្មាន រៀបចំកាលវិភាគ ឬព្យាយាមលួងលោមគេថា៖ «កុំគិតច្រើនពេក មើលទៅមនុស្សផ្សេងទៀតគេលំបាកជាងយើងឆ្ងាយណាស់!»",
+        "ទោះបីជាប្រតិកម្មនេះកើតចេញពីក្តីស្រឡាញ់ដ៏ស្មោះក៏ដោយ អ្នកចិត្តវិទ្យានៃសមាគមចិត្តវិទ្យាអាមេរិក (APA) បង្ហាញថាការផ្តល់ដំបូន្មានលឿនពេកច្រើនតែផ្តល់ផលអវិជ្ជមាន [3]។ នៅពេលដែលនរណាម្នាក់កំពុងរែកពន់ទុក្ខសោកធ្ងន់ធ្ងរ ការទទួលបានដំណោះស្រាយតក់ក្រហល់ធ្វើឱ្យគេមានអារម្មណ៍ថាយើងមិនយល់ពីគេ ហើយធ្វើឱ្យគេកាន់តែឯកោ។",
+        "អ្វីដែលមិត្តភក្តិកំពុងជួបការលំបាកត្រូវការបំផុត មិនមែនជាការបង្រៀន ឬការលើកទឹកចិត្តបែបខ្យល់នោះឡើយ។ ពួកគេត្រូវការវត្តមានដ៏កក់ក្តៅរបស់អ្នក៖ លំហសុវត្ថិភាពដែលពួកគេអាចយំ អាចទន់ខ្សោយ និងអាចបង្ហាញអារម្មណ៍ពិត ដោយមិនភ័យខ្លាចការស្តីបន្ទោស ការវិនិច្ឆ័យ ឬការរុញច្រានចេញ [2, 3]។",
+      ],
+      keyPoints: [
+        "Resist the urge to immediately fix your friend's painful emotions [3].",
+        "Quick advice and toxic positivity make vulnerable friends feel dismissed.",
+        "Emotional presence and deep listening heal far more effectively than lectures.",
+      ],
+      kmKeyPoints: [
+        "ទប់ទល់នឹងអារម្មណ៍ចង់ប្រញាប់ប្រញាល់ដោះស្រាយបញ្ហាជំនួសមិត្តភក្តិ [3]។",
+        "ការផ្តល់ដំណោះស្រាយតក់ក្រហល់ និងពាក្យលួងលោមបែបបង្ខំ ធ្វើឱ្យមិត្តភក្តិមានអារម្មណ៍ឯកោ។",
+        "វត្តមានដ៏ស្ងប់ស្ងាត់ និងការស្តាប់ដោយយកចិត្តទុកដាក់ មានតម្លៃព្យាបាលខ្ពស់ជាងការផ្តល់ដំបូន្មាន។",
+      ],
+    },
+    {
+      id: 2,
+      sectionNumber: 2,
+      title: "Psychological First Aid: The 3 Core Principles: Look, Listen, Link [1]",
+      kmTitle: "ជំនួយសង្គ្រោះបឋមផ្លូវចិត្ត៖ គោលការណ៍គ្រឹះទាំង ៣៖ មើល ស្តាប់ និងភ្ជាប់ (Look, Listen, Link)",
+      type: "reading",
+      paragraphs: [
+        "The World Health Organization developed the framework of Psychological First Aid (PFA) to guide humane, practical, and supportive care for people in distress [1]. The framework centers on three actionable pillars: Look, Listen, and Link.",
+        "First, Look: Notice subtle shifts in your friend's baseline. Are they withdrawing from social gatherings, skipping class, staying silent in group chats, or appearing noticeably exhausted and disheveled?",
+        "Second, Listen: Approach them in a calm, private setting. Ask open-ended questions like: 'I noticed you have seemed really quiet lately, how are you really holding up?' Listen patiently without interrupting, checking your phone, or trying to debate their feelings.",
+        "Third, Link: Help them connect to practical support, trusted community members, basic biological care like water and food, and professional counseling resources [1].",
+      ],
+      kmParagraphs: [
+        "អង្គការសុខភាពពិភពលោក (WHO) បានបង្កើតឡើងនូវគោលការណ៍ជំនួយសង្គ្រោះបឋមផ្លូវចិត្ត (Psychological First Aid) ដើម្បីជួយណែនាំការគាំទ្រប្រកបដោយក្តីមេត្តា និងការអនុវត្តជាក់ស្តែងដល់មនុស្សដែលជួបទុក្ខលំបាក [1]។ គោលការណ៍នេះផ្អែកលើសសរស្តម្ភសំខាន់ៗ ៣ គឺ៖ មើល ស្តាប់ និងភ្ជាប់។",
+        "ទីមួយ គឺ មើល (Look)៖ សង្កេតមើលការផ្លាស់ប្តូរនៃអាកប្បកិរិយារបស់មិត្តភក្តិ។ តើពួកគេចាប់ផ្តើមដកខ្លួនចេញពីក្រុម ឈប់មកសាលា ស្ងាត់ស្ងៀមក្នុងគ្រុបជជែក ឬមើលទៅហត់នឿយខ្លាំងខុសពីធម្មតាដែរឬទេ?",
+        "ទីពីរ គឺ ស្តាប់ (Listen)៖ ចូលទៅជួបពួកគេក្នុងកន្លែងស្ងប់ស្ងាត់ និងមានសុវត្ថិភាព។ សួរសំណួរបើកចំហដូចជា៖ «មួយរយៈនេះខ្ញុំកត់សម្គាល់ឃើញថាមិត្តមើលទៅស្ងប់ស្ងាត់ប្លែក តើមានរឿងអ្វីកើតឡើងក្នុងចិត្តដែរទេ?» ស្តាប់ដោយអត់ធ្មត់ដោយមិនកាត់សម្តី មិនចុចទូរស័ព្ទ និងមិនប្រកែកជាមួយអារម្មណ៍របស់គេ។",
+        "ទីបី គឺ ភ្ជាប់ (Link)៖ ជួយភ្ជាប់ពួកគេទៅរកការគាំទ្រជាក់ស្តែង តម្រូវការមូលដ្ឋានដូចជាការហូបចុក និងដំណេក មនុស្សជិតស្និទ្ធដែលទុកចិត្ត និងអ្នកជំនាញប្រឹក្សាផ្លូវចិត្ត [1]។",
+      ],
+      keyPoints: [
+        "Look: Observe warning signs and changes in baseline habits [1].",
+        "Listen: Create a private, non-judgmental space with zero distractions.",
+        "Link: Help connect them to biological stability and professional support.",
+      ],
+      kmKeyPoints: [
+        "មើល (Look)៖ សង្កេតមើលសញ្ញាព្រមាន និងការប្រែប្រួលទម្លាប់ប្រចាំថ្ងៃ [1]។",
+        "ស្តាប់ (Listen)៖ បង្កើតលំហជជែកផ្ទាល់ខ្លួនដោយគ្មានការរំខាន និងគ្មានការវិនិច្ឆ័យ។",
+        "ភ្ជាប់ (Link)៖ ជួយសម្របសម្រួលតម្រូវការជាក់ស្តែង និងភ្ជាប់ទៅរកអ្នកជំនាញ។",
+      ],
+    },
+    {
+      id: 3,
+      sectionNumber: 3,
+      title: "Cambodian Context: Moving Beyond 'Don't Overthink' and Shame [4, 5]",
+      kmTitle: "បរិបទសង្គមកម្ពុជា៖ ឈានឆ្លងផុតពាក្យ «កុំគិតច្រើន» និងការភ័យខ្លាចការបាក់មុខ (Cambodian Context & Stigma)",
+      type: "reading",
+      paragraphs: [
+        "In Cambodian communities, the most common cultural phrase uttered when someone feels anxious or depressed is 'កុំគិតច្រើន' (Don't think too much) or 'គិតតែរឿងល្អៗទៅ' (Just think positive thoughts) [4].",
+        "While elders and friends use these phrases to express goodwill, they inadvertently tell the person that their internal distress is an intentional, controllable mistake. It implies that if they just tried harder, they would not be suffering, which generates deep shame.",
+        "Additionally, the fear of losing face or bringing embarrassment upon one's family often prevents young Cambodians from seeking help. As a supportive friend, you can break this silence. Reassure them that emotional pain is not a failure, and pledge that whatever they share with you remains strictly confidential and safe [4, 5].",
+      ],
+      kmParagraphs: [
+        "នៅក្នុងសង្គមខ្មែរ ពាក្យដែលយើងឮញឹកញាប់បំផុតនៅពេលនរណាម្នាក់មានអារម្មណ៍ថប់បារម្ភ ឬក្រៀមក្រំ គឺពាក្យ «កុំគិតច្រើនពេក» ឬ «គិតតែរឿងសប្បាយៗទៅ» [4]។",
+        "ទោះបីជាមនុស្សចាស់ ឬមិត្តភក្តិប្រើពាក្យទាំងនេះដោយបំណងល្អក៏ដោយ វាបែរជាធ្វើឱ្យអ្នកស្តាប់យល់ថា ទុក្ខសោករបស់ពួកគេគឺជាកំហុសរបស់ខ្លួនឯងទៅវិញ។ ពាក្យនេះបង្កប់ន័យថា ប្រសិនបើពួកគេគ្រាន់តែប្រឹងគិតវិជ្ជមាន នោះនឹងមិនមានរឿងអ្វីកើតឡើងឡើយ ដែលនាំឱ្យមានអារម្មណ៍ខ្មាសអៀន និងបន្ទោសខ្លួនឯងកាន់តែខ្លាំង។",
+        "លើសពីនេះ ការភ័យខ្លាចការបាក់មុខ ឬខ្លាចធ្វើឱ្យខូចកិត្តិយសគ្រួសារ តែងតែរារាំងយុវជនកម្ពុជាមិនឱ្យហ៊ានបើកចំហរឿងរ៉ាវផ្ទាល់ខ្លួន។ ក្នុងនាមជាមិត្តភក្តិដែលយល់ចិត្ត អ្នកអាចជួយបំបែកភាពស្ងៀមស្ងាត់នេះបាន។ សូមធានាជាមួយពួកគេថា ការឈឺចាប់ផ្លូវចិត្តមិនមែនជាការបរាជ័យឡើយ ហើយរាល់រឿងរ៉ាវដែលពួកគេចែករំលែក នឹងត្រូវបានរក្សាទុកជាការសម្ងាត់យ៉ាងកក់ក្តៅបំផុត [4, 5]។",
+      ],
+      keyPoints: [
+        "Replace 'កុំគិតច្រើន' (don't overthink) with genuine validation: 'I hear how painful this is' [4].",
+        "Acknowledge the fear of losing face and family judgment in Cambodian culture.",
+        "Strict confidentiality builds the safety required for genuine emotional healing.",
+      ],
+      kmKeyPoints: [
+        "ជំនួសពាក្យ «កុំគិតច្រើន» ដោយការទទួលដឹងពីការឈឺចាប់៖ «ខ្ញុំដឹងថារឿងនេះពិតជាលំបាកខ្លាំងសម្រាប់មិត្ត» [4]។",
+        "យល់ដឹងពីការភ័យខ្លាចការបាក់មុខ និងសម្ពាធគ្រួសារក្នុងវប្បធម៌ខ្មែរ។",
+        "ការរក្សាការសម្ងាត់យ៉ាងម៉ឺងម៉ាត់ គឺជាគ្រឹះក្នុងការកសាងទំនុកចិត្តផ្លូវចិត្ត។",
+      ],
+    },
+    {
+      id: 4,
+      sectionNumber: 4,
+      title: "Check Your Understanding: Supportive Validation vs. Accidental Invalidation",
+      kmTitle: "ពិនិត្យការយល់ដឹង៖ ការផ្តល់កម្លាំងចិត្តត្រឹមត្រូវ និងការធ្វើឱ្យប៉ះពាល់អារម្មណ៍ដោយអចេតនា (Validation vs Invalidation)",
+      type: "quiz",
+      paragraphs: [
+        "When someone we care about is crying or visibly distressed, our spontaneous reaction matters immensely. Test your instinct on what creates true emotional safety.",
+      ],
+      kmParagraphs: [
+        "នៅពេលដែលមនុស្សជាទីស្រឡាញ់របស់យើងកំពុងយំ ឬមានទុក្ខព្រួយ ប្រតិកម្មដំបូងរបស់យើងមានឥទ្ធិពលយ៉ាងខ្លាំង។ សូមសាកល្បងពិនិត្យការយល់ដឹងអំពីវិធីបង្កើតសុវត្ថិភាពផ្លូវចិត្តពិតប្រាកដ។",
+      ],
+      quiz: {
+        question: "Your friend says: 'I feel completely overwhelmed by exams and my family's financial debt. I feel like a useless failure.' Which response offers the most supportive validation?",
+        kmQuestion: "មិត្តភក្តិរបស់អ្នកនិយាយថា៖ «ខ្ញុំមានអារម្មណ៍ថាលើសលប់ខ្លាំងណាស់ទាំងរឿងប្រឡង និងបំណុលគ្រួសារ។ ខ្ញុំមានអារម្មណ៍ថាខ្លួនឯងជាមនុស្សអត់បានការ និងបរាជ័យខ្លាំងណាស់។» តើការឆ្លើយតបមួយណាដែលផ្តល់ការយល់ចិត្ត និងកម្លាំងចិត្តត្រឹមត្រូវបំផុត?",
+        options: [
+          {
+            id: "opt-a",
+            text: "Do not say that! You have a great future, stop overthinking and just study harder tonight",
+            kmText: "កុំនិយាយអញ្ចឹង! មិត្តមានអនាគតល្អណាស់ ឈប់គិតច្រើនទៅ ហើយយប់នេះខំមើលសៀវភៅថែមទៅ",
+            isCorrect: false,
+          },
+          {
+            id: "opt-b",
+            text: "I am so sorry you are carrying so much heavy weight right now. You are not a failure to me. I am right here with you, and we will take this one step at a time",
+            kmText: "ខ្ញុំសោកស្តាយណាស់ដែលមិត្តត្រូវរែកពន់បន្ទុកដ៏ធ្ងន់បែបនេះ។ សម្រាប់ខ្ញុំ មិត្តមិនមែនជាមនុស្សបរាជ័យឡើយ។ ខ្ញុំនៅក្បែរមិត្តទីនេះ ហើយយើងនឹងដើរទៅមុខមួយជំហានម្តងៗជាមួយគ្នា",
+            isCorrect: true,
+          },
+          {
+            id: "opt-c",
+            text: "Everyone has financial problems in Cambodia, you just need to get used to it",
+            kmText: "នៅស្រុកខ្មែរនរណាក៏មានបញ្ហាលុយកាក់ដែរ មិត្តត្រូវតែរៀនស៊ាំនឹងរឿងនេះទៅ",
+            isCorrect: false,
+          },
+          {
+            id: "opt-d",
+            text: "Let me call your parents right now and tell them that they are putting too much pressure on you",
+            kmText: "ចាំខ្ញុំទូរស័ព្ទទៅប្រាប់ឪពុកម្តាយមិត្តឥឡូវនេះ ថាកុំឱ្យដាក់សម្ពាធខ្លាំងពេកលើមិត្ត",
+            isCorrect: false,
+          },
+        ],
+        explanation:
+          "Option B acknowledges the reality of their pain without dismissing their feelings or taking aggressive control away from them. It offers emotional co-presence, counters catastrophic self-loathing with genuine warmth, and promises collaborative pacing [2, 3].",
+        kmExplanation:
+          "ចម្លើយ ខ ទទួលស្គាល់ការឈឺចាប់ពិតប្រាកដរបស់គេ ដោយមិនច្រានចោលអារម្មណ៍ ឬដណ្តើមសិទ្ធិសម្រេចចិត្តពីគេឡើយ។ វាផ្តល់នូវវត្តមានដ៏កក់ក្តៅ បន្សាបការបន្ទោសខ្លួនឯង និងសន្យាដើរទៅមុខមួយជំហានម្តងៗជាមួយគ្នា [2, 3]។",
+      },
+    },
+    {
+      id: 5,
+      sectionNumber: 5,
+      title: "The Art of Active Validation: Words That Heal and Words That Hurt [2, 3]",
+      kmTitle: "សិល្បៈនៃការយល់ចិត្ត៖ ពាក្យសម្តីដែលផ្តល់ភាពកក់ក្តៅ និងពាក្យសម្តីដែលគួរជៀសវាង (Active Validation)",
+      type: "reading",
+      paragraphs: [
+        "Words have immense power to either soothe a wounded nervous system or deepen its isolation. When supporting someone in crisis, small adjustments in language make a profound difference [2].",
+        "Phrases that heal focus on validating their emotional reality: 'Thank you for trusting me enough to share this with me.' 'It makes total sense that you feel exhausted given everything on your plate.' 'I might not have all the answers, but I care about you deeply and I am not going anywhere.'",
+        "Phrases to avoid include comparisons and minimizing statements: 'It could be worse.' 'Look at what I went through last year, I survived!' 'You just need to be more resilient.' Comparing their pain to others turns vulnerability into a competition and triggers defensive withdrawal [3].",
+      ],
+      kmParagraphs: [
+        "ពាក្យសម្តីមានឥទ្ធិពលយ៉ាងធំធេងក្នុងការរំងាប់ចិត្ត ឬរុញច្រានគេឱ្យកាន់តែឯកោ។ នៅពេលជួយគាំទ្រនរណាម្នាក់ ការកែសម្រួលពាក្យសម្តីបន្តិចបន្តួចអាចបង្កើតភាពខុសប្លែកយ៉ាងធំធេង [2]។",
+        "ពាក្យសម្តីដែលផ្តល់ភាពកក់ក្តៅ ផ្ដោតលើការទទួលដឹងពីអារម្មណ៍ពិតរបស់គេ៖ «អរគុណច្រើនដែលទុកចិត្តខ្ញុំ ហើយចែករំលែករឿងនេះជាមួយខ្ញុំ។» «វាពិតជាសមហេតុផលណាស់ដែលមិត្តមានអារម្មណ៍អស់កម្លាំងខ្លាំងបែបនេះ នៅពេលជួបរឿងច្រើនយ៉ាងនេះ។» «ខ្ញុំប្រហែលជាគ្មានចម្លើយដោះស្រាយគ្រប់យ៉ាងទេ ប៉ុន្តែខ្ញុំបារម្ភពីមិត្តខ្លាំងណាស់ ហើយខ្ញុំនៅក្បែរមិត្តជានិច្ច។»",
+        "ពាក្យសម្តីដែលគួរជៀសវាង រួមមានការប្រៀបធៀប និងការបន្ទាបតម្លៃបញ្ហា៖ «រឿងប៉ុណ្ណឹងមិនអីទេ អ្នកផ្សេងគេលំបាកជាងនេះទៀត។» «មើលកាលពីឆ្នាំទៅខ្ញុំជួបលំបាកជាងនេះផង ខ្ញុំនៅតែទ្រាំបាន!» «មកពីមិត្តមិនព្រមរឹងមាំខ្លួនឯង។» ការយកការឈឺចាប់របស់គេទៅប្រៀបធៀបជាមួយអ្នកដទៃ នឹងធ្វើឱ្យគេមានអារម្មណ៍អាម៉ាស់ និងដកខ្លួនចេញ [3]។",
+      ],
+      keyPoints: [
+        "Validation means accepting their emotional reality as legitimate, even if you see solutions [2].",
+        "Never turn suffering into a competition by sharing your own struggles to one-up them.",
+        "Silence and warm eye contact are often more powerful than clever words.",
+      ],
+      kmKeyPoints: [
+        "ការយល់ចិត្ត (Validation) មានន័យថាទទួលស្គាល់អារម្មណ៍របស់គេថាជារឿងពិត ទោះបីជាអ្នកឃើញដំណោះស្រាយក៏ដោយ [2]។",
+        "កុំយកការឈឺចាប់មកប្រកួតប្រជែង ដោយលើករឿងរ៉ាវផ្ទាល់ខ្លួនមកបង្អាប់បញ្ហារបស់គេ។",
+        "ភាពស្ងៀមស្ងាត់ប្រកបដោយការយកចិត្តទុកដាក់ និងក្រសែភ្នែកកក់ក្តៅ មានឥទ្ធិពលខ្លាំងជាងពាក្យពេចន៍វៃឆ្លាត។",
+      ],
+    },
+    {
+      id: 6,
+      sectionNumber: 6,
+      title: "The Golden Boundary: Being a Loving Friend, Not an Unlicensed Therapist [2, 3]",
+      kmTitle: "ព្រំដែនមាស៖ ធ្វើជាមិត្តភក្តិដែលស្រឡាញ់រាប់អាន មិនមែនជាអ្នកព្យាបាលផ្លូវចិត្ត (Friend vs Therapist)",
+      type: "reading",
+      paragraphs: [
+        "One of the most dangerous traps for caring people is taking on total responsibility for another person's emotional survival. When a friend calls you at 3:00 AM every night crying, you may feel immense guilt if you do not stay awake, fearing that something catastrophic might happen if you set a boundary [2].",
+        "Clinicians call this 'compassion fatigue' and 'helper burnout'. When you absorb your friend's trauma without boundaries, your own nervous system deteriorates. Soon, you become resentful, exhausted, and incapable of supporting anyone, including yourself [3].",
+        "Remember: You are their peer and friend, not their primary healthcare provider. You can love someone fiercely while still holding necessary limits: 'I love you so much and want to support you. I need to sleep now so I can function at work tomorrow, but let us talk at lunchtime.' Setting boundaries preserves the friendship for the long run [2, 3].",
+      ],
+      kmParagraphs: [
+        "អន្ទាក់ដ៏គ្រោះថ្នាក់បំផុតមួយសម្រាប់មនុស្សដែលមានចិត្តមេត្តា គឺការទទួលខុសត្រូវទាំងស្រុងលើការរស់រានផ្លូវចិត្តរបស់អ្នកដទៃ។ នៅពេលដែលមិត្តភក្តិទូរស័ព្ទមករកអ្នកនៅម៉ោង ៣ ទៀបភ្លឺរាល់យប់ទាំងយំសោក អ្នកអាចនឹងមានអារម្មណ៍ខុសឆ្គងខ្លាំងប្រសិនបើអ្នកមិនលើកទូរស័ព្ទ ដោយសារខ្លាចមានរឿងអាក្រក់កើតឡើងប្រសិនបើអ្នកកំណត់ព្រំដែន [2]។",
+        "អ្នកជំនាញហៅបញ្ហានេះថា «ការអស់កម្លាំងចិត្តរបស់អ្នកជួយ» (Compassion Fatigue / Helper Burnout)។ នៅពេលដែលអ្នកស្រូបយកការឈឺចាប់របស់អ្នកដទៃដោយគ្មានព្រំដែន ប្រព័ន្ធប្រសាទរបស់អ្នកនឹងរងការខូចខាត។ មិនយូរប៉ុន្មាន អ្នកនឹងចាប់ផ្តើមធុញទ្រាន់ អស់កម្លាំង និងលែងមានសមត្ថភាពជួយនរណាម្នាក់បានទៀត សូម្បីតែខ្លួនឯង [3]។",
+        "សូមចងចាំថា៖ អ្នកគឺជាមិត្តភក្តិ មិនមែនជាគ្រូពេទ្យ ឬអ្នកព្យាបាលចិត្តសាស្ត្ររបស់គេឡើយ។ អ្នកអាចស្រឡាញ់មិត្តភក្តិយ៉ាងជ្រាលជ្រៅ ដោយនៅតែរក្សាព្រំដែនចាំបាច់បាន៖ «ខ្ញុំស្រឡាញ់មិត្តខ្លាំងណាស់ ហើយចង់ជួយគាំទ្រមិត្ត។ ប៉ុន្តែយប់នេះខ្ញុំត្រូវគេងសិន ដើម្បីមានកម្លាំងធ្វើការនៅថ្ងៃស្អែក ចាំថ្ងៃត្រង់យើងជជែកគ្នាបន្តណា។» ការកំណត់ព្រំដែនជួយការពារមិត្តភាពឱ្យគង់វង្សយូរអង្វែង [2, 3]។",
+      ],
+      keyPoints: [
+        "You are not responsible for fixing or curing your friend's mental health conditions [2].",
+        "Compassion fatigue occurs when you absorb distress without replenishing your own energy.",
+        "Clear, loving boundaries protect both your well-being and the authenticity of the relationship [3].",
+      ],
+      kmKeyPoints: [
+        "អ្នកមិនមានទំនួលខុសត្រូវក្នុងការកែប្រែ ឬព្យាបាលជំងឺផ្លូវចិត្តរបស់មិត្តភក្តិឱ្យជាសះស្បើយនោះទេ [2]។",
+        "ការអស់ថាមពលរបស់អ្នកជួយ កើតឡើងនៅពេលអ្នកស្រូបយកទុក្ខសោកដោយគ្មានការស្តារថាមពលផ្ទាល់ខ្លួន។",
+        "ព្រំដែនច្បាស់លាស់ប្រកបដោយក្តីស្រឡាញ់ ជួយការពារសុខភាពរបស់អ្នក និងរក្សាមិត្តភាពឱ្យរឹងមាំ [3]។",
+      ],
+    },
+    {
+      id: 7,
+      sectionNumber: 7,
+      title: "How to Gently Encourage Professional Care Without Being Pushy [1, 4]",
+      kmTitle: "របៀបលើកទឹកចិត្តឱ្យស្វែងរកអ្នកជំនាញដោយទន់ភ្លន់ និងមិនបង្ខិតបង្ខំ (Encouraging Professional Care)",
+      type: "reading",
+      paragraphs: [
+        "When you notice that your friend's distress is persistent, severe, or beyond what peer support can carry, guiding them toward professional care is the kindest step you can take. However, forcing or commanding them often creates defensiveness [1].",
+        "Instead, frame professional therapy as a normal, healthy resource. Compare it to physical health: 'If you twisted your ankle and could not walk for three weeks, you would see a doctor. Seeing a counselor for emotional heaviness is exactly the same.'",
+        "Offer collaborative companionship rather than an ultimatum: 'You do not have to figure this out alone. Would you like me to sit with you while we explore verified counselors on AROM?' or 'If you feel nervous, I can wait in the lobby during your first appointment' [4].",
+      ],
+      kmParagraphs: [
+        "នៅពេលដែលអ្នកសង្កេតឃើញថា ទុក្ខសោករបស់មិត្តភក្តិកើតឡើងរ៉ាំរ៉ៃ ធ្ងន់ធ្ងរ ឬលើសពីសមត្ថភាពដែលមិត្តភក្តិអាចជួយបាន ការណែនាំពួកគេទៅរកអ្នកជំនាញ គឺជាទង្វើដ៏ល្អបំផុតដែលអ្នកអាចធ្វើបាន។ ប៉ុន្តែការបង្ខិតបង្ខំ ឬបញ្ជា ច្រើនតែធ្វើឱ្យពួកគេភ័យខ្លាច និងបដិសេធ [1]។",
+        "ផ្ទុយទៅវិញ សូមពន្យល់ពួកគេឱ្យយល់ថា ការពិគ្រោះផ្លូវចិត្តជារឿងធម្មតា និងមានសុខភាពល្អ។ សូមប្រៀបធៀបវាទៅនឹងសុខភាពរាងកាយ៖ «ប្រសិនបើមិត្តគ្រេចជើងដើរមិនរួច ៣ សប្តាហ៍ មិត្តច្បាស់ជាទៅជួបគ្រូពេទ្យ។ ការទៅជួបអ្នកប្រឹក្សាផ្លូវចិត្តពេលមានទុក្ខសោកធ្ងន់ធ្ងរ គឺជារឿងដូចគ្នាទាំងស្រុង។»",
+        "សូមផ្តល់ការកំដរដោយក្តីស្រឡាញ់ ជំនួសឱ្យការពាក្យគំរាមកំហែង៖ «មិត្តមិនបាច់ដោះស្រាយរឿងនេះតែម្នាក់ឯងទេ។ តើមិត្តចង់ឱ្យខ្ញុំអង្គុយក្បែរពេលមិត្តបើកមើលប្រវត្តិអ្នកជំនាញលើ AROM ដែរទេ?» ឬ «ប្រសិនបើមិត្តភ័យ ខ្ញុំអាចទៅចាំនៅខាងមុខគ្លីនិកពេលមិត្តចូលជួបអ្នកជំនាញលើកដំបូង» [4]។",
+      ],
+      keyPoints: [
+        "Normalize mental health care by comparing it directly to physical medical treatment [1].",
+        "Offer to accompany them through administrative steps like booking or finding contacts [4].",
+        "Collaborative, gentle invitations work far better than demands or ultimatums.",
+      ],
+      kmKeyPoints: [
+        "ពន្យល់ថាការថែទាំសុខភាពផ្លូវចិត្ត ជារឿងធម្មតាដូចគ្នានឹងការព្យាបាលជំងឺរាងកាយដែរ [1]។",
+        "ផ្តល់ការកំដរជួយស្វែងរកព័ត៌មាន ឬជួយកក់ការណាត់ជួបជាមួយអ្នកជំនាញ [4]។",
+        "ការអញ្ជើញដោយទន់ភ្លន់ និងសហការគ្នា មានប្រសិទ្ធភាពជាងការបង្ខិតបង្ខំ។",
+      ],
+    },
+    {
+      id: 8,
+      sectionNumber: 8,
+      title: "Helper Self-Check: Reflecting on Your Personal Capacity",
+      kmTitle: "ការពិនិត្យសមត្ថភាពផ្ទាល់ខ្លួន៖ តើថាមពលរបស់អ្នកមានកម្រិតណា? (Helper Self-Check)",
+      type: "reflection",
+      paragraphs: [
+        "To pour into someone else's cup, your own vessel must have water. Take a moment to reflect on your honest experience as a supportive friend.",
+      ],
+      kmParagraphs: [
+        "ដើម្បីអាចចាក់ទឹកចូលក្នុងកែវរបស់អ្នកដទៃបាន កែវផ្ទាល់ខ្លួនរបស់អ្នកត្រូវតែមានទឹកសិន។ សូមឆ្លុះបញ្ចាំងដោយស្មោះត្រង់ពីបទពិសោធន៍ផ្ទាល់ខ្លួនរបស់អ្នកក្នុងការជួយមិត្តភក្តិ។",
+      ],
+      reflection: {
+        question: "When supporting a friend going through an intense crisis, what is usually your biggest personal struggle?",
+        kmQuestion: "នៅពេលជួយគាំទ្រមិត្តភក្តិដែលកំពុងជួបវិបត្តិធ្ងន់ធ្ងរ តើអ្វីជាការលំបាកផ្ទាល់ខ្លួនដ៏ធំបំផុតរបស់អ្នក?",
+        options: [
+          "Feeling overwhelming anxiety that I am solely responsible for fixing their pain or keeping them safe",
+          "Absorbing their grief and heaviness so deeply that I cannot sleep or concentrate on my own work",
+          "Feeling awkward and tongue-tied, terrified that I will say the wrong thing and make them feel worse",
+          "Feeling resentful and burned out because they lean on me 24/7 without respecting my personal limits",
+        ],
+        kmOptions: [
+          "មានអារម្មណ៍ថប់បារម្ភខ្លាំងថា ខ្ញុំត្រូវតែជាអ្នកដោះស្រាយការឈឺចាប់របស់គេ ឬការពារគេតែម្នាក់ឯង",
+          "ស្រូបយកទុក្ខសោករបស់គេខ្លាំងពេក រហូតដល់ខ្លួនឯងគេងមិនលក់ និងមិនអាចផ្ដោតលើការងារផ្ទាល់ខ្លួន",
+          "មានអារម្មណ៍ទល់គំនិត និងខ្លាចនិយាយខុស ដែលធ្វើឱ្យគេកាន់តែពិបាកចិត្តជាងមុន",
+          "មានអារម្មណ៍ធុញទ្រាន់ និងអស់កម្លាំងចិត្ត ដោយសារគេពឹងផ្អែកលើខ្ញុំ ២៤ ម៉ោងដោយមិនគោរពពេលវេលាផ្ទាល់ខ្លួន",
+        ],
+        feedbackMessage:
+          "Recognizing your personal helper struggle is essential for sustainable compassion. You do not need to be an all-knowing superhero. Accepting your limitations protects your ability to love authentically without destroying your own peace.",
+        kmFeedbackMessage:
+          "ការដឹងពីចំណុចពិបាករបស់ខ្លួនឯង គឺជាកត្តាចាំបាច់ដើម្បីរក្សាក្តីមេត្តាឱ្យបានយូរអង្វែង។ អ្នកមិនចាំបាច់ធ្វើជាមនុស្សអស្ចារ្យដែលចេះគ្រប់រឿងនោះទេ។ ការទទួលស្គាល់ដែនកំណត់ផ្ទាល់ខ្លួន ជួយការពារសមត្ថភាពរបស់អ្នកក្នុងការផ្តល់ក្តីស្រឡាញ់ពិតប្រាកដ ដោយមិនបំផ្លាញសេចក្តីស្ងប់ក្នុងចិត្តខ្លួនឯង។",
+      },
+    },
+    {
+      id: 9,
+      sectionNumber: 9,
+      title: "Recognizing Crisis Signs: What to Do When Safety Is at Risk [1, 5]",
+      kmTitle: "ការសម្គាល់សញ្ញាអាសន្ន៖ អ្វីដែលត្រូវធ្វើនៅពេលមានគ្រោះថ្នាក់ដល់សុវត្ថិភាព (Crisis Intervention)",
+      type: "reading",
+      paragraphs: [
+        "There is one critical exception to normal confidentiality: when your friend's immediate physical safety or life is in imminent danger [1].",
+        "Warning signs of an acute mental health crisis include: talking directly or indirectly about wanting to die or disappear ('Everyone would be better off without me'), giving away prized belongings, saying goodbye unexpectedly, engaging in dangerous self-harm, or severe disoriented panic.",
+        "If you see these signs, never leave them alone. Do not swear an oath of secrecy regarding suicide. Calmly and directly inform a trusted adult, family member, university counselor, or emergency hotline. Breaking confidentiality to save a life is the ultimate act of friendship [1, 5].",
+      ],
+      kmParagraphs: [
+        "មានករណីលើកលែងដ៏សំខាន់មួយចំពោះការរក្សាការសម្ងាត់៖ នោះគឺនៅពេលដែលសុវត្ថិភាពរាងកាយ ឬអាយុជីវិតរបស់មិត្តភក្តិស្ថិតក្នុងគ្រោះថ្នាក់បន្ទាន់ [1]។",
+        "សញ្ញាព្រមាននៃវិបត្តិផ្លូវចិត្តកម្រិតអាសន្នរួមមាន៖ ការនិយាយដោយផ្ទាល់ ឬដោយប្រយោលអំពីការចង់ស្លាប់ ឬចង់បាត់ខ្លួន («បើគ្មានខ្ញុំ អ្នកទាំងអស់គ្នាច្បាស់ជាធូរស្រាលជាងនេះ») ការប្រគល់របស់របរជាទីស្រឡាញ់ឱ្យអ្នកដទៃ ការនិយាយលាខុសប្លែកពីធម្មតា ការធ្វើបាបខ្លួនឯងធ្ងន់ធ្ងរ ឬការភ័យស្លន់ស្លោរវើរវាយ។",
+        "ប្រសិនបើអ្នកឃើញសញ្ញាទាំងនេះ សូមកុំទុកពួកគេចោលតែម្នាក់ឯងឱ្យសោះ។ កុំសន្យាថានឹងរក្សាការសម្ងាត់រឿងគំនិតចង់សម្លាប់ខ្លួនឡើយ។ សូមទាក់ទងមនុស្សចាស់ដែលទុកចិត្ត គ្រួសារ អ្នកប្រឹក្សានៅសាលា ឬខ្សែទូរស័ព្ទទាន់ហេតុការណ៍ជាបន្ទាន់។ ការបំបែកការសម្ងាត់ដើម្បីជួយសង្គ្រោះជីវិតមនុស្ស គឺជាទង្វើមិត្តភាពដ៏ខ្ពង់ខ្ពស់បំផុត [1, 5]។",
+      ],
+      keyPoints: [
+        "Physical safety always overrides confidentiality during a life-threatening crisis [1].",
+        "Never promise to keep suicidal intent or self-harm plans a secret.",
+        "Stay with them and involve professional emergency responders immediately [5].",
+      ],
+      kmKeyPoints: [
+        "សុវត្ថិភាពអាយុជីវិត តែងតែសំខាន់ជាងការរក្សាការសម្ងាត់ក្នុងពេលមានវិបត្តិអាសន្ន [1]។",
+        "កុំសន្យាថានឹងលាក់ការសម្ងាត់អំពីគំនិតចង់ធ្វើបាបខ្លួនឯង ឬការសម្លាប់ខ្លួនឱ្យសោះ។",
+        "នៅក្បែរពួកគេ ហើយទាក់ទងអ្នកជំនាញសង្គ្រោះបន្ទាន់ភ្លាមៗ [5]។",
+      ],
+    },
+    {
+      id: 10,
+      sectionNumber: 10,
+      title: "Shared Co-Regulation: The 1-Minute Calming Breath",
+      kmTitle: "ការរំងាប់អារម្មណ៍រួមគ្នា៖ លំហាត់ដកដង្ហើមស្ងប់ចិត្ត ១ នាទី (1-Minute Co-Regulation Breath)",
+      type: "coping",
+      paragraphs: [
+        "When your friend is weeping heavily or hyperventilating, words often fail. What their nervous system needs is 'co-regulation': syncing with your calm, grounded physical presence.",
+        "Gently invite them: 'Let us take three slow breaths together. You do not have to say anything right now.' Place your feet flat on the floor, unclench your jaw, and breathe in through your nose for 4 counts.",
+        "Hold gently for 2 counts, and exhale smoothly through your mouth for 6 counts. Repeat 4 times. As your breathing slows, their mirror neurons will unconsciously register safety, allowing their heart rate to decelerate.",
+      ],
+      kmParagraphs: [
+        "នៅពេលដែលមិត្តភក្តិកំពុងយំខ្លាំង ឬដកដង្ហើមញាប់ៗដោយសារការភ័យស្លន់ស្លោ ពាក្យសម្តីជារឿយៗមិនអាចជួយបានភ្លាមៗឡើយ។ អ្វីដែលប្រព័ន្ធប្រសាទរបស់គេត្រូវការ គឺការរំងាប់អារម្មណ៍រួមគ្នា (Co-Regulation)៖ ការតភ្ជាប់ទៅនឹងវត្តមានដ៏ស្ងប់ស្ងាត់ពីរាងកាយរបស់អ្នក។",
+        "សូមអញ្ជើញគេដោយទន់ភ្លន់៖ «ចូរយើងដកដង្ហើមវែងៗ ៣ ដងជាមួយគ្នាណា។ មិត្តមិនបាច់និយាយអ្វីទាំងអស់នៅពេលនេះទេ»។ ដាក់ជើងទាំងពីរលើកម្រាល បន្ធូរថ្គាម រួចដកដង្ហើមចូលតាមច្រមុះរាប់ដល់ ៤។",
+        "ទប់ដង្ហើមថ្នមៗរាប់ដល់ ២ ហើយដកដង្ហើមចេញយឺតៗតាមមាត់រាប់ដល់ ៦។ អនុវត្តឡើងវិញ ៤ ដង។ នៅពេលដែលដង្ហើមរបស់អ្នកយឺត ប្រព័ន្ធប្រសាទរបស់មិត្តភក្តិនឹងទទួលដឹងពីសុវត្ថិភាពដោយស្វ័យប្រវត្តិ ដែលជួយបន្ថយចង្វាក់បេះដូងរបស់គេ។",
+      ],
+      keyPoints: [
+        "Co-regulation uses your own nervous system to steady someone else's panic.",
+        "A prolonged exhale triggers parasympathetic calming in both bodies.",
+        "Somatic pacing is far more reassuring than saying 'calm down'.",
+      ],
+      kmKeyPoints: [
+        "ការរំងាប់អារម្មណ៍រួមគ្នា ប្រើប្រាស់សេចក្តីស្ងប់ក្នុងខ្លួនរបស់អ្នក ដើម្បីជួយបន្ថយភាពស្លន់ស្លោរបស់អ្នកដទៃ។",
+        "ការដកដង្ហើមចេញវែងៗ ជួយជំរុញប្រព័ន្ធរំងាប់អារម្មណ៍ដល់រាងកាយទាំងសងខាង។",
+        "ការដកដង្ហើមជាមួយគ្នា មានប្រសិទ្ធភាពជាងការស្រែកប្រាប់គេឱ្យ «ស្ងប់ចិត្ត»។",
+      ],
+      actions: [
+        {
+          label: "Try 1-Minute Calming Breath",
+          kmLabel: "អនុវត្តលំហាត់ដកដង្ហើមស្ងប់ចិត្ត ១ នាទី (1-Min Breath)",
+          actionType: "exercise",
+        },
+      ],
+    },
+    {
+      id: 11,
+      sectionNumber: 11,
+      title: "Connecting Your Support Circle on AROM [4, 5]",
+      kmTitle: "ការភ្ជាប់រង្វង់គាំទ្ររបស់អ្នកនៅលើ AROM (Connecting on AROM)",
+      type: "reading",
+      paragraphs: [
+        "Supporting a friend through emotional turmoil is one of the most generous gifts of human connection. However, true support is a shared village, not an isolated burden on your shoulders alone.",
+        "On AROM, you and your friends have access to dedicated, confidential tools. You can use your private AROM Journal (/journal) to debrief your own emotional reactions after a heavy conversation, releasing any vicarious stress you absorbed.",
+        "When your friend is ready for clinical guidance, direct them to AROM Professional (/professional). AROM connects seekers with licensed Cambodian psychologists and counselors who specialize in youth well-being, family dynamics, and trauma recovery [4, 5].",
+        "If you or your friend ever face an acute emotional emergency, suicidal despair, or physical crisis, reach out immediately. The National Child and Youth Helpline is available at 1280, the National Health Hotline at 119, and TPO Cambodia crisis support at 017 222 372. Standing together creates lasting resilience.",
+      ],
+      kmParagraphs: [
+        "ការជួយគាំទ្រមិត្តភក្តិឆ្លងកាត់ព្យុះភ្លៀងនៃអារម្មណ៍ គឺជាកាដូដ៏ថ្លៃថ្លាបំផុតនៃមិត្តភាព។ ប៉ុន្តែការគាំទ្រពិតប្រាកដ គឺជាការសហការគ្នារបស់សហគមន៍ មិនមែនជាការដាក់បន្ទុកទាំងស្រុងលើស្មារបស់អ្នកតែម្នាក់ឯងនោះឡើយ។",
+        "នៅលើ AROM អ្នក និងមិត្តភក្តិរបស់អ្នកមានលទ្ធភាពប្រើប្រាស់ឧបករណ៍សុវត្ថិភាព និងសម្ងាត់ជាច្រើន។ អ្នកអាចប្រើប្រាស់កំណត់ហេតុ AROM Journal (/journal) ដើម្បីឆ្លុះបញ្ចាំងអារម្មណ៍ផ្ទាល់ខ្លួនបន្ទាប់ពីការសន្ទនាដ៏តានតឹង ដើម្បីរំដោះភាពនឿយហត់ដែលអ្នកបានស្រូបយក។",
+        "នៅពេលដែលមិត្តភក្តិរបស់អ្នកត្រៀមខ្លួនរួចរាល់សម្រាប់ការប្រឹក្សាជាមួយអ្នកជំនាញ សូមណែនាំពួកគេទៅកាន់ AROM Professional (/professional)។ AROM ជួយភ្ជាប់ពួកគេទៅកាន់អ្នកចិត្តវិទ្យាកម្ពុជាដែលមានអាជ្ញាប័ណ្ណត្រឹមត្រូវ ឯកទេសលើសុខុមាលភាពយុវជន ទំនាក់ទំនងគ្រួសារ និងការដោះស្រាយរបួសផ្លូវចិត្ត [4, 5]។",
+        "ប្រសិនបើអ្នក ឬមិត្តភក្តិជួបប្រទះវិបត្តិផ្លូវចិត្តកម្រិតអាសន្ន ឬមានគ្រោះថ្នាក់ដល់អាយុជីវិត សូមស្វែងរកជំនួយភ្លាមៗ។ ខ្សែទូរស័ព្ទជំនួយកុមារ និងយុវជនលេខ 1280 ខ្សែទូរស័ព្ទសុខភាពជាតិលេខ 119 និងអង្គការចិត្តសង្គមកម្ពុជា (TPO Cambodia) តាមលេខ 017 222 372។ ការឈរនៅក្បែរគ្នា នឹងបង្កើតបាននូវភាពរឹងមាំយូរអង្វែង។",
+      ],
+      keyPoints: [
+        "Use AROM Journal (/journal) to process your own feelings and prevent burnout.",
+        "Help friends connect with certified therapists on AROM Professional (/professional) [4].",
+        "Emergency hotlines are free, confidential, and always available: 1280, 119, or TPO Cambodia 017 222 372.",
+      ],
+      kmKeyPoints: [
+        "ប្រើប្រាស់កំណត់ហេតុ AROM Journal (/journal) ដើម្បីរំដោះអារម្មណ៍តានតឹង និងការពារការអស់កម្លាំងចិត្ត។",
+        "ជួយណែនាំមិត្តភក្តិឱ្យភ្ជាប់ការប្រឹក្សាជាមួយអ្នកជំនាញលើ AROM Professional (/professional) [4]។",
+        "ខ្សែទូរស័ព្ទជំនួយបន្ទាន់ឥតគិតថ្លៃ និងសម្ងាត់ត្រៀមជួយជានិច្ច៖ 1280, 119 ឬ TPO Cambodia 017 222 372។",
+      ],
+      alertBox: {
+        type: "tip",
+        text: "Important Reminder: Loving a struggling friend does not mean saving them alone. Your role is to walk beside them with warmth and hold their hand as you connect them to professional support.",
+        kmText: "សារដាស់តឿនសំខាន់៖ ការស្រឡាញ់មិត្តភក្តិដែលកំពុងជួបទុក្ខ មិនមែនមានន័យថាអ្នកត្រូវសង្គ្រោះគេតែម្នាក់ឯងនោះទេ។ តួនាទីរបស់អ្នក គឺការដើរនៅក្បែរគេដោយក្តីមេត្តា និងកាន់ដៃគេភ្ជាប់ទៅរកជំនួយពីអ្នកជំនាញ។",
+      },
+      actions: [
+        {
+          label: "Open AROM Journal",
+          kmLabel: "បើកកំណត់ហេតុ AROM Journal",
+          actionType: "tips",
+        },
+        {
+          label: "Talk to a Professional",
+          kmLabel: "ពិគ្រោះជាមួយអ្នកជំនាញ AROM",
+          actionType: "professional",
+        },
+      ],
+    },
+  ],
+};
+
 export const ALL_LESSONS: Lesson[] = [
+  LESSON_SUPPORT_FRIEND,
   LESSON_LOST_INTEREST,
   LESSON_BALANCE_STUDY_WORK_LIFE,
   LESSON_WHAT_IS_MENTAL_HEALTH,

@@ -1,5 +1,31 @@
 # AROM: Change Report
 
+## 18 Oct 2026: New Lesson, How to Support a Friend Who Is Struggling
+
+Commit `4da3ca8`. No migration. Content and frontend only.
+
+**Why.** When peers face overwhelming grief, academic failure, family stress, or emotional depression, friends desperately want to help but often resort to unhelpful advice, toxic positivity, or dismissive phrases like "don't overthink" (កុំគិតច្រើន), or conversely fall into compassion fatigue and helper burnout. "How to Support a Friend Who Is Struggling" (`how-to-support-a-struggling-friend`) provides an 8-minute evidence-based psychoeducational guide adapted from WHO (Psychological First Aid), Mental Health Foundation, APA, UNICEF Cambodia, and TPO Cambodia. It equips seekers with practical tools to hold safe non-judgmental space, apply the Look-Listen-Link framework, validate emotions without giving unsolicited lectures, dismantle Cambodian cultural stigmas and fear of losing face, set loving boundaries as a friend rather than an unlicensed therapist, recognize acute crisis warning signs where safety overrides confidentiality, practice co-regulation breathwork, and guide friends gently to professional care on AROM.
+
+**What changed for users:**
+- **New Lesson available in MindGuide Learn:** Seekers can access "How to Support a Friend Who Is Struggling (របៀបជួយគាំទ្រមិត្តភក្តិដែលកំពុងជួបការលំបាក)" under the Relationships category or directly via `/mindguide/learn?open=how-to-support-a-struggling-friend`.
+- **11 Comprehensive Bilingual Sections:** Covers the urge to fix vs the gift of presence, Psychological First Aid (Look, Listen, Link), Cambodian cultural context (moving beyond "don't overthink" and fear of losing face), an interactive quiz on supportive validation vs accidental invalidation, active validation scripts and words to avoid, the golden helper boundary (friend vs therapist), how to gently encourage professional care without being pushy, a helper self-check reflection on personal capacity, recognizing acute crisis signals and safety escalation, shared co-regulation with the 1-minute calming breath, and connecting support circles on AROM.
+- **Tip Alert Box:** Section 11 features a grounding reminder: "Loving a struggling friend does not mean saving them alone. Your role is to walk beside them with warmth and hold their hand as you connect them to professional support."
+- **Direct AROM tool integration:** Section 10 triggers the "1-Minute Calming Breath" (`actionType: "exercise"`), and Section 11 provides direct action buttons for "Open AROM Journal" (`actionType: "tips"`) and "Talk to a Professional" (`actionType: "professional"`).
+
+**What changed for the team:**
+- **`learn-data.ts`:** Exported `REFERENCES_SUPPORT_FRIEND` with 5 peer-reviewed citations (WHO, Mental Health Foundation, APA, UNICEF Cambodia, TPO Cambodia) and `LESSON_SUPPORT_FRIEND`, prepending it to `ALL_LESSONS` under category `"Relationships"`.
+- **Hero Image:** Added `public/mindguide/support-friend-hero.jpg` depicting two young Southeast Asian friends sitting on a wooden bench in a Phnom Penh courtyard garden with warm tea, listening with empathy and trust.
+- **Strict Anti-AI Compliance:** Zero em dashes, en dashes, or loose hyphens across all English and Khmer copy.
+
+**What to re-test:**
+1. Open `/mindguide/learn` and verify "How to Support a Friend Who Is Struggling" card appears under the "Relationships" filter with the "Essential" badge.
+2. Open `/mindguide/learn?open=how-to-support-a-struggling-friend` and verify hero image, outcomes, and 11 sections render smoothly.
+3. Test Section 4 quiz: verify correct feedback when selecting option B and bilingual explanations.
+4. Test Section 8 helper self-reflection interactive choice and feedback.
+5. Test Section 10 coping exercise button: launches 1-Minute Calming Breath session.
+6. Test Section 11 tip alert box and action buttons: "Open AROM Journal" and "Talk to a Professional".
+7. Switch language to Khmer and verify all Kantumruy Pro translations.
+
 ## 18 Oct 2026: New Lesson, Why Have I Lost Interest in Things I Used to Love?
 
 Commit `316848f`. No migration. Content and frontend only.
