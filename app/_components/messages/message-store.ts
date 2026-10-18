@@ -2,6 +2,8 @@
 
 import { useEffect, useSyncExternalStore } from 'react';
 import {
+  type MessageAttachment,
+  type MessageKind,
   MAX_TEXT,
   MAX_VOICE_SECONDS,
   conversationKey,
@@ -36,12 +38,15 @@ export type ChatMessage = {
   conversationId: string;
   sender: Sender;
   // suggestion: times for the next session (see sessions/session-store.ts).
-  kind: 'text' | 'voice' | 'suggestion';
+  // image and file: a photo or a PDF.
+  kind: MessageKind;
   text: string;
   // Voice only.
   audioUrl: string;
   durationSeconds: number;
   suggestionId: string;
+  // Photo or PDF only.
+  attachment: MessageAttachment | null;
   createdAt: string;
   readAt: string | null;
 };
@@ -210,10 +215,16 @@ export async function sendMessage(
   sender: Sender,
   content:
     | { kind: 'text'; text: string }
-    | { kind: 'voice'; audio: Blob; durationSeconds: number },
+    | { kind: 'voice'; audio: Blob; durationSeconds: number }
+    | { kind: 'attachment'; file: File },
 ): Promise<SendResult> {
   let init: RequestInit;
-  if (content.kind === 'text') {
+  if (content.kind === 'attachment') {
+    const body = new FormData();
+    body.set('kind', 'attachment');
+    body.set('file', content.file, content.file.name);
+    init = { method: 'POST', body };
+  } else if (content.kind === 'text') {
     init = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

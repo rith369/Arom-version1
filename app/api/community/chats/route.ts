@@ -18,6 +18,7 @@ type ChatRow = {
   last_display_name: string | null;
   last_is_own: boolean | null;
   last_is_removed: boolean;
+  last_kind: string | null;
   unread: number;
 };
 
@@ -61,6 +62,7 @@ export async function GET() {
           mine: row.last_is_own === true,
           senderName: row.last_display_name ?? '',
           removed: row.last_is_removed,
+          kind: row.last_kind ?? 'text',
         }
       : null,
     unread: row.unread,

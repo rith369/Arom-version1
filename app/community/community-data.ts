@@ -80,6 +80,8 @@ export type ChatAttachment = {
   url: string;
   type: 'image' | 'file';
   sizeStr?: string;
+  // The chosen file, before it is uploaded.
+  file?: File;
 };
 
 export type ChatMessage = {
@@ -97,6 +99,8 @@ export type ChatMessage = {
   timeKm?: string;
   avatarType: 'mask' | 'mentor' | 'user';
   attachment?: ChatAttachment;
+  // A voice message: streamed from the server after a membership check.
+  voice?: { url: string; seconds: number };
   // Removed by an admin after a report. Members see a placeholder instead.
   removed?: boolean;
 };

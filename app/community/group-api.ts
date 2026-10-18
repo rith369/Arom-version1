@@ -92,6 +92,8 @@ export type GroupLastMessage = {
   mine: boolean;
   senderName: string;
   removed: boolean;
+  // text, voice, image (photo) or file (PDF).
+  kind: string;
 };
 
 export type MyGroup = SupportGroup & { last: GroupLastMessage | null; unread: number };

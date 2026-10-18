@@ -4,6 +4,9 @@ import { type NextRequest } from 'next/server';
 import { createPrivateStorageClient } from '@/lib/supabase/private-storage';
 import { z } from 'zod';
 import {
+  FILE_TYPES,
+  IMAGE_TYPES,
+  MAX_FILE_BYTES,
   MAX_TEXT,
   MAX_VOICE_BYTES,
   MAX_VOICE_SECONDS,
@@ -42,6 +45,7 @@ import {
  */
 
 const VOICE_BUCKET = 'message-voice';
+const ATTACHMENT_BUCKET = 'message-attachments';
 
 const THREAD_LIMIT = 300;
 
@@ -80,7 +84,7 @@ interface SummaryRow {
   client_id: string;
   closed: boolean | null;
   can_write: boolean | null;
-  last_kind: 'text' | 'voice' | 'suggestion' | null;
+  last_kind: ApiMessage['kind'] | null;
   last_mine: boolean | null;
   last_body: string | null;
   last_at: string | null;
@@ -180,12 +184,15 @@ function ruleError(error: PostgrestError) {
 interface MessageRow {
   id: string;
   sender_id: string | null;
-  kind: 'text' | 'voice' | 'suggestion';
+  kind: ApiMessage['kind'];
   body: string | null;
   duration_seconds: number | null;
   suggestion_id: string | null;
   created_at: string;
   read_at: string | null;
+  attachment_name?: string | null;
+  attachment_type?: string | null;
+  attachment_size?: number | null;
 }
 
 function toMessage(row: MessageRow, side: Sender, userId: string): ApiMessage {
@@ -199,6 +206,15 @@ function toMessage(row: MessageRow, side: Sender, userId: string): ApiMessage {
     audioUrl: row.kind === 'voice' ? `/api/voice/${row.id}` : '',
     durationSeconds: row.duration_seconds ?? 0,
     suggestionId: row.suggestion_id ?? '',
+    attachment:
+      (row.kind === 'image' || row.kind === 'file') && row.attachment_name
+        ? {
+            url: `/api/attachments/${row.id}`,
+            name: row.attachment_name,
+            type: row.attachment_type ?? '',
+            size: row.attachment_size ?? 0,
+          }
+        : null,
     createdAt: row.created_at,
     readAt: row.read_at,
   };
@@ -284,7 +300,7 @@ export async function getThread(side: Sender, other: string) {
 }
 
 /** Recognises the recorded audio from its first bytes, not from the type the browser claims. */
-function voiceType(
+export function voiceType(
   bytes: Uint8Array,
 ): { extension: string; contentType: string } | null {
   const text = (from: number, to: number) =>
@@ -302,6 +318,28 @@ function voiceType(
   if (text(4, 8) === 'ftyp')
     return { extension: 'm4a', contentType: 'audio/mp4' };
   return null;
+}
+
+/** Recognises a photo or PDF from its first bytes, not from the type the browser claims. */
+export function attachmentType(
+  bytes: Uint8Array,
+): { kind: 'image' | 'file'; extension: string; contentType: string } | null {
+  const text = (from: number, to: number) => String.fromCharCode(...bytes.slice(from, to));
+  if (bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff)
+    return { kind: 'image', extension: 'jpg', contentType: 'image/jpeg' };
+  if (bytes[0] === 0x89 && text(1, 4) === 'PNG')
+    return { kind: 'image', extension: 'png', contentType: 'image/png' };
+  if (text(0, 4) === 'RIFF' && text(8, 12) === 'WEBP')
+    return { kind: 'image', extension: 'webp', contentType: 'image/webp' };
+  if (text(0, 5) === '%PDF-')
+    return { kind: 'file', extension: 'pdf', contentType: 'application/pdf' };
+  return null;
+}
+
+/** A safe display name for an uploaded file: no folders, at most 120 characters. */
+export function attachmentName(name: string, extension: string) {
+  const base = name.split(/[\\/]/).pop()?.replace(/[\u0000-\u001f]/g, '').trim() ?? '';
+  return (base || `file.${extension}`).slice(0, 120);
 }
 
 const textSchema = z.object({
@@ -359,6 +397,50 @@ export async function sendMessage(
   } catch {
     return invalidInput();
   }
+
+  // A photo or PDF (kind "attachment"); otherwise a voice message.
+  if (form.get('kind') === 'attachment') {
+    const upload = form.get('file');
+    if (!(upload instanceof File) || upload.size === 0 || upload.size > MAX_FILE_BYTES) return invalidInput();
+    const fileBytes = new Uint8Array(await upload.arrayBuffer());
+    const detected = attachmentType(fileBytes);
+    const allowed: readonly string[] = [...IMAGE_TYPES, ...FILE_TYPES];
+    if (!detected || !allowed.includes(detected.contentType)) {
+      return fail('invalid_input', 'Send a photo (JPG, PNG or WebP) or a PDF file.', 400);
+    }
+
+    // Creates the conversation if needed, and checks the sender may write.
+    const { data: openId, error: openErr } = await supabase.rpc('open_conversation_safe', { p_other: otherId, p_as: side });
+    if (openErr || typeof openId !== 'string') {
+      return openErr ? ruleError(openErr) : fail('server_error', 'Your message could not be sent.', 500);
+    }
+
+    const filePath = `${openId}/${userId}/${crypto.randomUUID()}.${detected.extension}`;
+    const stored = await supabase.storage
+      .from(ATTACHMENT_BUCKET)
+      .upload(filePath, fileBytes, { contentType: detected.contentType, upsert: false });
+    if (stored.error) return fail('server_error', 'Your file could not be uploaded.', 500);
+
+    const { data: sent, error: sendErr } = await supabase
+      .rpc('send_attachment_safe', {
+        p_other: otherId,
+        p_as: side,
+        p_kind: detected.kind,
+        p_path: filePath,
+        p_name: attachmentName(upload.name, detected.extension),
+        p_type: detected.contentType,
+        p_size: fileBytes.byteLength,
+      })
+      .single<MessageRow>();
+    if (sendErr || !sent) {
+      // An upload that never became a message is removed again (the sender
+      // has no delete rights on this bucket, so the server does it).
+      await createPrivateStorageClient().storage.from(ATTACHMENT_BUCKET).remove([filePath]);
+      return sendErr ? ruleError(sendErr) : fail('server_error', 'Your message could not be sent.', 500);
+    }
+    return json<SendResponse>({ message: toMessage(sent, side, userId) }, 201);
+  }
+
   const file = form.get('audio');
   const duration = durationSchema.safeParse(form.get('durationSeconds'));
   if (
@@ -495,6 +577,54 @@ export async function openVoice(messageId: string) {
       ...NO_STORE,
       'Content-Type': audio.type || 'application/octet-stream',
       'Content-Length': String(audio.size),
+      'X-Content-Type-Options': 'nosniff',
+    },
+  });
+}
+
+/** GET /api/attachments/:messageId: streams a photo or PDF to a member of that conversation. */
+export async function openAttachment(messageId: string) {
+  const id = z.string().uuid().safeParse(messageId);
+  if (!id.success) return invalidInput();
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+  if (authError || !user) return unauthorized();
+
+  // Read the metadata on the server. Never return the storage path.
+  const storageClient = createPrivateStorageClient();
+  const { data: message, error: messageError } = await storageClient
+    .from('messages')
+    .select('conversation_id, attachment_path, attachment_type, attachment_name')
+    .eq('id', id.data)
+    .in('kind', ['image', 'file'])
+    .maybeSingle();
+  if (messageError) return fail('server_error', 'Could not load this file.', 500);
+  if (!message?.attachment_path) return notFound();
+
+  // Check membership as the signed in user before sending anything.
+  const { data: isMember, error: membershipError } = await supabase.rpc('is_conversation_member', {
+    p_conversation_id: message.conversation_id,
+  });
+  if (membershipError) return fail('server_error', 'Could not load this file.', 500);
+  if (isMember !== true) return notFound();
+
+  const { data: file, error: downloadError } = await storageClient.storage
+    .from(ATTACHMENT_BUCKET)
+    .download(message.attachment_path);
+  if (downloadError || !file) return fail('server_error', 'Could not load this file.', 500);
+
+  const safeName = encodeURIComponent(message.attachment_name ?? 'file');
+  return new Response(file, {
+    status: 200,
+    headers: {
+      ...NO_STORE,
+      'Content-Type': message.attachment_type || 'application/octet-stream',
+      'Content-Length': String(file.size),
+      'Content-Disposition': `inline; filename*=UTF-8''${safeName}`,
       'X-Content-Type-Options': 'nosniff',
     },
   });

@@ -1,5 +1,37 @@
 # AROM: Change Report
 
+## 19 Oct 2026: Photos, PDF Files and Voice in Every Chat
+
+Commit `PENDING`. Migration `20261019000200_chat_attachments.sql` must be run in the Supabase SQL Editor.
+
+**Why.** Private chats had text and voice; group chats had text only, with a paperclip that said "not available yet". Every chat should work the same way.
+
+**What changed for users:**
+
+- **Private chats** (client and professional) can now send photos (JPG, PNG, WebP) and PDF files, as well as text and voice.
+- **Group chats** can now send voice messages, photos and PDF files, as well as text.
+- **Up to 5 MB per file.** A clear message says when a file is the wrong type or too big, before anything uploads.
+- **First voice message in a group:** a short warning says "Your voice can identify you", because other members may recognise a voice even when someone is Anonymous. After "I understand", it does not show again on that device.
+- **Photos open full size and PDFs open in the browser** when tapped. A photo in a group can be reported with "Report image" and hidden by the AROM team.
+- **Group chats now show the newest 100 messages** (before, the oldest 100).
+
+**What changed for the team:**
+
+- **Migration:** columns for kind and file details on `messages` and `community_messages`; private buckets `message-attachments` and `community-media`; `send_attachment_safe()`, `can_upload_community_media()`, `community_media_uploaded()`, `community_media_path()`; `read_private_messages_safe()`, `read_community_messages()` and `my_group_chats()` return the new fields (never the storage path); `admin_read_community_messages()` labels media messages.
+- **Server:** private photos and PDFs go through the existing `POST` with a form (`kind=attachment`); new `GET /api/attachments/:messageId`. Group voice, photos and PDFs go through `POST /api/community/groups/:id/messages` with a form; new `GET /api/community/messages/:messageId/media`. Files are streamed only after a membership check; the type is read from the file's first bytes.
+- **Screens:** `chat-thread.tsx` (paperclip, preview, photo and PDF bubbles), `group-hub-view.tsx` (microphone with the warning, recording and preview, real file picking, voice playback), `group-chat.tsx` (sending and showing media), new `use-voice-recorder.ts` (same microphone settings as private chats), list previews say "Photo", "PDF" or "Voice message".
+- **Follow up:** the admin chat view shows "[Photo] name" style labels; opening the file there needs the admin page to link the media route (Sokheng).
+- Khmer text should be checked by a Khmer speaker.
+
+**What to re-test:**
+
+1. Run the migration in Supabase.
+2. Private chat: send a photo and a PDF as client and as professional; both open on tap for the other person. Try a Word file or a 10 MB photo: a clear message, nothing sent.
+3. Group chat: send a photo, a PDF and text; another member sees them.
+4. Group voice: the first time, the warning shows; after "I understand", record, preview and send; another member plays it. Next time no warning.
+5. Report a photo in a group as another member; as admin, remove it: members no longer see it.
+6. Messages list previews say "Photo", "PDF" or "Voice message".
+
 ## 19 Oct 2026: Messages Has the Top Bar on Phones
 
 Commit `b61db5e`. No migration.

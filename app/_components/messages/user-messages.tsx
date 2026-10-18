@@ -120,7 +120,11 @@ export function UserMessages({ professionalId, groupId }: { professionalId?: str
           ? t("ម៉ោងសម្រាប់វគ្គបន្ទាប់របស់អ្នក", "Times for your next session")
           : last.kind === "voice"
             ? t("សារសំឡេង", "Voice message")
-            : `${last.mine ? t("អ្នក: ", "You: ") : ""}${last.text}`,
+            : last.kind === "image"
+              ? `${last.mine ? t("អ្នក: ", "You: ") : ""}${t("រូបថត", "Photo")}`
+              : last.kind === "file"
+                ? `${last.mine ? t("អ្នក: ", "You: ") : ""}PDF`
+                : `${last.mine ? t("អ្នក: ", "You: ") : ""}${last.text}`,
       voice: last?.kind === "voice",
       unread: conversation.unread,
       selected: conversation.professionalId === professionalId,

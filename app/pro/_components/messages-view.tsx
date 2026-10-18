@@ -66,7 +66,11 @@ export function ProMessagesView({ clientId, groupId }: { clientId?: string; grou
           ? t('អ្នកបានណែនាំម៉ោងវគ្គបន្ទាប់', 'You suggested times for the next session')
           : last.kind === 'voice'
             ? t('សារសំឡេង', 'Voice message')
-            : `${last.mine ? t('អ្នក: ', 'You: ') : ''}${last.text}`,
+            : last.kind === 'image'
+              ? `${last.mine ? t('អ្នក: ', 'You: ') : ''}${t('រូបថត', 'Photo')}`
+              : last.kind === 'file'
+                ? `${last.mine ? t('អ្នក: ', 'You: ') : ''}PDF`
+                : `${last.mine ? t('អ្នក: ', 'You: ') : ''}${last.text}`,
       voice: last?.kind === 'voice',
       unread: summaryFor(client.id)?.unread ?? 0,
       selected: client.id === clientId,
