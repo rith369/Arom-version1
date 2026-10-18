@@ -1,5 +1,27 @@
 # AROM: Change Report
 
+## 19 Oct 2026: Messages in the Phone Menu Instead of Community
+
+Commit `PENDING`. No migration.
+
+**Why.** On phones, people open their chats every day but only look for a new support group now and then. Since Messages now holds the group chats too, it deserves the bottom menu spot.
+
+**What changed for users:**
+
+- **The phone bottom menu shows Messages** (Home, MindGuide, Detection, Professional, Messages). Community is still in the ☰ menu.
+- **"Find a group" button at the top of Messages** opens Community, so finding a group is one tap from your chats.
+
+**What changed for the team:**
+
+- **`app-navigation.tsx`:** the fifth bottom menu item is now Messages (`/messages`, MessageCircle icon). The Messages page already marks it as active.
+- **`user-messages.tsx`:** the "Find a group" link next to the title.
+
+**What to re-test:**
+
+1. On a phone (or a narrow window), the bottom menu ends with Messages; tap it and it opens Messages, highlighted.
+2. Tap "Find a group": Community opens.
+3. Open ☰: Community is still listed.
+
 ## 19 Oct 2026: Group Chats Get Unread Badges and Update by Themselves
 
 Commit `fd6c02f`. Migration `20261019000100_group_reads.sql` must be run in the Supabase SQL Editor.

@@ -9,7 +9,7 @@ import {
   Home,
   ChevronUp,
   Settings,
-  UsersRound,
+  MessageCircle,
 } from "lucide-react";
 import { useLanguage } from "./language-provider";
 import { useDetection } from "./detection-provider";
@@ -253,7 +253,9 @@ const bottomNavItems: BottomNavItem[] = [
   { label: "MindGuide", icon: BookOpen, href: "/mindguide", km: "មគ្គុទ្ទេសក៍ចិត្ត" },
   { label: "Detection", icon: Activity, href: "/detection", km: "ពិនិត្យអារម្មណ៍", emphasized: true },
   { label: "Professional", icon: Heart, href: "/professional", km: "អ្នកជំនាញ" },
-  { label: "Community", icon: UsersRound, href: "/community", km: "សហគមន៍" },
+  // Messages instead of Community (19 Oct 2026): people open their chats far
+  // more often than they look for a new group. Community stays in the menu.
+  { label: "Messages", icon: MessageCircle, href: "/messages", km: "សារ" },
 ];
 
 export function MobileNavigation({

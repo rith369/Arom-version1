@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, CalendarCheck, LifeBuoy, Lock, MessageCircle, Monitor, Repeat, UserRound, X } from "lucide-react";
+import { ArrowLeft, CalendarCheck, LifeBuoy, Lock, MessageCircle, Monitor, Repeat, UserRound, UsersRound, X } from "lucide-react";
 import type { AppointmentsResponse, UserAppointment } from "@/lib/appointments";
 import { DesktopNavigation, MobileNavigation } from "../app-navigation";
 import { useLanguage } from "../language-provider";
@@ -148,7 +148,17 @@ export function UserMessages({ professionalId, groupId }: { professionalId?: str
 
   return (
     <Shell>
-      <h1 className="text-2xl font-bold tracking-tight text-arom sm:text-3xl">{t("សារ (Messages)", "Messages")}</h1>
+      <div className="flex items-center justify-between gap-3">
+        <h1 className="text-2xl font-bold tracking-tight text-arom sm:text-3xl">{t("សារ (Messages)", "Messages")}</h1>
+        {/* Community left the phone menu for Messages, so finding a group starts here too. */}
+        <Link
+          href="/community"
+          className="flex shrink-0 items-center gap-1.5 rounded-full border border-arom-border bg-white px-3 py-1.5 text-sm font-semibold text-arom hover:bg-arom-wash"
+        >
+          <UsersRound size={16} aria-hidden="true" />
+          {t("ស្វែងរកក្រុម", "Find a group")}
+        </Link>
+      </div>
       <p className="mt-1 text-sm text-ink-muted">
         {t(
           "ការជជែកឯកជនជាមួយអ្នកជំនាញរបស់អ្នក និងក្រុមគាំទ្រដែលអ្នកបានចូលរួម។",
