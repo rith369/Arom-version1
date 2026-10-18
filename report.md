@@ -2,7 +2,7 @@
 
 ## 18 Oct 2026: New Lesson, How to Balance Study, Work, and Life
 
-Commit `0b2dbe7`. No migration. Content and frontend only.
+Commit `d8d6a1c`. No migration. Content and frontend only.
 
 **Why.** Competing demands from dual-shift university classes, daytime employment, family obligations, and societal pressures in Cambodia frequently cause cognitive overload, chronic exhaustion, boundary erosion, and systemic burnout. "How to Balance Study, Work, and Life" (`how-to-balance-study-work-life`) activates the Burnout category in MindGuide Learn with an 8-minute evidence-based psychoeducational guide adapted from WHO, APA, Harvard Health Publishing, NHS Every Mind Matters, and UNICEF Cambodia. It equips seekers with realistic, sustainable strategies to replace the unrealistic 50/50 balance myth with dynamic equilibrium, recognize early somatic and emotional burnout signals, manage their 4 core life batteries (physical, mental, emotional, meaning), set assertive boundaries without guilt, apply the Eisenhower priority matrix and "Good Enough" standard, practice micro-rest reset routines, soothe transition stress with the 1-Minute Calming Breath, and access confidential therapy on AROM.
 
