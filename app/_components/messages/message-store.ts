@@ -266,7 +266,17 @@ export async function setReplyTime(professionalId: string, value: ReplyTime) {
   if (!result.ok && previous) setState({ ...state, replyTimes: { ...state.replyTimes, [professionalId]: previous } });
 }
 
-/** The professional's quick replies, loaded once when first needed. */
+// Examples shown while a professional has no saved quick replies. Nothing is
+// saved until they choose "Add these to my quick replies".
+export const SAMPLE_QUICK_REPLIES: QuickReply[] = [
+  { id: 'sample-1', text: 'Thank you for your message, {name}. I will reply properly before our next session.' },
+  { id: 'sample-2', text: 'I am running 5 minutes late. Please stay in the meeting room, I am coming.' },
+  { id: 'sample-3', text: 'Here is the link for our session: {link}' },
+  { id: 'sample-4', text: 'See you on {next}. Take care until then.' },
+  { id: 'sample-5', text: 'សូមអរគុណសម្រាប់សាររបស់អ្នក {name}។ ខ្ញុំនឹងឆ្លើយតបមុនវគ្គបន្ទាប់របស់យើង។' },
+];
+
+/** The professional's quick replies, loaded once when first needed. Null while loading. */
 export function useQuickReplies(enabled: boolean) {
   const store = useMessageStore();
   useEffect(() => {
@@ -275,7 +285,7 @@ export function useQuickReplies(enabled: boolean) {
       if (result.ok) setState({ ...state, quickReplies: result.data.quickReplies });
     });
   }, [enabled]);
-  return store.quickReplies ?? [];
+  return store.quickReplies;
 }
 
 /** Replaces the whole list. Shown at once, then saved. */

@@ -10,6 +10,7 @@ import {
   MAX_VOICE_SECONDS,
   fillQuickReply,
   markRead,
+  SAMPLE_QUICK_REPLIES,
   saveQuickReplies,
   sendMessage,
   useQuickReplies,
@@ -100,7 +101,10 @@ export function ChatThread({
   quickReplyValues?: { name: string; link: string; next: string };
 }) {
   const { loaded, messages: thread, summary } = useThread(conversation, viewer);
-  const replies = useQuickReplies(Boolean(quickReplyValues));
+  const savedReplies = useQuickReplies(Boolean(quickReplyValues));
+  const replies = savedReplies ?? [];
+  // A professional with no saved replies sees examples they can use or keep.
+  const showSamples = savedReplies !== null && savedReplies.length === 0;
   const [repliesOpen, setRepliesOpen] = useState(false);
   const [managing, setManaging] = useState(false);
   const [newReply, setNewReply] = useState("");
@@ -359,7 +363,38 @@ export function ChatThread({
                   </button>
                 </div>
               </div>
-              {replies.length === 0 && <p className="mt-2 text-xs text-ink-muted">{t("មិនទាន់មានចម្លើយរហ័ស។", "No quick replies yet.")}</p>}
+              {showSamples && !managing && (
+                <div className="mt-2">
+                  <p className="text-xs text-ink-muted">
+                    {t("ឧទាហរណ៍សម្រាប់ចាប់ផ្ដើម។ ចុចមួយដើម្បីប្រើ។", "Examples to start with. Tap one to use it.")}
+                  </p>
+                  <ul className="mt-2 max-h-48 space-y-1 overflow-y-auto">
+                    {SAMPLE_QUICK_REPLIES.map((sample) => (
+                      <li key={sample.id}>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const filled = fillQuickReply(sample.text, quickReplyValues);
+                            setText((current) => (current.trim() ? `${current.trimEnd()} ${filled}` : filled).slice(0, MAX_TEXT));
+                            setRepliesOpen(false);
+                          }}
+                          className="w-full rounded-xl px-2.5 py-1.5 text-left text-sm text-ink hover:bg-arom-wash"
+                        >
+                          {sample.text}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                  <button
+                    type="button"
+                    onClick={() => void saveQuickReplies(SAMPLE_QUICK_REPLIES.map((sample, index) => ({ id: `qr-${Date.now()}-${index}`, text: sample.text })))}
+                    className="mt-2 rounded-full border border-arom-border px-3 py-1.5 text-xs font-semibold text-arom hover:bg-arom-wash"
+                  >
+                    {t("បន្ថែមទាំងនេះទៅចម្លើយរហ័សរបស់ខ្ញុំ", "Add these to my quick replies")}
+                  </button>
+                </div>
+              )}
+              {replies.length === 0 && managing && <p className="mt-2 text-xs text-ink-muted">{t("មិនទាន់មានចម្លើយរហ័ស។", "No quick replies yet.")}</p>}
               <ul className="mt-2 max-h-48 space-y-1 overflow-y-auto">
                 {replies.map((reply) => (
                   <li key={reply.id} className="flex items-start gap-1">

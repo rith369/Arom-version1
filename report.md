@@ -1,5 +1,29 @@
 # AROM: Change Report
 
+## 18 Oct 2026: Sample Quick Replies Are Back
+
+Commit `PENDING`. No migration.
+
+**Why.** Quick replies used to show 5 example replies to every professional. When quick replies were connected to the database on 15 Oct, each professional got their own saved list and the examples went away, so a new professional only saw "No quick replies yet." and had no idea what to write.
+
+**What changed for users:**
+
+- **Examples while the list is empty:** a professional with no saved quick replies sees the 5 examples (thank you, running late, session link, see you on, and one in Khmer). Tapping one puts it in the message box with the client's name, link or next session filled in.
+- **One tap to keep them:** "Add these to my quick replies" saves all 5 to the professional's own list, where Edit lets them change or delete each one.
+- **Nothing changes for professionals who already saved replies.**
+
+**What changed for the team:**
+
+- **`message-store.ts`:** `SAMPLE_QUICK_REPLIES`, and `useQuickReplies()` returns null while loading so the examples do not flash before saved replies arrive.
+- **`chat-thread.tsx`:** the examples and the add button in the Quick replies panel. Saving uses the existing `PUT /api/pro/quick-replies`. Frontend only.
+
+**What to re-test:**
+
+1. As a professional with no quick replies, open a chat and the Quick replies panel: the 5 examples show.
+2. Tap one: it fills the message box with the client's name.
+3. Press "Add these to my quick replies": the examples become your own list; Edit can delete one.
+4. Delete them all: the examples show again.
+
 ## 18 Oct 2026: Therapists See the Note From Anonymous Clients
 
 Commit `ff32d64`. Migration `20261018070000_show_intake_for_anonymous.sql` must be run in the Supabase SQL Editor (after `20261018060000_merge_privacy_with_main.sql`, already applied).
