@@ -1,5 +1,28 @@
 # AROM: Change Report
 
+## 18 Oct 2026: Community Page Shows Again
+
+Commit `PENDING`. No migration.
+
+**Why.** The Community page was blank, on the live site too. Since commit `54c34f5` (15 Oct) the join function in `app/community/page.tsx` was written twice, one copy inside the other, so all the code after it, including the part that draws the page, ended up inside that function. The page drew nothing. The same edit also left the group chat error message inside the create group function, where it was never shown. Typecheck and build did not catch it, because a page that returns nothing is still valid code.
+
+**What changed for users:**
+
+- **Community opens again:** your support group, recommended groups and the group list show.
+- **Group chat errors are shown:** for example "Could not load messages" or "Attachments are not available in real groups yet" now appear above the chat instead of failing silently.
+
+**What changed for the team:**
+
+- **`app/community/page.tsx`:** removed the extra `function handleJoinGroup` wrapper and its closing bracket, moved the code back to its normal indentation (most of the diff is indentation), and moved the `messageError` message into the group chat view. No logic changed.
+- The two existing lint errors in this file (setState in an effect, lines 68 and 181) are unchanged.
+
+**What to re-test:**
+
+1. Open Community: the page shows your group and recommended groups.
+2. Open a group, join it, and send a message.
+3. Create a group as a professional: it opens the group chat.
+4. In a real group, try to attach an image: the red message "Attachments are not available in real groups yet." shows above the chat.
+
 ## 18 Oct 2026: Anonymous Clients Get a Number
 
 Commit `98ca4cb`. No migration.
