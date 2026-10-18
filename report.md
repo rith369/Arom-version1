@@ -2,7 +2,7 @@
 
 ## 18 Oct 2026: Community Page Shows Again
 
-Commit `PENDING`. No migration.
+Commit `878172e`. No migration.
 
 **Why.** The Community page was blank, on the live site too. Since commit `54c34f5` (15 Oct) the join function in `app/community/page.tsx` was written twice, one copy inside the other, so all the code after it, including the part that draws the page, ended up inside that function. The page drew nothing. The same edit also left the group chat error message inside the create group function, where it was never shown. Typecheck and build did not catch it, because a page that returns nothing is still valid code.
 
