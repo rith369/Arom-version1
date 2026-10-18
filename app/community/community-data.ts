@@ -123,6 +123,8 @@ export type GroupMember = {
   nameKm?: string;
   isAnonymous: boolean;
   avatarType: 'mask' | 'user';
+  // The signed in person's own row (no report button).
+  isYou?: boolean;
 };
 
 export const INITIAL_GROUPS: SupportGroup[] = [

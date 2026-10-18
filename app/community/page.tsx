@@ -17,6 +17,7 @@ import {
   ChatAttachment,
   GroupActivity,
   GroupMember,
+  GroupMentor,
   GroupsStatus,
 } from './community-data';
 import { createSupportGroup } from './group-api';
@@ -201,6 +202,36 @@ export default function CommunityPage() {
   // Group activities are not connected yet (section 23), so none are shown.
   const [activities, setActivities] = useState<GroupActivity[]>([]);
   const [members, setMembers] = useState<GroupMember[]>([]);
+
+  // The Members tab: the mentor and members of the open group, from
+  // read_group_members (names follow each client's "Hide my identity").
+  const [groupMentors, setGroupMentors] = useState<Record<string, GroupMentor>>({});
+  useEffect(() => {
+    const groupId = selectedGroupId;
+    if (view !== 'group-hub' || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(groupId)) return;
+
+    let active = true;
+    void (async () => {
+      try {
+        const response = await fetch(`/api/community/groups/${groupId}/members`, { cache: 'no-store' });
+        if (!response.ok) return;
+        const result: { members: MemberRow[] } = await response.json();
+        if (!active) return;
+
+        const mentorRow = result.members.find((row) => row.is_mentor);
+        if (mentorRow) setGroupMentors((current) => ({ ...current, [groupId]: toMentor(mentorRow) }));
+        setMembers((current) => [
+          ...current.filter((member) => member.groupId !== groupId),
+          ...result.members.filter((row) => !row.is_mentor).map((row) => toMember(row, groupId)),
+        ]);
+      } catch {
+        // The Members tab stays empty; the chat still works.
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, [view, selectedGroupId]);
 
   const activeGroup = groups.find((g) => g.id === selectedGroupId);
 
@@ -441,7 +472,7 @@ export default function CommunityPage() {
 
           {view === 'group-hub' && activeGroup && (
             <GroupHubView
-              group={activeGroup}
+              group={{ ...activeGroup, mentor: groupMentors[activeGroup.id] ?? activeGroup.mentor }}
               messages={messages.filter((m) => m.groupId === selectedGroupId)}
               activities={activities.filter(
                 (a) => a.groupId === selectedGroupId,
@@ -491,4 +522,46 @@ export default function CommunityPage() {
       )}
     </div>
   );
+}
+
+// One row of GET /api/community/groups/:id/members.
+type MemberRow = {
+  member_key: string;
+  display_name: string;
+  display_name_km: string;
+  is_mentor: boolean;
+  is_you: boolean;
+  mentor_title: string | null;
+  mentor_title_km: string | null;
+  mentor_years: number | null;
+  photo_url: string | null;
+};
+
+function toMentor(row: MemberRow): GroupMentor {
+  const years = row.mentor_years;
+  return {
+    name: row.display_name,
+    nameKm: row.display_name_km,
+    role: row.mentor_title || 'Group mentor',
+    roleKm: row.mentor_title_km || row.mentor_title || 'អ្នកណែនាំក្រុម',
+    experience:
+      years === null ? 'Verified AROM professional' : `${years} ${years === 1 ? 'year' : 'years'} of experience`,
+    experienceKm: years === null ? 'អ្នកជំនាញ AROM ផ្លូវការ' : `បទពិសោធន៍ ${years} ឆ្នាំ`,
+    avatarUrl: row.photo_url || undefined,
+    badge: 'Group Mentor',
+    badgeKm: 'អ្នកណែនាំក្រុម',
+  };
+}
+
+function toMember(row: MemberRow, groupId: string): GroupMember {
+  const anonymous = row.display_name === 'Anonymous';
+  return {
+    id: row.member_key,
+    groupId,
+    name: row.is_you ? (anonymous ? 'Anonymous (You)' : `${row.display_name} (You)`) : row.display_name,
+    nameKm: row.is_you ? (anonymous ? 'អនាមិក (អ្នក)' : `${row.display_name_km} (អ្នក)`) : row.display_name_km,
+    isAnonymous: anonymous,
+    avatarType: anonymous ? 'mask' : 'user',
+    isYou: row.is_you,
+  };
 }

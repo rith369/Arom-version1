@@ -41,7 +41,7 @@ const easeOut = [0.23, 1, 0.32, 1] as const;
 
 export function ProfileSettings() {
   const { language, setLanguage } = useLanguage();
-  const { user } = useAuth();
+  const { user, refresh } = useAuth();
   const shouldReduceMotion = useReducedMotion();
   const km = language === 'km';
 
@@ -77,6 +77,8 @@ export function ProfileSettings() {
       const result: { user: { hideIdentity?: boolean } } =
         await response.json();
       setHideIdentity(result.user.hideIdentity ?? nextValue);
+      // Other pages (for example the Community banner) read it from the session.
+      void refresh();
     } catch {
       setIdentityError(
         km

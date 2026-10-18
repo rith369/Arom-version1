@@ -733,6 +733,13 @@ export function GroupHubView({
               </div>
 
               <div className="flex flex-col gap-2.5">
+                {members.length === 0 && (
+                  <p className="text-sm text-[#6b7280]">
+                    {km
+                      ? 'មិនទាន់មាននរណាចូលរួមនៅឡើយទេ។ សមាជិកថ្មីនឹងបង្ហាញនៅទីនេះ។'
+                      : 'Nobody has joined yet. New members will show here.'}
+                  </p>
+                )}
                 {members.map((mem) => {
                   const memberName = km ? mem.nameKm || mem.name : mem.name;
                   return (
@@ -751,7 +758,7 @@ export function GroupHubView({
                       <span className="min-w-0 flex-1 truncate text-sm font-semibold text-[#111827]">
                         {memberName}
                       </span>
-                      {mem.name !== 'Anonymous (You)' && (
+                      {!mem.isYou && mem.name !== 'Anonymous (You)' && (
                         <button
                           type="button"
                           onClick={() =>
