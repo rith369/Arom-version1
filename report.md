@@ -2,7 +2,7 @@
 
 ## 19 Oct 2026: Community Home Gets Recommended for You and Always On Search
 
-Commit `PENDING`. No migration.
+Commit `3dd17ed`. No migration.
 
 **Why.** Rith wanted the Community home closer to the shared design: no plain link rows at the bottom, a search button that is always there, and a "Recommended for you" section ready for the matching feature planned later.
 
