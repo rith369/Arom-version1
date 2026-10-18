@@ -2,7 +2,7 @@
 
 ## 18 Oct 2026: New Lesson, Build Healthy Relationships
 
-Commit `PENDING`. No migration. Content and frontend only.
+Commit `95e8c13`. No migration. Content and frontend only.
 
 **Why.** Interpersonal connections with family, friends, partners, and colleagues deeply shape emotional wellbeing and resilience. Seekers frequently experience tension balancing family expectations, managing conflict, or asserting personal boundaries. "Build Healthy Relationships" (`build-healthy-relationships`) provides a comprehensive 7-minute guide adapted from Healthdirect Australia, NHS, UNICEF Cambodia, ACOG, and NIH, connecting directly to AROM Community support circles, private Journaling, and verified relationship therapists.
 
