@@ -1,5 +1,28 @@
 # AROM: Change Report
 
+## 18 Oct 2026: Therapists See the Note From Anonymous Clients
+
+Commit `ff32d64`. Migration `20261018070000_show_intake_for_anonymous.sql` must be run in the Supabase SQL Editor (after `20261018060000_merge_privacy_with_main.sql`, already applied).
+
+**Why.** When booking, a client can write a "Note for Therapist" and answer intake questions. Since the anonymous privacy work, the therapist got an empty note and no answers whenever the client had "Hide my identity" on, which is the default. So most clients wrote a note their therapist never saw. Anonymous mode should hide who the client is, not what they chose to tell their therapist.
+
+**What changed for users:**
+
+- **Therapists see the note and intake answers of every client** on My bookings, the Prepare view and the client file, including clients shown as "Anonymous".
+- **Anonymous clients stay anonymous:** their name still shows as "Anonymous" and their account stays hidden.
+
+**What changed for the team:**
+
+- **New migration:** redefines `read_my_pro_bookings_safe()` without the `hide_identity` check on `intakeNote` and `intakeAnswers`. Otherwise the same as the merge version. No code change.
+- **Handoff:** `BACKEND-HANDOFF.md` section 29 updated with this rule, and the migrations applied today marked as applied.
+
+**What to re-test:**
+
+1. Run the migration in Supabase.
+2. As a client with "Hide my identity" on, book a session and write a note.
+3. As the therapist, open My bookings: the client shows as "Anonymous" and the note is shown.
+4. Open the Prepare view and the client file: the note is shown there too.
+
 ## 18 Oct 2026: Voice Messages Send Again and Keep Quiet Words
 
 Commit `5f88298`. Branch `merge/anonymous-privacy` (PR #19). No migration.
