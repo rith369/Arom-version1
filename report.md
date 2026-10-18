@@ -2,7 +2,7 @@
 
 ## 18 Oct 2026: Sample Quick Replies Are Back
 
-Commit `PENDING`. No migration.
+Commit `7be1816`. No migration.
 
 **Why.** Quick replies used to show 5 example replies to every professional. When quick replies were connected to the database on 15 Oct, each professional got their own saved list and the examples went away, so a new professional only saw "No quick replies yet." and had no idea what to write.
 
