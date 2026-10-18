@@ -2,7 +2,7 @@
 
 ## 18 Oct 2026: New Lesson, How to Deal With Loneliness
 
-Commit `572a228`. No migration. Content and frontend only.
+Commit `96d9aa8`. No migration. Content and frontend only.
 
 **Why.** Rapid urban migration, living in small rented rooms, social media comparison, and emotional isolation cause pervasive loneliness among young people in Cambodia. Loneliness is frequently stigmatized or suffered in silence, leading to chronic physical inflammation, sleep disturbances, social anxiety, and depression. "How to Deal With Loneliness" (`how-to-deal-with-loneliness`) provides an 8-minute evidence-based psychoeducational guide adapted from WHO (Commission on Social Connection), APA, Harvard Health Publishing, NHS Every Mind Matters, and UNICEF Cambodia. It equips seekers with practical tools to understand loneliness as a natural biological alarm rather than a character defect, differentiate painful isolation from nourishing solitude, navigate Cambodian urban migration realities, deactivate the lonely brain's social threat hypervigilance loop, construct a 3-tier low-stakes connection ladder, befriend oneself through restorative rituals, soothe somatic isolation through self-compassion breathwork, and connect with confidential therapy on AROM.
 
