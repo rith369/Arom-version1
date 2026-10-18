@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft, CalendarCheck, LifeBuoy, Lock, MessageCircle, Monitor, Repeat, UserRound, UsersRound, X } from "lucide-react";
 import type { AppointmentsResponse, UserAppointment } from "@/lib/appointments";
 import { DesktopNavigation, MobileNavigation } from "../app-navigation";
+import { TopHeader } from "../../components/top-header";
 import { useLanguage } from "../language-provider";
 import { JoinButton } from "../sessions/join-button";
 import { GroupChat } from "../../community/components/group-chat";
@@ -63,8 +64,12 @@ function Shell({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-canvas lg:grid lg:grid-cols-[19rem_minmax(0,1fr)]">
       <DesktopNavigation active="Messages" />
-      <main className="min-w-0 px-4 pb-28 pt-5 sm:px-8 lg:px-10 lg:py-8">
-        <div className="mx-auto w-full max-w-5xl">{children}</div>
+      <main className="min-w-0 px-4 pb-28 pt-3 sm:px-8 lg:px-10 lg:py-8">
+        <div className="mx-auto w-full max-w-5xl">
+          {/* AROM brand, menu and profile on phones, the same as Home and Community. */}
+          <TopHeader />
+          <div className="mt-5 lg:mt-0">{children}</div>
+        </div>
       </main>
       <MobileNavigation active="Messages" />
     </div>

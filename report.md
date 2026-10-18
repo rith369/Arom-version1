@@ -1,5 +1,25 @@
 # AROM: Change Report
 
+## 19 Oct 2026: Messages Has the Top Bar on Phones
+
+Commit `PENDING`. No migration.
+
+**Why.** Now that Messages is in the phone menu, it should look like the other main pages. It had no top bar, so there was no ☰ menu or profile button on the page.
+
+**What changed for users:**
+
+- **On phones and tablets, Messages shows the same top bar as Home and Community:** the AROM logo, the ☰ menu and the profile button. Laptops are unchanged (the sidebar has them).
+
+**What changed for the team:**
+
+- **`user-messages.tsx`:** the page shell adds `TopHeader` above the content (hidden on large screens by `TopHeader` itself).
+
+**What to re-test:**
+
+1. On a phone, open Messages: the logo, ☰ and profile button show at the top.
+2. Tap ☰: the menu opens, with Community in it. Tap the profile button: the profile menu opens.
+3. On a laptop, Messages looks the same as before.
+
 ## 19 Oct 2026: Messages in the Phone Menu Instead of Community
 
 Commit `1bb58f8`. No migration.
