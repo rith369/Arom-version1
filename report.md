@@ -2,7 +2,7 @@
 
 ## 18 Oct 2026: New Lesson, How to Talk About Your Feelings
 
-Commit `05481cc`. No migration. Content and frontend only.
+Commit `9416865`. No migration. Content and frontend only.
 
 **Why.** Stigmas, cultural reluctance, and fear of being judged often push seekers in Cambodia to hide vulnerable emotions behind "I am fine." "How to Talk About Your Feelings" (`talk-about-feelings`) provides an 8-minute evidence-based psychoeducational guide adapted from NHS Every Mind Matters, UNICEF Cambodia, and CDC. It equips seekers with practical tools to identify tangled emotions, structure non-blaming "I feel" statements, clarify needed support upfront, navigate Cambodian family dynamics with gentle shared moments, practice reflection in AROM Journal, and connect with confidential licensed therapists.
 
