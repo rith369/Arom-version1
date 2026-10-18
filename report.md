@@ -2,7 +2,7 @@
 
 ## 19 Oct 2026: Group Chats Get Unread Badges and Update by Themselves
 
-Commit `PENDING`. Migration `20261019000100_group_reads.sql` must be run in the Supabase SQL Editor.
+Commit `fd6c02f`. Migration `20261019000100_group_reads.sql` must be run in the Supabase SQL Editor.
 
 **Why.** After group chats moved into Messages, they still lacked what the private chats have: no unread badge, no new messages without reopening the chat, and the list asked the server once per group.
 
