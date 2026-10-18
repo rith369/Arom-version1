@@ -2,49 +2,38 @@
 
 import { useState } from "react";
 import { ChevronLeft, ChevronRight, Search } from "lucide-react";
-import {
-  GraduationCapIcon,
-  StressLightningIcon,
-  SadFaceIcon,
-} from "./community-icons";
 import { useLanguage } from "../../_components/language-provider";
 import { SupportGroup } from "../community-data";
+import { GROUP_TOPICS, TopicBadge, topicInfo, type GroupTopic } from "../group-topics";
 
 type AllGroupsViewProps = {
   groups: SupportGroup[];
   onBack: () => void;
   onSelectGroup: (groupId: string) => void;
+  // Opened from a topic tile on the Community home: starts filtered.
+  initialTopic?: GroupTopic | null;
 };
 
 export function AllGroupsView({
   groups,
   onBack,
   onSelectGroup,
+  initialTopic = null,
 }: AllGroupsViewProps) {
   const { language } = useLanguage();
   const km = language === "km";
   const [searchQuery, setSearchQuery] = useState("");
+  const [topic, setTopic] = useState<GroupTopic | null>(initialTopic);
 
   const filtered = groups.filter((g) => {
     const q = searchQuery.toLowerCase();
     return (
-      g.name.toLowerCase().includes(q) ||
-      g.nameKm.toLowerCase().includes(q) ||
-      g.about.toLowerCase().includes(q)
+      (!topic || g.iconType === topic) &&
+      (g.name.toLowerCase().includes(q) ||
+        g.nameKm.toLowerCase().includes(q) ||
+        g.about.toLowerCase().includes(q))
     );
   });
-
-  function renderGroupIcon(type: SupportGroup["iconType"]) {
-    switch (type) {
-      case "academic":
-        return <GraduationCapIcon className="size-7 text-[#1b5e4c]" />;
-      case "stress":
-        return <StressLightningIcon className="size-7 text-[#1b5e4c]" />;
-      case "anxiety":
-      case "depression":
-        return <SadFaceIcon className="size-7 text-[#1b5e4c]" />;
-    }
-  }
 
   return (
     <div className="w-full max-w-lg mx-auto pb-28 px-4 pt-3">
@@ -62,7 +51,13 @@ export function AllGroupsView({
       {/* Title */}
       <div className="mt-1">
         <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#111827]">
-          {km ? "ក្រុមគាំទ្រទាំងអស់ (All Groups)" : "All Support Groups"}
+          {topic
+            ? km
+              ? `${topicInfo(topic).km} (${topicInfo(topic).en})`
+              : topicInfo(topic).en
+            : km
+              ? "ក្រុមគាំទ្រទាំងអស់ (All Groups)"
+              : "All Support Groups"}
         </h1>
       </div>
 
@@ -80,6 +75,29 @@ export function AllGroupsView({
         />
       </div>
 
+      {/* Topic filter */}
+      <div className="mt-4 flex gap-2 overflow-x-auto pb-1" role="group" aria-label={km ? "ប្រធានបទ" : "Topics"}>
+        <button
+          type="button"
+          onClick={() => setTopic(null)}
+          aria-pressed={topic === null}
+          className={`shrink-0 rounded-full border px-3.5 py-1.5 text-xs font-semibold ${topic === null ? "border-[#1b5e4c] bg-[#1b5e4c] text-white" : "border-gray-200 bg-white text-[#374151]"}`}
+        >
+          {km ? "ទាំងអស់" : "All"}
+        </button>
+        {GROUP_TOPICS.map((item) => (
+          <button
+            key={item.id}
+            type="button"
+            onClick={() => setTopic(item.id)}
+            aria-pressed={topic === item.id}
+            className={`shrink-0 rounded-full border px-3.5 py-1.5 text-xs font-semibold ${topic === item.id ? "border-[#1b5e4c] bg-[#1b5e4c] text-white" : "border-gray-200 bg-white text-[#374151]"}`}
+          >
+            {km ? item.km : item.en}
+          </button>
+        ))}
+      </div>
+
       {/* Groups List */}
       <div className="mt-6 flex flex-col gap-3.5">
         {filtered.length === 0 ? (
@@ -94,9 +112,7 @@ export function AllGroupsView({
               className="group flex cursor-pointer items-center justify-between rounded-[22px] border border-gray-100 bg-white p-4 shadow-[0_2px_12px_rgba(0,0,0,0.04)] transition-all duration-200 hover:border-[#1f6f5b]/40 hover:shadow-md active:scale-[0.99]"
             >
               <div className="flex items-center gap-4 min-w-0">
-                <div className="flex size-14 shrink-0 items-center justify-center rounded-[18px] bg-[#e6f4ef] text-[#1f6f5b] transition-transform group-hover:scale-105">
-                  {renderGroupIcon(group.iconType)}
-                </div>
+                <TopicBadge topic={group.iconType} size="lg" />
                 <div className="min-w-0">
                   <h3 className="truncate text-base font-bold text-[#111827] group-hover:text-[#1f6f5b] transition-colors">
                     {km ? group.nameKm : group.name}

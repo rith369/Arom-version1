@@ -5,6 +5,7 @@ import { ChevronLeft } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { useAuth } from '../../_components/auth-provider';
+import { GROUP_TOPICS } from '../group-topics';
 import { useLanguage } from '../../_components/language-provider';
 import {
   DEFAULT_GROUP_RULES,
@@ -17,7 +18,7 @@ const groupSchema = z.object({
   nameKm: z.string().trim().max(160),
   about: z.string().trim().min(1).max(1000),
   aboutKm: z.string().trim().max(1000),
-  iconType: z.enum(['stress', 'anxiety', 'depression', 'academic']),
+  iconType: z.enum(['anxiety', 'stress', 'depression', 'sleep', 'burnout', 'academic', 'self_growth', 'general']),
   maxMembers: z.coerce.number().int().min(2).max(10),
   isAnonymous: z.boolean(),
   rules: z.string().max(2000),
@@ -182,18 +183,11 @@ export function CreateGroupView({ onBack, onCreate }: CreateGroupViewProps) {
           <label className="block text-sm font-semibold text-[#111827]">
             {km ? 'ប្រធានបទ (Topic)' : 'Topic'}
             <select {...register('iconType')} className={inputClass(false)}>
-              <option value="stress">
-                {km ? 'ភាពតានតឹង (Stress)' : 'Stress'}
-              </option>
-              <option value="anxiety">
-                {km ? 'ការថប់បារម្ភ (Anxiety)' : 'Anxiety'}
-              </option>
-              <option value="depression">
-                {km ? 'ការធ្លាក់ទឹកចិត្ត (Depression)' : 'Depression'}
-              </option>
-              <option value="academic">
-                {km ? 'ការសិក្សា (Study)' : 'Study'}
-              </option>
+              {GROUP_TOPICS.map((topic) => (
+                <option key={topic.id} value={topic.id}>
+                  {km ? `${topic.km} (${topic.en})` : topic.en}
+                </option>
+              ))}
             </select>
           </label>
 

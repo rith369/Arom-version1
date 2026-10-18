@@ -14,6 +14,7 @@ import { CreateGroupView } from './components/create-group-view';
 
 import { SupportGroup, GroupsStatus } from './community-data';
 import { createSupportGroup, groupChatHref, toSupportGroup, type ApiGroup } from './group-api';
+import type { GroupTopic } from './group-topics';
 
 type CommunityView =
   | 'home'
@@ -84,10 +85,9 @@ export default function CommunityPage() {
 
   const activeGroup = groups.find((g) => g.id === selectedGroupId);
 
-  // Undefined when the user has not joined a group, or none is open to join.
-  const myGroup = groups.find((group) => group.isJoined);
   const openGroups = groups.filter((g) => g.status !== 'closed');
-  const recommendedGroup = openGroups.find((g) => !g.isJoined);
+  // Set when a topic tile opens the list already filtered.
+  const [topicFilter, setTopicFilter] = useState<GroupTopic | null>(null);
 
   function handleSelectGroup(groupId: string) {
     const grp = groups.find((g) => g.id === groupId);
@@ -155,11 +155,18 @@ export default function CommunityPage() {
         <main className="mx-auto w-full max-w-[440px] md:max-w-xl lg:max-w-3xl xl:max-w-4xl lg:pt-6">
           {view === 'home' && (
             <CommunityHomeView
-              myGroup={myGroup}
-              recommendedGroup={recommendedGroup}
+              groups={groups}
               groupsStatus={groupsStatus}
               onSelectGroup={handleSelectGroup}
-              onOpenAllGroups={() => setView('all-groups')}
+              onOpenChat={openChat}
+              onOpenTopic={(topic) => {
+                setTopicFilter(topic);
+                setView('all-groups');
+              }}
+              onOpenAllGroups={() => {
+                setTopicFilter(null);
+                setView('all-groups');
+              }}
               onOpenMenu={() => setView('menu')}
               onCreateGroup={() => setView('create-group')}
             />
@@ -167,6 +174,8 @@ export default function CommunityPage() {
 
           {view === 'all-groups' && (
             <AllGroupsView
+              key={topicFilter ?? 'all'}
+              initialTopic={topicFilter}
               groups={openGroups}
               onBack={() => setView('home')}
               onSelectGroup={handleSelectGroup}

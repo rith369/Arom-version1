@@ -1,3 +1,4 @@
+import type { GroupTopic } from './group-topics';
 export type GroupMentor = {
   name: string;
   nameKm: string;
@@ -18,7 +19,7 @@ export type SupportGroup = {
   nameKm: string;
   membersCount: number;
   maxMembers: number;
-  iconType: 'academic' | 'stress' | 'anxiety' | 'depression';
+  iconType: GroupTopic;
   isAnonymous: boolean;
   about: string;
   aboutKm: string;

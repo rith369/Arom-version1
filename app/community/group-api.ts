@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { UserRole } from '@/lib/auth';
 import type { GroupsStatus, SupportGroup } from './community-data';
+import { topicOf } from './group-topics';
 
 // One group from GET /api/community/groups.
 export type ApiGroup = {
@@ -28,9 +29,7 @@ export function toSupportGroup(group: ApiGroup): SupportGroup {
     nameKm: group.nameKm || group.name,
     about: group.description || '',
     aboutKm: group.descriptionKm || group.description || '',
-    iconType: (['academic', 'stress', 'anxiety', 'depression'].includes(group.concern)
-      ? group.concern
-      : 'stress') as SupportGroup['iconType'],
+    iconType: topicOf(group.concern),
     membersCount: group.membersCount,
     maxMembers: group.maxMembers,
     isAnonymous: true,

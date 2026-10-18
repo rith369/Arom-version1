@@ -1,5 +1,39 @@
 # AROM: Change Report
 
+## 19 Oct 2026: Community Home Redesigned to Find a Group
+
+Commit `PENDING`. No migration.
+
+**Why.** Rith shared a design for Community as the place to find a group: a welcoming banner, topics to choose from and popular groups to join. Since chats moved to Messages, Community's job is discovery.
+
+**What changed for users:**
+
+- **A welcoming banner:** "Real people. Shared journeys." with a "Find your group" button, over a warm photo of friends seen from behind at sunset (no faces).
+- **"Find your community":** eight topic tiles (Anxiety, Stress, Depression, Sleep, Burnout, Study, Self growth, General support), each with how many groups it has. Tapping one opens the group list filtered to that topic; the list has topic chips to switch.
+- **"Popular groups":** the groups with the most members, with a short description, tags, members and a Join button. Join opens the group's details and rules first (including that the AROM safety team can read the chat), then you confirm. Full groups say "Full".
+- **"Your groups":** groups you are in, with "Open chat" (opens in Messages).
+- **Search** button next to the title, and the honest anonymous banner stays.
+- **Professionals can pick any of the eight topics** when creating a group.
+- In AROM's light green style, matching the rest of the app.
+
+**What changed for the team:**
+
+- **New `app/community/group-topics.tsx`:** the eight topics (English, Khmer, icon, colours), `topicOf()`, `TopicBadge`.
+- **`community-home-view.tsx`:** rebuilt; takes all groups and works out "Your groups", tile counts and "Popular groups".
+- **`all-groups-view.tsx`:** topic chips and `initialTopic`; topic icons. **`create-group-view.tsx`:** eight topics. **`group-api.ts`:** unknown topics count as General support.
+- **Banner photo:** `public/images/community/friends-sunset.jpg`, "Anonymous friends standing together at sunset in mountains" by Helena Lopes on Pexels (Pexels licence: free to use, no attribution required; credited anyway). Cropped to the upper part so a bottle in the corner does not show.
+- No database change: the topic is free text in `support_groups.concern`.
+- Khmer text should be checked by a Khmer speaker.
+
+**What to re-test:**
+
+1. Open Community: the banner, topic tiles with counts and Popular groups show; on a phone the tiles are two per row.
+2. Tap a topic tile: the list opens filtered to it; switch topics with the chips.
+3. Tap Join on a popular group: its details and rules open; join from there; it moves to Your groups.
+4. Tap Open chat on one of your groups: it opens in Messages.
+5. As a professional, Create a group: the topic list has eight options; the new group counts on its tile.
+6. Log out: the banner shows with "Log in to join a support group".
+
 ## 19 Oct 2026: Open Chats Fill the Phone Screen
 
 Commit `da7500a`. No migration.
