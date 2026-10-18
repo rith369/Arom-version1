@@ -1,5 +1,31 @@
 # AROM: Change Report
 
+## 18 Oct 2026: New Lesson, How to Handle Social Anxiety
+
+Commit `a3bacf5`. No migration. Content and frontend only.
+
+**Why.** Social anxiety, fear of negative evaluation, and the urge to avoid public or group settings frequently prevent seekers from pursuing education, career milestones, and authentic friendships. "How to Handle Social Anxiety" (`how-to-handle-social-anxiety`) provides an 8-minute evidence-based psychoeducational guide adapted from NIMH, NHS, NHS inform, and UNICEF Cambodia. It equips seekers with clear tools to recognize the anxiety avoidance loop, challenge cognitive catastrophizing, design a gradual exposure ladder, soothe physical fight-or-flight sensations with breathwork, debrief interactions without harsh post-event rumination, and access confidential professional therapy on AROM.
+
+**What changed for users:**
+- **New Lesson available in MindGuide Learn:** Seekers can access "How to Handle Social Anxiety (របៀបដោះស្រាយការថប់បារម្ភក្នុងសង្គម)" under the Anxiety category or directly via `/mindguide/learn?open=how-to-handle-social-anxiety`.
+- **11 Comprehensive Bilingual Sections:** Covers what social anxiety is vs shyness, mind and body symptoms, the social anxiety cycle with an interactive quiz on avoidance, the 3-question cognitive restructuring method, gradual exposure ladder design, shifting attention outward, somatic breathing and 3-2-1 grounding, halting post-event rumination, when to seek clinical CBT care, a 6-prompt personal practice reflection for AROM Journal, and next steps connecting to AROM.
+- **Tip Alert Boxes:** Section 7 provides an AROM 1-Minute Breath tip before entering social settings, and Section 9 details matching with confidential CBT-trained therapists on AROM.
+- **Direct AROM tool integration:** Section 11 provides direct action buttons for "1-Minute Calming Breath" and "Match Me With A Professional".
+
+**What changed for the team:**
+- **`learn-data.ts`:** Exported `REFERENCES_SOCIAL_ANXIETY` with 4 peer-reviewed citations (NIMH, NHS, NHS inform, UNICEF Cambodia) and `LESSON_SOCIAL_ANXIETY`, appending it to `ALL_LESSONS`.
+- **Hero Image:** Added `public/mindguide/social-anxiety-hero.jpg` depicting a young person calmly breathing in a sunlit university library cafe.
+- **Strict Anti-AI Compliance:** Zero em dashes, en dashes, or loose hyphens across all English and Khmer copy.
+
+**What to re-test:**
+1. Open `/mindguide/learn` and verify "How to Handle Social Anxiety" card appears under "Anxiety" filter.
+2. Open `/mindguide/learn?open=how-to-handle-social-anxiety` and verify hero image, outcomes, and 11 sections render smoothly.
+3. Test Section 3 quiz: verify correct feedback when selecting option 2 and explanations in both English and Khmer.
+4. Test Section 7 tip alert box and Section 9 professional care alert box.
+5. Test Section 10 self-reflection interactive choice and journal prompts.
+6. Test Section 11 action buttons: "1-Minute Calming Breath" and "Match Me With A Professional".
+7. Switch language to Khmer and verify all Kantumruy Pro translations.
+
 ## 18 Oct 2026: New Lesson, How to Talk About Your Feelings
 
 Commit `9416865`. No migration. Content and frontend only.
