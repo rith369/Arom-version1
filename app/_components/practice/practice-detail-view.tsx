@@ -18,7 +18,7 @@ import {
   getCustomPlanItems,
   toggleCustomPlanItem,
 } from "../daily-plan-store";
-import { useLanguage } from "../language-provider";
+import { LanguageQuickToggle, useLanguage } from "../language-provider";
 import { chooseLabel, useMindGuidePick } from "../mindguide-pick";
 import { EducationalNote } from "../educational-note";
 import { ReportProblemButton } from "../report-problem";
@@ -127,6 +127,8 @@ export function PracticeDetailView({
         </span>
 
         <div className="flex items-center gap-2">
+          <LanguageQuickToggle />
+
           {/* Add to Daily Plan Header Button */}
           {!pick && (
           <button

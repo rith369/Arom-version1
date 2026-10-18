@@ -49,6 +49,30 @@ export function useLanguage() {
   return context;
 }
 
+/**
+ * One tap swaps the whole app between English and Khmer. The label shows the
+ * language you will get, so a Khmer reader always sees "EN" to go back.
+ */
+export function LanguageQuickToggle({ className = "" }: { className?: string }) {
+  const { language, setLanguage } = useLanguage();
+  const next: Language = language === "en" ? "km" : "en";
+
+  return (
+    <button
+      type="button"
+      onClick={() => setLanguage(next)}
+      aria-label={next === "km" ? "Translate to Khmer (ភាសាខ្មែរ)" : "Translate to English"}
+      title={next === "km" ? "ភាសាខ្មែរ" : "English"}
+      className={`flex h-10 shrink-0 items-center gap-1.5 rounded-full border border-arom-border bg-white px-3 text-xs font-bold text-arom shadow-sm transition-colors duration-150 hover:bg-arom-wash focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-arom cursor-pointer ${className}`}
+    >
+      <Languages aria-hidden="true" size={16} />
+      <span className={next === "km" ? "font-khmer" : ""}>
+        {next === "km" ? "ខ្មែរ" : "EN"}
+      </span>
+    </button>
+  );
+}
+
 export function LanguageSwitcher({
   className = "",
   inline = true,

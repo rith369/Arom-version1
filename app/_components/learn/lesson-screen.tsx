@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
-import { useLanguage } from "../language-provider";
+import { LanguageQuickToggle, useLanguage } from "../language-provider";
 import { EducationalNote } from "../educational-note";
 import { ReportProblemButton } from "../report-problem";
 import {
@@ -112,9 +112,12 @@ export function LessonScreen({
             </div>
           </div>
 
-          <span className="text-[0.75rem] font-semibold text-arom">
-            {lesson.category}
-          </span>
+          <div className="flex items-center gap-3">
+            <span className="hidden text-[0.75rem] font-semibold text-arom sm:inline">
+              {lesson.category}
+            </span>
+            <LanguageQuickToggle />
+          </div>
         </div>
       </header>
 
