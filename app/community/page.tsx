@@ -19,6 +19,7 @@ import {
   GroupMember,
   GroupsStatus,
 } from './community-data';
+import { createSupportGroup } from './group-api';
 
 type CommunityView =
   | 'home'
@@ -99,6 +100,14 @@ export default function CommunityPage() {
 
         setGroups(realGroups);
         setGroupsStatus('ready');
+
+        // /community?group=<id> (from the professional area) opens that group.
+        const wanted = new URLSearchParams(window.location.search).get('group');
+        const target = realGroups.find((group) => group.id === wanted);
+        if (target) {
+          setSelectedGroupId(target.id);
+          setView(target.isJoined ? 'group-hub' : 'group-detail');
+        }
       } catch {
         if (active) setGroupsStatus('failed');
       }
@@ -340,45 +349,16 @@ export default function CommunityPage() {
 
   async function handleCreateGroup(group: SupportGroup) {
     setCreateGroupError('');
-
-    if (group.createdBy !== 'professional') {
-      setCreateGroupError(
-        'A verified professional account is required to create a group.',
-      );
+    const result = await createSupportGroup(group);
+    if (!result.ok) {
+      setCreateGroupError(result.error);
       return;
     }
 
-    try {
-      const response = await fetch('/api/community/groups', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: group.name,
-          nameKm: group.nameKm,
-          concern: group.iconType,
-          description: group.about,
-          descriptionKm: group.aboutKm,
-          maxMembers: group.maxMembers,
-        }),
-      });
-
-      if (!response.ok) {
-        const result: { error?: string } = await response.json();
-        throw new Error(result.error || 'Could not create group.');
-      }
-
-      const result: { group: { id: string; name: string } } =
-        await response.json();
-      const savedGroup: SupportGroup = { ...group, id: result.group.id };
-
-      setGroups((current) => [...current, savedGroup]);
-      setSelectedGroupId(savedGroup.id);
-      setView('group-hub');
-    } catch (error) {
-      setCreateGroupError(
-        error instanceof Error ? error.message : 'Could not create group.',
-      );
-    }
+    const savedGroup: SupportGroup = { ...group, id: result.id };
+    setGroups((current) => [...current, savedGroup]);
+    setSelectedGroupId(savedGroup.id);
+    setView('group-hub');
   }
 
   function handleToggleActivityJoin(activityId: string) {

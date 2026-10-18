@@ -1,5 +1,34 @@
 # AROM: Change Report
 
+## 18 Oct 2026: Professionals Create Support Groups From Their Own Area
+
+Commit `PENDING`. No migration.
+
+**Why.** Verified professionals were already allowed to create support groups, but the professional area had no way to reach it. A therapist had to leave `/pro`, open the user Community page and find the button, so in practice only admins created groups.
+
+**What changed for users:**
+
+- **"Support groups" in the professional menu:** a new page lists the groups the professional leads or joined, with members and whether the group is closed.
+- **Create a group without leaving the pro area:** the same form as Community. After creating, the group appears in the list.
+- **"Open chat"** goes straight into that group's chat on the Community page.
+- **Links to a group work:** `/community?group=<id>` opens that group (the chat if you are in it, otherwise its details and Join).
+
+**What changed for the team:**
+
+- **New:** `app/pro/groups/page.tsx`, `app/pro/_components/groups-view.tsx`, and `app/community/group-api.ts` (`createSupportGroup()`, now used by both `/community` and `/pro/groups`).
+- **`pro-shell.tsx`:** the "Support groups" menu item (HeartHandshake icon).
+- **`app/community/page.tsx`:** uses the shared create helper and opens `?group=<id>` after the groups load.
+- No backend change: `GET /api/community/groups` already marks the mentor's groups as joined, and RLS lets verified professionals create groups. An unverified professional gets the existing error message.
+- Khmer text on the new page should be checked by a Khmer speaker.
+
+**What to re-test:**
+
+1. Log in as a verified professional and open `/pro`: "Support groups" is in the menu.
+2. Open it: your groups are listed (or "You do not lead a group yet").
+3. Press "Create a group", fill the form and create: the group appears in the list.
+4. Press "Open chat": the group chat opens on Community; send a message.
+5. As a client, open Community: the new group is under Recommended for you.
+
 ## 18 Oct 2026: Group Chat Shows Its Messages
 
 Commit `9d24272`. No migration.

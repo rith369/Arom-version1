@@ -9,6 +9,7 @@ import {
   CalendarCheck,
   CalendarClock,
   Headphones,
+  HeartHandshake,
   Home,
   UserRound,
   UsersRound,
@@ -34,6 +35,7 @@ const LINKS: NavLink[] = [
   { href: '/pro/bookings', en: 'My bookings', km: 'ការកក់របស់ខ្ញុំ', icon: CalendarCheck },
   { href: '/pro/clients', en: 'My clients', km: 'អតិថិជនរបស់ខ្ញុំ', icon: UsersRound },
   { href: '/pro/messages', en: 'Messages', km: 'សារ', icon: MessageCircle },
+  { href: '/pro/groups', en: 'Support groups', km: 'ក្រុមគាំទ្រ', icon: HeartHandshake },
   { href: '/pro/podcasts', en: 'My podcasts', km: 'ផតខាសរបស់ខ្ញុំ', icon: Headphones },
 ];
 
