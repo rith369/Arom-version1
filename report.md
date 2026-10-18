@@ -2,7 +2,7 @@
 
 ## 18 Oct 2026: Group Chat Messages Send Again
 
-Commit `PENDING`. No migration.
+Commit `7789840`. No migration.
 
 **Why.** Sending a message in a support group did nothing, and the dev screen showed "1 Issue". In `handleSendMessage` (since commit `54c34f5`, 15 Oct) the message was added to the screen using `newMsg` before `newMsg` was created at the end of the function. JavaScript stops with an error when a variable is used before it exists, so the function stopped before the message reached the server.
 
