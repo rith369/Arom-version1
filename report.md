@@ -2,7 +2,7 @@
 
 ## 18 Oct 2026: Therapists See the Note From Anonymous Clients
 
-Commit `PENDING`. Migration `20261018070000_show_intake_for_anonymous.sql` must be run in the Supabase SQL Editor (after `20261018060000_merge_privacy_with_main.sql`, already applied).
+Commit `ff32d64`. Migration `20261018070000_show_intake_for_anonymous.sql` must be run in the Supabase SQL Editor (after `20261018060000_merge_privacy_with_main.sql`, already applied).
 
 **Why.** When booking, a client can write a "Note for Therapist" and answer intake questions. Since the anonymous privacy work, the therapist got an empty note and no answers whenever the client had "Hide my identity" on, which is the default. So most clients wrote a note their therapist never saw. Anonymous mode should hide who the client is, not what they chose to tell their therapist.
 
