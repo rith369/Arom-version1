@@ -2,7 +2,7 @@
 
 ## 18 Oct 2026: New Lesson, How to Handle Fear of Failure
 
-Commit `6da4a01`. No migration. Content and frontend only.
+Commit `b821fc1`. No migration. Content and frontend only.
 
 **Why.** Perfectionism, fear of making mistakes, and tying personal self-worth to flawless outcomes cause task paralysis, severe procrastination, imposter syndrome, and chronic burnout. "How to Handle Fear of Failure" (`how-to-handle-fear-of-failure`) unlocks the Self-esteem category with an 8-minute evidence-based psychoeducational guide adapted from the APA, Harvard Health, NHS inform, and UNICEF Cambodia. It equips seekers with practical tools to distinguish healthy striving from toxic perfectionism, navigate Cambodian filial expectations, embrace a growth mindset where mistakes are treated as learning data, apply the "Good Enough" standard, practice intentional micro-courage experiments, soothe somatic shame, and access confidential therapy on AROM.
 
