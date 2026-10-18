@@ -2,7 +2,7 @@
 
 ## 18 Oct 2026: Plan Tasks No Longer Say "Try now"
 
-Commit `pending`. No migration. Frontend only.
+Commit `555bfc1`. No migration. Frontend only.
 
 **Why.** Tasks added from Tips to Your Plan For Today always started with "Try now:" (Khmer "សាកល្បង៖"), for example "Try now: Cut what you control". The label repeated on every tip task and made the plan harder to scan, so it is removed and the task shows only its name.
 
