@@ -1,5 +1,31 @@
 # AROM: Change Report
 
+## 18 Oct 2026: New Lesson, How to Talk About Your Feelings
+
+Commit `05481cc`. No migration. Content and frontend only.
+
+**Why.** Stigmas, cultural reluctance, and fear of being judged often push seekers in Cambodia to hide vulnerable emotions behind "I am fine." "How to Talk About Your Feelings" (`talk-about-feelings`) provides an 8-minute evidence-based psychoeducational guide adapted from NHS Every Mind Matters, UNICEF Cambodia, and CDC. It equips seekers with practical tools to identify tangled emotions, structure non-blaming "I feel" statements, clarify needed support upfront, navigate Cambodian family dynamics with gentle shared moments, practice reflection in AROM Journal, and connect with confidential licensed therapists.
+
+**What changed for users:**
+- **New Lesson available in MindGuide Learn:** Seekers can access "How to Talk About Your Feelings (របៀបនិយាយអំពីអារម្មណ៍របស់អ្នក)" under the Emotions category or directly via `/mindguide/learn?open=talk-about-feelings`.
+- **10 Comprehensive Bilingual Sections:** Covers why talking matters, a 3-step check-in before speaking, choosing an emotionally safe person, opening phrases and the "I feel" method with an interactive quiz, clarifying support needs (listening vs advice vs reassurance), managing tears and somatic tightness, navigating Cambodian family expectations and filial respect, handling dismissive reactions without self-blame, a 4-step reflection framework for AROM Journal, and next steps connecting to AROM.
+- **Tip Alert Box:** Section 6 introduces an AROM Voice Journal tip encouraging seekers who feel too nervous to speak to record their reflections privately first.
+- **Direct AROM tool integration:** Section 10 provides direct action buttons for "1-Minute Calming Breath" and "Match Me With A Professional" for private therapy sessions.
+
+**What changed for the team:**
+- **`learn-data.ts`:** Exported `REFERENCES_TALK_ABOUT_FEELINGS` with 4 peer-reviewed citations (NHS Every Mind Matters, UNICEF Cambodia, CDC) and `LESSON_TALK_ABOUT_FEELINGS`, appending it to `ALL_LESSONS`.
+- **Hero Image:** Added `public/mindguide/talk-about-feelings-hero.jpg` depicting a gentle, supportive conversation between friends in a sunlit courtyard.
+- **Strict Anti-AI Compliance:** Zero em dashes, en dashes, or loose hyphens across all English and Khmer copy.
+
+**What to re-test:**
+1. Open `/mindguide/learn` and verify "How to Talk About Your Feelings" card appears under "Emotions" filter.
+2. Open `/mindguide/learn?open=talk-about-feelings` and verify hero image, outcomes, and 10 sections render smoothly.
+3. Test Section 4 quiz: verify correct feedback when selecting option 2 and explanations in both English and Khmer.
+4. Test Section 6 tip alert box highlighting AROM Voice Journal.
+5. Test Section 9 self-reflection interactive choice and journal prompts.
+6. Test Section 10 action buttons: "1-Minute Calming Breath" and "Match Me With A Professional".
+7. Switch language to Khmer and verify all Kantumruy Pro translations.
+
 ## 18 Oct 2026: New Lesson, Sadness vs. Depression
 
 Commit `9f4fd84`. No migration. Content and frontend only.
