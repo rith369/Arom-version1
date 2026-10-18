@@ -2,7 +2,7 @@
 
 ## 18 Oct 2026: Anonymous Clients Get a Number
 
-Commit `PENDING`. No migration.
+Commit `98ca4cb`. No migration.
 
 **Why.** Since the anonymous privacy work, every client with "Hide my identity" on shows as "Anonymous" to their therapist. A therapist with two anonymous clients saw "Anonymous" twice in bookings, messages and the client list, and could write a note or give a care task to the wrong person.
 
