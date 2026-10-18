@@ -5919,7 +5919,451 @@ export const LESSON_BALANCE_STUDY_WORK_LIFE: Lesson = {
   ],
 };
 
+
+export const REFERENCES_LOST_INTEREST: ReferenceItem[] = [
+  {
+    id: 1,
+    citation: "[1]",
+    source: "NIMH",
+    title: "National Institute of Mental Health: Depression and Anhedonia (Loss of Interest)",
+    url: "https://www.nimh.nih.gov/health/topics/depression",
+  },
+  {
+    id: 2,
+    citation: "[2]",
+    source: "WHO",
+    title: "World Health Organization: Depressive Disorder Key Facts and Diagnostic Criteria",
+    url: "https://www.who.int/news-room/fact-sheets/detail/depression",
+  },
+  {
+    id: 3,
+    citation: "[3]",
+    source: "Harvard Health",
+    title: "Harvard Health Publishing: Anhedonia: Why Can't I Enjoy the Things I Used to Love?",
+    url: "https://www.health.harvard.edu/mind-and-mood/anhedonia-loss-of-pleasure",
+  },
+  {
+    id: 4,
+    citation: "[4]",
+    source: "NHS inform",
+    title: "NHS inform: Coping with Low Mood, Anhedonia, and Behavioral Activation",
+    url: "https://www.nhsinform.scot/illnesses-and-conditions/mental-health/mental-health-self-help-guides/low-mood-and-depression/",
+  },
+  {
+    id: 5,
+    citation: "[5]",
+    source: "UNICEF Cambodia",
+    title: "UNICEF Cambodia & TPO: Youth Mental Health and Overcoming Stigma in Cambodia",
+    url: "https://www.unicef.org/cambodia/mental-health",
+  },
+];
+
+export const LESSON_LOST_INTEREST: Lesson = {
+  id: "why-lost-interest-motivation",
+  title: "Why Have I Lost Interest in Things I Used to Love?",
+  kmTitle: "ហេតុអ្វីខ្ញុំបាត់បង់ចំណាប់អារម្មណ៍លើអ្វីដែលធ្លាប់ចូលចិត្ត? (Why Have I Lost Interest?)",
+  subtitle: "Explore possible explanations for changes in motivation and learn gentle ways forward",
+  kmSubtitle: "ស្វែងយល់ពីមូលហេតុនៃការថយចុះកម្លាំងចិត្ត និងរៀនបោះជំហានទៅមុខដោយក្តីមេត្តា",
+  category: "Emotions",
+  duration: "8 min",
+  kmDuration: "៨ នាទី",
+  difficulty: "Beginner",
+  kmDifficulty: "កម្រិតដំបូង (Beginner)",
+  format: "Reading + Self-Check",
+  kmFormat: "ការអាន និងការពិនិត្យខ្លួនឯង (Reading & Self-Check)",
+  isAvailable: true,
+  image: "/mindguide/emotions.png",
+  heroImage: "/mindguide/lost-interest-hero.jpg",
+  badge: "Popular",
+  description:
+    "Unpack the neurobiology and psychology behind lost motivation and anhedonia. Learn to distinguish burnout from depression, break free from the 'laziness' stigma in Cambodia, and rekindle connection with zero pressure on AROM.",
+  kmDescription:
+    "ស្វែងយល់ពីមូលហេតុផ្លូវចិត្ត និងជីវសាស្ត្រនៃការបាត់បង់ចំណាប់អារម្មណ៍ (Anhedonia)។ រៀនបែងចែកការអស់កម្លាំងចិត្តពីជំងឺបាក់ទឹកចិត្ត បំបាត់ការបន្ទោសខ្លួនឯងក្នុងសង្គមខ្មែរ និងស្តារក្តីរីករាយឡើងវិញនៅលើ AROM។",
+  totalSections: 11,
+  outcomes: [
+    {
+      en: "Understand the clinical concept of anhedonia and how chronic stress dulls dopamine reward circuits [1, 3]",
+      km: "យល់ដឹងពីអាការគ្លីនិក Anhedonia និងរបៀបដែលភាពតានតឹងរ៉ាំរ៉ៃកាត់បន្ថយសារធាតុ Dopamine ក្នុងខួរក្បាល [1, 3]",
+    },
+    {
+      en: "Distinguish between temporary burnout, natural personal evolution, and clinical depressive episodes [1, 2]",
+      km: "បែងចែកឱ្យច្បាស់រវាងការអស់កម្លាំងចិត្តបណ្តោះអាសន្ន ការផ្លាស់ប្តូរធម្មជាតិនៃចំណូលចិត្ត និងជំងឺបាក់ទឹកចិត្ត [1, 2]",
+    },
+    {
+      en: "Deconstruct the Cambodian cultural stigma that mistakenly labels emotional numbness as 'laziness' [5]",
+      km: "បំបាត់ការយល់ច្រឡំក្នុងសង្គមកម្ពុជាដែលចាត់ទុកការស្ពឹកស្រពន់ផ្លូវចិត្តថាជា «ភាពខ្ជិលច្រអូស» [5]",
+    },
+    {
+      en: "Escape the motivation trap by using behavioral activation and low-pressure micro-engagements [3, 4]",
+      km: "ចាកចេញពីអន្ទាក់កម្លាំងចិត្តដោយអនុវត្តសកម្មភាពកម្រិតស្រាល និងគោលការណ៍គ្មានសម្ពាធ [3, 4]",
+    },
+    {
+      en: "Apply the 5-Minute Low-Pressure Rule to experience sensory grounding without expecting intense euphoria",
+      km: "អនុវត្តគោលការណ៍ «៥ នាទីគ្មានសម្ពាធ» ដើម្បីទទួលបានសេចក្តីស្ងប់ដោយមិនទាមទារឱ្យមានក្តីរំភើបខ្លាំង",
+    },
+    {
+      en: "Conduct self-compassionate reflections in AROM Journal and connect confidentially with licensed counselors [4, 5]",
+      km: "ឆ្លុះបញ្ចាំងដោយក្តីមេត្តាក្នុងកំណត់ហេតុ AROM និងភ្ជាប់ការពិគ្រោះយោបល់ដោយសម្ងាត់ជាមួយអ្នកជំនាញ [4, 5]",
+    },
+  ],
+  references: REFERENCES_LOST_INTEREST,
+  sections: [
+    {
+      id: 1,
+      sectionNumber: 1,
+      title: "The Mystery of the Missing Spark: When Joy Suddenly Goes Flat",
+      kmTitle: "អាថ៌កំបាំងនៃការបាត់បង់ភាពរំភើប៖ នៅពេលដែលក្តីរីករាយប្រែជាសោះកក្រោះ (The Missing Spark)",
+      type: "reading",
+      paragraphs: [
+        "You sit down with your guitar, open your sketchbook, or log into a favorite game, but nothing happens. The warmth, curiosity, and excitement you used to feel have vanished, replaced by a hollow indifference.",
+        "You might force yourself to participate, hoping the familiar spark will return, only to feel detached and exhausted. Soon, unhelpful thoughts begin to whisper: 'Why cannot I just enjoy this anymore? Am I becoming boring? Am I just lazy?'",
+        "Losing interest in beloved hobbies is a deeply unsettling experience, yet it is one of the most common human psychological responses to prolonged strain. It is not a moral failing or a sign that you have lost your true self; it is an important communication from your nervous system.",
+      ],
+      kmParagraphs: [
+        "អ្នកអង្គុយចុះកាន់ហ្គីតា បើកសៀវភៅគំនូរ ឬចូលលេងល្បែងកម្សាន្តដែលធ្លាប់ចូលចិត្ត ប៉ុន្តែគ្មានអ្វីកើតឡើងទាល់តែសោះ។ ភាពកក់ក្តៅ ការចង់ដឹងចង់ឃើញ និងក្តីរំភើបដែលអ្នកធ្លាប់មានបានរលាយបាត់អស់ ដោយជំនួសមកវិញនូវអារម្មណ៍សោះកក្រោះ និងទទេស្អាត។",
+        "អ្នកប្រហែលជាបង្ខំខ្លួនឯងឱ្យធ្វើ ដោយសង្ឃឹមថានឹងរកឃើញភាពរីករាយដូចមុន ប៉ុន្តែលទ្ធផលគឺរឹតតែមានអារម្មណ៍អស់កម្លាំង និងឯកោ។ មិនយូរប៉ុន្មាន គំនិតអវិជ្ជមានចាប់ផ្តើមរំខានថា៖ «ហេតុអ្វីខ្ញុំមិនអាចសប្បាយដូចមុន? តើខ្ញុំក្លាយជាមនុស្សគួរឱ្យធុញទ្រាន់ឬ? ឬមួយខ្ញុំពិតជាខ្ជិល?»",
+        "ការបាត់បង់ចំណាប់អារម្មណ៍លើអ្វីដែលធ្លាប់ស្រឡាញ់ គឺជាបទពិសោធន៍ដែលធ្វើឱ្យយើងច្របូកច្របល់ក្នុងចិត្ត ប៉ុន្តែវាគឺជាប្រតិកម្មធម្មជាតិទូទៅបំផុតនៃប្រព័ន្ធប្រសាទនៅពេលរាងកាយរងសម្ពាធយូរ។ នេះមិនមែនជាការបរាជ័យនៃចរិតលក្ខណៈ ឬបាត់បង់អត្តសញ្ញាណរបស់អ្នកឡើយ ប៉ុន្តែជាសារដាស់តឿនដ៏សំខាន់ពីរាងកាយរបស់អ្នក។",
+      ],
+      keyPoints: [
+        "Losing interest in passions is an emotional signal, not a personal character defect.",
+        "Forcing excitement when your system is flat often creates more frustration and guilt.",
+        "Understanding the root causes provides relief and a gentle path forward.",
+      ],
+      kmKeyPoints: [
+        "ការបាត់បង់ចំណាប់អារម្មណ៍លើអ្វីដែលធ្លាប់ស្រឡាញ់ គឺជាសញ្ញាព្រមានផ្លូវចិត្ត មិនមែនជាការខូចខាតចរិតនោះទេ។",
+        "ការបង្ខំខ្លួនឯងឱ្យមានក្តីរំភើបទាំងចិត្តអស់ថាមពល រឹតតែបង្កើនការខកចិត្ត និងអារម្មណ៍ខុសឆ្គង។",
+        "ការយល់ដឹងពីឫសគល់នៃបញ្ហានឹងជួយសម្រាលបន្ទុកក្នុងចិត្ត និងបើកផ្លូវឆ្ពោះទៅមុខដោយទន់ភ្លន់។",
+      ],
+    },
+    {
+      id: 2,
+      sectionNumber: 2,
+      title: "Clinical Anhedonia: The Science of Emotional Flatness [1, 3]",
+      kmTitle: "អសមត្ថភាពទទួលអារម្មណ៍រីករាយ (Anhedonia)៖ វិទ្យាសាស្ត្រនៃការស្ពឹកស្រពន់ផ្លូវចិត្ត (Clinical Anhedonia)",
+      type: "reading",
+      paragraphs: [
+        "In clinical psychology, the loss of interest or inability to experience pleasure from once enjoyable activities is called anhedonia [1]. The word comes from ancient Greek, meaning 'without pleasure'.",
+        "Neuroscientific research from Harvard Health reveals that pleasure and motivation depend on dopamine pathways in the brain's reward system [3]. When you experience continuous high stress, emotional heartbreak, or unrelenting academic pressure, your body pumps out cortisol and inflammatory cytokines. Over time, these biochemical stress alarms temporarily down-regulate your dopamine receptors.",
+        "In simple terms, your brain's emotional volume switch has been turned down to protect you from total burnout. When you feel emotionally numb, your system is not broken; it is in energy-saving survival mode, conserving vital resources until safety is restored [1, 3].",
+      ],
+      kmParagraphs: [
+        "ក្នុងចិត្តវិទ្យាគ្លីនិក ការបាត់បង់ចំណាប់អារម្មណ៍ ឬអសមត្ថភាពក្នុងការទទួលអារម្មណ៍រីករាយពីសកម្មភាពដែលធ្លាប់ចូលចិត្តត្រូវបានគេហៅថា Anhedonia [1]។ ពាក្យនេះមានប្រភពមកពីភាសាក្រិកបុរាណ ដែលមានន័យថា «គ្មានក្តីរីករាយ»។",
+        "ការស្រាវជ្រាវប្រព័ន្ធប្រសាទពីសាកលវិទ្យាល័យ Harvard បង្ហាញថាក្តីរីករាយ និងកម្លាំងចិត្តពឹងផ្អែកលើចរន្តសារធាតុ Dopamine ក្នុងប្រព័ន្ធរង្វាន់នៃខួរក្បាល [3]។ នៅពេលដែលអ្នកជួបប្រទះភាពតានតឹងខ្ពស់ជាប់រហូត ការឈឺចាប់ផ្លូវចិត្ត ឬសម្ពាធការងារមិនឈប់ រាងកាយនឹងបញ្ចេញអ័រម៉ូនស្ត្រេស Cortisol។ យូរៗទៅ អ័រម៉ូនទាំងនេះនឹងកាត់បន្ថយសមត្ថភាពទទួលដឹងនៃប្រព័ន្ធ Dopamine ជាបណ្តោះអាសន្ន។",
+        "និយាយឱ្យងាយយល់ ខួរក្បាលរបស់អ្នកបានបន្ថយសំឡេងនៃអារម្មណ៍ដោយស្វ័យប្រវត្តិ ដើម្បីការពារអ្នកកុំឱ្យដួលរលំទាំងស្រុង។ នៅពេលដែលអ្នកមានអារម្មណ៍ស្ពឹកស្រពន់ផ្លូវចិត្ត មិនមែនមានន័យថាខួរក្បាលរបស់អ្នកខូចខាតនោះទេ ប៉ុន្តែវាបានចូលទៅក្នុងទម្រង់សន្សំសំចៃថាមពល (Power-Saving Mode) ដើម្បីការពារជីវិតរហូតដល់មានសុវត្ថិភាពឡើងវិញ [1, 3]។",
+      ],
+      keyPoints: [
+        "Anhedonia is the clinical term for reduced ability to feel pleasure or motivation [1].",
+        "Chronic stress and high cortisol temporarily down-regulate dopamine reward receptors [3].",
+        "Emotional numbness is a protective shutdown mechanism, not permanent apathy.",
+      ],
+      kmKeyPoints: [
+        "Anhedonia គឺជាពាក្យគ្លីនិកសម្រាប់សម្គាល់ការថយចុះសមត្ថភាពក្នុងការទទួលអារម្មណ៍រីករាយ ឬកម្លាំងចិត្ត [1]។",
+        "ភាពតានតឹងរ៉ាំរ៉ៃ និងអ័រម៉ូន Cortisol កាត់បន្ថយការដំណើរការនៃសារធាតុ Dopamine ក្នុងខួរក្បាលជាបណ្តោះអាសន្ន [3]។",
+        "ការស្ពឹកស្រពន់ផ្លូវចិត្ត គឺជាយន្តការការពាររាងកាយ មិនមែនជាការបាត់បង់ក្តីរីករាយជារៀងរហូតឡើយ។",
+      ],
+    },
+    {
+      id: 3,
+      sectionNumber: 3,
+      title: "Burnout, Depression, or Natural Change? Disentangling the Causes [1, 2]",
+      kmTitle: "ការអស់កម្លាំងចិត្ត ជំងឺបាក់ទឹកចិត្ត ឬការវិវត្តធម្មជាតិ? ការស្វែងយល់ពីឫសគល់ (Exploring the Causes)",
+      type: "reading",
+      paragraphs: [
+        "When motivation disappears, it is helpful to explore what kind of shift your mind is undergoing. Mental health clinicians usually distinguish between three distinct patterns [1, 2]:",
+        "First is systemic burnout. If you have been overworking, pulling double shifts, or caregiving without breaks, your battery is simply at zero percent. In burnout, you still love the hobby in concept, but you lack the physical and cognitive energy to engage.",
+        "Second is a depressive episode. The World Health Organization notes that when loss of interest persists almost every day for more than two consecutive weeks, and is accompanied by deep sadness, changes in appetite, insomnia, and pervasive feelings of guilt, it may indicate clinical depression [2].",
+        "Third is natural personal evolution. Human beings are not static statues. Sometimes you lose interest in a hobby simply because you have outgrown it, your values have evolved, or you are entering a new chapter in your life. This is healthy growth, not a psychological disorder.",
+      ],
+      kmParagraphs: [
+        "នៅពេលដែលកម្លាំងចិត្តបាត់បង់ វាមានសារៈសំខាន់ខ្លាំងណាស់ក្នុងការស្វែងយល់ថាតើចិត្តរបស់អ្នកកំពុងឆ្លងកាត់ស្ថានភាពបែបណា។ អ្នកជំនាញសុខភាពផ្លូវចិត្តតែងតែបែងចែកស្ថានភាពនេះជា ៣ ទម្រង់ខុសៗគ្នា [1, 2]៖",
+        "ទីមួយ គឺការអស់កម្លាំងចិត្តកម្រិតរ៉ាំរ៉ៃ (Burnout)។ ប្រសិនបើអ្នកបានធ្វើការហួសកម្លាំង រៀនបណ្តើរធ្វើការបណ្តើរ ឬមើលថែគ្រួសារដោយគ្មានពេលសម្រាក នោះអាគុយរាងកាយរបស់អ្នកគឺអស់ថាមពលទាំងស្រុង។ ក្នុងស្ថានភាពនេះ អ្នកនៅតែស្រឡាញ់ចំណង់ចំណូលចិត្តនោះដដែល ប៉ុន្តែអ្នកគ្មានកម្លាំងកាយ និងស្មារតីដើម្បីធ្វើវា។",
+        "ទីពីរ គឺជំងឺបាក់ទឹកចិត្ត (Depression)។ អង្គការសុខភាពពិភពលោក (WHO) បញ្ជាក់ថា នៅពេលដែលការបាត់បង់ចំណាប់អារម្មណ៍កើតឡើងស្ទើរតែរាល់ថ្ងៃលើសពី ២ សប្តាហ៍ជាប់ៗគ្នា ហើយអមដោយអារម្មណ៍ក្រៀមក្រំ ពិបាកគេង មិនចង់ញ៉ាំបាយ និងមានអារម្មណ៍បន្ទោសខ្លួនឯងខ្លាំង នោះវាអាចជាសញ្ញានៃជំងឺបាក់ទឹកចិត្ត [2]។",
+        "ទីបី គឺការវិវត្តធម្មជាតិនៃជីវិត (Natural Personal Growth)។ មនុស្សយើងមិនមែនជារូបសំណាកដែលនៅដដែលនោះទេ។ ពេលខ្លះអ្នកបាត់បង់ចំណាប់អារម្មណ៍លើអ្វីមួយ ដោយសារតែអ្នកបានរីកចម្រើនផ្លាស់ប្តូរទស្សនៈ ឬកំពុងឈានចូលដំណាក់កាលថ្មីនៃជីវិត។ នេះគឺជាការលូតលាស់ដ៏មានសុខភាពល្អ មិនមែនជាបញ្ហាផ្លូវចិត្តឡើយ។",
+      ],
+      keyPoints: [
+        "Burnout: You value the activity, but your physical battery is completely empty [1].",
+        "Depression: Pervasive emotional flatness lasting over 2 weeks with changes in sleep and appetite [2].",
+        "Evolution: Your interests have naturally outgrown past activities as you mature.",
+      ],
+      kmKeyPoints: [
+        "ភាពអស់កម្លាំងចិត្ត (Burnout)៖ អ្នកនៅតែស្រឡាញ់សកម្មភាពនោះ ប៉ុន្តែរាងកាយគ្មានថាមពលសល់ឡើយ [1]។",
+        "ជំងឺបាក់ទឹកចិត្ត (Depression)៖ ការស្ពឹកស្រពន់កើតឡើងលើសពី ២ សប្តាហ៍ អមដោយការប្រែប្រួលដំណេក និងការហូបចុក [2]។",
+        "ការវិវត្តធម្មជាតិ៖ ចំណាប់អារម្មណ៍របស់អ្នកផ្លាស់ប្តូរទៅតាមវ័យ និងការលូតលាស់នៃជីវិត។",
+      ],
+    },
+    {
+      id: 4,
+      sectionNumber: 4,
+      title: "Check Your Understanding: Myths About Motivation and Joy",
+      kmTitle: "ពិនិត្យការយល់ដឹង៖ ជំនឿមិនពិតអំពីកម្លាំងចិត្ត និងក្តីរីករាយ (Motivation Myths)",
+      type: "quiz",
+      paragraphs: [
+        "How we think about motivation determines how kindly we treat ourselves during low-energy seasons. Test your understanding of how human motivation works.",
+      ],
+      kmParagraphs: [
+        "ការយល់ដឹងរបស់យើងអំពីកម្លាំងចិត្ត កំណត់ថាតើយើងមានក្តីមេត្តាចំពោះខ្លួនឯងកម្រិតណាពេលអស់ថាមពល។ សូមសាកល្បងពិនិត្យការយល់ដឹងអំពីយន្តការនៃកម្លាំងចិត្តរបស់មនុស្ស។",
+      ],
+      quiz: {
+        question: "Which statement about motivation and lost interest is clinically accurate?",
+        kmQuestion: "តើការលើកឡើងមួយណាខាងក្រោមអំពីកម្លាំងចិត្ត និងការបាត់បង់ចំណាប់អារម្មណ៍ ដែលត្រឹមត្រូវតាមក្បួនគ្លីនិក?",
+        options: [
+          {
+            id: "opt-a",
+            text: "You must wait until you feel deep passion and motivation before taking any creative action",
+            kmText: "អ្នកត្រូវតែរង់ចាំទាល់តែមានកម្លាំងចិត្ត និងក្តីរំភើបខ្លាំងក្នុងចិត្តសិន ទើបអាចចាប់ផ្តើមធ្វើសកម្មភាពបាន",
+            isCorrect: false,
+          },
+          {
+            id: "opt-b",
+            text: "Motivation often follows action rather than preceding it, and small low-pressure steps can gently re-engage reward pathways",
+            kmText: "កម្លាំងចិត្តច្រើនតែកើតឡើងបន្ទាប់ពីយើងចាប់ផ្តើមធ្វើសកម្មភាព ហើយជំហានតូចៗដោយគ្មានសម្ពាធជួយដាស់ប្រព័ន្ធរង្វាន់ខួរក្បាលថ្នមៗ",
+            isCorrect: true,
+          },
+          {
+            id: "opt-c",
+            text: "Losing interest in a long-term hobby means you never truly cared about it in the first place",
+            kmText: "ការបាត់បង់ចំណាប់អារម្មណ៍លើចំណង់ចំណូលចិត្តយូរអង្វែង បង្ហាញថាអ្នកមិនដែលស្រឡាញ់វាពិតប្រាកដតាំងពីដំបូង",
+            isCorrect: false,
+          },
+          {
+            id: "opt-d",
+            text: "Emotional flatness is purely caused by a weak mindset and can be cured instantly with harsh discipline",
+            kmText: "ការស្ពឹកស្រពន់ផ្លូវចិត្តបណ្តាលមកពីចិត្តទន់ខ្សោយ ហើយអាចព្យាបាលបានភ្លាមៗដោយការដាក់វិន័យតឹងរ៉ឹងលើខ្លួនឯង",
+            isCorrect: false,
+          },
+        ],
+        explanation:
+          "In cognitive behavioral therapy, behavioral activation shows that motivation frequently arrives after initiating gentle, low-pressure movement. Waiting for passion while feeling burned out traps people in cycles of paralysis [3, 4].",
+        kmExplanation:
+          "ក្នុងការព្យាបាលចិត្តសាស្ត្របែប CBT គោលការណ៍ Behavioral Activation បង្ហាញថាកម្លាំងចិត្តច្រើនតែកើតឡើងបន្ទាប់ពីយើងធ្វើសកម្មភាពតូចៗដោយទន់ភ្លន់។ ការអង្គុយរង់ចាំកម្លាំងចិត្តទាំងរាងកាយអស់ថាមពល នឹងធ្វើឱ្យយើងជាប់គាំងក្នុងភាពទាល់ច្រក [3, 4]។",
+      },
+    },
+    {
+      id: 5,
+      sectionNumber: 5,
+      title: "Cambodian Context: The 'Laziness' Stigma and Internalized Guilt [5]",
+      kmTitle: "បរិបទសង្គមកម្ពុជា៖ ការយល់ច្រឡំថាជា «ភាពខ្ជិល» និងអារម្មណ៍បន្ទោសខ្លួនឯង (The 'Laziness' Stigma)",
+      type: "reading",
+      paragraphs: [
+        "In Cambodian society, there is immense cultural admiration for hard work, diligence, and endurance. When someone suddenly stops waking up early, withdraws from conversations, or abandons their hobbies, peers and family members frequently misinterpret it as 'laziness' (ខ្ជិល) or 'overthinking' (គិតច្រើនពេក) [5].",
+        "Well-meaning elders might tell you: 'Just smile more, go outside, or pray, and you will be fine.' While spoken with good intentions, these remarks can induce excruciating shame. You begin to believe that your inability to feel joy is a sign of ungratefulness or weak character.",
+        "UNICEF Cambodia and local mental health advocates point out that emotional numbness and anhedonia are neurobiological conditions, not moral failings [5]. You cannot cure a depleted nervous system with guilt. Acknowledging that your exhaustion is genuine allows you to replace self-punishment with clinical self-care.",
+      ],
+      kmParagraphs: [
+        "នៅក្នុងសង្គមខ្មែរ យើងមានការកោតសរសើរយ៉ាងខ្លាំងចំពោះភាពឧស្សាហ៍ព្យាយាម ការអត់ធន់ និងការខិតខំប្រឹងប្រែង។ នៅពេលដែលនរណាម្នាក់ស្រាប់តែបាត់បង់កម្លាំងចិត្ត មិនចង់ក្រោកពីព្រលឹម ដកខ្លួនចេញពីការជជែក ឬបោះបង់ចំណង់ចំណូលចិត្ត មិត្តភក្តិ និងក្រុមគ្រួសារច្រើនតែយល់ច្រឡំថាជា «ភាពខ្ជិល» ឬ «មកពីគិតច្រើនពេក» [5]។",
+        "មនុស្សចាស់ដែលមានបំណងល្អអាចនឹងប្រាប់អ្នកថា៖ «គ្រាន់តែញញឹមឱ្យច្រើន ចេញទៅក្រៅ ឬទៅវត្តទៅ នឹងជាហើយ»។ ទោះបីជាពាក្យទាំងនេះនិយាយចេញពីបំណងល្អក៏ដោយ វាក៏អាចបង្កើតអារម្មណ៍ខ្មាសអៀន និងឈឺចាប់ក្នុងចិត្តយ៉ាងខ្លាំង។ អ្នកចាប់ផ្តើមគិតថាអសមត្ថភាពក្នុងការសប្បាយរបស់អ្នក គឺជាការមិនចេះដឹងគុណ ឬជាភាពទន់ខ្សោយផ្ទាល់ខ្លួន។",
+        "អង្គការ UNICEF Cambodia និងអ្នកជំនាញសុខភាពផ្លូវចិត្តក្នុងស្រុកបញ្ជាក់ថា ការស្ពឹកស្រពន់ផ្លូវចិត្ត និង Anhedonia គឺជាអាការជីវសាស្ត្រនៃប្រព័ន្ធប្រសាទ មិនមែនជាការខូចចរិតឡើយ [5]។ អ្នកមិនអាចព្យាបាលប្រព័ន្ធប្រសាទដែលអស់កម្លាំងដោយប្រើការស្តីបន្ទោសខ្លួនឯងបានទេ។ ការទទួលស្គាល់ថាការអស់ថាមពលរបស់អ្នកជារឿងពិត នឹងជួយឱ្យអ្នកប្តូរពីការដាក់ទណ្ឌកម្មខ្លួនឯង មកជាការថែទាំសុខភាពផ្លូវចិត្តតាមក្បួនត្រឹមត្រូវ។",
+      ],
+      keyPoints: [
+        "Loss of motivation is routinely mislabeled as laziness (ខ្ជិល) in local culture [5].",
+        "Telling someone with anhedonia to 'just be positive' increases shame and isolation.",
+        "Your emotional state is a neurobiological signal requiring rest, not a moral defect.",
+      ],
+      kmKeyPoints: [
+        "ការបាត់បង់កម្លាំងចិត្ត ជារឿយៗត្រូវបានគេយល់ច្រឡំថាជាភាពខ្ជិលច្រអូស [5]។",
+        "ការប្រាប់អ្នកដែលមានអាការស្ពឹកស្រពន់ឱ្យ «គ្រាន់តែញញឹម» រឹតតែបង្កើនការឈឺចាប់ និងភាពឯកោ។",
+        "ស្ថានភាពផ្លូវចិត្តរបស់អ្នកគឺជាសញ្ញាព្រមានជីវសាស្ត្រដែលទាមទារការសម្រាក មិនមែនជាកំហុសចរិតឡើយ។",
+      ],
+    },
+    {
+      id: 6,
+      sectionNumber: 6,
+      title: "The Motivation Trap: Why Waiting for Passion Keeps You Stuck [4]",
+      kmTitle: "អន្ទាក់នៃកម្លាំងចិត្ត៖ ហេតុអ្វីការរង់ចាំការបំផុសគំនិតធ្វើឱ្យអ្នកជាប់គាំង? (The Motivation Trap)",
+      type: "reading",
+      paragraphs: [
+        "Many people believe in a simple sequence: First comes inspiration, then motivation, and finally action. When you feel numb, you wait on your sofa for inspiration to strike like lightning before touching your instruments or hobbies.",
+        "Unfortunately, when anhedonia is present, inspiration almost never arrives first. Waiting passively creates a self-fulfilling trap: inactivity leads to deeper guilt, which lowers dopamine further, cementing the apathy [4].",
+        "Clinical cognitive behavioral therapy reverses this arrow: Action comes first, even in tiny microscopic amounts. Action creates mild sensory feedback, which triggers small dopamine trickles, gradually awakening motivation. You do not need to feel passionate to begin; you only need to take one small, gentle action.",
+      ],
+      kmParagraphs: [
+        "មនុស្សជាច្រើនជឿលើលំដាប់លំដោយមួយថា៖ ដំបូងត្រូវមានការបំផុសគំនិត (Inspiration) បន្ទាប់មកកើតកម្លាំងចិត្ត (Motivation) ហើយចុងក្រោយទើបចាប់ផ្តើមធ្វើសកម្មភាព (Action)។ នៅពេលដែលអ្នកស្ពឹកស្រពន់ក្នុងចិត្ត អ្នកតែងតែអង្គុយរង់ចាំឱ្យមានកម្លាំងចិត្តហោះមកដូចរន្ទះ ទើបព្រមប៉ះឧបករណ៍ ឬសៀវភៅរបស់អ្នក។",
+        "ជាអកុសល នៅពេលដែលអ្នកមានអាការ Anhedonia ការបំផុសគំនិតកម្រនឹងកើតឡើងមុនគេណាស់។ ការអង្គុយរង់ចាំបង្កើតបានជាអន្ទាក់មួយ៖ អសកម្មភាពនាំឱ្យមានការបន្ទោសខ្លួនឯង កាត់បន្ថយសារធាតុ Dopamine រឹតតែខ្លាំង ហើយធ្វើឱ្យអ្នកកាន់តែស្ពឹកស្រពន់ [4]។",
+        "វិធីសាស្ត្រព្យាបាលចិត្តសាស្ត្របែប CBT បញ្ច្រាសព្រួញនេះឡើងវិញ៖ សកម្មភាពកើតឡើងមុន ទោះបីជាក្នុងកម្រិតតូចល្អិតបំផុតក៏ដោយ។ សកម្មភាពបង្កើតការភ្ញោចអារម្មណ៍ស្រាលៗ ដែលជួយបញ្ចេញ Dopamine បន្តិចម្តងៗដើម្បីដាស់កម្លាំងចិត្ត។ អ្នកមិនចាំបាច់រង់ចាំទាល់តែមានក្តីរំភើបខ្លាំងទើបចាប់ផ្តើមឡើយ អ្នកគ្រាន់តែត្រូវការបោះជំហានតូចមួយដោយទន់ភ្លន់ប៉ុណ្ណោះ។",
+      ],
+      keyPoints: [
+        "Waiting for motivation before acting is a psychological trap [4].",
+        "The healthy sequence is: Micro-Action -> Sensory Feedback -> Gentle Motivation.",
+        "You do not need to feel like doing it; you only need to lower the threshold.",
+      ],
+      kmKeyPoints: [
+        "ការអង្គុយរង់ចាំកម្លាំងចិត្តមុននឹងធ្វើសកម្មភាព គឺជាអន្ទាក់ផ្លូវចិត្ត [4]។",
+        "លំដាប់លំដោយត្រឹមត្រូវគឺ៖ សកម្មភាពតូចមួយ -> ការទទួលដឹងនៃអារម្មណ៍ -> កម្លាំងចិត្តទន់ភ្លន់។",
+        "អ្នកមិនចាំបាច់មានអារម្មណ៍ចង់ធ្វើខ្លាំងនោះទេ អ្នកគ្រាន់តែបន្ថយកម្រិតលំបាកឱ្យនៅទាបបំផុត។",
+      ],
+    },
+    {
+      id: 7,
+      sectionNumber: 7,
+      title: "The '5-Minute Low-Pressure Rule' and Micro-Dosing Pleasure [3, 4]",
+      kmTitle: "គោលការណ៍ «៥ នាទីគ្មានសម្ពាធ» និងការទទួលយកក្តីរីករាយកម្រិតស្រាល (The 5-Minute Low-Pressure Rule)",
+      type: "reading",
+      paragraphs: [
+        "How do you practice action when your energy is near zero? You implement the '5-Minute Low-Pressure Rule' [4].",
+        "Give yourself permission to do the activity for exactly five minutes, with zero expectation of joy, mastery, or finishing a project. If you play guitar, pluck three strings while sitting on the floor. If you draw, scribble lines on a scrap of paper for two minutes. If you read, glance at one single paragraph.",
+        "Crucially, release the demand for euphoria. Do not ask: 'Did I love that as much as before?' Instead, adopt neutral curiosity: 'How did the strings feel under my fingertips? What did the paper look like?' This is called micro-dosing pleasure. It gently exercises your reward circuits without overloading your fragile nervous system [3].",
+      ],
+      kmParagraphs: [
+        "តើអ្នកអាចធ្វើសកម្មភាពដោយរបៀបណា នៅពេលដែលថាមពលរបស់អ្នកស្ទើរតែស្មើសូន្យ? ចម្លើយគឺការអនុវត្ត «គោលការណ៍ ៥ នាទីគ្មានសម្ពាធ» [4]។",
+        "សូមផ្តល់ការអនុញ្ញាតឱ្យខ្លួនឯងធ្វើសកម្មភាពនោះត្រឹមតែ ៥ នាទីប៉ុណ្ណោះ ដោយមិនទាមទារឱ្យមានក្តីរីករាយ មិនទាមទារឱ្យធ្វើបានល្អឥតខ្ចោះ និងមិនចាំបាច់បញ្ចប់គម្រោងនោះឡើយ។ ប្រសិនបើអ្នកលេងហ្គីតា សូមគ្រាន់តែដេញខ្សែ ៣ ខ្សែពេលកំពុងអង្គុយលើកម្រាល។ ប្រសិនបើអ្នកចូលចិត្តគូររូប សូមគ្រាន់តែគូសវាសបន្ទាត់លើក្រដាសកាកសំណល់ ២ នាទី។ ប្រសិនបើអ្នកចូលចិត្តអាន សូមអានត្រឹមតែមួយកថាខណ្ឌ។",
+        "ចំណុចសំខាន់បំផុត គឺកុំទាមទារឱ្យមានអារម្មណ៍រំភើបខ្លាំង។ កុំសួរខ្លួនឯងថា៖ «តើខ្ញុំសប្បាយដូចកាលពីមុនទេ?» ប៉ុន្តែសូមសង្កេតដោយចិត្តស្ងប់ថា៖ «តើខ្សែហ្គីតាមានអារម្មណ៍យ៉ាងណាលើចុងម្រាមដៃ? តើទឹកថ្នាំមានពណ៌បែបណា?» នេះហៅថាការទទួលយកក្តីរីករាយកម្រិតស្រាល (Micro-Dosing Pleasure)។ វាជួយហាត់សមប្រព័ន្ធរង្វាន់ខួរក្បាលថ្នមៗ ដោយមិនដាក់បន្ទុកលើប្រព័ន្ធប្រសាទ [3]។",
+      ],
+      keyPoints: [
+        "Commit to only 5 minutes with total permission to stop immediately afterwards [4].",
+        "Detach from the demand for ecstasy; focus on neutral sensory presence.",
+        "Micro-steps build trust between your conscious mind and your weary body.",
+      ],
+      kmKeyPoints: [
+        "ប្តេជ្ញាធ្វើត្រឹមតែ ៥ នាទីប៉ុណ្ណោះ រួចឈប់ភ្លាមៗប្រសិនបើមិនចង់បន្ត [4]។",
+        "កុំទាមទារឱ្យមានក្តីរំភើបខ្លាំង ចូរផ្ដោតលើការដឹងនៃញាណរាងកាយធម្មតា។",
+        "ជំហានតូចៗជួយកសាងទំនុកចិត្តរវាងចិត្ត និងរាងកាយដែលកំពុងហត់នឿយរបស់អ្នក។",
+      ],
+    },
+    {
+      id: 8,
+      sectionNumber: 8,
+      title: "Personal Motivation Check-in: What Is Your Body Asking For?",
+      kmTitle: "ការពិនិត្យកម្លាំងចិត្តផ្ទាល់ខ្លួន៖ តើរាងកាយរបស់អ្នកកំពុងទាមទារអ្វី? (Personal Motivation Check-in)",
+      type: "reflection",
+      paragraphs: [
+        "When your interest in life goes quiet, it is often because your body is trying to tell you something important. Take a quiet breath and listen without judgment.",
+      ],
+      kmParagraphs: [
+        "នៅពេលដែលចំណាប់អារម្មណ៍របស់អ្នកក្នុងជីវិតប្រែជាស្ងប់ស្ងាត់ វាច្រើនតែកើតឡើងដោយសាររាងកាយកំពុងព្យាយាមប្រាប់រឿងសំខាន់ដល់អ្នក។ សូមដកដង្ហើមស្ងប់ចិត្ត ហើយស្តាប់ខ្លួនឯងដោយគ្មានការវិនិច្ឆ័យ។",
+      ],
+      reflection: {
+        question: "When you reflect honestly on your loss of interest lately, which feeling resonates most closely?",
+        kmQuestion: "នៅពេលដែលអ្នកឆ្លុះបញ្ចាំងដោយស្មោះត្រង់ពីការបាត់បង់ចំណាប់អារម្មណ៍នាពេលថ្មីៗនេះ តើអារម្មណ៍មួយណាដែលត្រូវនឹងអ្នកបំផុត?",
+        options: [
+          "I am profoundly exhausted physically and mentally from carrying continuous stress and responsibilities",
+          "I feel an overarching emotional numbness and sadness across almost everything in my life, not just hobbies",
+          "I feel intense pressure to perform and succeed, which has drained all the fun out of things I used to enjoy",
+          "I feel that my interests and life priorities are naturally evolving, but I feel guilty about moving on",
+        ],
+        kmOptions: [
+          "ខ្ញុំហត់នឿយខ្លាំងទាំងរាងកាយ និងចិត្តដោយសារតែរែកពន់ភាពតានតឹង និងការទទួលខុសត្រូវមិនឈប់",
+          "ខ្ញុំមានអារម្មណ៍ស្ពឹកស្រពន់ និងក្រៀមក្រំលើស្ទើរតែគ្រប់រឿងក្នុងជីវិត មិនមែនតែលើចំណង់ចំណូលចិត្តប៉ុណ្ណោះទេ",
+          "ខ្ញុំមានសម្ពាធខ្លាំងក្នុងការប្រឹងប្រែងឱ្យជោគជ័យ ដែលធ្វើឱ្យបាត់បង់ភាពសប្បាយរីករាយទាំងអស់",
+          "ខ្ញុំមានអារម្មណ៍ថាចំណូលចិត្ត និងអាទិភាពជីវិតកំពុងផ្លាស់ប្តូរតាមធម្មជាតិ ប៉ុន្តែខ្ញុំមានអារម្មណ៍ខុសឆ្គង",
+        ],
+        feedbackMessage:
+          "Honoring your emotional state is the foundation of genuine healing. Whether your numbness is driven by physical exhaustion, depressive weight, performance pressure, or natural evolution, your feelings are valid. You do not need to rush yourself back to who you were yesterday.",
+        kmFeedbackMessage:
+          "ការទទួលស្គាល់ស្ថានភាពអារម្មណ៍ពិតប្រាកដ គឺជាគ្រឹះនៃការជាសះស្បើយ។ ទោះបីជាការស្ពឹកស្រពន់របស់អ្នកបណ្តាលមកពីការអស់កម្លាំង សម្ពាធការងារ ជំងឺបាក់ទឹកចិត្ត ឬការផ្លាស់ប្តូរធម្មជាតិក៏ដោយ អារម្មណ៍របស់អ្នកសុទ្ធតែត្រឹមត្រូវ និងសមហេតុផល។ អ្នកមិនចាំបាច់បង្ខំខ្លួនឯងឱ្យវិលត្រឡប់ទៅរកអតីតកាលភ្លាមៗនោះទេ។",
+      },
+    },
+    {
+      id: 9,
+      sectionNumber: 9,
+      title: "Knowing When to Seek Professional Support [1, 2]",
+      kmTitle: "ពេលណាដែលការបាត់បង់ចំណាប់អារម្មណ៍ទាមទារការគាំទ្រពីអ្នកជំនាញ? (When to Seek Support)",
+      type: "reading",
+      paragraphs: [
+        "While a temporary loss of motivation is common during periods of stress, persistent and pervasive anhedonia warrants caring clinical attention [1].",
+        "If your lack of interest has persisted for more than two to three weeks, if you struggle to get out of bed, if your appetite or sleep has drastically altered, or if you feel a pervasive sense of hopelessness, you do not have to endure this in silence [2].",
+        "Licensed counselors and clinical psychologists provide evidence-based therapies, including Cognitive Behavioral Therapy (CBT) and Acceptance and Commitment Therapy (ACT). These structured approaches help you safely untangle emotional numbness, address underlying trauma or burnout, and restore neurochemical balance at your own pace.",
+      ],
+      kmParagraphs: [
+        "ទោះបីជាការបាត់បង់កម្លាំងចិត្តបណ្តោះអាសន្នជារឿងធម្មតាក្នុងពេលមានស្ត្រេសក៏ដោយ ប៉ុន្តែប្រសិនបើអាការ Anhedonia កើតឡើងជាប់រហូត និងប៉ះពាល់គ្រប់រឿង នោះវាទាមទារការយកចិត្តទុកដាក់ខាងវេជ្ជសាស្ត្រ និងចិត្តសាស្ត្រ [1]។",
+        "ប្រសិនបើការបាត់បង់ចំណាប់អារម្មណ៍របស់អ្នកបន្តលើសពី ២ ទៅ ៣ សប្តាហ៍ ប្រសិនបើអ្នកពិបាកក្រោកពីគ្រែ ប្រសិនបើការហូបចុក ឬការគេងប្រែប្រួលខ្លាំង ឬអ្នកមានអារម្មណ៍អស់សង្ឃឹមខ្លាំង អ្នកមិនគួរទ្រាំរែកពន់ការឈឺចាប់នេះដោយស្ងៀមស្ងាត់ឡើយ [2]។",
+        "អ្នកចិត្តវិទ្យា និងអ្នកប្រឹក្សាដែលមានអាជ្ញាប័ណ្ណត្រឹមត្រូវ អាចជួយអ្នកតាមរយៈការព្យាបាលចិត្តសាស្ត្របែប CBT និង ACT។ វិធីសាស្ត្រទាំងនេះជួយអ្នកស្រាយភាពស្ពឹកស្រពន់ផ្លូវចិត្ត ដោះស្រាយបញ្ហាអស់កម្លាំងចិត្ត ឬរបួសផ្លូវចិត្តកន្លងមក និងស្តារតុល្យភាពប្រព័ន្ធប្រសាទឡើងវិញតាមល្បឿនដែលអ្នកមានអារម្មណ៍សុវត្ថិភាព។",
+      ],
+      keyPoints: [
+        "Seek professional support if numbness lasts longer than 2 weeks across multiple areas [1, 2].",
+        "CBT and ACT provide structured, non-judgmental roadmaps to restore vitality.",
+        "Reaching out is an act of courageous self-preservation, not a sign of surrender.",
+      ],
+      kmKeyPoints: [
+        "សូមស្វែងរកជំនួយពីអ្នកជំនាញ ប្រសិនបើការស្ពឹកស្រពន់មានរយៈពេលលើសពី ២ សប្តាហ៍ [1, 2]។",
+        "ការព្យាបាលតាមបែប CBT និង ACT ផ្តល់នូវផែនទីច្បាស់លាស់ក្នុងការស្តារថាមពលឡើងវិញដោយគ្មានការវិនិច្ឆ័យ។",
+        "ការស្វែងរកជំនួយ គឺជាទង្វើដ៏ក្លាហានក្នុងការថែរក្សាជីវិត មិនមែនជាការចុះចាញ់ឡើយ។",
+      ],
+    },
+    {
+      id: 10,
+      sectionNumber: 10,
+      title: "Grounding the Nervous System: The 1-Minute Calming Breath",
+      kmTitle: "ការរំងាប់ប្រព័ន្ធប្រសាទ៖ លំហាត់ដកដង្ហើមស្ងប់ចិត្ត ១ នាទី (1-Minute Calming Breath)",
+      type: "coping",
+      paragraphs: [
+        "When we feel frustrated by our lack of motivation, our autonomic nervous system often contracts into a state of chronic alarm. Let us release that tension with one minute of intentional breathing.",
+        "Rest your hands comfortably on your lap or place one hand over your heart. Breathe in gently through your nose for a count of 4. Pause smoothly for a count of 2. Exhale slowly and softly through parted lips for a count of 6.",
+        "With each long exhale, whisper to yourself: 'I am safe in this moment. I do not have to perform or produce right now.' Feel the support of the chair underneath you and allow your shoulders to drop.",
+      ],
+      kmParagraphs: [
+        "នៅពេលដែលយើងមានការខកចិត្តចំពោះការបាត់បង់កម្លាំងចិត្ត ប្រព័ន្ធប្រសាទរបស់យើងច្រើនតែរឹតបន្តឹងដោយភាពតានតឹង។ ចូរយើងរំដោះភាពតានតឹងនោះចេញ តាមរយៈការដកដង្ហើមដោយស្មារតីត្រឹមតែ ១ នាទី។",
+        "ដាក់ដៃរបស់អ្នកដោយស្រួលនៅលើភ្លៅ ឬដាក់ដៃម្ខាងលើទ្រូង។ ដកដង្ហើមចូលថ្នមៗតាមច្រមុះរាប់ដល់ ៤។ ផ្អាកដង្ហើមមួយភ្លែตรាប់ដល់ ២។ បន្ទាប់មកដកដង្ហើមចេញយឺតៗតាមមាត់រាប់ដល់ ៦។",
+        "នៅរាល់ពេលដកដង្ហើមចេញវែងៗ សូមខ្សឹបប្រាប់ខ្លួនឯងថា៖ «ខ្ញុំមានសុវត្ថិភាពក្នុងពេលនេះ។ ខ្ញុំមិនចាំបាច់ប្រឹងធ្វើអ្វីឱ្យល្អឥតខ្ចោះនៅពេលនេះទេ»។ ទទួលដឹងពីការទ្រទ្រង់នៃកៅអីខាងក្រោមអ្នក ហើយទម្លាក់ស្មារបស់អ្នកចុះដោយធូរស្រាល។",
+      ],
+      keyPoints: [
+        "Deep, extended exhalations down-regulate acute fight-or-flight arousal.",
+        "Placing a hand over your heart stimulates the release of calming oxytocin.",
+        "One minute of somatic safety signals your nervous system that it is safe to rest.",
+      ],
+      kmKeyPoints: [
+        "ការដកដង្ហើមចេញវែងៗ ជួយបន្ថយភាពតានតឹងនៃប្រព័ន្ធប្រសាទស្វ័យប្រវត្ត។",
+        "ការដាក់ដៃលើទ្រូងជួយបញ្ចេញអ័រម៉ូន Oxytocin ដែលផ្តល់ភាពកក់ក្តៅដល់ចិត្ត។",
+        "ការផ្តល់សុវត្ថិភាពដល់រាងកាយត្រឹមតែ ១ នាទី ជួយផ្តល់សញ្ញាថាដល់ពេលអាចសម្រាកបានហើយ។",
+      ],
+      actions: [
+        {
+          label: "Practice 1-Minute Calming Breath",
+          kmLabel: "អនុវត្តលំហាត់ដកដង្ហើមស្ងប់ចិត្ត ១ នាទី (1-Min Breath)",
+          actionType: "exercise",
+        },
+      ],
+    },
+    {
+      id: 11,
+      sectionNumber: 11,
+      title: "Gentle Pathways Forward on AROM [4, 5]",
+      kmTitle: "មាគ៌ាដ៏ទន់ភ្លន់ឆ្ពោះទៅមុខនៅលើ AROM (Gentle Pathways on AROM)",
+      type: "reading",
+      paragraphs: [
+        "Regaining motivation is not about forcing an instant turnaround. It is about offering yourself the same patient kindness you would give to an exhausted close friend.",
+        "On AROM, you have a judgment-free space to rebuild at your own pace. Open your private AROM Journal (/journal) to write a zero-pressure check-in: describe one tiny sensory moment you noticed today, or simply write down: 'Today I rested, and that was enough.'",
+        "If you want compassionate, personalized guidance to navigate anhedonia or life changes, visit AROM Professional (/professional) to connect with verified Cambodian counselors and therapists who specialize in burnout, depression, and youth pressures [5].",
+        "If low motivation or deep sadness ever escalates into overwhelming crisis, despair, or thoughts that life is not worth living, please remember that immediate compassionate support is available. Call the National Child and Youth Helpline at 1280, the National Health Hotline at 119, or TPO Cambodia at 017 222 372. You are never alone on this path.",
+      ],
+      kmParagraphs: [
+        "ការស្តារកម្លាំងចិត្តឡើងវិញ មិនមែនជាការបង្ខំឱ្យជាភ្លាមៗក្នុងមួយប៉ព្រិចភ្នែកនោះទេ។ វាគឺជាការផ្តល់ឱ្យខ្លួនឯងនូវក្តីមេត្តា និងការអត់ធ្មត់ ដូចដែលអ្នកផ្តល់ឱ្យមិត្តភក្តិជិតស្និទ្ធដែលកំពុងហត់នឿយខ្លាំងអញ្ចឹងដែរ។",
+        "នៅលើ AROM អ្នកមានលំហសុវត្ថិភាពដែលគ្មានការវិនិច្ឆ័យដើម្បីស្តារថាមពលឡើងវិញ។ សូមបើកកំណត់ហេតុផ្ទាល់ខ្លួន AROM Journal (/journal) ដើម្បីកត់ត្រាដោយគ្មានសម្ពាធ៖ រៀបរាប់ពីរឿងតូចមួយដែលអ្នកបានកត់សម្គាល់ឃើញនៅថ្ងៃនេះ ឬគ្រាន់តែសរសេរថា៖ «ថ្ងៃនេះខ្ញុំបានសម្រាក ហើយប៉ុណ្ណឹងគឺគ្រប់គ្រាន់ហើយ»។",
+        "ប្រសិនបើអ្នកចង់បានការណែនាំផ្ទាល់ខ្លួនប្រកបដោយក្តីមេត្តាដើម្បីដោះស្រាយបញ្ហាស្ពឹកស្រពន់ ឬការប្រែប្រួលជីវិត សូមចូលទៅកាន់ AROM Professional (/professional) ដើម្បីភ្ជាប់ទំនាក់ទំនងជាមួយអ្នកចិត្តវិទ្យាកម្ពុជាដែលមានការទទួលស្គាល់ត្រឹមត្រូវ ឯកទេសលើបញ្ហាអស់កម្លាំងចិត្ត និងជំងឺបាក់ទឹកចិត្ត [5]។",
+        "ប្រសិនបើការបាត់បង់កម្លាំងចិត្ត ឬភាពក្រៀមក្រំឈានដល់កម្រិតវិបត្តិផ្លូវចិត្តធ្ងន់ធ្ងរ ឬមានអារម្មណ៍មិនចង់រស់នៅ សូមចងចាំថាជំនួយបន្ទាន់ត្រៀមជួយអ្នកជានិច្ច។ សូមទាក់ទងខ្សែទូរស័ព្ទជំនួយកុមារ និងយុវជនលេខ 1280 ខ្សែទូរស័ព្ទសុខភាពជាតិលេខ 119 ឬអង្គការចិត្តសង្គមកម្ពុជា (TPO Cambodia) តាមលេខ 017 222 372។ អ្នកមិនឯកោលើវិថីនេះឡើយ។",
+      ],
+      keyPoints: [
+        "Record micro-moments without pressure in your private AROM Journal (/journal).",
+        "Connect with verified therapists on AROM Professional (/professional) for caring support [5].",
+        "Crisis help lines are always free, confidential, and ready: 1280, 119, or TPO Cambodia 017 222 372.",
+      ],
+      kmKeyPoints: [
+        "កត់ត្រាអារម្មណ៍តូចៗដោយគ្មានសម្ពាធក្នុងកំណត់ហេតុផ្ទាល់ខ្លួន AROM Journal (/journal)។",
+        "ភ្ជាប់ទំនាក់ទំនងជាមួយអ្នកជំនាញលើ AROM Professional (/professional) ដើម្បីទទួលបានការគាំទ្រ [5]។",
+        "ខ្សែទូរស័ព្ទទាន់ហេតុការណ៍ឥតគិតថ្លៃ និងសម្ងាត់ត្រៀមជួយជានិច្ច៖ 1280, 119 ឬ TPO Cambodia 017 222 372។",
+      ],
+      alertBox: {
+        type: "tip",
+        text: "Compassionate Reminder: When a flower does not bloom, you do not blame the flower. You adjust the environment, the soil, and the sunlight. Give yourself patience while your inner soil recovers.",
+        kmText: "សារដាស់តឿនដោយក្តីមេត្តា៖ នៅពេលដែលផ្កាមួយទងមិនរីក យើងមិនដែលបន្ទោសផ្កានោះឡើយ។ យើងតែងតែពិនិត្យបរិស្ថាន ដី និងពន្លឺថ្ងៃ។ សូមផ្តល់ការអត់ធ្មត់ដល់ខ្លួនឯង ក្នុងកំឡុងពេលដែលដីជីវិតរបស់អ្នកកំពុងស្តារឡើងវិញ។",
+      },
+      actions: [
+        {
+          label: "Open AROM Journal",
+          kmLabel: "បើកកំណត់ហេតុ AROM Journal",
+          actionType: "tips",
+        },
+        {
+          label: "Talk to a Professional",
+          kmLabel: "ពិគ្រោះជាមួយអ្នកជំនាញ AROM",
+          actionType: "professional",
+        },
+      ],
+    },
+  ],
+};
+
 export const ALL_LESSONS: Lesson[] = [
+  LESSON_LOST_INTEREST,
   LESSON_BALANCE_STUDY_WORK_LIFE,
   LESSON_WHAT_IS_MENTAL_HEALTH,
   LESSON_ABOUT_STRESS,

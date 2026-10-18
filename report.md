@@ -1,5 +1,31 @@
 # AROM: Change Report
 
+## 18 Oct 2026: New Lesson, Why Have I Lost Interest in Things I Used to Love?
+
+Commit `2932866`. No migration. Content and frontend only.
+
+**Why.** When people experience chronic emotional strain, prolonged stress, or depressive episodes, they often lose interest and pleasure in their favorite activities (anhedonia). In Cambodia, this emotional numbness is frequently misunderstood by family and peers as "laziness" (ខ្ជិល) or "overthinking" (គិតច្រើន), producing severe internal shame and self-isolation. "Why Have I Lost Interest in Things I Used to Love?" (`why-lost-interest-motivation`) provides an 8-minute evidence-based psychoeducational guide adapted from NIMH, WHO, Harvard Health Publishing, NHS inform, and UNICEF Cambodia. It equips seekers with clear explanations of anhedonia and dopamine down-regulation, tools to distinguish temporary burnout from clinical depression and natural life evolution, insights to deconstruct the Cambodian "laziness" stigma, behavioral activation strategies (such as the 5-Minute Low-Pressure Rule), somatic 1-minute calming breathwork, and safe pathways to connect with confidential therapists and private journaling on AROM.
+
+**What changed for users:**
+- **New Lesson available in MindGuide Learn:** Seekers can access "Why Have I Lost Interest in Things I Used to Love? (ហេតុអ្វីខ្ញុំបាត់បង់ចំណាប់អារម្មណ៍លើអ្វីដែលធ្លាប់ចូលចិត្ត?)" under the Emotions category or directly via `/mindguide/learn?open=why-lost-interest-motivation`.
+- **11 Comprehensive Bilingual Sections:** Covers the sudden loss of joy, clinical anhedonia and dopamine biology, distinguishing burnout vs depression vs natural personal growth, an interactive quiz on motivation myths (debunking waiting for passion), Cambodian cultural context on the "laziness" stigma, the motivation trap and behavioral activation, the 5-Minute Low-Pressure Rule and micro-dosing pleasure, a personal motivation check-in reflection, when to seek clinical support, somatic 1-minute calming breathwork, and continuing the healing journey on AROM.
+- **Tip Alert Box:** Section 11 features a compassionate reminder: "When a flower does not bloom, you do not blame the flower. You adjust the environment, the soil, and the sunlight. Give yourself patience while your inner soil recovers."
+- **Direct AROM tool integration:** Section 10 triggers the "1-Minute Calming Breath" (`actionType: "exercise"`), and Section 11 provides direct action buttons for "Open AROM Journal" (`actionType: "tips"`) and "Talk to a Professional" (`actionType: "professional"`).
+
+**What changed for the team:**
+- **`learn-data.ts`:** Exported `REFERENCES_LOST_INTEREST` with 5 peer-reviewed citations (NIMH, WHO, Harvard Health, NHS inform, UNICEF Cambodia) and `LESSON_LOST_INTEREST`, prepending it to `ALL_LESSONS` under category `"Emotions"`.
+- **Hero Image:** Added `public/mindguide/lost-interest-hero.jpg` depicting a young Cambodian person sitting peacefully beside an open window in Phnom Penh with a guitar, sketchbook, and warm tea.
+- **Strict Anti-AI Compliance:** Zero em dashes, en dashes, or loose hyphens across all English and Khmer copy.
+
+**What to re-test:**
+1. Open `/mindguide/learn` and verify "Why Have I Lost Interest in Things I Used to Love?" card appears under the "Emotions" filter with the "Popular" badge.
+2. Open `/mindguide/learn?open=why-lost-interest-motivation` and verify hero image, outcomes, and 11 sections render smoothly.
+3. Test Section 4 quiz: verify correct feedback when selecting option B and bilingual explanations.
+4. Test Section 8 self-reflection interactive choice and feedback.
+5. Test Section 10 coping exercise button: launches 1-Minute Calming Breath session.
+6. Test Section 11 tip alert box and action buttons: "Open AROM Journal" and "Talk to a Professional".
+7. Switch language to Khmer and verify all Kantumruy Pro translations.
+
 ## 18 Oct 2026: New Lesson, How to Balance Study, Work, and Life
 
 Commit `d8d6a1c`. No migration. Content and frontend only.
