@@ -2,7 +2,7 @@
 
 ## 19 Oct 2026: Messages Holds Every Chat, Community Is for Finding Groups
 
-Commit `PENDING`. No migration.
+Commit `b245c00`. No migration.
 
 **Why.** People in Cambodia live in Telegram, where every chat (people and groups) sits in one list. AROM had private chats in Messages and group chats hidden inside Community. Now Messages is the one place to chat, and Community is the place to find a group.
 
