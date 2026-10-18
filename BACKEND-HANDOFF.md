@@ -1145,6 +1145,7 @@ Several original functions remain for internal use, with direct execution revoke
 
 - The community chat returns the oldest 100 messages instead of the newest 100 (`read_community_messages`, latest in `20261017000500`). Sokheng fixed this in an older file that later migrations replace, so the fix needs a new migration based on the latest version.
 - `shared_mood_checkins(client id)` still accepts a real client id. Nothing in the merged code calls it directly; revoke it once the alias version is live.
+- **Telling anonymous clients apart (frontend, after this merges):** the pro screens show only `clientName`, so two anonymous clients both read "Anonymous" in bookings, messages, the client list and the care plan dialog. A professional could write a note or give a task to the wrong person. Show a short label that stays the same for each client, made from the alias id (for example "Anonymous client #4821"). It must come from the alias, never the account id, and it must look the same on every pro screen.
 - `messages-controller.ts`, `sessions-controller.ts` and `care-controller.ts` keep Sokheng's single quote formatting.
 - Test with a professional and a client account after the three migrations run: bookings list and actions, messages and voice, client file (summary note, archive, shared data, mood trend), suggestions, care plan.
 
