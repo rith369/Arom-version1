@@ -2,7 +2,7 @@
 
 ## 18 Oct 2026: Professionals Create Support Groups From Their Own Area
 
-Commit `PENDING`. No migration.
+Commit `408cbba`. No migration.
 
 **Why.** Verified professionals were already allowed to create support groups, but the professional area had no way to reach it. A therapist had to leave `/pro`, open the user Community page and find the button, so in practice only admins created groups.
 
