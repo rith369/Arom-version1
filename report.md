@@ -2,7 +2,7 @@
 
 ## 19 Oct 2026: Recommended for You Looks Like Popular Groups
 
-Commit `PENDING`. No migration.
+Commit `262c9e6`. No migration.
 
 **Why.** Rith wanted "Recommended for you" right below the topic tiles, exactly like "Popular groups", only with its own title.
 
