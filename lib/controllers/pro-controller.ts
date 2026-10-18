@@ -23,7 +23,7 @@ import { toPrice } from "@/lib/professionals";
 import { supabaseUrl } from "@/lib/supabase/env";
 import type { SessionSuggestion } from "@/lib/sessions";
 import { loadArchivedClients } from "./messages-controller";
-import { SUGGESTION_COLUMNS, toSuggestion, type SuggestionRow } from "./sessions-controller";
+import { toSuggestion, type SuggestionRow } from "./sessions-controller";
 import { databaseError, fail, invalidInput, json, readJson } from "./shared";
 import { SHARED_MOOD_DAYS, cambodiaDay, lastDays, type MoodLevel, type MoodWeekResponse } from "@/lib/mood";
 import { requireRole } from "./role-controller";
@@ -107,56 +107,22 @@ async function loadProfile(supabase: Supabase, userId: string): Promise<ProProfi
 }
 
 async function loadBookings(supabase: Supabase, userId: string, slug: string) {
-  const [appointments, names, notes, prep] = await Promise.all([
-    supabase
-      .from("appointments")
-      .select(
-        "id, user_id, starts_at, ends_at, session_type, status, intake_note, cancelled_by, cancel_reason, rescheduled_from, reschedule_reason, rescheduled_by, share_survey, share_symptom_checks, share_mood_trend, meeting_url, series_id, intake_answers(question_snapshot, answer)",
-      )
-      .eq("professional_id", userId)
-      .order("starts_at", { ascending: false })
-      .limit(500),
-    supabase.rpc("my_client_names"),
+  // read_my_pro_bookings_safe() returns each booking already shaped, with the
+  // client's alias id instead of their account id (anonymous privacy).
+  const [appointments, notes, prep] = await Promise.all([
+    supabase.rpc("read_my_pro_bookings_safe"),
     supabase.from("session_notes").select("appointment_id, content, updated_at").eq("professional_id", userId),
     supabase.from("session_prep_notes").select("appointment_id, content, updated_at").eq("professional_id", userId),
   ]);
+  if (appointments.error || !Array.isArray(appointments.data) || notes.error || prep.error) {
+    throw new Error("Could not load professional bookings");
+  }
 
-  const clientRows = (names.data ?? []) as { id: string; full_name: string | null; language: string | null }[];
-  const nameOf = new Map(clientRows.map((row) => [row.id, row.full_name ?? "Client"]));
-  const languageOf = new Map(clientRows.map((row) => [row.id, row.language === "en" ? ("en" as const) : ("km" as const)]));
-
-  const bookings: ProBooking[] = (appointments.data ?? []).map((row) => ({
-    id: row.id,
+  const bookings: ProBooking[] = (appointments.data as ProBooking[]).map((row) => ({
+    ...row,
     professionalId: slug,
-    clientId: row.user_id,
-    clientName: nameOf.get(row.user_id) ?? "Client",
-    clientLanguage: languageOf.get(row.user_id) ?? "km",
-    startsAt: cambodiaIso(row.starts_at),
-    durationMinutes: Math.round((Date.parse(row.ends_at) - Date.parse(row.starts_at)) / 60_000),
-    sessionType: row.session_type,
-    status: row.status,
-    intakeNote: row.intake_note ?? "",
-    intakeAnswers: ((row.intake_answers ?? []) as { question_snapshot: string; answer: unknown }[]).map((item) => ({
-      question: { en: item.question_snapshot, km: item.question_snapshot },
-      answer: typeof item.answer === "string" ? item.answer : JSON.stringify(item.answer),
-    })),
-    cancelledBy:
-      row.status !== "cancelled" || !row.cancelled_by
-        ? null
-        : row.cancelled_by === row.user_id
-          ? "client"
-          : row.cancelled_by === userId
-            ? "professional"
-            : "admin",
-    cancelReason: row.cancel_reason ?? "",
-    rescheduledFrom: row.rescheduled_from ? cambodiaIso(row.rescheduled_from) : null,
-    rescheduleReason: row.reschedule_reason ?? "",
-    rescheduledBy: !row.rescheduled_from ? null : row.rescheduled_by === row.user_id ? "client" : "professional",
-    shareSurvey: row.share_survey,
-    shareSymptomChecks: row.share_symptom_checks,
-    shareMoodTrend: row.share_mood_trend,
-    meetingUrl: row.session_type === "online" ? row.meeting_url : null,
-    seriesId: row.series_id,
+    startsAt: cambodiaIso(row.startsAt),
+    rescheduledFrom: row.rescheduledFrom ? cambodiaIso(row.rescheduledFrom) : null,
   }));
 
   const sessionNotes: Record<string, SessionNote> = {};
@@ -203,15 +169,13 @@ async function loadAll(supabase: Supabase, userId: string): Promise<ProData | nu
     loadBookings(supabase, userId, profile.slug),
     loadArchivedClients(supabase, userId),
     supabase
-      .from("session_suggestions")
-      .select(SUGGESTION_COLUMNS)
-      .eq("professional_id", userId)
-      .eq("status", "open")
-      .order("created_at", { ascending: false })
-      .limit(100)
+      .rpc("read_session_suggestions_safe", { p_as: "professional", p_open_only: true, p_limit: 100 })
       .returns<SuggestionRow[]>(),
-    loadSummaryNotes(supabase, userId),
+    loadSummaryNotes(supabase),
   ]);
+  if (suggestionRows.error || !Array.isArray(suggestionRows.data)) {
+    throw new Error("Could not load session suggestions");
+  }
 
   const schedule = (scheduleRow.data?.schedule as Schedule | undefined) ?? null;
 
@@ -237,7 +201,7 @@ async function loadAll(supabase: Supabase, userId: string): Promise<ProData | nu
     isTest: flags?.is_test === true,
     archivedClients,
     summaryNotes,
-    openSuggestions: (suggestionRows.data ?? []).map((row) => toSuggestion(row, profile.slug, "")),
+    openSuggestions: suggestionRows.data.map((row) => toSuggestion(row, profile.slug, "")),
   };
 }
 
@@ -493,16 +457,13 @@ export async function saveProSchedule(request: NextRequest) {
   const oldRoom = previous?.meeting_url ?? null;
   const newRoom = schedule.meetingUrl || null;
   if (oldRoom !== newRoom) {
-    const upcomingOnline = () =>
-      supabase
-        .from("appointments")
-        .update({ meeting_url: newRoom })
-        .eq("professional_id", userId)
-        .eq("session_type", "online")
-        .eq("status", "booked")
-        .gt("starts_at", new Date().toISOString());
-    await upcomingOnline().is("meeting_url", null);
-    if (oldRoom) await upcomingOnline().eq("meeting_url", oldRoom);
+    const { error: meetingRefreshError } = await supabase.rpc("refresh_pro_meeting_links_safe", {
+      p_old_url: oldRoom,
+      p_new_url: newRoom,
+    });
+    if (meetingRefreshError) {
+      return fail("server_error", "Your schedule was saved, but upcoming meeting links could not be updated.", 500);
+    }
   }
 
   const data = await loadAll(supabase, userId);
@@ -533,14 +494,12 @@ export async function updateProBooking(request: NextRequest, appointmentId: stri
   if (!id.success || !body.success) return invalidInput();
   const input = body.data;
 
-  // RLS only returns the professional's own appointments.
-  const { data: appointment } = await supabase
-    .from("appointments")
-    .select("id")
-    .eq("id", id.data)
-    .eq("professional_id", userId)
-    .maybeSingle();
-  if (!appointment) return fail("invalid_input", "Appointment not found.", 404);
+  // Professionals no longer read appointment rows directly (anonymous privacy).
+  const { data: ownsAppointment, error: ownershipError } = await supabase.rpc("owns_professional_appointment", {
+    p_appointment_id: id.data,
+  });
+  if (ownershipError) return fail("server_error", "Could not check appointment.", 500);
+  if (ownsAppointment !== true) return fail("invalid_input", "Appointment not found.", 404);
 
   let error: { message: string } | null = null;
 
@@ -561,7 +520,11 @@ export async function updateProBooking(request: NextRequest, appointmentId: stri
       p_reason: input.reason,
     }));
   } else if (input.action === "outcome") {
-    ({ error } = await supabase.from("appointments").update({ status: input.status }).eq("id", id.data));
+    ({ error } = await supabase.rpc("update_pro_booking_safe", {
+      p_appointment_id: id.data,
+      p_action: "outcome",
+      p_status: input.status,
+    }));
   } else if (input.action === "prep") {
     const text = input.text.trim();
     ({ error } = text
@@ -580,10 +543,11 @@ export async function updateProBooking(request: NextRequest, appointmentId: stri
     if (input.meetingUrl && !isMeetingUrl(input.meetingUrl)) {
       return fail("invalid_input", "The meeting link must start with https://", 400);
     }
-    ({ error } = await supabase
-      .from("appointments")
-      .update({ meeting_url: input.meetingUrl || null })
-      .eq("id", id.data));
+    ({ error } = await supabase.rpc("update_pro_booking_safe", {
+      p_appointment_id: id.data,
+      p_action: "meeting",
+      p_meeting_url: input.meetingUrl || null,
+    }));
   }
 
   if (error) return databaseError(error, "This booking could not be updated. Please try again.");
@@ -597,13 +561,13 @@ export async function updateProBooking(request: NextRequest, appointmentId: stri
 // Clients: archive, summary note and what they share
 // ---------------------------------------------------------------------------
 
-async function loadSummaryNotes(supabase: Supabase, userId: string) {
-  const { data } = await supabase
-    .from("client_summary_notes")
-    .select("client_id, content, updated_at")
-    .eq("professional_id", userId);
+// Summary notes are keyed by the client's alias id (anonymous privacy).
+async function loadSummaryNotes(supabase: Supabase) {
+  const { data, error } = await supabase.rpc("my_client_summary_notes_safe");
+  if (error) throw new Error("Could not load client summary notes");
+  const rows = (data ?? []) as { client_alias_id: string; content: string; updated_at: string }[];
   const notes: Record<string, SessionNote> = {};
-  for (const row of data ?? []) notes[row.client_id] = { text: row.content, updatedAt: row.updated_at };
+  for (const row of rows) notes[row.client_alias_id] = { text: row.content, updatedAt: row.updated_at };
   return notes;
 }
 
@@ -620,27 +584,30 @@ const clientActionSchema = z.union([
 export async function updateProClient(request: NextRequest, clientId: string) {
   const guard = await requireRole("professional", "admin");
   if (!guard.ok) return guard.response;
-  const { supabase, userId } = guard;
+  const { supabase } = guard;
 
+  // clientId is the client's alias id, never their account id.
   const id = z.string().uuid().safeParse(clientId);
   const body = clientActionSchema.safeParse(await readJson(request));
   if (!id.success || !body.success) return invalidInput();
 
   if ("archived" in body.data) {
-    const { error } = await supabase.rpc("set_client_archived", { p_client_id: id.data, p_archived: body.data.archived });
+    const { error } = await supabase.rpc("set_client_archived_safe", { p_client_id: id.data, p_archived: body.data.archived });
     if (error) return error.code === "PT404" ? fail("invalid_input", "Client not found.", 404) : fail("server_error", "That could not be saved.", 500);
     return json({ archived: body.data.archived });
   }
 
-  const text = body.data.summaryNote.trim();
-  // RLS allows a note only for someone who booked with this professional.
-  const { error } = text
-    ? await supabase
-        .from("client_summary_notes")
-        .upsert({ professional_id: userId, client_id: id.data, content: text }, { onConflict: "professional_id,client_id" })
-    : await supabase.from("client_summary_notes").delete().eq("professional_id", userId).eq("client_id", id.data);
-  if (error) return fail("invalid_input", "That could not be saved.", 400);
-  return json({ summaryNotes: await loadSummaryNotes(supabase, userId) });
+  // An empty note deletes it.
+  const { error } = await supabase.rpc("save_client_summary_note_safe", {
+    p_client_alias_id: id.data,
+    p_text: body.data.summaryNote.trim(),
+  });
+  if (error) {
+    if (error.code === "PT404") return fail("invalid_input", "Client not found.", 404);
+    if (error.code === "22023") return invalidInput();
+    return fail("server_error", "That could not be saved.", 500);
+  }
+  return json({ summaryNotes: await loadSummaryNotes(supabase) });
 }
 
 // The last 30 Cambodia days, missed days null. Null when nothing is shared.
@@ -654,9 +621,9 @@ function sharedMoodDays(rows: { day: string; mood: MoodLevel }[]): MoodWeekRespo
 }
 
 /**
- * GET /api/pro/clients/:clientId: what the client chose to share. RLS returns
- * rows only while they share them on a booked or completed session with this
- * professional (client_shares_with_me). Scores only, never the answers.
+ * GET /api/pro/clients/:clientId: what the client chose to share, by alias id.
+ * The safe functions return data only while the client shares it on a booked
+ * or completed session with this professional. Scores only, never the answers.
  */
 export async function getSharedByClient(clientId: string) {
   const guard = await requireRole("professional", "admin");
@@ -666,44 +633,20 @@ export async function getSharedByClient(clientId: string) {
   const id = z.string().uuid().safeParse(clientId);
   if (!id.success) return invalidInput();
 
-  const [survey, checks, moods] = await Promise.all([
-    supabase
-      .from("onboarding_surveys")
-      .select("feelings, frequency, impact, challenges, prior_support, goals, created_at")
-      .eq("user_id", id.data)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle(),
-    supabase
-      .from("symptom_checks")
-      .select("check_type, score, max_score, level, created_at")
-      .eq("user_id", id.data)
-      .order("created_at", { ascending: false })
-      .limit(20),
+  const [shared, moods] = await Promise.all([
+    supabase.rpc("get_shared_client_data_safe", { p_client_alias_id: id.data }),
     // Moods only, and only while the client shares them with this professional.
-    supabase.rpc("shared_mood_checkins", { p_client_id: id.data }),
+    supabase.rpc("shared_mood_checkins_safe", { p_client_alias_id: id.data }),
   ]);
+  if (shared.error?.code === "PT404" || moods.error?.code === "PT404") {
+    return fail("invalid_input", "Client not found.", 404);
+  }
+  if (shared.error || !shared.data || moods.error) {
+    return fail("server_error", "Could not load shared client data.", 500);
+  }
 
-  const shared: SharedByClient = {
-    survey: survey.data
-      ? {
-          feelings: survey.data.feelings ?? [],
-          frequency: survey.data.frequency ?? "sometimes",
-          impact: survey.data.impact ?? 0,
-          challenges: survey.data.challenges ?? [],
-          priorSupport: survey.data.prior_support ?? "prefer_not_say",
-          goals: survey.data.goals ?? [],
-          createdAt: survey.data.created_at,
-        }
-      : null,
-    symptomChecks: (checks.data ?? []).map((row) => ({
-      type: row.check_type,
-      score: row.score ?? 0,
-      maxScore: row.max_score ?? 0,
-      level: row.level,
-      createdAt: row.created_at,
-    })),
+  return json<SharedByClient>({
+    ...(shared.data as Omit<SharedByClient, "moods">),
     moods: sharedMoodDays((moods.data ?? []) as { day: string; mood: MoodLevel }[]),
-  };
-  return json<SharedByClient>(shared);
+  });
 }

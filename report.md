@@ -1,5 +1,82 @@
 # AROM: Change Report
 
+## 18 Oct 2026: Anonymous Privacy Merged With Main
+
+Commit `PENDING`. Branch `merge/anonymous-privacy`. Migrations to run in Supabase, in this order: `20261017001100_message_client_names.sql`, `20261017001200_alias_client_archiving.sql`, `20261018060000_merge_privacy_with_main.sql`. The rest of the privacy SQL was already applied by hand; do not rerun it. Needs `SUPABASE_SECRET_KEY` on Vercel.
+
+**Why.** Sokheng built anonymous privacy for professionals on a branch that started from main on 15 Oct and was 159 commits behind, so it could not merge (11 conflicts). Most of its SQL was already applied to the shared database, which blocked messages, therapist bookings, care plans and shared client data for the code on main. This merge brings the privacy work in without losing anything from main.
+
+**What changed for users:**
+
+- **Therapist area works again once the migrations run:** bookings, booking actions, messages, voice notes, client files, summary notes, suggestions and care plans use the new safe functions the live database expects.
+- **Nothing from main is lost:** client time changes ("rescheduled by"), the in person address, mood trend sharing, profile office fields and every other feature on main stay as they were.
+- **Therapists see client aliases:** clients with "Hide my identity" on show as "Anonymous" to their therapist (Sokheng's rule, still to be confirmed by the team).
+
+**What changed for the team:**
+
+- **Main is the reference:** `appointments-controller.ts` is unchanged from main. Sokheng's privacy changes were added by hand to main's `pro-controller.ts`, in main's formatting.
+- **Migrations:** Hok Chheng's `20261016*` names kept; Sokheng's second renames dropped. His new files `20261015001600` to `20261015002600` are now `20261017000900` to `20261017001900`, because one number was already used by `in_person_address` and they need the alias table from `20261016000600`.
+- **New merge migration:** `20261018060000_merge_privacy_with_main.sql` adds `rescheduledBy` and `shareMoodTrend` to `read_my_pro_bookings_safe()` and adds `shared_mood_checkins_safe(alias)`.
+- **Handoff:** `BACKEND-HANDOFF.md` section 29 explains the privacy rules, the safe functions, voice playback, migrations and the open decision about `hide_identity`.
+- **Docs:** Sokheng's report entry is kept below. His formatter changes to `report.md` and `BACKEND-HANDOFF.md` were left out.
+
+**What to re-test:**
+
+1. Run the three migrations above, then add `SUPABASE_SECRET_KEY` on Vercel.
+2. As a therapist, open My bookings: the list loads, a moved session says who moved it, and mood trend sharing shows.
+3. Mark a session completed, change its meeting link, write a prep note and a session note.
+4. Open Messages: conversations load with client names or "Anonymous"; send text and voice; the client can play the voice note.
+5. Open a client file: save and clear a summary note, archive and unarchive, view shared survey, symptom checks and mood trend.
+6. Suggest a session time and withdraw it; as the client, accept one.
+7. Give a care task; as the client, tick it with progress sharing on and off.
+8. As a client, change sharing choices on My appointments, including mood trend, and change a session time.
+9. Turn "Hide my identity" off and on and refresh the therapist's bookings.
+
+## 18 Oct 2026: Anonymous Identity Protection Across Professional Features
+
+Commits `6be0ede` and `b5f32f0`. Branch `feature/anonymous-privacy`, merged with main in the entry above. Integration and migration validation are still in progress.
+
+**Why.** The profile switch saved `hide_identity`, but some database functions checked the older `privacy_mode` field. Professional responses and raw database reads could also expose real client account IDs.
+
+**What changed for users:**
+
+- Anonymous users appear as "Anonymous" in professional bookings and messages. Switching anonymity off restores name visibility after refresh.
+- Professionals use stable client aliases instead of real client account IDs.
+- Anonymous users' intake notes and answers are excluded from professional booking responses. Saved intake data is retained.
+- Survey, symptom, and care-progress sharing remain separate choices.
+- Voice playback goes through the authenticated API instead of redirecting to storage URLs containing sender account IDs.
+
+**What changed for the team:**
+
+- Updated appointments, messages, professional, sessions, and care controllers.
+- Added protected database functions for alias-based reads and actions.
+- Restricted professional access to raw appointments, messages, conversations, notes, suggestions, care records, and shared-health rows.
+- Restricted several original RPCs that returned real client IDs.
+- Renumbered anonymity migrations to avoid collisions with the care-plan, sessions, private-notes, and mood migrations.
+- Added `lib/supabase/private-storage.ts`. It requires `SUPABASE_SECRET_KEY` in the server environment. Never commit its value or expose it through `NEXT_PUBLIC_` variables.
+- `hide_identity` is the active privacy setting. A migration preserves older anonymous choices before replacing the relevant `privacy_mode` checks.
+
+**Validation reported during development:**
+
+- TypeScript and the production build passed.
+- Anonymity on/off changed the professional's displayed name correctly.
+- Text and voice messaging worked for the conversation participants.
+- An unrelated professional received "Conversation not found" for another professional's conversation.
+- Voice access isolation and signed-out authentication checks were reported working.
+- Care-task creation, client visibility, and progress-sharing on/off worked before the final raw-access restrictions.
+- Git whitespace checks passed. `.env.local` is ignored and untracked.
+
+**Still to verify before merge:**
+
+1. Replay the complete migration sequence on a separate empty test database. Manual SQL success does not establish reproducibility.
+2. Reconcile migration history for the shared database; changes were applied through SQL Editor.
+3. Repeat care-progress and survey/symptom-sharing tests after the final policy restrictions.
+4. Test intake visibility with saved test answers; there were no intake-answer rows during the initial review.
+5. Complete remaining database function, view, and policy checks. Do not treat the build as proof of full privacy.
+6. Confirm deployment secrets and test the deployed application.
+
+**Limits.** Anonymous Mode controls application identity fields and access. It cannot remove identifying information users voluntarily send in message text, recordings, meeting calls, or other free text.
+
 ## 18 Oct 2026: Plan Tasks No Longer Say "Try now"
 
 Commit `555bfc1`. No migration. Frontend only.
