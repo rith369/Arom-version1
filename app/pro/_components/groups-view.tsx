@@ -147,7 +147,7 @@ export function ProGroupsView() {
                 </p>
               </div>
               <Link
-                href={`/community?group=${group.id}`}
+                href={`/pro/messages/groups/${group.id}`}
                 className="flex items-center gap-1.5 rounded-full border border-arom-border px-3.5 py-2 text-sm font-semibold text-arom hover:bg-arom-wash">
                 <MessageCircle size={16} aria-hidden="true" />
                 {t('បើកការជជែក', 'Open chat')}

@@ -1,53 +1,45 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { DesktopNavigation } from '../_components/app-navigation';
+import { useAuth } from '../_components/auth-provider';
 import { BottomNav } from '../components/bottom-nav';
 import { CommunityHomeView } from './components/community-home-view';
 import { AllGroupsView } from './components/all-groups-view';
 import { GroupDetailView } from './components/group-detail-view';
 import { JoinedSuccessModal } from './components/joined-success-modal';
-import { GroupHubView } from './components/group-hub-view';
 import { CommunityMenuModal } from './components/community-menu-modal';
 import { CreateGroupView } from './components/create-group-view';
 
-import {
-  SupportGroup,
-  ChatMessage,
-  ChatAttachment,
-  GroupActivity,
-  GroupMember,
-  GroupMentor,
-  GroupsStatus,
-} from './community-data';
-import { createSupportGroup } from './group-api';
+import { SupportGroup, GroupsStatus } from './community-data';
+import { createSupportGroup, groupChatHref, toSupportGroup, type ApiGroup } from './group-api';
 
 type CommunityView =
   | 'home'
   | 'all-groups'
   | 'group-detail'
   | 'joined-success'
-  | 'group-hub'
   | 'menu'
   | 'create-group';
 
+// Community is where people find and join a group. The group chats themselves
+// live in Messages, next to the private chats (18 Oct 2026, like Telegram).
 export default function CommunityPage() {
+  const router = useRouter();
+  const { user } = useAuth();
   const [view, setView] = useState<CommunityView>('home');
   const [previousView, setPreviousView] = useState<CommunityView>('home');
   const [selectedGroupId, setSelectedGroupId] = useState('');
 
   // Only real groups from the database. The sample groups in community-data.ts
   // are no longer shown: nobody real would answer in them (18 Oct 2026).
-  const [savedGroups, setGroups] = useState<SupportGroup[]>([]);
+  const [groups, setGroups] = useState<SupportGroup[]>([]);
   const [groupsStatus, setGroupsStatus] = useState<GroupsStatus>('loading');
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
 
   const [createGroupError, setCreateGroupError] = useState('');
   const [joinError, setJoinError] = useState('');
-  const [messageError, setMessageError] = useState('');
-  const [messageRefresh, setMessageRefresh] = useState(0);
 
-  // Add real Supabase groups to the Community list.
   useEffect(() => {
     let active = true;
 
@@ -61,53 +53,19 @@ export default function CommunityPage() {
           return;
         }
 
-        const result: {
-          groups: Array<{
-            id: string;
-            name: string;
-            nameKm: string | null;
-            concern: string;
-            description: string | null;
-            descriptionKm: string | null;
-            maxMembers: number;
-            membersCount: number;
-            isJoined: boolean;
-            status: 'active' | 'closed';
-          }>;
-        } = await response.json();
-
+        const result: { groups: ApiGroup[] } = await response.json();
         if (!active) return;
 
-        const realGroups: SupportGroup[] = result.groups.map((group) => ({
-          id: group.id,
-          name: group.name,
-          nameKm: group.nameKm || group.name,
-          about: group.description || '',
-          aboutKm: group.descriptionKm || group.description || '',
-          iconType: (['academic', 'stress', 'anxiety', 'depression'].includes(
-            group.concern,
-          )
-            ? group.concern
-            : 'stress') as SupportGroup['iconType'],
-          membersCount: group.membersCount,
-          maxMembers: group.maxMembers,
-          isAnonymous: true,
-          expectations: [],
-          expectationsKm: [],
-          isJoined: group.isJoined,
-          status: group.status,
-          createdBy: 'professional',
-        }));
-
+        const realGroups = result.groups.map(toSupportGroup);
         setGroups(realGroups);
         setGroupsStatus('ready');
 
-        // /community?group=<id> (from the professional area) opens that group.
+        // /community?group=<id> opens that group's details (Join).
         const wanted = new URLSearchParams(window.location.search).get('group');
-        const target = realGroups.find((group) => group.id === wanted);
+        const target = realGroups.find((group) => group.id === wanted && !group.isJoined);
         if (target) {
           setSelectedGroupId(target.id);
-          setView(target.isJoined ? 'group-hub' : 'group-detail');
+          setView('group-detail');
         }
       } catch {
         if (active) setGroupsStatus('failed');
@@ -120,118 +78,9 @@ export default function CommunityPage() {
     };
   }, []);
 
-  useEffect(() => {
-    if (view !== 'group-hub') return;
-
-    const groupId = selectedGroupId;
-    const isRealGroup =
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(groupId);
-
-    if (!isRealGroup) return;
-
-    let active = true;
-    setMessageError('');
-    setMessages((current) =>
-      current.filter((message) => message.groupId !== groupId),
-    );
-
-    async function loadMessages() {
-      try {
-        const response = await fetch(
-          `/api/community/groups/${groupId}/messages`,
-          { cache: 'no-store' },
-        );
-
-        if (!response.ok) throw new Error('Could not load messages.');
-
-        const result: {
-          messages: Array<{
-            id: string;
-            content: string;
-            created_at: string;
-            display_name: string;
-            is_own: boolean;
-            is_mentor: boolean;
-            is_removed?: boolean;
-          }>;
-        } = await response.json();
-
-        if (!active) return;
-
-        const loaded: ChatMessage[] = result.messages.map((message) => ({
-          id: message.id,
-          groupId,
-          senderName: message.display_name,
-          senderNameKm: message.display_name,
-          isAnonymous:
-            message.display_name === 'Anonymous' ||
-            message.display_name === 'Anonymous (You)',
-          isOwn: message.is_own,
-          isMentor: message.is_mentor,
-          text: message.content,
-          textKm: message.content,
-          time: new Date(message.created_at).toLocaleTimeString([], {
-            hour: '2-digit',
-            minute: '2-digit',
-          }),
-          avatarType: message.is_mentor ? 'mentor' : 'mask',
-          // Removed by the AROM team: the text is not sent, a placeholder shows.
-          removed: message.is_removed === true,
-        }));
-
-        setMessages((current) => [
-          ...current.filter((message) => message.groupId !== groupId),
-          ...loaded,
-        ]);
-      } catch {
-        if (active)
-          setMessageError('Could not load messages. Please try again.');
-      }
-    }
-
-    void loadMessages();
-    return () => {
-      active = false;
-    };
-  }, [view, selectedGroupId, messageRefresh]);
-
-  // Admins shut groups down from /admin/community; the closed state comes
-  // with each group from GET /api/community/groups.
-  const groups: SupportGroup[] = savedGroups;
-
-  // Group activities are not connected yet (section 23), so none are shown.
-  const [activities, setActivities] = useState<GroupActivity[]>([]);
-  const [members, setMembers] = useState<GroupMember[]>([]);
-
-  // The Members tab: the mentor and members of the open group, from
-  // read_group_members (names follow each client's "Hide my identity").
-  const [groupMentors, setGroupMentors] = useState<Record<string, GroupMentor>>({});
-  useEffect(() => {
-    const groupId = selectedGroupId;
-    if (view !== 'group-hub' || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(groupId)) return;
-
-    let active = true;
-    void (async () => {
-      try {
-        const response = await fetch(`/api/community/groups/${groupId}/members`, { cache: 'no-store' });
-        if (!response.ok) return;
-        const result: { members: MemberRow[] } = await response.json();
-        if (!active) return;
-
-        const mentorRow = result.members.find((row) => row.is_mentor);
-        if (mentorRow) setGroupMentors((current) => ({ ...current, [groupId]: toMentor(mentorRow) }));
-        setMembers((current) => [
-          ...current.filter((member) => member.groupId !== groupId),
-          ...result.members.filter((row) => !row.is_mentor).map((row) => toMember(row, groupId)),
-        ]);
-      } catch {
-        // The Members tab stays empty; the chat still works.
-      }
-    })();
-    return () => {
-      active = false;
-    };
-  }, [view, selectedGroupId]);
+  function openChat(groupId: string) {
+    router.push(groupChatHref(user?.role, groupId));
+  }
 
   const activeGroup = groups.find((g) => g.id === selectedGroupId);
 
@@ -245,8 +94,8 @@ export default function CommunityPage() {
     setSelectedGroupId(groupId);
 
     if (grp?.isJoined) {
-      // User is already in this group -> directly open group hub (no need for detail screen)
-      setView('group-hub');
+      // Already in this group: its chat is in Messages.
+      openChat(groupId);
     } else {
       // User is not in this group -> show detail/rules first so they can read and touch join
       setPreviousView(view === 'group-detail' ? 'home' : view);
@@ -258,123 +107,30 @@ export default function CommunityPage() {
     setJoinError('');
     if (groups.find((g) => g.id === groupId)?.status === 'closed') return;
 
-    const isRealGroup =
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
-        groupId,
-      );
-
-    if (isRealGroup) {
-      try {
-        const response = await fetch(
-          `/api/community/groups/${groupId}/join`,
-          {
-            method: 'POST',
-          },
-        );
-
-        if (!response.ok) {
-          const result: { error?: string } = await response.json();
-          throw new Error(result.error || 'Could not join this group.');
-        }
-
-        setGroups((current) =>
-          current.map((group) =>
-            group.id === groupId
-              ? {
-                  ...group,
-                  isJoined: true,
-                  membersCount: Math.min(
-                    group.maxMembers,
-                    group.membersCount + 1,
-                  ),
-                }
-              : group,
-          ),
-        );
-        setView('joined-success');
-      } catch (error) {
-        setJoinError(
-          error instanceof Error
-            ? error.message
-            : 'Could not join this group.',
-        );
-      }
-      return;
-    }
-    setGroups((prev) => {
-      const updated = prev.map((g) =>
-        g.id === groupId
-          ? {
-              ...g,
-              isJoined: true,
-              membersCount: Math.min(g.maxMembers, g.membersCount + 1),
-            }
-          : g,
-      );
-      try {
-        localStorage.setItem(
-          'arom_community_groups',
-          JSON.stringify(updated),
-        );
-      } catch {
-        // ignore
-      }
-      return updated;
-    });
-
-    // Add current user to members list
-    setMembers((prev) => [
-      ...prev,
-      {
-        id: `mem-${Date.now()}`,
-        groupId,
-        name: 'Anonymous (You)',
-        nameKm: 'អនាមិក (អ្នក)',
-        isAnonymous: true,
-        avatarType: 'mask',
-      },
-    ]);
-    setView('joined-success');
-  }
-
-  // Real groups only: the server saves the message and decides the name shown
-  // (the member's "Hide my identity" choice), then the chat reloads.
-  async function handleSendMessage(
-    text: string,
-    attachment?: ChatAttachment,
-    targetGroupId?: string,
-  ) {
-    const gid = targetGroupId || selectedGroupId;
-    if (!gid) return false;
-    if (groups.find((g) => g.id === gid)?.status === 'closed') return false;
-    setMessageError('');
-
-    if (attachment) {
-      setMessageError('Attachments are not available in real groups yet.');
-      return false;
-    }
-
-    if (!text.trim()) return false;
-
     try {
-      const response = await fetch(`/api/community/groups/${gid}/messages`, {
+      const response = await fetch(`/api/community/groups/${groupId}/join`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: text.trim() }),
       });
 
       if (!response.ok) {
         const result: { error?: string } = await response.json();
-        throw new Error(result.error || 'Could not send message.');
+        throw new Error(result.error || 'Could not join this group.');
       }
 
-      setMessageRefresh((current) => current + 1);
-      return true;
-    } catch (error) {
-      setMessageError(
-        error instanceof Error ? error.message : 'Could not send message.',
+      setGroups((current) =>
+        current.map((group) =>
+          group.id === groupId
+            ? {
+                ...group,
+                isJoined: true,
+                membersCount: Math.min(group.maxMembers, group.membersCount + 1),
+              }
+            : group,
+        ),
       );
-      return false;
+      setView('joined-success');
+    } catch (error) {
+      setJoinError(error instanceof Error ? error.message : 'Could not join this group.');
     }
   }
 
@@ -386,18 +142,7 @@ export default function CommunityPage() {
       return;
     }
 
-    const savedGroup: SupportGroup = { ...group, id: result.id };
-    setGroups((current) => [...current, savedGroup]);
-    setSelectedGroupId(savedGroup.id);
-    setView('group-hub');
-  }
-
-  function handleToggleActivityJoin(activityId: string) {
-    setActivities((prev) =>
-      prev.map((a) =>
-        a.id === activityId ? { ...a, isJoined: !a.isJoined } : a,
-      ),
-    );
+    openChat(result.id);
   }
 
   return (
@@ -406,8 +151,7 @@ export default function CommunityPage() {
       <DesktopNavigation active="Community" />
 
       {/* Main Content Area */}
-      <div
-        className={`min-w-0 ${view === 'group-hub' ? 'pb-4' : 'pb-20 lg:pb-12'}`}>
+      <div className="min-w-0 pb-20 lg:pb-12">
         <main className="mx-auto w-full max-w-[440px] md:max-w-xl lg:max-w-3xl xl:max-w-4xl lg:pt-6">
           {view === 'home' && (
             <CommunityHomeView
@@ -442,10 +186,7 @@ export default function CommunityPage() {
                 group={activeGroup}
                 onBack={() => setView(previousView)}
                 onJoinGroup={handleJoinGroup}
-                onOpenGroupHub={(id) => {
-                  setSelectedGroupId(id);
-                  setView('group-hub');
-                }}
+                onOpenGroupHub={openChat}
               />
             </>
           )}
@@ -453,34 +194,9 @@ export default function CommunityPage() {
           {view === 'joined-success' && activeGroup && (
             <JoinedSuccessModal
               group={activeGroup}
-              onGoToGroup={(id) => {
-                setSelectedGroupId(id);
-                setView('group-hub');
-              }}
+              onGoToGroup={openChat}
               onExploreMore={() => setView('all-groups')}
               onBack={() => setView('home')}
-            />
-          )}
-
-          {view === 'group-hub' && messageError && (
-            <p
-              role="alert"
-              className="mx-auto max-w-lg px-4 pt-3 text-sm text-red-600">
-              {messageError}
-            </p>
-          )}
-
-          {view === 'group-hub' && activeGroup && (
-            <GroupHubView
-              group={{ ...activeGroup, mentor: groupMentors[activeGroup.id] ?? activeGroup.mentor }}
-              messages={messages.filter((m) => m.groupId === selectedGroupId)}
-              activities={activities.filter(
-                (a) => a.groupId === selectedGroupId,
-              )}
-              members={members.filter((m) => m.groupId === selectedGroupId)}
-              onBack={() => setView('home')}
-              onSendMessage={handleSendMessage}
-              onToggleActivityJoin={handleToggleActivityJoin}
             />
           )}
 
@@ -514,54 +230,10 @@ export default function CommunityPage() {
         </main>
       </div>
 
-      {/* Figma Bottom Navigation (Mobile/Tablet) - Hidden in Group Hub matching Figma Screen 5 */}
-      {view !== 'group-hub' && (
-        <div className="lg:hidden">
-          <BottomNav activeTab="Community" />
-        </div>
-      )}
+      {/* Figma Bottom Navigation (Mobile/Tablet) */}
+      <div className="lg:hidden">
+        <BottomNav activeTab="Community" />
+      </div>
     </div>
   );
-}
-
-// One row of GET /api/community/groups/:id/members.
-type MemberRow = {
-  member_key: string;
-  display_name: string;
-  display_name_km: string;
-  is_mentor: boolean;
-  is_you: boolean;
-  mentor_title: string | null;
-  mentor_title_km: string | null;
-  mentor_years: number | null;
-  photo_url: string | null;
-};
-
-function toMentor(row: MemberRow): GroupMentor {
-  const years = row.mentor_years;
-  return {
-    name: row.display_name,
-    nameKm: row.display_name_km,
-    role: row.mentor_title || 'Group mentor',
-    roleKm: row.mentor_title_km || row.mentor_title || 'អ្នកណែនាំក្រុម',
-    experience:
-      years === null ? 'Verified AROM professional' : `${years} ${years === 1 ? 'year' : 'years'} of experience`,
-    experienceKm: years === null ? 'អ្នកជំនាញ AROM ផ្លូវការ' : `បទពិសោធន៍ ${years} ឆ្នាំ`,
-    avatarUrl: row.photo_url || undefined,
-    badge: 'Group Mentor',
-    badgeKm: 'អ្នកណែនាំក្រុម',
-  };
-}
-
-function toMember(row: MemberRow, groupId: string): GroupMember {
-  const anonymous = row.display_name === 'Anonymous';
-  return {
-    id: row.member_key,
-    groupId,
-    name: row.is_you ? (anonymous ? 'Anonymous (You)' : `${row.display_name} (You)`) : row.display_name,
-    nameKm: row.is_you ? (anonymous ? 'អនាមិក (អ្នក)' : `${row.display_name_km} (អ្នក)`) : row.display_name_km,
-    isAnonymous: anonymous,
-    avatarType: anonymous ? 'mask' : 'user',
-    isYou: row.is_you,
-  };
 }

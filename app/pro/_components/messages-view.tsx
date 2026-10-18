@@ -1,12 +1,16 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { ArrowLeft, CalendarCheck, FolderOpen, Lock, MessageCircle, Mic, Search } from 'lucide-react';
+import { ArrowLeft, CalendarCheck, FolderOpen, Lock, MessageCircle, Search } from 'lucide-react';
 
 import { usePro } from './pro-provider';
 import { SuggestSessionDialog } from './suggest-session-dialog';
 import { ChatThread } from '../../_components/messages/chat-thread';
+import { ChatListRow, mergeChatRows, type ChatRow } from '../../_components/messages/chat-list';
+import { GroupChat } from '../../community/components/group-chat';
+import { useMyGroups } from '../../community/group-api';
 import {
   REPLY_TIME_LABELS,
   conversationId,
@@ -19,10 +23,14 @@ import {
 import { useLanguage } from '../../_components/language-provider';
 import { clientsFrom } from '../_data/clients';
 
-export function ProMessagesView({ clientId }: { clientId?: string }) {
+// Messages holds every chat, like Telegram: private chats with clients and
+// the support groups this professional leads or joined, newest first.
+export function ProMessagesView({ clientId, groupId }: { clientId?: string; groupId?: string }) {
   const { bookings, profile, archivedClients, schedule } = usePro();
   const { replyTimes } = useMessageStore();
   const list = useConversations('professional');
+  const myGroups = useMyGroups();
+  const router = useRouter();
   const { language } = useLanguage();
   const km = language === 'km';
   const t = (kmText: string, enText: string) => (km ? kmText : enText);
@@ -44,14 +52,33 @@ export function ProMessagesView({ clientId }: { clientId?: string }) {
   const summaryFor = (id: string) => list.conversations.find((item) => item.key === conversationId(profile.slug, id));
 
   const search = query.trim().toLocaleLowerCase();
-  const rows = clients
-    .filter((client) => client.name.toLocaleLowerCase().includes(search))
-    .map((client) => ({
-      client,
-      last: summaryFor(client.id)?.last ?? null,
+  const clientRows: ChatRow[] = clients.map((client) => {
+    const last = summaryFor(client.id)?.last ?? null;
+    return {
+      kind: 'direct',
+      key: client.id,
+      href: `/pro/messages/${client.id}`,
+      name: client.name,
+      lastAt: last?.createdAt ?? null,
+      preview: !last
+        ? t('មិនទាន់មានសារ', 'No messages yet')
+        : last.kind === 'suggestion'
+          ? t('អ្នកបានណែនាំម៉ោងវគ្គបន្ទាប់', 'You suggested times for the next session')
+          : last.kind === 'voice'
+            ? t('សារសំឡេង', 'Voice message')
+            : `${last.mine ? t('អ្នក: ', 'You: ') : ''}${last.text}`,
+      voice: last?.kind === 'voice',
       unread: summaryFor(client.id)?.unread ?? 0,
-    }))
-    .sort((a, b) => b.unread - a.unread || (b.last?.createdAt ?? '').localeCompare(a.last?.createdAt ?? '') || a.client.name.localeCompare(b.client.name));
+      selected: client.id === clientId,
+    };
+  });
+  const rows = mergeChatRows(clientRows, myGroups.groups, {
+    href: (id) => `/pro/messages/groups/${id}`,
+    selectedGroupId: groupId,
+    km,
+  }).filter((row) => row.name.toLocaleLowerCase().includes(search));
+  const selectedGroup = myGroups.groups.find((group) => group.id === groupId);
+  const hasSelection = Boolean(clientId || groupId);
 
   const selected = clients.find((client) => client.id === clientId);
   // Values for quick replies: {name}, {link} and {next}.
@@ -69,9 +96,11 @@ export function ProMessagesView({ clientId }: { clientId?: string }) {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-ink sm:text-3xl">{t('សារ', 'Messages')}</h1>
-          <p className="mt-1 flex items-center gap-1.5 text-sm text-ink-muted">
-            <Lock size={14} aria-hidden="true" />
-            {t('ឯកជនរវាងអ្នក និងអតិថិជនរបស់អ្នក។ អ្នកគ្រប់គ្រងមិនអាចអានបានទេ។', 'Private between you and your clients. Admins cannot read them.')}
+          <p className="mt-1 max-w-2xl text-sm text-ink-muted">
+            {t(
+              'ការជជែកឯកជនជាមួយអតិថិជន (អ្នកគ្រប់គ្រងមិនអាចអានបានទេ) និងក្រុមគាំទ្ររបស់អ្នក (ក្រុមសុវត្ថិភាព AROM អាចអានបាន)។',
+              'Private chats with your clients (admins cannot read them), and your support groups (the AROM safety team can read them).',
+            )}
           </p>
         </div>
         <label className="text-xs font-medium text-ink-muted">
@@ -90,7 +119,7 @@ export function ProMessagesView({ clientId }: { clientId?: string }) {
       </div>
 
       <div className="mt-5 grid overflow-hidden rounded-3xl border border-arom-border bg-white shadow-card lg:h-[72vh] lg:grid-cols-[19rem_minmax(0,1fr)]">
-        <aside className={`border-arom-border lg:flex lg:min-h-0 lg:flex-col lg:border-r ${selected ? 'hidden' : 'flex flex-col'}`}>
+        <aside className={`border-arom-border lg:flex lg:min-h-0 lg:flex-col lg:border-r ${hasSelection ? 'hidden' : 'flex flex-col'}`}>
           <div className="border-b border-arom-border p-3">
             <div className="relative">
               <Search size={16} aria-hidden="true" className="absolute left-3 top-2.5 text-ink-muted" />
@@ -98,58 +127,31 @@ export function ProMessagesView({ clientId }: { clientId?: string }) {
                 type="search"
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
-                aria-label={t('ស្វែងរកអតិថិជន', 'Search clients')}
-                placeholder={t('ស្វែងរកអតិថិជន...', 'Search clients...')}
+                aria-label={t('ស្វែងរកការជជែក', 'Search chats')}
+                placeholder={t('ស្វែងរកអតិថិជន ឬក្រុម...', 'Search clients or groups...')}
                 className="w-full rounded-xl border border-arom-border bg-arom-wash/60 py-2 pl-9 pr-3 text-sm outline-none focus:border-arom focus:bg-white"
               />
             </div>
           </div>
           {rows.length === 0 ? (
             <p className="p-6 text-center text-sm text-ink-muted">
-              {clients.length === 0
+              {clients.length === 0 && myGroups.groups.length === 0
                 ? t('អ្នកអាចផ្ញើសារទៅអតិថិជន បន្ទាប់ពីពួកគេកក់ជាមួយអ្នក។', 'You can message clients after they book with you.')
-                : t('រកមិនឃើញ', 'No matching clients')}
+                : t('រកមិនឃើញ', 'No matching chats')}
             </p>
           ) : (
             <ul className="min-h-0 flex-1 divide-y divide-arom-border overflow-y-auto">
-              {rows.map(({ client, last, unread }) => (
-                <li key={client.id}>
-                  <Link
-                    href={`/pro/messages/${client.id}`}
-                    aria-current={client.id === clientId ? 'page' : undefined}
-                    className={`flex items-start gap-3 px-4 py-3 hover:bg-arom-wash/60 ${client.id === clientId ? 'bg-arom-wash' : ''}`}>
-                    <span className="min-w-0 flex-1">
-                      <span className="flex items-center justify-between gap-2">
-                        <span className={`truncate text-sm ${unread ? 'font-bold text-ink' : 'font-medium text-ink'}`}>{client.name}</span>
-                        {last && <span className="shrink-0 text-[0.7rem] text-ink-muted">{time.format(new Date(last.createdAt))}</span>}
-                      </span>
-                      <span className="mt-0.5 flex items-center gap-1.5 text-xs text-ink-muted">
-                        {last?.kind === 'voice' && <Mic size={12} aria-hidden="true" />}
-                        <span className="truncate">
-                          {!last
-                            ? t('មិនទាន់មានសារ', 'No messages yet')
-                            : last.kind === 'suggestion'
-                              ? t('អ្នកបានណែនាំម៉ោងវគ្គបន្ទាប់', 'You suggested times for the next session')
-                              : last.kind === 'voice'
-                              ? t('សារសំឡេង', 'Voice message')
-                              : `${last.mine ? t('អ្នក: ', 'You: ') : ''}${last.text}`}
-                        </span>
-                      </span>
-                    </span>
-                    {unread > 0 && (
-                      <span aria-label={t(`${unread} មិនទាន់អាន`, `${unread} unread`)} className="mt-0.5 rounded-full bg-arom px-2 py-0.5 text-[0.7rem] font-semibold text-white">
-                        {unread}
-                      </span>
-                    )}
-                  </Link>
-                </li>
+              {rows.map((row) => (
+                <ChatListRow key={row.key} row={row} km={km} formatDate={(value) => time.format(new Date(value))} />
               ))}
             </ul>
           )}
         </aside>
 
-        <section className={`min-h-0 flex-col ${selected ? 'flex h-[75vh] lg:h-auto' : 'hidden lg:flex'}`}>
-          {selected ? (
+        <section className={`min-h-0 flex-col ${hasSelection ? 'flex h-[75vh] lg:h-auto' : 'hidden lg:flex'}`}>
+          {selectedGroup ? (
+            <GroupChat key={selectedGroup.id} group={selectedGroup} onBack={() => router.push('/pro/messages')} />
+          ) : selected ? (
             <>
               <header className="flex flex-wrap items-center gap-3 border-b border-arom-border px-4 py-3 sm:px-6">
                 <Link href="/pro/messages" aria-label={t('ត្រឡប់ក្រោយ', 'Back')} className="rounded-full p-1.5 text-arom hover:bg-arom-wash lg:hidden">
@@ -157,7 +159,10 @@ export function ProMessagesView({ clientId }: { clientId?: string }) {
                 </Link>
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-bold text-ink">{selected.name}</p>
-                  <p className="text-xs text-ink-muted">{km ? REPLY_TIME_LABELS[replyTime].km : REPLY_TIME_LABELS[replyTime].en}</p>
+                  <p className="flex items-center gap-1 text-xs text-ink-muted">
+                    <Lock size={11} aria-hidden="true" />
+                    {t('ឯកជន', 'Private')} · {km ? REPLY_TIME_LABELS[replyTime].km : REPLY_TIME_LABELS[replyTime].en}
+                  </p>
                 </div>
                 {!archivedClients.includes(selected.id) && (
                   <button type="button" onClick={() => setSuggesting(true)} className="flex items-center gap-1.5 text-sm font-semibold text-arom hover:underline">
@@ -191,7 +196,7 @@ export function ProMessagesView({ clientId }: { clientId?: string }) {
           ) : (
             <div className="flex flex-1 flex-col items-center justify-center p-10 text-center">
               <MessageCircle size={32} aria-hidden="true" className="text-ink-muted" />
-              <p className="mt-3 text-sm text-ink-muted">{t('ជ្រើសរើសអតិថិជនដើម្បីមើលសារ។', 'Choose a client to see your messages.')}</p>
+              <p className="mt-3 text-sm text-ink-muted">{t('ជ្រើសរើសការជជែក ដើម្បីមើលសារ។', 'Choose a chat to see its messages.')}</p>
             </div>
           )}
         </section>

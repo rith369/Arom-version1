@@ -1,5 +1,37 @@
 # AROM: Change Report
 
+## 19 Oct 2026: Messages Holds Every Chat, Community Is for Finding Groups
+
+Commit `PENDING`. No migration.
+
+**Why.** People in Cambodia live in Telegram, where every chat (people and groups) sits in one list. AROM had private chats in Messages and group chats hidden inside Community. Now Messages is the one place to chat, and Community is the place to find a group.
+
+**What changed for users:**
+
+- **One chat list in Messages, newest first:** private chats with your professional and the support groups you joined, together. Each row has a label: a lock and "Private" for professional chats (admins cannot read them), "Group" for support groups (the AROM safety team can read them).
+- **Group chats open in Messages,** on the right on a computer and full screen on a phone. The chat, members and guidelines are the same as before.
+- **Community is for finding groups:** browse, recommended, group details, join, and create (professionals). After joining or creating, the chat opens in Messages. Tapping a group you are already in opens it in Messages.
+- **Professionals get the same:** their Messages lists client chats and the groups they lead. "Open chat" on Support groups opens it there.
+- **Group rows show the newest message,** but no unread count yet (step 2).
+
+**What changed for the team:**
+
+- **New:** `app/_components/messages/chat-list.tsx` (`ChatRow`, `mergeChatRows()`, `ChatListRow`), `app/community/components/group-chat.tsx` (`GroupChat`: loads messages and members, sends), routes `app/messages/groups/[groupId]` and `app/pro/messages/groups/[groupId]`.
+- **`app/community/group-api.ts`:** `toSupportGroup()`, `isGroupId()`, `groupChatHref()`, `useMyGroups()`.
+- **`user-messages.tsx` and `pro/_components/messages-view.tsx`:** the merged list and the group chat pane. The pro search finds clients and groups.
+- **`group-hub-view.tsx`:** `layout="pane"` so it fits the Messages layout.
+- **`app/community/page.tsx`:** no chat any more (find, join, create); the group chat and member loading moved to `GroupChat`. One old lint error left with it.
+- **Step 2 needs backend:** group unread counts and a single "my groups with newest message" call (see `BACKEND-HANDOFF.md` section 23).
+- Khmer text should be checked by a Khmer speaker.
+
+**What to re-test:**
+
+1. As a client in a group with a booked professional, open Messages: both chats show, newest first, labelled Private and Group.
+2. Open the group: the chat opens on the right (computer) or full screen (phone); send a message.
+3. Open the professional chat: it still works, with voice notes.
+4. On Community, open a group you are in: it opens in Messages. Join a new group: "Go to group" opens it in Messages.
+5. As a professional, open Messages: client chats and your groups show; search finds both. Open a group from Support groups: it opens in Messages.
+
 ## 18 Oct 2026: Translate Button on Mindguide Lesson and Practice Screens
 
 Commit `6b58982`. No migration.

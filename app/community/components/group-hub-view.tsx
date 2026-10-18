@@ -39,6 +39,9 @@ type GroupHubViewProps = {
     groupId?: string,
   ) => boolean | void | Promise<boolean | void>;
   onToggleActivityJoin: (activityId: string) => void;
+  // 'pane' fits the chat into the right side of Messages: it fills that box,
+  // the content scrolls inside it, and Back only shows on phones.
+  layout?: 'page' | 'pane';
 };
 
 export function GroupHubView({
@@ -49,7 +52,9 @@ export function GroupHubView({
   onBack,
   onSendMessage,
   onToggleActivityJoin,
+  layout = 'page',
 }: GroupHubViewProps) {
+  const pane = layout === 'pane';
   const { language } = useLanguage();
   const km = language === 'km';
   const isClosed = group.status === 'closed';
@@ -130,12 +135,17 @@ export function GroupHubView({
   const past = activities.filter((a) => !a.isUpcoming);
 
   return (
-    <div className="w-full max-w-lg mx-auto pb-6 px-4 pt-3 flex flex-col min-h-screen">
+    <div
+      className={
+        pane
+          ? 'flex h-full min-h-0 w-full flex-col px-4 pt-2'
+          : 'w-full max-w-lg mx-auto pb-6 px-4 pt-3 flex flex-col min-h-screen'
+      }>
       {/* Top Header matching Figma Screen 5 */}
       <div className="flex items-center gap-2 py-2">
         <button
           onClick={onBack}
-          className="flex size-10 items-center justify-center rounded-full text-[#1f6f5b] hover:bg-[#eaf5f1] transition-colors"
+          className={`flex size-10 items-center justify-center rounded-full text-[#1f6f5b] hover:bg-[#eaf5f1] transition-colors ${pane ? 'lg:hidden' : ''}`}
           aria-label={km ? 'ត្រឡប់ក្រោយ' : 'Back'}>
           <ChevronLeft size={28} />
         </button>
@@ -220,7 +230,7 @@ export function GroupHubView({
       </div>
 
       {/* TAB CONTENT */}
-      <div className="mt-4 flex-1">
+      <div className={pane ? 'mt-4 min-h-0 flex-1 overflow-y-auto pb-3' : 'mt-4 flex-1'}>
         {/* TAB 1: CHAT */}
         {activeTab === 'chat' && (
           <div className="flex flex-col gap-4">
