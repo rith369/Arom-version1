@@ -2,7 +2,7 @@
 
 ## 18 Oct 2026: New Lesson, How to Support a Friend Who Is Struggling
 
-Commit `4da3ca8`. No migration. Content and frontend only.
+Commit `688062d`. No migration. Content and frontend only.
 
 **Why.** When peers face overwhelming grief, academic failure, family stress, or emotional depression, friends desperately want to help but often resort to unhelpful advice, toxic positivity, or dismissive phrases like "don't overthink" (កុំគិតច្រើន), or conversely fall into compassion fatigue and helper burnout. "How to Support a Friend Who Is Struggling" (`how-to-support-a-struggling-friend`) provides an 8-minute evidence-based psychoeducational guide adapted from WHO (Psychological First Aid), Mental Health Foundation, APA, UNICEF Cambodia, and TPO Cambodia. It equips seekers with practical tools to hold safe non-judgmental space, apply the Look-Listen-Link framework, validate emotions without giving unsolicited lectures, dismantle Cambodian cultural stigmas and fear of losing face, set loving boundaries as a friend rather than an unlicensed therapist, recognize acute crisis warning signs where safety overrides confidentiality, practice co-regulation breathwork, and guide friends gently to professional care on AROM.
 
