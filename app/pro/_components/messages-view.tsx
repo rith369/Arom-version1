@@ -150,7 +150,7 @@ export function ProMessagesView({ clientId, groupId }: { clientId?: string; grou
 
         <section className={`min-h-0 flex-col ${hasSelection ? 'flex h-[75vh] lg:h-auto' : 'hidden lg:flex'}`}>
           {selectedGroup ? (
-            <GroupChat key={selectedGroup.id} group={selectedGroup} onBack={() => router.push('/pro/messages')} />
+            <GroupChat key={selectedGroup.id} group={selectedGroup} onRead={myGroups.markRead} onBack={() => router.push('/pro/messages')} />
           ) : selected ? (
             <>
               <header className="flex flex-wrap items-center gap-3 border-b border-arom-border px-4 py-3 sm:px-6">

@@ -48,8 +48,7 @@ export function mergeChatRows(
             ? "សារត្រូវបានដកចេញ"
             : "Message removed"
           : `${sender}: ${last.text}`,
-      // Group unread counts need a backend table (step 2 of the redesign).
-      unread: 0,
+      unread: group.unread,
       selected: group.id === options.selectedGroupId,
     };
   });

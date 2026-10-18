@@ -33,13 +33,19 @@ type MemberRow = {
  * messages, and draws GroupHubView. Used in Messages (layout "pane").
  * The server decides each sender's name from their "Hide my identity" choice.
  */
+// The open chat checks for new messages at the same pace as private chats.
+const THREAD_REFRESH_MS = 10_000;
+
 export function GroupChat({
   group,
   onBack,
+  onRead,
   layout = 'pane',
 }: {
   group: SupportGroup;
   onBack: () => void;
+  // Clears this group's unread badge in the Messages list.
+  onRead?: (groupId: string) => void;
   layout?: 'page' | 'pane';
 }) {
   const groupId = group.id;
@@ -51,20 +57,35 @@ export function GroupChat({
 
   useEffect(() => {
     let active = true;
-    void (async () => {
+
+    async function load() {
       try {
         const response = await fetch(`/api/community/groups/${groupId}/messages`, { cache: 'no-store' });
         if (!response.ok) throw new Error('Could not load messages.');
         const result: { messages: ApiMessage[] } = await response.json();
         if (!active) return;
-        setMessages(result.messages.map((message) => toChatMessage(message, groupId)));
+        const next = result.messages.map((message) => toChatMessage(message, groupId));
+        // Keep the same list when nothing changed, so the chat does not jump
+        // to the bottom while someone is reading older messages.
+        setMessages((current) => (sameMessages(current, next) ? current : next));
+        // Everything on screen now counts as read.
+        void fetch(`/api/community/groups/${groupId}/read`, { method: 'POST' }).catch(() => undefined);
+        onRead?.(groupId);
       } catch {
         if (active) setMessageError('Could not load messages. Please try again.');
       }
-    })();
+    }
+
+    void load();
+    const id = window.setInterval(() => {
+      if (document.visibilityState === 'visible') void load();
+    }, THREAD_REFRESH_MS);
     return () => {
       active = false;
+      window.clearInterval(id);
     };
+    // onRead is a new function on every render of the page; it is not a reason to reload.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [groupId, refresh]);
 
   useEffect(() => {
@@ -135,6 +156,10 @@ export function GroupChat({
       />
     </div>
   );
+}
+
+function sameMessages(a: ChatMessage[], b: ChatMessage[]) {
+  return a.length === b.length && a.every((message, index) => message.id === b[index].id && message.removed === b[index].removed);
 }
 
 function toChatMessage(message: ApiMessage, groupId: string): ChatMessage {
