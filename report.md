@@ -1,5 +1,29 @@
 # AROM: Change Report
 
+## 18 Oct 2026: Translate Button on Mindguide Lesson and Practice Screens
+
+Commit `6b58982`. No migration.
+
+**Why.** The English and Khmer switch only lived in Profile settings. A person reading a lesson who found it easier in the other language had to leave the lesson, open Profile, change the language and find their way back. Many seekers read Khmer first, so switching has to be one tap where they are reading.
+
+**What changed for users:**
+
+- **Translate button in the header:** the lesson overview, the lesson reader and the practice overview each have a small button with a language icon. It shows the language you will get ("ខ្មែរ" while reading English, "EN" while reading Khmer). One tap switches the whole app and the choice is remembered.
+- **Phone layout:** in the lesson reader the category name is hidden on small screens to make room for the button.
+
+**What changed for the team:**
+
+- **New `LanguageQuickToggle`** in `language-provider.tsx`, reusable anywhere. It uses the same language setting as Profile settings and the games.
+- Added to `lesson-detail-view.tsx`, `lesson-screen.tsx` and `practice-detail-view.tsx`. Tips, saved lists and the Mindguide hubs do not have it yet.
+
+**What to re-test:**
+
+1. Open a lesson from Learn. Tap the button in the top bar: the title, description and takeaways switch language.
+2. Tap Start Learning. The reader header has the button too; switch mid lesson and the section text follows.
+3. Open a practice. Same button, same result.
+4. Reload the page: the chosen language stays.
+5. On a phone width, the header does not overflow.
+
 ## 18 Oct 2026: Group Members Tab and an Honest Anonymous Banner
 
 Commit `dccaf24`. Migration `20261018080000_read_group_members.sql` must be run in the Supabase SQL Editor.
