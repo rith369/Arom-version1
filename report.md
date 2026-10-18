@@ -1,5 +1,26 @@
 # AROM: Change Report
 
+## 19 Oct 2026: Recommended for You Looks Like Popular Groups
+
+Commit `PENDING`. No migration.
+
+**Why.** Rith wanted "Recommended for you" right below the topic tiles, exactly like "Popular groups", only with its own title.
+
+**What changed for users:**
+
+- **"Recommended for you" sits below the topic tiles** and uses the same cards as Popular groups: topic picture, name, description, tags, members, Join (or Full) and "See all". Up to three groups.
+- **Popular groups follows below it**, without repeating the recommended groups.
+
+**What changed for the team:**
+
+- **`community-home-view.tsx`:** one `GroupListSection` component draws both lists, so they stay identical; the recommended list shows up to three groups.
+
+**What to re-test:**
+
+1. Open Community: Recommended for you comes right after the topic tiles and looks the same as Popular groups.
+2. Tap Join on a recommended group: its details and rules open.
+3. Tap See all in either section: the full list opens.
+
 ## 19 Oct 2026: Community Home Gets Recommended for You and Always On Search
 
 Commit `3dd17ed`. No migration.

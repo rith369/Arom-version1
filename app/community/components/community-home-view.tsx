@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ChevronRight, Compass, MessageCircle, Plus, Search, TrendingUp, UsersRound } from "lucide-react";
+import { ChevronRight, Compass, MessageCircle, Plus, Search, TrendingUp, UsersRound, type LucideIcon } from "lucide-react";
 import { MaskIcon } from "./community-icons";
 import { useLanguage } from "../../_components/language-provider";
 import { useAuth } from "../../_components/auth-provider";
@@ -57,7 +57,7 @@ export function CommunityHomeView({
         Number(myTopics.has(b.iconType)) - Number(myTopics.has(a.iconType)) ||
         b.maxMembers - b.membersCount - (a.maxMembers - a.membersCount),
     )
-    .slice(0, 2);
+    .slice(0, 3);
   const recommendedIds = new Set(recommended.map((group) => group.id));
   // Most members first, without the ones already recommended above.
   const popular = openGroups
@@ -276,102 +276,101 @@ export function CommunityHomeView({
         </section>
       )}
 
-      {/* Recommended for you */}
+      {/* Recommended for you, then Popular groups: the same cards. Join opens
+          the group's details and rules first. */}
       {ready && recommended.length > 0 && (
-        <section className="mt-8">
-          <h2 className="flex items-center gap-2 text-lg font-bold text-[#111827] sm:text-xl">
-            <Compass size={20} className="text-[#1f6f5b]" aria-hidden="true" />
-            {t("ណែនាំសម្រាប់អ្នក", "Recommended for you")}
-          </h2>
-          <p className="mt-1 text-sm text-[#4b5563]">
-            {myTopics.size > 0
-              ? t("ក្រុមដែលមានប្រធានបទដូចក្រុមរបស់អ្នក ឬនៅមានកន្លែងទំនេរ។", "Groups like the ones you are in, or with places free.")
-              : t("ក្រុមដែលនៅមានកន្លែងទំនេរសម្រាប់អ្នក។", "Groups with places free for you.")}
-          </p>
-          <ul className="mt-4 grid gap-3 sm:grid-cols-2">
-            {recommended.map((group) => {
-              const topic = topicInfo(group.iconType);
-              const about = km ? group.aboutKm || group.about : group.about;
-              return (
-                <li key={group.id} className={`flex flex-col rounded-[22px] p-4 ${topic.tile}`}>
-                  <div className="flex items-start gap-3">
-                    <TopicBadge topic={group.iconType} />
-                    <div className="min-w-0">
-                      <h3 className="text-base font-bold text-[#111827]">{km ? group.nameKm : group.name}</h3>
-                      <p className="text-xs text-[#4b5563]">
-                        {km ? topic.km : topic.en} · {group.membersCount}/{group.maxMembers} {t("សមាជិក", "members")}
-                      </p>
-                    </div>
-                  </div>
-                  {about && <p className="mt-3 line-clamp-2 text-sm leading-relaxed text-[#374151]">{about}</p>}
-                  <button
-                    type="button"
-                    onClick={() => onSelectGroup(group.id)}
-                    className="mt-4 w-full rounded-full bg-[#1a5d4d] py-2.5 text-sm font-bold text-white shadow-sm hover:bg-[#144b3e]"
-                  >
-                    {t("មើលក្រុម", "View group")}
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
-        </section>
+        <GroupListSection
+          title={t("ណែនាំសម្រាប់អ្នក", "Recommended for you")}
+          Icon={Compass}
+          groups={recommended}
+          km={km}
+          onSeeAll={onOpenAllGroups}
+          onSelectGroup={onSelectGroup}
+        />
       )}
 
-      {/* Popular groups: Join opens the details and rules first */}
       {ready && popular.length > 0 && (
-        <section className="mt-8">
-          <div className="flex items-center justify-between">
-            <h2 className="flex items-center gap-2 text-lg font-bold text-[#111827] sm:text-xl">
-              <TrendingUp size={20} className="text-[#1f6f5b]" aria-hidden="true" />
-              {t("ក្រុមពេញនិយម", "Popular groups")}
-            </h2>
-            <button type="button" onClick={onOpenAllGroups} className="flex items-center gap-1 text-sm font-semibold text-[#1f6f5b] hover:underline">
-              {t("មើលទាំងអស់", "See all")}
-              <ChevronRight size={16} aria-hidden="true" />
-            </button>
-          </div>
-          <ul className="mt-4 flex flex-col gap-3">
-            {popular.map((group) => {
-              const topic = topicInfo(group.iconType);
-              const full = group.membersCount >= group.maxMembers;
-              const about = km ? group.aboutKm || group.about : group.about;
-              return (
-                <li key={group.id} className="flex flex-col gap-4 rounded-[22px] border border-gray-100 bg-white p-4 shadow-[0_2px_12px_rgba(0,0,0,0.05)] sm:flex-row sm:items-center">
-                  <div className="flex min-w-0 flex-1 items-start gap-4">
-                    <TopicBadge topic={group.iconType} size="lg" />
-                    <div className="min-w-0">
-                      <h3 className="text-base font-bold text-[#111827]">{km ? group.nameKm : group.name}</h3>
-                      {about && <p className="mt-1 line-clamp-2 text-sm leading-relaxed text-[#4b5563]">{about}</p>}
-                      <div className="mt-2 flex flex-wrap gap-1.5">
-                        {[km ? topic.km : topic.en, t("អនាមិក", "Anonymous"), t("ការគាំទ្រគ្នា", "Peer support")].map((tag) => (
-                          <span key={tag} className="rounded-full bg-[#eef6f3] px-2.5 py-0.5 text-[11px] font-semibold text-[#2d6a54]">
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between gap-3 sm:flex-col sm:items-end">
-                    <span className="flex items-center gap-1.5 text-xs text-[#4b5563]">
-                      <UsersRound size={15} aria-hidden="true" />
-                      {group.membersCount}/{group.maxMembers} {t("សមាជិក", "members")}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => onSelectGroup(group.id)}
-                      className={`rounded-full px-6 py-2 text-sm font-bold shadow-sm ${full ? "bg-gray-100 text-[#6b7280]" : "bg-[#1a5d4d] text-white hover:bg-[#144b3e]"}`}
-                    >
-                      {full ? t("ពេញ", "Full") : t("ចូលរួម", "Join")}
-                    </button>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-        </section>
+        <GroupListSection
+          title={t("ក្រុមពេញនិយម", "Popular groups")}
+          Icon={TrendingUp}
+          groups={popular}
+          km={km}
+          onSeeAll={onOpenAllGroups}
+          onSelectGroup={onSelectGroup}
+        />
       )}
 
     </div>
+  );
+}
+
+/** A titled list of group cards with tags, members and Join (Popular groups, Recommended for you). */
+function GroupListSection({
+  title,
+  Icon,
+  groups,
+  km,
+  onSeeAll,
+  onSelectGroup,
+}: {
+  title: string;
+  Icon: LucideIcon;
+  groups: SupportGroup[];
+  km: boolean;
+  onSeeAll: () => void;
+  onSelectGroup: (groupId: string) => void;
+}) {
+  const t = (kmText: string, enText: string) => (km ? kmText : enText);
+  return (
+    <section className="mt-8">
+      <div className="flex items-center justify-between">
+        <h2 className="flex items-center gap-2 text-lg font-bold text-[#111827] sm:text-xl">
+          <Icon size={20} className="text-[#1f6f5b]" aria-hidden="true" />
+          {title}
+        </h2>
+        <button type="button" onClick={onSeeAll} className="flex items-center gap-1 text-sm font-semibold text-[#1f6f5b] hover:underline">
+          {t("មើលទាំងអស់", "See all")}
+          <ChevronRight size={16} aria-hidden="true" />
+        </button>
+      </div>
+      <ul className="mt-4 flex flex-col gap-3">
+        {groups.map((group) => {
+          const topic = topicInfo(group.iconType);
+          const full = group.membersCount >= group.maxMembers;
+          const about = km ? group.aboutKm || group.about : group.about;
+          return (
+            <li key={group.id} className="flex flex-col gap-4 rounded-[22px] border border-gray-100 bg-white p-4 shadow-[0_2px_12px_rgba(0,0,0,0.05)] sm:flex-row sm:items-center">
+              <div className="flex min-w-0 flex-1 items-start gap-4">
+                <TopicBadge topic={group.iconType} size="lg" />
+                <div className="min-w-0">
+                  <h3 className="text-base font-bold text-[#111827]">{km ? group.nameKm : group.name}</h3>
+                  {about && <p className="mt-1 line-clamp-2 text-sm leading-relaxed text-[#4b5563]">{about}</p>}
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    {[km ? topic.km : topic.en, t("អនាមិក", "Anonymous"), t("ការគាំទ្រគ្នា", "Peer support")].map((tag) => (
+                      <span key={tag} className="rounded-full bg-[#eef6f3] px-2.5 py-0.5 text-[11px] font-semibold text-[#2d6a54]">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center justify-between gap-3 sm:flex-col sm:items-end">
+                <span className="flex items-center gap-1.5 text-xs text-[#4b5563]">
+                  <UsersRound size={15} aria-hidden="true" />
+                  {group.membersCount}/{group.maxMembers} {t("សមាជិក", "members")}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => onSelectGroup(group.id)}
+                  className={`rounded-full px-6 py-2 text-sm font-bold shadow-sm ${full ? "bg-gray-100 text-[#6b7280]" : "bg-[#1a5d4d] text-white hover:bg-[#144b3e]"}`}
+                >
+                  {full ? t("ពេញ", "Full") : t("ចូលរួម", "Join")}
+                </button>
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
   );
 }
