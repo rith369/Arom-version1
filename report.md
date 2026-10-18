@@ -2,7 +2,7 @@
 
 ## 18 Oct 2026: Group Chat Shows Its Messages
 
-Commit `PENDING`. No migration.
+Commit `9d24272`. No migration.
 
 **Why.** After the send fix, messages were saved (the database had them) but the group chat stayed empty. Before loading messages, `app/community/page.tsx` checks that the group id looks like a real id. That check (since commit `54c34f5`, 15 Oct) expected four parts, but a real id has five (`8-4-4-4-12`), so real groups never matched and the messages were never loaded.
 
