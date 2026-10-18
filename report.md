@@ -1,5 +1,31 @@
 # AROM: Change Report
 
+## 18 Oct 2026: New Lesson, How to Handle Anxiety Before an Exam
+
+Commit `f87000c`. No migration. Content and frontend only.
+
+**Why.** Academic testing, parental expectations, and milestone evaluations such as the Grade 12 Bac II national examination in Cambodia trigger acute stress, blank minds, and sleep deprivation. "How to Handle Anxiety Before an Exam" (`how-to-handle-anxiety-before-an-exam`) provides an 8-minute evidence-based psychoeducational guide adapted from WHO, NHS, NIMH, and UNICEF Cambodia. It equips seekers with practical tools to calm physical panic through diaphragmatic breathwork, build structured 25-minute study sprints, reframe catastrophic predictions, avoid all-night cramming, execute a 5-step in-exam reset when minds freeze, stop toxic peer comparisons, and access confidential student counseling on AROM.
+
+**What changed for users:**
+- **New Lesson available in MindGuide Learn:** Seekers can access "How to Handle Anxiety Before an Exam (របៀបដោះស្រាយការថប់បារម្ភមុនពេលប្រឡង)" under the Anxiety category or directly via `/mindguide/learn?open=how-to-handle-anxiety-before-an-exam`.
+- **11 Comprehensive Bilingual Sections:** Covers why exam anxiety occurs with Cambodian Bac II context, recognizing signs across mind and body, somatic diaphragmatic breathing, structured study planning with an interactive quiz on active recall vs cramming, cognitive reframing of catastrophic fears, body and sleep care debunking all-nighters, exam day routines (night before and morning of), the 5-step in-exam mind blank reset, separating self-worth from grades, personal reflection for AROM Journal, and next steps connecting to AROM.
+- **Tip Alert Box:** Section 3 highlights using AROM's 1-Minute Calming Breath before walking into examination halls.
+- **Direct AROM tool integration:** Section 11 provides direct action buttons for "1-Minute Calming Breath" and "Match Me With A Professional".
+
+**What changed for the team:**
+- **`learn-data.ts`:** Exported `REFERENCES_EXAM_ANXIETY` with 4 peer-reviewed citations (WHO, NHS, NIMH, UNICEF Cambodia) and `LESSON_EXAM_ANXIETY`, appending it to `ALL_LESSONS`.
+- **Hero Image:** Added `public/mindguide/exam-anxiety-hero.jpg` depicting a serene, organized study desk with morning sunlight, textbooks, notes, and warm tea.
+- **Strict Anti-AI Compliance:** Zero em dashes, en dashes, or loose hyphens across all English and Khmer copy.
+
+**What to re-test:**
+1. Open `/mindguide/learn` and verify "How to Handle Anxiety Before an Exam" card appears under "Anxiety" filter.
+2. Open `/mindguide/learn?open=how-to-handle-anxiety-before-an-exam` and verify hero image, outcomes, and 11 sections render smoothly.
+3. Test Section 4 quiz: verify correct feedback when selecting option 2 and explanations in both English and Khmer.
+4. Test Section 3 tip alert box.
+5. Test Section 10 self-reflection interactive choice and journal prompts.
+6. Test Section 11 action buttons: "1-Minute Calming Breath" and "Match Me With A Professional".
+7. Switch language to Khmer and verify all Kantumruy Pro translations.
+
 ## 18 Oct 2026: New Lesson, How to Handle Social Anxiety
 
 Commit `87645f7`. No migration. Content and frontend only.
