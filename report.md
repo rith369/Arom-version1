@@ -2,7 +2,7 @@
 
 ## 18 Oct 2026: New Lesson, Sadness vs. Depression
 
-Commit `8d165d5`. No migration. Content and frontend only.
+Commit `9f4fd84`. No migration. Content and frontend only.
 
 **Why.** Everyday sadness and clinical depression are frequently conflated, causing people to either minimize severe distress or panic over normal grief and disappointment. "Sadness vs. Depression" (`sadness-vs-depression`) provides an 8-minute evidence-based psychoeducational guide adapted from WHO, NIMH, and UNICEF Cambodia. It equips seekers with clear criteria to distinguish temporary emotional sorrow from clinical depressive episodes, recognizes subtle signs like emotional numbness and exhaustion, offers guidance on supporting loved ones without toxic positivity, and seamlessly connects to AROM's private Journal, calming exercises, and verified confidential therapists.
 
