@@ -2,7 +2,7 @@
 
 ## 19 Oct 2026: Open Chats Fill the Phone Screen
 
-Commit `PENDING`. No migration.
+Commit `da7500a`. No migration.
 
 **Why.** On phones an open chat sat inside the page, under the top bar and title and above the bottom menu, so the messages had little room. Telegram opens a chat full screen.
 
