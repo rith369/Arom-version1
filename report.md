@@ -2,7 +2,7 @@
 
 ## 18 Oct 2026: Voice Messages Send Again and Keep Quiet Words
 
-Commit `PENDING`. Branch `merge/anonymous-privacy` (PR #19). No migration.
+Commit `5f88298`. Branch `merge/anonymous-privacy` (PR #19). No migration.
 
 **Why.** While testing PR #19, a professional could send text to an anonymous client but not a voice message: it said "You can send messages after a booked session." The voice path still called the old `send_message` with the client's alias, so the database found no booking. Separately, quiet words disappeared from recordings, because the browser's call settings (noise suppression and echo cancellation) treated soft speech as noise.
 
