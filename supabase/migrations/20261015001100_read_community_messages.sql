@@ -17,10 +17,10 @@ begin
     raise exception 'Sign in to read messages';
   end if;
 
-  if not (
-    public.is_group_member(p_group_id)
-    or public.is_group_mentor(p_group_id)
-    or public.is_admin()
+    if not (
+    coalesce(public.is_group_member(p_group_id), false)
+    or coalesce(public.is_group_mentor(p_group_id), false)
+    or coalesce(public.is_admin(), false)
   ) then
     raise exception 'You cannot read this group';
   end if;
@@ -40,13 +40,21 @@ begin
       end as display_name,
       m.author_id = (select auth.uid()) as is_own,
       m.author_id = g.mentor_id as is_mentor
-    from public.community_messages as m
+        from (
+      select cm.*
+      from public.community_messages as cm
+      where cm.group_id = p_group_id
+        and (
+          not cm.is_hidden
+          or cm.author_id = (select auth.uid())
+          or public.is_admin()
+        )
+      order by cm.created_at desc, cm.id desc
+      limit 100
+    ) as m
     join public.profiles as p on p.id = m.author_id
     join public.support_groups as g on g.id = m.group_id
-    where m.group_id = p_group_id
-      and (not m.is_hidden or m.author_id = (select auth.uid()) or public.is_admin())
-    order by m.created_at asc
-    limit 100;
+    order by m.created_at asc, m.id asc;
 end;
 $$;
 
