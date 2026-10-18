@@ -2,7 +2,7 @@
 
 ## 19 Oct 2026: Photos, PDF Files and Voice in Every Chat
 
-Commit `PENDING`. Migration `20261019000200_chat_attachments.sql` must be run in the Supabase SQL Editor.
+Commit `97e5a5c`. Migration `20261019000200_chat_attachments.sql` must be run in the Supabase SQL Editor.
 
 **Why.** Private chats had text and voice; group chats had text only, with a paperclip that said "not available yet". Every chat should work the same way.
 
