@@ -27,8 +27,8 @@ export function toggleTryNowInPlan(step: TipStep, tip: TipItem): boolean {
   return toggleCustomPlanItem({
     id: tryNowKey(step.number),
     source: "tip",
-    title: `Try now: ${step.title.replace(/\.$/, "")}`,
-    titleKm: `សាកល្បង៖ ${step.kmTitle.replace(/\.$/, "")}`,
+    title: step.title.replace(/\.$/, ""),
+    titleKm: step.kmTitle.replace(/\.$/, ""),
     subtitle: tryNow,
     subtitleKm: step.kmTryNow,
     icon: "boxicons_note-filled",

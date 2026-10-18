@@ -1,5 +1,26 @@
 # AROM: Change Report
 
+## 18 Oct 2026: Plan Tasks No Longer Say "Try now"
+
+Commit `pending`. No migration. Frontend only.
+
+**Why.** Tasks added from Tips to Your Plan For Today always started with "Try now:" (Khmer "សាកល្បង៖"), for example "Try now: Cut what you control". The label repeated on every tip task and made the plan harder to scan, so it is removed and the task shows only its name.
+
+**What changed for users:**
+- **Cleaner task names:** The home page plan now shows "Cut what you control" instead of "Try now: Cut what you control", in English and Khmer.
+- **Old tasks are cleaned too:** Tasks saved before this change still have the label in the database, but it is hidden when the plan loads, so nobody needs to re-add them.
+
+**What changed for the team:**
+- **`lib/plan.ts`:** The `starter:try-now` starter title no longer has the label.
+- **`tips-plan.ts`:** Tip tasks are saved with the step title only.
+- **`daily-plan-store.ts`:** `withoutTryNow` strips "Try now:", "សាកល្បង៖" and "សាកល្បង (Try now)៖" from task titles on load. If a person edits that task, the clean title is what gets saved.
+
+**What to re-test:**
+1. Logged out, open the home page and check the plan shows "Cut what you control" with no "Try now".
+2. Logged in with an account that already has the starter task, check the label is gone.
+3. Open `/mindguide/tips`, add a step to the plan, and check the new task shows only the step title.
+4. Switch to Khmer and check the same tasks show no "សាកល្បង៖".
+
 ## 18 Oct 2026: New Lesson, How to Deal With Loneliness
 
 Commit `96d9aa8`. No migration. Content and frontend only.

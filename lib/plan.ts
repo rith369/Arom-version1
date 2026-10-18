@@ -138,8 +138,8 @@ export const PLAN_STARTERS: (Omit<NewPlanTask, "repeat"> & { itemKey: string })[
   {
     itemKey: "starter:try-now",
     source: "starter",
-    title: "Try now: Cut what you control",
-    titleKm: "សាកល្បង (Try now)៖ បន្ធូរបន្ថយអ្វីដែលអ្នកគ្រប់គ្រងបាន",
+    title: "Cut what you control",
+    titleKm: "បន្ធូរបន្ថយអ្វីដែលអ្នកគ្រប់គ្រងបាន",
     subtitle: "Drop or delay one thing this week.",
     subtitleKm: "កាត់បន្ថយ ឬពន្យារពេលការងារមួយក្នុងសប្តាហ៍នេះ",
     href: "/tips",

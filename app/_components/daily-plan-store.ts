@@ -65,6 +65,15 @@ async function send(url: string, method: string, body?: unknown) {
 
 // ---------- Loading ----------
 
+// Tasks saved before 2026-10-18 start with "Try now:" (or the Khmer
+// "សាកល្បង៖"). The plan no longer shows that label, so hide it on load.
+const TRY_NOW_LABEL = /^(Try now:\s*|សាកល្បង(\s*\(Try now\))?៖\s*)/;
+const withoutTryNow = (task: PlanTask): PlanTask => ({
+  ...task,
+  title: task.title.replace(TRY_NOW_LABEL, ""),
+  titleKm: task.titleKm.replace(TRY_NOW_LABEL, ""),
+});
+
 export function loadPlan(): Promise<void> {
   if (loading) return loading;
   loading = (async () => {
@@ -73,7 +82,7 @@ export function loadPlan(): Promise<void> {
     else if (!result.ok || !result.data) setState({ ...initial, status: "error" });
     else {
       const plan = result.data as unknown as PlanResponse;
-      setState({ status: "ready", day: plan.day, tasks: plan.tasks });
+      setState({ status: "ready", day: plan.day, tasks: plan.tasks.map(withoutTryNow) });
       void removeDuplicateTasks().then(moveOldBrowserItems);
     }
   })().finally(() => {
