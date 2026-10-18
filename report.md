@@ -1,5 +1,31 @@
 # AROM: Change Report
 
+## 19 Oct 2026: Close the "Not for Emergencies" Bar in Chat
+
+Commit `eb181ec`. No migration.
+
+**Why.** The yellow "Messages are not for emergencies" bar sat at the top of every private chat, every time. It looked like an error in a screen that should feel calm, and people who are fine do not need to be reminded on every visit. People in a bad moment still need to know where help is, so the bar stays for first time readers.
+
+**What changed for users:**
+
+- **Close button on the bar:** a small ✕ at the right end. Tap it and the bar is gone from every private chat, and it does not come back.
+- **First time only:** someone who has never closed it still sees it, with the Get help now link.
+- **Get help now is still in Profile and Settings** for anyone who wants it later.
+
+**What changed for the team:**
+
+- **Saved in this browser only**, under `arom_messages_emergency_notice_closed`, not in the account. A new browser or device shows the bar once again. No backend needed.
+- **`user-messages.tsx`:** the bar now has the close button. If the browser blocks storage, the bar hides until the page reloads.
+- **`BACKEND-HANDOFF.md` section on messages** updated: the chat no longer "always links" to Get help now.
+
+**What to re-test:**
+
+1. Open Messages, then a private chat: the yellow bar shows with a ✕.
+2. Tap ✕: the bar disappears. Open another private chat and reload: it stays gone.
+3. Clear the site data (or use a private window): the bar shows again.
+4. Switch to Khmer: the text and the ✕ label read in Khmer.
+5. Phone width: the text wraps and the ✕ stays in the corner.
+
 ## 19 Oct 2026: Messages Holds Every Chat, Community Is for Finding Groups
 
 Commit `b245c00`. No migration.
