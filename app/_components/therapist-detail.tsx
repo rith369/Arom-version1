@@ -36,6 +36,8 @@ import { useLanguage } from "./language-provider";
 import { FREE_DURING_TESTING, formatPrice, noPaymentNote } from "@/lib/pricing";
 import { publishedEpisodes, useProPodcasts } from "./podcasts/pro-podcast-store";
 import { OfficeCard } from "./office-card";
+import { ReviewsSection } from "./reviews/reviews-section";
+import type { PublicReview } from "@/lib/reviews";
 
 const sessionIcons: Record<SessionOption, LucideIcon> = {
   Online: Monitor,
@@ -43,7 +45,20 @@ const sessionIcons: Record<SessionOption, LucideIcon> = {
   Both: ArrowLeftRight,
 };
 
-export function TherapistDetail({ therapist }: { therapist: Therapist }) {
+/** The star summary, a link down to the reviews when they are on the page. */
+function RatingLine({ href, className, children }: { href?: string; className: string; children: React.ReactNode }) {
+  if (!href) return <p className={className}>{children}</p>;
+  return (
+    <a
+      href={href}
+      className={`${className} rounded-full hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-arom`}
+    >
+      {children}
+    </a>
+  );
+}
+
+export function TherapistDetail({ therapist, reviews = [] }: { therapist: Therapist; reviews?: PublicReview[] }) {
   const { language } = useLanguage();
   const km = language === "km";
   const name = getTherapistName(therapist, km);
@@ -149,13 +164,16 @@ export function TherapistDetail({ therapist }: { therapist: Therapist }) {
                   <p className="mt-1 text-base text-ink-muted lg:text-lg">{role}</p>
                   <p className="mt-1 text-sm text-ink-muted">{experience}</p>
                   {therapist.reviews > 0 && (
-                    <p className="mt-2 flex items-center gap-1.5 text-sm text-ink">
+                    <RatingLine
+                      href={reviews.length > 0 ? "#reviews-heading" : undefined}
+                      className="mt-2 flex w-fit items-center gap-1.5 text-sm text-ink"
+                    >
                       <Star aria-hidden="true" size={18} className="fill-[#f6c445] text-[#f6c445]" />
                       <span className="font-bold">{therapist.rating.toFixed(1)}</span>
                       <span className="text-ink-muted">
                         ({therapist.reviews} {km ? "ការវាយតម្លៃ" : "reviews"})
                       </span>
-                    </p>
+                    </RatingLine>
                   )}
                   {podcast && (
                     <Link
@@ -319,6 +337,16 @@ export function TherapistDetail({ therapist }: { therapist: Therapist }) {
                     </ul>
                   )}
                 </section>
+              )}
+
+              {reviews.length > 0 && (
+                <ReviewsSection
+                  reviews={reviews}
+                  average={therapist.rating}
+                  count={therapist.reviews}
+                  professionalName={name}
+                  km={km}
+                />
               )}
 
               <Link

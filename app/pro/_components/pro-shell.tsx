@@ -14,6 +14,7 @@ import {
   UserRound,
   UsersRound,
   MessageCircle,
+  Star,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -37,6 +38,7 @@ const LINKS: NavLink[] = [
   { href: '/pro/messages', en: 'Messages', km: 'សារ', icon: MessageCircle },
   { href: '/pro/groups', en: 'Support groups', km: 'ក្រុមគាំទ្រ', icon: HeartHandshake },
   { href: '/pro/podcasts', en: 'My podcasts', km: 'ផតខាសរបស់ខ្ញុំ', icon: Headphones },
+  { href: '/pro/reviews', en: 'Reviews', km: 'ការវាយតម្លៃ', icon: Star },
 ];
 
 export function ProShell({ children }: { children: ReactNode }) {

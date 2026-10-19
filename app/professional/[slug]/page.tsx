@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { TherapistDetail } from "../../_components/therapist-detail";
-import { getPublicTherapist } from "@/lib/professionals";
+import { getPublicReviews, getPublicTherapist } from "@/lib/professionals";
 import { getTherapist, type Therapist } from "@/lib/therapists";
 
 type ProfessionalPageProps = {
@@ -29,9 +29,9 @@ export async function generateMetadata({ params }: ProfessionalPageProps): Promi
 
 export default async function ProfessionalProfilePage({ params }: ProfessionalPageProps) {
   const { slug } = await params;
-  const therapist = await findTherapist(slug);
+  const [therapist, reviews] = await Promise.all([findTherapist(slug), getPublicReviews(slug)]);
 
   if (!therapist) notFound();
 
-  return <TherapistDetail therapist={therapist} />;
+  return <TherapistDetail therapist={therapist} reviews={reviews} />;
 }

@@ -15,6 +15,7 @@ import {
   Settings2,
   ClipboardList,
   Flag,
+  Star,
 } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { AccountMenu } from '../../_components/account-menu';
@@ -45,6 +46,11 @@ export function AdminShell({ children }: { children: ReactNode }) {
       href: '/admin/professionals',
       label: km ? 'អ្នកជំនាញ' : 'Professionals',
       icon: BadgeCheck,
+    },
+    {
+      href: '/admin/reviews',
+      label: 'Reviews',
+      icon: Star,
     },
     {
       href: '/admin/mindguide',

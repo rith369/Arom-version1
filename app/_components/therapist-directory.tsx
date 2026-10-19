@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { MapPin, Search, SlidersHorizontal, X } from "lucide-react";
+import { MapPin, Search, SlidersHorizontal, Star, X } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
 import { useMemo, useState } from "react";
 import {
@@ -61,6 +61,15 @@ function TherapistCard({ therapist }: { therapist: Therapist }) {
           {name}
         </h3>
         <p className="mt-0.5 text-xs font-medium text-ink-muted sm:text-sm">{role}</p>
+        {therapist.reviews > 0 && (
+          <p className="mt-1 flex items-center gap-1 text-xs text-ink">
+            <Star aria-hidden="true" size={13} className="fill-[#f6c445] text-[#f6c445]" />
+            <span className="font-bold">{therapist.rating.toFixed(1)}</span>
+            <span className="text-ink-muted">
+              ({therapist.reviews} {km ? "ការវាយតម្លៃ" : therapist.reviews === 1 ? "review" : "reviews"})
+            </span>
+          </p>
+        )}
         <p className="mt-1 line-clamp-1 text-[0.72rem] leading-5 text-ink-muted sm:text-xs xl:line-clamp-2">
           {km
             ? `ជំនាញឯកទេសលើ ${therapist.specialties.map((s) => getSpecialtyLabel(s, km)).join(", ")}`

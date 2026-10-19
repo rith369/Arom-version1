@@ -23,12 +23,14 @@ import {
   type UserAppointment,
 } from "@/lib/appointments";
 import { timeRangeLabel } from "@/lib/booking";
+import type { MyReview, MyReviewsResponse } from "@/lib/reviews";
 import { DesktopNavigation, MobileNavigation } from "../app-navigation";
 import { useLanguage } from "../language-provider";
 import { JoinButton } from "../sessions/join-button";
 import { downloadCalendarFile, howSoon } from "./appointment-helpers";
 import { ChangeTimePanel } from "./change-time-panel";
 import { OfficeCard } from "../office-card";
+import { ReviewPanel } from "./review-panel";
 
 const TIME_ZONE = "Asia/Phnom_Penh";
 
@@ -77,10 +79,15 @@ function AppointmentCard({
   appointment,
   now,
   onChange,
+  review,
+  onReviewsChange,
 }: {
   appointment: UserAppointment;
   now: number;
   onChange: (next: UserAppointment[]) => void;
+  // Set on the latest completed session with each professional: their one review, or null for none yet.
+  review?: MyReview | null;
+  onReviewsChange?: (next: MyReview[]) => void;
 }) {
   const { language } = useLanguage();
   const km = language === "km";
@@ -264,6 +271,16 @@ function AppointmentCard({
             "Your professional will add the meeting link before the session.",
           )}
         </p>
+      )}
+
+      {professional && review !== undefined && onReviewsChange && (
+        <ReviewPanel
+          slug={professional.slug}
+          professionalName={name}
+          review={review}
+          km={km}
+          onChange={onReviewsChange}
+        />
       )}
 
       {canShare && (
@@ -476,6 +493,8 @@ export function UserAppointments() {
   const [appointments, setAppointments] = useState<UserAppointment[]>([]);
   const [state, setState] = useState<LoadState>("loading");
   const [now] = useState(() => Date.now());
+  // Null until loaded, and if they fail to load the review boxes stay hidden.
+  const [reviews, setReviews] = useState<MyReview[] | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -490,10 +509,31 @@ export function UserAppointments() {
       .catch(() => {
         if (active) setState("error");
       });
+    fetch("/api/reviews", { cache: "no-store" })
+      .then(async (response) => {
+        if (!response.ok) return;
+        const data = (await response.json()) as MyReviewsResponse;
+        if (active) setReviews(data.reviews);
+      })
+      .catch(() => undefined);
     return () => {
       active = false;
     };
   }, []);
+
+  // One review per professional, offered on the latest completed session with them
+  // (appointments come newest first).
+  const reviewOn = new Map<string, string>();
+  for (const item of appointments) {
+    if (item.status === "completed" && item.professional && !reviewOn.has(item.professional.slug)) {
+      reviewOn.set(item.professional.slug, item.id);
+    }
+  }
+  function reviewFor(item: UserAppointment) {
+    const slug = item.professional?.slug;
+    if (!reviews || !slug || reviewOn.get(slug) !== item.id) return undefined;
+    return reviews.find((review) => review.professionalSlug === slug) ?? null;
+  }
 
   const upcoming = appointments
     .filter((item) => item.status === "booked" && Date.parse(item.endsAt) > now)
@@ -564,7 +604,14 @@ export function UserAppointments() {
               </h2>
               <ul className="mt-3 space-y-4">
                 {past.map((item) => (
-                  <AppointmentCard key={item.id} appointment={item} now={now} onChange={setAppointments} />
+                  <AppointmentCard
+                    key={item.id}
+                    appointment={item}
+                    now={now}
+                    onChange={setAppointments}
+                    review={reviewFor(item)}
+                    onReviewsChange={setReviews}
+                  />
                 ))}
               </ul>
             </section>
