@@ -10,7 +10,7 @@ import { BottomNav } from "./bottom-nav";
 import { NextSessionCard, useNextSession } from "./next-session-card";
 import { DesktopNavigation } from "../_components/app-navigation";
 import { useLanguage } from "../_components/language-provider";
-import { InstallBanner } from "../_components/install-app/install-banner";
+import { InstallPopup } from "../_components/install-app/install-popup";
 
 export function AromMainView() {
   const { language } = useLanguage();
@@ -31,9 +31,6 @@ export function AromMainView() {
           <div className="mt-6 flex flex-col gap-5 sm:gap-6 lg:mt-8">
             {/* Greeting */}
             <GreetingSection />
-
-            {/* Invite to put AROM on the home screen, until installed or dismissed */}
-            <InstallBanner />
 
             {/* The user's next booked session, when there is one */}
             {nextSession && <NextSessionCard next={nextSession} km={language === "km"} />}
@@ -66,6 +63,9 @@ export function AromMainView() {
       <div className="lg:hidden">
         <BottomNav activeTab="Home" />
       </div>
+
+      {/* Popup inviting people to put AROM on their home screen */}
+      <InstallPopup />
     </div>
   );
 }

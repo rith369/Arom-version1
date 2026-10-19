@@ -1,5 +1,35 @@
 # AROM: Change Report
 
+## 19 Oct 2026: Install Popup Replaces the Home Banner
+
+Commit `pending`. No migration.
+
+**Why.** Rith wanted the install invitation to be a popup in the middle of the screen when Home opens, with Home dimmed behind it, so people notice it and focus on it. The banner under the greeting was easy to scroll past.
+
+**What changed for users:**
+
+- **A popup opens over Home** about a second after the page appears. It shows the AROM icon, "Add AROM to your home screen", "Open AROM in one tap, like any other app", and **Install AROM** and **Not now**. Home stays visible, dimmed and softly blurred, behind it. English and Khmer.
+- **Install AROM** opens the real install dialog on Android, Chrome and Edge. On iPhone and other phone browsers, the popup shows the steps and a **Got it** button.
+- **Not now, the X, the Escape key or a tap outside** close it and hide it on that device for 7 days. If someone closes the browser's own install dialog without installing, it also waits 7 days.
+- **It never shows once AROM is installed**, and not on computers whose browser cannot install (Firefox, Safari). The Install card in Settings is still there.
+- **The banner under the greeting is gone.**
+
+**What changed for the team:**
+
+- **New** `app/_components/install-app/install-popup.tsx`, replacing `install-banner.tsx`. It uses the browser's own `<dialog>` (`showModal()`), so focus stays in the popup, Escape works and the page behind cannot be clicked. It fades in with CSS, so if the animation does not run it still appears.
+- **`install-store.ts`**: "Not now" is now a 7 day snooze (`arom_install_popup_snoozed_until_v1`). The old banner key is no longer read, so people who dismissed the banner will see the popup once.
+- No backend changes.
+
+**What to re-test:**
+
+1. On a computer in Chrome or Edge (AROM not installed), open Home. After about a second the popup appears in the middle and Home is dimmed behind it.
+2. Tap Install AROM: the browser's install dialog opens. Install, open AROM from the app: no popup.
+3. In a normal tab, tap Not now: the popup closes and does not come back after a reload. Repeat with the X, Escape and a tap outside.
+4. On an iPhone in Safari, open Home, tap Install AROM: the three steps show with Got it.
+5. On Android Chrome, check the popup and the install dialog.
+6. In Firefox on a computer: no popup.
+7. Switch to Khmer and check the popup and the steps.
+
 ## 19 Oct 2026: Install Banner on the Home Page
 
 Commit `faa77eb`. No migration.

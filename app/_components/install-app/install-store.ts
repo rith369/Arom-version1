@@ -83,30 +83,31 @@ export function useIsPhone(): boolean {
   return useSyncExternalStore(subscribe, getIsPhone, () => false);
 }
 
-// "Not now" on the Home banner is remembered on this device only.
-const BANNER_KEY = 'arom_install_banner_dismissed_v1';
-let bannerDismissed: boolean | null = null;
+// "Not now" on the Home popup hides it on this device for a week.
+const SNOOZE_KEY = 'arom_install_popup_snoozed_until_v1';
+const SNOOZE_MS = 7 * 24 * 60 * 60 * 1000;
+let snoozed: boolean | null = null;
 
-function getBannerDismissed() {
-  if (bannerDismissed === null) {
+function getSnoozed() {
+  if (snoozed === null) {
     try {
-      bannerDismissed = window.localStorage.getItem(BANNER_KEY) === '1';
+      snoozed = Date.now() < Number(window.localStorage.getItem(SNOOZE_KEY) ?? 0);
     } catch {
-      bannerDismissed = false;
+      snoozed = false;
     }
   }
-  return bannerDismissed;
+  return snoozed;
 }
 
-export function useInstallBannerDismissed(): boolean {
-  // Hidden on the server so the banner never flashes before the check.
-  return useSyncExternalStore(subscribe, getBannerDismissed, () => true);
+export function useInstallPopupSnoozed(): boolean {
+  // Hidden on the server so the popup never flashes before the check.
+  return useSyncExternalStore(subscribe, getSnoozed, () => true);
 }
 
-export function dismissInstallBanner() {
-  bannerDismissed = true;
+export function snoozeInstallPopup() {
+  snoozed = true;
   try {
-    window.localStorage.setItem(BANNER_KEY, '1');
+    window.localStorage.setItem(SNOOZE_KEY, String(Date.now() + SNOOZE_MS));
   } catch {
     // Private mode: it stays hidden until the page is reloaded.
   }
