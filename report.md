@@ -2,7 +2,7 @@
 
 ## 19 Oct 2026: Podcast Pages Redesigned From Figma
 
-Commit `HASH`. No migration.
+Commit `b2c37ad`. No migration.
 
 **Why.** Rith shared the Figma for the listener podcast screens. The old pages were a plain list and an inline player. Podcasts are not connected to a backend yet, so this is built on sample episodes to show the real look and flow.
 
