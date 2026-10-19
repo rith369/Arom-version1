@@ -1,5 +1,28 @@
 # AROM: Change Report
 
+## 19 Oct 2026: Professional Area Mobile Hamburger Menu
+
+Commit `HASH`. No migration.
+
+**Why.** On a phone the professional area showed its menu as a row of tabs that you had to swipe sideways, and most pages (My schedule, Bookings, Clients, and so on) were cut off and hard to find. A hamburger button that opens the sidebar is the familiar pattern and shows every page at once.
+
+**What changed for users:**
+
+- **Hamburger button on phones:** a top bar with a menu button and the AROM logo replaces the sideways tab row.
+- **Sidebar slides in:** tapping the button opens the full menu from the left over a dimmed background. Tapping a page, the dimmed area, the close button, or pressing Escape closes it.
+- **Desktop unchanged:** large screens still show the fixed sidebar.
+
+**What changed for the team:**
+
+- **`app/pro/_components/pro-shell.tsx`:** one shared menu is used by the desktop sidebar and the mobile drawer. The drawer locks page scroll while open.
+
+**What to re-test:**
+
+1. Open `/pro` at phone width. You should see the hamburger and logo, no sideways tabs.
+2. Tap the hamburger, confirm all 9 links show, then tap one and confirm it opens and the menu closes.
+3. Reopen the menu and close it with the X, the dimmed area, and Escape.
+4. Switch to Khmer and check the labels. Check desktop width still shows the fixed sidebar.
+
 ## 19 Oct 2026: Admin Sidebar Links No Longer Overlap
 
 Commit `bcadb25`. No migration.
