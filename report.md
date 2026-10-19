@@ -2,7 +2,7 @@
 
 ## 19 Oct 2026: Install Popup Replaces the Home Banner
 
-Commit `pending`. No migration.
+Commit `e3c4623`. No migration.
 
 **Why.** Rith wanted the install invitation to be a popup in the middle of the screen when Home opens, with Home dimmed behind it, so people notice it and focus on it. The banner under the greeting was easy to scroll past.
 
