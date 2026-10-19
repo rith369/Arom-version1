@@ -31,6 +31,7 @@ import {
 } from './app-navigation';
 import { useAuth } from './auth-provider';
 import { GetHelpSection } from './get-help-section';
+import { InstallAppCard } from './install-app/install-app-card';
 import {
   LanguageSwitcher,
   useLanguage,
@@ -226,6 +227,11 @@ export function ProfileSettings() {
                 className="shrink-0 text-ink-muted transition-transform duration-150 group-hover:translate-x-0.5 group-hover:text-arom"
               />
             </Link>
+          </motion.div>
+
+          {/* Put AROM on the home screen (hidden once installed) */}
+          <motion.div variants={itemVariants} className="mt-6 empty:hidden">
+            <InstallAppCard />
           </motion.div>
 
           {user?.role === 'user' && (

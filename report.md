@@ -1,5 +1,35 @@
 # AROM: Change Report
 
+## 19 Oct 2026: Install AROM to the Home Screen
+
+Commit `pending`. No migration.
+
+**Why.** Rith wanted people to be able to "download" AROM so it sits on their home screen and opens in one tap, like a normal app. AROM is now an installable web app (PWA), so no App Store or Play Store is needed, and every update we push reaches users straight away.
+
+**What changed for users:**
+
+- **AROM can be installed.** On Android and on Chrome or Edge on a computer, the browser offers "Install AROM". On iPhone and iPad, people use Share, then Add to Home Screen.
+- **It opens like an app.** It has its own AROM icon (the leaf and heart mark) and the name "AROM", and it opens full screen with no browser bar, in AROM green.
+- **New "Install AROM" card in Settings**, under Saved. On Android and Chrome or Edge it opens the real install dialog. On iPhone it shows the three steps (Share, Add to Home Screen, Add). In other browsers it shows the menu steps. The card hides itself once AROM is installed. English and Khmer.
+- **Still needs internet.** Nothing is saved for offline use, on purpose, because AROM holds private wellbeing data.
+
+**What changed for the team:**
+
+- **New** `app/manifest.ts` (name, colours, full screen, icons). Next.js serves it at `/manifest.webmanifest`.
+- **New icons:** `public/icons/icon-192.png`, `icon-512.png`, `icon-maskable-512.png` (extra padding for Android's round icons) and `app/apple-icon.png` (iPhone). They are cropped from the image inside `public/brand/arom-mark.svg`, which is small (132 px), so they look a little soft. A large PNG or SVG of the mark from the designer would make them sharp: just replace these four files at the same sizes.
+- **New** `app/_components/install-app/`: `install-store.ts` (catches the browser's install event and works out the device), `install-listener.tsx` (mounted in the root layout, because the browser sends that event only once when the page loads) and `install-app-card.tsx`.
+- **`app/layout.tsx`** now sets the theme colour and the iPhone home screen title.
+- **No service worker** and no backend changes. `BACKEND-HANDOFF.md` is not affected.
+
+**What to re-test:**
+
+1. Deploy, then open the site on an Android phone in Chrome. Open Settings: the Install AROM card is under Saved. Tap Install, accept, and check the AROM icon is on the home screen.
+2. Open AROM from that icon: it opens full screen with no address bar. Open Settings: the Install card is gone.
+3. On an iPhone in Safari, open Settings, tap the Install card: the three steps show. Follow them, check the icon and the name "AROM", and open it from the home screen.
+4. On a computer in Chrome or Edge, check the install icon in the address bar and the Install button in Settings.
+5. In Firefox on a computer, tap the card: the menu steps show.
+6. Switch to Khmer and check the card and the steps.
+
 ## 19 Oct 2026: Clients Review Their Professional
 
 Commit `e8f7a21`. Branch `rith/professional-reviews`, PR #24. Migration `20261019000300_professional_reviews.sql`, applied by Rith in Supabase on 19 Oct 2026.

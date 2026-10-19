@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Kantumruy_Pro } from "next/font/google";
 import "./index.css";
 import { LanguageProvider } from "./_components/language-provider";
@@ -7,6 +7,7 @@ import { DetectionProvider } from "./_components/detection-provider";
 import { SidebarProvider } from "./_components/sidebar-provider";
 import { MobileSidebarDrawer } from "./_components/mobile-sidebar-drawer";
 import { AnnouncementBanner } from "./_components/announcement-banner";
+import { InstallListener } from "./_components/install-app/install-listener";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -27,6 +28,16 @@ export const metadata: Metadata = {
     template: "%s · AROM",
   },
   description: "A calmer mind, a brighter you.",
+  applicationName: "AROM",
+  appleWebApp: {
+    capable: true,
+    title: "AROM",
+    statusBarStyle: "default",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#1f6f5b",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -40,6 +51,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
                 <AnnouncementBanner />
                 {children}
                 <MobileSidebarDrawer />
+                <InstallListener />
               </SidebarProvider>
             </DetectionProvider>
           </AuthProvider>
