@@ -2,7 +2,7 @@
 
 ## 19 Oct 2026: Home Shows Your Plan Right After You Log In
 
-Commit `pending`. No migration.
+Commit `2f764bf`. No migration.
 
 **Why.** Rith logged in on a phone and Home greeted them by name, but the plan card still said "Log in to make your own plan" until they refreshed. The plan (and mood) data is kept in memory once it loads. If someone opened Home before logging in, the app remembered "signed out", and logging in moved them back to Home without reloading, so the old answer stayed.
 
