@@ -28,6 +28,7 @@ import {
   ALL_LESSONS,
   LESSON_ABOUT_STRESS,
   TOPIC_CATEGORIES,
+  getCategoryThumbnail,
   type Lesson,
   type TopicCategory,
 } from "./learn-data";
@@ -382,11 +383,11 @@ export function LearnHomeView({
                   {/* Thumbnail */}
                   <div className="relative size-14 shrink-0 overflow-hidden rounded-2xl bg-arom-soft sm:size-16 flex items-center justify-center">
                     <Image
-                      src={lesson.image}
+                      src={lesson.image || getCategoryThumbnail(lesson.category)}
                       alt={lesson.title}
-                      width={38}
-                      height={38}
-                      className="size-8 object-contain sm:size-9"
+                      width={48}
+                      height={48}
+                      className="size-11 object-contain sm:size-12 transition-transform duration-200 group-hover:scale-105"
                       unoptimized
                     />
                   </div>

@@ -112,6 +112,22 @@ export const TOPIC_CATEGORIES: { id: TopicCategory; label: string; kmLabel: stri
   { id: "Burnout", label: "Burnout", kmLabel: "ភាពអស់កម្លាំងចិត្ត (Burnout)" },
 ];
 
+export const CATEGORY_THUMBNAILS: Record<TopicCategory, string> = {
+  All: "/mindguide/category-basics.png",
+  Basics: "/mindguide/category-basics.png",
+  Stress: "/mindguide/category-stress.png",
+  Anxiety: "/mindguide/category-anxiety.png",
+  Sleep: "/mindguide/category-sleep.png",
+  Emotions: "/mindguide/category-emotions.png",
+  Relationships: "/mindguide/category-relationships.png",
+  "Self-esteem": "/mindguide/category-self-esteem.png",
+  Burnout: "/mindguide/category-burnout.png",
+};
+
+export function getCategoryThumbnail(category: TopicCategory): string {
+  return CATEGORY_THUMBNAILS[category] || "/mindguide/category-basics.png";
+}
+
 export const REFERENCES_STRESS: ReferenceItem[] = [
   {
     id: 1,
@@ -172,7 +188,7 @@ export const LESSON_ABOUT_STRESS: Lesson = {
   format: "Reading + Interactive",
   kmFormat: "ការអាន និងអន្តរកម្ម (Reading & Interactive)",
   isAvailable: true,
-  image: "/mindguide/stress.png",
+  image: "/mindguide/category-stress.png",
   heroImage: "/mindguide/managing-stress-hero.svg",
   description:
     "Stress is your body reacting to pressure. It's totally natural, and everyone gets it. Learn what stress is, why it happens, and small things that truly help.",
@@ -467,7 +483,7 @@ export const LESSON_UNDERSTANDING_ANXIETY: Lesson = {
   format: "Reading + Interactive",
   kmFormat: "ការអាន និងអន្តរកម្ម (Reading & Interactive)",
   isAvailable: true,
-  image: "/mindguide/icon-10.svg",
+  image: "/mindguide/category-anxiety.png",
   // Photo by Jared Rice on Unsplash (Unsplash License), cropped.
   heroImage: "/mindguide/understanding-anxiety-hero.jpg",
   description:
@@ -733,7 +749,7 @@ export const LESSON_WHAT_IS_MENTAL_HEALTH: Lesson = {
   format: "Reading + Reflection",
   kmFormat: "ការអាន និងការឆ្លុះបញ្ចាំង (Reading & Reflection)",
   isAvailable: true,
-  image: "/mindguide/icon-9.svg",
+  image: "/mindguide/category-basics.png",
   // Photo by Mufid Majnun on Unsplash (Unsplash License), cropped.
   heroImage: "/mindguide/what-is-mental-health-hero.jpg",
   description:
@@ -1121,7 +1137,7 @@ export const LESSON_UNDERSTAND_YOURSELF: Lesson = {
   format: "Reading + Reflection",
   kmFormat: "ការអាន និងការឆ្លុះបញ្ចាំង (Reading & Reflection)",
   isAvailable: true,
-  image: "/mindguide/icon-11.svg",
+  image: "/mindguide/category-emotions.png",
   // Photo by Aaron Burden on Unsplash (Unsplash License), cropped.
   heroImage: "/mindguide/understand-yourself-hero.jpg",
   description:
@@ -1536,7 +1552,7 @@ export const LESSON_KNOW_WHEN_TO_SEEK_HELP: Lesson = {
   format: "Reading + Reflection",
   kmFormat: "ការអាន និងការឆ្លុះបញ្ចាំង (Reading & Reflection)",
   isAvailable: true,
-  image: "/mindguide/icon-10.svg",
+  image: "/mindguide/category-basics.png",
   // Photo by Max Bender on Unsplash (Unsplash License), cropped.
   heroImage: "/mindguide/know-when-to-seek-help-hero.jpg",
   description:
@@ -1927,7 +1943,7 @@ export const LESSON_BETTER_SLEEP: Lesson = {
   format: "Reading + Reflection",
   kmFormat: "ការអាន និងការឆ្លុះបញ្ចាំង (Reading & Reflection)",
   isAvailable: true,
-  image: "/mindguide/sleep.png",
+  image: "/mindguide/category-sleep.png",
   // Photo by Suhwa Lee on Unsplash (Unsplash License), cropped.
   heroImage: "/mindguide/better-sleep-hero.jpg",
   description:
@@ -2335,7 +2351,7 @@ export const LESSON_BUILD_HEALTHY_RELATIONSHIPS: Lesson = {
   format: "Reading + Practice",
   kmFormat: "ការអាន និងការឆ្លុះបញ្ចាំង (Reading & Reflection)",
   isAvailable: true,
-  image: "/mindguide/strategies.png",
+  image: "/mindguide/category-relationships.png",
   heroImage: "/mindguide/build-healthy-relationships-hero.jpg",
   description:
     "Learn the core pillars of healthy relationships, how to communicate with 'I' statements, set gentle boundaries, navigate family expectations in Cambodia, and recognize unhealthy patterns.",
@@ -2788,7 +2804,7 @@ export const LESSON_SADNESS_VS_DEPRESSION: Lesson = {
   format: "Reading + Quiz",
   kmFormat: "ការអាន និងកម្រងសំណួរ (Reading & Quiz)",
   isAvailable: true,
-  image: "/mindguide/strategies.png",
+  image: "/mindguide/category-emotions.png",
   heroImage: "/mindguide/sadness-vs-depression-hero.jpg",
   description:
     "Understand the key differences between everyday sadness and clinical depression, spot the early warning signs, and discover compassionate paths to healing on AROM.",
@@ -3320,7 +3336,7 @@ export const LESSON_TALK_ABOUT_FEELINGS: Lesson = {
   format: "Reading + Practice",
   kmFormat: "ការអាន និងការអនុវត្ត (Reading & Practice)",
   isAvailable: true,
-  image: "/mindguide/strategies.png",
+  image: "/mindguide/category-emotions.png",
   heroImage: "/mindguide/talk-about-feelings-hero.jpg",
   description:
     "Learn to identify emotions before speaking, use constructive 'I feel' statements, overcome cultural hesitation, and express your true needs safely on AROM.",
@@ -3849,7 +3865,7 @@ export const LESSON_SOCIAL_ANXIETY: Lesson = {
   format: "Reading + Practice",
   kmFormat: "ការអាន និងការអនុវត្ត (Reading & Practice)",
   isAvailable: true,
-  image: "/mindguide/strategies.png",
+  image: "/mindguide/category-anxiety.png",
   heroImage: "/mindguide/social-anxiety-hero.jpg",
   description:
     "Learn to recognize the social anxiety cycle, challenge catastrophic thoughts, practice gentle gradual exposure, and soothe bodily tension with AROM tools.",
@@ -4413,7 +4429,7 @@ export const LESSON_EXAM_ANXIETY: Lesson = {
   format: "Reading + Practice",
   kmFormat: "ការអាន និងការអនុវត្ត (Reading & Practice)",
   isAvailable: true,
-  image: "/mindguide/strategies.png",
+  image: "/mindguide/category-anxiety.png",
   heroImage: "/mindguide/exam-anxiety-hero.jpg",
   description:
     "Master evidence-based strategies to manage academic stress, reset blank minds during tests, break the comparison habit, and anchor self-worth beyond exam scores.",
@@ -4985,7 +5001,7 @@ export const LESSON_FEAR_OF_FAILURE: Lesson = {
   format: "Reading + Practice",
   kmFormat: "ការអាន និងការអនុវត្ត (Reading & Practice)",
   isAvailable: true,
-  image: "/mindguide/strategies.png",
+  image: "/mindguide/category-self-esteem.png",
   heroImage: "/mindguide/fear-of-failure-hero.jpg",
   description:
     "Unpack the roots of perfectionism, transform mistakes into valuable growth data, silence harsh self-criticism with self-compassion, and take courageous steps on AROM.",
@@ -5531,7 +5547,7 @@ export const LESSON_BALANCE_STUDY_WORK_LIFE: Lesson = {
   format: "Reading + Practice",
   kmFormat: "ការអាន និងការអនុវត្ត (Reading & Practice)",
   isAvailable: true,
-  image: "/mindguide/strategies.png",
+  image: "/mindguide/category-burnout.png",
   heroImage: "/mindguide/balance-study-work-hero.jpg",
   badge: "Essential",
   description:
@@ -5972,7 +5988,7 @@ export const LESSON_LOST_INTEREST: Lesson = {
   format: "Reading + Self-Check",
   kmFormat: "ការអាន និងការពិនិត្យខ្លួនឯង (Reading & Self-Check)",
   isAvailable: true,
-  image: "/mindguide/emotions.png",
+  image: "/mindguide/category-emotions.png",
   heroImage: "/mindguide/lost-interest-hero.jpg",
   badge: "Popular",
   description:
@@ -6415,7 +6431,7 @@ export const LESSON_SUPPORT_FRIEND: Lesson = {
   format: "Reading + Practice",
   kmFormat: "ការអាន និងការអនុវត្ត (Reading & Practice)",
   isAvailable: true,
-  image: "/mindguide/strategies.png",
+  image: "/mindguide/category-relationships.png",
   heroImage: "/mindguide/support-friend-hero.jpg",
   badge: "Essential",
   description:
@@ -6858,7 +6874,7 @@ export const LESSON_LONELINESS: Lesson = {
   format: "Reading + Practice",
   kmFormat: "ការអាន និងការអនុវត្ត (Reading & Practice)",
   isAvailable: true,
-  image: "/mindguide/strategies.png",
+  image: "/mindguide/category-relationships.png",
   heroImage: "/mindguide/loneliness-hero.jpg",
   badge: "Popular",
   description:
@@ -7301,7 +7317,7 @@ export const LESSON_ACADEMIC_PRESSURE: Lesson = {
   format: "Reading + Practice",
   kmFormat: "ការអាន និងការអនុវត្ត (Reading & Practice)",
   isAvailable: true,
-  image: "/mindguide/strategies.png",
+  image: "/mindguide/category-stress.png",
   heroImage: "/mindguide/academic-pressure-hero.jpg",
   badge: "Essential",
   description:
@@ -7689,7 +7705,451 @@ export const LESSON_ACADEMIC_PRESSURE: Lesson = {
   ],
 };
 
+
+export const REFERENCES_STRESS_VS_ANXIETY: ReferenceItem[] = [
+  {
+    id: 1,
+    citation: "[1]",
+    source: "NIMH",
+    title: "National Institute of Mental Health: I'm So Stressed Out! Stress vs. Anxiety: How to Tell the Difference",
+    url: "https://www.nimh.nih.gov/health/publications/so-stressed-out-fact-sheet",
+  },
+  {
+    id: 2,
+    citation: "[2]",
+    source: "APA",
+    title: "American Psychological Association: What's the Difference Between Stress and Anxiety?",
+    url: "https://www.apa.org/topics/stress/anxiety-difference",
+  },
+  {
+    id: 3,
+    citation: "[3]",
+    source: "Harvard Health",
+    title: "Harvard Health Publishing: Stress vs. Anxiety: How to Tell the Difference and Why It Matters for Your Health",
+    url: "https://www.health.harvard.edu/mind-and-mood/stress-vs-anxiety-how-to-tell-the-difference",
+  },
+  {
+    id: 4,
+    citation: "[4]",
+    source: "WHO",
+    title: "World Health Organization: Doing What Matters in Times of Stress: An Illustrated Guide",
+    url: "https://www.who.int/publications/i/item/9789240003927",
+  },
+  {
+    id: 5,
+    citation: "[5]",
+    source: "UNICEF Cambodia",
+    title: "UNICEF Cambodia: Youth Mental Health Literacy and Distinguishing Stress from Persistent Anxiety",
+    url: "https://www.unicef.org/cambodia/mental-health",
+  },
+];
+
+export const LESSON_STRESS_VS_ANXIETY: Lesson = {
+  id: "stress-vs-anxiety-difference",
+  title: "Stress vs. Anxiety: What's the Difference?",
+  kmTitle: "ភាពតានតឹង និងការថប់បារម្ភ៖ តើខុសគ្នាយ៉ាងដូចម្តេច? (Stress vs. Anxiety)",
+  subtitle: "Understand how stress and anxiety differ and learn how to manage both",
+  kmSubtitle: "ស្វែងយល់ពីភាពខុសគ្នារវាងភាពតានតឹង និងការថប់បារម្ភ ព្រមទាំងវិធីសាស្ត្រគ្រប់គ្រង",
+  category: "Stress",
+  duration: "8 min",
+  kmDuration: "៨ នាទី",
+  difficulty: "Beginner",
+  kmDifficulty: "កម្រិតដំបូង (Beginner)",
+  format: "Reading + Practice",
+  kmFormat: "ការអាន និងការអនុវត្ត (Reading & Practice)",
+  isAvailable: true,
+  image: "/mindguide/strategies.png",
+  heroImage: "/mindguide/stress-vs-anxiety-hero.jpg",
+  badge: "Essential",
+  description:
+    "Disentangle external stress from internal anxiety. Understand common physical symptoms, unpack the Cambodian term 'គិតច្រើន' (overthinking), master targeted coping tools for each, and ground your nervous system on AROM.",
+  kmDescription:
+    "បែងចែកឱ្យដាច់រវាងភាពតានតឹងពីខាងក្រៅ និងការថប់បារម្ភពីខាងក្នុង។ ស្វែងយល់ពីសញ្ញារាងកាយ បកស្រាយពាក្យ «គិតច្រើន» ក្នុងសង្គមខ្មែរ រៀនវិធីសាស្ត្រគ្រប់គ្រងជាក់លាក់ និងរំងាប់ចិត្តនៅលើ AROM។",
+  totalSections: 11,
+  outcomes: [
+    {
+      en: "Differentiate the external triggers of stress from the persistent internal nature of anxiety [1, 2]",
+      km: "បែងចែកឱ្យច្បាស់រវាងកត្តាជំរុញពីខាងក្រៅនៃភាពតានតឹង និងធម្មជាតិខាងក្នុងជាប់រហូតនៃការថប់បារម្ភ [1, 2]",
+    },
+    {
+      en: "Understand why both conditions trigger identical autonomic fight-or-flight symptoms in the body [2, 3]",
+      km: "យល់ដឹងពីមូលហេតុដែលស្ថានភាពទាំងពីរដាស់ប្រព័ន្ធប្រសាទ និងបង្កសញ្ញារាងកាយដូចគ្នាបេះបិទ [2, 3]",
+    },
+    {
+      en: "Deconstruct the Cambodian blanket label 'គិតច្រើន' (overthinking) to address real underlying needs [5]",
+      km: "បកស្រាយការយល់ច្រឡំលើពាក្យទូទៅ «គិតច្រើន» ដើម្បីដោះស្រាយតម្រូវការផ្លូវចិត្តពិតប្រាកដ [5]",
+    },
+    {
+      en: "Apply targeted environmental problem-solving and boundary management to reduce acute stress [2, 4]",
+      km: "អនុវត្តការដោះស្រាយបញ្ហាបរិស្ថានជាក់ស្តែង និងការកំណត់ព្រំដែនដើម្បីកាត់បន្ថយភាពតានតឹង [2, 4]",
+    },
+    {
+      en: "Use cognitive restructuring and tolerance of uncertainty to soothe persistent internal anxiety [3, 4]",
+      km: "ប្រើប្រាស់ការកែសម្រួលគំនិត និងការរៀនទទួលយកភាពមិនប្រាកដប្រជាដើម្បីរំងាប់ការថប់បារម្ភ [3, 4]",
+    },
+    {
+      en: "Practice dual-action grounding breathwork and access professional mental health support on AROM [4, 5]",
+      km: "អនុវត្តលំហាត់ដង្ហើមស្ងប់ចិត្ត និងភ្ជាប់ទំនាក់ទំនងប្រឹក្សាជាមួយអ្នកជំនាញនៅលើ AROM [4, 5]",
+    },
+  ],
+  references: REFERENCES_STRESS_VS_ANXIETY,
+  sections: [
+    {
+      id: 1,
+      sectionNumber: 1,
+      title: "The Daily Confusion: Why We Mix Up Stress and Anxiety",
+      kmTitle: "ការយល់ច្រឡំប្រចាំថ្ងៃ៖ ហេតុអ្វីយើងច្រឡំរវាងភាពតានតឹង និងការថប់បារម្ភ? (Daily Confusion)",
+      type: "reading",
+      paragraphs: [
+        "In everyday conversations, we often use the words 'stress' and 'anxiety' as if they mean the exact same thing. You might say: 'I have so much anxiety about this afternoon's meeting,' or 'I feel so stressed about what might happen next year.'",
+        "While they feel remarkably similar in our bodies, clinical psychologists emphasize that stress and anxiety are two distinct psychological experiences that require different tools to manage effectively [1, 2].",
+        "According to the National Institute of Mental Health, stress is typically an emotional and physical response to an identifiable external pressure, such as an upcoming exam, a work deadline, or a financial dispute. Anxiety, on the other hand, is internal: a persistent, diffuse feeling of dread or apprehension that lingers even when there is no current external threat [1, 2].",
+      ],
+      kmParagraphs: [
+        "ក្នុងជីវិតប្រចាំថ្ងៃ យើងច្រើនតែប្រើពាក្យ «ស្ត្រេស» (Stress) និង «ការថប់បារម្ភ» (Anxiety) ឆ្លាស់គ្នាដូចជារឿងតែមួយ។ អ្នកប្រហែលជាធ្លាប់និយាយថា៖ «ខ្ញុំថប់បារម្ភខ្លាំងណាស់រឿងប្រជុំរសៀលនេះ» ឬ «ខ្ញុំស្ត្រេសខ្លាំងណាស់មិនដឹងថាឆ្នាំក្រោយមានរឿងអ្វីកើតឡើង។»",
+        "ទោះបីជាស្ថានភាពទាំងពីរនេះបង្កើតអារម្មណ៍ស្រដៀងគ្នាក្នុងរាងកាយក៏ដោយ អ្នកចិត្តវិទ្យាគ្លីនិកបញ្ជាក់ថា ភាពតានតឹង និងការថប់បារម្ភ គឺជាបទពិសោធន៍ផ្លូវចិត្តពីរដាច់ដោយឡែកពីគ្នា ដែលទាមទារវិធីសាស្ត្រគ្រប់គ្រងខុសគ្នា [1, 2]។",
+        "យោងតាមវិទ្យាស្ថានជាតិសុខភាពផ្លូវចិត្តសហរដ្ឋអាមេរិក (NIMH) ភាពតានតឹង (Stress) ច្រើនតែជាប្រតិកម្មរាងកាយ និងចិត្តចំពោះសម្ពាធជាក់ស្តែងពីខាងក្រៅ ដូចជាការប្រឡងជិតមកដល់ កាលកំណត់ការងារ ឬជម្លោះហិរញ្ញវត្ថុ។ រីឯការថប់បារម្ភ (Anxiety) គឺជាដំណើរការពីខាងក្នុង៖ អារម្មណ៍ភ័យខ្លាច ឬអន្ទះសាក្នុងចិត្តដែលនៅតែបន្តកើតមាន ទោះបីជាគ្មានការគំរាមកំហែងជាក់ស្តែងពីខាងក្រៅក៏ដោយ [1, 2]។",
+      ],
+      keyPoints: [
+        "Stress is triggered by an external, identifiable stressor in your environment [1].",
+        "Anxiety is an internal reaction marked by persistent dread even without an immediate threat.",
+        "Knowing the difference enables you to apply the right coping strategy.",
+      ],
+      kmKeyPoints: [
+        "ភាពតានតឹង (Stress) កើតឡើងដោយសារកត្តាជំរុញជាក់ស្តែងពីខាងក្រៅ [1]។",
+        "ការថប់បារម្ភ (Anxiety) គឺជាការព្រួយបារម្ភពីខាងក្នុងដែលនៅតែបន្ត ទោះបីជាគ្មានការគំរាមកំហែងក៏ដោយ។",
+        "ការដឹងពីភាពខុសគ្នានេះ ជួយឱ្យអ្នកជ្រើសរើសវិធីសាស្ត្រដោះស្រាយបានត្រឹមត្រូវ។",
+      ],
+    },
+    {
+      id: 2,
+      sectionNumber: 2,
+      title: "The Biological Highway: Why They Feel So Similar in the Body [2, 3]",
+      kmTitle: "ផ្លូវជីវសាស្ត្ររួមគ្នា៖ ហេតុអ្វីរាងកាយមានអារម្មណ៍ដូចគ្នា? (Biological Highway)",
+      type: "reading",
+      paragraphs: [
+        "If stress and anxiety originate from different triggers, why do they feel almost identical inside your chest? The answer lies in our evolutionary survival wiring [2].",
+        "Both stress and anxiety activate the sympathetic branch of the autonomic nervous system, commonly known as the fight-or-flight response. When your brain perceives a challenge, whether it is an immediate physical deadline or a vague hypothetical worry, it triggers the adrenal glands to release adrenaline and cortisol [3].",
+        "Your heart accelerates to pump blood to major muscles, your breathing becomes rapid and shallow to take in oxygen, your shoulders tense up, and your digestive system temporarily shuts down, creating butterflies or nausea in your stomach. Because the biological alarm system is identical, our minds easily confuse the two states [2, 3].",
+      ],
+      kmParagraphs: [
+        "ប្រសិនបើភាពតានតឹង និងការថប់បារម្ភកើតចេញពីប្រភពខុសគ្នា ហេតុអ្វីបានជារាងកាយរបស់យើងមានអារម្មណ៍ដូចគ្នាបេះបិទ? ចម្លើយគឺស្ថិតនៅលើប្រព័ន្ធការពារការរស់រាននៃជីវសាស្ត្រមនុស្ស [2]។",
+        "ទាំងភាពតានតឹង និងការថប់បារម្ភ សុទ្ធតែដាស់ប្រព័ន្ធប្រសាទស្វ័យប្រវត្ត (Sympathetic Nervous System) ដែលយើងស្គាល់ថាជាប្រតិកម្មប្រយុទ្ធឬរត់ (Fight-or-Flight)។ នៅពេលដែលខួរក្បាលគិតថាមានបញ្ហា មិនថាជាកាលកំណត់ការងារបន្ទាន់ ឬគ្រាន់តែជាការព្រួយបារម្ភស្រមើស្រមៃនោះទេ វានឹងបញ្ជាឱ្យបញ្ចេញអ័រម៉ូន Adrenaline និង Cortisol [3]។",
+        "បេះដូងរបស់អ្នកនឹងលោតញាប់ដើម្បីច្របាច់ឈាមទៅកាន់សាច់ដុំ ដង្ហើមខ្លីនិងញាប់ ស្មារឹងតឹង ហើយប្រព័ន្ធរំលាយអាហារផ្អាកដំណើរការជាបណ្តោះអាសន្ន ដែលបណ្តាលឱ្យមានអារម្មណ៍មិនស្រួលក្នុងពោះ ឬចង្អោរ។ ដោយសារតែសំឡេងរោទ៍ជីវសាស្ត្ររបស់រាងកាយដំណើរការតាមខ្សែតែមួយ យើងក៏ងាយនឹងយល់ច្រឡំរវាងស្ថានភាពទាំងពីរនេះ [2, 3]។",
+      ],
+      keyPoints: [
+        "Both states activate the sympathetic fight-or-flight biological response [2].",
+        "Adrenaline and cortisol trigger rapid heartbeat, muscle tension, and shallow breath [3].",
+        "Physical sensations are normal adaptive mechanisms designed to protect survival.",
+      ],
+      kmKeyPoints: [
+        "ស្ថានភាពទាំងពីរដាស់ប្រតិកម្មប្រយុទ្ធឬរត់ (Fight-or-Flight) នៃរាងកាយ [2]។",
+        "អ័រម៉ូន Adrenaline និង Cortisol បង្កើនចង្វាក់បេះដូង រឹងសាច់ដុំ និងដកដង្ហើមញាប់ [3]។",
+        "សញ្ញារាងកាយទាំងនេះគឺជាយន្តការធម្មជាតិដែលបង្កើតឡើងដើម្បីការពារជីវិត។",
+      ],
+    },
+    {
+      id: 3,
+      sectionNumber: 3,
+      title: "Cambodian Context: Disentangling 'គិតច្រើន' and Stigma [5]",
+      kmTitle: "បរិបទសង្គមកម្ពុជា៖ ការបកស្រាយពាក្យ «គិតច្រើន» និងការរើសអើង (Cambodian Context & Overthinking)",
+      type: "reading",
+      paragraphs: [
+        "In Cambodian culture, people rarely say 'I am experiencing chronic stress' or 'I have generalized anxiety.' Instead, almost all forms of emotional and mental heaviness are grouped under a single familiar phrase: 'គិតច្រើន' (thinking too much) [5].",
+        "While this phrase recognizes that the mind is overloaded, it often carries an unintended dismissive judgment. When elders or peers tell you 'stop thinking so much and go to sleep,' it implies that you are creating your own misery voluntarily through weak mental discipline.",
+        "UNICEF Cambodia notes that this blanket label obscures the true cause of suffering [5]. If someone is facing real economic hardship, studying for Bac II, or supporting aging parents, they are experiencing genuine external stress that needs practical support. If someone is experiencing relentless panic attacks or obsessive worries in a quiet room, they are experiencing internal anxiety that needs compassionate clinical tools. Separating the two removes shame and points toward the right medicine.",
+      ],
+      kmParagraphs: [
+        "នៅក្នុងវប្បធម៌ខ្មែរ យើងកម្រឮមនុស្សនិយាយថា «ខ្ញុំមានភាពតានតឹងរ៉ាំរ៉ៃ» ឬ «ខ្ញុំមានបញ្ហាថប់បារម្ភ» ណាស់។ ផ្ទុយទៅវិញ ស្ទើរតែគ្រប់ទម្រង់នៃទុក្ខសោក និងភាពនឿយហត់ផ្លូវចិត្ត តែងតែត្រូវបានចាត់ចូលទៅក្នុងពាក្យទូទៅមួយគឺ «គិតច្រើន» [5]។",
+        "ទោះបីជាពាក្យនេះឆ្លុះបញ្ចាំងថាខួរក្បាលកំពុងផ្ទុកបន្ទុកធ្ងន់ក៏ដោយ ជារឿយៗវាបង្កប់នូវការបន្ទាបតម្លៃបញ្ហាដោយមិនដឹងខ្លួន។ នៅពេលដែលមនុស្សចាស់ ឬមិត្តភក្តិប្រាប់អ្នកថា «ឈប់គិតច្រើនទៅ ហើយចូលគេងទៅ» វាហាក់ដូចជាបន្ទោសថា អ្នកជាអ្នកបង្កើតទុក្ខសោកដោយខ្លួនឯងព្រោះតែខ្វះការគ្រប់គ្រងចិត្ត។",
+        "អង្គការ UNICEF Cambodia បង្ហាញថា ការប្រើពាក្យទូទៅបែបនេះធ្វើឱ្យបាត់បង់ឫសគល់ពិតនៃបញ្ហា [5]។ ប្រសិនបើនរណាម្នាក់កំពុងជួបការលំបាកផ្នែកជីវភាព ប្រឡងបាក់ឌុប ឬមើលថែគ្រួសារ ពួកគេកំពុងជួបប្រទះភាពតានតឹងពីខាងក្រៅ (Stress) ដែលត្រូវការការជួយជ្រោមជ្រែងជាក់ស្តែង។ ប៉ុន្តែប្រសិនបើនរណាម្នាក់កើតអាការស្លន់ស្លោ ឬបារម្ភមិនឈប់កណ្តាលបន្ទប់ស្ងាត់ ពួកគេកំពុងជួបបញ្ហាថប់បារម្ភពីខាងក្នុង (Anxiety) ដែលត្រូវការវិធីសាស្ត្រព្យាបាលចិត្តសាស្ត្រ។ ការបែងចែករឿងទាំងពីរនេះ ជួយដកការខ្មាសអៀន និងផ្តល់ដំណោះស្រាយចំគោលដៅ។",
+      ],
+      keyPoints: [
+        "In Cambodia, emotional distress is almost universally labeled as 'គិតច្រើន' (overthinking) [5].",
+        "The label often implies that suffering is an intentional, controllable mistake.",
+        "Differentiating external hardship from internal worry provides clarity and self-compassion.",
+      ],
+      kmKeyPoints: [
+        "ក្នុងសង្គមខ្មែរ ទុក្ខសោកផ្លូវចិត្តច្រើនតែត្រូវបានហៅជារួមថា «គិតច្រើន» [5]។",
+        "ពាក្យនេះច្រើនតែធ្វើឱ្យយល់ច្រឡំថា ការឈឺចាប់គឺជាកំហុសផ្ទាល់ខ្លួនរបស់អ្នក។",
+        "ការបែងចែករវាងការលំបាកជាក់ស្តែង និងការថប់បារម្ភក្នុងចិត្ត ជួយឱ្យយើងយល់ពីខ្លួនឯងកាន់តែច្បាស់។",
+      ],
+    },
+    {
+      id: 4,
+      sectionNumber: 4,
+      title: "Check Your Understanding: Identifying Stress vs. Anxiety Scenarios",
+      kmTitle: "ពិនិត្យការយល់ដឹង៖ សម្គាល់ភាពតានតឹង និងការថប់បារម្ភ (Identify Stress vs. Anxiety)",
+      type: "quiz",
+      paragraphs: [
+        "Recognizing whether an experience is driven by external stress or internal anxiety allows you to choose the right strategy. Test your diagnostic skills on this real-life scenario.",
+      ],
+      kmParagraphs: [
+        "ការដឹងច្បាស់ថាបទពិសោធន៍របស់អ្នកកើតចេញពីភាពតានតឹងខាងក្រៅ ឬការថប់បារម្ភខាងក្នុង ជួយឱ្យអ្នកជ្រើសរើសដំណោះស្រាយត្រូវ។ សូមសាកល្បងពិនិត្យការយល់ដឹងរបស់អ្នកលើស្ថានភាពជាក់ស្តែងនេះ។",
+      ],
+      quiz: {
+        question: "Chan has completed his final exams and handed in all work projects. However, on Sunday afternoon while resting at home with no pending deadlines, he still feels a tight chest, sweating palms, and a racing thought: 'What if something terrible happens tomorrow?' Which condition is Chan experiencing?",
+        kmQuestion: "ចាន់ បានប្រឡងឆមាសចប់រួចរាល់ និងបានប្រគល់គម្រោងការងារទាំងអស់រួចហើយ។ ប៉ុន្តែនៅរសៀលថ្ងៃអាទិត្យពេលកំពុងសម្រាកនៅផ្ទះដោយគ្មានការងារបន្ទាន់សោះ ចាន់ នៅតែមានអារម្មណ៍ណែនទ្រូង បែកញើសបាតដៃ និងមានគំនិតភ័យខ្លាចរត់ក្នុងខួរក្បាលថា៖ «ចុះបើមានរឿងអាក្រក់កើតឡើងនៅថ្ងៃស្អែក?» តើ ចាន់ កំពុងជួបប្រទះស្ថានភាពមួយណា?",
+        options: [
+          {
+            id: "opt-a",
+            text: "Acute external stress caused by an immediate workplace emergency",
+            kmText: "ភាពតានតឹងស្រួចស្រាវពីខាងក្រៅ បង្កឡើងដោយការងារបន្ទាន់ភ្លាមៗនៅកន្លែងធ្វើការ",
+            isCorrect: false,
+          },
+          {
+            id: "opt-b",
+            text: "Internal anxiety, characterized by persistent dread and catastrophic 'what if' thoughts even in the absence of an immediate threat",
+            kmText: "ការថប់បារម្ភពីខាងក្នុង ដែលស្តែងចេញតាមរយៈការភ័យខ្លាចជាប់រហូត និងការគិត «ចុះបើសិនជា...» ទោះបីជាគ្មានការគំរាមកំហែងជាក់ស្តែង",
+            isCorrect: true,
+          },
+          {
+            id: "opt-c",
+            text: "A simple lack of willpower and failure to relax",
+            kmText: "គ្រាន់តែជាការខ្វះវិន័យក្នុងចិត្ត និងមិនចេះបន្ធូរអារម្មណ៍ដោយខ្លួនឯង",
+            isCorrect: false,
+          },
+          {
+            id: "opt-d",
+            text: "Healthy academic ambition that is necessary for career success",
+            kmText: "កម្លាំងចិត្តរៀនសូត្រដែលមានសុខភាពល្អ ដែលចាំបាច់សម្រាប់ភាពជោគជ័យក្នុងការងារ",
+            isCorrect: false,
+          },
+        ],
+        explanation:
+          "Because the external stressors (exams and work deadlines) have ended, yet Chan continues to experience physiological hyperarousal and catastrophic future-oriented worries ('what if...'), this scenario reflects internal anxiety rather than situational stress [1, 2].",
+        kmExplanation:
+          "ដោយសារតែកត្តាសម្ពាធពីខាងក្រៅ (ការប្រឡង និងការងារ) បានបញ្ចប់អស់ហើយ ប៉ុន្តែ ចាន់ នៅតែមានសញ្ញារាងកាយតានតឹង និងគំនិតភ័យខ្លាចចំពោះអនាគត («ចុះបើសិនជា...») ស្ថានភាពនេះឆ្លុះបញ្ចាំងពីការថប់បារម្ភពីខាងក្នុង (Anxiety) មិនមែនជាភាពតានតឹងតាមកាលៈទេសៈឡើយ [1, 2]។",
+      },
+    },
+    {
+      id: 5,
+      sectionNumber: 5,
+      title: "The Origin Test: External Pressure vs. Internal Alarm [1, 2]",
+      kmTitle: "ការធ្វើតេស្តប្រភពដើម៖ សម្ពាធពីខាងក្រៅ ធៀបនឹងសំឡេងរោទ៍ពីខាងក្នុង (The Origin Test)",
+      type: "reading",
+      paragraphs: [
+        "Whenever you feel tense, ask yourself three diagnostic questions to identify whether stress or anxiety is the primary driver [1, 2]:",
+        "Question 1: What is the cause? If you can easily point to a tangible external trigger (such as an exam tomorrow morning, an unpaid electricity bill, or a broken motorbike), you are experiencing stress. If the trigger is vague, imaginary, or a chain of 'what if' disasters, you are experiencing anxiety.",
+        "Question 2: What happens when the situation ends? Stress generally subsides once the exam finishes or the bill is paid. Anxiety, however, typically finds a new hypothetical worry to latch onto, keeping the bodily alarm ringing.",
+        "Question 3: Where is your focus located? Stress is focused on the present challenge happening right now. Anxiety is almost always focused on the imagined future [2, 3].",
+      ],
+      kmParagraphs: [
+        "នៅពេលណាដែលអ្នកមានអារម្មណ៍តានតឹង សូមសួរសំណួរវិនិច្ឆ័យ ៣ នេះទៅកាន់ខ្លួនឯង ដើម្បីដឹងថាតើវាជាភាពតានតឹង ឬការថប់បារម្ភ [1, 2]៖",
+        "សំណួរទី ១៖ តើអ្វីជាមូលហេតុ? ប្រសិនបើអ្នកអាចចង្អុលបង្ហាញយ៉ាងច្បាស់នូវកត្តាជំរុញពីខាងក្រៅ ដូចជាការប្រឡងនៅព្រឹកស្អែក វិក្កយបត្រភ្លើងមិនទាន់បង់ ឬម៉ូតូខូច នោះអ្នកកំពុងជួបប្រទះភាពតានតឹង (Stress)។ ប៉ុន្តែប្រសិនបើមូលហេតុមានភាពស្រពេចស្រពិល ឬគ្រាន់តែជាការគិតភ័យខ្លាចរឿងអនាគត នោះវាគឺជាការថប់បារម្ភ (Anxiety)។",
+        "សំណួរទី ២៖ តើមានអ្វីកើតឡើងនៅពេលកាលៈទេសៈនោះចប់? ភាពតានតឹងច្រើនតែរលាយបាត់នៅពេលដែលការប្រឡងចប់ ឬវិក្កយបត្រត្រូវបានបង់។ ប៉ុន្តែការថប់បារម្ភ ច្រើនតែបន្តរកឃើញរឿងថ្មីផ្សេងទៀតមកបារម្ភបន្ត ដែលធ្វើឱ្យរាងកាយនៅតែភ័យរហូត។",
+        "សំណួរទី ៣៖ តើការផ្តោតអារម្មណ៍របស់អ្នកនៅទីណា? ភាពតានតឹងផ្ដោតលើការប្រឈមជាក់ស្តែងក្នុងពេលបច្ចុប្បន្ន។ រីឯការថប់បារម្ភ ស្ទើរតែតែងតែផ្ដោតលើរឿងអវិជ្ជមានដែលស្រមើស្រមៃក្នុងអនាគត [2, 3]។",
+      ],
+      keyPoints: [
+        "Stress has a specific, identifiable external trigger [1].",
+        "Stress subsides when the stressor is resolved; anxiety persists internally.",
+        "Stress is present-focused; anxiety is future-projected ('what if...').",
+      ],
+      kmKeyPoints: [
+        "ភាពតានតឹងមានកត្តាជំរុញជាក់លាក់ពីខាងក្រៅ [1]។",
+        "ភាពតានតឹងថយចុះនៅពេលបញ្ហាត្រូវបានដោះស្រាយ រីឯការថប់បារម្ភនៅតែបន្តក្នុងចិត្ត។",
+        "ភាពតានតឹងផ្ដោតលើបច្ចុប្បន្ន រីឯការថប់បារម្ភផ្ដោតលើអនាគត («ចុះបើ...»)។",
+      ],
+    },
+    {
+      id: 6,
+      sectionNumber: 6,
+      title: "Targeted Tools for Stress: Action, Boundaries, and Recovery Sprints [2, 4]",
+      kmTitle: "ឧបករណ៍សម្រាប់ភាពតានតឹង៖ សកម្មភាព ព្រំដែន និងការសម្រាក (Targeted Tools for Stress)",
+      type: "reading",
+      paragraphs: [
+        "Because stress is caused by external demands that exceed your current resources, managing stress requires problem-focused coping and environmental changes [2, 4].",
+        "First, modify the stressor. If you have five overlapping deadlines, you cannot meditate away the work. You need practical action: breaking large tasks into 20-minute chunks, delegating chores, or communicating with professors and supervisors to negotiate realistic deadlines.",
+        "Second, protect recovery sprints. The human body is designed to handle intense stress sprints, provided they are followed by deliberate recovery. When a stressful project ends, take an intentional buffer evening: shut down work devices, eat a wholesome meal, and allow your nervous system to return to baseline [4].",
+      ],
+      kmParagraphs: [
+        "ដោយសារតែភាពតានតឹងបណ្តាលមកពីសម្ពាធខាងក្រៅដែលលើសពីសមត្ថភាពផ្ទុកបច្ចុប្បន្ន ការគ្រប់គ្រងវាទាមទារនូវការដោះស្រាយបញ្ហាជាក់ស្តែង និងការកែប្រែបរិស្ថានរស់នៅ [2, 4]។",
+        "ទីមួយ គឺការកែសម្រួលកត្តាបង្កបញ្ហា។ ប្រសិនបើអ្នកមានកិច្ចការ ៥ ត្រួតគ្នា អ្នកមិនអាចគ្រាន់តែអង្គុយធ្វើសមាធិឱ្យការងារនោះរលាយបាត់បានទេ។ អ្នកត្រូវការសកម្មភាពជាក់ស្តែង៖ បំបែកកិច្ចការធំៗជាចំណែកតូចៗ ២០ នាទី បែងចែកការងារឱ្យអ្នកដទៃជួយ ឬជជែកពិភាក្សាជាមួយសាស្ត្រាចារ្យ និងថ្នាក់លើដើម្បីសុំពន្យារពេលសមរម្យ។",
+        "ទីពីរ គឺការការពារពេលវេលាស្តារថាមពល។ រាងកាយមនុស្សត្រូវបានរចនាឡើងដើម្បីទ្រាំទ្រនឹងសម្ពាធខ្លាំងក្នុងរយៈពេលខ្លី លុះត្រាតែមានការសម្រាកឱ្យបានត្រឹមត្រូវបន្ទាប់ពីនោះ។ នៅពេលគម្រោងតានតឹងបញ្ចប់ សូមកំណត់ពេលសម្រាកឱ្យច្បាស់លាស់៖ បិទទូរស័ព្ទការងារ ញ៉ាំអាហារឆ្ងាញ់ៗ និងទុកពេលឱ្យប្រព័ន្ធប្រសាទវិលត្រឡប់មករកភាពស្ងប់ធម្មតាវិញ [4]។",
+      ],
+      keyPoints: [
+        "Stress management requires modifying the external environment and workload [2].",
+        "Break overwhelming responsibilities into bite-sized, sequential actions.",
+        "Schedule deliberate recovery sprints following demanding life chapters [4].",
+      ],
+      kmKeyPoints: [
+        "ការគ្រប់គ្រងភាពតានតឹង ទាមទារឱ្យមានការកែសម្រួលបរិយាកាសការងារ និងបន្ទុកភារកិច្ច [2]។",
+        "បំបែកការទទួលខុសត្រូវដ៏លើសលប់ ទៅជាសកម្មភាពតូចៗមួយជំហានម្តងៗ។",
+        "កំណត់ពេលសម្រាកឱ្យបានច្បាស់លាស់ បន្ទាប់ពីឆ្លងកាត់រដូវកាលដ៏មមាញឹក [4]។",
+      ],
+    },
+    {
+      id: 7,
+      sectionNumber: 7,
+      title: "Targeted Tools for Anxiety: Befriending Uncertainty and Grounding [3, 4]",
+      kmTitle: "ឧបករណ៍សម្រាប់ការថប់បារម្ភ៖ ការរៀនទទួលយកភាពមិនប្រាកដប្រជា (Targeted Tools for Anxiety)",
+      type: "reading",
+      paragraphs: [
+        "Managing anxiety requires an entirely different set of psychological tools. Because anxiety is driven by an internal projection of future threats, trying to fix the external environment will not silence it [3].",
+        "First, challenge catastrophic predictions. When your mind whispers: 'What if everyone judges me? What if I fail completely?', do not treat these thoughts as facts. Ask: 'What is the most realistic outcome based on evidence?' Most catastrophic scenarios never materialize.",
+        "Second, practice somatic grounding. Anxiety pulls your consciousness into a frightening hypothetical future. Bring your awareness back into the present physical room using the 3-2-1 sensory method: notice 3 things you can see right now, feel 2 textures under your fingers, and listen to 1 sound around you. Remind yourself: 'Right here, right now in this exact second, I am safe' [3, 4].",
+      ],
+      kmParagraphs: [
+        "ការគ្រប់គ្រងការថប់បារម្ភ ទាមទារឧបករណ៍ចិត្តសាស្ត្រខុសគ្នាទាំងស្រុង។ ដោយសារតែការថប់បារម្ភកើតចេញពីការស្រមើស្រមៃភ័យខ្លាចរឿងអនាគត ការព្យាយាមដោះស្រាយតែរឿងខាងក្រៅ នឹងមិនអាចជួយឱ្យចិត្តស្ងប់បានឡើយ [3]។",
+        "ទីមួយ គឺការពិនិត្យការពិតលើការគិតអវិជ្ជមាន។ នៅពេលដែលចិត្តរបស់អ្នកខ្សឹបប្រាប់ថា៖ «ចុះបើគេមើលងាយខ្ញុំគ្រប់គ្នា? ចុះបើខ្ញុំបរាជ័យទាំងស្រុង?» សូមកុំចាត់ទុកការគិតទាំងនេះថាជាការពិតឱ្យសោះ។ ចូរចោទសួរថា៖ «តើអ្វីជាលទ្ធផលជាក់ស្តែងបំផុតផ្អែកលើភស្តុតាង?» ភាគច្រើននៃរឿងដែលយើងភ័យខ្លាច មិនដែលកើតឡើងពិតប្រាកដនោះទេ។",
+        "ទីពីរ គឺការតាំងចិត្តលើញាណទាំង ៥ ក្នុងបច្ចុប្បន្ន (Somatic Grounding)។ ការថប់បារម្ភតែងតែទាញចិត្តរបស់អ្នកឱ្យរសាត់ទៅរកអនាគតដ៏គួរឱ្យភ័យខ្លាច។ ចូរនាំស្មារតីត្រឡប់មកក្នុងបន្ទប់ជាក់ស្តែងវិញតាមរយៈវិធី ៣-២-១៖ សម្លឹងមើលរបស់ ៣ យ៉ាងជុំវិញខ្លួន ប៉ះរបស់ ២ យ៉ាងដោយចុងម្រាមដៃ និងស្តាប់សំឡេង ១ ជុំវិញខ្លួន។ រំលឹកខ្លួនឯងថា៖ «នៅទីនេះ ក្នុងវិនាទីនេះ ខ្ញុំមានសុវត្ថិភាពពេញលេញ» [3, 4]។",
+      ],
+      keyPoints: [
+        "Anxiety tools focus on internal cognitive reframing rather than external fixing [3].",
+        "Treat 'what if' thoughts as mental weather, not guaranteed prophetic facts.",
+        "Use 3-2-1 sensory grounding to pull your nervous system back into the present moment [4].",
+      ],
+      kmKeyPoints: [
+        "ឧបករណ៍ដោះស្រាយការថប់បារម្ភ ផ្ដោតលើការកែសម្រួលគំនិតខាងក្នុង មិនមែនការដោះស្រាយខាងក្រៅឡើយ [3]។",
+        "ចាត់ទុកគំនិត «ចុះបើ...» ដូចជាអាកាសធាតុផ្លាស់ប្តូរ មិនមែនជាការពិតដែលត្រូវតែកើតឡើងនោះទេ។",
+        "ប្រើប្រាស់ញាណទាំង ៥ (៣-២-១) ដើម្បីទាញប្រព័ន្ធប្រសាទត្រឡប់មកកាន់ពេលបច្ចុប្បន្ន [4]។",
+      ],
+    },
+    {
+      id: 8,
+      sectionNumber: 8,
+      title: "Personal State Check-in: Diagnosing Your Current Experience",
+      kmTitle: "ការពិនិត្យស្ថានភាពផ្ទាល់ខ្លួន៖ តើអ្នកកំពុងជួបប្រទះអ្វីនៅពេលនេះ? (Personal State Check-in)",
+      type: "reflection",
+      paragraphs: [
+        "Pause and tune into your current emotional climate. Gaining clarity on what you are carrying is the first step toward lightness.",
+      ],
+      kmParagraphs: [
+        "សូមផ្អាកមួយភ្លែត ហើយសង្កេតមើលអាកាសធាតុក្នុងចិត្តរបស់អ្នកនៅពេលនេះ។ ការដឹងច្បាស់ពីអ្វីដែលអ្នកកំពុងផ្ទុក គឺជាជំហានដំបូងក្នុងការសម្រាលបន្ទុក។",
+      ],
+      reflection: {
+        question: "When you reflect on what feels most uncomfortable inside your body and mind right now, which description fits best?",
+        kmQuestion: "នៅពេលដែលអ្នកឆ្លុះបញ្ចាំងពីអារម្មណ៍ដែលពិបាកបំផុតក្នុងចិត្ត និងរាងកាយនៅពេលនេះ តើការរៀបរាប់មួយណាដែលត្រូវនឹងអ្នកបំផុត?",
+        options: [
+          "I have too many concrete deadlines, financial bills, or work responsibilities to finish right now (Stress)",
+          "I have a constant, unexplained knot in my stomach and catastrophic worries about what might happen in the future (Anxiety)",
+          "I am experiencing both: high external pressures alongside persistent internal 'what if' panic loops",
+          "I feel relatively calm and grounded right now, and I am learning these distinctions for future resilience",
+        ],
+        kmOptions: [
+          "ខ្ញុំមានការងារ កាលកំណត់ ឬបន្ទុកហិរញ្ញវត្ថុជាក់ស្តែងច្រើនពេកដែលត្រូវធ្វើឱ្យទាន់ពេល (ភាពតានតឹង / Stress)",
+          "ខ្ញុំមានអារម្មណ៍ណែនក្នុងពោះ និងភ័យខ្លាចមិនឈប់អំពីគ្រោះមហន្តរាយដែលមិនទាន់កើតឡើងក្នុងអនាគត (ការថប់បារម្ភ / Anxiety)",
+          "ខ្ញុំជួបប្រទះទាំងពីរ៖ ទាំងសម្ពាធការងារខាងក្រៅច្រើនលើសលប់ និងទាំងការភ័យស្លន់ស្លោក្នុងចិត្តមិនឈប់",
+          "ខ្ញុំមានអារម្មណ៍ស្ងប់ស្ងាត់ធម្មតានៅពេលនេះ ហើយខ្ញុំកំពុងរៀនចំណុចទាំងនេះដើម្បីពង្រឹងស្មារតីទៅថ្ងៃមុខ",
+        ],
+        feedbackMessage:
+          "Accurately diagnosing your emotional state brings immediate relief. Whether you are navigating heavy external stress, untangling future-oriented anxiety, or managing both, your nervous system is responding to perceived danger. Be gentle with your body as you navigate forward.",
+        kmFeedbackMessage:
+          "ការសម្គាល់ដឹងច្បាស់ពីស្ថានភាពផ្លូវចិត្ត នាំមកនូវការធូរស្រាលភ្លាមៗ។ មិនថាអ្នកកំពុងប្រឈមមុខនឹងភាពតានតឹងជាក់ស្តែង ការថប់បារម្ភរឿងអនាគត ឬទាំងពីរនោះទេ រាងកាយរបស់អ្នកគ្រាន់តែព្យាយាមការពារសុវត្ថិភាពរបស់អ្នកប៉ុណ្ណោះ។ សូមមានក្តីមេត្តាចំពោះខ្លួនឯងក្នុងដំណើរទៅមុខ។",
+      },
+    },
+    {
+      id: 9,
+      sectionNumber: 9,
+      title: "When Stress Becomes Burnout, and Anxiety Becomes a Disorder [1, 3]",
+      kmTitle: "នៅពេលដែលស្ត្រេសក្លាយជាការអស់កម្លាំងចិត្ត ហើយការថប់បារម្ភក្លាយជាជំងឺ (Clinical Boundaries)",
+      type: "reading",
+      paragraphs: [
+        "Both stress and anxiety exist on a spectrum from normal, adaptive reactions to clinical mental health conditions that warrant professional support [1].",
+        "When chronic stress goes unmanaged for months, it evolves into systemic Burnout: complete emotional depletion, cynicism toward work and study, and feelings of total ineffectiveness [4].",
+        "When anxiety becomes excessive, uncontrollable, and persists for six months or longer across multiple life spheres, it may indicate Generalized Anxiety Disorder (GAD) or Panic Disorder. If your worries cause you to avoid leaving your room, trigger sudden suffocating panic attacks, or disrupt your ability to sleep and eat, you do not have to battle this alone. Evidence-based therapies such as Cognitive Behavioral Therapy (CBT) provide safe, proven roadmaps to recalibrate your nervous system [1, 3].",
+      ],
+      kmParagraphs: [
+        "ទាំងភាពតានតឹង និងការថប់បារម្ភ សុទ្ធតែកើតមានឡើងតាមកម្រិតខុសៗគ្នា ចាប់ពីប្រតិកម្មធម្មតានៃជីវិត រហូតដល់បញ្ហាសុខភាពផ្លូវចិត្តដែលទាមទារការគាំទ្រពីអ្នកជំនាញ [1]។",
+        "នៅពេលដែលភាពតានតឹងរ៉ាំរ៉ៃមិនត្រូវបានដោះស្រាយអស់រយៈពេលជាច្រើនខែ វានឹងវិវត្តទៅជាភាពអស់កម្លាំងចិត្តរ៉ាំរ៉ៃ (Burnout)៖ ការអស់ថាមពលទាំងស្រុង អារម្មណ៍សោះកក្រោះចំពោះការងារ និងអារម្មណ៍ថាខ្លួនឯងលែងមានប្រសិទ្ធភាព [4]។",
+        "រីឯការថប់បារម្ភ នៅពេលដែលវាកើនឡើងខ្លាំងរហូតដល់មិនអាចគ្រប់គ្រងបាន ហើយបន្តលើសពី ៦ ខែឡើងទៅ នោះវាអាចជាសញ្ញានៃជំងឺថប់បារម្ភទូទៅ (GAD) ឬជំងឺស្លន់ស្លោ (Panic Disorder)។ ប្រសិនបើការថប់បារម្ភធ្វើឱ្យអ្នកខ្លាចការចេញក្រៅបន្ទប់ បង្កអាការថប់ដង្ហើមញឹកញាប់ ឬរំខានដល់ការគេង និងការហូបចុក អ្នកមិនគួររែកពន់បន្ទុកនេះតែម្នាក់ឯងឡើយ។ ការព្យាបាលតាមក្បួនចិត្តវិទ្យាដូចជា CBT ផ្តល់នូវវិធីសាស្ត្រច្បាស់លាស់ក្នុងការស្តារតុល្យភាពប្រព័ន្ធប្រសាទឡើងវិញ [1, 3]។",
+      ],
+      keyPoints: [
+        "Chronic unmanaged stress can progress into systemic clinical Burnout [1].",
+        "Excessive anxiety lasting 6+ months may indicate an anxiety disorder requiring care.",
+        "Seeking psychotherapy is a proactive medical step, not a sign of defeat [3].",
+      ],
+      kmKeyPoints: [
+        "ភាពតានតឹងរ៉ាំរ៉ៃដែលមិនបានព្យាបាល អាចវិវត្តទៅជាការអស់កម្លាំងចិត្តរ៉ាំរ៉ៃ (Burnout) [1]។",
+        "ការថប់បារម្ភលើសលប់ដែលបន្តលើសពី ៦ ខែ អាចជាសញ្ញានៃជំងឺថប់បារម្ភ។",
+        "ការស្វែងរកជំនួយពីអ្នកចិត្តវិទ្យា គឺជាជំហានថែទាំសុខភាពដ៏ត្រឹមត្រូវ មិនមែនជាការចុះចាញ់ឡើយ [3]។",
+      ],
+    },
+    {
+      id: 10,
+      sectionNumber: 10,
+      title: "The Reset Button: The 1-Minute Dual-Action Breath",
+      kmTitle: "ប៊ូតុងកំណត់ឡើងវិញ៖ លំហាត់ដកដង្ហើមស្ងប់ចិត្ត ១ នាទី (1-Minute Dual-Action Breath)",
+      type: "coping",
+      paragraphs: [
+        "Whether your body is surging with external adrenaline or trapped in an internal panic loop, intentional diaphragmatic respiration acts as an immediate physiological brake.",
+        "Sit comfortably with your spine tall and shoulders relaxed. Inhale smoothly through your nose for 4 counts, letting your abdomen rise gently. Pause effortlessly for 2 counts.",
+        "Exhale slowly and softly through your mouth for 6 counts, releasing all stale air. As you exhale, silently repeat: 'Releasing external pressure, softening internal fear.' Practice this cycle 4 times to stimulate the vagus nerve and restore equilibrium.",
+      ],
+      kmParagraphs: [
+        "ទោះបីជារាងកាយរបស់អ្នកកំពុងតានតឹងដោយសារសម្ពាធខាងក្រៅ ឬកំពុងជាប់គាំងក្នុងរង្វិលជុំនៃការភ័យខ្លាចក្នុងចិត្តក៏ដោយ ការដកដង្ហើមវែងៗតាមក្បួនវេជ្ជសាស្ត្រដើរតួជាហ្វ្រាំងរំងាប់រាងកាយបានភ្លាមៗ។",
+        "អង្គុយឱ្យស្រួលខ្លួនដោយតម្រង់ខ្នង និងទម្លាក់ស្មាឱ្យធូរ។ ដកដង្ហើមចូលថ្នមៗតាមច្រមុះរាប់ដល់ ៤ ដោយឱ្យពោះប៉ោងឡើងថ្នមៗ។ ផ្អាកដង្ហើមមួយភ្លែត្រាប់ដល់ ២។",
+        "បន្ទាប់មកដកដង្ហើមចេញយឺតៗតាមមាត់រាប់ដល់ ៦ ដោយរំដោះខ្យល់ចាស់ចេញឱ្យអស់។ នៅពេលដកដង្ហើមចេញ សូមខ្សឹបប្រាប់ខ្លួនឯងថា៖ «រំដោះសម្ពាធពីខាងក្រៅ បន្ធូរការភ័យខ្លាចពីខាងក្នុង»។ អនុវត្តឡើងវិញ ៤ ដង ដើម្បីដាស់សរសៃប្រសាទ Vagus Nerve និងស្តារលំនឹងឡើងវិញ។",
+      ],
+      keyPoints: [
+        "Slow respiration stimulates the vagus nerve, signaling biological safety.",
+        "Lengthening the exhale slows cardiac tempo during acute spikes.",
+        "One minute of mindful breathing breaks the automatic panic escalation.",
+      ],
+      kmKeyPoints: [
+        "ការដកដង្ហើមវែងៗជួយដាស់សរសៃប្រសាទ Vagus Nerve ផ្តល់សញ្ញាសុវត្ថិភាពដល់រាងកាយ។",
+        "ការដកដង្ហើមចេញវែងជួយបន្ថយចង្វាក់បេះដូងពេលកំពុងភ័យខ្លាំង។",
+        "ការដកដង្ហើមដោយស្មារតីត្រឹមតែ ១ នាទី ជួយកាត់ផ្តាច់រង្វិលជុំនៃការភ័យស្លន់ស្លោ។",
+      ],
+      actions: [
+        {
+          label: "Try 1-Minute Calming Breath",
+          kmLabel: "អនុវត្តលំហាត់ដកដង្ហើមស្ងប់ចិត្ត ១ នាទី (1-Min Breath)",
+          actionType: "exercise",
+        },
+      ],
+    },
+    {
+      id: 11,
+      sectionNumber: 11,
+      title: "Navigating Both Paths on AROM [4, 5]",
+      kmTitle: "ការដោះស្រាយទាំងពីរលើ AROM (Navigating Both on AROM)",
+      type: "reading",
+      paragraphs: [
+        "Understanding whether you are dealing with external stress or internal anxiety gives you the power to choose the right remedy. You do not have to navigate either challenge alone.",
+        "On AROM, you have private, compassionate tools designed for every step of your journey. Open your private AROM Journal (/journal) to separate your thoughts: list concrete external stressors that require problem-solving on one side, and gently challenge 'what if' anxiety spirals on the other.",
+        "If you want professional guidance to manage chronic workplace burnout or unpack long-standing anxiety patterns, connect confidentially with verified Cambodian therapists through AROM Professional (/professional) [4, 5].",
+        "If stress or anxiety ever escalates into an overwhelming emotional crisis, panic attack, or feelings of despair, free and confidential support is available 24/7. Call the National Child and Youth Helpline at 1280, the National Health Hotline at 119, or TPO Cambodia at 017 222 372. Peace is always possible, one breath at a time.",
+      ],
+      kmParagraphs: [
+        "ការយល់ដឹងច្បាស់ថាតើអ្នកកំពុងជួបប្រទះភាពតានតឹងខាងក្រៅ ឬការថប់បារម្ភខាងក្នុង ផ្តល់ឱ្យអ្នកនូវអំណាចក្នុងការជ្រើសរើសវិធីព្យាបាលបានត្រឹមត្រូវ។ អ្នកមិនចាំបាច់ឆ្លងកាត់ការលំបាកទាំងនេះតែម្នាក់ឯងឡើយ។",
+        "នៅលើ AROM អ្នកមានឧបករណ៍សុវត្ថិភាព និងសម្ងាត់ជាច្រើនដើម្បីគាំទ្រអ្នក។ សូមបើកកំណត់ហេតុផ្ទាល់ខ្លួន AROM Journal (/journal) ដើម្បីបែងចែកការគិតរបស់អ្នក៖ កត់ត្រាសម្ពាធជាក់ស្តែងពីខាងក្រៅដែលត្រូវដោះស្រាយនៅម្ខាង និងរំងាប់គំនិតភ័យខ្លាច «ចុះបើ...» នៅម្ខាងទៀត។",
+        "ប្រសិនបើអ្នកចង់បានការណែនាំពីអ្នកជំនាញដើម្បីគ្រប់គ្រងការអស់កម្លាំងចិត្ត ឬដោះស្រាយបញ្ហាថប់បារម្ភយូរអង្វែង សូមភ្ជាប់ទំនាក់ទំនងដោយសម្ងាត់ជាមួយអ្នកចិត្តវិទ្យាកម្ពុជាតាមរយៈ AROM Professional (/professional) [4, 5]។",
+        "ប្រសិនបើភាពតានតឹង ឬការថប់បារម្ភឈានដល់កម្រិតវិបត្តិផ្លូវចិត្តធ្ងន់ធ្ងរ ឬមានអាការស្លន់ស្លោខ្លាំង សូមទាក់ទងជំនួយបន្ទាន់ភ្លាមៗ។ ខ្សែទូរស័ព្ទជំនួយកុមារ និងយុវជនលេខ 1280 ខ្សែទូរស័ព្ទសុខភាពជាតិលេខ 119 ឬអង្គការចិត្តសង្គមកម្ពុជា (TPO Cambodia) តាមលេខ 017 222 372 ត្រៀមជួយជានិច្ចដោយឥតគិតថ្លៃ។ សេចក្តីស្ងប់ក្នុងចិត្តតែងតែអាចកើតមានឡើងវិញបាន មួយដង្ហើមម្តងៗ។",
+      ],
+      keyPoints: [
+        "Use AROM Journal (/journal) to sort external tasks from internal anxiety thoughts.",
+        "Connect with licensed counselors on AROM Professional (/professional) for tailored care [4].",
+        "Crisis hotlines are free, confidential, and always available: 1280, 119, or TPO Cambodia 017 222 372.",
+      ],
+      kmKeyPoints: [
+        "ប្រើប្រាស់កំណត់ហេតុ AROM Journal (/journal) ដើម្បីបែងចែករវាងកិច្ចការជាក់ស្តែង និងការថប់បារម្ភ។",
+        "ភ្ជាប់ទំនាក់ទំនងជាមួយអ្នកជំនាញលើ AROM Professional (/professional) ដើម្បីទទួលបានការណែនាំ [4]។",
+        "ខ្សែទូរស័ព្ទទាន់ហេតុការណ៍ឥតគិតថ្លៃ និងសម្ងាត់ត្រៀមជួយជានិច្ច៖ 1280, 119 ឬ TPO Cambodia 017 222 372។",
+      ],
+      alertBox: {
+        type: "tip",
+        text: "Key Insight: Treat stress with problem-solving action and restorative rest. Treat anxiety with cognitive reframing, present-moment grounding, and self-compassion.",
+        kmText: "គន្លឹះសំខាន់៖ ដោះស្រាយភាពតានតឹង (Stress) ដោយសកម្មភាពជាក់ស្តែង និងការសម្រាក។ រីឯដោះស្រាយការថប់បារម្ភ (Anxiety) ដោយការកែសម្រួលការគិត ការតាំងចិត្តក្នុងបច្ចុប្បន្ន និងក្តីមេត្តាចំពោះខ្លួនឯង។",
+      },
+      actions: [
+        {
+          label: "Open AROM Journal",
+          kmLabel: "បើកកំណត់ហេតុ AROM Journal",
+          actionType: "tips",
+        },
+        {
+          label: "Talk to a Professional",
+          kmLabel: "ពិគ្រោះជាមួយអ្នកជំនាញ AROM",
+          actionType: "professional",
+        },
+      ],
+    },
+  ],
+};
+
 export const ALL_LESSONS: Lesson[] = [
+  LESSON_STRESS_VS_ANXIETY,
   LESSON_ACADEMIC_PRESSURE,
   LESSON_LONELINESS,
   LESSON_SUPPORT_FRIEND,
@@ -7722,7 +8182,7 @@ export const ALL_LESSONS: Lesson[] = [
     kmFormat: "ការអាន និងការវាយតម្លៃខ្លួនឯង (Self-Assessment)",
     isAvailable: false,
     badge: "Coming Soon",
-    image: "/mindguide/icon-11.svg",
+    image: "/mindguide/category-burnout.png",
     description:
       "Recognize the distinction between ordinary tiredness and systemic burnout, and learn realistic steps to recharge.",
     kmDescription: "ស្គាល់ពីភាពខុសគ្នារវាងការអស់កម្លាំងធម្មតា និងការអស់កម្លាំងចិត្តរ៉ាំរ៉ៃ។",
@@ -7750,7 +8210,7 @@ export const ALL_LESSONS: Lesson[] = [
     kmFormat: "ការអាន និងលំហាត់ (Exercises)",
     isAvailable: false,
     badge: "Coming Soon",
-    image: "/mindguide/icon-7.svg",
+    image: "/mindguide/category-self-esteem.png",
     description:
       "Practice speaking to yourself with genuine warmth, rewriting internal critics, and grounding your self-worth.",
     kmDescription: "ហាត់និយាយជាមួយខ្លួនឯងដោយក្តីមេត្តា និងបង្កើនទំនុកចិត្តលើខ្លួនឯង។",
@@ -7774,7 +8234,7 @@ export const INITIAL_SAVED_ITEMS: SavedItem[] = [
     category: "Stress",
     duration: "6 min",
     progressPercent: 60,
-    thumbnail: "/mindguide/stress.png",
+    thumbnail: "/mindguide/category-stress.png",
   },
   {
     id: "tip-slow-breathing",

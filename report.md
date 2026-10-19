@@ -1,5 +1,31 @@
 # AROM: Change Report
 
+## 19 Oct 2026: New Lesson, Stress vs. Anxiety: What's the Difference?
+
+Commit `3de1a91`. No migration. Content and frontend only.
+
+**Why.** Seekers frequently confuse situational stress with internal anxiety, often grouping both under the vague Cambodian label "គិតច្រើន" (overthinking). This confusion leads people to misdiagnose their suffering, either blaming themselves for lacking willpower when facing chronic anxiety or attempting to meditate away realistic external hardship. "Stress vs. Anxiety: What's the Difference?" (`stress-vs-anxiety-difference`) provides an 8-minute evidence-based psychoeducational guide adapted from NIMH, APA, Harvard Health Publishing, WHO, and UNICEF Cambodia. It equips seekers with clear tools to identify external stressors vs internal threat loops, understand why both trigger the same fight-or-flight body alarms, apply targeted environmental problem-solving for stress, use cognitive reframing and present-moment grounding for anxiety, practice a dual-action 1-minute calming breath, and access confidential therapy on AROM.
+
+**What changed for users:**
+- **New Lesson available in MindGuide Learn:** Seekers can access "Stress vs. Anxiety: What's the Difference? (ភាពតានតឹង និងការថប់បារម្ភ៖ តើខុសគ្នាយ៉ាងដូចម្តេច?)" under the Stress category or directly via `/mindguide/learn?open=stress-vs-anxiety-difference`.
+- **11 Comprehensive Bilingual Sections:** Covers daily confusion between stress and anxiety, the biological fight-or-flight highway (adrenaline, cortisol, and body alarms), Cambodian cultural context (unraveling "គិតច្រើន" and reducing stigma), an interactive diagnostic scenario quiz, the 3-question Origin Test (cause, duration, focus), targeted environmental tools for stress (action, boundaries, recovery sprints), targeted psychological tools for anxiety (cognitive reframing, 3-2-1 grounding, accepting uncertainty), a personal state check-in reflection, clinical boundaries (when stress becomes burnout and anxiety becomes a disorder), the 1-minute dual-action reset breath, and navigating both paths on AROM.
+- **Tip Alert Box:** Section 11 highlights a key clinical insight: "Treat stress with problem-solving action and restorative rest. Treat anxiety with cognitive reframing, present-moment grounding, and self-compassion."
+- **Direct AROM tool integration:** Section 10 triggers the "1-Minute Calming Breath" (`actionType: "exercise"`), and Section 11 provides direct action buttons for "Open AROM Journal" (`actionType: "tips"`) and "Talk to a Professional" (`actionType: "professional"`).
+
+**What changed for the team:**
+- **`learn-data.ts`:** Exported `REFERENCES_STRESS_VS_ANXIETY` with 5 peer-reviewed citations (NIMH, APA, Harvard Health, WHO, UNICEF Cambodia) and `LESSON_STRESS_VS_ANXIETY`, prepending it to `ALL_LESSONS` under category `"Stress"`.
+- **Hero Image:** Added `public/mindguide/stress-vs-anxiety-hero.jpg` depicting a cozy, grounding scene of a person holding a warm mug of tea over an open study journal with tabs and a soft blanket.
+- **Strict Anti-AI Compliance:** Zero em dashes, en dashes, or loose hyphens across all English and Khmer copy.
+
+**What to re-test:**
+1. Open `/mindguide/learn` and verify "Stress vs. Anxiety: What's the Difference?" card appears under the "Stress" filter with the "Essential" badge.
+2. Open `/mindguide/learn?open=stress-vs-anxiety-difference` and verify hero image, outcomes, and 11 sections render smoothly.
+3. Test Section 4 quiz: verify correct feedback when selecting option B and bilingual explanations.
+4. Test Section 8 personal state check-in interactive choice and feedback.
+5. Test Section 10 coping exercise button: launches 1-Minute Calming Breath session.
+6. Test Section 11 tip alert box and action buttons: "Open AROM Journal" and "Talk to a Professional".
+7. Switch language to Khmer and verify all Kantumruy Pro translations.
+
 ## 19 Oct 2026: New Lesson, How to Deal With Academic Pressure
 
 Commit `8fe077e`. No migration. Content and frontend only.
