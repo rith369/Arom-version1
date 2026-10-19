@@ -7758,7 +7758,7 @@ export const LESSON_STRESS_VS_ANXIETY: Lesson = {
   format: "Reading + Practice",
   kmFormat: "ការអាន និងការអនុវត្ត (Reading & Practice)",
   isAvailable: true,
-  image: "/mindguide/strategies.png",
+  image: "/mindguide/category-stress.png",
   heroImage: "/mindguide/stress-vs-anxiety-hero.jpg",
   badge: "Essential",
   description:
