@@ -2,7 +2,7 @@
 
 ## 19 Oct 2026: Install Banner on the Home Page
 
-Commit `pending`. No migration.
+Commit `faa77eb`. No migration.
 
 **Why.** After the install feature went live, Rith expected a popup asking to install, and none appeared. Chrome and Edge never pop up an install dialog on their own: they only show a small icon in the address bar, which is easy to miss. A banner on Home makes the invitation visible.
 
