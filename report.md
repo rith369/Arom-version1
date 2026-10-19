@@ -1,5 +1,58 @@
 # AROM: Change Report
 
+## 19 Oct 2026: Remove Mock Notifications & Wellbeing Settings Card
+
+Commit `4039564`. No migration.
+
+**Why.** The "Notifications & Wellbeing" card in user settings displayed mock toggle switches for morning mood check-ins, evening breathwork reminders, and calming audio or haptics that were not backed by real push notifications or device alarms. Removing these mock toggles prevents user confusion and keeps settings focused purely on real, functioning preferences (language, privacy, and support).
+
+**What changed for users:**
+
+- **Cleaner settings screen:** removed the non-functional "Notifications & Wellbeing" section from user profile settings (`/profile/settings`).
+- **No mock toggles:** eliminated switches that did not trigger real push notifications.
+
+**What changed for the team:**
+
+- **Cleaned `app/_components/profile-settings.tsx`:** removed unused mock state (`morningReminder`, `eveningReflection`, `soundEffects`) and unused icon imports (`Bell`, `Moon`, `Volume2`).
+
+**What to re-test:**
+
+1. Open `/profile/settings` or tap Settings from the user avatar menu.
+2. Confirm the page renders cleanly with language selection, privacy settings, and crisis support, without the mock notifications card.
+
+## 19 Oct 2026: Find Clinic and Hospital Feature from Figma
+
+Commit `4039564`. No migration.
+
+**Why.** Rith requested the static implementation of the "Find Clinic & Hospital" screen and "Clinic Details" screen based on the official Figma designs (`node-id=487-784` and `node-id=487-799`). This enables seekers to easily discover verified mental health clinics, counseling centers, and psychiatric hospitals across Phnom Penh with real-time interactive search, categorization, map previews, and instant directions or calling.
+
+**What changed for users:**
+
+- **Find Clinic & Hospital directory:** accessible directly from the sidebar navigation or via `/clinic-hospital`.
+- **Real-time search and filtering:** search by clinic name, address, or treatment type, with clean filter pills for All, Nearby, Clinic, and Hospital.
+- **Interactive map preview:** shows city roads and precise location pins for clinics with hover and click interactions.
+- **Faithful Figma clinic cards:** Riverside Mental Wellness Center, Harmony Care Hospital, and Mind & Life Clinic, showing distances, addresses, and specialties.
+- **Complete Clinic Details view:** clicking "View details" transitions into the full detail view featuring hero photography, 4.8 star ratings, operating status, tabbed overviews, services, seeker reviews, and direct "Get Direction" and "Call" action buttons.
+- **Bilingual support:** complete English and Khmer text rendering with smooth responsive layout for mobile and desktop screens.
+
+**What changed for the team:**
+
+- **Created `app/_components/clinics/`:** contains `clinic-data.ts`, `clinic-list-view.tsx`, `clinic-detail-view.tsx`, and `clinic-home-view.tsx`.
+- **Created route `/clinic-hospital`:** clean Next.js App Router page with SEO metadata.
+- **Activated navigation item:** `clinic-hospital` in `navigation-config.ts` is now live with `href: "/clinic-hospital"`.
+- **Documented handoff:** added section 32 in `BACKEND-HANDOFF.md` for future database integration.
+
+**What to re-test:**
+
+1. Navigate to `/clinic-hospital` or tap "Find Clinic & Hospital" in the sidebar navigation.
+2. Verify the search bar filters results instantly (for example typing "harmony" shows Harmony Care Hospital).
+3. Test filter chips (Nearby, Counseling, Hospital, More).
+4. Hover and tap on the map pins to see clinic tooltips.
+5. Tap "View details" on Riverside Mental Wellness Center: verify the hero banner, address, rating, and status.
+6. Switch between "Overviews", "Services", and "Reviews" tabs.
+7. Tap the back arrow: verify smooth return to the clinic list.
+8. Switch language between English and Khmer using the header language toggle.
+
 ## 19 Oct 2026: Home Shows Your Plan Right After You Log In
 
 Commit `2f764bf`. No migration.

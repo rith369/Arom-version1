@@ -150,7 +150,7 @@ export const NAVIGATION_SECTIONS: NavSection[] = [
         enTitle: "Find Clinic & Hospital",
         kmTitle: "ស្វែងរកគ្លីនិក និងមន្ទីរពេទ្យ",
         icon: Building2,
-        isComingSoon: true,
+        href: "/clinic-hospital",
       },
       {
         id: "appointments",

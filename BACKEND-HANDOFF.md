@@ -82,6 +82,7 @@ The yellow "Demo data on this page" banner is in `admin-shell.tsx`. Remove it fo
 | Play with friends (`/play-cards`): a game hub with Mental health cards, Truth or dare and Guess the animal, one phone passed around | Done | No backend needed (cards in code, nothing saved). Later: admin managed decks, a play count in Progress, online rooms | 28 |
 | Other admin pages | Bookings and Settings are connected (sections 12, 13, 15). Group activities in admin Community still sample data | Not started for group activities | 23 |
 | Anonymous identity protection: professionals see client aliases, safe functions for bookings, messages, notes, suggestions, care plans and shared data | No UI change | Connected (Sokheng, merged with main in PR #19, 18 Oct). Intake note fix `20261018070000` still to run | 29 |
+| Find Clinic & Hospital (`/clinic-hospital` from Figma): interactive map, filters, search, clinic cards, and clinic detail view | Done | Waiting for backend (currently static curated directory in `clinic-data.ts`) | 32 |
 
 ## 5. Admin users page
 
@@ -1246,7 +1247,45 @@ Types in `lib/reviews.ts`: `PublicReview`, `MyReview`, `ProReview`, `AdminReview
 ### Still open
 
 - No notice to the professional when a new review arrives (only the menu page). Could be a count on `/pro` Home later.
-- No "Report this review" link for users yet. Admins find problems from the admin list.
+## 32. Find Clinic & Hospital
+
+**Status:** Done on static data (from Figma designs `node-id=487-784` and `node-id=487-799`). Waiting for backend to provide clinic management and database queries if dynamic clinic submissions or directory expansion are needed.
+
+**Files:** `app/_components/clinics/clinic-data.ts`, `app/_components/clinics/clinic-list-view.tsx`, `app/_components/clinics/clinic-detail-view.tsx`, `app/_components/clinics/clinic-home-view.tsx`, `app/clinic-hospital/page.tsx`.
+
+### Data shape the page expects
+| Field | Type | Database source | Exists today? |
+|---|---|---|---|
+| `id` | string | `clinics.id` | static in code |
+| `slug` | string | `clinics.slug` | static in code |
+| `name` | string | `clinics.name` | static in code |
+| `nameKm` | string | `clinics.name_km` | static in code |
+| `category` | string | `clinics.category` (`clinic`, `hospital`, `counseling`) | static in code |
+| `rating` | number | calculated or stored rating average | static in code |
+| `reviewCount` | number | count of verified reviews | static in code |
+| `distance` | string | calculated GPS distance | static in code |
+| `city` | string | `clinics.city` | static in code |
+| `address` | string | `clinics.address` | static in code |
+| `tags` | string[] | `clinics.tags` | static in code |
+| `status` | string | `clinics.operating_hours_status` | static in code |
+| `image` | string | `clinics.image_url` | static in `public/clinics/` |
+| `phone` | string | `clinics.phone_number` | static in code |
+| `phoneDisplay` | string | formatted display phone | static in code |
+| `googleMapsUrl` | string | `clinics.google_maps_url` | static in code |
+| `about` | string | `clinics.about` | static in code |
+| `aboutKm` | string | `clinics.about_km` | static in code |
+| `services` | ClinicService[] | `clinic_services` relation | static in code |
+| `reviews` | ClinicReview[] | `clinic_reviews` relation | static in code |
+
+### Actions
+| Frontend action | Meaning | Endpoint | Exists today? |
+|---|---|---|---|
+| Search | Filter clinics by name, tag, or address | Client side filter | Done |
+| Filter chips | Filter by Nearby, Counseling, Hospital | Client side filter | Done |
+| Pin click | Select clinic from interactive map | Client side selection | Done |
+| View details | Navigate to clinic detail screen | Handled via `?clinic=<slug>` | Done |
+| Get Direction | Open Google Maps directions | External maps link | Done |
+| Call | Initiate phone call to clinic | `tel:` link | Done |
 
 ## Template for a new feature section
 

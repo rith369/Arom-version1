@@ -3,7 +3,6 @@
 import Link from 'next/link';
 import {
   ArrowLeft,
-  Bell,
   Bookmark,
   BookOpen,
   Check,
@@ -16,11 +15,9 @@ import {
   Heart,
   Languages,
   LogOut,
-  Moon,
   Shield,
   Stethoscope,
   UserRound,
-  Volume2,
 } from 'lucide-react';
 import { motion, useReducedMotion } from 'motion/react';
 import { useEffect, useState } from 'react';
@@ -46,11 +43,6 @@ export function ProfileSettings() {
   const { user, refresh } = useAuth();
   const shouldReduceMotion = useReducedMotion();
   const km = language === 'km';
-
-  // Mock preference toggles
-  const [morningReminder, setMorningReminder] = useState(true);
-  const [eveningReflection, setEveningReflection] = useState(true);
-  const [soundEffects, setSoundEffects] = useState(true);
 
   const [hideIdentity, setHideIdentity] = useState(true);
   const [savingIdentity, setSavingIdentity] = useState(false);
@@ -391,131 +383,6 @@ export function ProfileSettings() {
             </div>
           </motion.section>
 
-          {/* WELLBEING & NOTIFICATION PREFERENCES */}
-          <motion.section
-            variants={itemVariants}
-            aria-labelledby="wellness-settings-title"
-            className="mt-6 rounded-3xl border border-arom-border bg-white p-5 shadow-card sm:p-6">
-            <h2
-              id="wellness-settings-title"
-              className="text-base font-bold text-ink sm:text-lg">
-              {km
-                ? 'ការជូនដំណឹង និងសុខុមាលភាព (Notifications & Wellbeing)'
-                : 'Notifications & Wellbeing'}
-            </h2>
-            <p className="text-xs text-ink-muted sm:text-sm">
-              {km
-                ? 'កំណត់ពេលរំលឹក និងទម្លាប់ពិនិត្យអារម្មណ៍ប្រចាំថ្ងៃ'
-                : 'Customize your daily check-in habits and reminders'}
-            </p>
-
-            <div className="mt-4 divide-y divide-arom-border/60">
-              {/* Reminder 1 */}
-              <div className="flex items-center justify-between py-3.5">
-                <div className="flex items-center gap-3">
-                  <div className="flex size-9 items-center justify-center rounded-xl bg-arom-soft text-arom">
-                    <Bell size={18} />
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-ink">
-                      {km
-                        ? 'រំលឹកពិនិត្យអារម្មណ៍ពេលព្រឹក (Morning Check-in)'
-                        : 'Morning mood check-in'}
-                    </p>
-                    <p className="text-xs text-ink-muted">
-                      {km
-                        ? 'រៀងរាល់ព្រឹក ម៉ោង ៨:០០ ព្រឹក'
-                        : 'Every morning at 8:00 AM'}
-                    </p>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  role="switch"
-                  aria-checked={morningReminder}
-                  onClick={() => setMorningReminder((prev) => !prev)}
-                  className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus-visible:outline-2 focus-visible:outline-arom ${
-                    morningReminder ? 'bg-arom' : 'bg-gray-200'
-                  }`}>
-                  <span
-                    className={`inline-block size-5 transform rounded-full bg-white shadow-sm transition duration-200 ease-in-out ${
-                      morningReminder ? 'translate-x-5' : 'translate-x-0'
-                    }`}
-                  />
-                </button>
-              </div>
-
-              {/* Reminder 2 */}
-              <div className="flex items-center justify-between py-3.5">
-                <div className="flex items-center gap-3">
-                  <div className="flex size-9 items-center justify-center rounded-xl bg-arom-soft text-arom">
-                    <Moon size={18} />
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-ink">
-                      {km
-                        ? 'រំលឹកដកដង្ហើមពេលយប់ (Evening Breathwork)'
-                        : 'Evening breathwork reminder'}
-                    </p>
-                    <p className="text-xs text-ink-muted">
-                      {km
-                        ? 'រៀងរាល់យប់ ម៉ោង ៩:៣០ យប់'
-                        : 'Every evening at 9:30 PM'}
-                    </p>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  role="switch"
-                  aria-checked={eveningReflection}
-                  onClick={() => setEveningReflection((prev) => !prev)}
-                  className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus-visible:outline-2 focus-visible:outline-arom ${
-                    eveningReflection ? 'bg-arom' : 'bg-gray-200'
-                  }`}>
-                  <span
-                    className={`inline-block size-5 transform rounded-full bg-white shadow-sm transition duration-200 ease-in-out ${
-                      eveningReflection ? 'translate-x-5' : 'translate-x-0'
-                    }`}
-                  />
-                </button>
-              </div>
-
-              {/* Sound effects */}
-              <div className="flex items-center justify-between py-3.5">
-                <div className="flex items-center gap-3">
-                  <div className="flex size-9 items-center justify-center rounded-xl bg-arom-soft text-arom">
-                    <Volume2 size={18} />
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-ink">
-                      {km
-                        ? 'សំឡេងបន្ធូរអារម្មណ៍ (Calming Sound & Haptics)'
-                        : 'Calming sound & haptics'}
-                    </p>
-                    <p className="text-xs text-ink-muted">
-                      {km
-                        ? 'សំឡេងរំងាប់អារម្មណ៍ពេលអនុវត្តលំហាត់'
-                        : 'Gentle audio feedback during exercises'}
-                    </p>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  role="switch"
-                  aria-checked={soundEffects}
-                  onClick={() => setSoundEffects((prev) => !prev)}
-                  className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus-visible:outline-2 focus-visible:outline-arom ${
-                    soundEffects ? 'bg-arom' : 'bg-gray-200'
-                  }`}>
-                  <span
-                    className={`inline-block size-5 transform rounded-full bg-white shadow-sm transition duration-200 ease-in-out ${
-                      soundEffects ? 'translate-x-5' : 'translate-x-0'
-                    }`}
-                  />
-                </button>
-              </div>
-            </div>
-          </motion.section>
 
           {/* GET HELP NOW: crisis helplines and AROM support */}
           <motion.div variants={itemVariants}>
