@@ -2,7 +2,7 @@
 
 ## 19 Oct 2026: Clients Review Their Professional
 
-Commit pending. Branch `rith/professional-reviews`, pull request for Hok Chheng. Migration `20261019000300_professional_reviews.sql`, **not yet applied**.
+Commit `e8f7a21`. Branch `rith/professional-reviews`, pull request for Hok Chheng. Migration `20261019000300_professional_reviews.sql`, **not yet applied**.
 
 **Why.** Rith wanted clients to be able to review a professional after a session. Reviews help people choose the right professional, and give professionals honest feedback. Because seeing a therapist is private, nobody can see who wrote a review: not the public, not the professional, not admins.
 
