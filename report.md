@@ -34,6 +34,7 @@ Commit `PENDING`. No migration. **Supabase and Google Cloud settings needed** (b
 
 **What changed for the team:**
 - New `app/_components/auth/google-sign-in.tsx` (`useGoogleSignIn`, `GoogleButton`), used by `login-form.tsx` and `signup-form.tsx`. It calls `signInWithOAuth({ provider: 'google' })` with the PKCE flow and returns to `/auth/confirm?provider=google&next=...`.
+- `app/signup/page.tsx` wraps the form in `<Suspense>`, like the login page, because the Google button reads `?next=` (`useSearchParams`). Without it `npm run build` failed on `/signup`.
 - `confirmEmail` in `auth-controller.ts` handles `provider=google`: exchanges the code, picks the start page by role when there is no `next`, and sends failures to `/login?error=google`.
 - Suspended accounts are handled as with email login: they can sign in, but the database and role checks refuse every action.
 
