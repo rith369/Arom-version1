@@ -2,7 +2,7 @@
 
 ## 19 Oct 2026: Admin Sidebar Links No Longer Overlap
 
-Commit `HASH`. No migration.
+Commit `bcadb25`. No migration.
 
 **Why.** The admin sidebar now has 11 menu items. The "Professional area" and "View website" links were pinned to the bottom of the screen, so on shorter screens they sat on top of the last menu items (Audit log, Users) and could not be read or clicked.
 
