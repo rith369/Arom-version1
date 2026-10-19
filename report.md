@@ -1,5 +1,55 @@
 # AROM: Change Report
 
+## 19 Oct 2026: Password Strength Bar on Sign Up
+
+Commit `PENDING`. No migration.
+
+**Why.** Under the sign up password, five rules with crosses were always on screen. It looked busy and a little alarming before anyone had typed.
+
+**What changed for users:**
+- **One calm bar:** while typing, a five step bar fills in with Weak, Fair, Good or Strong next to it. Nothing shows before the first letter.
+- **One line when something is missing:** if Create Account is pressed with a password that is not strong enough, a single line says the next thing to add, for example "An uppercase letter (A to Z)".
+- **Same rules as before:** at least 8 characters, a lowercase and an uppercase letter, a number and a special character. Strong means all five, which is exactly what sign up accepts. Screen readers hear the strength.
+
+**What changed for the team:**
+- New `app/_components/auth/password-strength.tsx` (`PasswordStrengthMeter`, `getPasswordStrength`), adapted from the suggested component: it uses the existing AROM password field, AROM colours and `PASSWORD_RULES` from `lib/auth.ts`, and respects reduced motion. The old `PasswordChecklist` is removed.
+- The Lightswind `password-strength-indicator` was not used: it is a paid Pro component.
+
+**What to re-test:**
+1. Open `/signup` and type in the password field. Check the bar appears and moves from Weak to Strong as you add a capital, a number and a symbol.
+2. Type `abcdefgh` and press Create Account. Check one line says "An uppercase letter (A to Z)".
+3. Turn on Reduce motion on your device and check the bar changes without sliding.
+
+## 19 Oct 2026: Log In and Sign Up With Google
+
+Commit `PENDING`. No migration. **Supabase and Google Cloud settings needed** (below).
+
+**Why.** The Google button on the login page only said "coming soon", and the sign up page had no Google option. Many people in Cambodia use a Gmail account on their phone, so signing in with it removes a password and a confirmation email.
+
+**What changed for users:**
+- **No Apple button:** the login page showed an Apple button that only said "coming soon". It is removed until Apple sign in exists; Google now spans the full width.
+- **Google on both pages:** Log in and Sign up both have a Google button. The first time, it creates the AROM account; after that it logs in. On Sign up it says that continuing with Google means agreeing to the Terms of Service and Privacy Policy. It opens Google, then brings people back signed in, to the page they came from, or to their start page (Home, `/pro` for professionals, `/admin` for admins).
+- **New Google accounts** get a profile like any sign up: the name from Google, the role Member, English as the language.
+- **If Google does not finish** (cancelled or refused), the login page says "Google sign in did not finish. Please try again." If Google is not available, it asks people to log in with their email.
+
+**What changed for the team:**
+- New `app/_components/auth/google-sign-in.tsx` (`useGoogleSignIn`, `GoogleButton`), used by `login-form.tsx` and `signup-form.tsx`. It calls `signInWithOAuth({ provider: 'google' })` with the PKCE flow and returns to `/auth/confirm?provider=google&next=...`.
+- `confirmEmail` in `auth-controller.ts` handles `provider=google`: exchanges the code, picks the start page by role when there is no `next`, and sends failures to `/login?error=google`.
+- Suspended accounts are handled as with email login: they can sign in, but the database and role checks refuse every action.
+
+**Settings (one time):**
+1. Google Cloud, Clients, Web application: JavaScript origins `https://arom-version1.vercel.app` and `http://localhost:3000`; redirect URI `https://miaczhhhvbnlqwijpmru.supabase.co/auth/v1/callback`. Consent screen scopes `email`, `profile`, `openid` only.
+2. Supabase, Authentication, Sign In / Providers, Google: on, with the Client ID and secret. Skip nonce checks off, Allow users without an email off.
+3. Supabase, Authentication, URL Configuration, Redirect URLs: `https://arom-version1.vercel.app/auth/confirm**`, `https://arom-version1-*.vercel.app/auth/confirm**` and `http://localhost:3000/auth/confirm**` (the `**` lets the `?provider=google&next=...` part through).
+
+**What to re-test:**
+1. On `/login`, press Google, choose an account, and check you land on Home signed in, with your Google name in the profile menu.
+2. Open `/appointments` signed out, log in with Google, and check you come back to `/appointments`.
+3. Press Google, then cancel on the Google screen. Check the login page shows the "did not finish" message.
+4. Sign in with Google using a Gmail address that already has a confirmed email account. Check it is the same account (same bookings).
+5. On `/signup`, press Google with an account that has never used AROM. Check a new account is made and you land on Home.
+6. Repeat step 1 on the live site.
+
 ## 19 Oct 2026: New Lesson, Stress vs. Anxiety: What's the Difference?
 
 Commit `753581e`. No migration. Content and frontend only.
