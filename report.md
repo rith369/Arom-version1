@@ -8,23 +8,39 @@ Commit `753581e`. No migration. Content and frontend only.
 
 **What changed for users:**
 - **New Lesson available in MindGuide Learn:** Seekers can access "Stress vs. Anxiety: What's the Difference? (ភាពតានតឹង និងការថប់បារម្ភ៖ តើខុសគ្នាយ៉ាងដូចម្តេច?)" under the Stress category or directly via `/mindguide/learn?open=stress-vs-anxiety-difference`.
+- **Dedicated 3D Category Artwork:** Replaced repeated generic orange star icons and broken image placeholders with custom, meaningful 3D claymorphic category illustrations across all 8 wellness topics:
+  - **Relationships:** Caring hands cradling a warm glowing heart (`category-relationships.png`).
+  - **Emotions:** Layered concentric heart with pastel emotional ripples (`category-emotions.png`).
+  - **Burnout:** Energy battery recharging with a fresh botanical sprout (`category-burnout.png`).
+  - **Anxiety:** Soothing ocean wave with calm breathing swirl (`category-anxiety.png`).
+  - **Stress:** Flourishing botanical green sprout (`category-stress.png`).
+  - **Sleep:** Luminous crescent moon resting on a soft twilight cloud (`category-sleep.png`).
+  - **Basics:** Open learning book with glowing mind and lotus leaf (`category-basics.png`).
+  - **Self-esteem:** Radiant blooming lotus flower on warm golden amber squircle (`category-self-esteem.png`).
+- **Zero Broken Images:** Fixed missing image reference for "Why Have I Lost Interest in Things I Used to Love?" (`/mindguide/category-emotions.png`), eliminating the broken placeholder.
+- **Enhanced Thumbnail Presentation:** Card thumbnails now scale with subtle interactive feedback (`group-hover:scale-105`) with balanced framing inside the rounded container.
 - **11 Comprehensive Bilingual Sections:** Covers daily confusion between stress and anxiety, the biological fight-or-flight highway (adrenaline, cortisol, and body alarms), Cambodian cultural context (unraveling "គិតច្រើន" and reducing stigma), an interactive diagnostic scenario quiz, the 3-question Origin Test (cause, duration, focus), targeted environmental tools for stress (action, boundaries, recovery sprints), targeted psychological tools for anxiety (cognitive reframing, 3-2-1 grounding, accepting uncertainty), a personal state check-in reflection, clinical boundaries (when stress becomes burnout and anxiety becomes a disorder), the 1-minute dual-action reset breath, and navigating both paths on AROM.
 - **Tip Alert Box:** Section 11 highlights a key clinical insight: "Treat stress with problem-solving action and restorative rest. Treat anxiety with cognitive reframing, present-moment grounding, and self-compassion."
 - **Direct AROM tool integration:** Section 10 triggers the "1-Minute Calming Breath" (`actionType: "exercise"`), and Section 11 provides direct action buttons for "Open AROM Journal" (`actionType: "tips"`) and "Talk to a Professional" (`actionType: "professional"`).
 
 **What changed for the team:**
+- **Category Icon System:** Added 8 transparent 512x512 high-resolution PNG assets in `public/mindguide/` (`category-*.png`) with automated fallback via `CATEGORY_THUMBNAILS` and `getCategoryThumbnail(category)` in `learn-data.ts`.
+- **All 19 Lessons Synchronized:** Updated `image:` references in `learn-data.ts` to their respective category artwork.
+- **Fallback Compatibility:** Preserved `public/mindguide/emotions.png` copy as an alias to avoid 404s for any lingering bookmarks.
 - **`learn-data.ts`:** Exported `REFERENCES_STRESS_VS_ANXIETY` with 5 peer-reviewed citations (NIMH, APA, Harvard Health, WHO, UNICEF Cambodia) and `LESSON_STRESS_VS_ANXIETY`, prepending it to `ALL_LESSONS` under category `"Stress"`.
 - **Hero Image:** Added `public/mindguide/stress-vs-anxiety-hero.jpg` depicting a cozy, grounding scene of a person holding a warm mug of tea over an open study journal with tabs and a soft blanket.
-- **Strict Anti-AI Compliance:** Zero em dashes, en dashes, or loose hyphens across all English and Khmer copy.
+- **Strict Anti-AI Compliance:** Zero em dashes, en dashes, or loose hyphens across all English and Khmer copy. Zero sparkle icons.
 
 **What to re-test:**
-1. Open `/mindguide/learn` and verify "Stress vs. Anxiety: What's the Difference?" card appears under the "Stress" filter with the "Essential" badge.
-2. Open `/mindguide/learn?open=stress-vs-anxiety-difference` and verify hero image, outcomes, and 11 sections render smoothly.
-3. Test Section 4 quiz: verify correct feedback when selecting option B and bilingual explanations.
-4. Test Section 8 personal state check-in interactive choice and feedback.
-5. Test Section 10 coping exercise button: launches 1-Minute Calming Breath session.
-6. Test Section 11 tip alert box and action buttons: "Open AROM Journal" and "Talk to a Professional".
-7. Switch language to Khmer and verify all Kantumruy Pro translations.
+1. Open `/mindguide/learn` and verify "All Lessons" displays distinctive 3D category artwork for Relationships, Emotions, Burnout, Stress, Anxiety, Sleep, Basics, and Self-esteem.
+2. Verify "Why Have I Lost Interest in Things I Used to Love?" displays the glowing concentric heart icon instead of a broken image.
+3. Verify "Stress vs. Anxiety: What's the Difference?" card appears under the "Stress" filter with the "Essential" badge.
+4. Open `/mindguide/learn?open=stress-vs-anxiety-difference` and verify hero image, outcomes, and 11 sections render smoothly.
+5. Test Section 4 quiz: verify correct feedback when selecting option B and bilingual explanations.
+6. Test Section 8 personal state check-in interactive choice and feedback.
+7. Test Section 10 coping exercise button: launches 1-Minute Calming Breath session.
+8. Test Section 11 tip alert box and action buttons: "Open AROM Journal" and "Talk to a Professional".
+9. Switch language to Khmer and verify all Kantumruy Pro translations.
 
 ## 19 Oct 2026: New Lesson, How to Deal With Academic Pressure
 
