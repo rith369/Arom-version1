@@ -42,6 +42,10 @@ export function listenForInstallPrompt() {
   });
 }
 
+// Start as soon as this file loads in the browser (it is in the root layout's
+// bundle), which is earlier than any effect, so the one time event is not missed.
+if (typeof window !== 'undefined') listenForInstallPrompt();
+
 function isStandalone() {
   const iosStandalone = (navigator as Navigator & { standalone?: boolean }).standalone === true;
   return iosStandalone || window.matchMedia('(display-mode: standalone)').matches;
@@ -68,6 +72,45 @@ function subscribe(callback: () => void) {
 
 export function useInstallMode(): InstallMode {
   return useSyncExternalStore(subscribe, getMode, () => 'unknown');
+}
+
+function getIsPhone() {
+  return /Android|Mobi/i.test(navigator.userAgent);
+}
+
+/** True on Android and other phones, where the browser menu can add AROM. */
+export function useIsPhone(): boolean {
+  return useSyncExternalStore(subscribe, getIsPhone, () => false);
+}
+
+// "Not now" on the Home banner is remembered on this device only.
+const BANNER_KEY = 'arom_install_banner_dismissed_v1';
+let bannerDismissed: boolean | null = null;
+
+function getBannerDismissed() {
+  if (bannerDismissed === null) {
+    try {
+      bannerDismissed = window.localStorage.getItem(BANNER_KEY) === '1';
+    } catch {
+      bannerDismissed = false;
+    }
+  }
+  return bannerDismissed;
+}
+
+export function useInstallBannerDismissed(): boolean {
+  // Hidden on the server so the banner never flashes before the check.
+  return useSyncExternalStore(subscribe, getBannerDismissed, () => true);
+}
+
+export function dismissInstallBanner() {
+  bannerDismissed = true;
+  try {
+    window.localStorage.setItem(BANNER_KEY, '1');
+  } catch {
+    // Private mode: it stays hidden until the page is reloaded.
+  }
+  notify();
 }
 
 /** Opens the browser's install dialog. Returns true if the user installed. */

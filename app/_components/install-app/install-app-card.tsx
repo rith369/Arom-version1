@@ -1,14 +1,10 @@
 'use client';
 
-import { EllipsisVertical, Share, Smartphone, SquarePlus, type LucideIcon } from 'lucide-react';
+import { Smartphone } from 'lucide-react';
 import { useId, useState } from 'react';
 import { useLanguage } from '../language-provider';
 import { showInstallPrompt, useInstallMode } from './install-store';
-
-interface Step {
-  icon: LucideIcon;
-  text: string;
-}
+import { InstallSteps } from './install-steps';
 
 // Settings card that puts AROM on the home screen. Chrome, Edge and Android
 // open their own install dialog. iPhone and other browsers get short steps.
@@ -21,28 +17,6 @@ export function InstallAppCard() {
   const stepsId = useId();
 
   if (mode === 'unknown' || mode === 'installed') return null;
-
-  const steps: Step[] =
-    mode === 'ios'
-      ? [
-          { icon: Share, text: t('ចុចប៊ូតុង ចែករំលែក (Share) នៅក្នុង Safari។', 'In Safari, tap the Share button.') },
-          {
-            icon: SquarePlus,
-            text: t('ជ្រើសរើស "បន្ថែមទៅអេក្រង់ដើម" (Add to Home Screen)។', 'Choose "Add to Home Screen".'),
-          },
-          { icon: Smartphone, text: t('ចុច "បន្ថែម" (Add)។ AROM នឹងនៅលើអេក្រង់ដើមរបស់អ្នក។', 'Tap "Add". AROM is now on your home screen.') },
-        ]
-      : [
-          { icon: EllipsisVertical, text: t('បើកម៉ឺនុយរបស់កម្មវិធីរុករក។', 'Open your browser menu.') },
-          {
-            icon: SquarePlus,
-            text: t(
-              'ជ្រើសរើស "ដំឡើងកម្មវិធី" (Install app) ឬ "បន្ថែមទៅអេក្រង់ដើម" (Add to Home screen)។',
-              'Choose "Install app" or "Add to Home screen".',
-            ),
-          },
-          { icon: Smartphone, text: t('AROM នឹងនៅលើអេក្រង់ដើមរបស់អ្នក។', 'AROM is now on your home screen.') },
-        ];
 
   async function handleClick() {
     if (mode === 'prompt') {
@@ -79,19 +53,12 @@ export function InstallAppCard() {
       </button>
 
       {mode !== 'prompt' && showSteps && (
-        <ol id={stepsId} className="space-y-3 border-t border-arom-border px-5 pb-5 pt-4 sm:px-6 sm:pb-6">
-          {steps.map((step, index) => (
-            <li key={step.text} className="flex items-center gap-3 text-sm text-ink">
-              <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-arom-wash text-arom">
-                <step.icon size={17} aria-hidden="true" />
-              </span>
-              <span>
-                <span className="sr-only">{t(`ជំហាន ${index + 1}:`, `Step ${index + 1}:`)} </span>
-                {step.text}
-              </span>
-            </li>
-          ))}
-        </ol>
+        <InstallSteps
+          id={stepsId}
+          ios={mode === 'ios'}
+          km={km}
+          className="border-t border-arom-border px-5 pb-5 pt-4 sm:px-6 sm:pb-6"
+        />
       )}
     </div>
   );

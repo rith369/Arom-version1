@@ -1,5 +1,34 @@
 # AROM: Change Report
 
+## 19 Oct 2026: Install Banner on the Home Page
+
+Commit `pending`. No migration.
+
+**Why.** After the install feature went live, Rith expected a popup asking to install, and none appeared. Chrome and Edge never pop up an install dialog on their own: they only show a small icon in the address bar, which is easy to miss. A banner on Home makes the invitation visible.
+
+**What changed for users:**
+
+- **New banner under the greeting on Home:** "Add AROM to your home screen. Open it in one tap." with **Install** and **Not now** (and a close button). English and Khmer.
+- **Install** opens the real install dialog on Android, Chrome and Edge. On iPhone it shows the steps (Share, Add to Home Screen, Add). On other phone browsers it shows the browser menu steps.
+- **Not now** hides it on that device for good. The Install card in Settings is still there.
+- **It never shows once AROM is installed.** On computers whose browser cannot install (Firefox, Safari), the banner does not show.
+
+**What changed for the team:**
+
+- **New** `app/_components/install-app/install-banner.tsx`, placed in `app/components/arom-main-view.tsx`.
+- **New** `install-steps.tsx`: the steps list now shared by the banner and the Settings card.
+- **`install-store.ts`**: remembers "Not now" in the browser (`arom_install_banner_dismissed_v1`), and starts listening for the browser's install signal as soon as the script loads, so it is not missed.
+- No backend changes.
+
+**What to re-test:**
+
+1. On a computer in Chrome or Edge (AROM not installed), open Home: the banner is under the greeting. Tap Install: the browser's install dialog opens.
+2. Open AROM from the installed app: no banner on Home.
+3. In a normal browser tab, tap Not now: the banner goes away and stays away after a reload. Settings still has the Install card.
+4. On an iPhone in Safari, tap Install on the banner: the three steps show.
+5. In Firefox on a computer: no banner on Home.
+6. Switch to Khmer and check the banner and steps.
+
 ## 19 Oct 2026: Install AROM to the Home Screen
 
 Commit `9668e12`. No migration.
