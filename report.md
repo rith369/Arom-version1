@@ -1,5 +1,35 @@
 # AROM: Change Report
 
+## 19 Oct 2026: One Saved Page in Settings
+
+Commit `HASH`. No migration.
+
+**Why.** Rith wanted a Saved button in Settings so people can find everything they kept in one place: lessons, tips, practice and podcasts. Before, each part had its own hidden Saved screen, and podcasts could not be saved at all.
+
+**What changed for users:**
+
+- **New "Saved" card in Settings** (under the profile summary) opens the Saved page.
+- **Saved page (`/profile/saved`)** has four tabs: Lessons, Tips, Practice and Podcasts, each with a count. Newest saved comes first. Tap a row to open it, or tap the filled bookmark to remove it. An empty tab explains how to save and links to that part of the app.
+- **Podcasts can be saved.** The heart in the podcast player now keeps the episode, and it shows up under Podcasts in Saved. The heart stays filled when you come back.
+- **Lessons you bookmark now appear** in the Saved page (the old Learn Saved screen did not show them).
+
+**What changed for the team:**
+
+- **New** `app/_components/saved/saved-store.ts` (one small store for the four lists), `saved-view.tsx` and `app/profile/saved/page.tsx`.
+- **Still in the browser only.** Lessons, tips and practice keep the keys they already used. Podcasts use `arom_saved_podcasts_v1`.
+- **`BACKEND-HANDOFF.md` section 30** describes the `saved_items` table, RLS (own rows only, admins never read it) and endpoints the backend should add.
+- **Not changed:** the old Saved screens inside Learn, Tips and Practice. The Learn one still reads sample data. See section 30, gap 4.
+
+**What to re-test:**
+
+1. Log in, open Settings: the Saved card is under the profile summary. Tap it.
+2. Open a lesson, tap its bookmark, return to Saved: the lesson is under Lessons. Do the same for a tip and a practice.
+3. Open a podcast, press play, tap the heart, close the player, open Saved, then Podcasts: the episode is there. Open the player again: the heart is filled.
+4. Remove an item with the bookmark: it disappears and the tab count goes down.
+5. Open an item from Saved: the correct lesson, tip, practice or episode opens.
+6. Switch to Khmer and check the card, the tabs and the empty states.
+7. Log out and open `/profile/saved`: you are sent to the login page.
+
 ## 19 Oct 2026: Podcast Pages Redesigned From Figma
 
 Commit `b2c37ad`. No migration.

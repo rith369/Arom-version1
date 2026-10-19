@@ -67,6 +67,7 @@ The yellow "Demo data on this page" banner is in `admin-shell.tsx`. Remove it fo
 | Crisis helplines and support contact: admin Settings, user "Get help now" in Profile and Settings | Done | Connected: helplines (`/api/crisis-resources`, `/api/admin/crisis-resources`, migration `20261014000300`) and support contact (returned with the helplines; `GET\|PUT /api/admin/support-contact`, migration `20261017000200`) | 13 |
 | Admin bookings chart and table, emergency cancel (`/admin/bookings`) | Done | Connected (`GET /api/admin/bookings`, `POST /api/admin/bookings/:id/cancel`), migration `20261017000100`. The client is never shown | 12 |
 | MindGuide podcasts: user pages `/podcasts` and `/podcasts/<id>`, admin Podcasts tab | Done on mock data | Waiting for backend | 11 |
+| Saved page in Settings (`/profile/saved`): saved lessons, tips, practice and podcasts | Done, saved in the browser only | Waiting for backend | 30 |
 | Community: professionals and admins create groups, admins read chats and shut groups down, users report a person, image, message or group (`/community`, `/admin/community`) | Done | Partly connected: group list and create, join, chat read and send (`/api/community/groups`, `/:id/join`, `/:id/messages`), migrations `20261016000000` to `20261016000700`. Moderation connected: admin groups list, create, edit, shut down, reopen, member reports, remove message or person (`/api/admin/community/*`, `POST /api/community/reports`), migration `20261017000500`. Group activities still sample data | 23 |
 | Mood check in and Your Progress on Home (`/`, journal starts from today's mood) | Done | Connected (`POST /api/mood-checkins`, `GET /api/progress`), migration `20261015000400` | 22 |
 | Progress pages (`/progress`, `/progress/details`, from Figma): trend, bars, distribution, today's check in | Done | Connected for every range (`GET /api/progress?range=7d\|30d\|90d`). Insights worked out in the browser from the same real check ins | 22 |
@@ -370,7 +371,7 @@ The user app still reads lessons, tips and practices from `app/_components/learn
 2. **Only published episodes** are returned to users. Admin only writes.
 3. **Admin form fields not covered yet:** takeaways. Add them to the form when the backend exists.
 4. **Report a problem** is not on podcast pages yet; adding it needs `podcast` as a report target type.
-5. **Favourite (heart) in the player is not saved.** It is local state only. Needs a per user list of favourite episode ids (own rows only, RLS).
+5. **Saved episodes (heart in the player) live in the browser only.** See section 30 for the table the backend should add.
 6. **Recommended for You** is just the newest three episodes. Real recommendations need a rule from the backend (for example by the user's saved topics).
 7. **Download** is a plain link to `audioUrl` once it exists. Offline downloads inside the app are not built.
 8. **Sleep timer and speed** are kept in the browser for the current visit only; nothing to store.
@@ -1169,6 +1170,31 @@ Several original functions remain for internal use, with direct execution revoke
 - **Telling anonymous clients apart: done 18 Oct.** Pro screens show anonymous clients as "Anonymous #4821" (Khmer "អនាមិក #4821"), a 4 digit number made from the alias id in `anonymousLabel()` (`app/pro/_data/clients.ts`). Applied once in `pro-provider.tsx`, so every pro screen uses it. Frontend only; the server still returns "Anonymous". Two anonymous clients of one professional can rarely share a number (about 1 in 2,000 with 3 of them).
 - `messages-controller.ts`, `sessions-controller.ts` and `care-controller.ts` keep Sokheng's single quote formatting.
 - Test with a professional and a client account after the three migrations run: bookings list and actions, messages and voice, client file (summary note, archive, shared data, mood trend), suggestions, care plan.
+
+## 30. Saved items (Settings, Saved)
+
+**Files:** `app/_components/saved/saved-store.ts` (read, toggle and remove saved ids), `app/_components/saved/saved-view.tsx`, route `app/profile/saved/page.tsx` (login required like the rest of `/profile`). The "Saved" card sits under the profile summary in `app/_components/profile-settings.tsx`. The podcast player heart saves through the same store.
+
+**What it does:** one page with four tabs (Lessons, Tips, Practice, Podcasts), newest saved first, a count on each tab, remove with the filled bookmark, and an empty state with a link to browse. Each row opens the item (`/mindguide/learn?open=<id>`, `/mindguide/tips?open=<id>`, `/mindguide/practice?open=<id>`, `/podcasts/<id>`).
+
+**Where it is stored today (browser only, `localStorage`, a JSON array of ids per type):**
+
+| Type | Key | Written by |
+|---|---|---|
+| lesson | `arom_bookmarked_lessons_v1` | bookmark on lesson screens |
+| tip | `arom_bookmarked_tips_v1` | bookmark on tip screens |
+| practice | `arom_bookmarked_practices_v1` | bookmark on practice screens |
+| podcast | `arom_saved_podcasts_v1` | heart in the podcast player |
+
+Tips and practice show one saved example (`how-to-control-stress`, `interactive-breathing`) until the person changes the list. That is demo seed data from the older screens and should not exist in production.
+
+### Backend gaps
+
+1. **Table `saved_items`** with `user_id`, `item_type` (`lesson`, `tip`, `practice`, `podcast`), `item_id` (the same slug the screens use), `created_at`, unique on the three first fields. **RLS: a user reads, inserts and deletes only their own rows.** Saved items are personal reading choices, so admins must not read them.
+2. **Endpoints:** `GET /api/saved` (all types, newest first), `PUT /api/saved/:type/:id` (save), `DELETE /api/saved/:type/:id` (remove). The API should check the id exists in the content list, the same way `POST /api/content-reports` does.
+3. **Move the browser lists** into the table the first time a signed in person opens Saved, then stop reading the browser keys (same idea as the journal move in section 22).
+4. **Older Saved screens still differ.** The Saved button inside Learn, Tips and Practice opens their own screens. Tips and Practice read the same keys. The Learn one reads a different key with sample items (`STORAGE_KEYS.SAVED_ITEMS`), so lessons bookmarked there do not show in it. Point all three at `/profile/saved` or at the new table once the backend exists.
+5. **No saved date** is kept yet, so the order is the order of saving.
 
 ## Template for a new feature section
 
