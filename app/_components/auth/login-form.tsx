@@ -5,7 +5,7 @@ import { CheckCircle2, LockKeyhole, Mail } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import {
@@ -41,7 +41,6 @@ function SocialMark({ src }: { src: string }) {
 }
 
 export function LoginForm() {
-  const router = useRouter();
   const { refresh } = useAuth();
   const searchParams = useSearchParams();
   const shouldReduceMotion = useReducedMotion();
@@ -94,8 +93,9 @@ export function LoginForm() {
     // panel and professionals in their professional area.
     const next = searchParams.get("next");
     const home = role === "admin" ? "/admin" : role === "professional" ? "/pro" : "/";
-    router.replace(next ? safeNextPath(next) : home);
-    router.refresh();
+    // A full page load, not a client side move, so every part of the app that
+    // saw the visitor as signed out (the plan, mood, care plan) loads again.
+    window.location.replace(next ? safeNextPath(next) : home);
   });
 
   return (

@@ -114,8 +114,9 @@ export function SignupForm() {
     }
 
     await refresh();
-    router.replace("/");
-    router.refresh();
+    // A full page load, not a client side move, so every part of the app that
+    // saw the visitor as signed out (the plan, mood, care plan) loads again.
+    window.location.replace("/");
   });
 
   return (

@@ -1,5 +1,30 @@
 # AROM: Change Report
 
+## 19 Oct 2026: Home Shows Your Plan Right After You Log In
+
+Commit `pending`. No migration.
+
+**Why.** Rith logged in on a phone and Home greeted them by name, but the plan card still said "Log in to make your own plan" until they refreshed. The plan (and mood) data is kept in memory once it loads. If someone opened Home before logging in, the app remembered "signed out", and logging in moved them back to Home without reloading, so the old answer stayed.
+
+**What changed for users:**
+
+- **After logging in, Home shows your own plan, mood and care plan straight away.** No refresh needed.
+- Same after signing up and after confirming your email.
+
+**What changed for the team:**
+
+- **`login-form.tsx`, `signup-form.tsx`, `confirm-email-form.tsx`** now finish with a full page load (`window.location.replace`) and no longer use `router.replace` plus `router.refresh`. That clears every in-memory store at once (plan, mood, care plan, activities). Without it, each store would have to watch for login changes on its own.
+- Logging out was already a full page load (a form post), so nothing from one account can stay in memory for the next.
+- Google sign in already ends in a full page load through `/auth/callback`.
+
+**What to re-test:**
+
+1. Log out. Open Home: the plan card says "Log in to make your own plan".
+2. Tap it and log in with email and password. Home opens with your own plan (no login button) and your mood week. Do not refresh.
+3. Log in as an admin and as a professional: you land in `/admin` and `/pro` as before.
+4. Open a protected page while logged out (for example `/profile`), log in: you land back on that page.
+5. Sign up a new account and confirm the email: Home opens signed in, with your plan.
+
 ## 19 Oct 2026: Install Popup Replaces the Home Banner
 
 Commit `e3c4623`. No migration.

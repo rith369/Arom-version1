@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { CheckCircle2, Inbox, KeyRound, LogIn, Mail, MailCheck } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import {
@@ -31,7 +31,6 @@ const steps = [
  * device. Typing it here signs them in on this device.
  */
 function CodeForm() {
-  const router = useRouter();
   const { refresh } = useAuth();
   const {
     register,
@@ -82,8 +81,9 @@ function CodeForm() {
       // Not critical.
     }
     await refresh();
-    router.replace("/");
-    router.refresh();
+    // A full page load, not a client side move, so every part of the app that
+    // saw the visitor as signed out (the plan, mood, care plan) loads again.
+    window.location.replace("/");
   });
 
   return (
