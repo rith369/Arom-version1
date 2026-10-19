@@ -1,4 +1,4 @@
--- AROM: clients review their professional (BACKEND-HANDOFF.md section 30).
+-- AROM: clients review their professional (BACKEND-HANDOFF.md section 31).
 --
 -- Decided by Rith (19 Oct 2026):
 --   * Only a user with a completed session with that professional can

@@ -1,5 +1,5 @@
 /*
- * Reviews of professionals (BACKEND-HANDOFF.md section 30). A user with a
+ * Reviews of professionals (BACKEND-HANDOFF.md section 31). A user with a
  * completed session writes one review per professional: 1 to 5 stars and an
  * optional comment. Reviews are anonymous: nobody but the writer knows who
  * wrote one. The professional can reply; admins can hide a review.

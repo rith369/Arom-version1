@@ -4,6 +4,7 @@ import Link from 'next/link';
 import {
   ArrowLeft,
   Bell,
+  Bookmark,
   BookOpen,
   Check,
   CheckCircle2,
@@ -199,6 +200,33 @@ export function ProfileSettings() {
               </div>
             </div>
           </motion.section>
+
+          {/* Saved lessons, tips, practice and podcasts */}
+          <motion.div variants={itemVariants} className="mt-6">
+            <Link
+              href="/profile/saved"
+              className="group flex items-center justify-between gap-3 rounded-3xl border border-arom-border bg-white p-5 shadow-card transition-colors duration-150 hover:border-arom/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-arom sm:p-6">
+              <div className="flex items-center gap-3.5">
+                <div className="flex size-11 items-center justify-center rounded-2xl bg-arom-soft text-arom">
+                  <Bookmark size={22} />
+                </div>
+                <div>
+                  <p className="text-base font-bold text-ink">
+                    {km ? 'បានរក្សាទុក (Saved)' : 'Saved'}
+                  </p>
+                  <p className="text-xs text-ink-muted sm:text-sm">
+                    {km
+                      ? 'មេរៀន គន្លឹះ ការអនុវត្ត និងផតខាស'
+                      : 'Lessons, tips, practice and podcasts'}
+                  </p>
+                </div>
+              </div>
+              <ChevronRight
+                size={20}
+                className="shrink-0 text-ink-muted transition-transform duration-150 group-hover:translate-x-0.5 group-hover:text-arom"
+              />
+            </Link>
+          </motion.div>
 
           {user?.role === 'user' && (
             <motion.section

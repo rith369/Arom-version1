@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { useLanguage } from "../language-provider";
+import { toggleSaved, useSavedIds } from "../saved/saved-store";
 import { formatTimestamp, type MindGuidePodcast } from "./podcast-data";
 
 const SPEEDS = [1, 1.25, 1.5, 2] as const;
@@ -99,11 +100,12 @@ export function PodcastPlayer({ podcast }: { podcast: MindGuidePodcast }) {
   const demoTimeRef = useRef(0);
   const hasAudio = Boolean(podcast.audioUrl);
 
+  const saved = useSavedIds("podcast").includes(podcast.id);
+
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(podcast.durationSeconds);
   const [speed, setSpeed] = useState<(typeof SPEEDS)[number]>(1);
-  const [saved, setSaved] = useState(false);
   const [sleepChoice, setSleepChoice] = useState<SleepChoice>("off");
   const [sheet, setSheet] = useState<"sleep" | "chapters" | null>(null);
   const [downloadNote, setDownloadNote] = useState(false);
@@ -204,8 +206,8 @@ export function PodcastPlayer({ podcast }: { podcast: MindGuidePodcast }) {
           <button
             type="button"
             aria-pressed={saved}
-            aria-label={saved ? t("ដកចេញពីបញ្ជីចូលចិត្ត", "Remove from favourites") : t("ចូលចិត្តភាគនេះ", "Favourite this episode")}
-            onClick={() => setSaved((value) => !value)}
+            aria-label={saved ? t("ដកចេញពីអ្វីដែលបានរក្សាទុក", "Remove from saved") : t("រក្សាទុកភាគនេះ", "Save this episode")}
+            onClick={() => toggleSaved("podcast", podcast.id)}
             className={roundButtonClass}
           >
             <Heart size={26} aria-hidden="true" className={saved ? "fill-arom" : ""} />

@@ -2,7 +2,7 @@
 
 ## 19 Oct 2026: Clients Review Their Professional
 
-Commit `e8f7a21`. Branch `rith/professional-reviews`, pull request for Hok Chheng. Migration `20261019000300_professional_reviews.sql`, **not yet applied**.
+Commit `e8f7a21`. Branch `rith/professional-reviews`, PR #24. Migration `20261019000300_professional_reviews.sql`, applied by Rith in Supabase on 19 Oct 2026.
 
 **Why.** Rith wanted clients to be able to review a professional after a session. Reviews help people choose the right professional, and give professionals honest feedback. Because seeing a therapist is private, nobody can see who wrote a review: not the public, not the professional, not admins.
 
@@ -20,10 +20,9 @@ Commit `e8f7a21`. Branch `rith/professional-reviews`, pull request for Hok Chhen
 - **Admins: new Reviews page (`/admin/reviews`, English only)** with Shown and Hidden tabs, search, Hide (reason required) and Show again. Both are written to the audit log.
 - **Backend:** table `professional_reviews` with RLS (writer reads own rows only, every write through a function), functions for users, the public, professionals and admins, and endpoints `/api/reviews`, `/api/pro/reviews`, `/api/admin/reviews`. The old `rating` and `review_count` columns on `professional_profiles` are not used; numbers are counted from visible reviews.
 - **SQL tested** on PGlite (Postgres in Node) with 41 checks: who can review, RLS, public list and counts, replies, hide and show, audit log, no writer in any response.
-- **Safe before the migration:** without it, the review boxes stay hidden and profiles show no stars.
-- **`BACKEND-HANDOFF.md` section 30** has the rules, table, functions and endpoints.
+- **`BACKEND-HANDOFF.md` section 31** has the rules, table, functions and endpoints.
 
-**What to re-test** (after the migration runs):
+**What to re-test:**
 
 1. As a professional, mark a past session as completed in My bookings.
 2. As that client, open My appointments. The completed session shows "Write a review". Pick 4 stars, write a comment, post it.
@@ -34,6 +33,36 @@ Commit `e8f7a21`. Branch `rith/professional-reviews`, pull request for Hok Chhen
 7. As an admin, open Reviews, hide it with a reason. It leaves the profile and the stars. The client and the professional see "hidden" with the reason. The audit log shows "Hid a review". Show it again.
 8. Delete the review as the client. It leaves the profile.
 9. Switch to Khmer and check My appointments, the profile and `/pro/reviews`.
+
+## 19 Oct 2026: One Saved Page in Settings
+
+Commit `8bc3d06`. No migration.
+
+**Why.** Rith wanted a Saved button in Settings so people can find everything they kept in one place: lessons, tips, practice and podcasts. Before, each part had its own hidden Saved screen, and podcasts could not be saved at all.
+
+**What changed for users:**
+
+- **New "Saved" card in Settings** (under the profile summary) opens the Saved page.
+- **Saved page (`/profile/saved`)** has four tabs: Lessons, Tips, Practice and Podcasts, each with a count. Newest saved comes first. Tap a row to open it, or tap the filled bookmark to remove it. An empty tab explains how to save and links to that part of the app.
+- **Podcasts can be saved.** The heart in the podcast player now keeps the episode, and it shows up under Podcasts in Saved. The heart stays filled when you come back.
+- **Lessons you bookmark now appear** in the Saved page (the old Learn Saved screen did not show them).
+
+**What changed for the team:**
+
+- **New** `app/_components/saved/saved-store.ts` (one small store for the four lists), `saved-view.tsx` and `app/profile/saved/page.tsx`.
+- **Still in the browser only.** Lessons, tips and practice keep the keys they already used. Podcasts use `arom_saved_podcasts_v1`.
+- **`BACKEND-HANDOFF.md` section 30** describes the `saved_items` table, RLS (own rows only, admins never read it) and endpoints the backend should add.
+- **Not changed:** the old Saved screens inside Learn, Tips and Practice. The Learn one still reads sample data. See section 30, gap 4.
+
+**What to re-test:**
+
+1. Log in, open Settings: the Saved card is under the profile summary. Tap it.
+2. Open a lesson, tap its bookmark, return to Saved: the lesson is under Lessons. Do the same for a tip and a practice.
+3. Open a podcast, press play, tap the heart, close the player, open Saved, then Podcasts: the episode is there. Open the player again: the heart is filled.
+4. Remove an item with the bookmark: it disappears and the tab count goes down.
+5. Open an item from Saved: the correct lesson, tip, practice or episode opens.
+6. Switch to Khmer and check the card, the tabs and the empty states.
+7. Log out and open `/profile/saved`: you are sent to the login page.
 
 ## 19 Oct 2026: Podcast Pages Redesigned From Figma
 

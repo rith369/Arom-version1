@@ -17,7 +17,7 @@ import { requireRole } from "./role-controller";
 import { databaseError, fail, invalidInput, json, readJson, unauthorized } from "./shared";
 
 /*
- * AROM reviews controller (BACKEND-HANDOFF.md section 30). Every write goes
+ * AROM reviews controller (BACKEND-HANDOFF.md section 31). Every write goes
  * through a database function that checks the rules again: a completed
  * session to review, the owner to reply, an admin to hide. No response ever
  * says who wrote a review.
