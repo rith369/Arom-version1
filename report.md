@@ -1,5 +1,37 @@
 # AROM: Change Report
 
+## 19 Oct 2026: Podcast Pages Redesigned From Figma
+
+Commit `HASH`. No migration.
+
+**Why.** Rith shared the Figma for the listener podcast screens. The old pages were a plain list and an inline player. Podcasts are not connected to a backend yet, so this is built on sample episodes to show the real look and flow.
+
+**What changed for users:**
+
+- **Podcast list (`/podcasts`)** has the headphones illustration, a search box, topic chips (All, Mental Health, Anxiety, Sleep, Stress, Relationships) and cards with a topic icon, title, length and topic. The first three are under "Recommended for You", the rest under "More episodes". Searching or picking a chip shows one "Results" list, or a short message when nothing matches.
+- **Episode page (`/podcasts/<id>`)** shows the episode picture with a big play button, title, length, and About and Chapters tabs. About has the description and "What you'll learn" with green ticks. A "Play Episode" button opens the player. The guest card and the "For learning only" note stay at the bottom.
+- **New full screen player (`/podcasts/<id>/play`)** has close and heart buttons, the episode picture, a progress bar you can tap, speed (1x, 1.25x, 1.5x, 2x), back and forward 15 seconds, and play and pause. Sleep timer (5 to 45 minutes) and Chapter (jump to a part) open a small sheet. Download works once an episode has audio.
+- **Five new sample episodes** from the design (Coping with stress at school, Building your self confidence, Understanding anxiety, Better sleep step by step, A mindful moment), in English and Khmer.
+- **Preview mode:** episodes without audio run a silent demo clock so the player can be tried, with a note that real audio is coming soon.
+
+**What changed for the team:**
+
+- **New route** `app/podcasts/[id]/play/page.tsx`. `podcast-player.tsx` is now the full screen player; the old inline player is gone.
+- **Illustrations** `public/podcasts/header.png` and `episode-art.png`, downloaded from Figma.
+- **Admin Podcasts tab** reads the same sample list, so it now shows eight episodes.
+- **`BACKEND-HANDOFF.md` section 11** lists the new screens and the new gaps (favourites, recommendations, offline download).
+- **Khmer for the five new episodes needs a review** by a native speaker.
+
+**What to re-test:**
+
+1. Open `/podcasts`: header picture, search, chips and the two sections look like the design.
+2. Type "sleep" in search, then clear it and tap the Anxiety chip. Results update, and "All" brings everything back.
+3. Open an episode, switch between About and Chapters, then tap the big play button.
+4. In the player: play, drag the bar, tap 1x to change speed, tap back and forward, open Sleep timer and pick 5 minutes, open Chapter and jump to a part, tap the heart, tap Download.
+5. Press the X to return to the episode page.
+6. Switch to Khmer and check the three screens.
+7. Open `/podcasts/does-not-exist`: a not found page shows.
+
 ## 19 Oct 2026: Recommended for You Looks Like Popular Groups
 
 Commit `262c9e6`. No migration.

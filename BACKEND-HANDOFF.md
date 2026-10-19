@@ -345,7 +345,9 @@ The user app still reads lessons, tips and practices from `app/_components/learn
 
 ## 11. MindGuide podcasts
 
-**Files:** user side `app/_components/podcasts/podcast-data.ts` (type, sample episodes), `podcast-player.tsx`, `podcasts-views.tsx`, routes `app/podcasts/page.tsx` and `app/podcasts/[id]/page.tsx`. The MindGuide home "Podcast" icon links to `/podcasts`. Admin side `app/admin/_data/podcasts.ts`, Sokheng's `podcasts-view.tsx` (MindGuide page, Podcasts tab).
+**Files:** user side `app/_components/podcasts/podcast-data.ts` (type, sample episodes), `podcast-player.tsx` (full screen player), `podcasts-views.tsx` (list and episode page), routes `app/podcasts/page.tsx`, `app/podcasts/[id]/page.tsx` and `app/podcasts/[id]/play/page.tsx`. Illustrations are in `public/podcasts/`. The MindGuide home "Podcast" icon links to `/podcasts`.
+
+**User screens (redesigned 19 Oct 2026 from Figma, still on sample data):** `/podcasts` has search, topic chips (built from the `topic` of the episodes) and "Recommended for You" (newest three, no personalisation yet) plus "More episodes". `/podcasts/<id>` has About and Chapters tabs; `takeaways` are shown as "What you'll learn". `/podcasts/<id>/play` is the full screen player. Without `audioUrl` the player runs a silent demo clock so the screen can be tried; with `audioUrl` it plays the real file. Admin side `app/admin/_data/podcasts.ts`, Sokheng's `podcasts-view.tsx` (MindGuide page, Podcasts tab).
 
 **Decided:** these are AROM team podcasts made by admins. They are not the professional podcasts in `lib/therapists.ts`, which professionals will manage from `/pro`.
 
@@ -368,6 +370,10 @@ The user app still reads lessons, tips and practices from `app/_components/learn
 2. **Only published episodes** are returned to users. Admin only writes.
 3. **Admin form fields not covered yet:** takeaways. Add them to the form when the backend exists.
 4. **Report a problem** is not on podcast pages yet; adding it needs `podcast` as a report target type.
+5. **Favourite (heart) in the player is not saved.** It is local state only. Needs a per user list of favourite episode ids (own rows only, RLS).
+6. **Recommended for You** is just the newest three episodes. Real recommendations need a rule from the backend (for example by the user's saved topics).
+7. **Download** is a plain link to `audioUrl` once it exists. Offline downloads inside the app are not built.
+8. **Sleep timer and speed** are kept in the browser for the current visit only; nothing to store.
 
 ## 12. Admin bookings chart
 
