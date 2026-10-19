@@ -2,7 +2,7 @@
 
 ## 19 Oct 2026: New Lesson, Stress vs. Anxiety: What's the Difference?
 
-Commit `3de1a91`. No migration. Content and frontend only.
+Commit `753581e`. No migration. Content and frontend only.
 
 **Why.** Seekers frequently confuse situational stress with internal anxiety, often grouping both under the vague Cambodian label "គិតច្រើន" (overthinking). This confusion leads people to misdiagnose their suffering, either blaming themselves for lacking willpower when facing chronic anxiety or attempting to meditate away realistic external hardship. "Stress vs. Anxiety: What's the Difference?" (`stress-vs-anxiety-difference`) provides an 8-minute evidence-based psychoeducational guide adapted from NIMH, APA, Harvard Health Publishing, WHO, and UNICEF Cambodia. It equips seekers with clear tools to identify external stressors vs internal threat loops, understand why both trigger the same fight-or-flight body alarms, apply targeted environmental problem-solving for stress, use cognitive reframing and present-moment grounding for anxiety, practice a dual-action 1-minute calming breath, and access confidential therapy on AROM.
 
