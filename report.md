@@ -2,7 +2,7 @@
 
 ## 19 Oct 2026: Professional Mobile Top Bar Holds Language and Account
 
-Commit `HASH`. No migration.
+Commit `297d740`. No migration.
 
 **Why.** After the hamburger menu was added, the language switch and the account button (KP) still sat on their own row below the top bar, taking space and looking disconnected. On a phone they belong on the same row as the logo.
 
