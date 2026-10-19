@@ -2,7 +2,7 @@
 
 ## 19 Oct 2026: Professional Area Mobile Hamburger Menu
 
-Commit `HASH`. No migration.
+Commit `841fd2b`. No migration.
 
 **Why.** On a phone the professional area showed its menu as a row of tabs that you had to swipe sideways, and most pages (My schedule, Bookings, Clients, and so on) were cut off and hard to find. A hamburger button that opens the sidebar is the familiar pattern and shows every page at once.
 
