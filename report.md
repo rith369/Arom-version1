@@ -1,5 +1,31 @@
 # AROM: Change Report
 
+## 19 Oct 2026: New Lesson, How to Deal With Academic Pressure
+
+Commit `9691fb5`. No migration. Content and frontend only.
+
+**Why.** Academic testing, high-stakes milestone examinations like the Grade 12 Bac II in Cambodia, family sacrifices, and competitive social ranking induce chronic cognitive fatigue, panic-induced memory freeze, digestive distress, and severe guilt among youth. "How to Deal With Academic Pressure" (`how-to-deal-with-academic-pressure`) strengthens the Stress category in MindGuide Learn with an 8-minute evidence-based psychoeducational guide adapted from APA, Harvard Graduate School of Education, WHO, UNICEF Cambodia, and NHS inform. It equips students and youth with practical tools to differentiate healthy motivation from toxic pressure, uncouple human self-worth from report cards, manage parental expectations and family comparisons using respectful communication scripts, implement brain-friendly study methods (Pomodoro sprints, active recall, non-negotiable sleep), regulate nervous system panic through 1-minute somatic breathwork, and access confidential therapy on AROM.
+
+**What changed for users:**
+- **New Lesson available in MindGuide Learn:** Seekers can access "How to Deal With Academic Pressure (របៀបដោះស្រាយសម្ពាធការសិក្សា)" under the Stress category or directly via `/mindguide/learn?open=how-to-deal-with-academic-pressure`.
+- **11 Comprehensive Bilingual Sections:** Covers the weight of expectations (when studying becomes suffocating), the mind and body toll (cortisol shutting down the prefrontal cortex), Cambodian cultural context (parental sacrifices, extra tutoring classes, Bac II exam stress, and relatives' comparisons), an interactive quiz on brain-friendly studying vs exhaustion habits, uncoupling self-worth from GPA, sustainable study strategies (Pomodoro sprints and active retrieval), respectful family boundary scripts, personal academic pressure check-in reflection, recognizing when academic dread becomes a crisis, the anti-panic 1-minute grounding breath, and building an academic support village on AROM.
+- **Tip Alert Box:** Section 11 features a clinical truth reminder: "A student's physical and mental health is infinitely more valuable than any grade, ranking, or academic trophy. Never sacrifice your sanity for a scorecard."
+- **Direct AROM tool integration:** Section 10 triggers the "1-Minute Calming Breath" (`actionType: "exercise"`), and Section 11 provides direct action buttons for "Open AROM Journal" (`actionType: "tips"`) and "Talk to a Professional" (`actionType: "professional"`).
+
+**What changed for the team:**
+- **`learn-data.ts`:** Exported `REFERENCES_ACADEMIC_PRESSURE` with 5 peer-reviewed citations (APA, Harvard GSE, WHO, UNICEF Cambodia, NHS inform) and `LESSON_ACADEMIC_PRESSURE`, prepending it to `ALL_LESSONS` under category `"Stress"`.
+- **Hero Image:** Added `public/mindguide/academic-pressure-hero.jpg` depicting a young Cambodian student taking a peaceful, mindful breath at a wooden study desk with textbooks, tea, and warm sunlight streaming through a lattice window.
+- **Strict Anti-AI Compliance:** Zero em dashes, en dashes, or loose hyphens across all English and Khmer copy.
+
+**What to re-test:**
+1. Open `/mindguide/learn` and verify "How to Deal With Academic Pressure" card appears under the "Stress" filter with the "Essential" badge.
+2. Open `/mindguide/learn?open=how-to-deal-with-academic-pressure` and verify hero image, outcomes, and 11 sections render smoothly.
+3. Test Section 4 quiz: verify correct feedback when selecting option B and bilingual explanations.
+4. Test Section 8 academic pressure self-check interactive choice and feedback.
+5. Test Section 10 coping exercise button: launches 1-Minute Calming Breath session.
+6. Test Section 11 tip alert box and action buttons: "Open AROM Journal" and "Talk to a Professional".
+7. Switch language to Khmer and verify all Kantumruy Pro translations.
+
 ## 19 Oct 2026: Professional Mobile Top Bar Holds Language and Account
 
 Commit `297d740`. No migration.

@@ -7248,7 +7248,449 @@ export const LESSON_LONELINESS: Lesson = {
   ],
 };
 
+
+export const REFERENCES_ACADEMIC_PRESSURE: ReferenceItem[] = [
+  {
+    id: 1,
+    citation: "[1]",
+    source: "APA",
+    title: "American Psychological Association: Stress in America and High-Stakes Academic Expectations",
+    url: "https://www.apa.org/topics/stress",
+  },
+  {
+    id: 2,
+    citation: "[2]",
+    source: "Harvard GSE",
+    title: "Harvard Graduate School of Education: The Mental Health Toll of Academic Pressure and Shifting Toward Meaningful Learning",
+    url: "https://mcc.gse.harvard.edu/",
+  },
+  {
+    id: 3,
+    citation: "[3]",
+    source: "WHO",
+    title: "World Health Organization: Adolescent Mental Health, School Stress, and Emotional Resilience",
+    url: "https://www.who.int/news-room/fact-sheets/detail/adolescent-mental-health",
+  },
+  {
+    id: 4,
+    citation: "[4]",
+    source: "UNICEF Cambodia",
+    title: "UNICEF Cambodia: Student Well-Being, Exam Anxiety, and Navigating Parental Expectations",
+    url: "https://www.unicef.org/cambodia/mental-health",
+  },
+  {
+    id: 5,
+    citation: "[5]",
+    source: "NHS inform",
+    title: "NHS inform: Coping with Study and Exam Stress Through Brain-Friendly Habits",
+    url: "https://www.nhsinform.scot/healthy-living/mental-wellbeing/stress/coping-with-exam-stress/",
+  },
+];
+
+export const LESSON_ACADEMIC_PRESSURE: Lesson = {
+  id: "how-to-deal-with-academic-pressure",
+  title: "How to Deal With Academic Pressure",
+  kmTitle: "របៀបដោះស្រាយសម្ពាធការសិក្សា (How to Deal With Academic Pressure)",
+  subtitle: "Explore healthier ways to handle expectations and protect your well-being",
+  kmSubtitle: "ស្វែងយល់ពីវិធីសាស្ត្រដែលមានសុខភាពល្អក្នុងការគ្រប់គ្រងការរំពឹងទុក និងការពារសុខុមាលភាពផ្លូវចិត្ត",
+  category: "Stress",
+  duration: "8 min",
+  kmDuration: "៨ នាទី",
+  difficulty: "Beginner",
+  kmDifficulty: "កម្រិតដំបូង (Beginner)",
+  format: "Reading + Practice",
+  kmFormat: "ការអាន និងការអនុវត្ត (Reading & Practice)",
+  isAvailable: true,
+  image: "/mindguide/strategies.png",
+  heroImage: "/mindguide/academic-pressure-hero.jpg",
+  badge: "Essential",
+  description:
+    "Unpack the psychological and physiological weight of academic expectations. Learn to separate human self-worth from grades, navigate Cambodian family honor and Bac II pressure, study sustainably, and ground your nervous system on AROM.",
+  kmDescription:
+    "ស្វែងយល់ពីទម្ងន់ផ្លូវចិត្ត និងរាងកាយនៃសម្ពាធការសិក្សា។ រៀនបែងចែកតម្លៃខ្លួនឯងចេញពីពិន្ទុប្រឡង គ្រប់គ្រងការរំពឹងទុករបស់គ្រួសារ និងការប្រឡងបាក់ឌុប រៀនសូត្រប្រកបដោយនិរន្តរភាព និងរំងាប់ចិត្តនៅលើ AROM។",
+  totalSections: 11,
+  outcomes: [
+    {
+      en: "Differentiate healthy academic motivation from toxic chronic performance pressure [1, 2]",
+      km: "បែងចែកឱ្យច្បាស់រវាងកម្លាំងចិត្តរៀនសូត្រដែលមានសុខភាពល្អ និងសម្ពាធលទ្ធផលដែលបំផ្លាញផ្លូវចិត្ត [1, 2]",
+    },
+    {
+      en: "Understand how acute academic dread shuts down the prefrontal cortex and memory recall [1, 3]",
+      km: "យល់ដឹងពីរបៀបដែលការភ័យខ្លាចខ្លាំងកាត់បន្ថយសមត្ថភាពខួរក្បាលផ្នែកចងចាំ និងការគិតពិចារណា [1, 3]",
+    },
+    {
+      en: "Navigate Cambodian family sacrifices, Bac II national exam stress, and harmful peer comparisons [4]",
+      km: "គ្រប់គ្រងអារម្មណ៍ជុំវិញការលះបង់របស់ឪពុកម្តាយ សម្ពាធប្រឡងបាក់ឌុប និងការប្រៀបធៀបក្នុងគ្រួសារ [4]",
+    },
+    {
+      en: "Uncouple personal self-worth from GPA and exam scores using cognitive restructuring [2, 5]",
+      km: "បំបែកតម្លៃផ្ទាល់ខ្លួនចេញពីចំណាត់ថ្នាក់ និងពិន្ទុប្រឡង ដោយប្រើការកែសម្រួលផ្នត់គំនិតត្រឹមត្រូវ [2, 5]",
+    },
+    {
+      en: "Adopt brain-friendly study methods: Pomodoro sprints, active recall, and non-negotiable sleep [1, 5]",
+      km: "អនុវត្តវិធីសាស្ត្ររៀនសូត្របែបវិទ្យាសាស្ត្រ៖ បច្ចេកទេស Pomodoro ការរំលឹកមេរៀនសកម្ម និងការគេងគ្រប់គ្រាន់ [1, 5]",
+    },
+    {
+      en: "Communicate respectfully with parents using boundary scripts and access professional therapy on AROM [4, 5]",
+      km: "ប្រាស្រ័យទាក់ទងជាមួយឪពុកម្តាយដោយការគោរព និងភ្ជាប់ទំនាក់ទំនងប្រឹក្សាជាមួយអ្នកជំនាញ AROM [4, 5]",
+    },
+  ],
+  references: REFERENCES_ACADEMIC_PRESSURE,
+  sections: [
+    {
+      id: 1,
+      sectionNumber: 1,
+      title: "The Weight of Expectations: When Studying Becomes Suffocating",
+      kmTitle: "ទម្ងន់នៃការរំពឹងទុក៖ នៅពេលដែលការរៀនសូត្រក្លាយជាសម្ពាធដ៏ធ្ងន់ (The Weight of Expectations)",
+      type: "reading",
+      paragraphs: [
+        "Do you ever sit down with your textbooks feeling a tight knot in your stomach, your heart racing before you have even opened the first chapter? You might think: 'If I do not get top marks, my entire future is ruined, and everyone will look down on me.'",
+        "There is a crucial clinical distinction between healthy academic ambition and toxic academic pressure. Healthy ambition comes from curiosity and personal growth. It energizes you to learn, while accepting that mistakes are part of the journey [2].",
+        "Toxic academic pressure, on the other hand, comes from chronic fear: fear of disappointing family, fear of being rejected, and the belief that your worth as a human being depends entirely on your report card. When learning is powered by terror, curiosity vanishes, replaced by constant dread [1, 2].",
+      ],
+      kmParagraphs: [
+        "តើអ្នកធ្លាប់អង្គុយចុះមុខសៀវភៅពុម្ពដោយមានអារម្មណ៍ណែនក្នុងពោះ និងបេះដូងលោតញាប់ ទាំងដែលមិនទាន់បានបើកមើលមេរៀនទំព័រដំបូងផងដែរឬទេ? អ្នកប្រហែលជាធ្លាប់គិតថា៖ «បើខ្ញុំមិនបានពិន្ទុខ្ពស់ទេ អនាគតរបស់ខ្ញុំនឹងត្រូវរលាយ ហើយមនុស្សគ្រប់គ្នានឹងមើលងាយខ្ញុំ។»",
+        "មានភាពខុសគ្នាដាច់ស្រឡះរវាងកម្លាំងចិត្តរៀនសូត្រដែលមានសុខភាពល្អ និងសម្ពាធការសិក្សាដែលបំផ្លាញផ្លូវចិត្ត។ កម្លាំងចិត្តដែលមានសុខភាពល្អកើតចេញពីការចង់ចេះចង់ដឹង និងការអភិវឌ្ឍខ្លួន។ វាជួយជំរុញឱ្យអ្នកខិតខំ ដោយទទួលស្គាល់ថាកំហុសឆ្គងគឺជាផ្នែកមួយនៃការរៀនសូត្រ [2]។",
+        "ផ្ទុយទៅវិញ សម្ពាធការសិក្សាដែលបំផ្លាញផ្លូវចិត្ត កើតចេញពីការភ័យខ្លាចរ៉ាំរ៉ៃ៖ ខ្លាចធ្វើឱ្យឪពុកម្តាយខកចិត្ត ខ្លាចគេរើសអើង និងការយល់ច្រឡំថាតម្លៃរបស់អ្នកជាមនុស្សពឹងផ្អែកលើតែពិន្ទុលើក្រដាស។ នៅពេលដែលការរៀនសូត្រដំណើរការដោយការភ័យខ្លាច ភាពរីករាយក្នុងការស្រាវជ្រាវនឹងរលាយបាត់ ដោយជំនួសមកវិញនូវអារម្មណ៍តានតឹងគ្រប់វិនាទី [1, 2]។",
+      ],
+      keyPoints: [
+        "Healthy motivation builds skills; toxic pressure is driven by fear of shame and rejection [2].",
+        "Believing your entire future hinges on a single test score creates chronic anxiety.",
+        "Recognizing this pressure is the first step toward reclaiming your love of learning.",
+      ],
+      kmKeyPoints: [
+        "កម្លាំងចិត្តល្អជួយបង្កើនជំនាញ រីឯសម្ពាធអវិជ្ជមានកើតចេញពីការភ័យខ្លាចការអាម៉ាស់ [2]។",
+        "ការជឿថាតម្លៃនៃអនាគតទាំងមូលពឹងផ្អែកលើពិន្ទុតែមួយមុខ បង្កើតបានជាការថប់បារម្ភរ៉ាំរ៉ៃ។",
+        "ការដឹងទាន់សម្ពាធនេះ គឺជាជំហានដំបូងក្នុងការស្តារក្តីស្រឡាញ់ចំពោះការរៀនសូត្រឡើងវិញ។",
+      ],
+    },
+    {
+      id: 2,
+      sectionNumber: 2,
+      title: "The Mind and Body Toll: How Chronic Pressure Backfires [1, 3]",
+      kmTitle: "ផលប៉ះពាល់លើរាងកាយ និងចិត្ត៖ ហេតុអ្វីសម្ពាធរ៉ាំរ៉ៃកាត់បន្ថយសមត្ថភាពខួរក្បាល? (Mind and Body Toll)",
+      type: "reading",
+      paragraphs: [
+        "When you push your mind and body beyond healthy limits for months, academic stress leaves measurable physical footprints. You experience persistent morning headaches, stomach aches, chronic muscle tightness in your neck and shoulders, and disrupted sleep patterns [1].",
+        "Cognitively, extreme pressure produces a cruel biological paradox. Neuroscientists show that when fear spikes, the amygdala floods your system with cortisol and adrenaline, effectively dialing down the prefrontal cortex. The prefrontal cortex is the brain region responsible for working memory, logic, and creative problem solving [1, 3].",
+        "In short, the more panicked you are about failing, the harder it becomes for your brain to remember formulas or write clear essays. Protecting your calm is not a waste of time; it is a neurological necessity for peak academic performance.",
+      ],
+      kmParagraphs: [
+        "នៅពេលដែលអ្នកបង្ខំចិត្ត និងរាងកាយឱ្យហួសកម្រិតទ្រាំទ្រអស់ជាច្រើនខែ សម្ពាធការសិក្សានឹងបន្សល់ទុកនូវផលប៉ះពាល់រាងកាយយ៉ាងច្បាស់ក្រឡែត។ អ្នកនឹងចាប់ផ្តើមឈឺក្បាលពេលព្រឹក មិនស្រួលក្នុងក្រពះ រឹងសាច់ដុំកញ្ចឹងក និងស្មា ហើយគេងមិនដែលស្កប់ស្កល់ [1]។",
+        "ចំពោះខួរក្បាលវិញ សម្ពាធខ្លាំងពេកបង្កើតនូវភាពផ្ទុយគ្នាខាងជីវសាស្ត្រ។ អ្នកវិទ្យាសាស្ត្រប្រព័ន្ធប្រសាទបង្ហាញថា នៅពេលដែលការភ័យខ្លាចកើនឡើងខ្ពស់ ខួរក្បាលនឹងបញ្ចេញអ័រម៉ូនស្ត្រេស Cortisol ដែលកាត់បន្ថយដំណើរការនៃខួរក្បាលផ្នែកខាងមុខ (Prefrontal Cortex)។ ខួរក្បាលផ្នែកនេះ គឺជាអ្នកទទួលខុសត្រូវលើការចងចាំ ការគិតបែបឡូជីខល និងការដោះស្រាយបញ្ហា [1, 3]។",
+        "និយាយឱ្យខ្លី អ្នកកាន់តែភ័យស្លន់ស្លោខ្លាចធ្លាក់ ខួរក្បាលរបស់អ្នករឹតតែពិបាកទាញយកមេរៀន ឬសរសេរសំណេរឱ្យបានល្អ។ ដូច្នេះ ការរក្សាសេចក្តីស្ងប់ក្នុងចិត្តមិនមែនជាការខាតពេលនោះទេ ប៉ុន្តែវាជាលក្ខខណ្ឌជីវសាស្ត្រចាំបាច់បំផុត ដើម្បីឱ្យខួរក្បាលដំណើរការបានល្អបំផុត។",
+      ],
+      keyPoints: [
+        "Physical symptoms (headaches, nausea, insomnia) are biological distress alarms [1].",
+        "Panic floods the brain with cortisol, paralyzing working memory and logical reasoning [3].",
+        "Emotional calm protects and unlocks your brain's highest cognitive capacity.",
+      ],
+      kmKeyPoints: [
+        "អាការរាងកាយ (ឈឺក្បាល ចង្អោរ គេងមិនលក់) គឺជាសំឡេងរោទ៍ប្រាប់ថាអ្នកលើសចំណុះ [1]។",
+        "ការភ័យស្លន់ស្លោបង្កើនអ័រម៉ូនស្ត្រេស និងធ្វើឱ្យស្ពឹកស្មារតីក្នុងការចងចាំមេរៀន [3]។",
+        "សេចក្តីស្ងប់ក្នុងចិត្តជួយការពារ និងបើកសមត្ថភាពខួរក្បាលឱ្យគិតបានច្បាស់លាស់។",
+      ],
+    },
+    {
+      id: 3,
+      sectionNumber: 3,
+      title: "Cambodian Context: Parental Sacrifices, Bac II, and Comparison [4]",
+      kmTitle: "បរិបទសង្គមកម្ពុជា៖ ការលះបង់របស់ឪពុកម្តាយ ការប្រឡងបាក់ឌុប និងការប្រៀបធៀប (Cambodian Context)",
+      type: "reading",
+      paragraphs: [
+        "In Cambodian culture, academic achievement carries profound emotional and economic meaning. Many parents have endured unimaginable hardships, poverty, or missed educational opportunities. To ensure a brighter future for their children, they sacrifice daily savings to pay for tuition, uniforms, and extra tutoring classes (រៀនគួរ) [4].",
+        "Because of these sacrifices, Cambodian youth often carry an overwhelming sense of filial debt: 'My parents worked under the scorching sun for me; if I fail Grade 12 Bac II (បាក់ឌុប) or do not graduate with honors, I will bring deep shame to my entire family.'",
+        "This filial weight is frequently intensified by toxic family comparisons at gatherings: hearing relatives compare grades, university scholarships, or civil service placements. UNICEF Cambodia highlights that while honoring parents is a noble value, living in perpetual terror of family disappointment damages student mental health. Your parents love you as their child, not merely as a trophy of academic grades [4].",
+      ],
+      kmParagraphs: [
+        "នៅក្នុងវប្បធម៌ខ្មែរ ភាពជោគជ័យក្នុងការសិក្សាបង្កប់នូវអត្ថន័យផ្លូវចិត្ត និងសេដ្ឋកិច្ចយ៉ាងជ្រាលជ្រៅ។ ឪពុកម្តាយជាច្រើនបានឆ្លងកាត់ការលំបាក ភាពក្រីក្រ ឬខកខានមិនបានរៀនសូត្រជ្រៅជ្រះក្នុងអតីតកាល។ ដើម្បីធានាអនាគតភ្លឺស្វាងសម្រាប់កូនៗ ពួកគាត់បានលះបង់កម្លាំងកាយចិត្ត សន្សំប្រាក់បង់ថ្លៃសាលា សម្លៀកបំពាក់ និងប្រាក់រៀនគួរ [4]។",
+        "ដោយសារតែការលះបង់ដ៏ធំធេងនេះ យុវជនកម្ពុជាច្រើនតែមានអារម្មណ៍ថាខ្លួនមានបំណុលគុណធម៌ដ៏ធ្ងន់៖ «ឪពុកម្តាយខ្ញុំលំបាកហាលថ្ងៃហាលភ្លៀងដើម្បីខ្ញុំ ប្រសិនបើខ្ញុំប្រឡងបាក់ឌុបធ្លាក់ ឬមិនបាននិទ្ទេសល្អ ខ្ញុំនឹងធ្វើឱ្យគ្រួសារបាក់មុខខ្លាំងណាស់។»",
+        "សម្ពាធនេះរឹតតែកើនឡើងដោយសារការប្រៀបធៀបក្នុងរង្វង់សាច់ញាតិ៖ ការឮគេនិយាយប្រៀបធៀបពិន្ទុ អាហារូបករណ៍ ឬមុខងារការងារ។ អង្គការ UNICEF Cambodia បង្ហាញថា ទោះបីជាការដឹងគុណឪពុកម្តាយជាគុណធម៌ដ៏ប្រពៃក៏ដោយ ប៉ុន្តែការរស់នៅក្នុងការភ័យខ្លាចការខកចិត្តរបស់គ្រួសាររហូត នឹងបំផ្លាញសុខភាពផ្លូវចិត្តរបស់សិស្ស។ ឪពុកម្តាយស្រឡាញ់អ្នកក្នុងនាមជាកូនបង្កើត មិនមែនស្រឡាញ់តែលើពានរង្វាន់នៃពិន្ទុប្រឡងនោះឡើយ [4]។",
+      ],
+      keyPoints: [
+        "Filial gratitude in Cambodia can unintentionally transform into paralyzing guilt [4].",
+        "Grade 12 Bac II national exams and family comparisons amplify perceived stakes.",
+        "Your family's love for you is fundamentally deeper than any academic report card.",
+      ],
+      kmKeyPoints: [
+        "ការដឹងគុណឪពុកម្តាយក្នុងសង្គមខ្មែរ អាចប្រែទៅជាអារម្មណ៍បន្ទោសខ្លួនឯងដោយមិនដឹងខ្លួន [4]។",
+        "ការប្រឡងបាក់ឌុប និងការប្រៀបធៀបរវាងសាច់ញាតិ បង្កើនសម្ពាធផ្លូវចិត្តយ៉ាងខ្លាំង។",
+        "សេចក្តីស្រឡាញ់របស់គ្រួសារចំពោះអ្នក មានទំហំធំធេងជាងពិន្ទុនៅលើក្រដាសប្រឡង [4]។",
+      ],
+    },
+    {
+      id: 4,
+      sectionNumber: 4,
+      title: "Check Your Understanding: Brain-Friendly Studying vs. Exhaustion Habits",
+      kmTitle: "ពិនិត្យការយល់ដឹង៖ ការរៀនសូត្រប្រកបដោយប្រសិទ្ធភាព និងទម្លាប់បំផ្លាញថាមពល (Effective Learning vs Exhaustion)",
+      type: "quiz",
+      paragraphs: [
+        "Many students fall into study habits that feel productive because they cause exhaustion, yet actually impair memory. Test your knowledge of cognitive science.",
+      ],
+      kmParagraphs: [
+        "សិស្សជាច្រើនធ្លាក់ចូលទៅក្នុងទម្លាប់រៀនសូត្រដែលមើលទៅហាក់ដូចជាខិតខំខ្លាំងព្រោះតែអស់កម្លាំង ប៉ុន្តែតាមពិតវាបែរជាបំផ្លាញការចងចាំទៅវិញ។ សូមសាកល្បងពិនិត្យការយល់ដឹងអំពីវិទ្យាសាស្ត្រខួរក្បាល។",
+      ],
+      quiz: {
+        question: "Which approach is proven by educational psychology to maximize long-term exam retention while protecting mental health?",
+        kmQuestion: "តើវិធីសាស្ត្រមួយណាដែលត្រូវបានបញ្ជាក់តាមចិត្តវិទ្យាអប់រំថា ជួយបង្កើនការចងចាំមេរៀនបានយូរអង្វែង និងការពារសុខភាពផ្លូវចិត្តបានល្អបំផុត?",
+        options: [
+          {
+            id: "opt-a",
+            text: "Staying awake all night before the exam, highlighting every textbook page with energy drinks",
+            kmText: "ការទប់ភ្នែកមិនគេងពេញមួយយប់មុនពេលប្រឡង គូសពណ៌លើគ្រប់ទំព័រសៀវភៅ និងផឹកភេសជ្ជៈប៉ូវកម្លាំង",
+            isCorrect: false,
+          },
+          {
+            id: "opt-b",
+            text: "Studying in focused 25-minute sprints using active recall, accompanied by 7 to 8 hours of restorative sleep",
+            kmText: "ការរៀនដោយផ្ដោតអារម្មណ៍ជាវគ្គខ្លីៗ ២៥ នាទីដោយប្រើការរំលឹកមេរៀនសកម្ម អមដោយការគេងលក់ស្កប់ស្កល់ ៧ ទៅ ៨ ម៉ោង",
+            isCorrect: true,
+          },
+          {
+            id: "opt-c",
+            text: "Studying 14 hours straight without meals or bathroom breaks to prove your commitment to family",
+            kmText: "ការអង្គុយរៀន ១៤ ម៉ោងជាប់គ្នាដោយមិនញ៉ាំបាយ ឬសម្រាក ដើម្បីបង្ហាញការប្តេជ្ញាចិត្តចំពោះគ្រួសារ",
+            isCorrect: false,
+          },
+          {
+            id: "opt-d",
+            text: "Constantly checking social media while keeping your notebook open beside you for 8 hours",
+            kmText: "ការបើកសៀវភៅចោលបណ្តើរ និងអូសមើលបណ្តាញសង្គមបណ្តើរអស់រយៈពេល ៨ ម៉ោង",
+            isCorrect: false,
+          },
+        ],
+        explanation:
+          "Cognitive science shows that memory consolidation occurs primarily during slow-wave and REM sleep in the hippocampus. Studying in manageable intervals with active retrieval and protecting 7 to 8 hours of sleep yields vastly higher exam performance than sleep-deprived cramming [1, 5].",
+        kmExplanation:
+          "វិទ្យាសាស្ត្រខួរក្បាលបង្ហាញថា ការផ្ទេរការចងចាំទៅរក្សាទុកបានយូរ កើតឡើងជាចម្បងក្នុងកំឡុងពេលគេងលក់ស្កប់ស្កល់។ ការរៀនជាវគ្គខ្លីៗដោយការរំលឹកមេរៀនដោយខ្លួនឯង និងការគេង ៧ ទៅ ៨ ម៉ោង ផ្តល់លទ្ធផលប្រឡងខ្ពស់ជាងការមិនព្រមគេងរៀនទល់ភ្លឺឆ្ងាយណាស់ [1, 5]។",
+      },
+    },
+    {
+      id: 5,
+      sectionNumber: 5,
+      title: "Uncoupling Your Self-Worth from Your Grades: You Are More Than an Exam Score",
+      kmTitle: "ការបំបែកតម្លៃផ្ទាល់ខ្លួនចេញពីពិន្ទុ៖ អ្នកមានតម្លៃលើសពីលទ្ធផលប្រឡង (Self-Worth vs Grades)",
+      type: "reading",
+      paragraphs: [
+        "One of the most liberating mental shifts you can ever make is uncoupling your human dignity from your academic GPA [2].",
+        "What does an exam grade actually measure? It measures how well you memorized and reproduced a specific set of prompts, on a specific morning, under specific time constraints, while managing your nervous system. That is all.",
+        "An exam does not measure your emotional kindness. It does not measure your resilience, your creative imagination, your loyalty to friends, your capacity to love, or your future potential. When you remind yourself that your worth as a human being is absolute and unconditional, a low grade stops being a personal catastrophe and becomes simply a data point showing what to revise next [2, 5].",
+      ],
+      kmParagraphs: [
+        "ការផ្លាស់ប្តូរផ្នត់គំនិតដ៏មានតម្លៃបំផុតមួយដែលអ្នកអាចធ្វើបាន គឺការបំបែកតម្លៃនៃជីវិតរបស់អ្នកចេញពីចំណាត់ថ្នាក់ ឬពិន្ទុប្រឡង [2]។",
+        "តើពិន្ទុប្រឡងពិតជាវាស់វែងអ្វីខ្លះ? វាគ្រាន់តែវាស់វែងថាតើអ្នកអាចចងចាំ និងសរសេរឡើងវិញនូវមេរៀនជាក់លាក់ណាមួយ នៅព្រឹកជាក់លាក់ណាមួយ ក្រោមសម្ពាធពេលវេលាកំណត់ បានកម្រិតណា។ វាមានត្រឹមតែប៉ុណ្ណឹង។",
+        "ការប្រឡងមិនអាចវាស់វែងសេចក្តីមេត្តាក្នុងបេះដូងរបស់អ្នកឡើយ។ វាមិនអាចវាស់វែងភាពអត់ធន់ ការស្រមើលស្រមៃ ភាពស្មោះត្រង់ចំពោះមិត្តភក្តិ ឬសក្តានុពលពេញមួយជីវិតរបស់អ្នកនោះទេ។ នៅពេលដែលអ្នកដឹងច្បាស់ថាតម្លៃរបស់អ្នកជាមនុស្សមានភាពពេញលេញដោយមិនបាច់មានលក្ខខណ្ឌ នោះការទទួលបានពិន្ទុមិនសមបំណងនឹងលែងជាមហន្តរាយជីវិតទៀតហើយ ប៉ុន្តែគ្រាន់តែជាទិន្នន័យប្រាប់ថាត្រូវកែលម្អត្រង់ណាទៀតប៉ុណ្ណោះ [2, 5]។",
+      ],
+      keyPoints: [
+        "An exam score reflects temporary performance on a specific test, not your lifelong potential [2].",
+        "Grades cannot measure moral character, creativity, empathy, or resilience.",
+        "Unconditional self-worth frees you to study with clarity rather than panic.",
+      ],
+      kmKeyPoints: [
+        "ពិន្ទុប្រឡងឆ្លុះបញ្ចាំងតែសមត្ថភាពលើវិញ្ញាសានៅពេលនោះ មិនមែនជាវាសនាពេញមួយជីវិតឡើយ [2]។",
+        "ពិន្ទុមិនអាចវាស់វែងគុណធម៌ ភាពច្នៃប្រឌិត ឬភាពរឹងមាំនៃចិត្តរបស់អ្នកបានទេ។",
+        "ការផ្តល់តម្លៃលើខ្លួនឯងដោយគ្មានលក្ខខណ្ឌ ជួយឱ្យអ្នករៀនដោយស្មារតីភ្លឺស្វាង មិនមែនដោយការភ័យខ្លាច។",
+      ],
+    },
+    {
+      id: 6,
+      sectionNumber: 6,
+      title: "Sustainable Study Strategies: Protecting Your Prefrontal Cortex [1, 5]",
+      kmTitle: "យុទ្ធសាស្ត្ររៀនសូត្រប្រកបដោយចីរភាព៖ ការការពារថាមពលខួរក្បាល (Sustainable Study Strategies)",
+      type: "reading",
+      paragraphs: [
+        "Studying longer hours does not equal studying better. To maximize retention while protecting your mental health, adopt science-backed learning habits [5].",
+        "First, implement the Pomodoro Technique: study with total, single-minded focus for 25 minutes, then stand up and take a complete 5-minute break. Walk away from your desk, stretch, drink a glass of water, and look outside the window. Do not check social media during breaks, as rapid digital scrolling exhausts mental energy rather than restoring it.",
+        "Second, practice Active Retrieval instead of passive rereading. Close your textbook and write down the three core ideas from memory, or explain the concept out loud in Khmer as if teaching a younger sibling. This builds robust neural connections in fraction of the time [1, 5].",
+      ],
+      kmParagraphs: [
+        "ការអង្គុយរៀនច្រើនម៉ោងមិនមែនមានន័យថារៀនបានល្អនោះទេ។ ដើម្បីចងចាំបានល្អ និងការពារសុខភាពផ្លូវចិត្ត សូមអនុវត្តទម្លាប់រៀនសូត្រតាមក្បួនវិទ្យាសាស្ត្រ [5]។",
+        "ទីមួយ សូមអនុវត្តបច្ចេកទេស Pomodoro៖ រៀនដោយផ្ដោតអារម្មណ៍ពេញលេញលើកិច្ចការតែមួយមុខរយៈពេល ២៥ នាទី រួចក្រោកឈរសម្រាក ៥ នាទីពេញ។ ដើរចេញពីតុ រលាស់ដៃជើង ញ៉ាំទឹកមួយកែវ និងសម្លឹងមើលទៅខាងក្រៅបង្អួច។ កុំលួចអូសទូរស័ព្ទក្នុងពេលសម្រាក ពីព្រោះការមើលវីដេអូលឿនៗធ្វើឱ្យខួរក្បាលកាន់តែហត់នឿយ។",
+        "ទីពីរ សូមអនុវត្តការរំលឹកមេរៀនសកម្ម (Active Retrieval) ជំនួសឱ្យការគ្រាន់តែអានឡើងវិញ។ បិទសៀវភៅ រួចសរសេរគំនិតសំខាន់ៗ ៣ ចេញពីការចងចាំ ឬសាកល្បងនិយាយពន្យល់មេរៀននោះជាភាសាខ្មែរដូចជាកំពុងបង្រៀនប្អូនតូច។ វិធីសាស្ត្រនេះជួយកសាងការចងចាំរឹងមាំក្នុងខួរក្បាលដោយចំណាយពេលតិចជាងមុន [1, 5]។",
+      ],
+      keyPoints: [
+        "Use 25-minute focused sprints with 5-minute screen-free breaks (Pomodoro) [5].",
+        "Active retrieval (teaching out loud, testing recall) outperforms passive rereading.",
+        "Taking mindful breaks actually speeds up understanding and prevents cognitive fatigue.",
+      ],
+      kmKeyPoints: [
+        "រៀន ២៥ នាទី និងសម្រាក ៥ នាទីដោយមិនមើលអេក្រង់ទូរស័ព្ទ (Pomodoro) [5]។",
+        "ការរំលឹកមេរៀនចេញពីការចងចាំ និងការពន្យល់ មានប្រសិទ្ធភាពជាងការគ្រាន់តែអានសៀវភៅឡើងវិញ។",
+        "ការសម្រាកឱ្យបានត្រឹមត្រូវ ជួយឱ្យខួរក្បាលយល់មេរៀនបានលឿន និងមិនឆាប់អស់កម្លាំង។",
+      ],
+    },
+    {
+      id: 7,
+      sectionNumber: 7,
+      title: "Navigating Family Expectations: Respectful Boundary Scripts [4, 5]",
+      kmTitle: "ការដោះស្រាយការរំពឹងទុករបស់គ្រួសារ៖ ពាក្យសម្តីប្រកបដោយការគោរព និងព្រំដែន (Respectful Family Scripts)",
+      type: "reading",
+      paragraphs: [
+        "When parents pressure you about high grades, it is almost always motivated by anxiety for your economic security. However, enduring constant criticism or comparisons erodes motivation. You can communicate your needs respectfully without creating family conflict [4].",
+        "Use a 3-part script: Validation, Reality, and Request.",
+        "Script: 'Mum and Dad, I know how hard you work every day to support my schooling, and I am so grateful for your sacrifices (Validation). I am studying diligently every single day, but when I hear comparisons to relatives, my heart beats fast with panic and my brain freezes (Reality). If you could encourage me with patience and trust, it would help me stay focused and perform much better (Request)' [4, 5].",
+      ],
+      kmParagraphs: [
+        "នៅពេលដែលឪពុកម្តាយដាក់សម្ពាធរឿងពិន្ទុ វាច្រើនតែកើតចេញពីការបារម្ភចំពោះអនាគត និងជីវភាពរបស់អ្នក។ ប៉ុន្តែការរស់នៅក្រោមការស្តីបន្ទោស ឬការប្រៀបធៀបជាប្រចាំ នឹងធ្វើឱ្យអ្នកបាត់បង់កម្លាំងចិត្ត។ អ្នកអាចប្រាស្រ័យទាក់ទងពីតម្រូវការរបស់អ្នកដោយការគោរព ដោយមិនបង្កើតជម្លោះក្នុងគ្រួសារឡើយ [4]។",
+        "សូមប្រើប្រាស់រូបមន្ត ៣ ជំហាន៖ ការដឹងគុណ ការប្រាប់ការពិត និងការស្នើសុំ។",
+        "ពាក្យសម្តីគំរូ៖ «ម៉ែ និងពុក ខ្ញុំដឹងច្បាស់ណាស់ថាពុកម៉ែលំបាកខ្លាំងរាល់ថ្ងៃដើម្បីឱ្យកូនបានរៀន ហើយកូនដឹងគុណពុកម៉ែណាស់ (ការដឹងគុណ)។ កូនកំពុងខិតខំប្រឹងប្រែងរៀនរាល់ថ្ងៃ ប៉ុន្តែនៅពេលដែលឮការប្រៀបធៀបជាមួយអ្នកដទៃ ចិត្តកូនភ័យញាប់ញ័រខ្លាំងរហូតដល់គិតមេរៀនលែងចេញ (ការប្រាប់ការពិត)។ ប្រសិនបើពុកម៉ែជួយផ្តល់កម្លាំងចិត្ត និងការទុកចិត្តដល់កូន នោះកូននឹងមានស្មារតីរឹងមាំ និងរៀនបានកាន់តែល្អ (ការស្នើសុំ)» [4, 5]។",
+      ],
+      keyPoints: [
+        "Acknowledge parental love and sacrifices before expressing your emotional struggle [4].",
+        "Explain clearly that fear and comparison freeze memory instead of helping performance.",
+        "Inviting encouragement transforms family tension into collaborative support.",
+      ],
+      kmKeyPoints: [
+        "ទទួលស្គាល់សេចក្តីស្រឡាញ់ និងការលះបង់របស់ឪពុកម្តាយ មុននឹងរៀបរាប់ពីការលំបាក [4]។",
+        "ពន្យល់ឱ្យច្បាស់ថាការភ័យខ្លាច និងការប្រៀបធៀប ធ្វើឱ្យខួរក្បាលស្ពឹកមិនអាចគិតមេរៀនចេញ។",
+        "ការស្នើសុំការលើកទឹកចិត្ត ជួយប្តូរសម្ពាធក្នុងគ្រួសារឱ្យទៅជាការគាំទ្រដ៏កក់ក្តៅ។",
+      ],
+    },
+    {
+      id: 8,
+      sectionNumber: 8,
+      title: "Personal Academic Pressure Check-in: Tracing Your Core Anxiety",
+      kmTitle: "ការពិនិត្យសម្ពាធការសិក្សាផ្ទាល់ខ្លួន៖ កំណត់ឫសគល់នៃការព្រួយបារម្ភ (Academic Pressure Check-in)",
+      type: "reflection",
+      paragraphs: [
+        "Academic stress feels like a chaotic whirlwind, but it usually originates from a specific root concern. Take a deep breath and identify where your burden weighs heaviest.",
+      ],
+      kmParagraphs: [
+        "សម្ពាធការសិក្សាអាចធ្វើឱ្យយើងមានអារម្មណ៍វង្វេងវង្វាន់ ប៉ុន្តែវាច្រើនតែកើតចេញពីឫសគល់ជាក់លាក់មួយ។ សូមដកដង្ហើមវែងៗ ហើយស្វែងយល់ថាតើអ្វីជាបន្ទុកដ៏ធ្ងន់បំផុតរបស់អ្នក។",
+      ],
+      reflection: {
+        question: "When you feel overwhelmed by academic dread, which fear is shouting the loudest in your mind?",
+        kmQuestion: "នៅពេលដែលអ្នកមានអារម្មណ៍ថាលើសលប់ដោយសារការសិក្សា តើការភ័យខ្លាចមួយណាដែលលាន់ឮខ្លាំងបំផុតក្នុងចិត្តរបស់អ្នក?",
+        options: [
+          "Terror of disappointing my parents and wasting the hard-earned money they sacrificed for my education",
+          "Fear of falling behind my classmates, being perceived as incapable, or facing judgment from peers",
+          "My own harsh perfectionism: demanding that I get a flawless grade, and punishing myself for any tiny mistake",
+          "Physical exhaustion and burnout from juggling university classes with daytime employment or family duties",
+        ],
+        kmOptions: [
+          "ការភ័យខ្លាចធ្វើឱ្យឪពុកម្តាយខកចិត្ត និងខ្លាចខ្ជះខ្ជាយលុយកាក់ដែលពួកគាត់លះបង់ដើម្បីខ្ញុំ",
+          "ការភ័យខ្លាចដើរយឺតជាងមិត្តភក្តិ ខ្លាចគេមើលងាយ ឬការរងការវិនិច្ឆ័យពីមនុស្សជុំវិញខ្លួន",
+          "ភាពចង់បានល្អឥតខ្ចោះរបស់ខ្លួនឯង៖ បង្ខំឱ្យខ្លួនឯងបានពិន្ទុខ្ពស់ដាច់គេ និងបន្ទោសខ្លួនឯងពេលមានកំហុសបន្តិចបន្តួច",
+          "ការអស់កម្លាំងកាយ និងចិត្តទាំងស្រុងដោយសារតែត្រូវរៀនផង និងធ្វើការងារពេញម៉ោងដើម្បីគ្រួសារផង",
+        ],
+        feedbackMessage:
+          "Naming your primary fear takes away its ability to silently control you. Acknowledging whether your stress stems from parental expectations, peer comparison, internal perfectionism, or overwork allows you to address the root with compassion rather than self-blame.",
+        kmFeedbackMessage:
+          "ការហ៊ានបញ្ចេញឈ្មោះការភ័យខ្លាចចម្បងរបស់អ្នក ជួយដកអំណាចរបស់វាចេញពីចិត្ត។ ការដឹងច្បាស់ថាតើស្ត្រេសរបស់អ្នកកើតចេញពីការរំពឹងទុករបស់ឪពុកម្តាយ ការប្រៀបធៀប ភាពចង់បានឥតខ្ចោះ ឬការហត់នឿយ ជួយឱ្យអ្នកដោះស្រាយបញ្ហាដោយក្តីមេត្តា ជំនួសឱ្យការបន្ទោសខ្លួនឯង។",
+      },
+    },
+    {
+      id: 9,
+      sectionNumber: 9,
+      title: "Recognizing When Academic Dread Becomes a Mental Health Concern [3, 4]",
+      kmTitle: "ការសម្គាល់នៅពេលដែលសម្ពាធការសិក្សាឈានដល់កម្រិតគ្រោះថ្នាក់ (Recognizing Crisis Signs)",
+      type: "reading",
+      paragraphs: [
+        "While a degree of exam nervousness is normal, chronic academic dread can cross into clinical distress that requires compassionate intervention [3].",
+        "Warning signs include: severe insomnia lasting for weeks, constant nausea or vomiting before class, panic attacks during exams where your vision blurs and you cannot breathe, withdrawing entirely from friends, or experiencing overwhelming thoughts that you would be better off disappearing.",
+        "Your health and your life are infinitely more valuable than any degree, diploma, or test score. If academic pressure is driving you toward despair, talking to a licensed counselor is a courageous and essential step. There is always a way forward, and you do not have to carry this alone [3, 4].",
+      ],
+      kmParagraphs: [
+        "ទោះបីជាការភ័យបន្តិចបន្តួចមុនពេលប្រឡងជារឿងធម្មតាក៏ដោយ ប៉ុន្តែការភ័យខ្លាចរ៉ាំរ៉ៃអាចវិវត្តទៅជាបញ្ហាសុខភាពផ្លូវចិត្តធ្ងន់ធ្ងរដែលទាមទារការជួយសង្គ្រោះ [3]។",
+        "សញ្ញាព្រមានរួមមាន៖ ការគេងមិនលក់ជាច្រើនសប្តាហ៍ ការក្អួតចង្អោរញឹកញាប់មុនពេលចូលរៀន ការកើតអាការស្លន់ស្លោ (Panic Attacks) ក្នុងបន្ទប់ប្រឡងរហូតដល់ងងឹតមុខ និងថប់ដង្ហើម ការដកខ្លួនចេញពីមិត្តភក្តិ ឬមានគំនិតអស់សង្ឃឹមខ្លាំងរហូតដល់មិនចង់រស់នៅ។",
+        "សុខភាព និងអាយុជីវិតរបស់អ្នកមានតម្លៃធំធេងលើសលប់ជាងសញ្ញាបត្រ ឬពិន្ទុប្រឡងទាំងអស់នៅលើលោកនេះ។ ប្រសិនបើសម្ពាធការសិក្សាកំពុងរុញច្រានអ្នកឱ្យធ្លាក់ក្នុងភាពអស់សង្ឃឹម ការជួបពិគ្រោះជាមួយអ្នកចិត្តវិទ្យាគឺជាទង្វើដ៏ក្លាហាន និងចាំបាច់បំផុត។ ជីវិតតែងតែមានផ្លូវចេញជានិច្ច ហើយអ្នកមិនចាំបាច់រែកពន់បន្ទុកនេះតែម្នាក់ឯងឡើយ [3, 4]។",
+      ],
+      keyPoints: [
+        "Panic attacks, chronic nausea, and despair are signs that stress has exceeded safety [3].",
+        "Your life and well-being will always be more important than any academic evaluation.",
+        "Professional counselors provide practical, non-judgmental support to restore balance [4].",
+      ],
+      kmKeyPoints: [
+        "អាការស្លន់ស្លោ ការក្អួតចង្អោរ និងការអស់សង្ឃឹម បញ្ជាក់ថាភាពតានតឹងលើសកម្រិតសុវត្ថិភាព [3]។",
+        "ជីវិត និងសុខុមាលភាពរបស់អ្នក មានតម្លៃខ្ពស់ជាងការវាយតម្លៃលទ្ធផលសិក្សាទាំងអស់។",
+        "អ្នកចិត្តវិទ្យាអាចជួយអ្នកស្វែងរកតុល្យភាពឡើងវិញដោយគ្មានការវិនិច្ឆ័យ [4]។",
+      ],
+    },
+    {
+      id: 10,
+      sectionNumber: 10,
+      title: "The Anti-Panic Reset: The 1-Minute Grounding Breath",
+      kmTitle: "ការរំងាប់ភាពស្លន់ស្លោ៖ លំហាត់ដកដង្ហើមស្ងប់ចិត្ត ១ នាទី (1-Minute Grounding Breath)",
+      type: "coping",
+      paragraphs: [
+        "Before entering an examination room, presenting in front of your class, or opening your books after a stressful day, take sixty seconds to regulate your autonomic nervous system.",
+        "Plant both feet firmly on the floor. Rest your hands gently on your thighs. Inhale deeply through your nose for a count of 4, feeling your lower belly expand with cool air. Hold smoothly for a count of 2.",
+        "Exhale slowly and completely through your mouth for a count of 6. As the breath leaves your body, release the tension from your forehead, drop your shoulders away from your ears, and remind yourself: 'I am safe in this moment. I will do my best, and my best is enough.' Repeat 4 times.",
+      ],
+      kmParagraphs: [
+        "មុនពេលឈានជើងចូលបន្ទប់ប្រឡង ឡើងធ្វើបទបង្ហាញមុខថ្នាក់ ឬបើកសៀវភៅរៀនក្រោយថ្ងៃដ៏នឿយហត់ សូមចំណាយពេល ៦០ វិនាទីដើម្បីរំងាប់ប្រព័ន្ធប្រសាទរបស់អ្នក។",
+        "ដាក់ជើងទាំងសងខាងឱ្យរាបស្មើលើកម្រាល។ ដាក់ដៃថ្នមៗលើភ្លៅ។ ដកដង្ហើមចូលជ្រៅៗតាមច្រមុះរាប់ដល់ ៤ ដោយឱ្យពោះប៉ោងឡើង។ ទប់ដង្ហើមថ្នមៗរាប់ដល់ ២។",
+        "បន្ទាប់មកដកដង្ហើមចេញយឺតៗតាមមាត់រាប់ដល់ ៦។ នៅពេលដង្ហើមចេញផុត សូមបន្ធូរសាច់ដុំថ្ងាស ទម្លាក់ស្មាចុះ ហើយប្រាប់ខ្លួនឯងថា៖ «ខ្ញុំមានសុវត្ថិភាពក្នុងពេលនេះ។ ខ្ញុំនឹងខិតខំឱ្យអស់ពីលទ្ធភាព ហើយការខិតខំរបស់ខ្ញុំគឺល្អគ្រប់គ្រាន់ហើយ»។ អនុវត្តឡើងវិញ ៤ ដង។",
+      ],
+      keyPoints: [
+        "Feet flat on the floor grounds your physical body and signals spatial stability.",
+        "Extended exhalation activates parasympathetic calming, reducing test tachycardia.",
+        "Sixty seconds of intentional breath clears mental fog and restores focus.",
+      ],
+      kmKeyPoints: [
+        "ការដាក់ជើងរាបស្មើលើកម្រាល ជួយឱ្យរាងកាយមានលំនឹង និងកាត់បន្ថយការភ័យស្លន់ស្លោ។",
+        "ការដកដង្ហើមចេញវែងៗ ជួយបន្ថយចង្វាក់បេះដូងដែលលោតញាប់មុនពេលប្រឡង។",
+        "ការដកដង្ហើមដោយស្មារតី ៦០ វិនាទី ជួយបំបាត់ភាពស្ពឹកស្មារតី និងស្តារការផ្ដោតអារម្មណ៍។",
+      ],
+      actions: [
+        {
+          label: "Try 1-Minute Calming Breath",
+          kmLabel: "អនុវត្តលំហាត់ដកដង្ហើមស្ងប់ចិត្ត ១ នាទី (1-Min Breath)",
+          actionType: "exercise",
+        },
+      ],
+    },
+    {
+      id: 11,
+      sectionNumber: 11,
+      title: "Building Your Academic Support Village on AROM [4, 5]",
+      kmTitle: "ការកសាងភូមិគាំទ្រការសិក្សារបស់អ្នកនៅលើ AROM (Support on AROM)",
+      type: "reading",
+      paragraphs: [
+        "Navigating education does not have to be an exhausting solo battle. Success is sustained by self-compassion, balanced habits, and a trusted community.",
+        "On AROM, you have private, judgment-free tools built to support your mental health journey. Open your private AROM Journal (/journal) to unload academic anxieties, track your daily energy batteries, and practice celebrating small study milestones rather than obsessing over perfection.",
+        "If academic pressure or parental expectations feel too heavy to navigate alone, explore AROM Professional (/professional) to connect with verified Cambodian counselors and therapists. These professionals understand the exact cultural and academic realities of students in Cambodia and can help you build realistic coping roadmaps [4, 5].",
+        "If study stress ever escalates into a severe emotional crisis or thoughts of self-harm, please reach out immediately. Free, confidential help is available 24/7. Call the National Child and Youth Helpline at 1280, the National Health Hotline at 119, or TPO Cambodia at 017 222 372. Your journey is unique, and you are worthy of care every single day.",
+      ],
+      kmParagraphs: [
+        "ការរៀនសូត្រមិនគួរជាសមរភូមិដ៏ឯកោដែលបំផ្លាញសុខភាពនោះឡើយ។ ជោគជ័យយូរអង្វែងកើតចេញពីក្តីមេត្តាចំពោះខ្លួនឯង ទម្លាប់រស់នៅមានតុល្យភាព និងការគាំទ្រពីអ្នកជុំវិញខ្លួន។",
+        "នៅលើ AROM អ្នកមានឧបករណ៍សុវត្ថិភាព និងសម្ងាត់ជាច្រើនដើម្បីការពារសុខភាពផ្លូវចិត្ត។ សូមបើកកំណត់ហេតុ AROM Journal (/journal) ដើម្បីទម្លាក់ចោលការថប់បារម្ភរឿងរៀនសូត្រ តាមដានថាមពលប្រចាំថ្ងៃ និងកោតសរសើរខ្លួនឯងចំពោះជំហានតូចៗដែលសម្រេចបាន ជំនួសឱ្យការទាមទារភាពឥតខ្ចោះ។",
+        "ប្រសិនបើសម្ពាធការសិក្សា ឬការរំពឹងទុករបស់គ្រួសារមានទម្ងន់ធ្ងន់ពេក សូមចូលទៅកាន់ AROM Professional (/professional) ដើម្បីភ្ជាប់ទំនាក់ទំនងជាមួយអ្នកចិត្តវិទ្យាកម្ពុជាដែលមានការទទួលស្គាល់ត្រឹមត្រូវ។ អ្នកជំនាញយល់ច្បាស់ពីទិដ្ឋភាពវប្បធម៌ និងការសិក្សាក្នុងសង្គមយើង ហើយអាចជួយអ្នករៀបចំយុទ្ធសាស្ត្រជីវិតដ៏មានប្រសិទ្ធភាព [4, 5]។",
+        "ប្រសិនបើសម្ពាធការសិក្សាឈានដល់កម្រិតវិបត្តិផ្លូវចិត្តធ្ងន់ធ្ងរ ឬមានគំនិតចង់ធ្វើបាបខ្លួនឯង សូមទាក់ទងជំនួយបន្ទាន់ភ្លាមៗ។ ខ្សែទូរស័ព្ទជំនួយកុមារ និងយុវជនលេខ 1280 ខ្សែទូរស័ព្ទសុខភាពជាតិលេខ 119 ឬអង្គការចិត្តសង្គមកម្ពុជា (TPO Cambodia) តាមលេខ 017 222 372 ត្រៀមជួយជានិច្ចដោយឥតគិតថ្លៃ និងសម្ងាត់។ ដំណើរជីវិតរបស់អ្នកមានតម្លៃ ហើយអ្នកសមនឹងទទួលបានការថែទាំជារៀងរាល់ថ្ងៃ។",
+      ],
+      keyPoints: [
+        "Unload academic dread into your private AROM Journal (/journal) to protect sleep.",
+        "Connect with verified youth counselors on AROM Professional (/professional) [4].",
+        "Emergency hotlines are free, confidential, and always available: 1280, 119, or TPO Cambodia 017 222 372.",
+      ],
+      kmKeyPoints: [
+        "កត់ត្រាការព្រួយបារម្ភក្នុងកំណត់ហេតុ AROM Journal (/journal) ដើម្បីការពារដំណេកពេលយប់។",
+        "ភ្ជាប់ទំនាក់ទំនងជាមួយអ្នកប្រឹក្សាលើ AROM Professional (/professional) ដើម្បីទទួលបានការណែនាំ [4]។",
+        "ខ្សែទូរស័ព្ទទាន់ហេតុការណ៍ឥតគិតថ្លៃ និងសម្ងាត់ត្រៀមជួយជានិច្ច៖ 1280, 119 ឬ TPO Cambodia 017 222 372។",
+      ],
+      alertBox: {
+        type: "tip",
+        text: "Clinical Truth: A student's physical and mental health is infinitely more valuable than any grade, ranking, or academic trophy. Never sacrifice your sanity for a scorecard.",
+        kmText: "ការពិតតាមក្បួនចិត្តវិទ្យា៖ សុខភាពផ្លូវកាយ និងផ្លូវចិត្តរបស់សិស្ស មានតម្លៃធំធេងលើសលប់ជាងពិន្ទុ ចំណាត់ថ្នាក់ ឬពានរង្វាន់សិក្សាទាំងអស់។ សូមកុំលះបង់សុខុមាលភាពរបស់អ្នក ដើម្បីតែក្រដាសពិន្ទុឡើយ។",
+      },
+      actions: [
+        {
+          label: "Open AROM Journal",
+          kmLabel: "បើកកំណត់ហេតុ AROM Journal",
+          actionType: "tips",
+        },
+        {
+          label: "Talk to a Professional",
+          kmLabel: "ពិគ្រោះជាមួយអ្នកជំនាញ AROM",
+          actionType: "professional",
+        },
+      ],
+    },
+  ],
+};
+
 export const ALL_LESSONS: Lesson[] = [
+  LESSON_ACADEMIC_PRESSURE,
   LESSON_LONELINESS,
   LESSON_SUPPORT_FRIEND,
   LESSON_LOST_INTEREST,
