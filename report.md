@@ -2,7 +2,7 @@
 
 ## 19 Oct 2026: New Lesson, How to Deal With Academic Pressure
 
-Commit `9691fb5`. No migration. Content and frontend only.
+Commit `8fe077e`. No migration. Content and frontend only.
 
 **Why.** Academic testing, high-stakes milestone examinations like the Grade 12 Bac II in Cambodia, family sacrifices, and competitive social ranking induce chronic cognitive fatigue, panic-induced memory freeze, digestive distress, and severe guilt among youth. "How to Deal With Academic Pressure" (`how-to-deal-with-academic-pressure`) strengthens the Stress category in MindGuide Learn with an 8-minute evidence-based psychoeducational guide adapted from APA, Harvard Graduate School of Education, WHO, UNICEF Cambodia, and NHS inform. It equips students and youth with practical tools to differentiate healthy motivation from toxic pressure, uncouple human self-worth from report cards, manage parental expectations and family comparisons using respectful communication scripts, implement brain-friendly study methods (Pomodoro sprints, active recall, non-negotiable sleep), regulate nervous system panic through 1-minute somatic breathwork, and access confidential therapy on AROM.
 
