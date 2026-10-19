@@ -2,7 +2,7 @@
 
 ## 19 Oct 2026: Install AROM to the Home Screen
 
-Commit `pending`. No migration.
+Commit `9668e12`. No migration.
 
 **Why.** Rith wanted people to be able to "download" AROM so it sits on their home screen and opens in one tap, like a normal app. AROM is now an installable web app (PWA), so no App Store or Play Store is needed, and every update we push reaches users straight away.
 
