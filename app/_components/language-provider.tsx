@@ -76,9 +76,11 @@ export function LanguageQuickToggle({ className = "" }: { className?: string }) 
 export function LanguageSwitcher({
   className = "",
   inline = true,
+  compact = false,
 }: {
   className?: string;
   inline?: boolean;
+  compact?: boolean;
 }) {
   const { language, setLanguage } = useLanguage();
   const shouldReduceMotion = useReducedMotion();
@@ -89,7 +91,7 @@ export function LanguageSwitcher({
 
   return (
     <div className={containerClass}>
-      <Languages aria-hidden="true" size={16} className="ml-2 mr-1 text-arom" />
+      {!compact && <Languages aria-hidden="true" size={16} className="ml-2 mr-1 text-arom" />}
       <div role="group" aria-label="Choose language" className="relative grid grid-cols-2">
         <motion.span
           aria-hidden="true"
@@ -103,7 +105,7 @@ export function LanguageSwitcher({
             type="button"
             onClick={() => setLanguage(option)}
             aria-pressed={language === option}
-            className={`relative z-10 min-w-12 rounded-full px-3 py-2 text-xs font-bold transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-arom ${
+            className={`relative z-10 rounded-full text-xs font-bold ${compact ? "min-w-9 px-2 py-1.5" : "min-w-12 px-3 py-2"} transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-arom ${
               language === option ? "text-white" : "text-ink-muted hover:text-arom"
             } ${option === "km" ? "font-khmer" : ""}`}
           >

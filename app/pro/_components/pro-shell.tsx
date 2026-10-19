@@ -66,11 +66,11 @@ export function ProShell({ children }: { children: ReactNode }) {
   }, [menuOpen]);
 
   const brand = (
-    <Link href="/pro" onClick={() => setMenuOpen(false)} className="flex items-center gap-3">
-      <Image src="/brand/arom-mark.svg" width={40} height={32} alt="" unoptimized />
-      <span className="text-xl font-bold tracking-tight text-arom">
+    <Link href="/pro" onClick={() => setMenuOpen(false)} className="flex min-w-0 items-center gap-2.5">
+      <Image src="/brand/arom-mark.svg" width={40} height={32} alt="" unoptimized className="shrink-0" />
+      <span className="text-xl font-bold leading-tight tracking-tight text-arom">
         AROM
-        <span className="block text-xs font-medium text-ink-muted">
+        <span className="block whitespace-nowrap text-xs font-medium text-ink-muted">
           {t('ផ្នែកអ្នកជំនាញ', 'Professional area')}
         </span>
       </span>
@@ -134,17 +134,21 @@ export function ProShell({ children }: { children: ReactNode }) {
       </aside>
 
       {/* Mobile top bar with hamburger */}
-      <header className="sticky top-0 z-30 flex items-center gap-3 border-b border-arom-border bg-white px-4 py-3 lg:hidden">
+      <header className="sticky top-0 z-30 flex items-center gap-2 border-b border-arom-border bg-white px-4 py-2.5 lg:hidden">
         <button
           type="button"
           onClick={() => setMenuOpen(true)}
           aria-label={t('បើកម៉ឺនុយ', 'Open menu')}
           aria-expanded={menuOpen}
           aria-controls="pro-mobile-menu"
-          className="flex h-11 w-11 items-center justify-center rounded-2xl text-ink hover:bg-arom-wash hover:text-arom">
+          className="-ml-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl text-ink hover:bg-arom-wash hover:text-arom">
           <Menu size={24} aria-hidden="true" />
         </button>
         {brand}
+        <div className="ml-auto flex shrink-0 items-center gap-1.5">
+          <LanguageSwitcher compact />
+          <AccountMenu compact />
+        </div>
       </header>
 
       {/* Mobile sidebar drawer */}
@@ -174,14 +178,14 @@ export function ProShell({ children }: { children: ReactNode }) {
       </div>
 
       <main className="mx-auto max-w-5xl px-4 py-5 sm:px-8 lg:px-10 lg:py-8">
-        <div className="flex items-center justify-end gap-3">
+        <div className="hidden items-center justify-end gap-3 lg:flex">
           <div className="flex shrink-0 items-center gap-3">
             <LanguageSwitcher />
             <AccountMenu />
           </div>
         </div>
 
-        <div className="mt-6">{children}</div>
+        <div className="lg:mt-6">{children}</div>
       </main>
     </div>
   );

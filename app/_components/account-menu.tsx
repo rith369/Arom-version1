@@ -121,7 +121,13 @@ function AccountMenuPanel({
  * in, links to their profile and logs out. `englishOnly` is for the admin
  * area, which is English only.
  */
-export function AccountMenu({ englishOnly = false }: { englishOnly?: boolean }) {
+export function AccountMenu({
+  englishOnly = false,
+  compact = false,
+}: {
+  englishOnly?: boolean;
+  compact?: boolean;
+}) {
   const { user } = useAuth();
   const { language } = useLanguage();
   const km = !englishOnly && language === 'km';
@@ -141,19 +147,23 @@ export function AccountMenu({ englishOnly = false }: { englishOnly?: boolean }) 
         aria-expanded={open}
         aria-controls={menuId}
         aria-haspopup="true"
-        className="flex h-[3.25rem] items-center gap-2.5 rounded-full border border-arom-border/70 bg-white py-1.5 pl-1.5 pr-3 shadow-sm transition-colors duration-150 hover:bg-arom-wash focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-arom">
+        className={`flex items-center rounded-full border border-arom-border/70 bg-white shadow-sm transition-colors duration-150 hover:bg-arom-wash focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-arom ${
+          compact ? 'h-9 gap-1 py-1 pl-1 pr-2' : 'h-[3.25rem] gap-2.5 py-1.5 pl-1.5 pr-3'
+        }`}>
         <span
           aria-hidden="true"
-          className="flex size-10 items-center justify-center rounded-full bg-arom text-sm font-bold text-white">
+          className={`flex items-center justify-center rounded-full bg-arom font-bold text-white ${
+            compact ? 'size-7 text-xs' : 'size-10 text-sm'
+          }`}>
           {initials(name)}
         </span>
-        <span className="hidden min-w-0 text-left sm:block">
+        <span className={`hidden min-w-0 text-left ${compact ? '' : 'sm:block'}`}>
           <span className="block max-w-[10rem] truncate text-sm font-semibold text-ink">{name}</span>
           <span className="block text-xs text-ink-muted">{km ? role.km : role.en}</span>
         </span>
         <ChevronDown
           aria-hidden="true"
-          size={16}
+          size={compact ? 14 : 16}
           className={`text-ink-muted transition-transform duration-150 ${open ? 'rotate-180' : ''}`}
         />
         <span className="sr-only">{km ? 'ម៉ឺនុយគណនី' : 'Account menu'}</span>

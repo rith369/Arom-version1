@@ -1,5 +1,28 @@
 # AROM: Change Report
 
+## 19 Oct 2026: Professional Mobile Top Bar Holds Language and Account
+
+Commit `HASH`. No migration.
+
+**Why.** After the hamburger menu was added, the language switch and the account button (KP) still sat on their own row below the top bar, taking space and looking disconnected. On a phone they belong on the same row as the logo.
+
+**What changed for users:**
+
+- **One top row on phones:** hamburger, logo, then the language switch and account button on the right.
+- **Smaller buttons:** the language switch and account button are more compact on phones so they fit next to the logo. The account button shows the initials and a small arrow.
+- **Desktop unchanged:** large screens keep the row at the top right of the page.
+
+**What changed for the team:**
+
+- **`compact` prop** added to `LanguageSwitcher` (`language-provider.tsx`) and `AccountMenu` (`account-menu.tsx`). The default look is unchanged everywhere else.
+- **`pro-shell.tsx`:** the controls render inside the mobile header and the old row is desktop only.
+
+**What to re-test:**
+
+1. Open `/pro` at phone width (360 and 390). The hamburger, logo, EN/ខ្មែរ and account button all fit on one row.
+2. Switch language, and open the account menu and check the dropdown stays on screen.
+3. Check desktop width still shows the language switch and account button at the top right.
+
 ## 19 Oct 2026: Professional Area Mobile Hamburger Menu
 
 Commit `841fd2b`. No migration.
