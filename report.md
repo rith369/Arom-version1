@@ -2,7 +2,7 @@
 
 ## 19 Oct 2026: One Saved Page in Settings
 
-Commit `HASH`. No migration.
+Commit `8bc3d06`. No migration.
 
 **Why.** Rith wanted a Saved button in Settings so people can find everything they kept in one place: lessons, tips, practice and podcasts. Before, each part had its own hidden Saved screen, and podcasts could not be saved at all.
 
