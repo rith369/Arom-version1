@@ -96,7 +96,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
   ];
   return (
     <div className="min-h-screen bg-admin-canvas lg:pl-64">
-      <aside className="border-b border-arom-line bg-white p-5 lg:fixed lg:inset-y-0 lg:left-0 lg:w-64 lg:border-r lg:border-b-0 lg:p-7">
+      <aside className="border-b border-arom-line bg-white p-5 lg:fixed lg:inset-y-0 lg:left-0 lg:flex lg:w-64 lg:flex-col lg:overflow-y-auto lg:border-r lg:border-b-0 lg:p-7">
         <Link href="/admin" className="flex items-center gap-3">
           <Image src="/brand/arom-mark.svg" width={42} height={42} alt="" />
           <span className="text-2xl font-semibold tracking-tight">
@@ -137,7 +137,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
             );
           })}
         </nav>
-        <div className="mt-10 hidden rounded-2xl bg-arom-wash p-5 lg:block">
+        <div className="mt-10 hidden rounded-2xl bg-arom-wash p-5 lg:[@media(min-height:960px)]:block">
           <HeartHandshake className="text-arom" size={26} />
           <p className="mt-3 text-sm font-medium">
             {km ? 'ថែទាំដោយក្តីមេត្តា' : 'Care starts here'}
@@ -148,7 +148,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
               : 'Keep our wellness space thoughtful, helpful, and welcoming.'}
           </p>
         </div>
-        <div className="mt-6 flex flex-wrap gap-x-5 gap-y-2 lg:absolute lg:bottom-8 lg:flex-col">
+        <div className="mt-6 flex flex-wrap gap-x-5 gap-y-2 lg:mt-auto lg:flex-col lg:pt-8">
           <Link
             href="/pro"
             className="flex items-center gap-2 text-sm text-ink-muted hover:text-arom">

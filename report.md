@@ -1,5 +1,26 @@
 # AROM: Change Report
 
+## 19 Oct 2026: Admin Sidebar Links No Longer Overlap
+
+Commit `HASH`. No migration.
+
+**Why.** The admin sidebar now has 11 menu items. The "Professional area" and "View website" links were pinned to the bottom of the screen, so on shorter screens they sat on top of the last menu items (Audit log, Users) and could not be read or clicked.
+
+**What changed for users:**
+
+- **No more overlap:** the two bottom links now sit below the menu instead of on top of it.
+- **Scrolls on short screens:** if the window is too short for everything, the sidebar scrolls.
+- **Care card hides on short screens:** the "Care starts here" card only shows on tall screens, to save room.
+
+**What changed for the team:**
+
+- **`app/admin/_components/admin-shell.tsx`:** the sidebar is a flex column; the bottom links use `mt-auto` instead of absolute positioning.
+
+**What to re-test:**
+
+1. Open `/admin` on a laptop sized window and check that Audit log and Users are fully visible.
+2. Shrink the window height and confirm the sidebar scrolls and the bottom links never cover the menu.
+
 ## 19 Oct 2026: Remove Mock Notifications & Wellbeing Settings Card
 
 Commit `4039564`. No migration.
