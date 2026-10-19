@@ -1,5 +1,6 @@
 import { hasOffice, type OfficeLocation } from "./office";
 import type { SessionPrice } from "./pricing";
+import type { PublicReview, ReviewSummary } from "./reviews";
 import { createClient } from "./supabase/server";
 import type { SessionOption, Therapist } from "./therapists";
 
@@ -66,7 +67,7 @@ function availabilityLabel(nextOpenAt: string | null, now: number) {
   return "Open times available";
 }
 
-function toTherapist(row: PublicRow, now: number): Therapist {
+function toTherapist(row: PublicRow, now: number, summary?: ReviewSummary): Therapist {
   const office: OfficeLocation = {
     name: row.office_name ?? "",
     address: row.office_address ?? "",
@@ -90,8 +91,8 @@ function toTherapist(row: PublicRow, now: number): Therapist {
     image: row.photo_url ?? "",
     experience: years === null ? "" : `${years}+ years of experience`,
     kmExperience: years === null ? undefined : `បទពិសោធន៍ ${years}+ ឆ្នាំ`,
-    rating: 0,
-    reviews: 0,
+    rating: summary?.average ?? 0,
+    reviews: summary?.count ?? 0,
     about: row.bio ?? "",
     kmAbout: row.bio_km ?? undefined,
     languages: row.languages ?? [],
@@ -101,21 +102,65 @@ function toTherapist(row: PublicRow, now: number): Therapist {
   };
 }
 
+type Supabase = Awaited<ReturnType<typeof createClient>>;
+
+/** Star average and count of visible reviews, by slug. Empty on any error, so the page still loads. */
+async function reviewSummaries(supabase: Supabase, slug?: string): Promise<Map<string, ReviewSummary>> {
+  const { data, error } = await supabase.rpc("public_review_summaries", slug ? { p_slug: slug } : {});
+  if (error || !data) return new Map();
+  return new Map(
+    (data as { slug: string; average_rating: number | string; review_count: number }[]).map((row) => [
+      row.slug,
+      { average: Number(row.average_rating), count: row.review_count },
+    ]),
+  );
+}
+
 /** Every listed professional, for the directory. Empty on any error. */
 export async function listPublicTherapists(): Promise<Therapist[]> {
   const supabase = await createClient();
-  const { data, error } = await supabase.rpc("list_public_professionals");
+  const [{ data, error }, summaries] = await Promise.all([
+    supabase.rpc("list_public_professionals"),
+    reviewSummaries(supabase),
+  ]);
   if (error || !data) return [];
   const now = Date.now();
-  return (data as PublicRow[]).map((row) => toTherapist(row, now));
+  return (data as PublicRow[]).map((row) => toTherapist(row, now, summaries.get(row.slug)));
 }
 
 /** One listed professional by slug, or null. */
 export async function getPublicTherapist(slug: string): Promise<Therapist | null> {
   const supabase = await createClient();
-  const { data, error } = await supabase.rpc("list_public_professionals", { p_slug: slug });
+  const [{ data, error }, summaries] = await Promise.all([
+    supabase.rpc("list_public_professionals", { p_slug: slug }),
+    reviewSummaries(supabase, slug),
+  ]);
   if (error || !data || data.length === 0) return null;
-  return toTherapist((data as PublicRow[])[0], Date.now());
+  return toTherapist((data as PublicRow[])[0], Date.now(), summaries.get(slug));
+}
+
+/** Visible reviews of a listed professional, newest first. Never says who wrote them. */
+export async function getPublicReviews(slug: string): Promise<PublicReview[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("public_professional_reviews", { p_slug: slug });
+  if (error || !data) return [];
+  return (
+    data as {
+      id: string;
+      rating: number;
+      comment: string | null;
+      reply: string | null;
+      replied_at: string | null;
+      created_at: string;
+    }[]
+  ).map((row) => ({
+    id: row.id,
+    rating: row.rating,
+    comment: row.comment ?? "",
+    reply: row.reply ?? "",
+    repliedAt: row.replied_at,
+    createdAt: row.created_at,
+  }));
 }
 
 /** Times a user can book with this professional, soonest first. */

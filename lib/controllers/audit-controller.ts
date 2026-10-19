@@ -42,6 +42,14 @@ function describe(row: AuditRow): { action: string; module: AuditModule; detail:
         module: "professionals",
         detail: [text(d.license_number) && `License ${text(d.license_number)}`, text(d.note)].filter(Boolean).join(". "),
       };
+    case "hide_review":
+      return {
+        action: "Hid a review",
+        module: "professionals",
+        detail: [text(d.professional) && `For ${text(d.professional)}`, text(d.reason)].filter(Boolean).join(". "),
+      };
+    case "show_review":
+      return { action: "Showed a review again", module: "professionals", detail: text(d.professional) && `For ${text(d.professional)}` };
     case "change_verification":
       return { action: "Changed professional verification", module: "professionals", detail: fromTo };
     case "approve_application":

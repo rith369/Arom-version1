@@ -74,6 +74,7 @@ The yellow "Demo data on this page" banner is in `admin-shell.tsx`. Remove it fo
 | Progress Activities tab (practices done, lessons read, journal entries) | Done | Connected (`POST /api/activities`, `GET /api/progress/activities?range=`), migration `20261016001000` | 22 |
 | Share mood check ins with my professional (My appointments switch, client file card) | Done | Connected (`appointments.share_mood_trend`, `shared_mood_checkins()`, `GET /api/pro/clients/:id` returns `moods`), migration `20261016001000` | 22 |
 | Journal (Write about today, `/detection/journal`) | Done | Connected (`GET\|POST /api/journal`, `DELETE /api/journal/:id`, owner only). Entries an older version saved in the browser are moved only if the person agrees, migration `20261016001000` | 22 |
+| Reviews of professionals: users review after a completed session, public profile and directory stars, `/pro/reviews` with replies, `/admin/reviews` to hide | Done | Connected (`/api/reviews`, `/api/pro/reviews`, `/api/admin/reviews`), migration `20261019000300` applied 19 Oct | 31 |
 | Edit Profile for users: photo, display name, pronouns, About you (`/profile`) | Done | Connected (`/api/profile`, `/api/profile/photo`, private `user-profile-photos` bucket), migration `20261016000900`. Accounts without a profile row fixed by `20261016000800` | none |
 | Admin audit log (`/admin/audit-log`) | Done | Connected (`GET /api/admin/audit-log`). No migration | 5 |
 | Journal prompts: admin page `/admin/journal-prompts`, guided questions on Write about today (`/detection/journal`) | Done | Connected (`GET /api/journal-prompts`, `GET\|PUT /api/admin/journal-prompts`), migration `20261016001200` | 26 |
@@ -1195,6 +1196,57 @@ Tips and practice show one saved example (`how-to-control-stress`, `interactive-
 3. **Move the browser lists** into the table the first time a signed in person opens Saved, then stop reading the browser keys (same idea as the journal move in section 22).
 4. **Older Saved screens still differ.** The Saved button inside Learn, Tips and Practice opens their own screens. Tips and Practice read the same keys. The Learn one reads a different key with sample items (`STORAGE_KEYS.SAVED_ITEMS`), so lessons bookmarked there do not show in it. Point all three at `/profile/saved` or at the new table once the backend exists.
 5. **No saved date** is kept yet, so the order is the order of saving.
+
+## 31. Reviews of professionals
+
+**Status:** connected. Frontend and backend written together on branch `rith/professional-reviews`, PR #24 (19 Oct 2026). Migration `20261019000300_professional_reviews.sql` **applied by Rith on 19 Oct 2026** (checked: table, RLS, policy, 8 functions, anon cannot write).
+
+### Decided (Rith, 19 Oct 2026)
+
+- **Who can review:** only a user with a **completed** session with that professional. Booked, cancelled and "did not come" sessions do not count. The professional marks the outcome, so no outcome means no review yet.
+- **One review per professional per user,** 1 to 5 stars and an optional comment (up to 1000 characters). Saving again edits it. The user can delete it.
+- **Shows at once.** No admin approval. Admins can hide a review with a reason and show it again. Both go to `admin_audit_log` (`hide_review`, `show_review`).
+- **The professional can reply,** one public reply per review, editable and removable.
+- **Anonymous for everyone.** The public sees "AROM client" and the month. The professional and admins never see who wrote a review. Only the writer reads their own row. Do not add the writer to any response.
+- **A hidden review stays hidden after the writer edits it,** so editing cannot undo a moderation choice. The writer and the professional see that it was hidden and why.
+
+### Where it shows
+
+| Screen | What |
+|---|---|
+| My appointments (`/appointments`) | On the latest completed session with each professional: "Write a review", or "Your review" with Edit and Delete, the reply, and a note if the AROM team hid it |
+| Public profile (`/professional/<slug>`) | Star average and count under the name (links down), Reviews section: average, list (5 first, then "Show all"), replies |
+| Directory (`/professional`) | Star average and count on each card when a professional has reviews |
+| `/pro/reviews` (new menu item "Reviews") | Average, count per star, every review including hidden ones, Reply, Edit, Remove reply |
+| `/admin/reviews` (new menu item "Reviews", English only) | Shown and Hidden tabs, search, Hide (reason required), Show again |
+
+### Data
+
+Table `professional_reviews`: `id`, `professional_id`, `user_id`, `rating` (1 to 5), `comment`, `reply`, `replied_at`, `hidden_at`, `hidden_by`, `hidden_reason`, `created_at`, `updated_at`, unique `(professional_id, user_id)`. RLS: select own rows only. No insert, update or delete policy; every write goes through a `security definer` function.
+
+The old `professional_profiles.rating` and `review_count` columns stay unused. The average and count are counted from visible reviews when read.
+
+Types in `lib/reviews.ts`: `PublicReview`, `MyReview`, `ProReview`, `AdminReview`.
+
+### Functions and endpoints
+
+| Who | Endpoint | Database function | Checks |
+|---|---|---|---|
+| User | `GET /api/reviews` | table read (RLS, own rows) | signed in |
+| User | `PUT /api/reviews` body `{ slug, rating, comment? }` | `save_my_review(slug, rating, comment)` | completed session with that professional, 1 to 5 stars |
+| User | `DELETE /api/reviews?slug=` | `delete_my_review(slug)` | own review only |
+| Anyone | server render of the profile and directory | `public_professional_reviews(slug)` (newest 50), `public_review_summaries(slug?)` | listed professionals, visible reviews, no writer |
+| Professional | `GET /api/pro/reviews` | `my_professional_reviews()` | own reviews, hidden ones flagged |
+| Professional | `PUT /api/pro/reviews/:id` body `{ reply }` | `reply_to_review(id, reply)` | own review, active professional. Empty reply removes it |
+| Admin | `GET /api/admin/reviews` | `admin_list_reviews()` | `is_admin()`, no writer |
+| Admin | `POST /api/admin/reviews/:id` body `{ hidden: true, reason }` or `{ hidden: false }` | `admin_set_review_hidden(id, hidden, reason)` | `is_admin()`, reason required to hide, audit log |
+
+**Tested** on PGlite (Postgres in Node) with stubbed `auth.uid()`, `profiles`, `professional_profiles`, `appointments` and `admin_audit_log`: 41 checks covering who can review, edit, delete, RLS on reads and direct writes, public list and counts, replies, hide and show, audit log, and that no response has a writer column.
+
+### Still open
+
+- No notice to the professional when a new review arrives (only the menu page). Could be a count on `/pro` Home later.
+- No "Report this review" link for users yet. Admins find problems from the admin list.
 
 ## Template for a new feature section
 

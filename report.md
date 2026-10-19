@@ -1,5 +1,39 @@
 # AROM: Change Report
 
+## 19 Oct 2026: Clients Review Their Professional
+
+Commit `e8f7a21`. Branch `rith/professional-reviews`, PR #24. Migration `20261019000300_professional_reviews.sql`, applied by Rith in Supabase on 19 Oct 2026.
+
+**Why.** Rith wanted clients to be able to review a professional after a session. Reviews help people choose the right professional, and give professionals honest feedback. Because seeing a therapist is private, nobody can see who wrote a review: not the public, not the professional, not admins.
+
+**What changed for users:**
+
+- **Write a review after a completed session.** On My appointments, the latest completed session with each professional has a "Write a review" box: 1 to 5 stars and an optional comment. Cancelled and missed sessions cannot be reviewed.
+- **One review per professional.** Saving again edits it. Edit and Delete are on the same card, with the professional's reply under it.
+- **Your name is never shown.** Reviews appear as "AROM client" with the month only. The form says so before you post.
+- **Stars on profiles.** The public profile shows the average and count under the name, and a Reviews section with the newest 5 (then "Show all") and any replies. Directory cards show the stars too.
+- **Hidden reviews.** If the AROM team hides a review, the writer sees that it was hidden and why.
+
+**What changed for the team:**
+
+- **Professionals: new Reviews page (`/pro/reviews`)** with the average, a count per star, every review (hidden ones marked) and a public Reply, Edit or Remove reply on each.
+- **Admins: new Reviews page (`/admin/reviews`, English only)** with Shown and Hidden tabs, search, Hide (reason required) and Show again. Both are written to the audit log.
+- **Backend:** table `professional_reviews` with RLS (writer reads own rows only, every write through a function), functions for users, the public, professionals and admins, and endpoints `/api/reviews`, `/api/pro/reviews`, `/api/admin/reviews`. The old `rating` and `review_count` columns on `professional_profiles` are not used; numbers are counted from visible reviews.
+- **SQL tested** on PGlite (Postgres in Node) with 41 checks: who can review, RLS, public list and counts, replies, hide and show, audit log, no writer in any response.
+- **`BACKEND-HANDOFF.md` section 31** has the rules, table, functions and endpoints.
+
+**What to re-test:**
+
+1. As a professional, mark a past session as completed in My bookings.
+2. As that client, open My appointments. The completed session shows "Write a review". Pick 4 stars, write a comment, post it.
+3. Open the professional's public profile: 4.0, "1 review", the comment as "AROM client" with the month. The directory card shows the stars.
+4. Edit the review to 5 stars. The profile updates and there is still one review.
+5. As a client with only a cancelled or missed session, check there is no review box.
+6. As the professional, open Reviews in the menu: the review is there without a name. Reply, edit the reply, remove it. The reply shows on the public profile.
+7. As an admin, open Reviews, hide it with a reason. It leaves the profile and the stars. The client and the professional see "hidden" with the reason. The audit log shows "Hid a review". Show it again.
+8. Delete the review as the client. It leaves the profile.
+9. Switch to Khmer and check My appointments, the profile and `/pro/reviews`.
+
 ## 19 Oct 2026: One Saved Page in Settings
 
 Commit `8bc3d06`. No migration.
