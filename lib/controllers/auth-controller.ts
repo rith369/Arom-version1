@@ -200,6 +200,24 @@ export async function confirmEmail(request: NextRequest) {
   const redirect = (target: string) =>
     NextResponse.redirect(new URL(target, request.url), { headers: NO_STORE });
 
+  // Google sign in comes back here too (`provider=google`). Without a page to
+  // return to, people land where their role starts. If Google did not finish
+  // (cancelled or refused), the login page says so.
+  if (searchParams.get("provider") === "google") {
+    if (code) {
+      const { error } = await supabase.auth.exchangeCodeForSession(code);
+      if (!error) {
+        if (searchParams.get("next")) return redirect(next);
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+        const role = user ? (await toAuthUser(supabase, user)).role : "user";
+        return redirect(role === "admin" ? "/admin" : role === "professional" ? "/pro" : "/");
+      }
+    }
+    return redirect(`/login?error=google${searchParams.get("next") ? `&next=${encodeURIComponent(next)}` : ""}`);
+  }
+
   if (tokenHash && (type === "email" || type === "signup")) {
     const { error } = await supabase.auth.verifyOtp({ token_hash: tokenHash, type });
     if (!error) return redirect(next);

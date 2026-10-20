@@ -3,10 +3,10 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CheckCircle2, LockKeyhole, Mail } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
-import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
+import { GoogleButton, useGoogleSignIn } from "./google-sign-in";
 import { useForm } from "react-hook-form";
 import {
   loginSchema,
@@ -27,24 +27,13 @@ const loginErrors: Partial<Record<AuthErrorCode, string>> = {
 };
 
 
-function SocialMark({ src }: { src: string }) {
-  return (
-    <Image
-      src={src}
-      alt=""
-      width={20}
-      height={20}
-      className="size-5 shrink-0 object-contain"
-      unoptimized
-    />
-  );
-}
-
 export function LoginForm() {
   const { refresh } = useAuth();
   const searchParams = useSearchParams();
   const shouldReduceMotion = useReducedMotion();
   const [notice, setNotice] = useState<string | null>(null);
+  const google = useGoogleSignIn();
+
   const {
     register,
     handleSubmit,
@@ -155,6 +144,7 @@ export function LoginForm() {
             </span>
           </FormAlert>
         )}
+        {google.error && <FormAlert tone="error">{google.error}</FormAlert>}
         {notice && <FormAlert tone="success">{notice}</FormAlert>}
         {isSubmitSuccessful && !errors.root && (
           <FormAlert tone="success">
@@ -181,21 +171,14 @@ export function LoginForm() {
         <span className="h-px flex-1 bg-arom-border" />
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
-        <button
-          type="button"
-          onClick={() => setNotice("Google sign in is coming soon.")}
-          className="flex h-12 items-center justify-center gap-2 rounded-xl border border-arom-border bg-white text-sm font-semibold text-ink shadow-sm transition-colors duration-150 hover:border-arom/35 hover:bg-arom-wash focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-arom"
-        >
-          <SocialMark src="/google.svg" /> Google
-        </button>
-        <button
-          type="button"
-          onClick={() => setNotice("Apple sign in is coming soon.")}
-          className="flex h-12 items-center justify-center gap-2 rounded-xl border border-arom-border bg-white text-sm font-semibold text-ink shadow-sm transition-colors duration-150 hover:border-arom/35 hover:bg-arom-wash focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-arom"
-        >
-          <SocialMark src="/Apple_light.svg" /> Apple
-        </button>
+      <div>
+        <GoogleButton
+          starting={google.starting}
+          onClick={() => {
+            setNotice(null);
+            void google.start();
+          }}
+        />
       </div>
 
       <p className="mt-7 text-center text-sm text-ink-muted">
