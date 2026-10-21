@@ -2,7 +2,7 @@
 
 ## 21 Oct 2026: Added "I'm Overthinking Right Now" Tip with Visual Cards Deck
 
-Commit `fce5c45`. No migration. Frontend only.
+Commit `6b3d585`. No migration. Frontend only.
 
 **Why.** Repetitive thinking loops and acute cognitive rumination can leave seekers feeling mentally exhausted and paralyzed. Grounded in evidence-based guidance from the World Health Organization (WHO) and NHS Every Mind Matters CBT self-help techniques, this new 2-minute practical tip gives seekers immediate, accessible tools to pause repetitive cycles, differentiate objective facts from anxious predictions, and ground themselves in the present moment without feeling overwhelmed.
 
