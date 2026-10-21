@@ -4,7 +4,7 @@ import Image from "next/image";
 import { ArrowLeft, Bookmark, ChevronRight } from "lucide-react";
 import { motion } from "motion/react";
 import { useState } from "react";
-import { useLanguage } from "../language-provider";
+import { LanguageQuickToggle, useLanguage } from "../language-provider";
 import {
   ALL_TIPS,
   STORAGE_TIPS_KEYS,
@@ -69,7 +69,7 @@ export function SavedTipsView({
           {km ? "គន្លឹះដែលបានរក្សាទុក (Saved)" : "Saved Tips"}
         </h1>
 
-        <div className="size-10" />
+        <LanguageQuickToggle />
       </header>
 
       <main className="mx-auto max-w-2xl px-4 pt-6 sm:px-8 sm:pt-8">

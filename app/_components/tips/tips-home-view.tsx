@@ -9,12 +9,11 @@ import {
   Clock3,
   Lock,
   Search,
-  ShieldCheck,
   X,
 } from "lucide-react";
 import { motion } from "motion/react";
 import { useMemo, useState } from "react";
-import { useLanguage } from "../language-provider";
+import { LanguageQuickToggle, useLanguage } from "../language-provider";
 import {
   ALL_TIPS,
   TIP_CATEGORIES,
@@ -78,14 +77,18 @@ export function TipsHomeView({
             </span>
           </button>
 
-          <button
-            type="button"
-            onClick={onOpenSaved}
-            className="flex items-center gap-2 rounded-full border border-arom-border bg-white px-4 py-2 text-xs font-semibold text-arom shadow-sm transition-all hover:bg-arom-wash focus-visible:outline-2 focus-visible:outline-arom"
-          >
-            <Bookmark size={15} className="text-arom" />
-            <span>{km ? "គន្លឹះដែលបានរក្សាទុក (Saved)" : "Saved Tips"}</span>
-          </button>
+          <div className="flex items-center gap-2">
+            <LanguageQuickToggle />
+
+            <button
+              type="button"
+              onClick={onOpenSaved}
+              className="flex items-center gap-2 rounded-full border border-arom-border bg-white px-4 py-2 text-xs font-semibold text-arom shadow-sm transition-all hover:bg-arom-wash focus-visible:outline-2 focus-visible:outline-arom"
+            >
+              <Bookmark size={15} className="text-arom" />
+              <span>{km ? "គន្លឹះដែលបានរក្សាទុក (Saved)" : "Saved Tips"}</span>
+            </button>
+          </div>
         </div>
 
         {/* Title Header */}

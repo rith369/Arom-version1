@@ -358,76 +358,281 @@ export const TIP_CALMING_RACING_THOUGHTS: TipItem = {
   ],
 };
 
+export const TIP_SETTING_BOUNDARIES: TipItem = {
+  id: "setting-gentle-boundaries",
+  title: "Setting Gentle Boundaries",
+  kmTitle: "ការកំណត់ព្រំដែនផ្ទាល់ខ្លួនដោយទន់ភ្លន់ (Boundaries)",
+  subtitle: "Saying No Without Feeling Selfish",
+  kmSubtitle: "ការបដិសេធដោយមិនមានអារម្មណ៍អាត្មានិយម",
+  introduction:
+    "Boundaries are not walls, they are clear property lines that let people know how to care for you without draining your energy. Healthy boundaries protect your emotional peace and prevent chronic burnout.",
+  kmIntroduction:
+    "ព្រំដែនមិនមែនជាជញ្ជាំងទេ ប៉ុន្តែជាបន្ទាត់ច្បាស់លាស់ដែលឱ្យអ្នកដទៃដឹងពីរបៀបគោរពអ្នកដោយមិនធ្វើឱ្យអ្នកអស់ថាមពល។ ការកំណត់ព្រំដែនល្អជួយការពារសេចក្តីស្ងប់ក្នុងចិត្ត និងការពារការអស់កម្លាំងចិត្តរ៉ាំរ៉ៃ។",
+  category: "Emotions",
+  kmCategory: "អារម្មណ៍ (Emotions)",
+  duration: "5 min",
+  kmDuration: "៥ នាទី",
+  difficulty: "Intermediate",
+  kmDifficulty: "កម្រិតមធ្យម (Intermediate)",
+  format: "5 Boundary Scripts",
+  kmFormat: "៥ គំរូកំណត់ព្រំដែន",
+  isAvailable: true,
+  image: "/mindguide/icon-7.svg",
+  heroImage: "/mindguide/managing-stress-hero.svg",
+  sourceCitation:
+    "Adapted from the American Psychological Association clinical guidelines (2024).",
+  kmSourceCitation:
+    "ដកស្រង់ចេញពីគោលការណ៍ណែនាំគ្លីនិករបស់សមាគមចិត្តសាស្រ្តអាមេរិក (APA, 2024)។",
+  supportCallout: {
+    title: "Interpersonal Strain Support",
+    kmTitle: "ជំនួយភាពតានតឹងក្នុងទំនាក់ទំនង (Interpersonal Strain)",
+    body:
+      "If chronic people pleasing or guilt prevents you from protecting your well-being, speaking with a certified therapist provides safe tools to rebuild healthy boundaries.",
+    kmBody:
+      "ប្រសិនបើការផ្គាប់ចិត្តអ្នកដទៃបង្កឱ្យអស់កម្លាំងចិត្ត ឬអារម្មណ៍ខុសឆ្គងរារាំងអ្នកមិនឱ្យថែរក្សាខ្លួនឯង ការជួបជាមួយអ្នកជំនាញចិត្តសាស្រ្តជួយអ្នកកសាងព្រំដែនល្អឡើងវិញ។",
+    actionLabel: "Find Counselor",
+    kmActionLabel: "ស្វែងរកអ្នកប្រឹក្សា (Find Counselor)",
+  },
+  steps: [
+    {
+      number: 1,
+      title: "Pause before you say yes.",
+      kmTitle: "ផ្អាកបន្តិចមុនពេលឆ្លើយយល់ព្រម",
+      body:
+        "Automatic people pleasing happens in the first three seconds. Buy yourself thinking space by replying: 'Let me check my schedule and get back to you.' This moves you from reflexive reaction to intentional choice.",
+      kmBody:
+        "ទម្លាប់ឆ្លើយយល់ព្រមដើម្បីផ្គាប់ចិត្តអ្នកដទៃច្រើនតែកើតឡើងក្នុងរយៈពេល ៣ វិនាទីដំបូង។ សូមទិញពេលវេលាគិតពិចារណាដោយឆ្លើយថា 'ខ្ញុំសុំពិនិត្យមើលកាលវិភាគសិន ហើយនឹងឆ្លើយតបទៅវិញ'។ វិធីនេះជួយឱ្យអ្នកមានពេលសម្រេចចិត្តច្បាស់លាស់។",
+      tryNow: "use 'Let me check my calendar first' for your next request.",
+      kmTryNow: "ប្រើពាក្យ 'ខ្ញុំសុំពិនិត្យកាលវិភាគសិន' សម្រាប់សំណើបន្ទាប់ដែលអ្នកទទួលបាន។",
+    },
+    {
+      number: 2,
+      title: "State your limit without over-explaining.",
+      kmTitle: "បញ្ជាក់ព្រំដែនដោយមិនចាំបាច់បកស្រាយវែងឆ្ងាយ",
+      body:
+        "Long explanations invite negotiation and weaken your stance. A simple: 'I am unable to take that on right now' is polite, clear, and complete on its own.",
+      kmBody:
+        "ការបកស្រាយវែងឆ្ងាយនាំឱ្យមានការជជែកតថ្លៃ និងធ្វើឱ្យជំហររបស់អ្នកចុះខ្សោយ។ ពាក្យសាមញ្ញថា 'ខ្ញុំមិនទាន់អាចទទួលជួយរឿងនេះបានទេពេលនេះ' គឺគួរសម ច្បាស់លាស់ និងពេញលេញដោយខ្លួនឯង។",
+      tryNow: "practice saying 'I am unable to commit to this right now' out loud.",
+      kmTryNow: "ហាត់និយាយពាក្យ 'ខ្ញុំមិនទាន់អាចទទួលជួយរឿងនេះបានទេពេលនេះ' ឱ្យលឺៗដោយស្ងប់ចិត្ត។",
+    },
+    {
+      number: 3,
+      title: "Distinguish discomfort from guilt.",
+      kmTitle: "ញែកភាពទើសទាល់ចេញពីអារម្មណ៍ខុសឆ្គង",
+      body:
+        "Setting boundaries feels uncomfortable when you are used to accommodating everyone. Discomfort is not proof of wrongdoing, it is the natural sensation of growing an emotional boundary.",
+      kmBody:
+        "ការកំណត់ព្រំដែនធ្វើឱ្យអ្នកមានអារម្មណ៍ទើសទាល់ ប្រសិនបើអ្នកធ្លាប់តែផ្គាប់ចិត្តគ្រប់គ្នាពីមុនមក។ ភាពទើសទាល់នេះមិនមែនមានន័យថាអ្នកធ្វើខុសនោះទេ ប៉ុន្តែជាអារម្មណ៍ធម្មជាតិនៃការកសាងព្រំដែនផ្លូវចិត្តផ្ទាល់ខ្លួន។",
+      tryNow: "remind yourself: 'Discomfort is a normal part of growth, not a mistake.'",
+      kmTryNow: "រំលឹកខ្លួនឯងថា 'ភាពទើសទាល់ជាផ្នែកធម្មតានៃការលូតលាស់ មិនមែនជាកំហុសទេ'។",
+    },
+    {
+      number: 4,
+      title: "Offer a doable counter proposal.",
+      kmTitle: "ផ្តល់ជម្រើសផ្សេងដែលអ្នកអាចជួយបាន",
+      body:
+        "When you want to support someone without overloading your day, propose an alternative boundary: 'I cannot meet in person today, but I can review your notes for fifteen minutes tomorrow morning.'",
+      kmBody:
+        "នៅពេលអ្នកចង់ជួយនរណាម្នាក់ ប៉ុន្តែមិនចង់ឱ្យប៉ះពាល់ដល់កិច្ចការផ្ទាល់ខ្លួន សូមផ្តល់ជម្រើសសមស្របមួយថា 'ខ្ញុំមិនអាចជួបផ្ទាល់ថ្ងៃនេះបានទេ ប៉ុន្តែខ្ញុំអាចជួយមើលឯកសារ ១៥ នាទីនៅព្រឹកស្អែក'។",
+      tryNow: "turn down one demand while offering a realistic alternative time.",
+      kmTryNow: "បដិសេធសំណើមួយដោយស្នើពេលវេលាផ្សេងដែលអ្នកពិតជាអាចធ្វើបាន។",
+    },
+    {
+      number: 5,
+      title: "Protect your recovery window.",
+      kmTitle: "ការពារពេលវេលាសម្រាករបស់ខ្លួនឯង",
+      body:
+        "If you do not schedule your rest, other people's emergencies will fill that time. Block out 30 minutes every evening that are completely off limits to work requests.",
+      kmBody:
+        "ប្រសិនបើអ្នកមិនកំណត់ពេលសម្រាកឱ្យច្បាស់លាស់ទេ ការងារបន្ទាន់របស់អ្នកដទៃនឹងដណ្តើមពេលវេលានោះ។ សូមកំណត់ពេល ៣០ នាទីរៀងរាល់ល្ងាចដែលគ្មានការរំខានពីការងារជាដាច់ខាត។",
+      tryNow: "block 30 minutes in your calendar tonight for quiet rest.",
+      kmTryNow: "កំណត់ពេល ៣០ នាទីក្នុងកាលវិភាគយប់នេះសម្រាប់ការសម្រាកស្ងប់ស្ងាត់។",
+    },
+  ],
+};
+
+export const TIP_DIGITAL_DETOX: TipItem = {
+  id: "mindful-digital-detox",
+  title: "Mindful Digital Detox",
+  kmTitle: "ការកាត់បន្ថយការប្រើប្រាស់បច្ចេកវិទ្យា (Digital Detox)",
+  subtitle: "Reclaiming Attention from Endless Scrolling",
+  kmSubtitle: "ទាញយកការយកចិត្តទុកដាក់ត្រឡប់មកវិញ",
+  introduction:
+    "Constant notifications flood the nervous system with micro-stressors. Establishing phone free windows restores calm dopamine baselines. Here are 5 practical micro-habits to regain focus and presence.",
+  kmIntroduction:
+    "ការជូនដំណឹងឥតឈប់ឈរធ្វើឱ្យប្រព័ន្ធប្រសាទតានតឹង។ ការកំណត់ពេលមិនប្រើទូរស័ព្ទជួយស្តារភាពស្ងប់ស្ងាត់ឡើងវិញ។ ខាងក្រោមនេះជា ៥ ទម្លាប់តូចៗជាក់ស្តែងដើម្បីទាញយកការផ្តោតអារម្មណ៍ត្រឡប់មកវិញ។",
+  category: "Body",
+  kmCategory: "រាងកាយ (Body)",
+  duration: "4 min",
+  kmDuration: "៤ នាទី",
+  difficulty: "Beginner",
+  kmDifficulty: "កម្រិតដំបូង (Beginner)",
+  format: "5 Micro-Habits",
+  kmFormat: "៥ ទម្លាប់កាត់បន្ថយអេក្រង់",
+  isAvailable: true,
+  image: "/mindguide/strategies.png",
+  heroImage: "/mindguide/better-sleep-hero.jpg",
+  sourceCitation:
+    "Adapted from Harvard Health Publishing and clinical research on digital mindfulness (2024).",
+  kmSourceCitation:
+    "ដកស្រង់ចេញពីការបោះពុម្ពផ្សាយសុខភាពហាវឺដ និងការស្រាវជ្រាវគ្លីនិកស្តីពីសតិឌីជីថល (Harvard Health, 2024)។",
+  supportCallout: {
+    title: "Digital Compulsion Support",
+    kmTitle: "ជំនួយទម្លាប់ប្រើប្រាស់អេក្រង់លើសកម្រិត (Digital Compulsion)",
+    body:
+      "When screen scrolling replaces sleep, exercise, and real life relationships, speaking with an AROM counselor helps restore healthy routines.",
+    kmBody:
+      "នៅពេលដែលការប្រើប្រាស់អេក្រង់ជំនួសដំណេក ការហាត់ប្រាណ និងទំនាក់ទំនងក្នុងជីវិតពិត ការជួបជាមួយអ្នកប្រឹក្សា AROM ជួយកសាងទម្លាប់ល្អឡើងវិញ។",
+    actionLabel: "Find Guidance",
+    kmActionLabel: "ស្វែងរកការណែនាំ (Find Guidance)",
+  },
+  steps: [
+    {
+      number: 1,
+      title: "Create a phone resting station.",
+      kmTitle: "កំណត់កន្លែងទុកទូរស័ព្ទឱ្យនៅឆ្ងាយពីខ្លួន",
+      body:
+        "Keeping your device within arm's reach triggers subconscious checking habits. Place a small tray across the room where your phone stays during work hours or relaxation periods.",
+      kmBody:
+        "ការទុកទូរស័ព្ទនៅជិតដៃជានិច្ច ធ្វើឱ្យខួរក្បាលមានទម្លាប់លូកយកមកមើលដោយមិនដឹងខ្លួន។ សូមរៀបចំកន្លែងជាក់លាក់មួយនៅឆ្ងាយពីតុធ្វើការ ឬកន្លែងសម្រាក ដើម្បីទុកទូរស័ព្ទឱ្យនៅទីនោះ។",
+      tryNow: "charge your phone at least three steps away from your desk right now.",
+      kmTryNow: "យកទូរស័ព្ទទៅសាកថ្មឱ្យឆ្ងាយពីតុធ្វើការយ៉ាងតិច ៣ ជំហានឥឡូវនេះ។",
+    },
+    {
+      number: 2,
+      title: "Silence non-essential notification badges.",
+      kmTitle: "បិទសំឡេង និងសញ្ញាជូនដំណឹងដែលមិនសំខាន់",
+      body:
+        "Red badge counters and ping sounds are engineered to spike dopamine and distract working memory. Keep notifications on only for direct calls and messages from essential contacts.",
+      kmBody:
+        "សញ្ញាលេខក្រហម និងសំឡេងរោទិ៍ត្រូវបានរចនាឡើងដើម្បីទាក់ទាញចំណាប់អារម្មណ៍ និងរំខានដល់ការផ្តោតអារម្មណ៍។ សូមបើកការជូនដំណឹងសម្រាប់តែការហៅទូរស័ព្ទ និងសារសំខាន់ចាំបាច់បំផុតប៉ុណ្ណោះ។",
+      tryNow: "turn off notification badges for your top 2 social media apps.",
+      kmTryNow: "បិទសញ្ញាជូនដំណឹង (Notifications) លើកម្មវិធីបណ្តាញសង្គមចំនួន ២។",
+    },
+    {
+      number: 3,
+      title: "Practice the 10-minute scroll pause.",
+      kmTitle: "អនុវត្តការផ្អាក ១០ នាទីមុនពេលចុចមើលទូរស័ព្ទ",
+      body:
+        "When you feel the sudden itch to open an endless feed, pause and take three slow breaths. Most digital cravings peak and dissolve within five minutes if you do not immediately act on them.",
+      kmBody:
+        "នៅពេលដែលអ្នកមានអារម្មណ៍ចង់ចុចបើកមើលបណ្តាញសង្គមដោយឯកឯង សូមផ្អាកចិត្តហើយដកដង្ហើមវែងៗ ៣ ដង។ ចំណង់នៃការចង់មើលទូរស័ព្ទភាគច្រើននឹងថយចុះក្នុងរយៈពេល ៥ នាទី ប្រសិនបើយើងមិនប្រញាប់ចុចតាមវា។",
+      tryNow: "tap below to take a 2-minute 4-7-8 breathing pause before checking your phone.",
+      kmTryNow: "ចុចខាងក្រោមដើម្បីហាត់ដកដង្ហើម ៤, ៧, ៨ រយៈពេល ២ នាទីមុនពេលមើលទូរស័ព្ទ។",
+      hasBreathingAction: true,
+    },
+    {
+      number: 4,
+      title: "Establish phone free meals.",
+      kmTitle: "ញ៉ាំអាហារដោយគ្មានវត្តមានទូរស័ព្ទ",
+      body:
+        "Eating while scrolling numbs satiety signals and keeps stress hormones active during digestion. Enjoying meals without screens allows sensory appreciation and authentic social connection.",
+      kmBody:
+        "ការញ៉ាំអាហារបណ្តើរមើលទូរស័ព្ទបណ្តើរ រារាំងការបញ្ជូនសញ្ញាឆ្អែតដល់ខួរក្បាល និងធ្វើឱ្យប្រព័ន្ធរំលាយអាហារដំណើរការមិនបានល្អ។ ការញ៉ាំអាហារដោយគ្មានអេក្រង់ជួយឱ្យអ្នកដឹងពីរសជាតិ និងរីករាយជាមួយមនុស្សជុំវិញខ្លួន។",
+      tryNow: "eat your next meal with your phone tucked away in another room.",
+      kmTryNow: "ញ៉ាំអាហារពេលបន្ទាប់ដោយទុកទូរស័ព្ទនៅក្នុងបន្ទប់ផ្សេង។",
+    },
+    {
+      number: 5,
+      title: "Replace the bedtime screen with tactile relaxation.",
+      kmTitle: "ជំនួសអេក្រង់មុនគេងដោយការសម្រាករាងកាយ",
+      body:
+        "Late night scrolling disrupts melatonin and elevates alertness right when you need rest. Swap phone browsing with a warm shower, soft stretching, or listening to quiet instrumental music.",
+      kmBody:
+        "ការមើលទូរស័ព្ទពេលយប់ជ្រៅរារាំងការបញ្ចេញអ័រម៉ូនមេឡាតូនីន និងធ្វើឱ្យខួរក្បាលភ្ញាក់នៅពេលដែលអ្នកត្រូវការសម្រាក។ សូមជំនួសវាដោយការងូតទឹកក្តៅឧណ្ហៗ ការពត់ខ្លួនស្រាលៗ ឬការស្តាប់ភ្លេងសម្រាកអារម្មណ៍។",
+      tryNow: "put your phone away 30 minutes before sleep tonight.",
+      kmTryNow: "ទុកទូរស័ព្ទឱ្យឆ្ងាយពីគ្រែ ៣០ នាទីមុនពេលចូលគេងនៅយប់នេះ។",
+    },
+  ],
+};
+
+export const TIP_OVERTHINKING_NOW: TipItem = {
+  id: "im-overthinking-right-now",
+  title: "I'm Overthinking Right Now",
+  kmTitle: "ខ្ញុំកំពុងគិតច្រើនហួសហេតុ (Overthinking)",
+  subtitle: "Three Steps to Pause Repetitive Thinking",
+  kmSubtitle: "៣ ជំហានដើម្បីផ្អាកវដ្តគំនិតដដែលៗ",
+  introduction:
+    "Sometimes your mind keeps repeating the same thoughts. You replay a conversation, worry about what might happen, or imagine different outcomes without finding an answer. You do not have to solve every thought right now. Try these three practical steps.",
+  kmIntroduction:
+    "ពេលខ្លះចិត្តរបស់អ្នកចេះតែគិតដដែលៗមិនឈប់។ អ្នកគិតរំលឹកការសន្ទនាឡើងវិញ ព្រួយបារម្ភពីរឿងដែលមិនទាន់កើតឡើង ឬស្រមើស្រមៃពីលទ្ធផលផ្សេងៗដោយគ្មានចម្លើយច្បាស់លាស់។ អ្នកមិនចាំបាច់ដោះស្រាយគ្រប់គំនិតទាំងអស់ឥឡូវនេះទេ។ សូមសាកល្បង ៣ ជំហានជាក់ស្តែងនេះ។",
+  category: "Anxiety",
+  kmCategory: "ការថប់បារម្ភ (Anxiety)",
+  duration: "2 min",
+  kmDuration: "២ នាទី",
+  difficulty: "Beginner",
+  kmDifficulty: "កម្រិតដំបូង (Beginner)",
+  format: "3 Practical Steps",
+  kmFormat: "៣ ជំហានអនុវត្តជាក់ស្តែង",
+  isAvailable: true,
+  image: "/mindguide/icon-10.svg",
+  heroImage: "/mindguide/understanding-anxiety-hero.jpg",
+  sourceCitation:
+    "Adapted from the World Health Organization (WHO) and NHS Every Mind Matters CBT guidelines (2024).",
+  kmSourceCitation:
+    "ដកស្រង់ចេញពីអង្គការសុខភាពពិភពលោក (WHO) និងគោលការណ៍ណែនាំ CBT របស់ NHS (2024)។",
+  supportCallout: {
+    title: "When Overthinking Feels Constant",
+    kmTitle: "នៅពេលដែលការគិតច្រើនកើតឡើងឥតឈប់ឈរ",
+    body:
+      "If repetitive loops or intrusive worries keep you up at night or interfere with daily life for weeks, professional guidance helps untangle cognitive traps. On AROM, you can match with certified therapists in total privacy.",
+    kmBody:
+      "ប្រសិនបើការគិតដដែលៗ ឬការព្រួយបារម្ភរំខានដល់ដំណេក និងការរស់នៅប្រចាំថ្ងៃអស់ជាច្រើនសប្តាហ៍ អ្នកជំនាញចិត្តសាស្រ្តអាចជួយអ្នកកែប្រែទម្លាប់គិតទាំងនេះបាន។ នៅលើ AROM អ្នកអាចភ្ជាប់ទំនាក់ទំនងជាមួយអ្នកជំនាញជាឯកជន ១០០%។",
+    actionLabel: "Find Anxiety Support",
+    kmActionLabel: "ស្វែងរកជំនួយការថប់បារម្ភ (Find Support)",
+  },
+  steps: [
+    {
+      number: 1,
+      title: "Pause and release physical tension.",
+      kmTitle: "ផ្អាកមួយភ្លែត និងបន្ធូរសាច់ដុំ",
+      body:
+        "Stop for a moment. Relax your shoulders and take one slow, comfortable breath. Tell yourself: 'I am overthinking right now. I do not have to figure everything out this second.'",
+      kmBody:
+        "ឈប់មួយភ្លែត។ ទម្លាក់ស្មារបស់អ្នកឱ្យធូរ និងដកដង្ហើមវែងៗមួយដងដោយស្រួលចិត្ត។ ប្រាប់ខ្លួនឯងថា 'ខ្ញុំកំពុងគិតច្រើនហួសហេតុពេលនេះ។ ខ្ញុំមិនចាំបាច់ដោះស្រាយគ្រប់រឿងទាំងអស់ក្នុងវិនាទីនេះទេ'។",
+      tryNow:
+        "drop your shoulders, breathe slowly, and tell yourself: 'I do not have to solve this right now.'",
+      kmTryNow:
+        "ទម្លាក់ស្មាឱ្យធូរ ដកដង្ហើមមួយៗ ហើយប្រាប់ខ្លួនឯងថា 'ខ្ញុំមិនចាំបាច់ដោះស្រាយរឿងនេះឥឡូវនេះទេ'។",
+      hasBreathingAction: true,
+    },
+    {
+      number: 2,
+      title: "Separate facts from fears.",
+      kmTitle: "ញែកការពិតចេញពីការភ័យខ្លាច",
+      body:
+        "Ask yourself: What do I actually know for certain? What am I imagining or afraid might happen? Is there anything useful I can do about this right now? You do not need to force thoughts away. Just notice the difference between reality and fear.",
+      kmBody:
+        "សួរខ្លួនឯងថា៖ តើអ្វីជាការពិតជាក់ស្តែងដែលខ្ញុំដឹងច្បាស់? តើអ្វីជាការស្រមើស្រមៃ ឬការភ័យខ្លាចដែលខ្ញុំគិតទុកមុន? តើមានអ្វីដែលខ្ញុំអាចធ្វើបានដើម្បីជួយរឿងនេះឥឡូវនេះទេ? អ្នកមិនចាំបាច់បង្ខំចិត្តឱ្យលែងគិតនោះឡើយ គ្រាន់តែកត់សម្គាល់ពីភាពខុសគ្នារវាងការពិត និងការភ័យខ្លាច។",
+      tryNow:
+        "ask yourself: 'What do I know for sure, and what am I just fearing?'",
+      kmTryNow:
+        "សួរខ្លួនឯងថា 'តើអ្វីជាការពិតជាក់ស្តែង ហើយអ្វីជាការភ័យខ្លាចរបស់ខ្ញុំ?'",
+    },
+    {
+      number: 3,
+      title: "Return to the present moment.",
+      kmTitle: "ត្រឡប់មកកាន់បច្ចុប្បន្នកាល",
+      body:
+        "Bring your attention back to something you can interact with now. Try naming three things you can see, drinking a glass of water, or focusing on one small task. If there is a real problem to solve, write down one next step in your private AROM Journal. If not, give yourself permission to leave it for later.",
+      kmBody:
+        "ទាញការយកចិត្តទុកដាក់ត្រឡប់មកកាន់អ្វីដែលអ្នកអាចធ្វើបាននៅចំពោះមុខ។ សាកល្បងកត់សម្គាល់ ៣ យ៉ាងដែលអ្នកមើលឃើញ, ផឹកទឹកមួយកែវ ឬផ្តោតលើកិច្ចការតូចមួយ។ ប្រសិនបើមានបញ្ហាពិតប្រាកដដែលត្រូវដោះស្រាយ សូមកត់ត្រាជំហានបន្ទាប់មួយចូលក្នុងកំណត់ហេតុ AROM។ ប្រសិនបើគ្មានអ្វីអាចធ្វើបានទេពេលនេះ សូមអនុញ្ញាតឱ្យខ្លួនឯងទុកវាសម្រាប់ពេលក្រោយ។",
+      tryNow:
+        "name 3 things you can see right now and take a sip of water.",
+      kmTryNow:
+        "ក្រឡេកមើលជុំវិញខ្លួន រកមើលរបស់ ៣ យ៉ាងដែលអ្នកឃើញ និងពិសាទឹកមួយកែវ។",
+    },
+  ],
+};
+
 export const ALL_TIPS: TipItem[] = [
   TIP_CONTROL_STRESS,
+  TIP_OVERTHINKING_NOW,
   TIP_SLEEP_HYGIENE,
   TIP_CALMING_RACING_THOUGHTS,
-  {
-    id: "setting-gentle-boundaries",
-    title: "Setting Gentle Boundaries",
-    kmTitle: "ការកំណត់ព្រំដែនផ្ទាល់ខ្លួនដោយទន់ភ្លន់ (Boundaries)",
-    subtitle: "Saying No Without Feeling Selfish",
-    kmSubtitle: "ការបដិសេធដោយមិនមានអារម្មណ៍អាត្មានិយម",
-    introduction:
-      "Boundaries are not walls; they are clear property lines that let people know how to care for you without draining your energy.",
-    kmIntroduction:
-      "ព្រំដែនមិនមែនជាជញ្ជាំងទេ ប៉ុន្តែជាបន្ទាត់ច្បាស់លាស់ដែលឱ្យអ្នកដទៃដឹងពីរបៀបគោរពអ្នកដោយមិនធ្វើឱ្យអ្នកអស់ថាមពល។",
-    category: "Emotions",
-    kmCategory: "អារម្មណ៍ (Emotions)",
-    duration: "5 min",
-    kmDuration: "៥ នាទី",
-    difficulty: "Intermediate",
-    kmDifficulty: "កម្រិតមធ្យម (Intermediate)",
-    format: "Boundary Scripts",
-    kmFormat: "គំរូពាក្យបដិសេធ",
-    isAvailable: false,
-    badge: "Coming Soon",
-    image: "/mindguide/icon-7.svg",
-    sourceCitation: "American Psychological Association (2023).",
-    kmSourceCitation: "សមាគមចិត្តសាស្រ្តអាមេរិក (2023)។",
-    supportCallout: {
-      title: "Interpersonal Strain",
-      kmTitle: "ភាពតានតឹងក្នុងទំនាក់ទំនង",
-      body: "If people-pleasing creates deep burnout, therapy helps untangle guilt and build assertiveness.",
-      kmBody: "ប្រសិនបើការផ្គាប់ចិត្តអ្នកដទៃបង្កឱ្យអស់កម្លាំងចិត្ត ការព្យាបាលជួយបំបាត់អារម្មណ៍ខុសឆ្គង។",
-      actionLabel: "Match Me Now",
-      kmActionLabel: "ផ្គូផ្គងខ្ញុំឥឡូវនេះ (Match Me)",
-    },
-    steps: [],
-  },
-  {
-    id: "mindful-digital-detox",
-    title: "Mindful Digital Detox",
-    kmTitle: "ការកាត់បន្ថយការប្រើប្រាស់បច្ចេកវិទ្យា (Digital Detox)",
-    subtitle: "Reclaiming Attention from Endless Scrolling",
-    kmSubtitle: "ទាញយកការយកចិត្តទុកដាក់ត្រឡប់មកវិញ",
-    introduction:
-      "Constant notifications flood the nervous system with micro-stressors. Establishing phone-free windows restores calm dopamine baselines.",
-    kmIntroduction:
-      "ការជូនដំណឹងឥតឈប់ឈរធ្វើឱ្យប្រព័ន្ធប្រសាទតានតឹង។ ការកំណត់ពេលមិនប្រើទូរស័ព្ទជួយស្តារភាពស្ងប់ស្ងាត់ឡើងវិញ។",
-    category: "Body",
-    kmCategory: "រាងកាយ (Body)",
-    duration: "4 min",
-    kmDuration: "៤ នាទី",
-    difficulty: "Beginner",
-    kmDifficulty: "កម្រិតដំបូង (Beginner)",
-    format: "Micro-Habits",
-    kmFormat: "ទម្លាប់តូចៗ",
-    isAvailable: false,
-    badge: "Coming Soon",
-    image: "/mindguide/strategies.png",
-    sourceCitation: "Harvard Health Publishing (2024).",
-    kmSourceCitation: "ការបោះពុម្ពផ្សាយសុខភាពហាវឺដ (2024)។",
-    supportCallout: {
-      title: "Screen Addiction",
-      kmTitle: "ការញៀនអេក្រង់",
-      body: "When digital consumption replaces sleep and social connection, behavioral guidance helps rebuild healthy routines.",
-      kmBody: "នៅពេលដែលការប្រើប្រាស់អេក្រង់ជំនួសដំណេក ការណែនាំអំពីអាកប្បកិរិយាជួយកសាងទម្លាប់ល្អឡើងវិញ។",
-      actionLabel: "Find Guidance",
-      kmActionLabel: "ស្វែងរកការណែនាំ (Find Guidance)",
-    },
-    steps: [],
-  },
+  TIP_SETTING_BOUNDARIES,
+  TIP_DIGITAL_DETOX,
 ];
 
 export const STORAGE_TIPS_KEYS = {

@@ -10,7 +10,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { useState } from "react";
-import { useLanguage } from "../language-provider";
+import { LanguageQuickToggle, useLanguage } from "../language-provider";
 import { EducationalNote } from "../educational-note";
 import { chooseLabel, useMindGuidePick } from "../mindguide-pick";
 import { ReportProblemButton } from "../report-problem";
@@ -59,16 +59,20 @@ export function TipDetailView({
             <ArrowLeft aria-hidden="true" size={24} />
           </button>
 
-          <button
-            type="button"
-            onClick={handleToggleBookmark}
-            aria-label={bookmarked ? (km ? "លុបចេញពីចំណាំ" : "Remove bookmark") : km ? "រក្សាទុកគន្លឹះ" : "Bookmark tips"}
-            className={`flex size-11 items-center justify-center rounded-full transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-arom ${
-              bookmarked ? "bg-arom text-white" : "text-arom hover:bg-arom-wash"
-            }`}
-          >
-            <Bookmark aria-hidden="true" size={20} className={bookmarked ? "fill-current" : ""} />
-          </button>
+          <div className="flex items-center gap-2">
+            <LanguageQuickToggle />
+
+            <button
+              type="button"
+              onClick={handleToggleBookmark}
+              aria-label={bookmarked ? (km ? "លុបចេញពីចំណាំ" : "Remove bookmark") : km ? "រក្សាទុកគន្លឹះ" : "Bookmark tips"}
+              className={`flex size-11 items-center justify-center rounded-full transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-arom ${
+                bookmarked ? "bg-arom text-white" : "text-arom hover:bg-arom-wash"
+              }`}
+            >
+              <Bookmark aria-hidden="true" size={20} className={bookmarked ? "fill-current" : ""} />
+            </button>
+          </div>
         </div>
 
         {/* Hero Card */}

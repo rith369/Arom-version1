@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import {
   ArrowLeft,
   ArrowRight,
@@ -14,8 +13,8 @@ import {
   Wind,
 } from "lucide-react";
 import { useState } from "react";
-import { useLanguage } from "../language-provider";
-import { chooseLabel, useMindGuidePick } from "../mindguide-pick";
+import { LanguageQuickToggle, useLanguage } from "../language-provider";
+import { useMindGuidePick } from "../mindguide-pick";
 import { EducationalNote } from "../educational-note";
 import { ReportProblemButton } from "../report-problem";
 import {
@@ -25,6 +24,7 @@ import {
   type TipStep,
 } from "./tips-data";
 import { getPlanTryNowItems, toggleTryNowInPlan } from "./tips-plan";
+import { TipCardDeckView } from "./tip-card-deck-view";
 
 type TipInteractiveViewProps = {
   tip: TipItem;
@@ -36,7 +36,16 @@ type TipInteractiveViewProps = {
   preview?: boolean;
 };
 
-export function TipInteractiveView({
+export function TipInteractiveView(props: TipInteractiveViewProps) {
+  // Use innovative small visual cards deck experience for all tips that have practical steps
+  if (props.tip.steps && props.tip.steps.length > 0) {
+    return <TipCardDeckView {...props} />;
+  }
+
+  return <StandardTipInteractiveView {...props} />;
+}
+
+function StandardTipInteractiveView({
   tip,
   onBack,
   onComplete,
@@ -113,16 +122,20 @@ export function TipInteractiveView({
             </p>
           </div>
 
-          <button
-            type="button"
-            onClick={handleToggleBookmark}
-            aria-label={bookmarked ? (km ? "លុបចេញពីចំណាំ" : "Remove bookmark") : km ? "រក្សាទុកគន្លឹះ" : "Bookmark tips"}
-            className={`flex size-11 items-center justify-center rounded-full transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-arom ${
-              bookmarked ? "bg-arom text-white" : "text-arom hover:bg-arom-wash"
-            }`}
-          >
-            <Bookmark aria-hidden="true" size={20} className={bookmarked ? "fill-current" : ""} />
-          </button>
+          <div className="flex items-center gap-2">
+            <LanguageQuickToggle />
+
+            <button
+              type="button"
+              onClick={handleToggleBookmark}
+              aria-label={bookmarked ? (km ? "លុបចេញពីចំណាំ" : "Remove bookmark") : km ? "រក្សាទុកគន្លឹះ" : "Bookmark tips"}
+              className={`flex size-11 items-center justify-center rounded-full transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-arom ${
+                bookmarked ? "bg-arom text-white" : "text-arom hover:bg-arom-wash"
+              }`}
+            >
+              <Bookmark aria-hidden="true" size={20} className={bookmarked ? "fill-current" : ""} />
+            </button>
+          </div>
         </div>
 
         {/* Hero Card */}

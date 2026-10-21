@@ -1,5 +1,49 @@
 # AROM: Change Report
 
+## 21 Oct 2026: Added "I'm Overthinking Right Now" Tip with Visual Cards Deck
+
+Commit `fce5c45`. No migration. Frontend only.
+
+**Why.** Repetitive thinking loops and acute cognitive rumination can leave seekers feeling mentally exhausted and paralyzed. Grounded in evidence-based guidance from the World Health Organization (WHO) and NHS Every Mind Matters CBT self-help techniques, this new 2-minute practical tip gives seekers immediate, accessible tools to pause repetitive cycles, differentiate objective facts from anxious predictions, and ground themselves in the present moment without feeling overwhelmed.
+
+**What changed for users:**
+- **New live tip on home and directory:** "I'm Overthinking Right Now" (`im-overthinking-right-now`, 3 practical steps, 2 min read) is now available in the Anxiety category.
+- **Three-step clinical grounding:**
+  1. *Pause and release physical tension:* Drops physical tension and cues safety with an integrated 4-7-8 breathing button.
+  2. *Separate facts from fears:* Uses CBT cognitive appraisal questions to distinguish known realities from imagined catastrophes.
+  3. *Return to the present moment:* Anchors attention through 3-item sensory grounding, hydration, and AROM Journal notes.
+- **Interactive micro-action capsules:** Includes supportive clinical guidance hints, gentle Lightbulb emblems, and direct tactile action prompts.
+- **Visual Card Deck and Grid View:** Includes custom visual cards with dedicated clinical emblems (`Clock` Conscious Pause, `Compass` Fact vs Fear, `Activity` Present Grounding) and seamless toggle between Story Deck and Grid View.
+- **Instant bilingual translation:** Seamless one-tap toggling between English (`EN`) and Khmer (`ខ្មែរ`) across overview, deck, and summary screens.
+
+**What changed for the team:**
+- Added `TIP_OVERTHINKING_NOW` to `app/_components/tips/tips-data.ts` and registered it in `ALL_TIPS` with clinical APA, WHO, and NHS source citations.
+- Added visual styling configurations and clinical hints in `app/_components/tips/tip-card-deck-view.tsx`.
+- Verified TypeScript and ESLint with 0 errors.
+
+**What to re-test:**
+1. Open `/tips` and confirm "I'm Overthinking Right Now" appears under the Anxiety filter and All Tips list.
+2. Tap into the tip and verify the overview displays the 3 steps, duration (2 min), and WHO/NHS citations.
+3. Tap "Start Reading Tips" to confirm the 3-card visual deck renders with Amber, Indigo, and Emerald accents.
+4. On Card 1, test the embedded 4-7-8 breathing trigger.
+5. On Card 2, review the Fact vs Fear reflection prompt.
+6. On Card 3, test adding the grounding action to your Home Screen Plan.
+7. Advance to the summary screen and confirm all 3 takeaways display correctly before completing.
+
+
+## 21 Oct 2026: Visual Cards Deck Conversion for All Tips
+
+Commit `PENDING`. No migration. Frontend only.
+
+**Why.** When reading mental health tips, long vertical walls of text can create cognitive fatigue for users who are already feeling overwhelmed or anxious. Following positive testing of the interactive visual card prototype, all available tips in AROM are now fully converted into bite-sized, interactive visual card decks. Each tip features clinical icons, segmented progress bars, and dedicated micro-action cards so seekers can absorb and practice coping strategies step by step without feeling overloaded.
+
+**What to re-test:**
+1. Open `/tips` and verify all available tips appear with active chevron arrows.
+2. Tap into tips and verify bilingual language toggling (`EN` / `ខ្មែរ`).
+3. Tap "Start Reading Tips" on each tip and verify the visual cards deck opens with customized clinical emblems, color palettes, and micro-action capsules.
+4. In the card deck, test advancing with "Next Tip" or the Right Arrow key, tapping "Add to Plan", and toggling between Story Deck and Grid View.
+5. Verify the celebration summary screen renders correctly at the end of each deck with the proper count of takeaways and tried steps.
+
 ## 19 Oct 2026: Password Strength Bar on Sign Up
 
 Commit `PENDING`. No migration.
