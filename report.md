@@ -2,7 +2,7 @@
 
 ## 24 Oct 2026: Symptom Check Opens, PHQ-9 Low Mood and GAD-7 Anxiety in English and Khmer
 
-Commit `PENDING`. No migration: it uses the `symptom_checks` table, `support_journeys` and the 14 day trigger that were already in the database.
+Commit `717f5dd`. No migration: it uses the `symptom_checks` table, `support_journeys` and the 14 day trigger that were already in the database.
 
 **Why.** Symptom Detection in Track your mind said "Coming Soon". People now get a private early warning: a short, well known check that helps them notice signs of low mood or anxiety early and points them to the right support. It is not a diagnosis. We use PHQ-9 and GAD-7 because they are free and were tested in Khmer in Cambodia (Steinman et al. 2025, PLOS Mental Health), so the Khmer questions are the study's own wording.
 
