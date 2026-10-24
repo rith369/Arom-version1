@@ -2,7 +2,7 @@
 
 ## 24 Oct 2026: Clinic Desk at the Top of the Sidebar
 
-Commit pending. No migration. Frontend only.
+Commit `c437ef3`. No migration. Frontend only.
 
 **Why.** Answering booking requests is the clinic desk person's main job, but the desk page was only reachable from a card on the Profile page, so a new desk account could not find it.
 
