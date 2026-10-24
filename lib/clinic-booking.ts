@@ -38,6 +38,9 @@ export interface ClinicTime {
 
 /** GET /api/clinics/:slug/booking */
 export interface ClinicBookingInfo {
+  // False for clinics that do not take bookings in AROM (the page hides Book).
+  takesBookings: boolean;
+  sessionTypes: ClinicSessionType[];
   therapists: ClinicTherapist[];
   times: ClinicTime[];
 }

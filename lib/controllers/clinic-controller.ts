@@ -7,6 +7,7 @@ import {
   MAX_DESK_MOVE_REASON,
   type ClinicBookingInfo,
   type ClinicDesk,
+  type ClinicSessionType,
   type ClinicTherapist,
   type DeskData,
   type DeskRequest,
@@ -80,17 +81,30 @@ export async function getClinicBooking(slug: string) {
   if (!parsed.success) return invalidInput();
 
   const supabase = await createClient();
-  const [therapists, times] = await Promise.all([
+  const [clinic, therapists, times] = await Promise.all([
+    supabase
+      .from("clinics")
+      .select("session_types, booking_days, booking_times")
+      .eq("slug", parsed.data)
+      .maybeSingle<{ session_types: ClinicSessionType[]; booking_days: number[]; booking_times: string[] }>(),
     supabase.rpc("clinic_therapists", { p_slug: parsed.data }),
     supabase.rpc("clinic_open_times", { p_slug: parsed.data }),
   ]);
-  if (therapists.error || times.error) {
+  if (clinic.error || therapists.error || times.error) {
     return fail("server_error", "We could not load this clinic.", 500);
   }
+  const timeRows = (times.data ?? []) as { starts_at: string; ends_at: string; is_full: boolean }[];
 
   return json<ClinicBookingInfo>({
+    // A UP only clinic returns no times to anyone else, so Book stays hidden.
+    takesBookings:
+      !!clinic.data &&
+      clinic.data.booking_days.length > 0 &&
+      clinic.data.booking_times.length > 0 &&
+      timeRows.length > 0,
+    sessionTypes: clinic.data?.session_types ?? [],
     therapists: ((therapists.data ?? []) as TherapistRow[]).map(toTherapist),
-    times: ((times.data ?? []) as { starts_at: string; ends_at: string; is_full: boolean }[]).map((row) => ({
+    times: timeRows.map((row) => ({
       startsAt: row.starts_at,
       endsAt: row.ends_at,
       isFull: row.is_full,

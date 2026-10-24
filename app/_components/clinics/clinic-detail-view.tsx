@@ -1,8 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
+  CalendarCheck,
   ChevronLeft,
   MapPin,
   Star,
@@ -11,22 +12,50 @@ import {
   Compass,
   CheckCircle2,
 } from "lucide-react";
+import type { ClinicBookingInfo } from "@/lib/clinic-booking";
 import type { Clinic } from "./clinic-data";
+import { ClinicBookingSheet } from "./clinic-booking-sheet";
+import { ClinicTherapists } from "./clinic-therapists";
 import { UpStudentBadge } from "../up-student/up-badge";
 import { useLanguage } from "../language-provider";
 
 interface ClinicDetailViewProps {
   clinic: Clinic;
   onBack: () => void;
+  // Open the booking form right away (`?book=1`, from My appointments).
+  startBooking?: boolean;
 }
 
-type TabType = "overviews" | "services" | "reviews";
+type TabType = "overviews" | "services" | "therapists" | "reviews";
 
-export function ClinicDetailView({ clinic, onBack }: ClinicDetailViewProps) {
+export function ClinicDetailView({ clinic, onBack, startBooking = false }: ClinicDetailViewProps) {
   const { language } = useLanguage();
   const isKm = language === "km";
 
   const [activeTab, setActiveTab] = useState<TabType>("overviews");
+  // Therapists and times when this clinic takes bookings in AROM (section 34).
+  const [booking, setBooking] = useState<ClinicBookingInfo | null>(null);
+  const [bookingOpen, setBookingOpen] = useState(startBooking);
+
+  useEffect(() => {
+    let active = true;
+    fetch(`/api/clinics/${clinic.slug}/booking`, { cache: "no-store" })
+      .then(async (response) => {
+        if (!response.ok) return;
+        const data = (await response.json()) as ClinicBookingInfo;
+        if (active) setBooking(data);
+      })
+      .catch(() => undefined);
+    return () => {
+      active = false;
+    };
+  }, [clinic.slug]);
+
+  const hasTherapists = (booking?.therapists.length ?? 0) > 0;
+  const tabClass = (tab: TabType) =>
+    `rounded-xl py-2 px-2 text-xs sm:text-sm font-bold text-center transition-all cursor-pointer ${
+      activeTab === tab ? "bg-[#185a4d] text-white shadow-xs" : "bg-[#dcefe9] text-[#185a4d] hover:bg-[#cde7df]"
+    }`;
 
   return (
     <div className="flex flex-col gap-4">
@@ -112,38 +141,21 @@ export function ClinicDetailView({ clinic, onBack }: ClinicDetailViewProps) {
         </div>
 
         {/* Segmented Control Tabs matching Figma */}
-        <div className="grid grid-cols-3 gap-2 pt-2 border-t border-arom-border/60">
-          <button
-            type="button"
-            onClick={() => setActiveTab("overviews")}
-            className={`rounded-xl py-2 px-3 text-xs sm:text-sm font-bold text-center transition-all cursor-pointer ${
-              activeTab === "overviews"
-                ? "bg-[#185a4d] text-white shadow-xs"
-                : "bg-[#dcefe9] text-[#185a4d] hover:bg-[#cde7df]"
-            }`}
-          >
+        <div
+          className={`grid gap-2 pt-2 border-t border-arom-border/60 ${hasTherapists ? "grid-cols-2 sm:grid-cols-4" : "grid-cols-3"}`}
+        >
+          <button type="button" onClick={() => setActiveTab("overviews")} className={tabClass("overviews")}>
             {isKm ? "ទិដ្ឋភាពទូទៅ" : "Overviews"}
           </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab("services")}
-            className={`rounded-xl py-2 px-3 text-xs sm:text-sm font-bold text-center transition-all cursor-pointer ${
-              activeTab === "services"
-                ? "bg-[#185a4d] text-white shadow-xs"
-                : "bg-[#dcefe9] text-[#185a4d] hover:bg-[#cde7df]"
-            }`}
-          >
+          <button type="button" onClick={() => setActiveTab("services")} className={tabClass("services")}>
             {isKm ? "សេវាកម្ម" : "Services"}
           </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab("reviews")}
-            className={`rounded-xl py-2 px-3 text-xs sm:text-sm font-bold text-center transition-all cursor-pointer ${
-              activeTab === "reviews"
-                ? "bg-[#185a4d] text-white shadow-xs"
-                : "bg-[#dcefe9] text-[#185a4d] hover:bg-[#cde7df]"
-            }`}
-          >
+          {hasTherapists && (
+            <button type="button" onClick={() => setActiveTab("therapists")} className={tabClass("therapists")}>
+              {isKm ? "អ្នកព្យាបាល" : "Therapists"}
+            </button>
+          )}
+          <button type="button" onClick={() => setActiveTab("reviews")} className={tabClass("reviews")}>
             {isKm ? "ការវាយតម្លៃ" : "Reviews"}
           </button>
         </div>
@@ -203,6 +215,11 @@ export function ClinicDetailView({ clinic, onBack }: ClinicDetailViewProps) {
             </div>
           )}
 
+          {/* Therapists Tab (clinics that take bookings in AROM) */}
+          {activeTab === "therapists" && booking && (
+            <ClinicTherapists therapists={booking.therapists} km={isKm} />
+          )}
+
           {/* Reviews Tab */}
           {activeTab === "reviews" && (
             <div className="space-y-3">
@@ -246,6 +263,28 @@ export function ClinicDetailView({ clinic, onBack }: ClinicDetailViewProps) {
           )}
         </div>
       </div>
+
+      {/* Book at this clinic (section 34) */}
+      {booking?.takesBookings && (
+        <button
+          type="button"
+          onClick={() => setBookingOpen(true)}
+          className="flex w-full items-center justify-center gap-2 rounded-2xl bg-[#185a4d] py-3.5 px-6 text-sm font-bold text-white shadow-xs transition-all hover:bg-[#13463c] focus-visible:outline-2 focus-visible:outline-arom sm:rounded-full"
+        >
+          <CalendarCheck size={18} strokeWidth={2.4} />
+          {isKm ? "កក់វគ្គ (Book a session)" : "Book a session"}
+        </button>
+      )}
+
+      {bookingOpen && booking?.takesBookings && (
+        <ClinicBookingSheet
+          slug={clinic.slug}
+          clinicName={isKm ? clinic.nameKm : clinic.name}
+          info={booking}
+          km={isKm}
+          onClose={() => setBookingOpen(false)}
+        />
+      )}
 
       {/* Action Buttons matching Figma */}
       <div className="flex flex-col sm:flex-row gap-3 pt-2">
