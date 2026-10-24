@@ -84,6 +84,7 @@ The yellow "Demo data on this page" banner is in `admin-shell.tsx`. Remove it fo
 | Anonymous identity protection: professionals see client aliases, safe functions for bookings, messages, notes, suggestions, care plans and shared data | No UI change | Connected (Sokheng, merged with main in PR #19, 18 Oct). Intake note fix `20261018070000` still to run | 29 |
 | Find Clinic & Hospital (`/clinic-hospital` from Figma): interactive map, filters, search, clinic cards, and clinic detail view | Done | Waiting for backend (currently static curated directory in `clinic-data.ts`) | 32 |
 | UP students and staff: free UP professionals and UP clinic for anyone with a confirmed University of Puthisastra email (`/profile/up-student`, admin switch in `/admin/professionals`) | Done | Connected, PR #27 merged 24 Oct (`is_up_student()`, `admin_set_up_students_only()`, `PATCH /api/admin/professionals/:id/up-students`), migration `20261024000100` applied 24 Oct. UP clinic is sample data in `clinic-data.ts` | 33 |
+| Clinic bookings, starting with the UP Wellness Clinic: Therapists tab and Book a session on the clinic page, Clinic requests in My appointments, clinic desk (`/clinic-desk`), admin clinic link and desk accounts | Done | PR (`rith/up-clinic-booking`): connected (`/api/clinics/:slug/booking`, `/api/clinics/:slug/requests`, `/api/clinic-requests`, `/api/clinic-desk/*`, `/api/admin/clinics`, `PATCH /api/admin/professionals/:id/clinic`, `PATCH /api/admin/users/:id/clinic-desk`), migration `20261024000200` not yet applied | 34 |
 | Symptom check (`/detection/symptoms`): PHQ-9 low mood and GAD-7 anxiety in English and validated Khmer, safety screen, results, 14 day rechecks | Done | Connected (`GET\|POST /api/symptom-checks`). No migration: uses the existing `symptom_checks`, `support_journeys` and `apply_support_path()` | 34 |
 
 ## 5. Admin users page
@@ -1393,6 +1394,64 @@ Answers are saved in `symptom_checks.answers` as `[{ questionId, value }]` in qu
 - No limit on how often a person can take a check.
 - A professional still has to review the Khmer and the result messages before a public launch.
 - `symptom_checks` RLS lets the owner update or delete their own rows directly through the API. The app never does this.
+
+## 34. Clinic bookings and the clinic desk (UP Wellness Clinic first)
+
+**Status:** Done in a pull request (`rith/up-clinic-booking`), migration `20261024000200_clinic_booking.sql` not yet applied. Clinic pages (photos, services, reviews) still come from `clinic-data.ts` (section 32); the database holds what booking needs.
+
+**Decided by Rith with UP (24 Oct 2026). Do not change without asking:**
+
+- **Students book the clinic, not a therapist.** They choose online or in person, a therapist preference (Female, Male or No preference, only genders the clinic has), one day, every time that works for them on that day, and an optional note.
+- **The clinic desk decides.** A desk account picks one of those times and the therapist, or says the times do not work (optional message). Confirming creates a normal appointment with that therapist, so chat, care tasks, notes, sharing, Join and My appointments work as for any booking.
+- **One room: one booking per time.** A confirmed booking makes the time full. The desk can mark a time full by hand, for bookings made on UP's Google Form, and open it again.
+- **UP Wellness Clinic:** Thursday and Friday, 08:30, 09:30, 10:30, 13:30, 14:30, 15:30 (one hour), up to 3 weeks ahead, at least 12 hours ahead, online and in person, for UP accounts only (section 33).
+- **Clinic therapists are normal professional accounts** that an admin links to a clinic (one clinic each). They are not on the Professional page and cannot be booked directly. Their own `/pro` profile (photo, about, gender) shows on the clinic's Therapists tab once they are verified, active and have a photo and an 80 character English bio. They do not need a schedule or a price, cannot suggest sessions, and do not reschedule clinic bookings (the desk does).
+- **Desk accounts are normal user accounts** an admin marks as desk staff for a clinic (`/admin/users`). No license or professional role is needed. More than one person means more than one account, never a shared password.
+- **Students stay anonymous to the desk**, by the same rule as for professionals: `hide_identity` shows "Anonymous". Each request has a short reference code.
+- **Admins never see requests** (no admin policy on `clinic_booking_requests`). They see the desk accounts and therapist links only.
+- A professional linked before with the section 33 "UP students and staff only" switch keeps that flag; the admin dialog offers to turn it off. New UP therapists are linked to the UP clinic instead.
+
+**Files:** `supabase/migrations/20261024000200_clinic_booking.sql`, `lib/clinic-booking.ts` (types, time formats), `lib/controllers/clinic-controller.ts` and the routes under `app/api/clinics`, `app/api/clinic-requests`, `app/api/clinic-desk`, `app/api/admin/clinics`; `app/_components/clinics/clinic-therapists.tsx`, `clinic-booking-sheet.tsx`, `clinic-detail-view.tsx`; `app/_components/appointments/clinic-requests.tsx` and `user-appointments.tsx`; `app/_components/clinic-desk/*` and `app/clinic-desk/page.tsx`; admin `professionals-view.tsx`, `users-view.tsx`, `admin-provider.tsx`; `/pro` `profile-editor.tsx` (gender), `pro-home.tsx`, `bookings-view.tsx`, `client-file.tsx`, `messages-view.tsx`; `lib/controllers/pro-controller.ts`.
+
+### Database
+
+| Piece | What it does |
+|---|---|
+| `clinics` (existing, was unused) | new `slug`, `up_students_only`, `booking_days` (ISO weekdays), `booking_times` ('HH:MM' Cambodia time), `session_minutes`, `booking_weeks`, `min_notice_hours`, `session_types`. Row `up-wellness-clinic` added with a SAMPLE address |
+| `professional_clinics` (existing, was unused) | one clinic per therapist. The old "professionals link or unlink themselves" policies are dropped: only `admin_set_professional_clinic()` changes links |
+| `clinic_staff` | desk accounts. RLS: you read your own rows, admins read all. Changed only by `admin_set_clinic_staff()` |
+| `clinic_closed_times` | times the desk marked full. RLS: desk staff of that clinic and admins read |
+| `clinic_booking_requests` | the student's request and the answer. RLS: the student reads their own. One waiting request per student per clinic |
+| `clinic_open_times(slug)`, `clinic_therapists(slug)` | what students see. Empty for a UP only clinic unless `is_up_student()` |
+| `request_clinic_booking()`, `cancel_clinic_request()` | student actions, every rule checked inside |
+| `clinic_desk_requests()`, `clinic_desk_therapists()`, `clinic_desk_schedule()` | desk reads (anonymous names) |
+| `clinic_desk_confirm()`, `clinic_desk_decline()`, `clinic_desk_set_full()`, `clinic_desk_cancel()`, `clinic_desk_move()` | desk actions. Confirm locks the clinic row so two confirmations cannot take one time |
+| `my_clinic_desks()`, `my_clinic_appointment_places()` | which desks I work at; which of my bookings came through a clinic |
+| `admin_set_professional_clinic()`, `admin_set_clinic_staff()` | admin only, written to `admin_audit_log` (`set_professional_clinic`, `set_clinic_staff`) |
+| `is_listed_professional()` | clinic therapists are never listed, so direct booking, open times, client change time and public reviews exclude them |
+| `require_office_for_in_person()` | a clinic booking uses the clinic's address |
+| trigger on `session_suggestions` | refuses suggestions from clinic therapists |
+
+### Endpoints
+
+| Action | Endpoint |
+|---|---|
+| Clinic page: therapists, times, session types | `GET /api/clinics/:slug/booking` |
+| Send a request | `POST /api/clinics/:slug/requests` `{ sessionType, therapistGender, times[], note }` |
+| My clinic requests, cancel a waiting one | `GET /api/clinic-requests`, `POST /api/clinic-requests/:id/cancel` |
+| My desks | `GET /api/clinic-desk` |
+| Desk data | `GET /api/clinic-desk/:slug` (requests, therapists, schedule) |
+| Answer a request | `POST /api/clinic-desk/:slug/requests/:id` `{ action: "confirm", startsAt, therapistId, meetingUrl }` or `{ action: "decline", note }` |
+| Mark a time full or open | `POST /api/clinic-desk/:slug/times` `{ startsAt, full }` |
+| Move or cancel a booking | `POST /api/clinic-desk/:slug/bookings/:id` `{ action: "move", startsAt, reason }` or `{ action: "cancel", reason }` |
+| Admin | `GET /api/admin/clinics`, `PATCH /api/admin/professionals/:id/clinic` `{ clinicId }`, `PATCH /api/admin/users/:id/clinic-desk` `{ clinicId, on }` |
+
+### Known gaps
+
+- No notifications yet: students see answers in My appointments, and the desk sees new requests when it opens `/clinic-desk`.
+- A student who wants another time cancels and sends a new request; the desk can also move a booking.
+- The therapist sees a desk cancellation as "The clinic cancelled this session" only for clinic bookings; an AROM admin's emergency cancel of a clinic booking also shows as the clinic.
+- Clinic photos, services, address and hours shown on the page are still sample data in `clinic-data.ts`. The UP clinic's real address must also be set in `clinics.address` (in person bookings use it).
 
 ## Template for a new feature section
 
