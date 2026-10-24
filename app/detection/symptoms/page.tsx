@@ -14,6 +14,9 @@ import {
   HeartPulse,
   Info,
   Lock,
+  Sun,
+  Shield,
+  Users,
   Waves,
   X,
   type LucideIcon,
@@ -64,6 +67,9 @@ const TOPIC: Record<SymptomCheckType, Pair> = {
   anxiety: { en: "anxiety", km: "ការថប់បារម្ភ" },
   stress: { en: "stress", km: "ភាពតានតឹង" },
   burnout: { en: "burnout", km: "ភាពអស់កម្លាំង" },
+  wellbeing: { en: "low wellbeing", km: "សុខុមាលភាពទាប" },
+  loneliness: { en: "loneliness", km: "ភាពឯកោ" },
+  trauma: { en: "stress after a hard experience", km: "ភាពតានតឹងក្រោយបទពិសោធន៍ដ៏លំបាក" },
 };
 
 const CHECK_ICONS: Record<SymptomCheckType, LucideIcon> = {
@@ -71,6 +77,9 @@ const CHECK_ICONS: Record<SymptomCheckType, LucideIcon> = {
   anxiety: HeartPulse,
   stress: Waves,
   burnout: BatteryLow,
+  wellbeing: Sun,
+  loneliness: Users,
+  trauma: Shield,
 };
 
 const LEVEL_MESSAGES: Record<SymptomLevel, (topic: Pair) => Pair> = {
@@ -261,6 +270,7 @@ export default function SymptomCheckPage() {
               saved={view.saved}
               onDone={() => setView({ kind: "home" })}
               onExplain={() => setExplainOpen(true)}
+              onStart={start}
             />
           )}
         </main>
@@ -516,6 +526,10 @@ function QuestionView({
         <div className="h-full rounded-full bg-arom transition-all duration-300" style={{ width: `${((view.index + 1) / total) * 100}%` }} />
       </div>
 
+      {questionnaire.intro && view.index === 0 && (
+        <p className="mt-5 rounded-2xl bg-arom-wash p-4 text-sm leading-6 text-ink">{tx(questionnaire.intro)}</p>
+      )}
+
       <div className="mt-6 rounded-3xl border border-arom-border bg-white p-5 shadow-card sm:p-6">
         {safetyInAnxiety && (
           <p className="mb-2 text-sm font-medium text-arom-deep">
@@ -602,16 +616,20 @@ function ResultView({
   saved,
   onDone,
   onExplain,
+  onStart,
 }: {
   km: boolean;
   tx: (text: Text) => string;
   saved: SymptomCheckSavedResponse;
   onDone: () => void;
   onExplain: () => void;
+  onStart: (type: SymptomCheckType) => void;
 }) {
   const { check, journey } = saved;
   const topic = TOPIC[check.type];
   const professional = check.recommendedPath === "self_help_and_professional" || check.recommendedPath === "professional";
+  // WHO-5 guidance: low wellbeing is a reason to check for low mood next.
+  const suggestLowMood = check.type === "wellbeing" && check.level !== "none";
 
   return (
     <div className="mt-3 space-y-5 animate-in fade-in duration-200">
@@ -626,14 +644,28 @@ function ResultView({
         <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
           <p className="text-xs text-ink-muted">
             {km ? `ពិន្ទុ ${check.score} នៃ ${check.maxScore}` : `Score ${check.score} of ${check.maxScore}`}
+            {QUESTIONNAIRES[check.type].higherIsBetter && (km ? "។ ពិន្ទុកាន់តែខ្ពស់ កាន់តែល្អ។" : ". Higher is better.")}
           </p>
           <ExplainButton km={km} onClick={onExplain} label={km ? "តើនេះមានន័យអ្វី?" : "What does this mean?"} />
         </div>
       </div>
 
+      {suggestLowMood && (
+        <div className="rounded-3xl border border-arom/30 bg-arom-wash p-5 sm:p-6">
+          <p className="text-sm leading-6 text-ink">
+            {km
+              ? "នៅពេលសុខុមាលភាពទាប ការពិនិត្យអារម្មណ៍ធ្លាក់ចុះអាចជួយអ្នកឱ្យយល់កាន់តែច្បាស់។"
+              : "When wellbeing is low, the Low mood check can help you understand more."}
+          </p>
+          <button type="button" onClick={() => onStart("depression")} className={`${primaryButton} mt-3`}>
+            {km ? "ធ្វើការពិនិត្យអារម្មណ៍ធ្លាក់ចុះ" : "Take the Low mood check"}
+          </button>
+        </div>
+      )}
+
       <NextSteps km={km} check={check} journey={journey} professional={professional} />
 
-      {check.level === "high" && !check.safetyConcern && <GetHelpSection />}
+      {(check.level === "high" || QUESTIONNAIRES[check.type].alwaysShowHelp) && !check.safetyConcern && <GetHelpSection />}
 
       <p className="flex items-start gap-2 rounded-2xl border border-arom-border bg-white/70 px-4 py-3 text-xs leading-5 text-ink-muted">
         <Lock size={15} className="mt-0.5 shrink-0 text-arom" aria-hidden="true" />

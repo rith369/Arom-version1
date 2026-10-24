@@ -11,13 +11,24 @@ import { z } from "zod";
 // - GAD-7, Spitzer, Kroenke, Williams and Löwe 2006 (anxiety)
 // - PSS-10, Cohen, Kamarck and Mermelstein 1983 (stress)
 // - Copenhagen Burnout Inventory, personal burnout, Kristensen et al. 2005
+// - WHO-5 Well-Being Index, Topp et al. 2015 (higher score is better)
+// - UCLA 3 item Loneliness Scale, Hughes et al. 2004
+// - PCL-5, US National Center for PTSD, Weathers et al. 2013 (public domain)
 // The PHQ-9 and GAD-7 Khmer is the wording validated in Cambodia by Steinman
 // et al. 2025, PLOS Mental Health 2(4):e0000228 (S1 and S2 Appendix). The
 // other checks have no tested Khmer yet, so `khmerReady` is false: they are
 // hidden while the app is in Khmer until a professional gives us the Khmer.
 // Do not reword any question without a professional's review.
 
-export const SYMPTOM_CHECK_TYPES = ["depression", "anxiety", "stress", "burnout"] as const;
+export const SYMPTOM_CHECK_TYPES = [
+  "depression",
+  "anxiety",
+  "stress",
+  "burnout",
+  "wellbeing",
+  "loneliness",
+  "trauma",
+] as const;
 export type SymptomCheckType = (typeof SYMPTOM_CHECK_TYPES)[number];
 
 export const SYMPTOM_LEVELS = ["none", "low", "medium", "high"] as const;
@@ -59,6 +70,10 @@ export interface Questionnaire {
   // True for checks where a higher score means feeling better.
   higherIsBetter: boolean;
   khmerReady: boolean;
+  // Shown above the first question, for checks that need context first.
+  intro?: QuestionText;
+  // Show Get help now with every result, not only strong ones.
+  alwaysShowHelp?: boolean;
 }
 
 /** How a question or label reads in the current language, English when no Khmer exists. */
@@ -303,6 +318,135 @@ export const QUESTIONNAIRES: Record<SymptomCheckType, Questionnaire> = {
     level: (score) => (score < 50 ? "none" : score < 75 ? "medium" : "high"),
     higherIsBetter: false,
     khmerReady: false,
+  },
+  wellbeing: {
+    type: "wellbeing",
+    instrument: "WHO-5",
+    name: { en: "Wellbeing", km: "សុខុមាលភាព (Wellbeing)" },
+    description: { en: "5 questions about how you have felt in the last 2 weeks." },
+    prompt: { en: "Over the last 2 weeks, how often has this been true for you?" },
+    options: [
+      { points: 0, label: { en: "At no time" } },
+      { points: 1, label: { en: "Some of the time" } },
+      { points: 2, label: { en: "Less than half of the time" } },
+      { points: 3, label: { en: "More than half of the time" } },
+      { points: 4, label: { en: "Most of the time" } },
+      { points: 5, label: { en: "All of the time" } },
+    ],
+    questions: [
+      { id: "who_1", scored: true, text: { en: "I have felt cheerful and in good spirits" } },
+      { id: "who_2", scored: true, text: { en: "I have felt calm and relaxed" } },
+      { id: "who_3", scored: true, text: { en: "I have felt active and vigorous" } },
+      { id: "who_4", scored: true, text: { en: "I woke up feeling fresh and rested" } },
+      { id: "who_5", scored: true, text: { en: "My daily life has been filled with things that interest me" } },
+    ],
+    maxScore: 100,
+    // Raw 0 to 25, times 4, as a percentage. Higher is better.
+    total: (points) => points * 4,
+    // WHO-5 guidance: 50 or below is poor wellbeing, 28 or below suggests depression.
+    level: (score) => (score > 50 ? "none" : score > 28 ? "medium" : "high"),
+    higherIsBetter: true,
+    khmerReady: false,
+  },
+  loneliness: {
+    type: "loneliness",
+    instrument: "UCLA-3",
+    name: { en: "Loneliness", km: "ភាពឯកោ (Loneliness)" },
+    description: { en: "3 questions about feeling alone." },
+    prompt: { en: "How often do you feel this way?" },
+    options: [
+      { points: 1, label: { en: "Hardly ever" } },
+      { points: 2, label: { en: "Some of the time" } },
+      { points: 3, label: { en: "Often" } },
+    ],
+    questions: [
+      { id: "ucla_1", scored: true, text: { en: "How often do you feel that you lack companionship?" } },
+      { id: "ucla_2", scored: true, text: { en: "How often do you feel left out?" } },
+      { id: "ucla_3", scored: true, text: { en: "How often do you feel isolated from others?" } },
+    ],
+    maxScore: 9,
+    total: sum,
+    // Score 3 to 9. 6 or more is commonly used for "lonely" (Steptoe 2013).
+    level: (score) => (score <= 5 ? "none" : "medium"),
+    higherIsBetter: false,
+    khmerReady: false,
+  },
+  trauma: {
+    type: "trauma",
+    instrument: "PCL-5",
+    name: { en: "Trauma", km: "របួសផ្លូវចិត្ត (Trauma)" },
+    description: { en: "20 questions about how a very stressful experience still affects you." },
+    intro: {
+      en: "These questions are about a very stressful experience, such as an accident, violence, a disaster, or losing someone suddenly. Keep that experience in mind. You do not need to describe it, and you can stop at any time.",
+    },
+    prompt: { en: "In the past month, how much were you bothered by this?" },
+    options: [
+      { points: 0, label: { en: "Not at all" } },
+      { points: 1, label: { en: "A little bit" } },
+      { points: 2, label: { en: "Moderately" } },
+      { points: 3, label: { en: "Quite a bit" } },
+      { points: 4, label: { en: "Extremely" } },
+    ],
+    questions: [
+      { id: "pcl_1", scored: true, text: { en: "Repeated, disturbing, and unwanted memories of the stressful experience" } },
+      { id: "pcl_2", scored: true, text: { en: "Repeated, disturbing dreams of the stressful experience" } },
+      {
+        id: "pcl_3",
+        scored: true,
+        text: {
+          en: "Suddenly feeling or acting as if the stressful experience were actually happening again (as if you were actually back there reliving it)",
+        },
+      },
+      { id: "pcl_4", scored: true, text: { en: "Feeling very upset when something reminded you of the stressful experience" } },
+      {
+        id: "pcl_5",
+        scored: true,
+        text: {
+          en: "Having strong physical reactions when something reminded you of the stressful experience (for example, heart pounding, trouble breathing, sweating)",
+        },
+      },
+      { id: "pcl_6", scored: true, text: { en: "Avoiding memories, thoughts, or feelings related to the stressful experience" } },
+      {
+        id: "pcl_7",
+        scored: true,
+        text: {
+          en: "Avoiding external reminders of the stressful experience (for example, people, places, conversations, activities, objects, or situations)",
+        },
+      },
+      { id: "pcl_8", scored: true, text: { en: "Trouble remembering important parts of the stressful experience" } },
+      {
+        id: "pcl_9",
+        scored: true,
+        text: {
+          en: "Having strong negative beliefs about yourself, other people, or the world (for example, having thoughts such as: I am bad, there is something seriously wrong with me, no one can be trusted, the world is completely dangerous)",
+        },
+      },
+      { id: "pcl_10", scored: true, text: { en: "Blaming yourself or someone else for the stressful experience or what happened after it" } },
+      { id: "pcl_11", scored: true, text: { en: "Having strong negative feelings such as fear, horror, anger, guilt, or shame" } },
+      { id: "pcl_12", scored: true, text: { en: "Loss of interest in activities that you used to enjoy" } },
+      { id: "pcl_13", scored: true, text: { en: "Feeling distant or cut off from other people" } },
+      {
+        id: "pcl_14",
+        scored: true,
+        text: {
+          en: "Trouble experiencing positive feelings (for example, being unable to feel happiness or have loving feelings for people close to you)",
+        },
+      },
+      { id: "pcl_15", scored: true, text: { en: "Irritable behavior, angry outbursts, or acting aggressively" } },
+      { id: "pcl_16", scored: true, text: { en: "Taking too many risks or doing things that could cause you harm" } },
+      { id: "pcl_17", scored: true, text: { en: "Being \"superalert\" or watchful or on guard" } },
+      { id: "pcl_18", scored: true, text: { en: "Feeling jumpy or easily startled" } },
+      { id: "pcl_19", scored: true, text: { en: "Having difficulty concentrating" } },
+      { id: "pcl_20", scored: true, text: { en: "Trouble falling or staying asleep" } },
+    ],
+    maxScore: 80,
+    total: sum,
+    // National Center for PTSD: 31 to 33 suggests probable PTSD, so 31 or more
+    // is high. The 15 split below it is AROM's, for a professional to confirm.
+    level: (score) => (score <= 14 ? "none" : score <= 30 ? "medium" : "high"),
+    higherIsBetter: false,
+    khmerReady: false,
+    alwaysShowHelp: true,
   },
 };
 
