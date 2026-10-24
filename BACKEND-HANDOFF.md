@@ -84,7 +84,7 @@ The yellow "Demo data on this page" banner is in `admin-shell.tsx`. Remove it fo
 | Anonymous identity protection: professionals see client aliases, safe functions for bookings, messages, notes, suggestions, care plans and shared data | No UI change | Connected (Sokheng, merged with main in PR #19, 18 Oct). Intake note fix `20261018070000` still to run | 29 |
 | Find Clinic & Hospital (`/clinic-hospital` from Figma): interactive map, filters, search, clinic cards, and clinic detail view | Done | Waiting for backend (currently static curated directory in `clinic-data.ts`) | 32 |
 | UP students and staff: free UP professionals and UP clinic for anyone with a confirmed University of Puthisastra email (`/profile/up-student`, admin switch in `/admin/professionals`) | Done | Connected, PR #27 merged 24 Oct (`is_up_student()`, `admin_set_up_students_only()`, `PATCH /api/admin/professionals/:id/up-students`), migration `20261024000100` applied 24 Oct. UP clinic is sample data in `clinic-data.ts` | 33 |
-| Clinic bookings, starting with the UP Wellness Clinic: Therapists tab and Book a session on the clinic page, Clinic requests in My appointments, clinic desk (`/clinic-desk`), admin clinic link and desk accounts | Done | PR (`rith/up-clinic-booking`): connected (`/api/clinics/:slug/booking`, `/api/clinics/:slug/requests`, `/api/clinic-requests`, `/api/clinic-desk/*`, `/api/admin/clinics`, `PATCH /api/admin/professionals/:id/clinic`, `PATCH /api/admin/users/:id/clinic-desk`), migration `20261024000200` not yet applied | 34 |
+| Clinic bookings, starting with the UP Wellness Clinic: Therapists tab and Book a session on the clinic page, Clinic requests in My appointments, clinic desk (`/clinic-desk`), admin clinic link and desk accounts | Done | Connected, PR #28 merged 24 Oct (`/api/clinics/:slug/booking`, `/api/clinics/:slug/requests`, `/api/clinic-requests`, `/api/clinic-desk/*`, `/api/admin/clinics`, `PATCH /api/admin/professionals/:id/clinic`, `PATCH /api/admin/users/:id/clinic-desk`), migration `20261024000200` applied 24 Oct | 34 |
 | Symptom check (`/detection/symptoms`): PHQ-9 low mood and GAD-7 anxiety in English and validated Khmer, safety screen, results, 14 day rechecks | Done | Connected (`GET\|POST /api/symptom-checks`). No migration: uses the existing `symptom_checks`, `support_journeys` and `apply_support_path()` | 34 |
 
 ## 5. Admin users page
@@ -1397,7 +1397,7 @@ Answers are saved in `symptom_checks.answers` as `[{ questionId, value }]` in qu
 
 ## 34. Clinic bookings and the clinic desk (UP Wellness Clinic first)
 
-**Status:** Done in a pull request (`rith/up-clinic-booking`), migration `20261024000200_clinic_booking.sql` not yet applied. Clinic pages (photos, services, reviews) still come from `clinic-data.ts` (section 32); the database holds what booking needs.
+**Status:** Connected (PR #28, merged 24 Oct). Migration `20261024000200_clinic_booking.sql` applied 24 Oct. Clinic pages (photos, services, reviews) still come from `clinic-data.ts` (section 32); the database holds what booking needs.
 
 **Decided by Rith with UP (24 Oct 2026). Do not change without asking:**
 

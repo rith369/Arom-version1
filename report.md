@@ -2,7 +2,7 @@
 
 ## 24 Oct 2026: Book the UP Wellness Clinic, Clinic Desk for UP, Clinic Therapists
 
-Commits `2be32a7` to `51528a8` (pull request `rith/up-clinic-booking`). Migration `20261024000200_clinic_booking.sql`, not yet applied.
+Commits `2be32a7` to `5bf0a10`, merged in PR #28 (`3d815fa`). Migration `20261024000200_clinic_booking.sql` applied 24 Oct.
 
 **Why.** UP asked for its free counseling to be booked through the UP clinic, not by picking a therapist on the Professional page. Students say when they can come and whether they prefer a female or male therapist; the clinic, which has one room, decides who sees them and when. Some students still book on UP's Google Form, so the clinic needs a way to block those times in AROM too.
 
