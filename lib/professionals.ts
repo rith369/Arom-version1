@@ -117,8 +117,8 @@ async function reviewSummaries(supabase: Supabase, slug?: string): Promise<Map<s
 }
 
 /**
- * Slugs of professionals marked "UP students only" (section 33). The database
- * only lists them for UP students, so this just adds the badge. Empty on error.
+ * Slugs of professionals marked UP only (section 33). The database only lists
+ * them for UP students and staff, so this just adds the badge. Empty on error.
  */
 async function upOnlySlugs(supabase: Supabase, slug?: string): Promise<Set<string>> {
   let query = supabase.from("professional_profiles").select("slug").eq("up_students_only", true);

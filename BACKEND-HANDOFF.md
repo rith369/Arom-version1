@@ -83,7 +83,7 @@ The yellow "Demo data on this page" banner is in `admin-shell.tsx`. Remove it fo
 | Other admin pages | Bookings and Settings are connected (sections 12, 13, 15). Group activities in admin Community still sample data | Not started for group activities | 23 |
 | Anonymous identity protection: professionals see client aliases, safe functions for bookings, messages, notes, suggestions, care plans and shared data | No UI change | Connected (Sokheng, merged with main in PR #19, 18 Oct). Intake note fix `20261018070000` still to run | 29 |
 | Find Clinic & Hospital (`/clinic-hospital` from Figma): interactive map, filters, search, clinic cards, and clinic detail view | Done | Waiting for backend (currently static curated directory in `clinic-data.ts`) | 32 |
-| UP students: free UP professionals and UP clinic for confirmed University of Puthisastra students (`/profile/up-student`, admin switch in `/admin/professionals`) | Done | PR: professionals connected (`is_up_student()`, `admin_set_up_students_only()`, `PATCH /api/admin/professionals/:id/up-students`), migration `20261024000100` not yet applied. UP clinic is sample data in `clinic-data.ts` | 33 |
+| UP students and staff: free UP professionals and UP clinic for anyone with a confirmed University of Puthisastra email (`/profile/up-student`, admin switch in `/admin/professionals`) | Done | PR: professionals connected (`is_up_student()`, `admin_set_up_students_only()`, `PATCH /api/admin/professionals/:id/up-students`), migration `20261024000100` not yet applied. UP clinic is sample data in `clinic-data.ts` | 33 |
 
 ## 5. Admin users page
 
@@ -1277,7 +1277,7 @@ Types in `lib/reviews.ts`: `PublicReview`, `MyReview`, `ProReview`, `AdminReview
 | `aboutKm` | string | `clinics.about_km` | static in code |
 | `services` | ClinicService[] | `clinic_services` relation | static in code |
 | `reviews` | ClinicReview[] | `clinic_reviews` relation | static in code |
-| `upStudentsOnly` | boolean, optional | `clinics.up_students_only` | static in code. Shown to UP students only (section 33) |
+| `upStudentsOnly` | boolean, optional | `clinics.up_students_only` | static in code. Shown to UP students and staff only (section 33) |
 
 ### Actions
 | Frontend action | Meaning | Endpoint | Exists today? |
@@ -1289,17 +1289,17 @@ Types in `lib/reviews.ts`: `PublicReview`, `MyReview`, `ProReview`, `AdminReview
 | Get Direction | Open Google Maps directions | External maps link | Done |
 | Call | Initiate phone call to clinic | `tel:` link | Done |
 
-## 33. UP students: free UP professionals and UP clinic
+## 33. UP students and staff: free UP professionals and UP clinic
 
 **Status:** Professionals connected in a pull request, migration `20261024000100_up_students.sql` not yet applied. The UP clinic is one sample entry in `clinic-data.ts` (section 32) until clinics move to the database.
 
 **Decided by Rith (24 Oct 2026). Do not change without asking:**
 
-- **Who is a UP student:** a confirmed address ending in `.student@puthisastra.edu.kh` (for example `name.student@puthisastra.edu.kh`). Staff use the same domain without `.student` (for example `name@puthisastra.edu.kh`) and do **not** count.
+- **Who counts ("UP student" in code names):** anyone with a confirmed address on the UP domain, `@puthisastra.edu.kh`. That is students (`name.student@puthisastra.edu.kh`) **and staff** (`name@puthisastra.edu.kh`). Rith changed this on 24 Oct 2026 because staff can use the free service too.
 - **How it is proved:** the confirmed login email, or the email of a Google account linked to the AROM account. UP mail runs on Google Workspace (its MX records point to `aspmx.l.google.com`), so students can log in with Google, or keep their Gmail login and link their UP Google account at `/profile/up-student`. No codes are sent and no extra email service is needed.
 - **Admins decide** which professionals are "UP students only" (switch in the professional's dialog on `/admin/professionals`). Professionals cannot change it themselves. Every change goes to the audit log.
 - **Everyone else does not see them.** A UP only professional is hidden from the directory and profile page, and their times cannot be booked or used for a change of time, for anyone who is not a UP student. The professional themself and admins still see them.
-- **Nothing new is stored about the student.** The check reads `auth.users` and `auth.identities` each time. If a student unlinks their UP Google account, they lose access at once.
+- **Nothing new is stored about the person.** The check reads `auth.users` and `auth.identities` each time. If someone unlinks their UP Google account, they lose access at once.
 
 **Files:** `lib/up-student.ts` (the rule, for display only), `lib/controllers/shared.ts` (`upStudent` and `upEmail` on the signed in user), `lib/controllers/auth-controller.ts` (`/auth/confirm?link=up`), `app/_components/up-student/` (verify page and badge), `app/profile/up-student/page.tsx`, `lib/professionals.ts` (badge), `lib/controllers/professionals-controller.ts` and `app/api/admin/professionals/[id]/up-students/route.ts` (admin switch), `app/admin/_components/professionals-view.tsx`, `app/_components/clinics/*` (UP clinic, hidden from non students).
 
@@ -1308,19 +1308,19 @@ Types in `lib/reviews.ts`: `PublicReview`, `MyReview`, `ProReview`, `AdminReview
 | Piece | What it does |
 |---|---|
 | `professional_profiles.up_students_only` | boolean, default false |
-| `is_up_student()` | true when the **caller** is a UP student. Takes no user id, so nobody can ask about someone else. `authenticated` only |
+| `is_up_student()` | true when the **caller** has a confirmed `@puthisastra.edu.kh` address (student or staff). Takes no user id, so nobody can ask about someone else. `authenticated` only |
 | `guard_professional_profile()` | now also keeps `up_students_only` unchanged when a professional edits their own profile |
-| `is_listed_professional(p_id)` | same as before, plus: UP only professionals count as listed only for UP students, admins and the professional themself. Directory, profile page, open times, `book_appointment`, `reschedule_appointment` and reviews already use it |
+| `is_listed_professional(p_id)` | same as before, plus: UP only professionals count as listed only for UP students and staff, admins and the professional themself. Directory, profile page, open times, `book_appointment`, `reschedule_appointment` and reviews already use it |
 | `admin_set_up_students_only(p_professional_id, p_on)` | admin only, writes `set_up_students_only` to `admin_audit_log` |
 
 ### Data shape
 
 | Field | Where | Meaning |
 |---|---|---|
-| `AuthUser.upStudent` | `/api/auth/me` and every response that returns the user | confirmed UP student |
+| `AuthUser.upStudent` | `/api/auth/me` and every response that returns the user | confirmed UP student or staff member |
 | `AuthUser.upEmail` | same | the UP address that proved it, only ever returned to its owner |
 | `Professional.upStudentsOnly` | `GET /api/admin/professionals` | admin switch state |
-| `Therapist.upStudentsOnly` | directory and profile page (server) | shows the "For UP students" badge |
+| `Therapist.upStudentsOnly` | directory and profile page (server) | shows the "For UP students and staff" badge |
 | `Clinic.upStudentsOnly` | `clinic-data.ts` | hides the clinic from non students |
 
 ### Actions
@@ -1334,7 +1334,8 @@ Types in `lib/reviews.ts`: `PublicReview`, `MyReview`, `ProReview`, `AdminReview
 
 - The "Anyone reads verified professionals" RLS policy still lets the raw API read a UP only professional's public profile fields. This is the same public profile they had before. Booking is what is protected. Tightening that policy would also hide the professional's name from existing clients' appointments and messages, so it was left as is.
 - If an admin turns UP only on for a professional who already has non UP clients, those clients can no longer book or change time with them. Existing sessions stay.
-- Graduates keep their UP address until UP closes it. There is no yearly check.
+- Graduates and former staff keep their UP address until UP closes it. There is no yearly check.
+- Any `@puthisastra.edu.kh` account counts, including shared office accounts, if UP has them.
 - The UP clinic needs its real address, hours, phone, map link and photo (sample entry in `clinic-data.ts`).
 
 ## Template for a new feature section

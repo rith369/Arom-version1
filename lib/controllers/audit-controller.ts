@@ -54,7 +54,7 @@ function describe(row: AuditRow): { action: string; module: AuditModule; detail:
       return { action: "Changed professional verification", module: "professionals", detail: fromTo };
     case "set_up_students_only":
       return d.to
-        ? { action: "Made a professional UP students only", module: "professionals", detail: "" }
+        ? { action: "Made a professional UP only", module: "professionals", detail: "" }
         : { action: "Opened a professional to everyone", module: "professionals", detail: "" };
     case "approve_application":
       return { action: "Approved application", module: "professionals", detail: text(d.note) };

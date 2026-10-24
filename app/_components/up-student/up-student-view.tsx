@@ -11,9 +11,9 @@ import { createClient } from "@/lib/supabase/client";
 import { UP_DOMAIN } from "@/lib/up-student";
 
 /*
- * University of Puthisastra students verify here (BACKEND-HANDOFF.md
- * section 33). Students who log in with their UP Google account are verified
- * already. Everyone else links their UP Google account to this AROM account:
+ * University of Puthisastra students and staff verify here
+ * (BACKEND-HANDOFF.md section 33). People who log in with their UP Google
+ * account are verified already. Everyone else links their UP Google account to this AROM account:
  * Google proves they own the address, and their login stays the same.
  * Google sends them back through /auth/confirm?link=up.
  */
@@ -66,8 +66,8 @@ export function UpStudentView() {
         ? t("ការផ្ទៀងផ្ទាត់មិនបានបញ្ចប់ទេ។ សូមព្យាយាមម្តងទៀត។", "Verifying did not finish. Please try again.")
         : returned && user && !user.upStudent
           ? t(
-              "គណនី Google ដែលអ្នកបានជ្រើសរើស មិនមែនជាអាសយដ្ឋាននិស្សិត UP ទេ។ សូមព្យាយាមម្តងទៀត ហើយជ្រើសរើសគណនីដែលបញ្ចប់ដោយ .student@puthisastra.edu.kh។",
-              "The Google account you picked is not a UP student address. Try again and pick the account that ends in .student@puthisastra.edu.kh.",
+              "គណនី Google ដែលអ្នកបានជ្រើសរើស មិនមែនជាអាសយដ្ឋាន UP ទេ។ សូមព្យាយាមម្តងទៀត ហើយជ្រើសរើសគណនីដែលបញ្ចប់ដោយ @puthisastra.edu.kh។",
+              "The Google account you picked is not a UP address. Try again and pick the account that ends in @puthisastra.edu.kh.",
             )
           : startError;
 
@@ -87,12 +87,12 @@ export function UpStudentView() {
 
           <header className="mt-1">
             <h1 className="text-[28px] font-semibold leading-tight text-arom sm:text-4xl">
-              {t("និស្សិត UP (UP Student)", "UP Student")}
+              {t("និស្សិត ឬបុគ្គលិក UP (UP Student or Staff)", "UP Student or Staff")}
             </h1>
             <p className="mt-2 text-[15px] font-light leading-snug text-ink">
               {t(
-                "និស្សិតសាកលវិទ្យាល័យពុទ្ធិសាស្ត្រ អាចជួបអ្នកជំនាញ UP និងគ្លីនិក UP ដោយឥតគិតថ្លៃ។",
-                "University of Puthisastra students can see UP professionals and the UP clinic for free.",
+                "និស្សិត និងបុគ្គលិកសាកលវិទ្យាល័យពុទ្ធិសាស្ត្រ អាចជួបអ្នកជំនាញ UP និងគ្លីនិក UP ដោយឥតគិតថ្លៃ។",
+                "University of Puthisastra students and staff can see UP professionals and the UP clinic for free.",
               )}
             </p>
           </header>
@@ -118,7 +118,7 @@ export function UpStudentView() {
                   <CheckCircle2 size={24} aria-hidden="true" className="mt-0.5 shrink-0 text-arom" />
                   <div className="min-w-0">
                     <h2 className="text-base font-bold text-ink">
-                      {t("បានផ្ទៀងផ្ទាត់ជានិស្សិត UP", "Verified UP student")}
+                      {t("បានផ្ទៀងផ្ទាត់គណនី UP", "Verified UP account")}
                     </h2>
                     {user.upEmail && (
                       <p className="mt-1 break-all text-sm text-ink-muted">
@@ -172,8 +172,8 @@ export function UpStudentView() {
                   </h2>
                   <p className="mt-1 text-sm leading-6 text-ink-muted">
                     {t(
-                      "ជ្រើសរើសគណនី Google ដែលបញ្ចប់ដោយ .student@puthisastra.edu.kh។",
-                      "Pick the Google account that ends in .student@puthisastra.edu.kh.",
+                      "ជ្រើសរើសគណនី Google UP របស់អ្នក ដែលបញ្ចប់ដោយ @puthisastra.edu.kh។",
+                      "Pick your UP Google account, the one that ends in @puthisastra.edu.kh.",
                     )}
                   </p>
                 </div>
@@ -199,8 +199,8 @@ export function UpStudentView() {
 
               <p className="mt-4 text-xs leading-5 text-ink-muted">
                 {t(
-                  "យើងពិនិត្យតែថាអាសយដ្ឋាននេះជារបស់និស្សិត UP ប៉ុណ្ណោះ។ របៀបចូលគណនីរបស់អ្នកនៅដដែល។",
-                  "We only check that the address belongs to a UP student. The way you log in stays the same.",
+                  "យើងពិនិត្យតែថាអាសយដ្ឋាននេះជាអាសយដ្ឋាន UP ប៉ុណ្ណោះ។ របៀបចូលគណនីរបស់អ្នកនៅដដែល។",
+                  "We only check that the address is a UP address. The way you log in stays the same.",
                 )}
               </p>
             </section>

@@ -1,10 +1,11 @@
 import type { User } from "@supabase/supabase-js";
 
 /*
- * University of Puthisastra (UP) students get free UP professionals and the
- * UP clinic (BACKEND-HANDOFF.md section 33). A student address looks like
- * `name.student@puthisastra.edu.kh`. Staff use the same domain without
- * `.student`, so they do not count. UP mail runs on Google Workspace.
+ * University of Puthisastra (UP) students and staff get free UP professionals
+ * and the UP clinic (BACKEND-HANDOFF.md section 33). Any confirmed address on
+ * the UP domain counts: students (`name.student@puthisastra.edu.kh`) and staff
+ * (`name@puthisastra.edu.kh`). "UP student" in code names means either.
+ * UP mail runs on Google Workspace.
  *
  * The database function `public.is_up_student()` uses the same rule and is
  * what actually protects UP only bookings. This copy only decides what the
@@ -13,14 +14,14 @@ import type { User } from "@supabase/supabase-js";
 
 export const UP_DOMAIN = "puthisastra.edu.kh";
 
-const UP_STUDENT_EMAIL = /^[^\s@]+\.student@puthisastra\.edu\.kh$/i;
+const UP_STUDENT_EMAIL = /^[^\s@]+@puthisastra\.edu\.kh$/i;
 
 export function isUpStudentEmail(email: string | null | undefined) {
   return typeof email === "string" && UP_STUDENT_EMAIL.test(email.trim());
 }
 
 /**
- * The confirmed UP student address on this account, or null. It counts when it
+ * The confirmed UP address on this account, or null. It counts when it
  * is the confirmed login email, or the email of a linked Google account.
  */
 export function upStudentEmail(user: User): string | null {

@@ -95,7 +95,7 @@ function Avatar({ item, size }: { item: Professional; size: 'sm' | 'lg' }) {
 }
 
 // Admin only: list this professional for University of Puthisastra students
-// only. The database hides them from everyone else and refuses their bookings.
+// and staff only. The database hides them from everyone else and refuses their bookings.
 function UpStudentsSection({ item }: { item: Professional }) {
   const { setUpStudentsOnly } = useAdmin();
   const [busy, setBusy] = useState(false);
@@ -117,11 +117,11 @@ function UpStudentsSection({ item }: { item: Professional }) {
         <div>
           <h3 className="flex items-center gap-2 text-sm font-semibold">
             <GraduationCap size={16} className="text-arom" />
-            UP students only
+            UP students and staff only
           </h3>
           <p className="mt-1 text-xs leading-5 text-ink-muted">
             {on
-              ? 'On: only confirmed University of Puthisastra students (name.student@puthisastra.edu.kh) see and book this professional.'
+              ? 'On: only people with a confirmed University of Puthisastra email (@puthisastra.edu.kh, students and staff) see and book this professional.'
               : 'Off: everyone can see and book this professional.'}
           </p>
         </div>
@@ -129,7 +129,7 @@ function UpStudentsSection({ item }: { item: Professional }) {
           type="button"
           role="switch"
           aria-checked={on}
-          aria-label="UP students only"
+          aria-label="UP students and staff only"
           disabled={busy}
           onClick={toggle}
           className={`relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition-colors disabled:opacity-60 ${on ? 'bg-arom' : 'bg-gray-300'}`}>

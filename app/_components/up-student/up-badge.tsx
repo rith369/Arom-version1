@@ -1,7 +1,7 @@
 import { GraduationCap } from "lucide-react";
 
 // Marks a professional or clinic that only University of Puthisastra students
-// see. Only UP students ever get these listings, so only they see the badge.
+// and staff see. Only they ever get these listings, so only they see the badge.
 export function UpStudentBadge({ km, tone = "light" }: { km: boolean; tone?: "light" | "dark" }) {
   return (
     <span
@@ -10,7 +10,7 @@ export function UpStudentBadge({ km, tone = "light" }: { km: boolean; tone?: "li
       }`}
     >
       <GraduationCap aria-hidden="true" size={13} />
-      {km ? "សម្រាប់និស្សិត UP (For UP students)" : "For UP students"}
+      {km ? "សម្រាប់និស្សិត និងបុគ្គលិក UP (For UP students and staff)" : "For UP students and staff"}
     </span>
   );
 }

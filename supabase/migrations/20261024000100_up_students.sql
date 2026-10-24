@@ -1,16 +1,17 @@
--- AROM: free professionals for University of Puthisastra (UP) students
--- (BACKEND-HANDOFF.md section 33).
+-- AROM: free professionals for University of Puthisastra (UP) students and
+-- staff (BACKEND-HANDOFF.md section 33).
 --
 -- Decided by Rith (24 Oct 2026):
---   * A UP student is someone with a confirmed `name.student@puthisastra.edu.kh`
---     address: their confirmed login email, or the email of a Google account
---     they linked to AROM (UP mail runs on Google Workspace). Staff addresses
---     (no `.student`) do not count.
---   * Admins mark a professional "UP students only". Only admins can change
---     it, never the professional. Every change is written to admin_audit_log.
+--   * "UP student" here means anyone with a confirmed `@puthisastra.edu.kh`
+--     address, students (`name.student@...`) and staff (`name@...`) alike:
+--     their confirmed login email, or the email of a Google account they
+--     linked to AROM (UP mail runs on Google Workspace).
+--   * Admins mark a professional "UP only". Only admins can change it, never
+--     the professional. Every change is written to admin_audit_log.
 --   * A UP only professional is listed, bookable and reschedulable for UP
---     students only. Everyone else does not see them in the directory.
---   * Nothing new is stored about the student. The check reads auth.users and
+--     students and staff only. Everyone else does not see them in the
+--     directory.
+--   * Nothing new is stored about the person. The check reads auth.users and
 --     auth.identities each time, so unlinking the UP account removes access.
 --
 --   1. professional_profiles.up_students_only (default false).
@@ -18,9 +19,9 @@
 --      ask about someone else.
 --   3. guard_professional_profile(): professionals cannot change the flag.
 --   4. is_listed_professional(): UP only professionals are listed for UP
---      students, admins and the professional themself. The directory, the
---      public profile, open times, booking, client reschedule and reviews all
---      go through this check already.
+--      students and staff, admins and the professional themself. The
+--      directory, the public profile, open times, booking, client reschedule
+--      and reviews all go through this check already.
 --   5. admin_set_up_students_only(): admin only, writes the audit log.
 --
 -- Note: the existing "Anyone reads verified professionals" policy still lets
@@ -32,7 +33,7 @@
 alter table public.professional_profiles
   add column if not exists up_students_only boolean not null default false;
 
--- 2. Is the caller a UP student? ------------------------------------------
+-- 2. Is the caller a UP student or staff member? --------------------------
 
 create or replace function public.is_up_student()
 returns boolean
@@ -46,7 +47,7 @@ as $$
     from auth.users u
     where u.id = (select auth.uid())
       and u.email_confirmed_at is not null
-      and lower(u.email) ~ '^[^@[:space:]]+\.student@puthisastra\.edu\.kh$'
+      and lower(u.email) ~ '^[^@[:space:]]+@puthisastra\.edu\.kh$'
   )
   or exists (
     select 1
@@ -54,7 +55,7 @@ as $$
     where i.user_id = (select auth.uid())
       and i.provider = 'google'
       and coalesce(i.identity_data ->> 'email_verified', 'true') <> 'false'
-      and lower(i.identity_data ->> 'email') ~ '^[^@[:space:]]+\.student@puthisastra\.edu\.kh$'
+      and lower(i.identity_data ->> 'email') ~ '^[^@[:space:]]+@puthisastra\.edu\.kh$'
   );
 $$;
 

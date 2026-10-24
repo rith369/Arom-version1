@@ -222,7 +222,7 @@ export function ProfileSettings() {
             </Link>
           </motion.div>
 
-          {/* University of Puthisastra students: free UP professionals and clinic */}
+          {/* University of Puthisastra students and staff: free UP professionals and clinic */}
           {user && (
             <motion.div variants={itemVariants} className="mt-6">
               <Link
@@ -234,7 +234,7 @@ export function ProfileSettings() {
                   </div>
                   <div>
                     <p className="text-base font-bold text-ink">
-                      {km ? 'និស្សិត UP (UP Student)' : 'UP Student'}
+                      {km ? 'និស្សិត ឬបុគ្គលិក UP (UP Student or Staff)' : 'UP Student or Staff'}
                     </p>
                     <p className="text-xs text-ink-muted sm:text-sm">
                       {user.upStudent

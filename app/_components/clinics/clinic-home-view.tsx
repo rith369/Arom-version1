@@ -13,7 +13,7 @@ function ClinicContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const clinicSlug = searchParams.get("clinic");
-  // UP only clinics open for confirmed UP students only, even from a shared link.
+  // UP only clinics open for confirmed UP students and staff only, even from a shared link.
   const upStudent = useAuth().user?.upStudent ?? false;
 
   const [selectedClinic, setSelectedClinic] = useState<Clinic | null>(() => {
