@@ -2,7 +2,7 @@
 
 ## 24 Oct 2026: Clinic Therapists No Longer See My Schedule
 
-Commit pending. No migration. Frontend only.
+Commit `bd37149`. No migration. Frontend only.
 
 **Why.** A clinic therapist's sessions come from the clinic's own times and are assigned by the clinic desk, and they are not on the Professional page. Their My schedule page still said "The times people can book a session with you", which was not true and confusing.
 
