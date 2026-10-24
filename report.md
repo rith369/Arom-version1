@@ -1,5 +1,21 @@
 # AROM: Change Report
 
+## 24 Oct 2026: Clinic Desk Page Uses the Normal Phone Header
+
+Commit pending. No migration. Frontend only.
+
+**Why.** On phones the clinic desk page started with a back arrow to Profile, unlike the other main pages. It is now a main page in the sidebar, so it should look like one.
+
+**What changed for users:**
+- **On phones the clinic desk page has the normal AROM header:** the logo, the menu button and the profile picture, like Home and Messages. The back arrow is gone. Laptops are unchanged (the sidebar is always there).
+
+**What changed for the team:**
+- `clinic-desk-view.tsx` uses `TopHeader` instead of its own back link.
+
+**What to re-test:**
+1. On a phone (or a narrow window), open the clinic desk as the desk account. The top shows the AROM logo, the menu button and your picture.
+2. The menu button opens the menu with Clinic desk at the top.
+
 ## 24 Oct 2026: Clinic Desk Messages in the Sidebar
 
 Commit `5420c14`. No migration. Frontend only.

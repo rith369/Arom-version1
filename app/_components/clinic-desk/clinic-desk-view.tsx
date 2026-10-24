@@ -1,8 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { CalendarDays, ChevronLeft, ClipboardList, History, MessageCircle } from "lucide-react";
+import { CalendarDays, ClipboardList, History, MessageCircle } from "lucide-react";
 import {
   formatClinicDay,
   formatClinicTime,
@@ -10,6 +9,7 @@ import {
   type DeskData,
   type DeskTime,
 } from "@/lib/clinic-booking";
+import { TopHeader } from "../../components/top-header";
 import { DesktopNavigation, MobileNavigation } from "../app-navigation";
 import { useLanguage } from "../language-provider";
 import { useDeskChats } from "../clinic-chat/clinic-chat-store";
@@ -108,17 +108,12 @@ export function ClinicDeskView({ initialTab = "requests" }: { initialTab?: "requ
     <div className="min-h-screen bg-canvas lg:grid lg:grid-cols-[19rem_minmax(0,1fr)]">
       <DesktopNavigation active={tab === "messages" ? "ClinicDeskMessages" : "ClinicDesk"} />
 
-      <main className="min-w-0 px-4 pb-28 pt-5 sm:px-8 lg:px-10 lg:py-8 xl:px-14">
+      <main className="min-w-0 px-4 pb-28 pt-3 sm:px-8 lg:px-10 lg:py-8 xl:px-14">
         <div className="mx-auto w-full max-w-[48rem]">
-          <Link
-            href="/profile"
-            aria-label={t("ត្រឡប់ទៅការកំណត់", "Back to settings")}
-            className="-ml-2 flex size-11 items-center justify-center rounded-full text-arom transition-colors duration-150 hover:bg-arom-wash focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-arom"
-          >
-            <ChevronLeft size={26} aria-hidden="true" />
-          </Link>
+          {/* Phones: AROM logo, menu and profile, like Home and Messages. */}
+          <TopHeader />
 
-          <header className="mt-1">
+          <header className="mt-5 lg:mt-0">
             <h1 className="text-[28px] font-semibold leading-tight text-arom sm:text-4xl">
               {t("តុបម្រើគ្លីនិក (Clinic desk)", "Clinic desk")}
             </h1>
