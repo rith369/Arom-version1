@@ -1,5 +1,38 @@
 # AROM: Change Report
 
+## 24 Oct 2026: Symptom Check Opens, PHQ-9 Low Mood and GAD-7 Anxiety in English and Khmer
+
+Commit `PENDING`. No migration: it uses the `symptom_checks` table, `support_journeys` and the 14 day trigger that were already in the database.
+
+**Why.** Symptom Detection in Track your mind said "Coming Soon". People now get a private early warning: a short, well known check that helps them notice signs of low mood or anxiety early and points them to the right support. It is not a diagnosis. We use PHQ-9 and GAD-7 because they are free and were tested in Khmer in Cambodia (Steinman et al. 2025, PLOS Mental Health), so the Khmer questions are the study's own wording.
+
+**What changed for users:**
+- **Symptom Detection is ready:** the card in Track your mind opens `/detection/symptoms` instead of a Coming Soon message.
+- **Two checks:** Low mood (9 questions) and Anxiety (7 questions plus one safety question), one question per screen with a progress bar, in English or Khmer.
+- **Safety first:** if someone says they have had thoughts of hurting themselves or being better off dead, Get help now (crisis helplines) shows straight away, before the result.
+- **A calm result:** Few signs, Some signs, Clear signs or Strong signs, a kind message, the score, and next steps (practice, MindGuide, journal, or book a professional).
+- **14 day rechecks:** after a Some signs or Clear signs result, the page shows the date to check again, and "Time to check again" when it is due. If signs stay the same or get worse after 2 weeks, or are strong at any point, it suggests a professional.
+- **Past checks:** the 10 newest results with their date and level, plus a gentle note when the last check looks harder than the one before.
+- **Private:** only the person sees results. Professionals see them only if the person shares them for a booking, and never see the answers.
+
+**What changed for the team:**
+- **New shared file** `lib/symptom-checks.ts`: questions (English and validated Khmer), answer options, bands, scoring and types. The server scores every check again.
+- **New API** `GET|POST /api/symptom-checks` (`lib/controllers/symptom-controller.ts`), owner only through RLS. Answers are stored but never returned.
+- **New page** `app/detection/symptoms/page.tsx`; `detection-modal.tsx` links to it.
+- **BACKEND-HANDOFF.md section 34** has the decisions, scoring table, data shape and known gaps (stress, sleep, burnout and trauma checks not built; no Home reminder yet).
+- **Needs a professional's review** of the Khmer and the result messages before a public launch. Review document: "AROM Symptom Check: Questionnaire Plan for Review".
+
+**What to re-test:**
+1. Log in, open Track your mind, tap Symptom Detection. It opens the Symptom check page.
+2. Take Low mood, answering "Not at all" to everything. The result says Few signs, score 0 of 27, and no recheck date.
+3. Take Low mood with "Several days" on questions 1 to 8 and "Not at all" on 9. The result says Some signs, score 8, with a recheck date 14 days from today.
+4. Take Anxiety and answer the last (safety) question with anything but "Not at all". Get help now shows first, then "See my result" opens the result.
+5. Take Anxiety with "Nearly every day" on all 7 questions. The result says Strong signs, 21 of 21, with Book a professional at the top.
+6. Back on the Symptom check page, Past checks lists every check, newest first.
+7. Switch to Khmer and walk through one check. Questions, answers and buttons are in Khmer.
+8. As a professional with a client who shares symptom checks, open that client's file. The new checks show with type, level and date only.
+9. Log out and open `/detection/symptoms`. It asks you to log in.
+
 ## 24 Oct 2026: Free UP Professionals and UP Clinic for University of Puthisastra Students and Staff
 
 Commit `81c7722` and `eed07b6`, merged in PR #27 (`c7e8f7c`). Migration `20261024000100_up_students.sql` applied 24 Oct. Supabase setting needed: turn on Manual linking.

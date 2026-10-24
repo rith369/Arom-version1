@@ -84,6 +84,7 @@ The yellow "Demo data on this page" banner is in `admin-shell.tsx`. Remove it fo
 | Anonymous identity protection: professionals see client aliases, safe functions for bookings, messages, notes, suggestions, care plans and shared data | No UI change | Connected (Sokheng, merged with main in PR #19, 18 Oct). Intake note fix `20261018070000` still to run | 29 |
 | Find Clinic & Hospital (`/clinic-hospital` from Figma): interactive map, filters, search, clinic cards, and clinic detail view | Done | Waiting for backend (currently static curated directory in `clinic-data.ts`) | 32 |
 | UP students and staff: free UP professionals and UP clinic for anyone with a confirmed University of Puthisastra email (`/profile/up-student`, admin switch in `/admin/professionals`) | Done | Connected, PR #27 merged 24 Oct (`is_up_student()`, `admin_set_up_students_only()`, `PATCH /api/admin/professionals/:id/up-students`), migration `20261024000100` applied 24 Oct. UP clinic is sample data in `clinic-data.ts` | 33 |
+| Symptom check (`/detection/symptoms`): PHQ-9 low mood and GAD-7 anxiety in English and validated Khmer, safety screen, results, 14 day rechecks | Done | Connected (`GET\|POST /api/symptom-checks`). No migration: uses the existing `symptom_checks`, `support_journeys` and `apply_support_path()` | 34 |
 
 ## 5. Admin users page
 
@@ -1337,6 +1338,61 @@ Types in `lib/reviews.ts`: `PublicReview`, `MyReview`, `ProReview`, `AdminReview
 - Graduates and former staff keep their UP address until UP closes it. There is no yearly check.
 - Any `@puthisastra.edu.kh` account counts, including shared office accounts, if UP has them.
 - The UP clinic needs its real address, hours, phone, map link and photo (sample entry in `clinic-data.ts`).
+
+## 34. Symptom check (early warning)
+
+**Status:** Connected (24 Oct 2026). No migration. It uses the tables and trigger that already exist (`20261008000200`, `20261008000700`, `20261008000800`). Review document for the professional: "AROM Symptom Check: Questionnaire Plan for Review" (Claude Docs).
+
+**Decided by Rith (24 Oct 2026). Do not change without asking:**
+
+- **An early warning, not a diagnosis.** Results are for the person only. Every result says "This check is not a diagnosis."
+- **Always the full questionnaire.** PHQ-9 (9 questions) for low mood and GAD-7 (7 questions) for anxiety. No short PHQ-2 or GAD-2 on its own, because PHQ-2 leaves out the self harm question.
+- **Self harm question always asked.** PHQ-9 item 9 (`phq_9`) is also asked, unscored, at the end of the anxiety check. Any answer above "Not at all" sets `safety_concern = true` and the app shows Get help now first, before the result.
+- **No automatic alerts.** No professional, admin or anyone else is told about a result or a safety answer. Professionals see type, score, level and date (never answers) only through the existing per booking sharing (`share_symptom_checks`).
+- **Server scores every check.** The browser sends answers only; `scoreSymptomCheck()` scores again, so a level or safety flag never comes from the browser.
+- **Questions are not reworded without a professional.** English is the original wording (dashes replaced with commas). Khmer is the wording validated in Cambodia by Steinman et al. 2025, PLOS Mental Health 2(4):e0000228, S1 Appendix. Changes from the paper: "អារម្មណ៌" spelled "អារម្មណ៍" (gad_1, gad_7, answer 2) and the S2 question prompt shortened for one question per screen.
+
+**Files:** `lib/symptom-checks.ts` (questions, answer options, bands, scoring, types), `lib/controllers/symptom-controller.ts`, `app/api/symptom-checks/route.ts`, `app/detection/symptoms/page.tsx`, `app/components/detection-modal.tsx` (Track your mind card now opens the page).
+
+### Scoring
+
+| AROM level | PHQ-9 | GAD-7 | Shown as |
+|---|---|---|---|
+| `none` | 0 to 4 | 0 to 4 | Few signs |
+| `low` | 5 to 9 | 5 to 9 | Some signs |
+| `medium` | 10 to 14 | 10 to 14 | Clear signs |
+| `high` | 15 to 27 | 15 to 21 | Strong signs |
+
+Standard bands (Kroenke 2001, Spitzer 2006). The Cambodian study used the same standard cut offs.
+
+### Data shape
+
+| Field | Type | Database source |
+|---|---|---|
+| `SymptomCheckDto.type` | `depression` \| `anxiety` | `symptom_checks.check_type` |
+| `score`, `maxScore` | number | `score`, `max_score` |
+| `level` | `none` \| `low` \| `medium` \| `high` | `level` |
+| `safetyConcern` | boolean | `safety_concern` |
+| `recommendedPath` | `self_help` \| `self_help_and_professional` \| `professional` \| null | `recommended_path`, set by `apply_support_path()` |
+| `SupportJourneyDto.reviewDueOn` | Cambodia day | `support_journeys.review_due_on` (active only) |
+| `SupportJourneyDto.professionalRecommended` | boolean | `professional_recommended_at is not null` |
+
+Answers are saved in `symptom_checks.answers` as `[{ questionId, value }]` in question order. They are never returned by any endpoint.
+
+### Actions
+
+| Frontend action | Endpoint | Exists today? |
+|---|---|---|
+| Open the page: past checks (30 newest, low mood and anxiety only) and active journeys | `GET /api/symptom-checks` | Yes |
+| Finish a check | `POST /api/symptom-checks` body `{ type, answers: [{ questionId, value }] }`, returns `{ check, journey }` (201). Every question answered once or 400 | Yes |
+
+### Known gaps
+
+- Stress, burnout, sleep, wellbeing and trauma (HTQ) are not built. The enum already has `stress`, `sleep`, `burnout`. These need a tested Khmer version and a licence check (ISI and PSQI are licensed; HTQ terms come from HPRT).
+- The 14 day recheck shows only on this page. There is no reminder on Home or by Telegram yet.
+- No limit on how often a person can take a check.
+- A professional still has to review the Khmer and the result messages before a public launch.
+- `symptom_checks` RLS lets the owner update or delete their own rows directly through the API. The app never does this.
 
 ## Template for a new feature section
 
