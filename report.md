@@ -2,7 +2,7 @@
 
 ## 24 Oct 2026: Find Clinic & Hospital Gets a Real Map and the Real UP Clinic
 
-Commit `f06ba18` (pull request `rith/clinic-map`). Migration `20261024001300_clinic_page_details.sql`, not yet applied. New packages: `leaflet`, `react-leaflet`, `@types/leaflet` (run `npm install` after pulling).
+Commit `f06ba18`, merged in PR #33 (`5183612`). Migration `20261024001300_clinic_page_details.sql` applied 24 Oct. New packages: `leaflet`, `react-leaflet`, `@types/leaflet` (run `npm install` after pulling).
 
 **Why.** The page was a picture of a map with made up pins and distances, and every clinic was static. Now that UP Counseling (EMDRAC) is real, it should show its real place, phone and hours, and the made up clinics must not look real: people could call numbers that belong to someone else or travel to an address that is not a clinic.
 
