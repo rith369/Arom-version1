@@ -2,7 +2,7 @@
 
 ## 24 Oct 2026: Clinic Desk Page Uses the Normal Phone Header
 
-Commit pending. No migration. Frontend only.
+Commit `5ce1aaf`. No migration. Frontend only.
 
 **Why.** On phones the clinic desk page started with a back arrow to Profile, unlike the other main pages. It is now a main page in the sidebar, so it should look like one.
 
