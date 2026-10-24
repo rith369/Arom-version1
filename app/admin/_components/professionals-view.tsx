@@ -7,6 +7,7 @@ import {
   CheckCircle2,
   Clock,
   FileText,
+  GraduationCap,
   Info,
   Search,
   ShieldCheck,
@@ -90,6 +91,57 @@ function Avatar({ item, size }: { item: Professional; size: 'sm' | 'lg' }) {
       className={`${box} flex shrink-0 items-center justify-center rounded-full bg-arom-soft font-semibold text-arom`}>
       {getInitials(item.name)}
     </span>
+  );
+}
+
+// Admin only: list this professional for University of Puthisastra students
+// only. The database hides them from everyone else and refuses their bookings.
+function UpStudentsSection({ item }: { item: Professional }) {
+  const { setUpStudentsOnly } = useAdmin();
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+  const on = item.upStudentsOnly ?? false;
+
+  async function toggle() {
+    if (busy) return;
+    setBusy(true);
+    setError('');
+    const result = await setUpStudentsOnly(item.id, !on);
+    setBusy(false);
+    if (!result.ok) setError(result.message);
+  }
+
+  return (
+    <section className="rounded-2xl border border-arom-border p-4">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h3 className="flex items-center gap-2 text-sm font-semibold">
+            <GraduationCap size={16} className="text-arom" />
+            UP students only
+          </h3>
+          <p className="mt-1 text-xs leading-5 text-ink-muted">
+            {on
+              ? 'On: only confirmed University of Puthisastra students (name.student@puthisastra.edu.kh) see and book this professional.'
+              : 'Off: everyone can see and book this professional.'}
+          </p>
+        </div>
+        <button
+          type="button"
+          role="switch"
+          aria-checked={on}
+          aria-label="UP students only"
+          disabled={busy}
+          onClick={toggle}
+          className={`relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition-colors disabled:opacity-60 ${on ? 'bg-arom' : 'bg-gray-300'}`}>
+          <span className={`inline-block size-5 rounded-full bg-white shadow transition-transform ${on ? 'translate-x-6' : 'translate-x-1'}`} />
+        </button>
+      </div>
+      {error && (
+        <p role="alert" className="mt-2 text-sm text-arom-danger">
+          {error}
+        </p>
+      )}
+    </section>
   );
 }
 
@@ -381,6 +433,8 @@ function ReviewDialog({
                 </dl>
               </section>
             )}
+
+            {item.verificationStatus === 'verified' && <UpStudentsSection item={item} />}
 
             {item.reviewNote && (
               <section className="rounded-2xl bg-arom-wash p-4 text-sm">
@@ -738,6 +792,12 @@ export function ProfessionalsView() {
                         className={`whitespace-nowrap rounded-full px-3 py-1 text-xs ${stageStyles[stage]}`}>
                         {stageLabels[stage]}
                       </span>
+                      {item.upStudentsOnly && (
+                        <span className="mt-1.5 flex w-fit items-center gap-1 whitespace-nowrap rounded-full bg-arom-wash px-2.5 py-0.5 text-xs text-arom">
+                          <GraduationCap size={12} aria-hidden="true" />
+                          UP only
+                        </span>
+                      )}
                     </td>
                     <td className="px-5 py-5 text-ink-muted">
                       {dateFormat.format(new Date(item.credential.submittedAt))}

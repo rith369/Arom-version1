@@ -74,6 +74,7 @@ type AdminState = {
     status: AccountStatus,
     note: string,
   ) => Promise<ActionResult>;
+  setUpStudentsOnly: (id: string, on: boolean) => Promise<ActionResult>;
 
   // Sample accounts still used by the demo Bookings page. The Users page
   // uses userRecords, which comes from the database.
@@ -293,6 +294,12 @@ export function AdminProvider({ children }: { children: ReactNode }) {
       status,
       reason: note || undefined,
     });
+    if (result.ok) await reloadProfessionals();
+    return result;
+  }
+
+  async function setUpStudentsOnly(id: string, on: boolean): Promise<ActionResult> {
+    const result = await sendAdminRequest(`/api/admin/professionals/${id}/up-students`, 'PATCH', { on });
     if (result.ok) await reloadProfessionals();
     return result;
   }
@@ -812,6 +819,7 @@ export function AdminProvider({ children }: { children: ReactNode }) {
         reviewApplication,
         reviewProfileChanges,
         setProfessionalAccess,
+        setUpStudentsOnly,
         users,
         userRecords,
         usersLoad,

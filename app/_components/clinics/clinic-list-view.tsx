@@ -12,8 +12,10 @@ import {
   Compass,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
-import { CLINICS_DATA, type Clinic } from "./clinic-data";
+import { visibleClinics, type Clinic } from "./clinic-data";
+import { useAuth } from "../auth-provider";
 import { useLanguage } from "../language-provider";
+import { UpStudentBadge } from "../up-student/up-badge";
 
 type FilterType = "all" | "nearby" | "clinic" | "hospital";
 
@@ -25,6 +27,9 @@ interface ClinicListViewProps {
 export function ClinicListView({ onSelectClinic, selectedClinicId }: ClinicListViewProps) {
   const { language } = useLanguage();
   const isKm = language === "km";
+  const { user } = useAuth();
+  const upStudent = user?.upStudent ?? false;
+  const clinics = useMemo(() => visibleClinics(upStudent), [upStudent]);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState<FilterType>("nearby");
@@ -32,7 +37,7 @@ export function ClinicListView({ onSelectClinic, selectedClinicId }: ClinicListV
 
   // Filtered and searched clinics
   const filteredClinics = useMemo(() => {
-    let list = [...CLINICS_DATA];
+    let list = [...clinics];
 
     // Filter type
     if (activeFilter === "clinic") {
@@ -57,7 +62,7 @@ export function ClinicListView({ onSelectClinic, selectedClinicId }: ClinicListV
     }
 
     return list;
-  }, [activeFilter, searchQuery]);
+  }, [activeFilter, searchQuery, clinics]);
 
   return (
     <div className="flex flex-col gap-4">
@@ -172,7 +177,7 @@ export function ClinicListView({ onSelectClinic, selectedClinicId }: ClinicListV
         />
 
         {/* Interactive Location Pins for Clinics */}
-        {CLINICS_DATA.map((clinic) => {
+        {clinics.map((clinic) => {
           const isSelected = selectedClinicId === clinic.id;
           const isHovered = activePinId === clinic.id;
 
@@ -283,6 +288,11 @@ export function ClinicListView({ onSelectClinic, selectedClinicId }: ClinicListV
                     <h2 className="text-sm sm:text-base font-bold text-ink leading-tight line-clamp-1">
                       {isKm ? clinic.nameKm : clinic.name}
                     </h2>
+                    {clinic.upStudentsOnly && (
+                      <div className="mt-1">
+                        <UpStudentBadge km={isKm} />
+                      </div>
+                    )}
 
                     <div className="mt-1 flex items-center justify-between text-xs text-ink-muted">
                       <div className="flex items-center gap-1 min-w-0 truncate">

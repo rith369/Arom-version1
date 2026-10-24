@@ -12,6 +12,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import type { Clinic } from "./clinic-data";
+import { UpStudentBadge } from "../up-student/up-badge";
 import { useLanguage } from "../language-provider";
 
 interface ClinicDetailViewProps {
@@ -62,17 +63,22 @@ export function ClinicDetailView({ clinic, onBack }: ClinicDetailViewProps) {
         <h2 className="text-lg sm:text-xl font-bold text-ink leading-snug">
           {isKm ? clinic.nameKm : clinic.name}
         </h2>
+        {clinic.upStudentsOnly && <UpStudentBadge km={isKm} />}
 
         {/* Rating and Distance Row matching Figma */}
         <div className="flex items-center justify-between text-xs sm:text-sm">
           {/* Star Rating */}
-          <div className="flex items-center gap-1.5">
-            <Star size={16} className="fill-amber-400 text-amber-400 shrink-0" />
-            <span className="font-bold text-ink">{clinic.rating.toFixed(1)}</span>
-            <span className="text-ink-muted">
-              ({clinic.reviewCount} {isKm ? "ការវាយតម្លៃ" : "reviews"})
-            </span>
-          </div>
+          {clinic.reviewCount > 0 ? (
+            <div className="flex items-center gap-1.5">
+              <Star size={16} className="fill-amber-400 text-amber-400 shrink-0" />
+              <span className="font-bold text-ink">{clinic.rating.toFixed(1)}</span>
+              <span className="text-ink-muted">
+                ({clinic.reviewCount} {isKm ? "ការវាយតម្លៃ" : "reviews"})
+              </span>
+            </div>
+          ) : (
+            <span />
+          )}
 
           {/* Distance */}
           <div className="flex items-center gap-1 font-bold text-arom">
@@ -204,10 +210,17 @@ export function ClinicDetailView({ clinic, onBack }: ClinicDetailViewProps) {
                 <h3 className="text-base font-bold text-ink">
                   {isKm ? "ការវាយតម្លៃពីអ្នកប្រើប្រាស់" : "Seeker Reviews"}
                 </h3>
-                <span className="text-xs font-semibold text-arom">
-                  {clinic.rating.toFixed(1)} / 5.0
-                </span>
+                {clinic.reviewCount > 0 && (
+                  <span className="text-xs font-semibold text-arom">
+                    {clinic.rating.toFixed(1)} / 5.0
+                  </span>
+                )}
               </div>
+              {clinic.reviews.length === 0 && (
+                <p className="text-sm text-ink-muted">
+                  {isKm ? "មិនទាន់មានការវាយតម្លៃនៅឡើយទេ។" : "No reviews yet."}
+                </p>
+              )}
               <div className="space-y-2.5">
                 {clinic.reviews.map((rev) => (
                   <div
@@ -248,15 +261,17 @@ export function ClinicDetailView({ clinic, onBack }: ClinicDetailViewProps) {
         </a>
 
         {/* Call Button (Solid green with phone icon) */}
-        <a
-          href={`tel:${clinic.phone}`}
-          className="flex-1 flex items-center justify-center gap-2 rounded-2xl sm:rounded-full bg-[#185a4d] py-3.5 px-6 text-sm font-bold text-white transition-all hover:bg-[#13463c] focus-visible:outline-2 focus-visible:outline-arom cursor-pointer shadow-xs"
-        >
-          <Phone size={18} strokeWidth={2.4} />
-          <span>
-            {isKm ? "ទូរស័ព្ទហៅ (Call)" : "Call"} {clinic.phoneDisplay}
-          </span>
-        </a>
+        {clinic.phone && (
+          <a
+            href={`tel:${clinic.phone}`}
+            className="flex-1 flex items-center justify-center gap-2 rounded-2xl sm:rounded-full bg-[#185a4d] py-3.5 px-6 text-sm font-bold text-white transition-all hover:bg-[#13463c] focus-visible:outline-2 focus-visible:outline-arom cursor-pointer shadow-xs"
+          >
+            <Phone size={18} strokeWidth={2.4} />
+            <span>
+              {isKm ? "ទូរស័ព្ទហៅ (Call)" : "Call"} {clinic.phoneDisplay}
+            </span>
+          </a>
+        )}
       </div>
     </div>
   );

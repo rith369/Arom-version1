@@ -128,6 +128,10 @@ export interface AuthUser {
   /** ISO timestamp of when the profile was created. */
 
   hideIdentity?: boolean;
+  /** Confirmed University of Puthisastra student (lib/up-student.ts). */
+  upStudent?: boolean;
+  /** The UP student address that proved it, shown only to its owner. */
+  upEmail?: string | null;
   createdAt: string;
 }
 

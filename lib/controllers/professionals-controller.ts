@@ -33,6 +33,7 @@ interface ProfileRow {
   years_experience: number | null;
   session_types: string[] | null;
   verification_status: VerificationStatus;
+  up_students_only: boolean;
   created_at: string;
   profiles: { account_status: AccountStatus; suspended_reason: string | null } | null;
   professional_credentials:
@@ -106,6 +107,7 @@ function fromProfile(row: ProfileRow, application: ApplicationRow | undefined): 
     session: sessionLabel(row.session_types),
     verificationStatus: row.verification_status,
     accountStatus,
+    upStudentsOnly: row.up_students_only,
     credential: {
       licenseNumber: credential?.license_number ?? "",
       issuingBody: credential?.issuing_body ?? "",
@@ -166,7 +168,7 @@ export async function listProfessionals() {
     supabase
       .from("professional_profiles")
       .select(
-        "id, display_name, display_name_km, title, title_km, bio, bio_km, photo_url, specialties, languages, years_experience, session_types, verification_status, created_at, profiles!professional_profiles_id_fkey(account_status, suspended_reason), professional_credentials(license_number, issuing_body, submitted_at), professional_contacts(phone, telegram), professional_profile_changes(field, old_value, new_value, status)",
+        "id, display_name, display_name_km, title, title_km, bio, bio_km, photo_url, specialties, languages, years_experience, session_types, verification_status, up_students_only, created_at, profiles!professional_profiles_id_fkey(account_status, suspended_reason), professional_credentials(license_number, issuing_body, submitted_at), professional_contacts(phone, telegram), professional_profile_changes(field, old_value, new_value, status)",
       )
       .order("created_at", { ascending: false })
       .limit(1000)
@@ -282,4 +284,25 @@ export async function reviewProfileChanges(request: NextRequest, professionalId:
   if (error) return databaseError(error, "That change could not be saved. Please try again.");
 
   return json({ ok: true, professionalId: id.data, approved: body.data.approve });
+}
+
+const upStudentsSchema = z.object({ on: z.boolean() });
+
+/** PATCH /api/admin/professionals/:id/up-students  body `{ on }` */
+export async function setUpStudentsOnly(request: NextRequest, professionalId: string) {
+  const guard = await requireRole("admin");
+  if (!guard.ok) return guard.response;
+
+  const id = uuidSchema.safeParse(professionalId);
+  const body = upStudentsSchema.safeParse(await readJson(request));
+  if (!id.success || !body.success) return invalidInput();
+
+  // The database function checks the admin role and writes the audit log.
+  const { error } = await guard.supabase.rpc("admin_set_up_students_only", {
+    p_professional_id: id.data,
+    p_on: body.data.on,
+  });
+  if (error) return databaseError(error, "That change could not be saved. Please try again.");
+
+  return json({ ok: true, professionalId: id.data, upStudentsOnly: body.data.on });
 }

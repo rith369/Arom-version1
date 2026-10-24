@@ -39,6 +39,9 @@ export type Professional = {
   session: 'Online' | 'In-person' | 'Both';
   verificationStatus: VerificationStatus;
   accountStatus: AccountStatus;
+  // Listed and bookable for University of Puthisastra students only.
+  // professional_profiles.up_students_only, set by admins only.
+  upStudentsOnly?: boolean;
   credential: ProfessionalCredential;
   // Private contact for verification only. Never shown on the public profile.
   phone: string;

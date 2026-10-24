@@ -4,7 +4,8 @@ import { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "motion/react";
 import { DesktopNavigation, MobileNavigation } from "../app-navigation";
-import { CLINICS_DATA, type Clinic } from "./clinic-data";
+import { visibleClinics, type Clinic } from "./clinic-data";
+import { useAuth } from "../auth-provider";
 import { ClinicListView } from "./clinic-list-view";
 import { ClinicDetailView } from "./clinic-detail-view";
 
@@ -12,10 +13,12 @@ function ClinicContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const clinicSlug = searchParams.get("clinic");
+  // UP only clinics open for confirmed UP students only, even from a shared link.
+  const upStudent = useAuth().user?.upStudent ?? false;
 
   const [selectedClinic, setSelectedClinic] = useState<Clinic | null>(() => {
     if (clinicSlug) {
-      return CLINICS_DATA.find((c) => c.slug === clinicSlug) || null;
+      return visibleClinics(false).find((c) => c.slug === clinicSlug) || null;
     }
     return null;
   });
@@ -23,14 +26,14 @@ function ClinicContent() {
   // Keep state in sync with URL parameter
   useEffect(() => {
     if (clinicSlug) {
-      const match = CLINICS_DATA.find((c) => c.slug === clinicSlug);
+      const match = visibleClinics(upStudent).find((c) => c.slug === clinicSlug);
       if (match) {
         setSelectedClinic(match);
         return;
       }
     }
     setSelectedClinic(null);
-  }, [clinicSlug]);
+  }, [clinicSlug, upStudent]);
 
   const handleSelectClinic = (clinic: Clinic) => {
     setSelectedClinic(clinic);

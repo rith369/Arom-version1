@@ -11,6 +11,7 @@ import {
   Clock,
   Flame,
   Globe2,
+  GraduationCap,
   Activity,
   Heart,
   Languages,
@@ -220,6 +221,43 @@ export function ProfileSettings() {
               />
             </Link>
           </motion.div>
+
+          {/* University of Puthisastra students: free UP professionals and clinic */}
+          {user && (
+            <motion.div variants={itemVariants} className="mt-6">
+              <Link
+                href="/profile/up-student"
+                className="group flex items-center justify-between gap-3 rounded-3xl border border-arom-border bg-white p-5 shadow-card transition-colors duration-150 hover:border-arom/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-arom sm:p-6">
+                <div className="flex items-center gap-3.5">
+                  <div className="flex size-11 items-center justify-center rounded-2xl bg-arom-soft text-arom">
+                    <GraduationCap size={22} />
+                  </div>
+                  <div>
+                    <p className="text-base font-bold text-ink">
+                      {km ? 'និស្សិត UP (UP Student)' : 'UP Student'}
+                    </p>
+                    <p className="text-xs text-ink-muted sm:text-sm">
+                      {user.upStudent
+                        ? km
+                          ? 'បានផ្ទៀងផ្ទាត់ អ្នកជំនាញ និងគ្លីនិក UP ឥតគិតថ្លៃ'
+                          : 'Verified. Free UP professionals and clinic'
+                        : km
+                          ? 'ផ្ទៀងផ្ទាត់អ៊ីមែល UP ដើម្បីទទួលការគាំទ្រឥតគិតថ្លៃ'
+                          : 'Verify your UP email for free support'}
+                    </p>
+                  </div>
+                </div>
+                {user.upStudent ? (
+                  <CheckCircle2 size={20} className="shrink-0 text-arom" />
+                ) : (
+                  <ChevronRight
+                    size={20}
+                    className="shrink-0 text-ink-muted transition-transform duration-150 group-hover:translate-x-0.5 group-hover:text-arom"
+                  />
+                )}
+              </Link>
+            </motion.div>
+          )}
 
           {/* Put AROM on the home screen (hidden once installed) */}
           <motion.div variants={itemVariants} className="mt-6 empty:hidden">

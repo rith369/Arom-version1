@@ -56,6 +56,8 @@ export type Therapist = {
   office?: OfficeLocation;
   // Shown to users for information only. AROM takes no payments yet.
   price?: SessionPrice;
+  // Listed for University of Puthisastra students only (lib/up-student.ts).
+  upStudentsOnly?: boolean;
   podcast?: TherapistPodcast;
 };
 
