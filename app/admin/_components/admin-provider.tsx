@@ -48,6 +48,7 @@ import { FREE_DURING_TESTING } from '@/lib/pricing';
 import { useAuth } from '../../_components/auth-provider';
 
 import type { AdminContentReport, ReportStatus } from '../_data/reports';
+import type { AdminClinic, AdminClinicsResponse } from '@/lib/clinic-booking';
 
 
 
@@ -75,6 +76,12 @@ type AdminState = {
     note: string,
   ) => Promise<ActionResult>;
   setUpStudentsOnly: (id: string, on: boolean) => Promise<ActionResult>;
+
+  // Clinics that take bookings in AROM, and their desk accounts (section 34).
+  clinics: AdminClinic[];
+  clinicStaff: AdminClinicsResponse['staff'];
+  setProfessionalClinic: (id: string, clinicId: string | null) => Promise<ActionResult>;
+  setClinicDesk: (userId: string, clinicId: string, on: boolean) => Promise<ActionResult>;
 
   // Sample accounts still used by the demo Bookings page. The Users page
   // uses userRecords, which comes from the database.
@@ -301,6 +308,39 @@ export function AdminProvider({ children }: { children: ReactNode }) {
   async function setUpStudentsOnly(id: string, on: boolean): Promise<ActionResult> {
     const result = await sendAdminRequest(`/api/admin/professionals/${id}/up-students`, 'PATCH', { on });
     if (result.ok) await reloadProfessionals();
+    return result;
+  }
+
+  const [clinics, setClinics] = useState<AdminClinic[]>([]);
+  const [clinicStaff, setClinicStaff] = useState<AdminClinicsResponse['staff']>([]);
+
+  const reloadClinics = useCallback(async () => {
+    try {
+      const response = await fetch('/api/admin/clinics', { cache: 'no-store' });
+      if (!response.ok) return;
+      const data = (await response.json()) as AdminClinicsResponse;
+      setClinics(data.clinics);
+      setClinicStaff(data.staff);
+    } catch {
+      // The clinic controls stay hidden until clinics load.
+    }
+  }, []);
+
+  useEffect(() => {
+    // Loading from an external API on mount is what this effect is for.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void reloadClinics();
+  }, [reloadClinics]);
+
+  async function setProfessionalClinic(id: string, clinicId: string | null): Promise<ActionResult> {
+    const result = await sendAdminRequest(`/api/admin/professionals/${id}/clinic`, 'PATCH', { clinicId });
+    if (result.ok) await reloadProfessionals();
+    return result;
+  }
+
+  async function setClinicDesk(userId: string, clinicId: string, on: boolean): Promise<ActionResult> {
+    const result = await sendAdminRequest(`/api/admin/users/${userId}/clinic-desk`, 'PATCH', { clinicId, on });
+    if (result.ok) await reloadClinics();
     return result;
   }
 
@@ -820,6 +860,10 @@ export function AdminProvider({ children }: { children: ReactNode }) {
         reviewProfileChanges,
         setProfessionalAccess,
         setUpStudentsOnly,
+        clinics,
+        clinicStaff,
+        setProfessionalClinic,
+        setClinicDesk,
         users,
         userRecords,
         usersLoad,

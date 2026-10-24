@@ -29,12 +29,13 @@ export interface UserAppointment {
   // Online sessions only. Only this user and their professional can read it.
   meetingUrl: string | null;
   intakeNote: string;
-  cancelledBy: "you" | "professional" | "admin" | null;
+  // "clinic" when the clinic desk cancelled a clinic booking (section 34).
+  cancelledBy: "you" | "professional" | "clinic" | "admin" | null;
   cancelReason: string;
   rescheduledFrom: string | null;
   rescheduleReason: string;
   // Who last moved the session (appointments.rescheduled_by). Null if never moved.
-  rescheduledBy: "you" | "professional" | null;
+  rescheduledBy: "you" | "professional" | "clinic" | null;
   // Until when the user can change the time: the start minus the
   // professional's minimum notice (my_change_time_deadlines()). Null when
   // the session is not upcoming. Cancelling stays open until the start.
@@ -48,6 +49,17 @@ export interface UserAppointment {
   seriesId: string | null;
   // Null when the professional is no longer listed publicly.
   professional: AppointmentProfessional | null;
+  // Set for a clinic booking (section 34): where it happens. The clinic,
+  // not the user, changes its time.
+  clinic: AppointmentClinic | null;
+}
+
+export interface AppointmentClinic {
+  slug: string;
+  name: string;
+  kmName: string;
+  address: string;
+  kmAddress: string;
 }
 
 export interface AppointmentsResponse {

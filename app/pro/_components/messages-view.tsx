@@ -174,7 +174,7 @@ export function ProMessagesView({ clientId, groupId }: { clientId?: string; grou
                     {t('ឯកជន', 'Private')} · {km ? REPLY_TIME_LABELS[replyTime].km : REPLY_TIME_LABELS[replyTime].en}
                   </p>
                 </div>
-                {!archivedClients.includes(selected.id) && (
+                {!archivedClients.includes(selected.id) && !profile.clinic && (
                   <button type="button" onClick={() => setSuggesting(true)} className="flex items-center gap-1.5 text-sm font-semibold text-arom hover:underline">
                     <CalendarCheck size={15} aria-hidden="true" />
                     {t('ណែនាំវគ្គ', 'Suggest a session')}

@@ -24,9 +24,17 @@ export type ProProfile = {
   // Shown to users for information only; nobody pays yet. null = not chosen.
   price: SessionPrice | null;
   yearsExperience: number | null;
+  // Shown on the clinic's Therapists tab so students can choose a preference.
+  gender: ProGender | null;
   licenseNumber: string;
   issuingBody: string;
+  // Set by an admin when they work at a clinic (section 34). The clinic books
+  // their sessions, so they need no schedule or price and are not on the
+  // Professional page.
+  clinic: { slug: string; name: string; kmName: string } | null;
 };
+
+export type ProGender = 'female' | 'male' | 'prefer_not_say';
 
 // Soft gray silhouette used in the preview until a photo is added.
 export const PLACEHOLDER_PHOTO = `data:image/svg+xml;utf8,${encodeURIComponent(
@@ -81,6 +89,9 @@ export function profileChecklist(
   profile: ProProfile,
   options: { hasSchedule: boolean },
 ): ChecklistItem[] {
+  // A clinic therapist shows in the clinic once they have a photo and an
+  // English bio (clinic_therapists()). The clinic books, so no schedule or price.
+  const clinicKeys: ChecklistItem['key'][] = ['photo', 'bio'];
   const items: ChecklistItem[] = [
     { key: 'photo', done: Boolean(profile.photoUrl), label: { en: 'Add a clear photo of yourself', km: 'បន្ថែមរូបថតច្បាស់របស់អ្នក' }, href: '/pro/profile#pro-photo' },
     { key: 'bio', done: profile.bio.trim().length >= 80, label: { en: 'Write your bio in English (at least 80 characters)', km: 'សរសេរប្រវត្តិរូបជាភាសាអង់គ្លេស (យ៉ាងហោចណាស់ ៨០ តួអក្សរ)' }, href: '/pro/profile#pro-bio' },
@@ -92,7 +103,7 @@ export function profileChecklist(
     { key: 'price', done: profile.price !== null, label: { en: 'Choose your price, or Free', km: 'ជ្រើសរើសតម្លៃ ឬឥតគិតថ្លៃ' }, href: '/pro/profile#pro-price' },
   ];
 
-  return items;
+  return profile.clinic ? items.filter((item) => clinicKeys.includes(item.key)) : items;
 }
 
 // Turns the profile into the object the public profile page draws, so the

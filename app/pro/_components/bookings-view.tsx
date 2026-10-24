@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
-import { CalendarCheck, CalendarClock, CalendarDays, CheckCircle2, ClipboardList, FileText, FolderOpen, List, Link2, Lock, MessageCircle, Monitor, NotebookPen, Repeat, Target, UserRound, UserX, X, XCircle } from 'lucide-react';
+import { Building2, CalendarCheck, CalendarClock, CalendarDays, CheckCircle2, ClipboardList, FileText, FolderOpen, List, Link2, Lock, MessageCircle, Monitor, NotebookPen, Repeat, Target, UserRound, UserX, X, XCircle } from 'lucide-react';
 
 import { AddTaskDialog } from './care-plan-card';
 import { usePro } from './pro-provider';
@@ -45,7 +45,7 @@ export function BookingDialog({
   onClose: () => void;
   showClientLink?: boolean;
 }) {
-  const { bookings, schedule, sessionNotes, cancelBooking, rescheduleBooking, setBookingOutcome, saveSessionNote, setMeetingLink, archivedClients } = usePro();
+  const { bookings, schedule, sessionNotes, cancelBooking, rescheduleBooking, setBookingOutcome, saveSessionNote, setMeetingLink, archivedClients, profile } = usePro();
   const { language } = useLanguage();
   const km = language === 'km';
   const t = (kmText: string, enText: string) => (km ? kmText : enText);
@@ -179,11 +179,29 @@ export function BookingDialog({
       </header>
 
       <div className="space-y-5 p-5 sm:p-6">
+        {booking.clinic && (
+          <p className="flex items-start gap-2 rounded-2xl bg-arom-soft p-3.5 text-sm text-ink">
+            <Building2 size={16} aria-hidden="true" className="mt-0.5 shrink-0 text-arom" />
+            <span>
+              <span className="font-semibold">{booking.clinic.name}</span>
+              {booking.sessionType === 'in_person' && booking.clinic.address && ` · ${booking.clinic.address}`}
+              <span className="block text-xs text-ink-muted">
+                {t(
+                  'វគ្គនេះកក់តាមរយៈគ្លីនិក។ តុបម្រើគ្លីនិកជាអ្នកប្តូរម៉ោង ឬបោះបង់វា។',
+                  'Booked through the clinic. The clinic desk moves or cancels it.',
+                )}
+              </span>
+            </span>
+          </p>
+        )}
+
         {booking.rescheduledFrom && (
           <p className="rounded-2xl bg-arom-wash p-3.5 text-sm text-ink">
             {booking.rescheduledBy === 'client'
               ? t('អតិថិជនបានប្តូរវគ្គនេះពី', 'The client moved this session from')
-              : t('បានប្តូរពី', 'Moved from')}{' '}
+              : booking.clinic
+                ? t('គ្លីនិកបានប្តូរវគ្គនេះពី', 'The clinic moved this session from')
+                : t('បានប្តូរពី', 'Moved from')}{' '}
             {formats.stamp.format(new Date(booking.rescheduledFrom))}.{' '}
             <span className="text-ink-muted">{booking.rescheduleReason}</span>
           </p>
@@ -194,7 +212,9 @@ export function BookingDialog({
             <span className="font-semibold text-arom-danger">
               {booking.cancelledBy === 'professional'
                 ? t('អ្នកបានបោះបង់', 'You cancelled this session.')
-                : booking.cancelledBy === 'admin'
+                : booking.cancelledBy === 'admin' && booking.clinic
+                  ? t('គ្លីនិកបានបោះបង់វគ្គនេះ។', 'The clinic cancelled this session.')
+                  : booking.cancelledBy === 'admin'
                   ? t('អ្នកគ្រប់គ្រង AROM បានបោះបង់', 'The AROM team cancelled this session.')
                   : t('អតិថិជនបានបោះបង់', 'The client cancelled this session.')}
             </span>{' '}
@@ -276,10 +296,13 @@ export function BookingDialog({
                           {t('ផ្ដល់កិច្ចការថែទាំ', 'Give a care task')}
                         </button>
                       )}
-                      <button type="button" onClick={() => setNextStep('suggest')} className="flex items-center gap-2 rounded-full border border-arom-border bg-white px-4 py-2 text-sm font-medium text-arom hover:bg-arom-wash">
-                        <CalendarCheck size={16} aria-hidden="true" />
-                        {t('ណែនាំវគ្គបន្ទាប់', 'Suggest the next session')}
-                      </button>
+                      {/* Clinic therapists: the student books the next session through the clinic. */}
+                      {!profile.clinic && (
+                        <button type="button" onClick={() => setNextStep('suggest')} className="flex items-center gap-2 rounded-full border border-arom-border bg-white px-4 py-2 text-sm font-medium text-arom hover:bg-arom-wash">
+                          <CalendarCheck size={16} aria-hidden="true" />
+                          {t('ណែនាំវគ្គបន្ទាប់', 'Suggest the next session')}
+                        </button>
+                      )}
                     </div>
                     <p className="mt-2 text-xs text-ink-muted">{t('ហើយសរសេរកំណត់ចំណាំឯកជនខាងក្រោម។', 'Then write your private note below.')}</p>
                   </>
@@ -314,10 +337,12 @@ export function BookingDialog({
 
         {isUpcoming && action === null && (
           <div className="flex flex-wrap gap-2 border-t border-arom-border pt-5">
-            <button type="button" onClick={() => setAction('reschedule')} className="flex items-center gap-2 rounded-full border border-arom-border px-4 py-2 text-sm font-medium text-arom hover:bg-arom-wash">
-              <CalendarClock size={16} aria-hidden="true" />
-              {t('ប្តូរពេល', 'Reschedule')}
-            </button>
+            {!booking.clinic && (
+              <button type="button" onClick={() => setAction('reschedule')} className="flex items-center gap-2 rounded-full border border-arom-border px-4 py-2 text-sm font-medium text-arom hover:bg-arom-wash">
+                <CalendarClock size={16} aria-hidden="true" />
+                {t('ប្តូរពេល', 'Reschedule')}
+              </button>
+            )}
             <button type="button" onClick={() => setAction('cancel')} className="flex items-center gap-2 rounded-full border border-arom-danger/25 px-4 py-2 text-sm font-medium text-arom-danger hover:bg-arom-danger-soft">
               <XCircle size={16} aria-hidden="true" />
               {t('បោះបង់វគ្គ', 'Cancel session')}

@@ -54,7 +54,11 @@ export function ProHome() {
   const checklist = profileChecklist(profile, { hasSchedule });
   const remaining = checklist.filter((item) => !item.done);
   // The database decides: verified, active, complete and with open times.
-  const isVisible = listed;
+  // A clinic therapist shows in their clinic instead, once photo and bio are in.
+  const clinic = profile.clinic;
+  const isVisible = clinic ? remaining.length === 0 : listed;
+  const clinicName = clinic ? (km && clinic.kmName) || clinic.name : '';
+  const publicHref = clinic ? `/clinic-hospital?clinic=${clinic.slug}` : `/professional/${profile.slug}`;
   const name = (km && profile.kmDisplayName) || profile.displayName;
 
   const todaySessions = bookings
@@ -79,10 +83,12 @@ export function ProHome() {
         <p className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-ink-muted">
           <span className="inline-flex items-center gap-1.5 rounded-full bg-arom-soft px-2.5 py-0.5 text-xs font-semibold text-arom-deep">
             <Eye size={13} aria-hidden="true" />
-            {t('ប្រវត្តិរូបរបស់អ្នកកំពុងបង្ហាញ', 'Your profile is live')}
+            {clinic
+              ? t(`ប្រវត្តិរូបរបស់អ្នកបង្ហាញក្នុង ${clinicName}`, `Your profile shows in ${clinicName}`)
+              : t('ប្រវត្តិរូបរបស់អ្នកកំពុងបង្ហាញ', 'Your profile is live')}
           </span>
-          <Link href={`/professional/${profile.slug}`} className="inline-flex items-center gap-1 font-semibold text-arom hover:underline">
-            {t('មើលប្រវត្តិរូប', 'View profile')}
+          <Link href={publicHref} className="inline-flex items-center gap-1 font-semibold text-arom hover:underline">
+            {clinic ? t('មើលគ្លីនិក', 'View clinic') : t('មើលប្រវត្តិរូប', 'View profile')}
             <ArrowRight size={14} aria-hidden="true" />
           </Link>
         </p>
@@ -92,7 +98,16 @@ export function ProHome() {
         </p>
       )}
 
-      {profile.sessionTypes.includes('in_person') && !hasOffice(profile.office) && (
+      {clinic && (
+        <p className="mt-4 rounded-2xl border border-arom/25 bg-arom-soft px-4 py-3 text-sm text-ink">
+          {t(
+            `អ្នកធ្វើការនៅ ${clinicName}។ សិស្សកក់តាមរយៈគ្លីនិក ហើយតុបម្រើគ្លីនិកកំណត់វគ្គឱ្យអ្នក។ អ្នកមិនចាំបាច់កំណត់កាលវិភាគ ឬតម្លៃទេ។`,
+            `You work at ${clinicName}. Students book through the clinic and the clinic desk assigns sessions to you. You do not need a schedule or a price.`,
+          )}
+        </p>
+      )}
+
+      {!clinic && profile.sessionTypes.includes('in_person') && !hasOffice(profile.office) && (
         <p className="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1 rounded-2xl border border-arom-warning/25 bg-arom-warning-soft px-4 py-3 text-sm text-arom-warning">
           <MapPin size={16} aria-hidden="true" className="shrink-0" />
           {t(
@@ -128,13 +143,18 @@ export function ProHome() {
                 <p className="mt-1 text-sm leading-6 text-ink-muted">
                   {isVisible
                     ? t('អ្នកប្រើអាចរកឃើញ និងកក់ការណាត់ជួបជាមួយអ្នកបាន។', 'People can find you and book sessions.')
-                    : t(
+                    : clinic
+                      ? t(
+                          `សូមបំពេញ ${remaining.length} ជំហានខាងក្រោម។ ប្រវត្តិរូបរបស់អ្នកនឹងបង្ហាញក្នុង ${clinicName} នៅពេលរួចរាល់។`,
+                          `Finish the ${remaining.length} step${remaining.length > 1 ? 's' : ''} below. Your profile appears in ${clinicName} as soon as it is complete.`,
+                        )
+                      : t(
                         `សូមបំពេញ ${remaining.length} ជំហានខាងក្រោម។ ប្រវត្តិរូបរបស់អ្នកនឹងបង្ហាញភ្លាមៗ នៅពេលរួចរាល់។`,
                         `Finish the ${remaining.length} step${remaining.length > 1 ? 's' : ''} below. Your profile appears to users as soon as it is complete.`,
                       )}
                 </p>
                 {isVisible && (
-                  <Link href={`/professional/${profile.slug}`} className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-arom hover:underline">
+                  <Link href={publicHref} className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-arom hover:underline">
                     {t('មើលប្រវត្តិរូបសាធារណៈ', 'View your public profile')}
                     <ArrowRight size={15} aria-hidden="true" />
                   </Link>

@@ -337,6 +337,24 @@ export function ProfileEditor() {
                   className={fieldClass}
                 />
               </label>
+              <label className="block max-w-xs text-sm font-medium text-ink">
+                {t('ភេទ', 'Gender')}
+                <select
+                  value={draft.gender ?? ''}
+                  onChange={(event) => set('gender', (event.target.value || null) as ProProfile['gender'])}
+                  className={fieldClass}>
+                  <option value="">{t('មិនទាន់ជ្រើសរើស', 'Not chosen')}</option>
+                  <option value="female">{t('ស្រី (Female)', 'Female')}</option>
+                  <option value="male">{t('ប្រុស (Male)', 'Male')}</option>
+                  <option value="prefer_not_say">{t('មិនចង់ប្រាប់ (Prefer not to say)', 'Prefer not to say')}</option>
+                </select>
+                <span className="mt-1 block text-xs font-normal text-ink-muted">
+                  {t(
+                    'នៅក្នុងគ្លីនិក សិស្សអាចជ្រើសរើសអ្នកព្យាបាលស្រី ឬប្រុស។',
+                    'In a clinic, students can ask for a female or male therapist.',
+                  )}
+                </span>
+              </label>
             </div>
           </Section>
 

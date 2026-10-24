@@ -34,6 +34,7 @@ interface ProfileRow {
   session_types: string[] | null;
   verification_status: VerificationStatus;
   up_students_only: boolean;
+  professional_clinics: { clinic_id: string }[] | null;
   created_at: string;
   profiles: { account_status: AccountStatus; suspended_reason: string | null } | null;
   professional_credentials:
@@ -108,6 +109,7 @@ function fromProfile(row: ProfileRow, application: ApplicationRow | undefined): 
     verificationStatus: row.verification_status,
     accountStatus,
     upStudentsOnly: row.up_students_only,
+    clinicId: row.professional_clinics?.[0]?.clinic_id ?? null,
     credential: {
       licenseNumber: credential?.license_number ?? "",
       issuingBody: credential?.issuing_body ?? "",
@@ -168,7 +170,7 @@ export async function listProfessionals() {
     supabase
       .from("professional_profiles")
       .select(
-        "id, display_name, display_name_km, title, title_km, bio, bio_km, photo_url, specialties, languages, years_experience, session_types, verification_status, up_students_only, created_at, profiles!professional_profiles_id_fkey(account_status, suspended_reason), professional_credentials(license_number, issuing_body, submitted_at), professional_contacts(phone, telegram), professional_profile_changes(field, old_value, new_value, status)",
+        "id, display_name, display_name_km, title, title_km, bio, bio_km, photo_url, specialties, languages, years_experience, session_types, verification_status, up_students_only, professional_clinics(clinic_id), created_at, profiles!professional_profiles_id_fkey(account_status, suspended_reason), professional_credentials(license_number, issuing_body, submitted_at), professional_contacts(phone, telegram), professional_profile_changes(field, old_value, new_value, status)",
       )
       .order("created_at", { ascending: false })
       .limit(1000)

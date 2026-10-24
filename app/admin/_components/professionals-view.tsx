@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 
 import {
+  Building2,
   CheckCircle2,
   Clock,
   FileText,
@@ -94,48 +95,73 @@ function Avatar({ item, size }: { item: Professional; size: 'sm' | 'lg' }) {
   );
 }
 
-// Admin only: list this professional for University of Puthisastra students
-// and staff only. The database hides them from everyone else and refuses their bookings.
-function UpStudentsSection({ item }: { item: Professional }) {
-  const { setUpStudentsOnly } = useAdmin();
+// Admin only: the clinic this therapist works at (section 34). A clinic
+// therapist leaves the Professional page; students book the clinic and the
+// clinic desk assigns them. A UP only clinic makes them UP only too.
+function ClinicSection({ item }: { item: Professional }) {
+  const { clinics, setProfessionalClinic, setUpStudentsOnly } = useAdmin();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
-  const on = item.upStudentsOnly ?? false;
+  const current = item.clinicId ?? '';
 
-  async function toggle() {
+  async function change(clinicId: string) {
     if (busy) return;
     setBusy(true);
     setError('');
-    const result = await setUpStudentsOnly(item.id, !on);
+    const result = await setProfessionalClinic(item.id, clinicId || null);
+    setBusy(false);
+    if (!result.ok) setError(result.message);
+  }
+
+  async function turnOffUpOnly() {
+    if (busy) return;
+    setBusy(true);
+    setError('');
+    const result = await setUpStudentsOnly(item.id, false);
     setBusy(false);
     if (!result.ok) setError(result.message);
   }
 
   return (
     <section className="rounded-2xl border border-arom-border p-4">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h3 className="flex items-center gap-2 text-sm font-semibold">
-            <GraduationCap size={16} className="text-arom" />
-            UP students and staff only
-          </h3>
-          <p className="mt-1 text-xs leading-5 text-ink-muted">
-            {on
-              ? 'On: only people with a confirmed University of Puthisastra email (@puthisastra.edu.kh, students and staff) see and book this professional.'
-              : 'Off: everyone can see and book this professional.'}
-          </p>
-        </div>
-        <button
-          type="button"
-          role="switch"
-          aria-checked={on}
-          aria-label="UP students and staff only"
-          disabled={busy}
-          onClick={toggle}
-          className={`relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition-colors disabled:opacity-60 ${on ? 'bg-arom' : 'bg-gray-300'}`}>
-          <span className={`inline-block size-5 rounded-full bg-white shadow transition-transform ${on ? 'translate-x-6' : 'translate-x-1'}`} />
-        </button>
-      </div>
+      <label className="block">
+        <span className="flex items-center gap-2 text-sm font-semibold">
+          <Building2 size={16} className="text-arom" />
+          Clinic
+        </span>
+        <span className="mt-1 block text-xs leading-5 text-ink-muted">
+          {current
+            ? 'Shown in this clinic only, not on the Professional page. Students book the clinic and the clinic desk assigns sessions.'
+            : 'Not linked: listed on the Professional page and booked directly, as usual.'}
+        </span>
+        <select
+          value={current}
+          disabled={busy || clinics.length === 0}
+          onChange={(event) => void change(event.target.value)}
+          className={fieldClass}>
+          <option value="">No clinic</option>
+          {clinics.map((clinic) => (
+            <option key={clinic.id} value={clinic.id}>
+              {clinic.name}
+            </option>
+          ))}
+        </select>
+      </label>
+      {item.upStudentsOnly && (
+        <p className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-xl bg-arom-wash px-3 py-2 text-xs text-ink-muted">
+          <span className="flex items-center gap-1.5">
+            <GraduationCap size={14} className="text-arom" />
+            Old setting: UP students and staff only is on.
+          </span>
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() => void turnOffUpOnly()}
+            className="font-semibold text-arom underline disabled:opacity-60">
+            Turn off
+          </button>
+        </p>
+      )}
       {error && (
         <p role="alert" className="mt-2 text-sm text-arom-danger">
           {error}
@@ -434,7 +460,7 @@ function ReviewDialog({
               </section>
             )}
 
-            {item.verificationStatus === 'verified' && <UpStudentsSection item={item} />}
+            {item.verificationStatus === 'verified' && <ClinicSection item={item} />}
 
             {item.reviewNote && (
               <section className="rounded-2xl bg-arom-wash p-4 text-sm">
@@ -597,6 +623,7 @@ export function ProfessionalsView() {
     professionalRecords: professionals,
     professionalsLoad,
     reloadProfessionals,
+    clinics,
   } = useAdmin();
   const { language } = useLanguage();
   const km = language === 'km';
@@ -792,6 +819,12 @@ export function ProfessionalsView() {
                         className={`whitespace-nowrap rounded-full px-3 py-1 text-xs ${stageStyles[stage]}`}>
                         {stageLabels[stage]}
                       </span>
+                      {item.clinicId && (
+                        <span className="mt-1.5 flex w-fit items-center gap-1 whitespace-nowrap rounded-full bg-arom-wash px-2.5 py-0.5 text-xs text-arom">
+                          <Building2 size={12} aria-hidden="true" />
+                          {clinics.find((clinic) => clinic.id === item.clinicId)?.name ?? 'Clinic'}
+                        </span>
+                      )}
                       {item.upStudentsOnly && (
                         <span className="mt-1.5 flex w-fit items-center gap-1 whitespace-nowrap rounded-full bg-arom-wash px-2.5 py-0.5 text-xs text-arom">
                           <GraduationCap size={12} aria-hidden="true" />

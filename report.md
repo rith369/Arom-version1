@@ -1,5 +1,36 @@
 # AROM: Change Report
 
+## 24 Oct 2026: Book the UP Wellness Clinic, Clinic Desk for UP, Clinic Therapists
+
+Commits `2be32a7` to `51528a8` (pull request `rith/up-clinic-booking`). Migration `20261024000200_clinic_booking.sql`, not yet applied.
+
+**Why.** UP asked for its free counseling to be booked through the UP clinic, not by picking a therapist on the Professional page. Students say when they can come and whether they prefer a female or male therapist; the clinic, which has one room, decides who sees them and when. Some students still book on UP's Google Form, so the clinic needs a way to block those times in AROM too.
+
+**What changed for users:**
+- **Book a session at the UP clinic:** UP students and staff open UP Wellness Clinic in Find Clinic & Hospital, tap "Book a session", choose online or in person, a therapist preference, a Thursday or Friday up to 3 weeks ahead, and every time that works. Full times are greyed out.
+- **Therapists tab:** the clinic shows its therapists (photo, about, languages) with an All, Female, Male filter, to explore only. The clinic chooses the therapist.
+- **Clinic requests in My appointments:** "Waiting for the clinic" until it is answered, with Cancel request; "These times did not work" with the clinic's message and "Choose other times". A confirmed request becomes a normal appointment with the therapist, the clinic name and address, chat, Join and sharing.
+- **Clinic desk (`/clinic-desk`):** the UP desk account sees new requests (students stay anonymous), picks a time and a therapist and confirms, or says the times do not work. Its time table marks times full for Google Form bookings, opens them again, and moves or cancels sessions.
+- **Clinic therapists in `/pro`:** a Gender field in My profile; Home says "You work at UP Wellness Clinic" and only asks for a photo and bio; clinic bookings say they came through the clinic; Reschedule and Suggest a session are hidden for them.
+- **UP therapists are no longer on the Professional page.** They are only in the clinic.
+
+**What changed for the team:**
+- **Admin:** a professional's dialog has "Clinic: No clinic / UP Wellness Clinic" (replaces the UP only switch, which can still be turned off where it is on). Users have a "Clinic desk" switch per clinic and a "Clinic desk" label. Both changes go to the audit log.
+- **Database (PR):** booking settings on the existing `clinics` table, admin only `professional_clinics`, new `clinic_staff`, `clinic_closed_times` and `clinic_booking_requests` with RLS, and student, desk and admin functions. Clinic therapists are never listed or directly bookable, in person clinic bookings use the clinic address, and clinic therapists cannot send suggestions.
+- **Handoff:** `BACKEND-HANDOFF.md` section 34, including known gaps.
+
+**What to re-test:**
+1. Run the migration in the Supabase SQL Editor.
+2. Admin: promote each UP therapist (for counselors without a license, write "UP staff counselor" and "University of Puthisastra"), then in `/admin/professionals` set Clinic to UP Wellness Clinic. They disappear from `/professional`.
+3. As a UP therapist in `/pro`: add a photo, an English bio of 80 characters and your gender. Home says you work at UP Wellness Clinic.
+4. Admin: in `/admin/users`, turn on "Clinic desk" for the UP desk account. Its Profile shows a "Clinic desk" card.
+5. As a UP student: open UP Wellness Clinic, see the Therapists tab and filter, tap "Book a session", pick a Thursday and two times, send. My appointments shows "Waiting for the clinic".
+6. As a normal (non UP) user: the UP clinic is not in the list and `/api/clinics/up-wellness-clinic/booking` returns no therapists or times.
+7. As the desk: `/clinic-desk` shows the request as "Anonymous". In Time table, mark one of the student's times full; in New requests that time shows Full. Confirm the other time with a therapist.
+8. The student sees the confirmed session with the therapist and the clinic; the therapist sees it in `/pro/bookings` with "Booked through the clinic" and no Reschedule; both can chat.
+9. The desk moves it to another open time and then cancels it with a reason; the student and therapist see "The clinic moved" and "The clinic cancelled".
+10. Send another request and answer "These times do not work" with a message; the student sees it with "Choose other times".
+
 ## 24 Oct 2026: Symptom Check Opens, PHQ-9 Low Mood and GAD-7 Anxiety in English and Khmer
 
 Commit `717f5dd`. No migration: it uses the `symptom_checks` table, `support_journeys` and the 14 day trigger that were already in the database.

@@ -56,7 +56,11 @@ function ClinicContent() {
             exit={{ opacity: 0, x: -20 }}
             transition={{ duration: 0.2 }}
           >
-            <ClinicDetailView clinic={selectedClinic} onBack={handleBackToList} />
+            <ClinicDetailView
+              clinic={selectedClinic}
+              onBack={handleBackToList}
+              startBooking={searchParams.get("book") === "1"}
+            />
           </motion.div>
         ) : (
           <motion.div
