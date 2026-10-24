@@ -36,6 +36,7 @@ import { useLanguage } from "./language-provider";
 import { FREE_DURING_TESTING, formatPrice, noPaymentNote } from "@/lib/pricing";
 import { publishedEpisodes, useProPodcasts } from "./podcasts/pro-podcast-store";
 import { OfficeCard } from "./office-card";
+import { UpStudentBadge } from "./up-student/up-badge";
 import { ReviewsSection } from "./reviews/reviews-section";
 import type { PublicReview } from "@/lib/reviews";
 
@@ -146,6 +147,11 @@ export function TherapistDetail({ therapist, reviews = [] }: { therapist: Therap
                   <p className="mt-3 text-center text-sm font-bold text-white">
                     {formatPrice(therapist.price, km)}
                   </p>
+                )}
+                {therapist.upStudentsOnly && (
+                  <div className="mt-2 flex justify-center">
+                    <UpStudentBadge km={km} tone="dark" />
+                  </div>
                 )}
                 {FREE_DURING_TESTING && (
                   <p className="mt-1 text-center text-xs font-medium text-white/80">

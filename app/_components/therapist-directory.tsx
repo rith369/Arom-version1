@@ -23,6 +23,7 @@ import { TherapistFilter } from "./therapist-filter";
 import { useSidebar } from "./sidebar-provider";
 import { UserAvatar } from "./user-avatar";
 import { ProfileMenu } from "./account-menu";
+import { UpStudentBadge } from "./up-student/up-badge";
 
 const locations = [
   { en: "Phnom Penh, Cambodia", km: "ភ្នំពេញ, កម្ពុជា (Phnom Penh)" },
@@ -95,6 +96,11 @@ function TherapistCard({ therapist }: { therapist: Therapist }) {
           <p className="mt-1 text-[0.7rem] font-semibold text-ink sm:text-xs">
             {formatPrice(therapist.price, km)}
           </p>
+        )}
+        {therapist.upStudentsOnly && (
+          <div className="mt-1.5">
+            <UpStudentBadge km={km} />
+          </div>
         )}
       </div>
       </Link>

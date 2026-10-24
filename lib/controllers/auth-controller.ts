@@ -200,6 +200,17 @@ export async function confirmEmail(request: NextRequest) {
   const redirect = (target: string) =>
     NextResponse.redirect(new URL(target, request.url), { headers: NO_STORE });
 
+  // Linking a UP Google account from /profile/up-student (`link=up`,
+  // BACKEND-HANDOFF.md section 33). That page says whether it worked.
+  if (searchParams.get("link") === "up") {
+    if (code) {
+      const { error } = await supabase.auth.exchangeCodeForSession(code);
+      if (!error) return redirect("/profile/up-student?linked=1");
+    }
+    const taken = searchParams.get("error_code") === "identity_already_exists";
+    return redirect(`/profile/up-student?error=${taken ? "taken" : "failed"}`);
+  }
+
   // Google sign in comes back here too (`provider=google`). Without a page to
   // return to, people land where their role starts. If Google did not finish
   // (cancelled or refused), the login page says so.

@@ -116,27 +116,47 @@ async function reviewSummaries(supabase: Supabase, slug?: string): Promise<Map<s
   );
 }
 
+/**
+ * Slugs of professionals marked UP only (section 33). The database only lists
+ * them for UP students and staff, so this just adds the badge. Empty on error.
+ */
+async function upOnlySlugs(supabase: Supabase, slug?: string): Promise<Set<string>> {
+  let query = supabase.from("professional_profiles").select("slug").eq("up_students_only", true);
+  if (slug) query = query.eq("slug", slug);
+  const { data, error } = await query.returns<{ slug: string }[]>();
+  if (error || !data) return new Set();
+  return new Set(data.map((row) => row.slug));
+}
+
 /** Every listed professional, for the directory. Empty on any error. */
 export async function listPublicTherapists(): Promise<Therapist[]> {
   const supabase = await createClient();
-  const [{ data, error }, summaries] = await Promise.all([
+  const [{ data, error }, summaries, upOnly] = await Promise.all([
     supabase.rpc("list_public_professionals"),
     reviewSummaries(supabase),
+    upOnlySlugs(supabase),
   ]);
   if (error || !data) return [];
   const now = Date.now();
-  return (data as PublicRow[]).map((row) => toTherapist(row, now, summaries.get(row.slug)));
+  return (data as PublicRow[]).map((row) => ({
+    ...toTherapist(row, now, summaries.get(row.slug)),
+    upStudentsOnly: upOnly.has(row.slug),
+  }));
 }
 
 /** One listed professional by slug, or null. */
 export async function getPublicTherapist(slug: string): Promise<Therapist | null> {
   const supabase = await createClient();
-  const [{ data, error }, summaries] = await Promise.all([
+  const [{ data, error }, summaries, upOnly] = await Promise.all([
     supabase.rpc("list_public_professionals", { p_slug: slug }),
     reviewSummaries(supabase, slug),
+    upOnlySlugs(supabase, slug),
   ]);
   if (error || !data || data.length === 0) return null;
-  return toTherapist((data as PublicRow[])[0], Date.now(), summaries.get(slug));
+  return {
+    ...toTherapist((data as PublicRow[])[0], Date.now(), summaries.get(slug)),
+    upStudentsOnly: upOnly.has(slug),
+  };
 }
 
 /** Visible reviews of a listed professional, newest first. Never says who wrote them. */

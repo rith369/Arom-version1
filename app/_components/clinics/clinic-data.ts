@@ -46,6 +46,8 @@ export type Clinic = {
   mapCoords: { x: number; y: number };
   services: ClinicService[];
   reviews: ClinicReview[];
+  /** Shown to confirmed University of Puthisastra students and staff only (lib/up-student.ts). */
+  upStudentsOnly?: boolean;
 };
 
 export const CLINICS_DATA: Clinic[] = [
@@ -285,4 +287,51 @@ export const CLINICS_DATA: Clinic[] = [
       },
     ],
   },
+  {
+    // SAMPLE: replace the address, hours, phone, map link and photo with the
+    // real UP clinic details before launch (BACKEND-HANDOFF.md section 33).
+    id: "up-wellness",
+    slug: "up-wellness-clinic",
+    name: "UP Wellness Clinic",
+    nameKm: "គ្លីនិកសុខុមាលភាព UP",
+    category: "clinic",
+    rating: 0,
+    reviewCount: 0,
+    distance: "1.0 km",
+    distanceKm: "១.០ គ.ម",
+    city: "Phnom Penh, Cambodia",
+    cityKm: "ភ្នំពេញ, កម្ពុជា",
+    address: "University of Puthisastra campus, Phnom Penh",
+    addressKm: "បរិវេណសាកលវិទ្យាល័យពុទ្ធិសាស្ត្រ រាជធានីភ្នំពេញ",
+    tags: ["Free for UP students and staff", "Counseling", "Campus support"],
+    tagsKm: ["ឥតគិតថ្លៃសម្រាប់និស្សិត និងបុគ្គលិក UP", "ការប្រឹក្សា (Counseling)", "ការគាំទ្រក្នុងសាលា (Campus support)"],
+    status: "Opening hours coming soon",
+    statusKm: "ម៉ោងបើកនឹងប្រកាសឆាប់ៗ",
+    image: "/clinics/mind-life.jpg",
+    phone: "",
+    phoneDisplay: "",
+    googleMapsUrl: "https://www.google.com/maps/search/?api=1&query=University+of+Puthisastra+Phnom+Penh",
+    about: "Free counseling for University of Puthisastra students and staff. Talk with a counselor about study or work stress, worry, low mood or anything on your mind, in a private room on campus.",
+    aboutKm: "ការប្រឹក្សាឥតគិតថ្លៃសម្រាប់និស្សិត និងបុគ្គលិកសាកលវិទ្យាល័យពុទ្ធិសាស្ត្រ។ និយាយជាមួយអ្នកប្រឹក្សាអំពីសម្ពាធការសិក្សា ឬការងារ ការព្រួយបារម្ភ អារម្មណ៍ធ្លាក់ចុះ ឬអ្វីដែលនៅក្នុងចិត្តរបស់អ្នក ក្នុងបន្ទប់ឯកជននៅក្នុងបរិវេណសាលា។",
+    mapCoords: { x: 38, y: 40 },
+    services: [
+      {
+        id: "up-counseling",
+        name: "Counseling Session",
+        nameKm: "ការប្រឹក្សា (Counseling Session)",
+        duration: "50 min",
+        durationKm: "៥០ នាទី",
+        fee: "Free",
+        description: "A private one to one session with a counselor for UP students and staff.",
+        descriptionKm: "ការពិភាក្សាឯកជនម្នាក់ទល់ម្នាក់ជាមួយអ្នកប្រឹក្សា សម្រាប់និស្សិត និងបុគ្គលិក UP។",
+      },
+    ],
+    reviews: [],
+    upStudentsOnly: true,
+  },
 ];
+
+/** The clinics this person may see. UP only clinics are for confirmed UP students and staff. */
+export function visibleClinics(upStudent: boolean): Clinic[] {
+  return upStudent ? CLINICS_DATA : CLINICS_DATA.filter((clinic) => !clinic.upStudentsOnly);
+}

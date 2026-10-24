@@ -6,6 +6,7 @@ import type {
   AuthUser,
   UserRole,
 } from '@/lib/auth';
+import { upStudentEmail } from '@/lib/up-student';
 
 /*
  * Helpers shared by every AROM controller. Responses are never cached,
@@ -79,6 +80,7 @@ export function buildAuthUser(
     typeof user.user_metadata?.full_name === 'string'
       ? user.user_metadata.full_name
       : '';
+  const upEmail = upStudentEmail(user);
 
   return {
     id: user.id,
@@ -94,6 +96,8 @@ export function buildAuthUser(
     accountStatus:
       profile?.account_status === 'suspended' ? 'suspended' : 'active',
     hideIdentity: profile?.hide_identity ?? true,
+    upStudent: upEmail !== null,
+    upEmail,
     createdAt: profile?.created_at ?? user.created_at,
   };
 }

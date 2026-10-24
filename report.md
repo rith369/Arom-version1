@@ -1,5 +1,34 @@
 # AROM: Change Report
 
+## 24 Oct 2026: Free UP Professionals and UP Clinic for University of Puthisastra Students and Staff
+
+Commit `81c7722` (pull request `rith/up-students`). Migration `20261024000100_up_students.sql`, not yet applied. Supabase setting needed: turn on Manual linking.
+
+**Why.** University of Puthisastra (UP) offers free counseling to its students and staff. Only they should see those free professionals and the UP clinic, so normal users keep seeing AROM exactly as before. AROM now checks for a confirmed UP address: any email ending in `@puthisastra.edu.kh`, so both students (`name.student@puthisastra.edu.kh`) and staff (`name@puthisastra.edu.kh`). UP mail runs on Google, so Google itself proves the person owns the address.
+
+**What changed for users:**
+- **UP students and staff log in as usual:** anyone who logs in with their UP Google account is recognised right away.
+- **Gmail users can verify later:** Profile has a new "UP Student or Staff" card. It opens `/profile/up-student`, where "Verify with my UP Google account" links their UP Google account to their AROM account. Their login stays the same.
+- **Free UP professionals for UP only:** professionals an admin marks "UP students and staff only" appear in the directory with a "For UP students and staff" badge, for UP accounts only. Everyone else does not see them and cannot book them.
+- **UP clinic for UP only:** a UP clinic shows in Find Clinic & Hospital for UP accounts only, with the same badge. It is sample data for now.
+
+**What changed for the team:**
+- **Admin switch:** each verified professional's dialog on `/admin/professionals` has a "UP students and staff only" switch, and the list shows a "UP only" label. Changes appear in the audit log.
+- **Database (PR):** new `professional_profiles.up_students_only`, `is_up_student()` (caller only, counts students and staff), `admin_set_up_students_only()`, and `is_listed_professional()` now applies the UP rule. That one check already covers the directory, profile page, open times, booking, change of time and reviews.
+- **Signed in user:** `upStudent` and `upEmail` added to the user returned by the auth endpoints. Rule in `lib/up-student.ts`. "UP student" in code names means student or staff.
+- **Handoff:** `BACKEND-HANDOFF.md` section 33, including known gaps.
+
+**What to re-test:**
+1. Supabase: Authentication, Sign In / Providers, turn on **Manual linking**. Run the migration in the SQL Editor.
+2. Log in with a Gmail account. Profile shows "UP Student or Staff: Verify your UP email for free support".
+3. Open it, tap "Verify with my UP Google account" and pick a `.student@puthisastra.edu.kh` account. You come back to "Verified UP account" with that address.
+4. Repeat with a staff account (`name@puthisastra.edu.kh`). It is verified too.
+5. Try with a personal Google account. The page says it is not a UP address.
+6. As admin, open a live professional on `/admin/professionals` and turn on "UP students and staff only". The row shows "UP only" and the audit log has the change.
+7. As the UP account, `/professional` shows that professional with "For UP students and staff", and you can book.
+8. As a normal user (not UP), that professional is missing from `/professional`, and opening their link shows not found.
+9. `/clinic-hospital`: the UP clinic shows for the UP account only. Opening `?clinic=up-wellness-clinic` as a normal user shows the list instead.
+
 ## 21 Oct 2026: Added "I'm Overthinking Right Now" Tip with Visual Cards Deck
 
 Commit `6b3d585`. No migration. Frontend only.
