@@ -619,8 +619,8 @@ function ResultView({
         <Lock size={15} className="mt-0.5 shrink-0 text-arom" aria-hidden="true" />
         <span>
           {km
-            ? "នេះជាការរកឃើញរោគសញ្ញាដំបូង មិនមែនជាការធ្វើរោគវិនិច្ឆ័យទេ។ មានតែអ្នកជំនាញទេដែលអាចធ្វើរោគវិនិច្ឆ័យថាអ្នកមានជំងឺធ្លាក់ទឹកចិត្ត ឬជំងឺថប់បារម្ភ។ លទ្ធផលរបស់អ្នកជាឯកជន។ អ្នកអាចចែករំលែកវាជាមួយអ្នកជំនាញនៅក្នុង ការណាត់ជួបរបស់ខ្ញុំ។"
-            : "This is early symptom detection, not a diagnosis. Only a professional can diagnose depression or anxiety. Your result is private. You can share it with a professional in My appointments."}
+            ? "នេះជាការរកឃើញរោគសញ្ញាដំបូង មិនមែនជាការធ្វើរោគវិនិច្ឆ័យទេ។ មានតែអ្នកជំនាញទេដែលអាចធ្វើរោគវិនិច្ឆ័យបាន។ លទ្ធផលរបស់អ្នកជាឯកជន។ អ្នកអាចចែករំលែកវាជាមួយអ្នកជំនាញនៅក្នុង ការណាត់ជួបរបស់ខ្ញុំ។"
+            : "This is early symptom detection, not a diagnosis. Only a professional can diagnose. Your result is private. You can share it with a professional in My appointments."}
         </span>
       </p>
 
@@ -709,10 +709,10 @@ function ExplainButton({
   );
 }
 
-const LEVEL_GUIDE: { level: SymptomLevel; points: Text; meaning: Text }[] = [
+// Kept general on purpose: it explains every check, today and later ones.
+const LEVEL_GUIDE: { level: SymptomLevel; meaning: Text }[] = [
   {
     level: "none",
-    points: { en: "0 to 4 points", km: "០ ដល់ ៤ ពិន្ទុ" },
     meaning: {
       en: "Your answers are in the usual range. Keep doing what helps you.",
       km: "ចម្លើយរបស់អ្នកស្ថិតក្នុងកម្រិតធម្មតា។ សូមបន្តធ្វើអ្វីដែលជួយអ្នក។",
@@ -720,7 +720,6 @@ const LEVEL_GUIDE: { level: SymptomLevel; points: Text; meaning: Text }[] = [
   },
   {
     level: "low",
-    points: { en: "5 to 9 points", km: "៥ ដល់ ៩ ពិន្ទុ" },
     meaning: {
       en: "Mild signs. Small daily steps often help. We ask you to check again in 2 weeks.",
       km: "សញ្ញាស្រាល។ ជំហានតូចៗរៀងរាល់ថ្ងៃតែងតែជួយបាន។ យើងនឹងសួរអ្នកឱ្យពិនិត្យម្តងទៀតក្នុងរយៈពេល២សប្តាហ៍។",
@@ -728,7 +727,6 @@ const LEVEL_GUIDE: { level: SymptomLevel; points: Text; meaning: Text }[] = [
   },
   {
     level: "medium",
-    points: { en: "10 to 14 points", km: "១០ ដល់ ១៤ ពិន្ទុ" },
     meaning: {
       en: "Moderate signs. Try self help and check again in 2 weeks. If the signs do not go down, we suggest talking to a professional.",
       km: "សញ្ញាមធ្យម។ សាកល្បងជួយខ្លួនឯង ហើយពិនិត្យម្តងទៀតក្នុងរយៈពេល២សប្តាហ៍។ ប្រសិនបើសញ្ញាមិនធូរស្រាលទេ យើងសូមណែនាំឱ្យពិភាក្សាជាមួយអ្នកជំនាញ។",
@@ -736,17 +734,12 @@ const LEVEL_GUIDE: { level: SymptomLevel; points: Text; meaning: Text }[] = [
   },
   {
     level: "high",
-    points: { en: "15 points or more", km: "១៥ ពិន្ទុ ឬច្រើនជាងនេះ" },
     meaning: {
       en: "Signs that a professional should look at. We suggest booking one soon, and keeping up self help too.",
       km: "សញ្ញាដែលអ្នកជំនាញគួរពិនិត្យមើល។ យើងសូមណែនាំឱ្យកក់ពេលជាមួយអ្នកជំនាញឆាប់ៗ ហើយបន្តជួយខ្លួនឯងផងដែរ។",
     },
   },
 ];
-
-function toKhmerDigits(value: number) {
-  return String(value).replace(/\d/g, (digit) => "០១២៣៤៥៦៧៨៩"[Number(digit)]);
-}
 
 function HowItWorksSheet({
   km,
@@ -809,25 +802,33 @@ function HowItWorksSheet({
           </h3>
           <p className="mt-2 text-sm leading-6 text-ink">
             {km
-              ? "ការពិនិត្យនេះជួយអ្នកឱ្យកត់សម្គាល់សញ្ញាដំបូងនៃអារម្មណ៍ធ្លាក់ចុះ ឬការថប់បារម្ភ ដើម្បីឱ្យអ្នកទទួលបានការគាំទ្រឆាប់ជាងមុន។ វាមិនអាចប្រាប់ថាអ្នកមានជំងឺធ្លាក់ទឹកចិត្ត ឬជំងឺថប់បារម្ភបានទេ។ មានតែអ្នកជំនាញ ដូចជាអ្នកព្យាបាល អ្នកចិត្តវិទ្យា ឬវេជ្ជបណ្ឌិតទេ ដែលអាចធ្វើរោគវិនិច្ឆ័យបាន បន្ទាប់ពីបាននិយាយជាមួយអ្នក។"
-              : "This check helps you notice early signs of low mood or anxiety, so you can get support sooner. It cannot tell you that you have depression or an anxiety disorder. Only a professional, such as a therapist, psychologist or doctor, can make a diagnosis after talking with you."}
+              ? "ការពិនិត្យទាំងនេះជួយអ្នកឱ្យកត់សម្គាល់សញ្ញាដំបូងអំពីសុខភាពផ្លូវចិត្តរបស់អ្នក ដើម្បីឱ្យអ្នកទទួលបានការគាំទ្រឆាប់ជាងមុន។ វាមិនអាចប្រាប់ថាអ្នកមានជំងឺផ្លូវចិត្តណាមួយបានទេ។ មានតែអ្នកជំនាញ ដូចជាអ្នកព្យាបាល អ្នកចិត្តវិទ្យា ឬវេជ្ជបណ្ឌិតទេ ដែលអាចធ្វើរោគវិនិច្ឆ័យបាន បន្ទាប់ពីបាននិយាយជាមួយអ្នក។"
+              : "These checks help you notice early signs about your mental health, so you can get support sooner. They cannot tell you that you have a mental health condition. Only a professional, such as a therapist, psychologist or doctor, can make a diagnosis after talking with you."}
           </p>
         </section>
 
         <section className="mt-5">
           <h3 className="text-sm font-semibold text-ink">{km ? "របៀបដែលវាដំណើរការ" : "How it works"}</h3>
           <ol className="mt-2 list-decimal space-y-1.5 pl-5 text-sm leading-6 text-ink">
-            <li>{km ? "អ្នកឆ្លើយសំណួរអំពីរយៈពេល២សប្តាហ៍ចុងក្រោយនេះ។" : "You answer questions about the last 2 weeks."}</li>
-            <li>
-              {km ? "ចម្លើយនីមួយៗផ្តល់ពិន្ទុ៖ " : "Each answer gives points: "}
-              {ANSWER_OPTIONS.map((option) => `${tx(option.label)} ${km ? toKhmerDigits(option.value) : option.value}`).join(", ")}
-              {km ? "។" : "."}
-            </li>
-            <li>{km ? "AROM បូកពិន្ទុទាំងអស់ ហើយបង្ហាញកម្រិតសញ្ញា។" : "AROM adds up the points and shows a sign level."}</li>
             <li>
               {km
-                ? "សំណួរទាំងនេះមកពី PHQ-9 (អារម្មណ៍ធ្លាក់ចុះ) និង GAD-7 (ការថប់បារម្ភ) ដែលវេជ្ជបណ្ឌិតទូទាំងពិភពលោកប្រើប្រាស់ ហើយត្រូវបានសាកល្បងជាភាសាខ្មែរនៅកម្ពុជា។"
-                : "The questions come from PHQ-9 (low mood) and GAD-7 (anxiety). Doctors around the world use them, and they were tested in Khmer in Cambodia."}
+                ? "អ្នកឆ្លើយសំណួរខ្លីៗអំពីរបៀបដែលអ្នកមានអារម្មណ៍ថ្មីៗនេះ។"
+                : "You answer short questions about how you have felt lately."}
+            </li>
+            <li>
+              {km
+                ? "ចម្លើយនីមួយៗផ្តល់ពិន្ទុ។ បើបញ្ហាណាមួយរំខានអ្នកញឹកញាប់ជាង វាផ្តល់ពិន្ទុច្រើនជាង។"
+                : "Each answer gives points. The more often something bothers you, the more points it gives."}
+            </li>
+            <li>
+              {km
+                ? "AROM បូកពិន្ទុទាំងអស់ ហើយបង្ហាញកម្រិតសញ្ញា។ ការពិនិត្យនីមួយៗមានកម្រិតពិន្ទុរៀងៗខ្លួន។"
+                : "AROM adds up the points and shows a sign level. Each check has its own score ranges."}
+            </li>
+            <li>
+              {km
+                ? "សំណួរមកពីបញ្ជីសំណួរដែលអ្នកជំនាញទូទាំងពិភពលោកប្រើប្រាស់។ យើងប្រើកំណែដែលបានសាកល្បងជាភាសាខ្មែរនៅកម្ពុជា នៅពេលដែលមាន។"
+                : "The questions come from well known questionnaires that professionals around the world use. Where we can, we use versions tested in Khmer in Cambodia."}
             </li>
           </ol>
         </section>
@@ -837,12 +838,9 @@ function HowItWorksSheet({
           <ul className="mt-2 divide-y divide-arom-border/60 rounded-2xl border border-arom-border">
             {LEVEL_GUIDE.map((item) => (
               <li key={item.level} className="p-3.5">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${LEVEL_STYLES[item.level]}`}>
-                    {tx(LEVEL_LABELS[item.level])}
-                  </span>
-                  <span className="text-xs text-ink-muted">{tx(item.points)}</span>
-                </div>
+                <span className={`inline-block rounded-full px-2.5 py-1 text-xs font-semibold ${LEVEL_STYLES[item.level]}`}>
+                  {tx(LEVEL_LABELS[item.level])}
+                </span>
                 <p className="mt-1.5 text-sm leading-6 text-ink">{tx(item.meaning)}</p>
               </li>
             ))}
@@ -854,8 +852,8 @@ function HowItWorksSheet({
             <HeartPulse size={16} className="mt-1 shrink-0 text-arom" aria-hidden="true" />
             <span>
               {km
-                ? "សំណួរមួយសួរអំពីគំនិតចង់ធ្វើបាបខ្លួនឯង។ ប្រសិនបើអ្នកឆ្លើយថាមាន AROM នឹងបង្ហាញលេខទូរស័ព្ទជំនួយបន្ទាន់ជាមុនសិន។"
-                : "One question asks about thoughts of hurting yourself. If you answer yes, AROM shows crisis helplines first."}
+                ? "ការពិនិត្យខ្លះសួរអំពីគំនិតចង់ធ្វើបាបខ្លួនឯង។ ប្រសិនបើអ្នកឆ្លើយថាមាន AROM នឹងបង្ហាញលេខទូរស័ព្ទជំនួយបន្ទាន់ជាមុនសិន។"
+                : "Some checks ask about thoughts of hurting yourself. If you answer yes, AROM shows crisis helplines first."}
             </span>
           </p>
           <p className="flex items-start gap-2">

@@ -1,5 +1,24 @@
 # AROM: Change Report
 
+## 24 Oct 2026: Symptom Check Explanation Made General for Future Checks
+
+Commit `PENDING`. No migration. Frontend only.
+
+**Why.** The "How it works" sheet named PHQ-9, GAD-7, low mood and anxiety, and showed their score ranges. AROM will add more checks later (for example stress, sleep and burnout), each with its own questionnaire and score ranges, so the explanation now fits every check.
+
+**What changed for users:**
+- **General wording:** the sheet now talks about "early signs about your mental health" and "a mental health condition", not specific conditions or questionnaire names.
+- **No point ranges on the sign levels:** each level keeps its meaning and next step. The sheet says each check has its own score ranges.
+- **Result note:** now says "Only a professional can diagnose." instead of naming depression or anxiety.
+
+**What changed for the team:**
+- `app/detection/symptoms/page.tsx`: `LEVEL_GUIDE` no longer has `points`; `toKhmerDigits` removed. New checks need no change to this sheet.
+
+**What to re-test:**
+1. Open `/detection/symptoms` and tap "How it works". No questionnaire names or condition names appear, and the four sign levels show without points.
+2. Finish a check. The note under the result says "Only a professional can diagnose."
+3. Switch to Khmer and open the sheet again. All text is Khmer.
+
 ## 24 Oct 2026: Symptom Check Explains How It Works and What the Signs Mean
 
 Commit `4df9648`. No migration. Frontend only.
