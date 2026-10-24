@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -11,7 +11,9 @@ import {
   Clock,
   Compass,
   HeartPulse,
+  Info,
   Lock,
+  X,
   type LucideIcon,
 } from "lucide-react";
 import { DesktopNavigation } from "../../_components/app-navigation";
@@ -107,6 +109,8 @@ export default function SymptomCheckPage() {
   const [view, setView] = useState<View>({ kind: "home" });
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState(false);
+  const [explainOpen, setExplainOpen] = useState(false);
+  const closeExplain = useCallback(() => setExplainOpen(false), []);
 
   const refresh = useCallback(async () => {
     try {
@@ -208,7 +212,14 @@ export default function SymptomCheckPage() {
           </div>
 
           {view.kind === "home" && (
-            <HomeView km={km} tx={tx} load={load} onStart={start} onRetry={refresh} />
+            <HomeView
+              km={km}
+              tx={tx}
+              load={load}
+              onStart={start}
+              onRetry={refresh}
+              onExplain={() => setExplainOpen(true)}
+            />
           )}
 
           {view.kind === "questions" && (
@@ -232,9 +243,17 @@ export default function SymptomCheckPage() {
           )}
 
           {view.kind === "result" && (
-            <ResultView km={km} tx={tx} saved={view.saved} onDone={() => setView({ kind: "home" })} />
+            <ResultView
+              km={km}
+              tx={tx}
+              saved={view.saved}
+              onDone={() => setView({ kind: "home" })}
+              onExplain={() => setExplainOpen(true)}
+            />
           )}
         </main>
+
+        {explainOpen && <HowItWorksSheet km={km} tx={tx} onClose={closeExplain} />}
       </div>
 
       <div className="lg:hidden">
@@ -254,12 +273,14 @@ function HomeView({
   load,
   onStart,
   onRetry,
+  onExplain,
 }: {
   km: boolean;
   tx: (text: Text) => string;
   load: Load;
   onStart: (type: SymptomCheckType) => void;
   onRetry: () => void;
+  onExplain: () => void;
 }) {
   const data = load.status === "ready" ? load.data : null;
   const today = load.status === "ready" ? load.today : "";
@@ -275,21 +296,28 @@ function HomeView({
           : "A quick check on how you have felt over the last 2 weeks. It helps you notice early signs."}
       </p>
 
-      <ul className="grid gap-2 rounded-2xl border border-arom-border bg-white p-4 text-sm text-ink">
-        <InfoRow icon={Clock} text={km ? "ប្រហែល ២ នាទី។" : "About 2 minutes."} />
-        <InfoRow
-          icon={Lock}
-          text={
-            km
-              ? "មានតែអ្នកទេដែលឃើញលទ្ធផល។ អ្នកអាចជ្រើសរើសចែករំលែកវាជាមួយអ្នកជំនាញដែលអ្នកបានកក់។"
-              : "Only you see your results. You can choose to share them with a professional you book."
-          }
-        />
-        <InfoRow
-          icon={Compass}
-          text={km ? "នេះមិនមែនជាការធ្វើរោគវិនិច្ឆ័យទេ។" : "This check is not a diagnosis."}
-        />
-      </ul>
+      <div className="rounded-2xl border border-arom-border bg-white p-4 text-sm text-ink">
+        <ul className="grid gap-2">
+          <InfoRow
+            icon={Compass}
+            text={
+              km
+                ? "នេះជាការរកឃើញរោគសញ្ញាដំបូង មិនមែនជាការធ្វើរោគវិនិច្ឆ័យទេ។ មានតែអ្នកជំនាញទេដែលអាចធ្វើរោគវិនិច្ឆ័យបាន។"
+                : "This is early symptom detection, not a diagnosis. Only a professional can diagnose."
+            }
+          />
+          <InfoRow icon={Clock} text={km ? "ប្រហែល ២ នាទី។" : "About 2 minutes."} />
+          <InfoRow
+            icon={Lock}
+            text={
+              km
+                ? "មានតែអ្នកទេដែលឃើញលទ្ធផល។ អ្នកអាចជ្រើសរើសចែករំលែកវាជាមួយអ្នកជំនាញដែលអ្នកបានកក់។"
+                : "Only you see your results. You can choose to share them with a professional you book."
+            }
+          />
+        </ul>
+        <ExplainButton km={km} onClick={onExplain} label={km ? "របៀបដែលវាដំណើរការ" : "How it works"} className="mt-3" />
+      </div>
 
       {load.status === "signed_out" && (
         <p className="rounded-2xl border border-arom-border bg-white p-4 text-sm text-ink">
@@ -384,9 +412,16 @@ function HomeView({
 
       {data && data.checks.length > 0 && (
         <section aria-labelledby="past-checks" className="space-y-3">
-          <h2 id="past-checks" className="text-base font-semibold">
-            {km ? "ការពិនិត្យមុនៗ" : "Past checks"}
-          </h2>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h2 id="past-checks" className="text-base font-semibold">
+              {km ? "ការពិនិត្យមុនៗ" : "Past checks"}
+            </h2>
+            <ExplainButton
+              km={km}
+              onClick={onExplain}
+              label={km ? "តើសញ្ញាទាំងនេះមានន័យអ្វី?" : "What do the signs mean?"}
+            />
+          </div>
           <ul className="divide-y divide-arom-border/60 rounded-2xl border border-arom-border bg-white">
             {data.checks.slice(0, 10).map((check) => (
               <li key={check.id} className="flex items-center justify-between gap-3 px-4 py-3">
@@ -546,11 +581,13 @@ function ResultView({
   tx,
   saved,
   onDone,
+  onExplain,
 }: {
   km: boolean;
   tx: (text: Text) => string;
   saved: SymptomCheckSavedResponse;
   onDone: () => void;
+  onExplain: () => void;
 }) {
   const { check, journey } = saved;
   const topic = TOPIC[check.type];
@@ -566,9 +603,12 @@ function ResultView({
           </span>
         </div>
         <p className="mt-3 text-base leading-7 text-ink">{tx(LEVEL_MESSAGES[check.level](topic))}</p>
-        <p className="mt-2 text-xs text-ink-muted">
-          {km ? `ពិន្ទុ ${check.score} នៃ ${check.maxScore}` : `Score ${check.score} of ${check.maxScore}`}
-        </p>
+        <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
+          <p className="text-xs text-ink-muted">
+            {km ? `ពិន្ទុ ${check.score} នៃ ${check.maxScore}` : `Score ${check.score} of ${check.maxScore}`}
+          </p>
+          <ExplainButton km={km} onClick={onExplain} label={km ? "តើនេះមានន័យអ្វី?" : "What does this mean?"} />
+        </div>
       </div>
 
       <NextSteps km={km} check={check} journey={journey} professional={professional} />
@@ -579,8 +619,8 @@ function ResultView({
         <Lock size={15} className="mt-0.5 shrink-0 text-arom" aria-hidden="true" />
         <span>
           {km
-            ? "ការពិនិត្យនេះមិនមែនជាការធ្វើរោគវិនិច្ឆ័យទេ។ មានតែអ្នកជំនាញទេដែលអាចប្រាប់អ្នកពីអ្វីដែលកំពុងកើតឡើង។ លទ្ធផលរបស់អ្នកជាឯកជន។ អ្នកអាចចែករំលែកវាជាមួយអ្នកជំនាញនៅក្នុង ការណាត់ជួបរបស់ខ្ញុំ។"
-            : "This check is not a diagnosis. Only a professional can tell you what is going on. Your result is private. You can share it with a professional in My appointments."}
+            ? "នេះជាការរកឃើញរោគសញ្ញាដំបូង មិនមែនជាការធ្វើរោគវិនិច្ឆ័យទេ។ មានតែអ្នកជំនាញទេដែលអាចធ្វើរោគវិនិច្ឆ័យថាអ្នកមានជំងឺធ្លាក់ទឹកចិត្ត ឬជំងឺថប់បារម្ភ។ លទ្ធផលរបស់អ្នកជាឯកជន។ អ្នកអាចចែករំលែកវាជាមួយអ្នកជំនាញនៅក្នុង ការណាត់ជួបរបស់ខ្ញុំ។"
+            : "This is early symptom detection, not a diagnosis. Only a professional can diagnose depression or anxiety. Your result is private. You can share it with a professional in My appointments."}
         </span>
       </p>
 
@@ -638,5 +678,200 @@ function NextSteps({
         ))}
       </div>
     </section>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// How it works: what the check is, how it is scored, what each level means
+// ---------------------------------------------------------------------------
+
+function ExplainButton({
+  km,
+  label,
+  onClick,
+  className = "",
+}: {
+  km: boolean;
+  label: string;
+  onClick: () => void;
+  className?: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-haspopup="dialog"
+      className={`inline-flex min-h-9 items-center gap-1.5 rounded-full border border-arom-border bg-white px-3 text-xs font-semibold text-arom-deep transition-colors hover:bg-arom-wash ${km ? "font-khmer" : ""} ${focusRing} ${className}`}
+    >
+      <Info size={14} aria-hidden="true" />
+      {label}
+    </button>
+  );
+}
+
+const LEVEL_GUIDE: { level: SymptomLevel; points: Text; meaning: Text }[] = [
+  {
+    level: "none",
+    points: { en: "0 to 4 points", km: "០ ដល់ ៤ ពិន្ទុ" },
+    meaning: {
+      en: "Your answers are in the usual range. Keep doing what helps you.",
+      km: "ចម្លើយរបស់អ្នកស្ថិតក្នុងកម្រិតធម្មតា។ សូមបន្តធ្វើអ្វីដែលជួយអ្នក។",
+    },
+  },
+  {
+    level: "low",
+    points: { en: "5 to 9 points", km: "៥ ដល់ ៩ ពិន្ទុ" },
+    meaning: {
+      en: "Mild signs. Small daily steps often help. We ask you to check again in 2 weeks.",
+      km: "សញ្ញាស្រាល។ ជំហានតូចៗរៀងរាល់ថ្ងៃតែងតែជួយបាន។ យើងនឹងសួរអ្នកឱ្យពិនិត្យម្តងទៀតក្នុងរយៈពេល២សប្តាហ៍។",
+    },
+  },
+  {
+    level: "medium",
+    points: { en: "10 to 14 points", km: "១០ ដល់ ១៤ ពិន្ទុ" },
+    meaning: {
+      en: "Moderate signs. Try self help and check again in 2 weeks. If the signs do not go down, we suggest talking to a professional.",
+      km: "សញ្ញាមធ្យម។ សាកល្បងជួយខ្លួនឯង ហើយពិនិត្យម្តងទៀតក្នុងរយៈពេល២សប្តាហ៍។ ប្រសិនបើសញ្ញាមិនធូរស្រាលទេ យើងសូមណែនាំឱ្យពិភាក្សាជាមួយអ្នកជំនាញ។",
+    },
+  },
+  {
+    level: "high",
+    points: { en: "15 points or more", km: "១៥ ពិន្ទុ ឬច្រើនជាងនេះ" },
+    meaning: {
+      en: "Signs that a professional should look at. We suggest booking one soon, and keeping up self help too.",
+      km: "សញ្ញាដែលអ្នកជំនាញគួរពិនិត្យមើល។ យើងសូមណែនាំឱ្យកក់ពេលជាមួយអ្នកជំនាញឆាប់ៗ ហើយបន្តជួយខ្លួនឯងផងដែរ។",
+    },
+  },
+];
+
+function toKhmerDigits(value: number) {
+  return String(value).replace(/\d/g, (digit) => "០១២៣៤៥៦៧៨៩"[Number(digit)]);
+}
+
+function HowItWorksSheet({
+  km,
+  tx,
+  onClose,
+}: {
+  km: boolean;
+  tx: (text: Text) => string;
+  onClose: () => void;
+}) {
+  const closeRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    closeRef.current?.focus();
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+    const overflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.body.style.overflow = overflow;
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [onClose]);
+
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="how-it-works-title"
+      className="fixed inset-0 z-50 flex items-end justify-center bg-black/45 backdrop-blur-sm sm:items-center sm:p-4"
+      onClick={onClose}
+    >
+      <div
+        className={`max-h-[88vh] w-full max-w-lg overflow-y-auto rounded-t-[28px] bg-white px-5 pb-8 pt-3.5 shadow-2xl animate-in slide-in-from-bottom duration-300 sm:rounded-[28px] sm:p-6 ${km ? "font-khmer" : ""}`}
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div className="mx-auto h-1.5 w-12 rounded-full bg-arom-border sm:hidden" />
+
+        <div className="mt-4 flex items-start justify-between gap-4">
+          <h2 id="how-it-works-title" className="text-xl font-bold tracking-tight text-ink">
+            {km ? "របៀបដែលការពិនិត្យរោគសញ្ញាដំណើរការ" : "How the symptom check works"}
+          </h2>
+          <button
+            ref={closeRef}
+            type="button"
+            onClick={onClose}
+            aria-label={km ? "បិទ" : "Close"}
+            className={`inline-flex size-10 shrink-0 items-center justify-center rounded-full text-ink-muted hover:bg-arom-wash hover:text-ink ${focusRing}`}
+          >
+            <X size={20} />
+          </button>
+        </div>
+
+        <section className="mt-4 rounded-2xl bg-arom-wash p-4">
+          <h3 className="flex items-center gap-2 text-sm font-semibold text-arom-deep">
+            <Compass size={16} aria-hidden="true" />
+            {km ? "ការរកឃើញរោគសញ្ញាដំបូង មិនមែនជាការធ្វើរោគវិនិច្ឆ័យទេ" : "Early symptom detection, not a diagnosis"}
+          </h3>
+          <p className="mt-2 text-sm leading-6 text-ink">
+            {km
+              ? "ការពិនិត្យនេះជួយអ្នកឱ្យកត់សម្គាល់សញ្ញាដំបូងនៃអារម្មណ៍ធ្លាក់ចុះ ឬការថប់បារម្ភ ដើម្បីឱ្យអ្នកទទួលបានការគាំទ្រឆាប់ជាងមុន។ វាមិនអាចប្រាប់ថាអ្នកមានជំងឺធ្លាក់ទឹកចិត្ត ឬជំងឺថប់បារម្ភបានទេ។ មានតែអ្នកជំនាញ ដូចជាអ្នកព្យាបាល អ្នកចិត្តវិទ្យា ឬវេជ្ជបណ្ឌិតទេ ដែលអាចធ្វើរោគវិនិច្ឆ័យបាន បន្ទាប់ពីបាននិយាយជាមួយអ្នក។"
+              : "This check helps you notice early signs of low mood or anxiety, so you can get support sooner. It cannot tell you that you have depression or an anxiety disorder. Only a professional, such as a therapist, psychologist or doctor, can make a diagnosis after talking with you."}
+          </p>
+        </section>
+
+        <section className="mt-5">
+          <h3 className="text-sm font-semibold text-ink">{km ? "របៀបដែលវាដំណើរការ" : "How it works"}</h3>
+          <ol className="mt-2 list-decimal space-y-1.5 pl-5 text-sm leading-6 text-ink">
+            <li>{km ? "អ្នកឆ្លើយសំណួរអំពីរយៈពេល២សប្តាហ៍ចុងក្រោយនេះ។" : "You answer questions about the last 2 weeks."}</li>
+            <li>
+              {km ? "ចម្លើយនីមួយៗផ្តល់ពិន្ទុ៖ " : "Each answer gives points: "}
+              {ANSWER_OPTIONS.map((option) => `${tx(option.label)} ${km ? toKhmerDigits(option.value) : option.value}`).join(", ")}
+              {km ? "។" : "."}
+            </li>
+            <li>{km ? "AROM បូកពិន្ទុទាំងអស់ ហើយបង្ហាញកម្រិតសញ្ញា។" : "AROM adds up the points and shows a sign level."}</li>
+            <li>
+              {km
+                ? "សំណួរទាំងនេះមកពី PHQ-9 (អារម្មណ៍ធ្លាក់ចុះ) និង GAD-7 (ការថប់បារម្ភ) ដែលវេជ្ជបណ្ឌិតទូទាំងពិភពលោកប្រើប្រាស់ ហើយត្រូវបានសាកល្បងជាភាសាខ្មែរនៅកម្ពុជា។"
+                : "The questions come from PHQ-9 (low mood) and GAD-7 (anxiety). Doctors around the world use them, and they were tested in Khmer in Cambodia."}
+            </li>
+          </ol>
+        </section>
+
+        <section className="mt-5">
+          <h3 className="text-sm font-semibold text-ink">{km ? "តើសញ្ញាទាំងនេះមានន័យអ្វី?" : "What the signs mean"}</h3>
+          <ul className="mt-2 divide-y divide-arom-border/60 rounded-2xl border border-arom-border">
+            {LEVEL_GUIDE.map((item) => (
+              <li key={item.level} className="p-3.5">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${LEVEL_STYLES[item.level]}`}>
+                    {tx(LEVEL_LABELS[item.level])}
+                  </span>
+                  <span className="text-xs text-ink-muted">{tx(item.points)}</span>
+                </div>
+                <p className="mt-1.5 text-sm leading-6 text-ink">{tx(item.meaning)}</p>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <section className="mt-5 space-y-2 text-sm leading-6 text-ink">
+          <p className="flex items-start gap-2">
+            <HeartPulse size={16} className="mt-1 shrink-0 text-arom" aria-hidden="true" />
+            <span>
+              {km
+                ? "សំណួរមួយសួរអំពីគំនិតចង់ធ្វើបាបខ្លួនឯង។ ប្រសិនបើអ្នកឆ្លើយថាមាន AROM នឹងបង្ហាញលេខទូរស័ព្ទជំនួយបន្ទាន់ជាមុនសិន។"
+                : "One question asks about thoughts of hurting yourself. If you answer yes, AROM shows crisis helplines first."}
+            </span>
+          </p>
+          <p className="flex items-start gap-2">
+            <Lock size={16} className="mt-1 shrink-0 text-arom" aria-hidden="true" />
+            <span>
+              {km
+                ? "មានតែអ្នកទេដែលឃើញលទ្ធផល។ អ្នកជំនាញឃើញវាបាន លុះត្រាតែអ្នកចែករំលែកសម្រាប់ការណាត់ជួប ហើយមិនដែលឃើញចម្លើយរបស់អ្នកទេ។"
+                : "Only you see your results. A professional sees them only if you share them for a booking, and never sees your answers."}
+            </span>
+          </p>
+        </section>
+
+        <button type="button" onClick={onClose} className={`${primaryButton} mt-6`}>
+          {km ? "យល់ហើយ" : "Got it"}
+        </button>
+      </div>
+    </div>
   );
 }

@@ -1,5 +1,28 @@
 # AROM: Change Report
 
+## 24 Oct 2026: Symptom Check Explains How It Works and What the Signs Mean
+
+Commit `PENDING`. No migration. Frontend only.
+
+**Why.** Users saw labels like "Few signs" and "Clear signs" with no explanation, and could think the app was telling them they have anxiety or depression. The check is early symptom detection only. A diagnosis can only come from a professional, such as a therapist, psychologist or doctor.
+
+**What changed for users:**
+- **"How it works" button** at the top of the Symptom check page, **"What do the signs mean?"** next to Past checks, and **"What does this mean?"** on every result. All three open the same sheet.
+- **The sheet explains:** that this is early symptom detection, not a diagnosis, and only a professional can diagnose; how points are counted (0 to 3 per answer); what each level means with its points (Few signs 0 to 4, Some signs 5 to 9, Clear signs 10 to 14, Strong signs 15 or more) and what to do next; the safety question; and who can see results.
+- **Clearer wording:** the top of the page and the note under each result now say "This is early symptom detection, not a diagnosis. Only a professional can diagnose depression or anxiety."
+
+**What changed for the team:**
+- `app/detection/symptoms/page.tsx`: new `ExplainButton`, `HowItWorksSheet` and `LEVEL_GUIDE`. No data or API change.
+- The Khmer in the sheet is new UI text and needs the same Khmer review as the result messages.
+
+**What to re-test:**
+1. Open `/detection/symptoms`. Tap "How it works". The sheet opens with the four levels and their points.
+2. Close it with the X, "Got it", tapping outside, or the Escape key. The page does not scroll behind the sheet while it is open.
+3. With past checks, tap "What do the signs mean?" next to Past checks. The same sheet opens.
+4. Finish a check and tap "What does this mean?" on the result. The same sheet opens.
+5. Switch to Khmer and open the sheet. All text is Khmer, and point values show Khmer digits.
+6. On a phone width, the sheet comes up from the bottom and scrolls inside.
+
 ## 24 Oct 2026: Book the UP Wellness Clinic, Clinic Desk for UP, Clinic Therapists
 
 Commits `2be32a7` to `5bf0a10`, merged in PR #28 (`3d815fa`). Migration `20261024000200_clinic_booking.sql` applied 24 Oct.
