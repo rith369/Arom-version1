@@ -85,6 +85,7 @@ The yellow "Demo data on this page" banner is in `admin-shell.tsx`. Remove it fo
 | Find Clinic & Hospital (`/clinic-hospital` from Figma): interactive map, filters, search, clinic cards, and clinic detail view | Done | Waiting for backend (currently static curated directory in `clinic-data.ts`) | 32 |
 | UP students and staff: free UP professionals and UP clinic for anyone with a confirmed University of Puthisastra email (`/profile/up-student`, admin switch in `/admin/professionals`) | Done | Connected, PR #27 merged 24 Oct (`is_up_student()`, `admin_set_up_students_only()`, `PATCH /api/admin/professionals/:id/up-students`), migration `20261024000100` applied 24 Oct. UP clinic is sample data in `clinic-data.ts` | 33 |
 | Clinic bookings, starting with the UP Wellness Clinic: Therapists tab and Book a session on the clinic page, Clinic requests in My appointments, clinic desk (`/clinic-desk`), admin clinic link and desk accounts | Done | Connected, PR #28 merged 24 Oct (`/api/clinics/:slug/booking`, `/api/clinics/:slug/requests`, `/api/clinic-requests`, `/api/clinic-desk/*`, `/api/admin/clinics`, `PATCH /api/admin/professionals/:id/clinic`, `PATCH /api/admin/users/:id/clinic-desk`), migration `20261024000200` applied 24 Oct | 34 |
+| Clinic chat: students chat with the clinic desk (text, voice, photos, PDF) in Messages; desk Messages tab and Message buttons | Done | PR (`rith/clinic-chat`): connected (`/api/clinic-chat`, `/api/clinic-chat/:slug`, `/api/clinic-desk/:slug/chats/*`, `/api/clinic-chat-files/:messageId`), migration `20261024000900` not yet applied | 35 |
 | Symptom check (`/detection/symptoms`): PHQ-9 low mood and GAD-7 anxiety in English and validated Khmer, PSS-10 stress, CBI burnout, WHO-5 wellbeing, UCLA-3 loneliness and PCL-5 trauma in English only, safety screen, results, 14 day rechecks | Done | Connected (`GET\|POST /api/symptom-checks`). Wellbeing, loneliness and trauma use migration `20261024000300` (applied 24 Oct, PR #29 merged). Uses `symptom_checks`, `support_journeys` and `apply_support_path()` | 35 |
 
 ## 5. Admin users page
@@ -1467,6 +1468,49 @@ Answers are saved in `symptom_checks.answers` as `[{ questionId, value }]` in qu
 - No limit on how often a person can take a check.
 - A professional still has to review the Khmer and the result messages before a public launch.
 - `symptom_checks` RLS lets the owner update or delete their own rows directly through the API. The app never does this.
+
+## 35. Clinic chat (clinic desk and student)
+
+**Status:** Done in a pull request (`rith/clinic-chat`), migration `20261024000900_clinic_chat.sql` not yet applied. No notifications yet.
+
+**Decided by Rith (24 Oct 2026). Do not change without asking:**
+
+- **One chat per student per clinic.** The student sees it in Messages as the clinic ("UP Wellness Clinic", label "Clinic"), never the desk person's name. All desk accounts of the clinic share the same chats.
+- **It starts with the first booking request** (a trigger creates it). Either side can write first after that.
+- **Text, voice messages, photos and PDF files**, the same limits as therapist chats (2000 characters, 2 minutes, 5 MB).
+- **It closes 30 days after the student's last request or clinic session.** A waiting request keeps it open, and an upcoming session counts until 30 days after it. Closed chats stay readable.
+- **Privacy:** students stay anonymous to the desk (`hide_identity`, shown with a short code). The desk never sees therapist chats and the therapist never sees desk chats. **Admins have no access** (no policies on the tables). Never log message text or audio.
+- **Students are told** the desk helps with bookings, times and places, with Get help now for emergencies. The desk is told to keep to practical things.
+
+**Files:** `supabase/migrations/20261024000900_clinic_chat.sql`, `lib/clinic-chat.ts`, `lib/controllers/clinic-chat-controller.ts`, routes under `app/api/clinic-chat`, `app/api/clinic-chat-files`, `app/api/clinic-desk/[slug]/chats`; `app/_components/clinic-chat/*`, `app/_components/clinic-desk/desk-chats.tsx`, `clinic-desk-view.tsx`, `desk-request-card.tsx`; `app/_components/messages/chat-thread.tsx` (the chat view is now `ChatThreadView`, shared), `chat-list.tsx`, `user-messages.tsx`; `app/messages/clinic/[slug]/page.tsx`; My appointments links.
+
+### Database
+
+| Piece | What it does |
+|---|---|
+| `clinic_conversations` | one row per student per clinic, created by a trigger on `clinic_booking_requests`. RLS on, no policies |
+| `clinic_messages` | `from_clinic`, kind `text`/`voice`/`image`/`file`, body, audio and attachment paths, `read_at` (read by the other side). RLS on, no policies |
+| `clinic_chat_open()` | the 30 day rule |
+| `my_clinic_chats()`, `read_my_clinic_chat()`, `open_my_clinic_chat()`, `send_my_clinic_message()`, `mark_my_clinic_chat_read()` | the student's side, found by clinic slug |
+| `clinic_desk_chats()`, `read_clinic_desk_chat()`, `open_clinic_desk_chat()`, `send_clinic_desk_message()`, `mark_clinic_desk_chat_read()` | the desk's side, found by chat id; every call checks desk membership |
+| `can_open_clinic_message()` | the file route checks it as the signed in person before streaming |
+
+**Files:** voice goes to the private `message-voice` bucket and photos or PDFs to `message-attachments`, under `clinic/<chat id>/`. The app server uploads and downloads them with `SUPABASE_SECRET_KEY` only after the functions above allow it; a file that never became a message is removed again. The message functions refuse paths outside the chat's own folder.
+
+### Endpoints
+
+| Action | Endpoint |
+|---|---|
+| Student: my clinic chats | `GET /api/clinic-chat` |
+| Student: one chat, send, read | `GET /api/clinic-chat/:slug`, `POST /api/clinic-chat/:slug` (JSON text, or multipart `audio` + `durationSeconds`, or `kind=attachment` + `file`), `POST /api/clinic-chat/:slug/read` |
+| Desk: chats | `GET /api/clinic-desk/:slug/chats` (each with `requestIds` so a request's Message button finds its chat) |
+| Desk: one chat, send, read | `GET` and `POST /api/clinic-desk/:slug/chats/:id`, `POST /api/clinic-desk/:slug/chats/:id/read` |
+| Voice, photo or PDF | `GET /api/clinic-chat-files/:messageId` |
+
+### Known gaps
+
+- No notifications: the desk sees new messages in its Messages tab (checked every 30 seconds) and students in Messages.
+- Files of closed chats are kept, like therapist chats.
 
 ## Template for a new feature section
 

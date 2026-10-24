@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { MapPin, MessageSquareText, Video } from "lucide-react";
+import { MapPin, MessageCircle, MessageSquareText, Video } from "lucide-react";
 import {
   MAX_DESK_ANSWER,
   formatClinicDay,
@@ -21,6 +21,7 @@ export function DeskRequestCard({
   km,
   now,
   onDone,
+  onMessage,
 }: {
   slug: string;
   request: DeskRequest;
@@ -29,6 +30,8 @@ export function DeskRequestCard({
   km: boolean;
   now: number;
   onDone: (message: string) => void;
+  // Opens the chat with this student (section 35).
+  onMessage: () => void;
 }) {
   const t = (kmText: string, enText: string) => (km ? kmText : enText);
   const [time, setTime] = useState("");
@@ -245,6 +248,14 @@ export function DeskRequestCard({
               className="rounded-full border border-arom-border px-4 py-2 text-sm text-ink hover:bg-arom-wash"
             >
               {t("ម៉ោងទាំងនេះមិនបាន", "These times do not work")}
+            </button>
+            <button
+              type="button"
+              onClick={onMessage}
+              className="flex items-center gap-1.5 rounded-full border border-arom-border px-4 py-2 text-sm text-arom hover:bg-arom-wash"
+            >
+              <MessageCircle size={15} aria-hidden="true" />
+              {t("ផ្ញើសារ", "Message")}
             </button>
           </>
         )}

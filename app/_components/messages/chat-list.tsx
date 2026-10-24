@@ -2,16 +2,17 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Lock, Mic, UsersRound } from "lucide-react";
+import { Building2, Lock, Mic, UsersRound } from "lucide-react";
 import type { MyGroup } from "../../community/group-api";
 
 /**
  * One row of the Messages list. "direct" is a private chat between a client
  * and a professional (admins cannot read it). "group" is a support group chat
- * (the AROM safety team can read it). The label on each row says which.
+ * (the AROM safety team can read it). "clinic" is a chat with a clinic desk
+ * (section 35). The label on each row says which.
  */
 export type ChatRow = {
-  kind: "direct" | "group";
+  kind: "direct" | "group" | "clinic";
   key: string;
   href: string;
   name: string;
@@ -72,6 +73,7 @@ export function mergeChatRows(
 
 export function ChatListRow({ row, km, formatDate }: { row: ChatRow; km: boolean; formatDate: (value: string) => string }) {
   const group = row.kind === "group";
+  const clinic = row.kind === "clinic";
   return (
     <li>
       <Link
@@ -82,6 +84,8 @@ export function ChatListRow({ row, km, formatDate }: { row: ChatRow; km: boolean
         <span className="relative flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-arom-soft text-sm font-semibold text-arom">
           {group ? (
             <UsersRound size={20} aria-hidden="true" />
+          ) : clinic ? (
+            <Building2 size={20} aria-hidden="true" />
           ) : row.photoUrl ? (
             <Image src={row.photoUrl} alt="" fill sizes="44px" className="object-cover" />
           ) : (
@@ -96,11 +100,17 @@ export function ChatListRow({ row, km, formatDate }: { row: ChatRow; km: boolean
           <span className="mt-0.5 flex items-center gap-1.5 text-xs text-ink-muted">
             <span
               className={`inline-flex shrink-0 items-center gap-0.5 rounded-full px-1.5 py-px text-[0.65rem] font-semibold ${
-                group ? "bg-arom-wash text-arom" : "bg-gray-100 text-ink-muted"
+                group || clinic ? "bg-arom-wash text-arom" : "bg-gray-100 text-ink-muted"
               }`}
             >
-              {group ? <UsersRound size={10} aria-hidden="true" /> : <Lock size={10} aria-hidden="true" />}
-              {group ? (km ? "ក្រុម" : "Group") : km ? "ឯកជន" : "Private"}
+              {group ? (
+                <UsersRound size={10} aria-hidden="true" />
+              ) : clinic ? (
+                <Building2 size={10} aria-hidden="true" />
+              ) : (
+                <Lock size={10} aria-hidden="true" />
+              )}
+              {group ? (km ? "ក្រុម" : "Group") : clinic ? (km ? "គ្លីនិក" : "Clinic") : km ? "ឯកជន" : "Private"}
             </span>
             {row.voice && <Mic size={12} aria-hidden="true" />}
             <span className="truncate">{row.preview}</span>

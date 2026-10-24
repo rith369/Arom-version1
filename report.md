@@ -1,5 +1,33 @@
 # AROM: Change Report
 
+## 24 Oct 2026: Clinic Desk Chat with Students
+
+Commits `1749c84` to `b8776cc` (pull request `rith/clinic-chat`). Migration `20261024000900_clinic_chat.sql`, not yet applied.
+
+**Why.** The UP clinic desk needs to reach students about practical things, like a changed room, a sick therapist or a missing meeting link, and students need to ask the clinic simple questions. Until now the desk could only confirm or decline a request.
+
+**What changed for users:**
+- **Students:** once they send a booking request, a chat with "UP Wellness Clinic" appears in Messages (labelled "Clinic"). They can send text, voice messages, photos and PDF files. My appointments has "Message the clinic" on clinic requests and clinic sessions.
+- **Clinic desk:** a new Messages tab (with unread counts) lists every student who sent a request, as "Anonymous" with a short code. Each request card has a Message button that opens that student's chat. The desk writes as the clinic, never by name.
+- **The chat closes 30 days after the student's last request or clinic session.** Messages stay readable; a new request opens it again.
+- Therapist chats are unchanged and stay private from the desk.
+
+**What changed for the team:**
+- **Database (PR):** `clinic_conversations` (created by a trigger with the first request) and `clinic_messages`, RLS on with no policies, every read and write through functions that check the student or desk membership and the 30 day rule. Admins have no access.
+- **Files:** uploaded and streamed by the server into the existing private buckets under `clinic/<chat id>/`, only after the checks (`/api/clinic-chat-files/:messageId`).
+- **Shared chat view:** `ChatThread` was split into `ChatThreadView` (the screen) and a small wrapper, so therapist and clinic chats share the same recorder, picker and bubbles.
+- **Handoff:** `BACKEND-HANDOFF.md` section 35.
+
+**What to re-test:**
+1. Run the migration in the Supabase SQL Editor.
+2. As a UP student with a clinic request: Messages shows "UP Wellness Clinic" with a "Clinic" label. Send a text, a voice message, a photo and a PDF.
+3. As the desk: the Messages tab shows an unread count and the chat as "Anonymous #CODE". Open it, play the voice message, open the photo and PDF, and reply with each kind.
+4. On the student's side the replies appear as the clinic (no desk name), and "Seen" shows on their own last message once the desk opened it.
+5. On the desk, a request card's Message button opens that student's chat.
+6. As the therapist: `/pro/messages` shows only their own therapist chats, never the clinic chat.
+7. As a normal user with no clinic request: no clinic chat in Messages, and `/api/clinic-chat/up-wellness-clinic` returns "Chat not found".
+8. My appointments: "Message the clinic" opens the clinic chat.
+
 ## 24 Oct 2026: Wellbeing, Loneliness and Trauma Checks Added to Symptom Check (English Only for Now)
 
 Commits `abe3fbe` and `a4feeca`, merged in PR #29. Migration `20261024000300_symptom_check_types.sql` applied 24 Oct.

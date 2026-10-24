@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Building2, CalendarX2, Clock3, MapPin, Video } from "lucide-react";
+import { Building2, CalendarX2, Clock3, MapPin, MessageCircle, Video } from "lucide-react";
 import {
   formatClinicDay,
   formatClinicTime,
@@ -151,6 +151,13 @@ export function ClinicRequests({ km, now }: { km: boolean; now: number }) {
                     {t("ជ្រើសរើសម៉ោងផ្សេង", "Choose other times")}
                   </Link>
                 )}
+                <Link
+                  href={`/messages/clinic/${item.clinicSlug}`}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-arom-border px-4 py-2 text-sm font-medium text-ink hover:bg-arom-wash"
+                >
+                  <MessageCircle aria-hidden="true" size={16} className="text-arom" />
+                  {t("ផ្ញើសារទៅគ្លីនិក", "Message the clinic")}
+                </Link>
               </div>
             </li>
           );

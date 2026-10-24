@@ -475,6 +475,15 @@ function AppointmentCard({
             {t("បញ្ចូលក្នុងប្រតិទិន", "Add to calendar")}
           </button>
         )}
+        {clinic && (
+          <Link
+            href={`/messages/clinic/${clinic.slug}`}
+            className="inline-flex items-center gap-1.5 rounded-full border border-arom-border px-4 py-2 text-sm font-medium text-ink hover:bg-arom-wash"
+          >
+            <MessageCircle aria-hidden="true" size={16} className="text-arom" />
+            {t("ផ្ញើសារទៅគ្លីនិក", "Message the clinic")}
+          </Link>
+        )}
         {clinic ? (
           <Link
             href={`/clinic-hospital?clinic=${clinic.slug}`}
