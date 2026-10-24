@@ -1,7 +1,9 @@
 import type { NextRequest } from "next/server";
 import { z } from "zod";
 import {
+  MAX_CLIENT_AGE,
   MAX_CLINIC_NOTE,
+  MIN_CLIENT_AGE,
   MAX_DESK_ANSWER,
   MAX_DESK_CANCEL_REASON,
   MAX_DESK_MOVE_REASON,
@@ -146,8 +148,12 @@ export async function listClinicAccess() {
 const requestSchema = z.object({
   sessionType: z.enum(["online", "in_person"]),
   therapistGender: z.enum(["female", "male", "any"]),
+  preferredLanguage: z.enum(["khmer", "english"]),
+  age: z.number().int().min(MIN_CLIENT_AGE).max(MAX_CLIENT_AGE),
+  sex: z.enum(["male", "female", "non_binary"]),
   times: z.array(isoSchema).min(1).max(12),
-  note: z.string().trim().max(MAX_CLINIC_NOTE).default(""),
+  // "What would you like help with?" Required (24 Oct 2026).
+  note: z.string().trim().min(1).max(MAX_CLINIC_NOTE),
 });
 
 /** POST /api/clinics/:slug/requests */
@@ -163,8 +169,11 @@ export async function createClinicRequest(request: NextRequest, slug: string) {
     p_slug: parsedSlug.data,
     p_session_type: body.data.sessionType,
     p_therapist_gender: body.data.therapistGender,
+    p_preferred_language: body.data.preferredLanguage,
+    p_age: body.data.age,
+    p_sex: body.data.sex,
     p_times: body.data.times,
-    p_note: body.data.note || null,
+    p_note: body.data.note,
   });
   if (error) return databaseError(error, "We could not send your request. Please try again.");
 
@@ -175,6 +184,7 @@ interface MyRequestRow {
   id: string;
   session_type: MyClinicRequest["sessionType"];
   therapist_gender: MyClinicRequest["therapistGender"];
+  preferred_language: MyClinicRequest["preferredLanguage"];
   times: string[];
   note: string | null;
   status: MyClinicRequest["status"];
@@ -191,7 +201,7 @@ export async function listMyClinicRequests() {
 
   const { data, error } = await guard.supabase
     .from("clinic_booking_requests")
-    .select("id, session_type, therapist_gender, times, note, status, answer_note, created_at, appointment_id, clinic:clinics(slug, name, name_km)")
+    .select("id, session_type, therapist_gender, preferred_language, times, note, status, answer_note, created_at, appointment_id, clinic:clinics(slug, name, name_km)")
     .eq("user_id", guard.userId)
     .order("created_at", { ascending: false })
     .limit(50)
@@ -207,6 +217,7 @@ export async function listMyClinicRequests() {
       clinicKmName: clinic?.name_km ?? "",
       sessionType: row.session_type,
       therapistGender: row.therapist_gender,
+      preferredLanguage: row.preferred_language,
       times: row.times,
       note: row.note ?? "",
       status: row.status,
@@ -282,6 +293,9 @@ export async function getDesk(slug: string) {
         client_name: string;
         session_type: DeskRequest["sessionType"];
         therapist_gender: DeskRequest["therapistGender"];
+        preferred_language: DeskRequest["preferredLanguage"];
+        age: number | null;
+        sex: DeskRequest["sex"];
         times: string[];
         note: string;
         status: DeskRequest["status"];
@@ -299,6 +313,9 @@ export async function getDesk(slug: string) {
       clientName: row.client_name,
       sessionType: row.session_type,
       therapistGender: row.therapist_gender,
+      preferredLanguage: row.preferred_language,
+      age: row.age,
+      sex: row.sex,
       times: row.times,
       note: row.note,
       status: row.status,

@@ -100,6 +100,28 @@ export function DeskRequestCard({
           : t(`ចង់បានអ្នកព្យាបាល${genderText(request.therapistGender, true)}`, `Prefers a ${genderText(request.therapistGender, false).toLowerCase()} therapist`)}
       </p>
 
+      {(request.age || request.sex || request.preferredLanguage) && (
+        <p className="mt-1.5 text-sm text-ink">
+          {[
+            request.age ? t(`អាយុ ${request.age}`, `Age ${request.age}`) : "",
+            request.sex === "male"
+              ? t("ប្រុស", "Male")
+              : request.sex === "female"
+                ? t("ស្រី", "Female")
+                : request.sex === "non_binary"
+                  ? t("មិនកំណត់ភេទ", "Non-binary")
+                  : "",
+            request.preferredLanguage === "khmer"
+              ? t("ចង់ប្រើភាសាខ្មែរ", "Prefers Khmer")
+              : request.preferredLanguage === "english"
+                ? t("ចង់ប្រើភាសាអង់គ្លេស", "Prefers English")
+                : "",
+          ]
+            .filter(Boolean)
+            .join(" · ")}
+        </p>
+      )}
+
       {request.note && (
         <p className="mt-2 flex items-start gap-2 rounded-2xl bg-arom-wash/70 px-3.5 py-2.5 text-sm text-ink">
           <MessageSquareText aria-hidden="true" size={16} className="mt-0.5 shrink-0 text-arom" />

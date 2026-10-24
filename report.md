@@ -1,5 +1,28 @@
 # AROM: Change Report
 
+## 24 Oct 2026: UP Clinic Booking Asks What UP's Form Asks, Renamed UP Counseling (EMDRAC)
+
+Commit `e4208b6` (pull request `rith/clinic-request-details`). Migration `20261024001100_clinic_request_details.sql`, not yet applied.
+
+**Why.** UP and EMDR Association Cambodia (EMDRAC) book through a Google Form that asks age, sex, preferred language and a summary of the problem. The AROM booking should give the clinic the same information, so both ways of booking work the same for them. Name and Telegram number are left out on purpose: students stay anonymous and the desk chats in AROM.
+
+**What changed for users:**
+- **Booking at the UP clinic asks:** preferred language (Khmer or English), age, sex (Male, Female or Non-binary), and "What would you like help with?", which is now required. A line says the clinic desk and the therapist see this, and that we do not ask for a name or phone number.
+- **The clinic desk** sees age, sex and language on each request.
+- **The therapist** sees age, sex, preferred language and therapist preference under "Before the session", and the student's summary as their note.
+- **The clinic is renamed "UP Counseling (EMDRAC)"** (Khmer: ការប្រឹក្សា UP (EMDRAC)), and its description says the therapists are from EMDR Association Cambodia.
+
+**What changed for the team:**
+- **Database (PR):** `clinic_booking_requests.age`, `sex`, `preferred_language`; `request_clinic_booking()` replaced with the new required fields; `clinic_desk_requests()` returns them; `clinic_desk_confirm()` adds them to `intake_answers`. The clinic row is renamed.
+- **Handoff:** `BACKEND-HANDOFF.md` section 34.
+
+**What to re-test:**
+1. Run the migration in the Supabase SQL Editor.
+2. As a UP student, open UP Counseling (EMDRAC) and tap Book a session. Try to send without language, age, sex or the help text: each shows a clear message.
+3. Fill everything in and send. The desk's request shows "Age 21 · Female · Prefers Khmer" and the help text.
+4. Confirm it with a therapist. In the therapist's `/pro/bookings`, "Before the session" lists Age, Sex, Preferred language and Therapist preference, with the help text above.
+5. Find Clinic & Hospital and the sidebar show the new name.
+
 ## 24 Oct 2026: Clinic Desk Page Uses the Normal Phone Header
 
 Commit `5ce1aaf`. No migration. Frontend only.

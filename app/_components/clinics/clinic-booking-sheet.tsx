@@ -4,12 +4,16 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { CheckCircle2, X } from "lucide-react";
 import {
+  MAX_CLIENT_AGE,
   MAX_CLINIC_NOTE,
+  MIN_CLIENT_AGE,
   cambodiaDay,
   formatClinicDay,
   formatClinicRange,
   type ClinicBookingInfo,
+  type ClientSex,
   type ClinicSessionType,
+  type PreferredLanguage,
   type TherapistPreference,
 } from "@/lib/clinic-booking";
 import { SheetDialog } from "../sheet-dialog";
@@ -60,6 +64,10 @@ export function ClinicBookingSheet({
     info.sessionTypes.length === 1 ? info.sessionTypes[0] : null,
   );
   const [gender, setGender] = useState<TherapistPreference>("any");
+  // Asked like UP's booking form. Name and Telegram are not asked.
+  const [language, setLanguage] = useState<PreferredLanguage | null>(null);
+  const [age, setAge] = useState("");
+  const [sex, setSex] = useState<ClientSex | null>(null);
   const [dayKey, setDayKey] = useState(days[0]?.key ?? "");
   const [picked, setPicked] = useState<string[]>([]);
   const [note, setNote] = useState("");
@@ -88,8 +96,25 @@ export function ClinicBookingSheet({
       setError(t("សូមជ្រើសរើសអនឡាញ ឬជួបផ្ទាល់។", "Please choose online or in person."));
       return;
     }
+    if (!language) {
+      setError(t("សូមជ្រើសរើសភាសាដែលអ្នកចង់ប្រើ។", "Please choose your preferred language."));
+      return;
+    }
+    const ageNumber = Number(age);
+    if (!Number.isInteger(ageNumber) || ageNumber < MIN_CLIENT_AGE || ageNumber > MAX_CLIENT_AGE) {
+      setError(t("សូមបញ្ចូលអាយុរបស់អ្នក។", "Please enter your age."));
+      return;
+    }
+    if (!sex) {
+      setError(t("សូមជ្រើសរើសភេទរបស់អ្នក។", "Please choose your sex."));
+      return;
+    }
     if (picked.length === 0) {
       setError(t("សូមជ្រើសរើសយ៉ាងហោចណាស់ម៉ោងមួយ។", "Please choose at least one time."));
+      return;
+    }
+    if (!note.trim()) {
+      setError(t("សូមប្រាប់គ្លីនិកថាអ្នកចង់បានជំនួយអំពីអ្វី។", "Please tell the clinic what you would like help with."));
       return;
     }
     setBusy(true);
@@ -98,7 +123,15 @@ export function ClinicBookingSheet({
       const response = await fetch(`/api/clinics/${slug}/requests`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sessionType, therapistGender: gender, times: picked, note: note.trim() }),
+        body: JSON.stringify({
+          sessionType,
+          therapistGender: gender,
+          preferredLanguage: language,
+          age: ageNumber,
+          sex,
+          times: picked,
+          note: note.trim(),
+        }),
       });
       const data = (await response.json().catch(() => null)) as { error?: { message?: string } } | null;
       if (!response.ok) {
@@ -224,6 +257,75 @@ export function ClinicBookingSheet({
           )}
 
           <fieldset>
+            <legend className="text-sm font-semibold text-ink">
+              {t("ភាសាដែលអ្នកចង់ប្រើ", "Preferred language")}
+            </legend>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {(["khmer", "english"] as const).map((value) => (
+                <button
+                  key={value}
+                  type="button"
+                  aria-pressed={language === value}
+                  onClick={() => {
+                    setError("");
+                    setLanguage(value);
+                  }}
+                  className={chipClass(language === value)}
+                >
+                  {value === "khmer" ? t("ខ្មែរ (Khmer)", "Khmer") : t("អង់គ្លេស (English)", "English")}
+                </button>
+              ))}
+            </div>
+          </fieldset>
+
+          <div className="grid gap-4 sm:grid-cols-[8rem_minmax(0,1fr)]">
+            <label className="block text-sm font-semibold text-ink">
+              {t("អាយុ", "Age")}
+              <input
+                type="number"
+                inputMode="numeric"
+                min={MIN_CLIENT_AGE}
+                max={MAX_CLIENT_AGE}
+                value={age}
+                onChange={(event) => {
+                  setError("");
+                  setAge(event.target.value);
+                }}
+                className="mt-2 block w-full rounded-xl border border-arom-border bg-white px-3 py-2 text-sm font-normal text-ink outline-none focus:border-arom focus:ring-4 focus:ring-arom/10"
+              />
+            </label>
+            <fieldset>
+              <legend className="text-sm font-semibold text-ink">{t("ភេទ", "Sex")}</legend>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {(["male", "female", "non_binary"] as const).map((value) => (
+                  <button
+                    key={value}
+                    type="button"
+                    aria-pressed={sex === value}
+                    onClick={() => {
+                      setError("");
+                      setSex(value);
+                    }}
+                    className={chipClass(sex === value)}
+                  >
+                    {value === "male"
+                      ? t("ប្រុស (Male)", "Male")
+                      : value === "female"
+                        ? t("ស្រី (Female)", "Female")
+                        : t("មិនកំណត់ភេទ (Non-binary)", "Non-binary")}
+                  </button>
+                ))}
+              </div>
+            </fieldset>
+          </div>
+          <p className="-mt-3 text-xs text-ink-muted">
+            {t(
+              "តុបម្រើគ្លីនិក និងអ្នកព្យាបាលរបស់អ្នកឃើញព័ត៌មាននេះ។ យើងមិនសួរឈ្មោះ ឬលេខទូរស័ព្ទរបស់អ្នកទេ។",
+              "The clinic desk and your therapist see this. We do not ask your name or phone number.",
+            )}
+          </p>
+
+          <fieldset>
             <legend className="text-sm font-semibold text-ink">{t("ថ្ងៃ", "Day")}</legend>
             <div className="mt-2 flex flex-wrap gap-2">
               {days.map((item) => (
@@ -278,11 +380,11 @@ export function ClinicBookingSheet({
           )}
 
           <label className="block text-sm font-semibold text-ink">
-            {t("កំណត់ចំណាំ (ស្រេចចិត្ត)", "Note (optional)")}
+            {t("តើអ្នកចង់បានជំនួយអំពីអ្វី?", "What would you like help with?")}
             <span className="block text-xs font-normal text-ink-muted">
               {t(
-                "អ្នកព្យាបាលរបស់អ្នកនឹងឃើញកំណត់ចំណាំនេះ។",
-                "Your therapist will see this note.",
+                "សរសេរខ្លីៗ។ តុបម្រើគ្លីនិក និងអ្នកព្យាបាលរបស់អ្នកនឹងឃើញវា។",
+                "A few words are enough. The clinic desk and your therapist will see it.",
               )}
             </span>
             <textarea
@@ -290,6 +392,7 @@ export function ClinicBookingSheet({
               onChange={(event) => setNote(event.target.value)}
               rows={3}
               maxLength={MAX_CLINIC_NOTE}
+              required
               className="mt-1.5 block w-full rounded-xl border border-arom-border bg-white px-3 py-2 text-sm font-normal text-ink outline-none focus:border-arom focus:ring-4 focus:ring-arom/10"
             />
           </label>
