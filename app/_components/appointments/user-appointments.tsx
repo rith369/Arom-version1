@@ -29,6 +29,7 @@ import { useLanguage } from "../language-provider";
 import { JoinButton } from "../sessions/join-button";
 import { downloadCalendarFile, howSoon } from "./appointment-helpers";
 import { ChangeTimePanel } from "./change-time-panel";
+import { ClinicRequests } from "./clinic-requests";
 import { OfficeCard } from "../office-card";
 import { ReviewPanel } from "./review-panel";
 
@@ -111,6 +112,9 @@ function AppointmentCard({
   }, [sharingSaved]);
 
   const professional = appointment.professional;
+  // A clinic booking (section 34): the clinic changes its time and is the place.
+  const clinic = appointment.clinic;
+  const clinicName = clinic ? (km && clinic.kmName) || clinic.name : "";
   const name = professional ? (km && professional.kmName) || professional.name : t("អ្នកជំនាញ", "Professional");
   const title = professional ? (km && professional.kmTitle) || professional.title : "";
   const start = new Date(appointment.startsAt);
@@ -118,8 +122,12 @@ function AppointmentCard({
   const canCancel = appointment.status === "booked" && Date.parse(appointment.startsAt) > now;
   // Moving closes at the professional's minimum notice; cancelling stays open until the start.
   const canChangeTime =
-    canCancel && professional !== null && appointment.changeTimeUntil !== null && Date.parse(appointment.changeTimeUntil) > now;
-  const tooLateToChange = canCancel && professional !== null && !canChangeTime;
+    canCancel &&
+    professional !== null &&
+    clinic === null &&
+    appointment.changeTimeUntil !== null &&
+    Date.parse(appointment.changeTimeUntil) > now;
+  const tooLateToChange = canCancel && professional !== null && clinic === null && !canChangeTime;
   const canShare = appointment.status === "booked" || appointment.status === "completed";
   const soon = upcoming ? howSoon(appointment.startsAt, now, km) : null;
   const sharedItems = [
@@ -189,6 +197,7 @@ function AppointmentCard({
             <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${status.tone}`}>{status.text}</span>
           </div>
           {title && <p className="text-sm text-ink-muted">{title}</p>}
+          {clinic && <p className="text-sm font-medium text-arom-deep">{clinicName}</p>}
 
           <dl className="mt-3 grid gap-1.5 text-sm text-ink sm:grid-cols-2">
             <div className="flex items-center gap-2">
@@ -224,7 +233,12 @@ function AppointmentCard({
       {appointment.sessionType === "in_person" && appointment.status === "booked" && (
         <div className="mt-4 flex items-start gap-2.5 rounded-2xl bg-arom-wash/70 px-3.5 py-3">
           <MapPin aria-hidden="true" size={17} className="mt-0.5 shrink-0 text-arom" />
-          {professional?.office ? (
+          {clinic?.address ? (
+            <OfficeCard
+              office={{ name: clinicName, address: (km && clinic.kmAddress) || clinic.address, mapUrl: "" }}
+              km={km}
+            />
+          ) : professional?.office ? (
             <OfficeCard office={professional.office} km={km} />
           ) : (
             <p className="text-sm text-ink-muted">
@@ -243,7 +257,9 @@ function AppointmentCard({
           <span>
             {appointment.rescheduledBy === "you"
               ? t("អ្នកបានប្តូរវគ្គនេះពី", "You moved this session from")
-              : t("អ្នកជំនាញបានប្តូរពេលពី", "Your professional moved this session from")}{" "}
+              : appointment.rescheduledBy === "clinic"
+                ? t("គ្លីនិកបានប្តូរពេលពី", "The clinic moved this session from")
+                : t("អ្នកជំនាញបានប្តូរពេលពី", "Your professional moved this session from")}{" "}
             {formats.short.format(new Date(appointment.rescheduledFrom))}.
             {appointment.rescheduleReason && ` ${t("មូលហេតុ", "Reason")}: ${appointment.rescheduleReason}`}
           </span>
@@ -258,7 +274,9 @@ function AppointmentCard({
               ? t("អ្នកបានបោះបង់វគ្គនេះ។", "You cancelled this session.")
               : appointment.cancelledBy === "professional"
                 ? t("អ្នកជំនាញបានបោះបង់វគ្គនេះ។", "Your professional cancelled this session.")
-                : t("ក្រុម AROM បានបោះបង់វគ្គនេះ។", "The AROM team cancelled this session.")}
+                : appointment.cancelledBy === "clinic"
+                  ? t("គ្លីនិកបានបោះបង់វគ្គនេះ។", "The clinic cancelled this session.")
+                  : t("ក្រុម AROM បានបោះបង់វគ្គនេះ។", "The AROM team cancelled this session.")}
             {appointment.cancelReason && ` ${t("មូលហេតុ", "Reason")}: ${appointment.cancelReason}`}
           </span>
         </p>
@@ -273,7 +291,7 @@ function AppointmentCard({
         </p>
       )}
 
-      {professional && review !== undefined && onReviewsChange && (
+      {professional && !clinic && review !== undefined && onReviewsChange && (
         <ReviewPanel
           slug={professional.slug}
           professionalName={name}
@@ -368,6 +386,15 @@ function AppointmentCard({
         </div>
       )}
 
+      {clinic && canCancel && (
+        <p className="mt-4 text-sm text-ink-muted">
+          {t(
+            "ត្រូវការពេលផ្សេង? សូមបោះបង់វគ្គនេះ ហើយផ្ញើសំណើថ្មីទៅគ្លីនិក។",
+            "Need another time? Cancel this session and send a new request to the clinic.",
+          )}
+        </p>
+      )}
+
       {tooLateToChange && (
         <p className="mt-4 text-sm text-ink-muted">
           {t(
@@ -448,13 +475,22 @@ function AppointmentCard({
             {t("បញ្ចូលក្នុងប្រតិទិន", "Add to calendar")}
           </button>
         )}
-        {professional && (
+        {clinic ? (
           <Link
-            href={`/professional/${professional.slug}`}
+            href={`/clinic-hospital?clinic=${clinic.slug}`}
             className="rounded-full border border-arom-border px-4 py-2 text-sm font-medium text-ink hover:bg-arom-wash"
           >
-            {t("មើលប្រវត្តិរូប", "View profile")}
+            {t("មើលគ្លីនិក", "View clinic")}
           </Link>
+        ) : (
+          professional && (
+            <Link
+              href={`/professional/${professional.slug}`}
+              className="rounded-full border border-arom-border px-4 py-2 text-sm font-medium text-ink hover:bg-arom-wash"
+            >
+              {t("មើលប្រវត្តិរូប", "View profile")}
+            </Link>
+          )
         )}
         {canChangeTime && !moving && (
           <button
@@ -574,6 +610,8 @@ export function UserAppointments() {
 
       {state === "ready" && (
         <>
+          <ClinicRequests km={km} now={now} />
+
           <section aria-labelledby="upcoming-title" className="mt-8">
             <h2 id="upcoming-title" className="text-lg font-bold text-ink">
               {t("នាពេលខាងមុខ", "Upcoming")}

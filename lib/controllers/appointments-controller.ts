@@ -18,7 +18,7 @@ import { databaseError, fail, invalidInput, json, readJson, unauthorized } from 
  */
 
 const COLUMNS =
-  "id, user_id, starts_at, ends_at, session_type, status, meeting_url, intake_note, cancelled_by, cancel_reason, rescheduled_from, reschedule_reason, rescheduled_by, share_survey, share_symptom_checks, share_mood_trend, series_id, professional_id, professional:professional_profiles(slug, display_name, display_name_km, title, title_km, photo_url, office_name, office_address, office_map_url)";
+  "id, user_id, starts_at, ends_at, session_type, status, meeting_url, intake_note, cancelled_by, cancel_reason, rescheduled_from, reschedule_reason, rescheduled_by, share_survey, share_symptom_checks, share_mood_trend, series_id, professional_id, professional:professional_profiles(slug, display_name, display_name_km, title, title_km, photo_url, office_name, office_address, office_map_url), clinic_id, clinic:clinics(slug, name, name_km, address, address_km)";
 
 interface ProfessionalRow {
   slug: string;
@@ -30,6 +30,14 @@ interface ProfessionalRow {
   office_name: string | null;
   office_address: string | null;
   office_map_url: string | null;
+}
+
+interface ClinicRow {
+  slug: string | null;
+  name: string;
+  name_km: string | null;
+  address: string | null;
+  address_km: string | null;
 }
 
 interface AppointmentRow {
@@ -52,10 +60,16 @@ interface AppointmentRow {
   series_id: string | null;
   professional_id: string;
   professional: ProfessionalRow | ProfessionalRow[] | null;
+  clinic_id: string | null;
+  clinic: ClinicRow | ClinicRow[] | null;
 }
 
 function toAppointment(row: AppointmentRow, changeUntil: Map<string, string>): UserAppointment {
   const professional = Array.isArray(row.professional) ? row.professional[0] : row.professional;
+  const clinic = Array.isArray(row.clinic) ? row.clinic[0] : row.clinic;
+  // The clinic desk is neither the user nor the professional.
+  const byClinic = (who: string | null) =>
+    row.clinic_id !== null && who !== null && who !== row.user_id && who !== row.professional_id;
   return {
     id: row.id,
     startsAt: row.starts_at,
@@ -72,11 +86,19 @@ function toAppointment(row: AppointmentRow, changeUntil: Map<string, string>): U
           ? "you"
           : row.cancelled_by === row.professional_id
             ? "professional"
-            : "admin",
+            : byClinic(row.cancelled_by)
+              ? "clinic"
+              : "admin",
     cancelReason: row.cancel_reason ?? "",
     rescheduledFrom: row.rescheduled_from,
     rescheduleReason: row.reschedule_reason ?? "",
-    rescheduledBy: !row.rescheduled_from ? null : row.rescheduled_by === row.user_id ? "you" : "professional",
+    rescheduledBy: !row.rescheduled_from
+      ? null
+      : row.rescheduled_by === row.user_id
+        ? "you"
+        : byClinic(row.rescheduled_by)
+          ? "clinic"
+          : "professional",
     changeTimeUntil: changeUntil.get(row.id) ?? null,
     shareSurvey: row.share_survey,
     shareMoodTrend: row.share_mood_trend,
@@ -97,6 +119,15 @@ function toAppointment(row: AppointmentRow, changeUntil: Map<string, string>): U
                 mapUrl: professional.office_map_url ?? "",
               }
             : null,
+        }
+      : null,
+    clinic: clinic
+      ? {
+          slug: clinic.slug ?? "",
+          name: clinic.name,
+          kmName: clinic.name_km ?? "",
+          address: clinic.address ?? "",
+          kmAddress: clinic.address_km ?? "",
         }
       : null,
   };
