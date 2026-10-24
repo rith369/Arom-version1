@@ -22,6 +22,7 @@ import {
 
 import { AccountMenu } from '../../_components/account-menu';
 import { LanguageSwitcher, useLanguage } from '../../_components/language-provider';
+import { usePro } from './pro-provider';
 
 type NavLink = {
   href: string;
@@ -45,6 +46,9 @@ const LINKS: NavLink[] = [
 
 export function ProShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
+  // Clinic therapists have no schedule: the clinic books them (section 34).
+  const { profile } = usePro();
+  const links = profile.clinic ? LINKS.filter((link) => link.href !== '/pro/schedule') : LINKS;
   const { language } = useLanguage();
   const km = language === 'km';
   const t = (kmText: string, enText: string) => (km ? kmText : enText);
@@ -80,7 +84,7 @@ export function ProShell({ children }: { children: ReactNode }) {
   const menu = (
     <>
       <nav aria-label={t('ម៉ឺនុយអ្នកជំនាញ', 'Professional menu')} className="mt-6 flex flex-col gap-2 lg:mt-8">
-        {LINKS.map(({ href, en, km: kmLabel, icon: Icon, soon }) => {
+        {links.map(({ href, en, km: kmLabel, icon: Icon, soon }) => {
           const isActive = pathname === href || (href !== '/pro' && pathname.startsWith(`${href}/`));
           const label = km ? kmLabel : en;
 

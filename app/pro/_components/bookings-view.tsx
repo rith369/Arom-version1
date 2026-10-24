@@ -484,7 +484,7 @@ export function BookingDialog({
 }
 
 export function ProBookingsView({ initialOpenId }: { initialOpenId?: string }) {
-  const { bookings, sessionNotes, schedule } = usePro();
+  const { bookings, sessionNotes, schedule, profile } = usePro();
   const { language } = useLanguage();
   const km = language === 'km';
   const t = (kmText: string, enText: string) => (km ? kmText : enText);
@@ -573,7 +573,11 @@ export function ProBookingsView({ initialOpenId }: { initialOpenId?: string }) {
             {tab === 'upcoming' ? t('មិនមានការណាត់ជួបខាងមុខទេ', 'No upcoming sessions') : t('មិនទាន់មានការណាត់ជួបកន្លងមកទេ', 'No past sessions yet')}
           </p>
           {tab === 'upcoming' && (
-            <p className="mt-1 text-sm text-ink-muted">{t('អ្នកប្រើកក់ពីម៉ោងដែលអ្នកបើកក្នុងកាលវិភាគ។', 'People book from the times you open in My schedule.')}</p>
+            <p className="mt-1 text-sm text-ink-muted">
+              {profile.clinic
+                ? t('តុបម្រើគ្លីនិកកំណត់វគ្គឱ្យអ្នក។', 'The clinic desk assigns sessions to you.')
+                : t('អ្នកប្រើកក់ពីម៉ោងដែលអ្នកបើកក្នុងកាលវិភាគ។', 'People book from the times you open in My schedule.')}
+            </p>
           )}
         </div>
       ) : (

@@ -1,5 +1,25 @@
 # AROM: Change Report
 
+## 24 Oct 2026: Clinic Therapists No Longer See My Schedule
+
+Commit pending. No migration. Frontend only.
+
+**Why.** A clinic therapist's sessions come from the clinic's own times and are assigned by the clinic desk, and they are not on the Professional page. Their My schedule page still said "The times people can book a session with you", which was not true and confusing.
+
+**What changed for users (clinic therapists only):**
+- **"My schedule" is hidden** from their `/pro` menu. Opening the old link shows a short note: "You work at UP Counseling (EMDRAC). The clinic desk books your sessions from the clinic's times, so you do not need a schedule. For an online session, add the meeting link in My bookings."
+- **Home** drops the "How full your week is" tile (it was based on the schedule).
+- **My bookings**, when empty, says "The clinic desk assigns sessions to you."
+- Normal therapists see no change.
+
+**What changed for the team:**
+- `pro-shell.tsx`, `schedule-editor-page.tsx`, `pro-dashboard.tsx` and `bookings-view.tsx` check `profile.clinic`. The profile checklist already skipped schedule and price for clinic therapists.
+
+**What to re-test:**
+1. Log in as a therapist linked to UP Counseling (EMDRAC). The `/pro` menu has no My schedule; Home has 3 tiles.
+2. Open `/pro/schedule` directly: the note shows with a link to My bookings.
+3. Log in as a normal therapist: My schedule and the 4th tile are still there.
+
 ## 24 Oct 2026: UP Clinic Booking Asks What UP's Form Asks, Renamed UP Counseling (EMDRAC)
 
 Commit `e4208b6`, merged in PR #31 (`f04bb23`). Migration `20261024001100_clinic_request_details.sql` applied 24 Oct.

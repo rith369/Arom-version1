@@ -79,7 +79,9 @@ function Tile({ label, value, note, children }: { label: string; value: string; 
 
 // Four numbers: this week, next 7 days, active clients, how full the week is.
 export function StatTiles({ now, km }: { now: number; km: boolean }) {
-  const { bookings, archivedClients, schedule } = usePro();
+  const { bookings, archivedClients, schedule, profile } = usePro();
+  // A clinic therapist has no schedule, so "How full your week is" does not apply.
+  const clinic = profile.clinic !== null;
   const t = (kmText: string, enText: string) => (km ? kmText : enText);
 
   const thisMonday = mondayOf(cambodiaDate(now));
@@ -100,7 +102,7 @@ export function StatTiles({ now, km }: { now: number; km: boolean }) {
   const full = capacity > 0 ? Math.min(100, Math.round((thisWeek.length / capacity) * 100)) : null;
 
   return (
-    <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
+    <div className={`grid grid-cols-2 gap-3 ${clinic ? 'xl:grid-cols-3' : 'xl:grid-cols-4'}`}>
       <Tile
         label={t('វគ្គសប្តាហ៍នេះ', 'Sessions this week')}
         value={String(thisWeek.length)}
@@ -114,6 +116,7 @@ export function StatTiles({ now, km }: { now: number; km: boolean }) {
       />
       <Tile label={t('៧ ថ្ងៃខាងមុខ', 'Next 7 days')} value={String(nextSeven)} note={t('វគ្គដែលបានកក់', 'booked sessions')} />
       <Tile label={t('អតិថិជនសកម្ម', 'Active clients')} value={String(active)} note={t('មិនរាប់អតិថិជនចាស់', 'not counting archived')} />
+      {!clinic && (
       <Tile label={t('សប្តាហ៍របស់អ្នកពេញប៉ុណ្ណា', 'How full your week is')} value={full === null ? '0%' : `${full}%`}>
         <div
           role="progressbar"
@@ -134,6 +137,7 @@ export function StatTiles({ now, km }: { now: number; km: boolean }) {
           )}
         </p>
       </Tile>
+      )}
     </div>
   );
 }
