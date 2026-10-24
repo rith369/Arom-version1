@@ -56,7 +56,7 @@ export interface ProData {
 }
 
 const PROFILE_COLUMNS =
-  "slug, display_name, display_name_km, title, title_km, bio, bio_km, photo_url, specialties, languages, years_experience, session_types, price_kind, price_usd, price_max_usd, office_name, office_address, office_map_url";
+  "slug, display_name, display_name_km, title, title_km, bio, bio_km, photo_url, specialties, languages, years_experience, gender, session_types, price_kind, price_usd, price_max_usd, office_name, office_address, office_map_url";
 
 const PHOTO_BUCKET = "professional-photos";
 
@@ -70,7 +70,7 @@ function cambodiaIso(value: string) {
 // ---------------------------------------------------------------------------
 
 async function loadProfile(supabase: Supabase, userId: string): Promise<ProProfile | null> {
-  const [{ data: row }, { data: credential }] = await Promise.all([
+  const [{ data: row }, { data: credential }, { data: link }] = await Promise.all([
     supabase.from("professional_profiles").select(PROFILE_COLUMNS).eq("id", userId).maybeSingle(),
     supabase
       .from("professional_credentials")
@@ -79,8 +79,14 @@ async function loadProfile(supabase: Supabase, userId: string): Promise<ProProfi
       .order("submitted_at", { ascending: false })
       .limit(1)
       .maybeSingle(),
+    supabase
+      .from("professional_clinics")
+      .select("clinic:clinics(slug, name, name_km)")
+      .eq("professional_id", userId)
+      .maybeSingle<{ clinic: ClinicLinkRow | ClinicLinkRow[] | null }>(),
   ]);
   if (!row) return null;
+  const clinic = Array.isArray(link?.clinic) ? link.clinic[0] : link?.clinic;
 
   return {
     slug: row.slug,
@@ -101,19 +107,35 @@ async function loadProfile(supabase: Supabase, userId: string): Promise<ProProfi
     },
     price: toPrice(row.price_kind, row.price_usd, row.price_max_usd) ?? null,
     yearsExperience: row.years_experience,
+    gender: row.gender === "female" || row.gender === "male" || row.gender === "prefer_not_say" ? row.gender : null,
     licenseNumber: credential?.license_number ?? "",
     issuingBody: credential?.issuing_body ?? "",
+    clinic: clinic?.slug ? { slug: clinic.slug, name: clinic.name, kmName: clinic.name_km ?? "" } : null,
   };
+}
+
+interface ClinicLinkRow {
+  slug: string | null;
+  name: string;
+  name_km: string | null;
 }
 
 async function loadBookings(supabase: Supabase, userId: string, slug: string) {
   // read_my_pro_bookings_safe() returns each booking already shaped, with the
   // client's alias id instead of their account id (anonymous privacy).
-  const [appointments, notes, prep] = await Promise.all([
+  const [appointments, notes, prep, places] = await Promise.all([
     supabase.rpc("read_my_pro_bookings_safe"),
     supabase.from("session_notes").select("appointment_id, content, updated_at").eq("professional_id", userId),
     supabase.from("session_prep_notes").select("appointment_id, content, updated_at").eq("professional_id", userId),
+    // Which bookings came through a clinic (section 34). Empty on error.
+    supabase.rpc("my_clinic_appointment_places"),
   ]);
+  const clinicOf = new Map(
+    ((places.data ?? []) as { appointment_id: string; clinic_name: string; address: string | null }[]).map((place) => [
+      place.appointment_id,
+      { name: place.clinic_name, address: place.address ?? "" },
+    ]),
+  );
   if (appointments.error || !Array.isArray(appointments.data) || notes.error || prep.error) {
     throw new Error("Could not load professional bookings");
   }
@@ -123,6 +145,7 @@ async function loadBookings(supabase: Supabase, userId: string, slug: string) {
     professionalId: slug,
     startsAt: cambodiaIso(row.startsAt),
     rescheduledFrom: row.rescheduledFrom ? cambodiaIso(row.rescheduledFrom) : null,
+    clinic: clinicOf.get(row.id) ?? null,
   }));
 
   const sessionNotes: Record<string, SessionNote> = {};
@@ -250,6 +273,7 @@ const profileSchema = z.object({
   }),
   price: priceSchema.nullable().refine((price) => price === null || isValidPrice(price)),
   yearsExperience: z.number().int().min(0).max(60).nullable(),
+  gender: z.enum(["female", "male", "prefer_not_say"]).nullable().default(null),
   licenseNumber: z.string().trim().max(60),
   issuingBody: z.string().trim().max(120),
 });
@@ -293,6 +317,7 @@ export async function saveProProfile(request: NextRequest) {
       office_address: next.office.address || null,
       office_map_url: next.office.mapUrl || null,
       years_experience: next.yearsExperience,
+      gender: next.gender,
       price_kind: price?.kind ?? null,
       price_usd: price?.kind === "fixed" ? price.amount : price?.kind === "range" ? price.min : null,
       price_max_usd: price?.kind === "range" ? price.max : null,

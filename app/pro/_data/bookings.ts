@@ -40,6 +40,9 @@ export type ProBooking = {
   meetingUrl: string | null;
   // Set when the client booked a repeating series from a suggestion.
   seriesId: string | null;
+  // Set when the session came through a clinic (section 34). The clinic desk
+  // moves or cancels it, so the professional does not reschedule it here.
+  clinic?: { name: string; address: string } | null;
 };
 
 // Private to the professional who wrote it. Never shown to admins or clients.

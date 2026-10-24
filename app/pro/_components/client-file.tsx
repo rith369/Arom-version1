@@ -45,7 +45,7 @@ function Card({ title, icon: Icon, hint, children }: { title: string; icon: type
 }
 
 export function ClientFile({ clientId }: { clientId: string }) {
-  const { bookings, sessionNotes, summaryNotes, saveSummaryNote, archivedClients, setClientArchived } = usePro();
+  const { bookings, sessionNotes, summaryNotes, saveSummaryNote, archivedClients, setClientArchived, profile } = usePro();
   const { language } = useLanguage();
   const km = language === 'km';
   const t = (kmText: string, enText: string) => (km ? kmText : enText);
@@ -138,7 +138,8 @@ export function ClientFile({ clientId }: { clientId: string }) {
           <MessageCircle size={16} aria-hidden="true" />
           {t('ផ្ញើសារ', 'Message')}
         </Link>
-        {!archived && (
+        {/* Clinic therapists: the student books through the clinic. */}
+        {!archived && !profile.clinic && (
           <button
             type="button"
             onClick={() => setSuggesting(true)}

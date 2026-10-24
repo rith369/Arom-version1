@@ -295,7 +295,8 @@ revoke execute on function public.clinic_open_times(text) from public;
 grant execute on function public.clinic_open_times(text) to anon, authenticated;
 
 -- For students: the clinic's therapists, public profile fields only. Shown
--- once verified, active, with a photo and an about text.
+-- once verified, active, with a photo and an English bio of 80 characters
+-- (the same two steps the /pro checklist asks clinic therapists for).
 create or replace function public.clinic_therapists(p_slug text)
 returns table (
   slug text,
@@ -331,7 +332,7 @@ as $$
     and pp.verification_status = 'verified'
     and not pp.is_test
     and coalesce(pp.photo_url, '') <> ''
-    and char_length(trim(coalesce(pp.bio, ''))) >= 40
+    and char_length(trim(coalesce(pp.bio, ''))) >= 80
   order by pp.display_name;
 $$;
 
