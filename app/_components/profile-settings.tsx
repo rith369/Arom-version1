@@ -12,6 +12,7 @@ import {
   Flame,
   Globe2,
   GraduationCap,
+  ClipboardList,
   Activity,
   Heart,
   Languages,
@@ -46,6 +47,23 @@ export function ProfileSettings() {
   const km = language === 'km';
 
   const [hideIdentity, setHideIdentity] = useState(true);
+  // Clinics this account answers bookings for (clinic desk, section 34). Usually none.
+  const [desks, setDesks] = useState<{ slug: string; name: string; kmName: string }[]>([]);
+
+  useEffect(() => {
+    if (!user) return;
+    let active = true;
+    fetch('/api/clinic-desk', { cache: 'no-store' })
+      .then(async (response) => {
+        if (!response.ok) return;
+        const data = (await response.json()) as { desks: { slug: string; name: string; kmName: string }[] };
+        if (active) setDesks(data.desks);
+      })
+      .catch(() => undefined);
+    return () => {
+      active = false;
+    };
+  }, [user]);
   const [savingIdentity, setSavingIdentity] = useState(false);
   const [identityError, setIdentityError] = useState('');
 
@@ -221,6 +239,33 @@ export function ProfileSettings() {
               />
             </Link>
           </motion.div>
+
+          {/* Clinic desk accounts answer clinic booking requests */}
+          {desks.length > 0 && (
+            <motion.div variants={itemVariants} className="mt-6">
+              <Link
+                href="/clinic-desk"
+                className="group flex items-center justify-between gap-3 rounded-3xl border border-arom/40 bg-arom-soft p-5 shadow-card transition-colors duration-150 hover:border-arom focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-arom sm:p-6">
+                <div className="flex items-center gap-3.5">
+                  <div className="flex size-11 items-center justify-center rounded-2xl bg-white text-arom">
+                    <ClipboardList size={22} />
+                  </div>
+                  <div>
+                    <p className="text-base font-bold text-ink">
+                      {km ? 'តុបម្រើគ្លីនិក (Clinic desk)' : 'Clinic desk'}
+                    </p>
+                    <p className="text-xs text-ink-muted sm:text-sm">
+                      {desks.map((desk) => (km && desk.kmName) || desk.name).join(', ')}
+                    </p>
+                  </div>
+                </div>
+                <ChevronRight
+                  size={20}
+                  className="shrink-0 text-ink-muted transition-transform duration-150 group-hover:translate-x-0.5 group-hover:text-arom"
+                />
+              </Link>
+            </motion.div>
+          )}
 
           {/* University of Puthisastra students and staff: free UP professionals and clinic */}
           {user && (
