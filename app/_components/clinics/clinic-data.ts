@@ -292,8 +292,8 @@ export const CLINICS_DATA: Clinic[] = [
     // real UP clinic details before launch (BACKEND-HANDOFF.md section 33).
     id: "up-wellness",
     slug: "up-wellness-clinic",
-    name: "UP Wellness Clinic",
-    nameKm: "គ្លីនិកសុខុមាលភាព UP",
+    name: "UP Counseling (EMDRAC)",
+    nameKm: "ការប្រឹក្សា UP (EMDRAC)",
     category: "clinic",
     rating: 0,
     reviewCount: 0,
@@ -311,8 +311,8 @@ export const CLINICS_DATA: Clinic[] = [
     phone: "",
     phoneDisplay: "",
     googleMapsUrl: "https://www.google.com/maps/search/?api=1&query=University+of+Puthisastra+Phnom+Penh",
-    about: "Free counseling for University of Puthisastra students and staff. Talk with a counselor about study or work stress, worry, low mood or anything on your mind, in a private room on campus.",
-    aboutKm: "ការប្រឹក្សាឥតគិតថ្លៃសម្រាប់និស្សិត និងបុគ្គលិកសាកលវិទ្យាល័យពុទ្ធិសាស្ត្រ។ និយាយជាមួយអ្នកប្រឹក្សាអំពីសម្ពាធការសិក្សា ឬការងារ ការព្រួយបារម្ភ អារម្មណ៍ធ្លាក់ចុះ ឬអ្វីដែលនៅក្នុងចិត្តរបស់អ្នក ក្នុងបន្ទប់ឯកជននៅក្នុងបរិវេណសាលា។",
+    about: "Free counseling for University of Puthisastra students and staff, with therapists from EMDR Association Cambodia (EMDRAC). Talk with a counselor about study or work stress, worry, low mood or anything on your mind, in a private room on campus or online.",
+    aboutKm: "ការប្រឹក្សាឥតគិតថ្លៃសម្រាប់និស្សិត និងបុគ្គលិកសាកលវិទ្យាល័យពុទ្ធិសាស្ត្រ ជាមួយអ្នកព្យាបាលពីសមាគម EMDR កម្ពុជា (EMDRAC)។ និយាយជាមួយអ្នកប្រឹក្សាអំពីសម្ពាធការសិក្សា ឬការងារ ការព្រួយបារម្ភ អារម្មណ៍ធ្លាក់ចុះ ឬអ្វីដែលនៅក្នុងចិត្តរបស់អ្នក ក្នុងបន្ទប់ឯកជននៅក្នុងបរិវេណសាលា ឬតាមអនឡាញ។",
     mapCoords: { x: 38, y: 40 },
     services: [
       {

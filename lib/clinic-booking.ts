@@ -8,6 +8,11 @@
 export type ClinicSessionType = "online" | "in_person";
 export type TherapistPreference = "female" | "male" | "any";
 export type ClinicRequestStatus = "waiting" | "confirmed" | "declined" | "cancelled";
+// Asked like UP's Google Form (24 Oct 2026). Name and Telegram are not asked.
+export type ClientSex = "male" | "female" | "non_binary";
+export type PreferredLanguage = "khmer" | "english";
+export const MIN_CLIENT_AGE = 13;
+export const MAX_CLIENT_AGE = 100;
 
 export const MAX_CLINIC_NOTE = 1000;
 export const MAX_DESK_ANSWER = 500;
@@ -53,6 +58,7 @@ export interface MyClinicRequest {
   clinicKmName: string;
   sessionType: ClinicSessionType;
   therapistGender: TherapistPreference;
+  preferredLanguage: PreferredLanguage | null;
   times: string[];
   note: string;
   status: ClinicRequestStatus;
@@ -79,7 +85,12 @@ export interface DeskRequest {
   clientName: string;
   sessionType: ClinicSessionType;
   therapistGender: TherapistPreference;
+  // Null only for requests sent before these were asked.
+  preferredLanguage: PreferredLanguage | null;
+  age: number | null;
+  sex: ClientSex | null;
   times: string[];
+  // "What would you like help with?" The therapist sees it too.
   note: string;
   status: ClinicRequestStatus;
   answerNote: string;
