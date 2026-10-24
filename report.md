@@ -2,7 +2,7 @@
 
 ## 24 Oct 2026: Stress and Burnout Checks Added to Symptom Check (English Only for Now)
 
-Commit `PENDING`. No migration: `stress` and `burnout` were already in the database.
+Commit `4cdcf4a`. No migration: `stress` and `burnout` were already in the database.
 
 **Why.** Rith wants more than two checks. Stress and burnout are common for students and workers. Their questionnaires are free to use, but there is no Khmer version tested in Cambodia yet, so Rith decided they show only in English until a professional gives us the Khmer.
 
