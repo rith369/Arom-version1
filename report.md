@@ -2,7 +2,7 @@
 
 ## 24 Oct 2026: UP Clinic Desk and Therapists See the UP Clinic Without a UP Email
 
-Commit pending. No migration (uses `can_see_clinic()` from `20261024000200`).
+Commit `103755f`. No migration (uses `can_see_clinic()` from `20261024000200`).
 
 **Why.** The UP clinic only showed in Find Clinic & Hospital for accounts with a UP email. A desk account or a therapist linked to the clinic often has a Gmail account, so they could not open their own clinic page. The database already allowed them; the page did not ask it.
 
