@@ -18,6 +18,7 @@ import { sectionsForRole, type NavItem } from "./navigation-config";
 import { UserAvatar } from "./user-avatar";
 import { ProfileMenu } from "./account-menu";
 import { useAuth } from "./auth-provider";
+import { ClinicDeskNavSection } from "./clinic-desk/clinic-desk-nav";
 
 export type NavigationLabel =
   | "Home"
@@ -31,6 +32,7 @@ export type NavigationLabel =
   | "Community"
   | "Messages"
   | "PlayCards"
+  | "ClinicDesk"
   | "Profile";
 
 export function AromBrand({ compact = false }: { compact?: boolean }) {
@@ -81,6 +83,7 @@ export function DesktopNavigation({ active }: { active: NavigationLabel }) {
         aria-label="Primary"
         className="mt-6 flex-1 overflow-y-auto pr-1 space-y-4 scrollbar-thin scrollbar-thumb-arom-border"
       >
+        <ClinicDeskNavSection active={active === "ClinicDesk"} />
         {sectionsForRole(user?.role).map((section) => {
           const activeItems = section.items.filter((item) => !item.isComingSoon);
           const comingSoonItems = section.items.filter((item) => item.isComingSoon);

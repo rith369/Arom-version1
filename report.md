@@ -2,7 +2,7 @@
 
 ## 24 Oct 2026: Wellbeing, Loneliness and Trauma Checks Added to Symptom Check (English Only for Now)
 
-Commits `abe3fbe` and `a4feeca`, pull request #29. Migration `20261024000300_symptom_check_types.sql` **not yet applied**: run it before merging.
+Commits `abe3fbe` and `a4feeca`, merged in PR #29. Migration `20261024000300_symptom_check_types.sql` applied 24 Oct.
 
 **Why.** Rith asked for more checks than low mood and anxiety. Wellbeing (WHO-5) and loneliness (UCLA-3) are free, short and common. For trauma, the HTQ needs permission, so we use the PCL-5, which the US National Center for PTSD says is "in the public domain and not copyrighted". These need three new check types in the database. Like stress and burnout, there is no Khmer version tested in Cambodia, so they show only in English until a professional gives us the Khmer. Sleep is still not built, because every standard sleep questionnaire needs permission for app use.
 
@@ -19,7 +19,7 @@ Commits `abe3fbe` and `a4feeca`, pull request #29. Migration `20261024000300_sym
 - `BACKEND-HANDOFF.md` section 35: scoring table with all seven checks, and where sleep stands.
 - **Professional review:** the PCL-5 split at 15 (Clear signs) is AROM's own; 31 or more (Strong signs) follows the National Center for PTSD.
 
-**What to re-test (after the migration):**
+**What to re-test:**
 1. In English, open `/detection/symptoms`. Seven checks show.
 2. Take Wellbeing with "More than half of the time" on all. Score 60 of 100, Few signs, "Higher is better".
 3. Take Wellbeing with "Some of the time" on all. Score 20, Strong signs, with "Take the Low mood check". Tapping it starts the Low mood check.
@@ -29,6 +29,23 @@ Commits `abe3fbe` and `a4feeca`, pull request #29. Migration `20261024000300_sym
 7. Take Trauma with "A little bit" on all. Score 20 of 80, Clear signs.
 8. Switch to Khmer. Only Low mood and Anxiety show.
 9. As a professional with a client who shares symptom checks, the new checks show with their labels.
+
+## 24 Oct 2026: Clinic Desk at the Top of the Sidebar
+
+Commit `c437ef3`. No migration. Frontend only.
+
+**Why.** Answering booking requests is the clinic desk person's main job, but the desk page was only reachable from a card on the Profile page, so a new desk account could not find it.
+
+**What changed for users:**
+- **Desk accounts see a "Clinic desk" section first in the sidebar** (and in the phone menu) with "Booking requests" and the clinic's name. It opens `/clinic-desk`. Everyone else sees no change.
+
+**What changed for the team:**
+- `app/_components/clinic-desk/clinic-desk-nav.tsx` (the section) and `use-clinic-desks.ts` (asks `GET /api/clinic-desk` once per session and remembers it). The Profile card uses the same hook. New navigation label `ClinicDesk`.
+
+**What to re-test:**
+1. Log in as the desk account (Brach Nha). The sidebar starts with "Clinic desk, Booking requests, UP Wellness Clinic"; it opens the desk and stays highlighted there.
+2. On a phone, open the menu: the same section is at the top.
+3. Log in as a normal user: no Clinic desk section.
 
 ## 24 Oct 2026: UP Clinic Desk and Therapists See the UP Clinic Without a UP Email
 

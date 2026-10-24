@@ -91,7 +91,7 @@ export function ClinicDeskView() {
 
   return (
     <div className="min-h-screen bg-canvas lg:grid lg:grid-cols-[19rem_minmax(0,1fr)]">
-      <DesktopNavigation active="Profile" />
+      <DesktopNavigation active="ClinicDesk" />
 
       <main className="min-w-0 px-4 pb-28 pt-5 sm:px-8 lg:px-10 lg:py-8 xl:px-14">
         <div className="mx-auto w-full max-w-[48rem]">
@@ -243,7 +243,7 @@ export function ClinicDeskView() {
         </div>
       </main>
 
-      <MobileNavigation active="Profile" />
+      <MobileNavigation active="ClinicDesk" />
     </div>
   );
 }

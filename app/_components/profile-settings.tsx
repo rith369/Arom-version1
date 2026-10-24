@@ -37,6 +37,7 @@ import {
   type Language,
 } from './language-provider';
 import { ProfileSummary } from './profile-summary';
+import { useClinicDesks } from './clinic-desk/use-clinic-desks';
 
 const easeOut = [0.23, 1, 0.32, 1] as const;
 
@@ -48,22 +49,7 @@ export function ProfileSettings() {
 
   const [hideIdentity, setHideIdentity] = useState(true);
   // Clinics this account answers bookings for (clinic desk, section 34). Usually none.
-  const [desks, setDesks] = useState<{ slug: string; name: string; kmName: string }[]>([]);
-
-  useEffect(() => {
-    if (!user) return;
-    let active = true;
-    fetch('/api/clinic-desk', { cache: 'no-store' })
-      .then(async (response) => {
-        if (!response.ok) return;
-        const data = (await response.json()) as { desks: { slug: string; name: string; kmName: string }[] };
-        if (active) setDesks(data.desks);
-      })
-      .catch(() => undefined);
-    return () => {
-      active = false;
-    };
-  }, [user]);
+  const desks = useClinicDesks();
   const [savingIdentity, setSavingIdentity] = useState(false);
   const [identityError, setIdentityError] = useState('');
 

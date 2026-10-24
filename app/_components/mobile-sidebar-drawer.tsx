@@ -16,6 +16,7 @@ import { AromBrand } from "./app-navigation";
 import { sectionsForRole, type NavItem } from "./navigation-config";
 import { UserAvatar } from "./user-avatar";
 import { useAuth } from "./auth-provider";
+import { ClinicDeskNavSection } from "./clinic-desk/clinic-desk-nav";
 
 export function MobileSidebarDrawer() {
   const { isOpen, closeSidebar } = useSidebar();
@@ -74,6 +75,7 @@ export function MobileSidebarDrawer() {
 
             {/* 3 Navigation Sections: Main Page, Professional, Community */}
             <nav aria-label="Mobile Primary" className="mt-3 flex-1 space-y-4 px-3">
+              <ClinicDeskNavSection active={pathname.startsWith("/clinic-desk")} onNavigate={closeSidebar} />
               {sectionsForRole(user?.role).map((section) => {
                 const activeItems = section.items.filter((item) => !item.isComingSoon);
                 const comingSoonItems = section.items.filter((item) => item.isComingSoon);
