@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { MAX_NICKNAME, nicknameProblem } from './nickname';
 
 export const loginSchema = z.object({
   email: z
@@ -73,6 +74,12 @@ export const profileUpdateSchema = z
     aboutMe: z.string().trim().max(280, 'About you must be 280 characters or fewer'),
     language: z.enum(['en', 'km']),
     hideIdentity: z.boolean(),
+    // "Name your therapist sees". Empty clears it (back to "Anonymous").
+    nickname: z
+      .string()
+      .trim()
+      .max(MAX_NICKNAME)
+      .refine((value) => nicknameProblem(value) === null, 'Choose another name'),
   })
   .partial();
 
@@ -128,6 +135,8 @@ export interface AuthUser {
   /** ISO timestamp of when the profile was created. */
 
   hideIdentity?: boolean;
+  /** Shown instead of "Anonymous" while hideIdentity is on (lib/nickname.ts). */
+  nickname?: string;
   /** Confirmed University of Puthisastra student or staff (lib/up-student.ts). */
   upStudent?: boolean;
   /** The UP address that proved it, shown only to its owner. */

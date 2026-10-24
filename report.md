@@ -1,5 +1,32 @@
 # AROM: Change Report
 
+## 24 Oct 2026: A Nickname Instead of "Anonymous"
+
+Commit `2567483` (pull request `rith/nickname`). Migration `20261024001200_nickname.sql`, not yet applied.
+
+**Why.** Students who hide their identity all showed as "Anonymous #1625", which was hard for therapists and the clinic desk to tell apart and felt cold. Telling students to type a fake name instead would expose everyone who signs up with Google under their real name, so hiding stays the default and a nickname is optional.
+
+**What changed for users:**
+- **Profile, Identity privacy:** while "hide my identity" is on, a new field "Name your therapist sees (optional)". The note under the switch says how others see you.
+- **UP clinic booking form:** the same optional field, "Name the clinic and therapist see", saved to the profile when the request is sent.
+- **Therapists** see "Mony #1625" instead of "Anonymous #1625" (the code stays, so two "Mony" never mix up). **The clinic desk** sees "Mony" with its request code. **Support groups** show "Mony" instead of "Anonymous".
+- Empty nickname: nothing changes, still "Anonymous". Showing your real name: unchanged.
+- Nicknames cannot contain links, emails, phone numbers, "#" or "@", or words like AROM or admin.
+
+**What changed for the team:**
+- **Database (PR):** `profiles.nickname` with a safety check, `shown_name()` used by the 8 functions that showed "Anonymous", and `clientHidden` in the professional's bookings.
+- **App:** `lib/nickname.ts` (the same rules), `nickname-setting.tsx`, `profileUpdateSchema.nickname`, `AuthUser.nickname`, `anonymousLabel()` keeps the code after a nickname.
+- **Handoff:** `BACKEND-HANDOFF.md` section 29.
+
+**What to re-test:**
+1. Run the migration in the Supabase SQL Editor.
+2. As a user with "hide my identity" on, set the nickname "Mony" in Profile and save. The note says others see you as "Mony". Try "AROM Team" or "t.me/mony": a clear message, nothing saved.
+3. As that user's therapist: clients, bookings and messages show "Mony #1625" (same number as before).
+4. As the clinic desk: that student's request and chat show "Mony".
+5. In a support group: that user's messages and the member list show "Mony", and "Mony (You)" for themself.
+6. Clear the nickname: everything shows "Anonymous" again.
+7. Book the UP clinic with a new nickname in the form: Profile shows it afterwards.
+
 ## 24 Oct 2026: Clinic Therapists No Longer See My Schedule
 
 Commit `bd37149`. No migration. Frontend only.

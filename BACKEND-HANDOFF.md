@@ -1177,6 +1177,15 @@ Several original functions remain for internal use, with direct execution revoke
 - `messages-controller.ts`, `sessions-controller.ts` and `care-controller.ts` keep Sokheng's single quote formatting.
 - Test with a professional and a client account after the three migrations run: bookings list and actions, messages and voice, client file (summary note, archive, shared data, mood trend), suggestions, care plan.
 
+
+### Nickname (decided by Rith, 24 Oct 2026, migration `20261024001200`, not yet applied)
+
+- A user who hides their identity (still the default) can set **"Name your therapist sees"** (`profiles.nickname`) in Profile, Identity privacy, or in the UP clinic booking form. Empty means "Anonymous", as before.
+- It shows wherever "Anonymous" showed: professionals (bookings, clients, messages), the clinic desk, and support groups (members, messages, chat list, the admin's safety read).
+- Professionals keep the code: "Mony #1625". `read_my_pro_bookings_safe()` now returns `clientHidden`, and the app adds the code when it is true.
+- One rule for every name: `shown_name(role, hide_identity, full_name, nickname, fallback)`.
+- Rules (database check `profiles_nickname_check`, same in `lib/nickname.ts`): 2 to 30 characters, no links, emails, 5 or more digits, `#`, `@` or brackets, and nothing containing "arom", "admin" or "moderator".
+
 ## 30. Saved items (Settings, Saved)
 
 **Files:** `app/_components/saved/saved-store.ts` (read, toggle and remove saved ids), `app/_components/saved/saved-view.tsx`, route `app/profile/saved/page.tsx` (login required like the rest of `/profile`). The "Saved" card sits under the profile summary in `app/_components/profile-settings.tsx`. The podcast player heart saves through the same store.

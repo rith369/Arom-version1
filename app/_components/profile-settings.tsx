@@ -38,6 +38,7 @@ import {
 } from './language-provider';
 import { ProfileSummary } from './profile-summary';
 import { useClinicDesks } from './clinic-desk/use-clinic-desks';
+import { NicknameSetting } from './nickname-setting';
 
 const easeOut = [0.23, 1, 0.32, 1] as const;
 
@@ -341,9 +342,13 @@ export function ProfileSettings() {
 
               <p className="mt-4 rounded-2xl bg-arom-wash p-3 text-xs leading-relaxed text-ink-muted">
                 {hideIdentity
-                  ? km
-                    ? 'របៀបអនាមិក៖ អ្នកផ្សេងទៀតនឹងឃើញឈ្មោះអនាមិក។'
-                    : 'Anonymous mode: others will see you as Anonymous.'
+                  ? user?.nickname
+                    ? km
+                      ? `របៀបអនាមិក៖ អ្នកផ្សេងទៀតនឹងឃើញអ្នកជា "${user.nickname}"។`
+                      : `Anonymous mode: others will see you as "${user.nickname}".`
+                    : km
+                      ? 'របៀបអនាមិក៖ អ្នកផ្សេងទៀតនឹងឃើញឈ្មោះអនាមិក។'
+                      : 'Anonymous mode: others will see you as Anonymous.'
                   : km
                     ? 'របៀបបង្ហាញ៖ អ្នកផ្សេងទៀតអាចឃើញឈ្មោះបង្ហាញរបស់អ្នក។'
                     : 'Visible mode: others may see your display name.'}
@@ -354,6 +359,8 @@ export function ProfileSettings() {
                   {identityError}
                 </p>
               )}
+
+              {hideIdentity && <NicknameSetting key={user?.nickname ?? ''} km={km} />}
             </motion.section>
           )}
 

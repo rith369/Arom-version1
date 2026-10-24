@@ -99,9 +99,9 @@ export async function updateProfile(request: NextRequest) {
   } = await supabase.auth.getUser();
   if (!user) return unauthorized();
 
-  const { fullName, language, hideIdentity, pronouns, aboutMe } = parsed.data;
+  const { fullName, language, hideIdentity, pronouns, aboutMe, nickname } = parsed.data;
 
-  if (hideIdentity !== undefined) {
+  if (hideIdentity !== undefined || nickname !== undefined) {
     const currentUser = await toAuthUser(supabase, user);
     if (currentUser.role !== 'user') {
       return fail('forbidden', 'This setting is only available to users.', 403);
@@ -114,6 +114,7 @@ export async function updateProfile(request: NextRequest) {
     avatar_path?: string | null;
     language?: 'en' | 'km';
     hide_identity?: boolean;
+    nickname?: string | null;
   } = {};
 
   if (fullName !== undefined) changes.full_name = fullName;
@@ -121,6 +122,7 @@ export async function updateProfile(request: NextRequest) {
   if (aboutMe !== undefined) changes.about_me = aboutMe || null;
   if (language !== undefined) changes.language = language;
   if (hideIdentity !== undefined) changes.hide_identity = hideIdentity;
+  if (nickname !== undefined) changes.nickname = nickname || null;
 
   const { data: currentProfile, error: currentProfileError } = await supabase
     .from('profiles')

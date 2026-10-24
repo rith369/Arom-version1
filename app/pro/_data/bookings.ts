@@ -15,6 +15,9 @@ export type ProBooking = {
   // The client's account id (appointments.user_id).
   clientId: string;
   clientName: string;
+  // True when the client hides their identity: clientName is then their
+  // nickname or "Anonymous", and the app adds the code ("Mony #1625").
+  clientHidden?: boolean;
   // The client's app language (profiles.language).
   clientLanguage: 'en' | 'km';
   startsAt: string;
