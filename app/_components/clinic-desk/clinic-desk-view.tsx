@@ -26,7 +26,7 @@ type Load = "loading" | "ready" | "none" | "error";
  * (marks times full for Google Form bookings) and moves or cancels sessions.
  * Students show by the name they chose to share, usually "Anonymous".
  */
-export function ClinicDeskView() {
+export function ClinicDeskView({ initialTab = "requests" }: { initialTab?: "requests" | "messages" }) {
   const { language } = useLanguage();
   const km = language === "km";
   const t = (kmText: string, enText: string) => (km ? kmText : enText);
@@ -35,7 +35,7 @@ export function ClinicDeskView() {
   const [slug, setSlug] = useState("");
   const [data, setData] = useState<DeskData | null>(null);
   const [load, setLoad] = useState<Load>("loading");
-  const [tab, setTab] = useState<Tab>("requests");
+  const [tab, setTab] = useState<Tab>(initialTab);
   const [notice, setNotice] = useState("");
   const [now, setNow] = useState(() => Date.now());
   const [chatId, setChatId] = useState<string | null>(null);
@@ -106,7 +106,7 @@ export function ClinicDeskView() {
 
   return (
     <div className="min-h-screen bg-canvas lg:grid lg:grid-cols-[19rem_minmax(0,1fr)]">
-      <DesktopNavigation active="ClinicDesk" />
+      <DesktopNavigation active={tab === "messages" ? "ClinicDeskMessages" : "ClinicDesk"} />
 
       <main className="min-w-0 px-4 pb-28 pt-5 sm:px-8 lg:px-10 lg:py-8 xl:px-14">
         <div className="mx-auto w-full max-w-[48rem]">
@@ -273,7 +273,7 @@ export function ClinicDeskView() {
         </div>
       </main>
 
-      <MobileNavigation active="ClinicDesk" />
+      <MobileNavigation active={tab === "messages" ? "ClinicDeskMessages" : "ClinicDesk"} />
     </div>
   );
 }

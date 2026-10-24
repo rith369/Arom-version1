@@ -75,7 +75,17 @@ export function MobileSidebarDrawer() {
 
             {/* 3 Navigation Sections: Main Page, Professional, Community */}
             <nav aria-label="Mobile Primary" className="mt-3 flex-1 space-y-4 px-3">
-              <ClinicDeskNavSection active={pathname.startsWith("/clinic-desk")} onNavigate={closeSidebar} />
+              <ClinicDeskNavSection
+                active={
+                  !pathname.startsWith("/clinic-desk")
+                    ? null
+                    : // The drawer only renders in the browser, so the query is safe to read here.
+                      new URLSearchParams(window.location.search).get("tab") === "messages"
+                      ? "messages"
+                      : "requests"
+                }
+                onNavigate={closeSidebar}
+              />
               {sectionsForRole(user?.role).map((section) => {
                 const activeItems = section.items.filter((item) => !item.isComingSoon);
                 const comingSoonItems = section.items.filter((item) => item.isComingSoon);

@@ -1,5 +1,24 @@
 # AROM: Change Report
 
+## 24 Oct 2026: Clinic Desk Messages in the Sidebar
+
+Commit pending. No migration. Frontend only.
+
+**Why.** The desk's chats with students were only a tab inside the desk page, so new messages were easy to miss. The desk asked for Messages next to Booking requests in the sidebar.
+
+**What changed for users:**
+- **The Clinic desk section in the sidebar (and phone menu) now has two items:** Booking requests and Messages ("Chats with students"). Messages shows the number of unread student messages, checked every 30 seconds, and opens the desk straight on its Messages tab.
+- The item for the open tab stays highlighted.
+
+**What changed for the team:**
+- `clinic-desk-nav.tsx` has both items and reads unread counts with `useDeskChats`. `/clinic-desk?tab=messages` opens the Messages tab (`initialTab` on `ClinicDeskView`). New navigation label `ClinicDeskMessages`.
+
+**What to re-test:**
+1. Log in as the desk account. The sidebar shows Booking requests and Messages under Clinic desk.
+2. Send a message as a student. Within 30 seconds the desk's Messages item shows 1.
+3. Tap Messages: the desk opens on the Messages tab and Messages is highlighted. Tap Booking requests: it opens New requests.
+4. On a phone, the menu shows the same two items.
+
 ## 24 Oct 2026: Clinic Desk Chat with Students
 
 Commits `1749c84` to `b8776cc`, merged in PR #30 (`596ad9e`). Migration `20261024000900_clinic_chat.sql` applied 24 Oct.

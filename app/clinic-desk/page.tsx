@@ -6,6 +6,13 @@ export const metadata: Metadata = {
   description: "Answer clinic booking requests and keep the clinic's time table.",
 };
 
-export default function ClinicDeskPage() {
-  return <ClinicDeskView />;
+export default async function ClinicDeskPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ tab?: string | string[] }>;
+}) {
+  const { tab } = await searchParams;
+  // The sidebar's "Messages" item opens the Messages tab.
+  const start = tab === "messages" ? "messages" : "requests";
+  return <ClinicDeskView key={start} initialTab={start} />;
 }
