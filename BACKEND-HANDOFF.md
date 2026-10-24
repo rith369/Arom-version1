@@ -1178,7 +1178,7 @@ Several original functions remain for internal use, with direct execution revoke
 - Test with a professional and a client account after the three migrations run: bookings list and actions, messages and voice, client file (summary note, archive, shared data, mood trend), suggestions, care plan.
 
 
-### Nickname (decided by Rith, 24 Oct 2026, migration `20261024001200`, not yet applied)
+### Nickname (decided by Rith, 24 Oct 2026, migration `20261024001200`, applied 24 Oct, PR #32)
 
 - A user who hides their identity (still the default) can set **"Name your therapist sees"** (`profiles.nickname`) in Profile, Identity privacy, or in the UP clinic booking form. Empty means "Anonymous", as before.
 - It shows wherever "Anonymous" showed: professionals (bookings, clients, messages), the clinic desk, and support groups (members, messages, chat list, the admin's safety read).

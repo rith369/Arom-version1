@@ -2,7 +2,7 @@
 
 ## 24 Oct 2026: A Nickname Instead of "Anonymous"
 
-Commit `2567483` (pull request `rith/nickname`). Migration `20261024001200_nickname.sql`, not yet applied.
+Commit `2567483`, merged in PR #32 (`e752c95`). Migration `20261024001200_nickname.sql` applied 24 Oct.
 
 **Why.** Students who hide their identity all showed as "Anonymous #1625", which was hard for therapists and the clinic desk to tell apart and felt cold. Telling students to type a fake name instead would expose everyone who signs up with Google under their real name, so hiding stays the default and a nickname is optional.
 
