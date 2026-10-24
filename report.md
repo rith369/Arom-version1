@@ -1,5 +1,22 @@
 # AROM: Change Report
 
+## 24 Oct 2026: Clinic Desk at the Top of the Sidebar
+
+Commit pending. No migration. Frontend only.
+
+**Why.** Answering booking requests is the clinic desk person's main job, but the desk page was only reachable from a card on the Profile page, so a new desk account could not find it.
+
+**What changed for users:**
+- **Desk accounts see a "Clinic desk" section first in the sidebar** (and in the phone menu) with "Booking requests" and the clinic's name. It opens `/clinic-desk`. Everyone else sees no change.
+
+**What changed for the team:**
+- `app/_components/clinic-desk/clinic-desk-nav.tsx` (the section) and `use-clinic-desks.ts` (asks `GET /api/clinic-desk` once per session and remembers it). The Profile card uses the same hook. New navigation label `ClinicDesk`.
+
+**What to re-test:**
+1. Log in as the desk account (Brach Nha). The sidebar starts with "Clinic desk, Booking requests, UP Wellness Clinic"; it opens the desk and stays highlighted there.
+2. On a phone, open the menu: the same section is at the top.
+3. Log in as a normal user: no Clinic desk section.
+
 ## 24 Oct 2026: UP Clinic Desk and Therapists See the UP Clinic Without a UP Email
 
 Commit `ecb84c4`. No migration (uses `can_see_clinic()` from `20261024000200`).
