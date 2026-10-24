@@ -2,7 +2,7 @@
 
 ## 24 Oct 2026: UP Clinic Booking Asks What UP's Form Asks, Renamed UP Counseling (EMDRAC)
 
-Commit pending (pull request `rith/clinic-request-details`). Migration `20261024001100_clinic_request_details.sql`, not yet applied.
+Commit `e4208b6` (pull request `rith/clinic-request-details`). Migration `20261024001100_clinic_request_details.sql`, not yet applied.
 
 **Why.** UP and EMDR Association Cambodia (EMDRAC) book through a Google Form that asks age, sex, preferred language and a summary of the problem. The AROM booking should give the clinic the same information, so both ways of booking work the same for them. Name and Telegram number are left out on purpose: students stay anonymous and the desk chats in AROM.
 
