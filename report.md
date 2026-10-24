@@ -2,7 +2,7 @@
 
 ## 24 Oct 2026: Symptom Check Explanation Made General for Future Checks
 
-Commit `PENDING`. No migration. Frontend only.
+Commit `b710e6f`. No migration. Frontend only.
 
 **Why.** The "How it works" sheet named PHQ-9, GAD-7, low mood and anxiety, and showed their score ranges. AROM will add more checks later (for example stress, sleep and burnout), each with its own questionnaire and score ranges, so the explanation now fits every check.
 
