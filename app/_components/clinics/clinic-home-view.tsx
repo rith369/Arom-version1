@@ -1,12 +1,14 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { Suspense, useMemo } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "motion/react";
 import { DesktopNavigation, MobileNavigation } from "../app-navigation";
 import { visibleClinics, type Clinic } from "./clinic-data";
 import { useAuth } from "../auth-provider";
 import { useClinicAccess } from "./use-clinic-access";
+import { useClinics } from "./use-clinics";
+import { useUserLocation } from "./use-user-location";
 import { ClinicListView } from "./clinic-list-view";
 import { ClinicDetailView } from "./clinic-detail-view";
 
@@ -14,36 +16,22 @@ function ClinicContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const clinicSlug = searchParams.get("clinic");
+  // Real clinics from the database, then the samples (section 32).
+  const { clinics } = useClinics();
   // UP only clinics open for confirmed UP students and staff only, even from a shared link.
   const upStudent = useAuth().user?.upStudent ?? false;
   const allowed = useClinicAccess();
+  const visible = useMemo(() => visibleClinics(clinics, upStudent, allowed), [clinics, upStudent, allowed]);
+  const { location, request } = useUserLocation();
 
-  const [selectedClinic, setSelectedClinic] = useState<Clinic | null>(() => {
-    if (clinicSlug) {
-      return visibleClinics(false).find((c) => c.slug === clinicSlug) || null;
-    }
-    return null;
-  });
-
-  // Keep state in sync with URL parameter
-  useEffect(() => {
-    if (clinicSlug) {
-      const match = visibleClinics(upStudent, allowed).find((c) => c.slug === clinicSlug);
-      if (match) {
-        setSelectedClinic(match);
-        return;
-      }
-    }
-    setSelectedClinic(null);
-  }, [clinicSlug, upStudent, allowed]);
+  // The open clinic follows the address (?clinic=slug), so links and Back work.
+  const selectedClinic = clinicSlug ? (visible.find((c) => c.slug === clinicSlug) ?? null) : null;
 
   const handleSelectClinic = (clinic: Clinic) => {
-    setSelectedClinic(clinic);
     router.push(`/clinic-hospital?clinic=${clinic.slug}`, { scroll: false });
   };
 
   const handleBackToList = () => {
-    setSelectedClinic(null);
     router.push("/clinic-hospital", { scroll: false });
   };
 
@@ -62,6 +50,7 @@ function ClinicContent() {
               clinic={selectedClinic}
               onBack={handleBackToList}
               startBooking={searchParams.get("book") === "1"}
+              me={location.status === "ready" ? location.coords : null}
             />
           </motion.div>
         ) : (
@@ -73,7 +62,10 @@ function ClinicContent() {
             transition={{ duration: 0.2 }}
           >
             <ClinicListView
+              clinics={visible}
               onSelectClinic={handleSelectClinic}
+              location={location}
+              onRequestLocation={request}
             />
           </motion.div>
         )}

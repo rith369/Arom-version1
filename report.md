@@ -1,5 +1,31 @@
 # AROM: Change Report
 
+## 24 Oct 2026: Find Clinic & Hospital Gets a Real Map and the Real UP Clinic
+
+Commit pending (pull request `rith/clinic-map`). Migration `20261024001300_clinic_page_details.sql`, not yet applied. New packages: `leaflet`, `react-leaflet`, `@types/leaflet` (run `npm install` after pulling).
+
+**Why.** The page was a picture of a map with made up pins and distances, and every clinic was static. Now that UP Counseling (EMDRAC) is real, it should show its real place, phone and hours, and the made up clinics must not look real: people could call numbers that belong to someone else or travel to an address that is not a clinic.
+
+**What changed for users:**
+- **A real map (OpenStreetMap)** of Phnom Penh with a pin for each clinic. Drag and zoom like any map. Tapping a pin shows the clinic with **View details** and **Directions**, which opens Google Maps.
+- **UP Counseling (EMDRAC) shows its real details:** #55, Street 180, Phnom Penh; phone 089 968 678 (EMDR Association Cambodia); Thursday and Friday, 8:30 AM to 4:30 PM; the campus photo; Get Direction opens the Google Maps place.
+- **Real distances:** "Use my location to see distances" (or tapping Nearby) asks for the location once; then each clinic shows how far it is and Nearby sorts closest first. The location stays on the device and is never saved.
+- **The three other clinics are labelled "Sample"**, with a note that they are not real, grey pins, and no Call or Directions buttons.
+
+**What changed for the team:**
+- **Database (PR):** page fields on `clinics` (`about`, `tags`, `hours_text`, `image_url`, `maps_url`, `service_details`, with Khmer versions) and the UP row filled in.
+- **App:** `GET /api/clinics`, `use-clinics.ts`, `use-user-location.ts`, `clinic-map.tsx` (Leaflet, browser only); `clinic-data.ts` keeps only `SAMPLE_CLINICS` with coordinates and a distance helper. The open clinic now follows `?clinic=` in the address.
+- **Handoff:** `BACKEND-HANDOFF.md` section 32.
+
+**What to re-test:**
+1. Run the migration in the Supabase SQL Editor, merge, and run `npm install` locally.
+2. As a UP student, open Find Clinic & Hospital: a real map, a green pin on Street 180 for UP Counseling (EMDRAC), grey pins for the samples.
+3. Tap the UP pin: View details and Directions (Google Maps opens at the University of Puthisastra).
+4. Tap "Use my location" and allow it: distances appear and Nearby sorts closest first. Deny it: a short note, no distances.
+5. Open a sample clinic: "Sample" label and note, no Call or Directions.
+6. The UP clinic detail shows the address, hours, phone 089 968 678 and the campus photo; Book a session still works.
+7. As a normal user: the UP clinic and its pin are not shown.
+
 ## 24 Oct 2026: A Nickname Instead of "Anonymous"
 
 Commit `2567483`, merged in PR #32 (`e752c95`). Migration `20261024001200_nickname.sql` applied 24 Oct.

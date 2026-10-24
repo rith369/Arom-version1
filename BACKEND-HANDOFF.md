@@ -82,7 +82,7 @@ The yellow "Demo data on this page" banner is in `admin-shell.tsx`. Remove it fo
 | Play with friends (`/play-cards`): a game hub with Mental health cards, Truth or dare and Guess the animal, one phone passed around | Done | No backend needed (cards in code, nothing saved). Later: admin managed decks, a play count in Progress, online rooms | 28 |
 | Other admin pages | Bookings and Settings are connected (sections 12, 13, 15). Group activities in admin Community still sample data | Not started for group activities | 23 |
 | Anonymous identity protection: professionals see client aliases, safe functions for bookings, messages, notes, suggestions, care plans and shared data | No UI change | Connected (Sokheng, merged with main in PR #19, 18 Oct). Intake note fix `20261018070000` still to run | 29 |
-| Find Clinic & Hospital (`/clinic-hospital` from Figma): interactive map, filters, search, clinic cards, and clinic detail view | Done | Waiting for backend (currently static curated directory in `clinic-data.ts`) | 32 |
+| Find Clinic & Hospital (`/clinic-hospital`): real OpenStreetMap map, filters, search, clinic cards and detail | Done | PR (`rith/clinic-map`): real clinics from the database (`GET /api/clinics`), migration `20261024001300` not yet applied. The 3 other clinics stay in `clinic-data.ts` as labelled samples | 32 |
 | UP students and staff: free UP professionals and UP clinic for anyone with a confirmed University of Puthisastra email (`/profile/up-student`, admin switch in `/admin/professionals`) | Done | Connected, PR #27 merged 24 Oct (`is_up_student()`, `admin_set_up_students_only()`, `PATCH /api/admin/professionals/:id/up-students`), migration `20261024000100` applied 24 Oct. UP clinic is sample data in `clinic-data.ts` | 33 |
 | Clinic bookings, starting with the UP Wellness Clinic: Therapists tab and Book a session on the clinic page, Clinic requests in My appointments, clinic desk (`/clinic-desk`), admin clinic link and desk accounts | Done | Connected, PR #28 merged 24 Oct (`/api/clinics/:slug/booking`, `/api/clinics/:slug/requests`, `/api/clinic-requests`, `/api/clinic-desk/*`, `/api/admin/clinics`, `PATCH /api/admin/professionals/:id/clinic`, `PATCH /api/admin/users/:id/clinic-desk`), migration `20261024000200` applied 24 Oct | 34 |
 | Clinic chat: students chat with the clinic desk (text, voice, photos, PDF) in Messages; desk Messages tab and Message buttons | Done | Connected, PR #30 merged 24 Oct (`/api/clinic-chat`, `/api/clinic-chat/:slug`, `/api/clinic-desk/:slug/chats/*`, `/api/clinic-chat-files/:messageId`), migration `20261024000900` applied 24 Oct | 35 |
@@ -1300,6 +1300,14 @@ Types in `lib/reviews.ts`: `PublicReview`, `MyReview`, `ProReview`, `AdminReview
 | View details | Navigate to clinic detail screen | Handled via `?clinic=<slug>` | Done |
 | Get Direction | Open Google Maps directions | External maps link | Done |
 | Call | Initiate phone call to clinic | `tel:` link | Done |
+
+
+### Real clinics and the map (decided by Rith, 24 Oct 2026, migration `20261024001300`, not yet applied)
+
+- **Real clinics come from the `clinics` table** (`GET /api/clinics`): name, address, map location (`latitude`, `longitude`), phone, `maps_url`, `image_url`, `about`, `tags`, `hours_text` and `service_details` (all with Khmer versions). Only clinics with a slug and a location show. Today that is UP Counseling (EMDRAC): #55, Street 180, Phnom Penh (11.562662, 104.920725), phone 089 968 678 (EMDR Association Cambodia), Thursday and Friday 8:30 AM to 4:30 PM, photo `public/clinics/up-puthisastra.png`. No admin page yet: changes go in a migration.
+- **The three other clinics stay in `clinic-data.ts` (`SAMPLE_CLINICS`)**: labelled "Sample", with a note on the detail page, no Call or Directions buttons, grey map pins.
+- **The map is OpenStreetMap through Leaflet** (`leaflet`, `react-leaflet`; free, no key; attribution shown). Tapping a pin shows View details and, for real clinics, Directions (Google Maps).
+- **Distance and Nearby** use the person's location only after they allow it (browser permission). It stays in the browser and is never sent or saved. Without it, distances are hidden.
 
 ## 33. UP students and staff: free UP professionals and UP clinic
 

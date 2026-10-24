@@ -13,7 +13,8 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import type { ClinicBookingInfo } from "@/lib/clinic-booking";
-import type { Clinic } from "./clinic-data";
+import { distanceKm, formatDistance, type Clinic } from "./clinic-data";
+import { SampleBadge } from "./clinic-list-view";
 import { ClinicBookingSheet } from "./clinic-booking-sheet";
 import { ClinicTherapists } from "./clinic-therapists";
 import { UpStudentBadge } from "../up-student/up-badge";
@@ -25,11 +26,13 @@ interface ClinicDetailViewProps {
   onBack: () => void;
   // Open the booking form right away (`?book=1`, from My appointments).
   startBooking?: boolean;
+  // The person's location, when they allowed it (distance only).
+  me?: { lat: number; lng: number } | null;
 }
 
 type TabType = "overviews" | "services" | "therapists" | "reviews";
 
-export function ClinicDetailView({ clinic, onBack, startBooking = false }: ClinicDetailViewProps) {
+export function ClinicDetailView({ clinic, onBack, startBooking = false, me = null }: ClinicDetailViewProps) {
   const { language } = useLanguage();
   const isKm = language === "km";
 
@@ -97,6 +100,16 @@ export function ClinicDetailView({ clinic, onBack, startBooking = false }: Clini
           {isKm ? clinic.nameKm : clinic.name}
         </h2>
         {clinic.upStudentsOnly && <UpStudentBadge km={isKm} />}
+        {clinic.isSample && (
+          <div className="flex flex-wrap items-center gap-2">
+            <SampleBadge km={isKm} />
+            <span className="text-xs text-ink-muted">
+              {isKm
+                ? "នេះជាឧទាហរណ៍ មិនមែនគ្លីនិកពិតទេ។ កុំទូរស័ព្ទ ឬធ្វើដំណើរទៅទីនេះ។"
+                : "An example, not a real clinic. Please do not call or travel here."}
+            </span>
+          </div>
+        )}
 
         {/* Rating and Distance Row matching Figma */}
         <div className="flex items-center justify-between text-xs sm:text-sm">
@@ -113,11 +126,13 @@ export function ClinicDetailView({ clinic, onBack, startBooking = false }: Clini
             <span />
           )}
 
-          {/* Distance */}
-          <div className="flex items-center gap-1 font-bold text-arom">
-            <MapPin size={15} strokeWidth={2.2} className="text-arom" />
-            <span>{isKm ? clinic.distanceKm : clinic.distance}</span>
-          </div>
+          {/* Distance, when the person allowed their location */}
+          {me && (
+            <div className="flex items-center gap-1 font-bold text-arom">
+              <MapPin size={15} strokeWidth={2.2} className="text-arom" />
+              <span>{formatDistance(distanceKm(me, clinic), isKm)}</span>
+            </div>
+          )}
         </div>
 
         {/* Address Row matching Figma */}
@@ -290,7 +305,8 @@ export function ClinicDetailView({ clinic, onBack, startBooking = false }: Clini
         />
       )}
 
-      {/* Action Buttons matching Figma */}
+      {/* Action Buttons matching Figma. Sample clinics are not real: no directions, no calls. */}
+      {!clinic.isSample && (
       <div className="flex flex-col sm:flex-row gap-3 pt-2">
         {/* Get Direction Button (Outlined green with compass/arrow icon) */}
         <a
@@ -316,6 +332,7 @@ export function ClinicDetailView({ clinic, onBack, startBooking = false }: Clini
           </a>
         )}
       </div>
+      )}
     </div>
   );
 }
