@@ -9,8 +9,9 @@ const ANONYMOUS = 'Anonymous';
  * professional can tell anonymous clients apart. The alias is different for
  * each professional, so the number cannot be compared between professionals
  * and says nothing about the account. Same client, same number, every visit.
+ * A client who chose a nickname shows as "Mony #4821" (migration 20261024001200).
  */
-export function anonymousLabel(clientId: string, language: 'en' | 'km') {
+export function anonymousLabel(clientId: string, language: 'en' | 'km', nickname?: string) {
   // FNV-1a hash of the alias id.
   let hash = 2166136261;
   for (let i = 0; i < clientId.length; i += 1) {
@@ -18,13 +19,16 @@ export function anonymousLabel(clientId: string, language: 'en' | 'km') {
     hash = Math.imul(hash, 16777619);
   }
   const number = 1000 + ((hash >>> 0) % 9000);
+  if (nickname && nickname !== ANONYMOUS) return `${nickname} #${number}`;
   return language === 'km' ? `អនាមិក #${number}` : `${ANONYMOUS} #${number}`;
 }
 
 /** Bookings with anonymous clients renamed to their numbered label. */
 export function withClientLabels(bookings: ProBooking[], language: 'en' | 'km'): ProBooking[] {
   return bookings.map((booking) =>
-    booking.clientName === ANONYMOUS ? { ...booking, clientName: anonymousLabel(booking.clientId, language) } : booking,
+    booking.clientHidden || booking.clientName === ANONYMOUS
+      ? { ...booking, clientName: anonymousLabel(booking.clientId, language, booking.clientName) }
+      : booking,
   );
 }
 

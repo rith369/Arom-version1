@@ -16,6 +16,9 @@ import {
   type PreferredLanguage,
   type TherapistPreference,
 } from "@/lib/clinic-booking";
+import { MAX_NICKNAME, nicknameProblem, nicknameProblemText } from "@/lib/nickname";
+import { useAuth } from "../auth-provider";
+import { saveNickname } from "../nickname-setting";
 import { SheetDialog } from "../sheet-dialog";
 
 const chipClass = (on: boolean) =>
@@ -68,6 +71,11 @@ export function ClinicBookingSheet({
   const [language, setLanguage] = useState<PreferredLanguage | null>(null);
   const [age, setAge] = useState("");
   const [sex, setSex] = useState<ClientSex | null>(null);
+  // "Name the clinic and therapist see", saved to the profile (section 29).
+  // Only asked while the person hides their identity.
+  const { user, refresh } = useAuth();
+  const asksNickname = user?.hideIdentity !== false;
+  const [nickname, setNickname] = useState(user?.nickname ?? "");
   const [dayKey, setDayKey] = useState(days[0]?.key ?? "");
   const [picked, setPicked] = useState<string[]>([]);
   const [note, setNote] = useState("");
@@ -117,8 +125,22 @@ export function ClinicBookingSheet({
       setError(t("សូមប្រាប់គ្លីនិកថាអ្នកចង់បានជំនួយអំពីអ្វី។", "Please tell the clinic what you would like help with."));
       return;
     }
+    const problem = asksNickname ? nicknameProblem(nickname) : null;
+    if (problem) {
+      setError(nicknameProblemText(problem, km));
+      return;
+    }
     setBusy(true);
     setError("");
+    if (asksNickname && nickname.trim() !== (user?.nickname ?? "")) {
+      const saved = await saveNickname(nickname);
+      if (!saved.ok) {
+        setBusy(false);
+        setError(t("មិនអាចរក្សាទុកឈ្មោះបានទេ។ សូមព្យាយាមម្តងទៀត។", "Your name could not be saved. Please try again."));
+        return;
+      }
+      void refresh();
+    }
     try {
       const response = await fetch(`/api/clinics/${slug}/requests`, {
         method: "POST",
@@ -318,6 +340,28 @@ export function ClinicBookingSheet({
               </div>
             </fieldset>
           </div>
+          {asksNickname && (
+            <label className="block text-sm font-semibold text-ink">
+              {t("ឈ្មោះដែលគ្លីនិក និងអ្នកព្យាបាលឃើញ (ស្រេចចិត្ត)", "Name the clinic and therapist see (optional)")}
+              <span className="block text-xs font-normal text-ink-muted">
+                {t(
+                  "ឧទាហរណ៍ ឈ្មោះហៅក្រៅ។ ទុកទទេ ដើម្បីនៅតែអនាមិក។",
+                  'For example a nickname. Leave it empty to stay "Anonymous".',
+                )}
+              </span>
+              <input
+                value={nickname}
+                maxLength={MAX_NICKNAME}
+                onChange={(event) => {
+                  setError("");
+                  setNickname(event.target.value);
+                }}
+                placeholder={t("ឧ. ម៉ូនី", "For example: Mony")}
+                className="mt-2 block w-full rounded-xl border border-arom-border bg-white px-3 py-2 text-sm font-normal text-ink outline-none focus:border-arom focus:ring-4 focus:ring-arom/10"
+              />
+            </label>
+          )}
+
           <p className="-mt-3 text-xs text-ink-muted">
             {t(
               "តុបម្រើគ្លីនិក និងអ្នកព្យាបាលរបស់អ្នកឃើញព័ត៌មាននេះ។ យើងមិនសួរឈ្មោះ ឬលេខទូរស័ព្ទរបស់អ្នកទេ។",

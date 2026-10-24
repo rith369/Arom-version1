@@ -64,12 +64,13 @@ export interface ProfileRow {
   language: string;
   account_status: string;
   hide_identity: boolean;
+  nickname: string | null;
   created_at: string;
   updated_at: string;
 }
 
 export const PROFILE_COLUMNS =
-  'full_name, pronouns, about_me, avatar_path, role, language, account_status, hide_identity, created_at, updated_at';
+  'full_name, pronouns, about_me, avatar_path, role, language, account_status, hide_identity, nickname, created_at, updated_at';
 
 /** Builds the public user shape from the auth user and their profile row. */
 export function buildAuthUser(
@@ -96,6 +97,7 @@ export function buildAuthUser(
     accountStatus:
       profile?.account_status === 'suspended' ? 'suspended' : 'active',
     hideIdentity: profile?.hide_identity ?? true,
+    nickname: profile?.nickname ?? '',
     upStudent: upEmail !== null,
     upEmail,
     createdAt: profile?.created_at ?? user.created_at,
