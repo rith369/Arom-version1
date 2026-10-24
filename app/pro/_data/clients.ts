@@ -32,7 +32,15 @@ export function withClientLabels(bookings: ProBooking[], language: 'en' | 'km'):
 // happened in those sessions. Journals, mood logs and detection answers are
 // never shown, unless the client switched sharing on for a booking.
 
-export type SymptomCheckType = 'general' | 'depression' | 'anxiety' | 'stress' | 'sleep' | 'burnout';
+export type SymptomCheckType =
+  | 'general'
+  | 'depression'
+  | 'anxiety'
+  | 'stress'
+  | 'sleep'
+  | 'burnout'
+  | 'wellbeing'
+  | 'loneliness';
 export type SymptomLevel = 'none' | 'low' | 'medium' | 'high';
 
 // Mirrors symptom_checks (shared when share_symptom_checks is on).
@@ -121,6 +129,9 @@ export const SYMPTOM_TYPE_LABELS: Record<SymptomCheckType, { en: string; km: str
   stress: { en: 'Stress', km: 'ភាពតានតឹង' },
   sleep: { en: 'Sleep', km: 'ការគេង' },
   burnout: { en: 'Burnout', km: 'ភាពអស់កម្លាំង' },
+  // WHO-5: the only check where a higher score is better.
+  wellbeing: { en: 'Wellbeing (higher score is better)', km: 'សុខុមាលភាព (ពិន្ទុខ្ពស់ កាន់តែល្អ)' },
+  loneliness: { en: 'Loneliness', km: 'ភាពឯកោ' },
 };
 
 export const LEVEL_LABELS: Record<SymptomLevel, { en: string; km: string }> = {

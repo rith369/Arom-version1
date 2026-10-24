@@ -85,7 +85,7 @@ The yellow "Demo data on this page" banner is in `admin-shell.tsx`. Remove it fo
 | Find Clinic & Hospital (`/clinic-hospital` from Figma): interactive map, filters, search, clinic cards, and clinic detail view | Done | Waiting for backend (currently static curated directory in `clinic-data.ts`) | 32 |
 | UP students and staff: free UP professionals and UP clinic for anyone with a confirmed University of Puthisastra email (`/profile/up-student`, admin switch in `/admin/professionals`) | Done | Connected, PR #27 merged 24 Oct (`is_up_student()`, `admin_set_up_students_only()`, `PATCH /api/admin/professionals/:id/up-students`), migration `20261024000100` applied 24 Oct. UP clinic is sample data in `clinic-data.ts` | 33 |
 | Clinic bookings, starting with the UP Wellness Clinic: Therapists tab and Book a session on the clinic page, Clinic requests in My appointments, clinic desk (`/clinic-desk`), admin clinic link and desk accounts | Done | Connected, PR #28 merged 24 Oct (`/api/clinics/:slug/booking`, `/api/clinics/:slug/requests`, `/api/clinic-requests`, `/api/clinic-desk/*`, `/api/admin/clinics`, `PATCH /api/admin/professionals/:id/clinic`, `PATCH /api/admin/users/:id/clinic-desk`), migration `20261024000200` applied 24 Oct | 34 |
-| Symptom check (`/detection/symptoms`): PHQ-9 low mood and GAD-7 anxiety in English and validated Khmer, PSS-10 stress and CBI burnout in English only, safety screen, results, 14 day rechecks | Done | Connected (`GET\|POST /api/symptom-checks`). No migration: uses the existing `symptom_checks`, `support_journeys` and `apply_support_path()` | 35 |
+| Symptom check (`/detection/symptoms`): PHQ-9 low mood and GAD-7 anxiety in English and validated Khmer, PSS-10 stress, CBI burnout, WHO-5 wellbeing and UCLA-3 loneliness in English only, safety screen, results, 14 day rechecks | Done | Connected (`GET\|POST /api/symptom-checks`). Wellbeing and loneliness need migration `20261024000300` (not yet applied, PR). Uses `symptom_checks`, `support_journeys` and `apply_support_path()` | 35 |
 
 ## 5. Admin users page
 
@@ -1411,7 +1411,7 @@ Types in `lib/reviews.ts`: `PublicReview`, `MyReview`, `ProReview`, `AdminReview
 - **Self harm question always asked.** PHQ-9 item 9 (`phq_9`) is also asked, unscored, at the end of the anxiety check. Any answer above "Not at all" sets `safety_concern = true` and the app shows Get help now first, before the result.
 - **No automatic alerts.** No professional, admin or anyone else is told about a result or a safety answer. Professionals see type, score, level and date (never answers) only through the existing per booking sharing (`share_symptom_checks`).
 - **Server scores every check.** The browser sends answers only; `scoreSymptomCheck()` scores again, so a level or safety flag never comes from the browser.
-- **More checks, English only until reviewed (Rith, 24 Oct).** Stress (PSS-10) and burnout (Copenhagen Burnout Inventory, personal burnout) have no tested Khmer. They have `khmerReady: false` and are hidden while the app is in Khmer, with a note that more checks are in English while their Khmer is reviewed. Claude does not translate them.
+- **More checks, English only until reviewed (Rith, 24 Oct).** Stress (PSS-10), burnout (Copenhagen Burnout Inventory, personal burnout), wellbeing (WHO-5) and loneliness (UCLA-3) have no tested Khmer. They have `khmerReady: false` and are hidden while the app is in Khmer, with a note that more checks are in English while their Khmer is reviewed. Claude does not translate them.
 - **Questions are not reworded without a professional.** English is the original wording (dashes replaced with commas). Khmer is the wording validated in Cambodia by Steinman et al. 2025, PLOS Mental Health 2(4):e0000228, S1 Appendix. Changes from the paper: "អារម្មណ៌" spelled "អារម្មណ៍" (gad_1, gad_7, answer 2) and the S2 question prompt shortened for one question per screen.
 
 **Files:** `lib/symptom-checks.ts` (questions, answer options, bands, scoring, types), `lib/controllers/symptom-controller.ts`, `app/api/symptom-checks/route.ts`, `app/detection/symptoms/page.tsx`, `app/components/detection-modal.tsx` (Track your mind card now opens the page).
@@ -1420,23 +1420,26 @@ Types in `lib/reviews.ts`: `PublicReview`, `MyReview`, `ProReview`, `AdminReview
 
 The answer sent is the option's index. Each questionnaire in `QUESTIONNAIRES` has its own options (points), reversed items, `total()` and `level()`.
 
-| AROM level | PHQ-9 | GAD-7 | PSS-10 | CBI personal burnout | Shown as |
-|---|---|---|---|---|---|
-| `none` | 0 to 4 | 0 to 4 | 0 to 13 | 0 to 49 | Few signs |
-| `low` | 5 to 9 | 5 to 9 | not used | not used | Some signs |
-| `medium` | 10 to 14 | 10 to 14 | 14 to 26 | 50 to 74 | Clear signs |
-| `high` | 15 to 27 | 15 to 21 | 27 to 40 | 75 to 100 | Strong signs |
+| AROM level | PHQ-9 | GAD-7 | PSS-10 | CBI personal burnout | WHO-5 (higher is better) | UCLA-3 | Shown as |
+|---|---|---|---|---|---|---|---|
+| `none` | 0 to 4 | 0 to 4 | 0 to 13 | 0 to 49 | 52 to 100 | 3 to 5 | Few signs |
+| `low` | 5 to 9 | 5 to 9 | not used | not used | not used | not used | Some signs |
+| `medium` | 10 to 14 | 10 to 14 | 14 to 26 | 50 to 74 | 32 to 48 | 6 to 9 | Clear signs |
+| `high` | 15 to 27 | 15 to 21 | 27 to 40 | 75 to 100 | 0 to 28 | not used | Strong signs |
 
 - **PHQ-9, GAD-7:** sum of answers 0 to 3. Standard bands (Kroenke 2001, Spitzer 2006); the Cambodian study used the same cut offs.
 - **PSS-10:** sum of answers 0 to 4 (Never to Very often); items 4, 5, 7 and 8 are reversed. Bands are the commonly used low, moderate and high split, not official cut offs, so there is no `low` level.
 - **CBI:** answers score 0, 25, 50, 75, 100 (Never or almost never to Always); the score is the average of the 6 items, rounded. Bands: under 50 low, 50 to 74 moderate, 75 or more high, so there is no `low` level.
-- Professional to confirm the PSS-10 and CBI bands.
+- **WHO-5:** answers 0 to 5 (At no time to All of the time), sum times 4, so 0 to 100 in steps of 4. Higher is better (`higherIsBetter`). WHO-5 guidance: 50 or below is poor wellbeing, 28 or below suggests depression. A Clear or Strong result offers the Low mood check.
+- **UCLA-3:** answers 1 to 3 (Hardly ever, Some of the time, Often), sum 3 to 9. 6 or more is the commonly used "lonely" cut off (Steptoe 2013). Only `none` and `medium`.
+- `isHarderThanBefore()` treats a lower WHO-5 score as harder.
+- Professional to confirm the PSS-10, CBI, WHO-5 and UCLA-3 bands.
 
 ### Data shape
 
 | Field | Type | Database source |
 |---|---|---|
-| `SymptomCheckDto.type` | `depression` \| `anxiety` \| `stress` \| `burnout` | `symptom_checks.check_type` |
+| `SymptomCheckDto.type` | `depression` \| `anxiety` \| `stress` \| `burnout` \| `wellbeing` \| `loneliness` | `symptom_checks.check_type` |
 | `score`, `maxScore` | number | `score`, `max_score` |
 | `level` | `none` \| `low` \| `medium` \| `high` | `level` |
 | `safetyConcern` | boolean | `safety_concern` |
@@ -1455,9 +1458,9 @@ Answers are saved in `symptom_checks.answers` as `[{ questionId, value }]` in qu
 
 ### Known gaps
 
-- Wellbeing (WHO-5) and loneliness (UCLA-3) are coming in a pull request, because `symptom_check_type` needs two new values.
+- **Migration `20261024000300_symptom_wellbeing_loneliness.sql` (not yet applied):** adds `wellbeing` and `loneliness` to `symptom_check_type`. Until it runs, saving those two checks fails, so merge only after it runs. Professionals see them in the client file as "Wellbeing (higher score is better)" and "Loneliness".
 - Sleep and trauma are not built: ISI and PSQI need a licence or permission, and HTQ terms come from HPRT.
-- Stress and burnout need Khmer from a professional before they show in Khmer.
+- Stress, burnout, wellbeing and loneliness need Khmer from a professional before they show in Khmer. WHO-5 has official translations on the WHO site; no Khmer one was found.
 - PSS-10 is free for non-profit and educational use. If AROM ever charges users, check the commercial licence first.
 - The 14 day recheck shows only on this page. There is no reminder on Home or by Telegram yet.
 - No limit on how often a person can take a check.

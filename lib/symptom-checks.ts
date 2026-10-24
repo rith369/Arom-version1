@@ -11,13 +11,15 @@ import { z } from "zod";
 // - GAD-7, Spitzer, Kroenke, Williams and Löwe 2006 (anxiety)
 // - PSS-10, Cohen, Kamarck and Mermelstein 1983 (stress)
 // - Copenhagen Burnout Inventory, personal burnout, Kristensen et al. 2005
+// - WHO-5 Well-Being Index, Topp et al. 2015 (higher score is better)
+// - UCLA 3 item Loneliness Scale, Hughes et al. 2004
 // The PHQ-9 and GAD-7 Khmer is the wording validated in Cambodia by Steinman
 // et al. 2025, PLOS Mental Health 2(4):e0000228 (S1 and S2 Appendix). The
 // other checks have no tested Khmer yet, so `khmerReady` is false: they are
 // hidden while the app is in Khmer until a professional gives us the Khmer.
 // Do not reword any question without a professional's review.
 
-export const SYMPTOM_CHECK_TYPES = ["depression", "anxiety", "stress", "burnout"] as const;
+export const SYMPTOM_CHECK_TYPES = ["depression", "anxiety", "stress", "burnout", "wellbeing", "loneliness"] as const;
 export type SymptomCheckType = (typeof SYMPTOM_CHECK_TYPES)[number];
 
 export const SYMPTOM_LEVELS = ["none", "low", "medium", "high"] as const;
@@ -301,6 +303,58 @@ export const QUESTIONNAIRES: Record<SymptomCheckType, Questionnaire> = {
     total: (points) => Math.round(points / 6),
     // Commonly used bands: under 50 low, 50 to 74 moderate, 75 or more high.
     level: (score) => (score < 50 ? "none" : score < 75 ? "medium" : "high"),
+    higherIsBetter: false,
+    khmerReady: false,
+  },
+  wellbeing: {
+    type: "wellbeing",
+    instrument: "WHO-5",
+    name: { en: "Wellbeing", km: "សុខុមាលភាព (Wellbeing)" },
+    description: { en: "5 questions about how you have felt in the last 2 weeks." },
+    prompt: { en: "Over the last 2 weeks, how often has this been true for you?" },
+    options: [
+      { points: 0, label: { en: "At no time" } },
+      { points: 1, label: { en: "Some of the time" } },
+      { points: 2, label: { en: "Less than half of the time" } },
+      { points: 3, label: { en: "More than half of the time" } },
+      { points: 4, label: { en: "Most of the time" } },
+      { points: 5, label: { en: "All of the time" } },
+    ],
+    questions: [
+      { id: "who_1", scored: true, text: { en: "I have felt cheerful and in good spirits" } },
+      { id: "who_2", scored: true, text: { en: "I have felt calm and relaxed" } },
+      { id: "who_3", scored: true, text: { en: "I have felt active and vigorous" } },
+      { id: "who_4", scored: true, text: { en: "I woke up feeling fresh and rested" } },
+      { id: "who_5", scored: true, text: { en: "My daily life has been filled with things that interest me" } },
+    ],
+    maxScore: 100,
+    // Raw 0 to 25, times 4, as a percentage. Higher is better.
+    total: (points) => points * 4,
+    // WHO-5 guidance: 50 or below is poor wellbeing, 28 or below suggests depression.
+    level: (score) => (score > 50 ? "none" : score > 28 ? "medium" : "high"),
+    higherIsBetter: true,
+    khmerReady: false,
+  },
+  loneliness: {
+    type: "loneliness",
+    instrument: "UCLA-3",
+    name: { en: "Loneliness", km: "ភាពឯកោ (Loneliness)" },
+    description: { en: "3 questions about feeling alone." },
+    prompt: { en: "How often do you feel this way?" },
+    options: [
+      { points: 1, label: { en: "Hardly ever" } },
+      { points: 2, label: { en: "Some of the time" } },
+      { points: 3, label: { en: "Often" } },
+    ],
+    questions: [
+      { id: "ucla_1", scored: true, text: { en: "How often do you feel that you lack companionship?" } },
+      { id: "ucla_2", scored: true, text: { en: "How often do you feel left out?" } },
+      { id: "ucla_3", scored: true, text: { en: "How often do you feel isolated from others?" } },
+    ],
+    maxScore: 9,
+    total: sum,
+    // Score 3 to 9. 6 or more is commonly used for "lonely" (Steptoe 2013).
+    level: (score) => (score <= 5 ? "none" : "medium"),
     higherIsBetter: false,
     khmerReady: false,
   },
