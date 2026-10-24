@@ -1,5 +1,32 @@
 # AROM: Change Report
 
+## 24 Oct 2026: Stress and Burnout Checks Added to Symptom Check (English Only for Now)
+
+Commit `PENDING`. No migration: `stress` and `burnout` were already in the database.
+
+**Why.** Rith wants more than two checks. Stress and burnout are common for students and workers. Their questionnaires are free to use, but there is no Khmer version tested in Cambodia yet, so Rith decided they show only in English until a professional gives us the Khmer.
+
+**What changed for users:**
+- **Stress check:** 10 questions about the last month (PSS-10, Cohen 1983).
+- **Burnout check:** 6 questions about feeling worn out (Copenhagen Burnout Inventory, personal burnout, Kristensen 2005).
+- **English only:** in Khmer, Symptom check still shows Low mood and Anxiety, with a note that more checks are in English while their Khmer is reviewed.
+- **Results, rechecks and history** work the same way as the first two checks. Stress and burnout use three levels: Few signs, Clear signs and Strong signs.
+- **Wording:** a few lines no longer say "the last 2 weeks", because the stress check asks about the last month.
+
+**What changed for the team:**
+- `lib/symptom-checks.ts`: each questionnaire now has its own prompt, answer options with points, reversed items, `total()` and `level()`, plus `khmerReady`. The answer sent is the option index. `textFor()` falls back to English when there is no Khmer.
+- `lib/controllers/symptom-controller.ts`: uses `SYMPTOM_CHECK_TYPES` instead of a fixed list.
+- `app/detection/symptoms/page.tsx`: icons per check, options and prompt from the questionnaire, Khmer filter.
+- `BACKEND-HANDOFF.md` section 35: new scoring table and gaps. Wellbeing and loneliness come next in a pull request (they need a migration).
+
+**What to re-test:**
+1. In English, open `/detection/symptoms`. Four checks show: Low mood, Anxiety, Stress, Burnout.
+2. Take Stress, answering "Never" to everything. Score 16 of 40, Clear signs (4 questions are positive, so "Never" counts high on those).
+3. Take Stress with "Very often" on questions 4, 5, 7 and 8 and "Never" on the rest. Score 0, Few signs.
+4. Take Burnout with "Sometimes" on all. Score 50 of 100, Clear signs, with a recheck date in 14 days.
+5. Switch to Khmer. Only Low mood and Anxiety show, with the note about more checks in English.
+6. Low mood and Anxiety still score as before (all "Several days" on Low mood with question 9 "Not at all" gives 8 of 27, Some signs).
+
 ## 24 Oct 2026: Symptom Check Explanation Made General for Future Checks
 
 Commit `b710e6f`. No migration. Frontend only.

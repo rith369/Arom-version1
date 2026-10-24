@@ -1,6 +1,7 @@
 import type { NextRequest } from "next/server";
 import {
   MAX_SYMPTOM_CHECKS,
+  SYMPTOM_CHECK_TYPES,
   newSymptomCheckSchema,
   scoreSymptomCheck,
   type SupportJourneyDto,
@@ -53,7 +54,7 @@ interface JourneyRow {
 
 const CHECK_COLUMNS = "id, check_type, score, max_score, level, safety_concern, recommended_path, created_at";
 const JOURNEY_COLUMNS = "concern, start_level, latest_level, path, review_due_on, professional_recommended_at";
-const TYPES: SymptomCheckType[] = ["depression", "anxiety"];
+const TYPES: readonly SymptomCheckType[] = SYMPTOM_CHECK_TYPES;
 
 function toCheck(row: CheckRow): SymptomCheckDto {
   return {

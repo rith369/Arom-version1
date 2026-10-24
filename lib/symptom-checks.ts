@@ -6,13 +6,18 @@ import { z } from "zod";
 // come from the browser. Answers are private health data: they never go in a
 // URL, browser storage or a log, and professionals never see them.
 //
-// Questionnaires: PHQ-9 (Kroenke, Spitzer and Williams 2001) and GAD-7
-// (Spitzer, Kroenke, Williams and Löwe 2006), both free to use. The Khmer is
-// the wording validated in Cambodia by Steinman et al. 2025, PLOS Mental
-// Health 2(4):e0000228 (S1 and S2 Appendix). Do not reword the questions
-// without a professional's review, because that changes what they measure.
+// Questionnaires (all free to use, see BACKEND-HANDOFF.md for licences):
+// - PHQ-9, Kroenke, Spitzer and Williams 2001 (low mood)
+// - GAD-7, Spitzer, Kroenke, Williams and Löwe 2006 (anxiety)
+// - PSS-10, Cohen, Kamarck and Mermelstein 1983 (stress)
+// - Copenhagen Burnout Inventory, personal burnout, Kristensen et al. 2005
+// The PHQ-9 and GAD-7 Khmer is the wording validated in Cambodia by Steinman
+// et al. 2025, PLOS Mental Health 2(4):e0000228 (S1 and S2 Appendix). The
+// other checks have no tested Khmer yet, so `khmerReady` is false: they are
+// hidden while the app is in Khmer until a professional gives us the Khmer.
+// Do not reword any question without a professional's review.
 
-export const SYMPTOM_CHECK_TYPES = ["depression", "anxiety"] as const;
+export const SYMPTOM_CHECK_TYPES = ["depression", "anxiety", "stress", "burnout"] as const;
 export type SymptomCheckType = (typeof SYMPTOM_CHECK_TYPES)[number];
 
 export const SYMPTOM_LEVELS = ["none", "low", "medium", "high"] as const;
@@ -21,33 +26,54 @@ export type SymptomLevel = (typeof SYMPTOM_LEVELS)[number];
 export type SupportPath = "self_help" | "self_help_and_professional" | "professional";
 
 type Text = { en: string; km: string };
+// Question text: Khmer only where a tested or reviewed version exists.
+type QuestionText = { en: string; km?: string };
 
 export interface SymptomQuestion {
   id: string;
-  text: Text;
+  text: QuestionText;
   // Counted in the score. The safety question in the anxiety check is not.
   scored: boolean;
+  // Positive item (for example "felt confident"): points run the other way.
+  reverse?: boolean;
+}
+
+export interface AnswerOption {
+  label: QuestionText;
+  points: number;
 }
 
 export interface Questionnaire {
   type: SymptomCheckType;
   instrument: string;
   name: Text;
-  description: Text;
+  description: QuestionText;
+  prompt: QuestionText;
+  // Lowest points first. The answer sent is the option's index.
+  options: AnswerOption[];
   questions: SymptomQuestion[];
   maxScore: number;
-  // Highest score for each level, lowest level first.
-  bands: { level: SymptomLevel; max: number }[];
+  // From the summed points of the scored questions to the saved score.
+  total: (sum: number) => number;
+  level: (score: number) => SymptomLevel;
+  // True for checks where a higher score means feeling better.
+  higherIsBetter: boolean;
+  khmerReady: boolean;
 }
 
-export const ANSWER_OPTIONS: { value: 0 | 1 | 2 | 3; label: Text }[] = [
-  { value: 0, label: { en: "Not at all", km: "មិនមានទាល់តែសោះ" } },
-  { value: 1, label: { en: "Several days", km: "ពីរបីថ្ងៃ" } },
-  { value: 2, label: { en: "More than half the days", km: "ច្រើនជាងមួយសប្តាហ៍" } },
-  { value: 3, label: { en: "Nearly every day", km: "មានស្ទើរតែគ្រប់ពេល ឬរាល់ថ្ងៃ" } },
+/** How a question or label reads in the current language, English when no Khmer exists. */
+export function textFor(text: QuestionText, km: boolean) {
+  return km && text.km ? text.km : text.en;
+}
+
+const OFTEN_OPTIONS: AnswerOption[] = [
+  { points: 0, label: { en: "Not at all", km: "មិនមានទាល់តែសោះ" } },
+  { points: 1, label: { en: "Several days", km: "ពីរបីថ្ងៃ" } },
+  { points: 2, label: { en: "More than half the days", km: "ច្រើនជាងមួយសប្តាហ៍" } },
+  { points: 3, label: { en: "Nearly every day", km: "មានស្ទើរតែគ្រប់ពេល ឬរាល់ថ្ងៃ" } },
 ];
 
-export const QUESTION_PROMPT: Text = {
+const TWO_WEEK_PROMPT: QuestionText = {
   en: "Over the last 2 weeks, how often have you been bothered by this?",
   km: "ជាង២អាទិត្យចុងក្រោយនេះ តើអ្នកត្រូវបានរំខានញឹកញាប់យ៉ាងណាដោយសារបញ្ហានេះ?",
 };
@@ -56,17 +82,16 @@ export const QUESTION_PROMPT: Text = {
 // away, whatever the total. It is also asked at the end of the anxiety check.
 export const SAFETY_QUESTION_ID = "phq_9";
 
-const SAFETY_TEXT: Text = {
+const SAFETY_TEXT: QuestionText = {
   en: "Thoughts that you would be better off dead, or of hurting yourself in some way",
   km: "មានគំនិតថា បើអ្នកស្លាប់ទៅប្រសើរជាងអ្នករស់នៅ ឬចង់តែធ្វើបាបខ្លួនឯង ដោយមធ្យោបាយផ្សេងៗ",
 };
 
-const STANDARD_BANDS = (high: number): Questionnaire["bands"] => [
-  { level: "none", max: 4 },
-  { level: "low", max: 9 },
-  { level: "medium", max: 14 },
-  { level: "high", max: high },
-];
+// Standard PHQ-9 and GAD-7 bands (Kroenke 2001, Spitzer 2006).
+const phqGadLevel = (score: number): SymptomLevel =>
+  score <= 4 ? "none" : score <= 9 ? "low" : score <= 14 ? "medium" : "high";
+
+const sum = (points: number) => points;
 
 export const QUESTIONNAIRES: Record<SymptomCheckType, Questionnaire> = {
   depression: {
@@ -77,6 +102,8 @@ export const QUESTIONNAIRES: Record<SymptomCheckType, Questionnaire> = {
       en: "9 questions about your mood, sleep and energy.",
       km: "សំណួរ ៩ អំពីអារម្មណ៍ ការគេង និងកម្លាំងរបស់អ្នក។",
     },
+    prompt: TWO_WEEK_PROMPT,
+    options: OFTEN_OPTIONS,
     questions: [
       {
         id: "phq_1",
@@ -145,7 +172,10 @@ export const QUESTIONNAIRES: Record<SymptomCheckType, Questionnaire> = {
       { id: SAFETY_QUESTION_ID, scored: true, text: SAFETY_TEXT },
     ],
     maxScore: 27,
-    bands: STANDARD_BANDS(27),
+    total: sum,
+    level: phqGadLevel,
+    higherIsBetter: false,
+    khmerReady: true,
   },
   anxiety: {
     type: "anxiety",
@@ -155,6 +185,8 @@ export const QUESTIONNAIRES: Record<SymptomCheckType, Questionnaire> = {
       en: "7 questions about worry and feeling on edge, and one about your safety.",
       km: "សំណួរ ៧ អំពីការព្រួយបារម្ភ និងភាពតានតឹង និងសំណួរមួយអំពីសុវត្ថិភាពរបស់អ្នក។",
     },
+    prompt: TWO_WEEK_PROMPT,
+    options: OFTEN_OPTIONS,
     questions: [
       {
         id: "gad_1",
@@ -206,7 +238,71 @@ export const QUESTIONNAIRES: Record<SymptomCheckType, Questionnaire> = {
       { id: SAFETY_QUESTION_ID, scored: false, text: SAFETY_TEXT },
     ],
     maxScore: 21,
-    bands: STANDARD_BANDS(21),
+    total: sum,
+    level: phqGadLevel,
+    higherIsBetter: false,
+    khmerReady: true,
+  },
+  stress: {
+    type: "stress",
+    instrument: "PSS-10",
+    name: { en: "Stress", km: "ភាពតានតឹង (Stress)" },
+    description: { en: "10 questions about stress in the last month." },
+    prompt: { en: "In the last month, how often have you:" },
+    options: [
+      { points: 0, label: { en: "Never" } },
+      { points: 1, label: { en: "Almost never" } },
+      { points: 2, label: { en: "Sometimes" } },
+      { points: 3, label: { en: "Fairly often" } },
+      { points: 4, label: { en: "Very often" } },
+    ],
+    questions: [
+      { id: "pss_1", scored: true, text: { en: "Been upset because of something that happened unexpectedly" } },
+      { id: "pss_2", scored: true, text: { en: "Felt that you were unable to control the important things in your life" } },
+      { id: "pss_3", scored: true, text: { en: "Felt nervous and stressed" } },
+      { id: "pss_4", scored: true, reverse: true, text: { en: "Felt confident about your ability to handle your personal problems" } },
+      { id: "pss_5", scored: true, reverse: true, text: { en: "Felt that things were going your way" } },
+      { id: "pss_6", scored: true, text: { en: "Found that you could not cope with all the things that you had to do" } },
+      { id: "pss_7", scored: true, reverse: true, text: { en: "Been able to control irritations in your life" } },
+      { id: "pss_8", scored: true, reverse: true, text: { en: "Felt that you were on top of things" } },
+      { id: "pss_9", scored: true, text: { en: "Been angered because of things that happened that were outside of your control" } },
+      { id: "pss_10", scored: true, text: { en: "Felt difficulties were piling up so high that you could not overcome them" } },
+    ],
+    maxScore: 40,
+    total: sum,
+    // Commonly used bands: 0 to 13 low, 14 to 26 moderate, 27 to 40 high stress.
+    level: (score) => (score <= 13 ? "none" : score <= 26 ? "medium" : "high"),
+    higherIsBetter: false,
+    khmerReady: false,
+  },
+  burnout: {
+    type: "burnout",
+    instrument: "CBI personal burnout",
+    name: { en: "Burnout", km: "ភាពអស់កម្លាំង (Burnout)" },
+    description: { en: "6 questions about feeling worn out." },
+    prompt: { en: "How often do you feel this way?" },
+    options: [
+      { points: 0, label: { en: "Never or almost never" } },
+      { points: 25, label: { en: "Seldom" } },
+      { points: 50, label: { en: "Sometimes" } },
+      { points: 75, label: { en: "Often" } },
+      { points: 100, label: { en: "Always" } },
+    ],
+    questions: [
+      { id: "cbi_1", scored: true, text: { en: "How often do you feel tired?" } },
+      { id: "cbi_2", scored: true, text: { en: "How often are you physically exhausted?" } },
+      { id: "cbi_3", scored: true, text: { en: "How often are you emotionally exhausted?" } },
+      { id: "cbi_4", scored: true, text: { en: "How often do you think: \"I can't take it anymore\"?" } },
+      { id: "cbi_5", scored: true, text: { en: "How often do you feel worn out?" } },
+      { id: "cbi_6", scored: true, text: { en: "How often do you feel weak and susceptible to illness?" } },
+    ],
+    maxScore: 100,
+    // The score is the average of the 6 answers, from 0 to 100.
+    total: (points) => Math.round(points / 6),
+    // Commonly used bands: under 50 low, 50 to 74 moderate, 75 or more high.
+    level: (score) => (score < 50 ? "none" : score < 75 ? "medium" : "high"),
+    higherIsBetter: false,
+    khmerReady: false,
   },
 };
 
@@ -219,7 +315,8 @@ export const LEVEL_LABELS: Record<SymptomLevel, Text> = {
 
 export const answerSchema = z.object({
   questionId: z.string().min(1).max(20),
-  value: z.number().int().min(0).max(3),
+  // The index of the chosen answer option.
+  value: z.number().int().min(0).max(9),
 });
 export type SymptomAnswer = z.infer<typeof answerSchema>;
 
@@ -238,8 +335,9 @@ export interface SymptomScore {
 }
 
 /**
- * Scores one check. Every question must be answered exactly once, in any
- * order, or the result is null. Answers come back in question order.
+ * Scores one check. Every question must be answered exactly once with a
+ * valid option, in any order, or the result is null. Answers come back in
+ * question order.
  */
 export function scoreSymptomCheck(type: SymptomCheckType, answers: SymptomAnswer[]): SymptomScore | null {
   const questionnaire = QUESTIONNAIRES[type];
@@ -248,18 +346,21 @@ export function scoreSymptomCheck(type: SymptomCheckType, answers: SymptomAnswer
   const byId = new Map(answers.map((answer) => [answer.questionId, answer.value]));
   if (byId.size !== answers.length) return null;
 
+  const lastOption = questionnaire.options.length - 1;
   const ordered: SymptomAnswer[] = [];
-  let score = 0;
+  let points = 0;
   for (const question of questionnaire.questions) {
     const value = byId.get(question.id);
-    if (value === undefined) return null;
+    if (value === undefined || value > lastOption) return null;
     ordered.push({ questionId: question.id, value });
-    if (question.scored) score += value;
+    if (question.scored) {
+      points += questionnaire.options[question.reverse ? lastOption - value : value].points;
+    }
   }
 
-  const level = questionnaire.bands.find((band) => score <= band.max)?.level ?? "high";
+  const score = questionnaire.total(points);
   const safetyConcern = (byId.get(SAFETY_QUESTION_ID) ?? 0) > 0;
-  return { answers: ordered, score, maxScore: questionnaire.maxScore, level, safetyConcern };
+  return { answers: ordered, score, maxScore: questionnaire.maxScore, level: questionnaire.level(score), safetyConcern };
 }
 
 /** One saved check. Never carries the answers. */
@@ -300,10 +401,11 @@ export interface SymptomCheckSavedResponse {
 export const MAX_SYMPTOM_CHECKS = 30;
 
 /**
- * True when the newest check of this type scored higher than the one before.
+ * True when the newest check of this type looks harder than the one before.
  * Used for the gentle "harder than before" nudge. Checks are newest first.
  */
 export function isHarderThanBefore(checks: SymptomCheckDto[], type: SymptomCheckType) {
   const ofType = checks.filter((check) => check.type === type);
-  return ofType.length >= 2 && ofType[0].score > ofType[1].score;
+  if (ofType.length < 2) return false;
+  return QUESTIONNAIRES[type].higherIsBetter ? ofType[0].score < ofType[1].score : ofType[0].score > ofType[1].score;
 }

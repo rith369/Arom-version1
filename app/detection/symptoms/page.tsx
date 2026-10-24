@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import {
   Activity,
   ArrowLeft,
+  BatteryLow,
   CalendarCheck,
   ChevronRight,
   Clock,
@@ -13,6 +14,7 @@ import {
   HeartPulse,
   Info,
   Lock,
+  Waves,
   X,
   type LucideIcon,
 } from "lucide-react";
@@ -23,13 +25,12 @@ import { useLanguage } from "../../_components/language-provider";
 import { GetHelpSection } from "../../_components/get-help-section";
 import { cambodiaDay } from "@/lib/mood";
 import {
-  ANSWER_OPTIONS,
   LEVEL_LABELS,
-  QUESTION_PROMPT,
   QUESTIONNAIRES,
   SAFETY_QUESTION_ID,
   SYMPTOM_CHECK_TYPES,
   isHarderThanBefore,
+  textFor,
   type SupportJourneyDto,
   type SymptomCheckDto,
   type SymptomCheckSavedResponse,
@@ -42,7 +43,9 @@ import {
 // never a diagnosis. Answers stay in memory only until they are sent, and are
 // never kept in browser storage or logged.
 
-type Text = { en: string; km: string };
+// Khmer is optional only for checks not yet reviewed in Khmer (English shows).
+type Text = { en: string; km?: string };
+type Pair = { en: string; km: string };
 
 type Load =
   | { status: "loading" }
@@ -56,12 +59,21 @@ type View =
   | { kind: "safety"; saved: SymptomCheckSavedResponse }
   | { kind: "result"; saved: SymptomCheckSavedResponse };
 
-const TOPIC: Record<SymptomCheckType, Text> = {
+const TOPIC: Record<SymptomCheckType, Pair> = {
   depression: { en: "low mood", km: "អារម្មណ៍ធ្លាក់ចុះ" },
   anxiety: { en: "anxiety", km: "ការថប់បារម្ភ" },
+  stress: { en: "stress", km: "ភាពតានតឹង" },
+  burnout: { en: "burnout", km: "ភាពអស់កម្លាំង" },
 };
 
-const LEVEL_MESSAGES: Record<SymptomLevel, (topic: Text) => Text> = {
+const CHECK_ICONS: Record<SymptomCheckType, LucideIcon> = {
+  depression: Activity,
+  anxiety: HeartPulse,
+  stress: Waves,
+  burnout: BatteryLow,
+};
+
+const LEVEL_MESSAGES: Record<SymptomLevel, (topic: Pair) => Pair> = {
   none: (topic) => ({
     en: `Your answers show few signs of ${topic.en} right now. Keep doing what helps you.`,
     km: `ចម្លើយរបស់អ្នកបង្ហាញសញ្ញាតិចតួចនៃ${topic.km}នៅពេលនេះ។ សូមបន្តធ្វើអ្វីដែលជួយអ្នក។`,
@@ -71,8 +83,8 @@ const LEVEL_MESSAGES: Record<SymptomLevel, (topic: Text) => Text> = {
     km: `ចម្លើយរបស់អ្នកបង្ហាញសញ្ញាខ្លះៗនៃ${topic.km}។ មនុស្សជាច្រើនក៏មានអារម្មណ៍បែបនេះម្តងម្កាលដែរ ហើយជំហានតូចៗអាចជួយបាន។`,
   }),
   medium: (topic) => ({
-    en: `Your answers show clear signs of ${topic.en} over the last 2 weeks. You do not have to handle this alone.`,
-    km: `ចម្លើយរបស់អ្នកបង្ហាញសញ្ញាច្បាស់នៃ${topic.km}ក្នុងរយៈពេល២សប្តាហ៍ចុងក្រោយនេះ។ អ្នកមិនចាំបាច់ដោះស្រាយតែម្នាក់ឯងទេ។`,
+    en: `Your answers show clear signs of ${topic.en}. You do not have to handle this alone.`,
+    km: `ចម្លើយរបស់អ្នកបង្ហាញសញ្ញាច្បាស់នៃ${topic.km}។ អ្នកមិនចាំបាច់ដោះស្រាយតែម្នាក់ឯងទេ។`,
   }),
   high: (topic) => ({
     en: `Your answers show strong signs of ${topic.en}. Talking to a professional can really help, and you can book one on AROM.`,
@@ -103,7 +115,7 @@ export default function SymptomCheckPage() {
   const router = useRouter();
   const { language } = useLanguage();
   const km = language === "km";
-  const tx = (text: Text) => (km ? text.km : text.en);
+  const tx = (text: Text) => textFor(text, km);
 
   const [load, setLoad] = useState<Load>({ status: "loading" });
   const [view, setView] = useState<View>({ kind: "home" });
@@ -287,13 +299,15 @@ function HomeView({
   const due = data?.journeys.filter((journey) => journey.reviewDueOn <= today) ?? [];
   const upcoming = data?.journeys.filter((journey) => journey.reviewDueOn > today) ?? [];
   const harder = data ? SYMPTOM_CHECK_TYPES.filter((type) => isHarderThanBefore(data.checks, type)) : [];
+  // Checks without reviewed Khmer show only while the app is in English.
+  const available = SYMPTOM_CHECK_TYPES.filter((type) => !km || QUESTIONNAIRES[type].khmerReady);
 
   return (
     <div className="mt-3 space-y-5 animate-in fade-in duration-200">
       <p className="text-sm leading-6 text-ink-muted">
         {km
-          ? "ការពិនិត្យរហ័សអំពីរបៀបដែលអ្នកមានអារម្មណ៍ក្នុងរយៈពេល២សប្តាហ៍ចុងក្រោយនេះ។ វាជួយអ្នកឱ្យកត់សម្គាល់សញ្ញាឆាប់ៗ។"
-          : "A quick check on how you have felt over the last 2 weeks. It helps you notice early signs."}
+          ? "ការពិនិត្យរហ័សអំពីរបៀបដែលអ្នកមានអារម្មណ៍ថ្មីៗនេះ។ វាជួយអ្នកឱ្យកត់សម្គាល់សញ្ញាឆាប់ៗ។"
+          : "A quick check on how you have felt lately. It helps you notice early signs."}
       </p>
 
       <div className="rounded-2xl border border-arom-border bg-white p-4 text-sm text-ink">
@@ -381,9 +395,10 @@ function HomeView({
         <h2 id="choose-check" className="text-base font-semibold">
           {km ? "ជ្រើសរើសការពិនិត្យ" : "Choose a check"}
         </h2>
-        {SYMPTOM_CHECK_TYPES.map((type) => {
+        {available.map((type) => {
           const questionnaire = QUESTIONNAIRES[type];
           const next = upcoming.find((journey) => journey.concern === type);
+          const Icon = CHECK_ICONS[type];
           return (
             <button
               key={type}
@@ -393,7 +408,7 @@ function HomeView({
               className={`group flex w-full items-center gap-4 rounded-[22px] border border-arom-border bg-white p-4 text-left shadow-sm transition-colors hover:border-arom hover:bg-arom-wash disabled:opacity-60 ${focusRing}`}
             >
               <span className="flex size-12 shrink-0 items-center justify-center rounded-[15px] bg-arom-soft text-arom">
-                {type === "depression" ? <Activity size={22} aria-hidden="true" /> : <HeartPulse size={22} aria-hidden="true" />}
+                <Icon size={22} aria-hidden="true" />
               </span>
               <span className="min-w-0 flex-1">
                 <span className="block text-base font-semibold text-ink">{tx(questionnaire.name)}</span>
@@ -408,6 +423,11 @@ function HomeView({
             </button>
           );
         })}
+        {km && available.length < SYMPTOM_CHECK_TYPES.length && (
+          <p className="text-xs leading-5 text-ink-muted">
+            ការពិនិត្យបន្ថែមទៀតមានជាភាសាអង់គ្លេស ខណៈពេលដែលភាសាខ្មែររបស់វាកំពុងត្រូវបានពិនិត្យដោយអ្នកជំនាញ។
+          </p>
+        )}
       </section>
 
       {data && data.checks.length > 0 && (
@@ -502,19 +522,19 @@ function QuestionView({
             {km ? "សំណួរមួយទៀត អំពីសុវត្ថិភាពរបស់អ្នក។" : "One more question, about your safety."}
           </p>
         )}
-        <p className="text-sm text-ink-muted">{tx(QUESTION_PROMPT)}</p>
+        <p className="text-sm text-ink-muted">{tx(questionnaire.prompt)}</p>
         <h2 className="mt-2 text-lg font-semibold leading-7 text-ink sm:text-xl">{tx(question.text)}</h2>
 
         <div role="radiogroup" aria-label={tx(question.text)} className="mt-5 grid gap-2.5">
-          {ANSWER_OPTIONS.map((option) => {
-            const active = selected === option.value;
+          {questionnaire.options.map((option, value) => {
+            const active = selected === value;
             return (
               <button
-                key={option.value}
+                key={value}
                 type="button"
                 role="radio"
                 aria-checked={active}
-                onClick={() => onAnswer(question.id, option.value)}
+                onClick={() => onAnswer(question.id, value)}
                 className={`flex min-h-12 w-full items-center rounded-xl border px-4 py-3 text-left text-sm font-medium transition-colors ${focusRing} ${
                   active ? "border-arom bg-arom text-white" : "border-arom-border bg-white text-ink hover:border-arom hover:bg-arom-wash"
                 }`}
@@ -817,8 +837,8 @@ function HowItWorksSheet({
             </li>
             <li>
               {km
-                ? "ចម្លើយនីមួយៗផ្តល់ពិន្ទុ។ បើបញ្ហាណាមួយរំខានអ្នកញឹកញាប់ជាង វាផ្តល់ពិន្ទុច្រើនជាង។"
-                : "Each answer gives points. The more often something bothers you, the more points it gives."}
+                ? "ចម្លើយនីមួយៗផ្តល់ពិន្ទុ ទៅតាមភាពញឹកញាប់ដែលអ្នកមានអារម្មណ៍បែបនោះ។"
+                : "Each answer gives points, depending on how often you felt that way."}
             </li>
             <li>
               {km
