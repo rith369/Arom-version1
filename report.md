@@ -2,7 +2,7 @@
 
 ## 24 Oct 2026: Wellbeing, Loneliness and Trauma Checks Added to Symptom Check (English Only for Now)
 
-Commits `abe3fbe` and `PENDING`, pull request #29. Migration `20261024000300_symptom_check_types.sql` **not yet applied**: run it before merging.
+Commits `abe3fbe` and `a4feeca`, pull request #29. Migration `20261024000300_symptom_check_types.sql` **not yet applied**: run it before merging.
 
 **Why.** Rith asked for more checks than low mood and anxiety. Wellbeing (WHO-5) and loneliness (UCLA-3) are free, short and common. For trauma, the HTQ needs permission, so we use the PCL-5, which the US National Center for PTSD says is "in the public domain and not copyrighted". These need three new check types in the database. Like stress and burnout, there is no Khmer version tested in Cambodia, so they show only in English until a professional gives us the Khmer. Sleep is still not built, because every standard sleep questionnaire needs permission for app use.
 
