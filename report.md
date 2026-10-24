@@ -2,7 +2,7 @@
 
 ## 24 Oct 2026: Wellbeing and Loneliness Checks Added to Symptom Check (English Only for Now)
 
-Commit `PENDING`, pull request. Migration `20261024000300_symptom_wellbeing_loneliness.sql` **not yet applied**: run it before merging.
+Commit `abe3fbe`, pull request. Migration `20261024000300_symptom_wellbeing_loneliness.sql` **not yet applied**: run it before merging.
 
 **Why.** Rith asked for more checks than low mood and anxiety. Wellbeing and loneliness are free, short and common questionnaires. They need two new check types in the database. Like stress and burnout, there is no Khmer version tested in Cambodia, so they show only in English until a professional gives us the Khmer.
 
