@@ -26,8 +26,6 @@ export type Clinic = {
   category: "clinic" | "hospital" | "counseling";
   rating: number;
   reviewCount: number;
-  distance: string;
-  distanceKm: string;
   city: string;
   cityKm: string;
   address: string;
@@ -42,15 +40,20 @@ export type Clinic = {
   googleMapsUrl: string;
   about: string;
   aboutKm: string;
-  /** Percentage coordinates on the preview map (x: 0-100, y: 0-100) */
-  mapCoords: { x: number; y: number };
+  /** Where the clinic is, for the map and the distance. */
+  lat: number;
+  lng: number;
   services: ClinicService[];
   reviews: ClinicReview[];
   /** Shown to confirmed University of Puthisastra students and staff only (lib/up-student.ts). */
   upStudentsOnly?: boolean;
+  /** A made up example clinic: labelled "Sample", never called. */
+  isSample?: boolean;
 };
 
-export const CLINICS_DATA: Clinic[] = [
+// Made up example clinics, shown with a "Sample" label and no Call button.
+// Real clinics come from the database (GET /api/clinics, section 32).
+export const SAMPLE_CLINICS: Clinic[] = [
   {
     id: "riverside-wellness",
     slug: "riverside-mental-wellness-center",
@@ -59,8 +62,6 @@ export const CLINICS_DATA: Clinic[] = [
     category: "clinic",
     rating: 4.8,
     reviewCount: 120,
-    distance: "1.2 km",
-    distanceKm: "១.២ គ.ម",
     city: "Phnom Penh, Cambodia",
     cityKm: "ភ្នំពេញ, កម្ពុជា",
     address: "#128, Preah Monivong Blvd, PhnomPenh",
@@ -75,7 +76,9 @@ export const CLINICS_DATA: Clinic[] = [
     googleMapsUrl: "https://www.google.com/maps/search/?api=1&query=128+Preah+Monivong+Blvd+Phnom+Penh",
     about: "Riverside mental wellness Center provides professional mental health services including counseling, therapy, and psychological support for individuals of all ages.",
     aboutKm: "មជ្ឈមណ្ឌលសុខភាពផ្លូវចិត្ត Riverside ផ្តល់ជូនសេវាកម្មសុខភាពផ្លូវចិត្តប្រកបដោយវិជ្ជាជីវៈ រួមមានការប្រឹក្សា ការព្យាបាល និងការគាំទ្រផ្នែកចិត្តសាស្រ្តសម្រាប់មនុស្សគ្រប់វ័យ។",
-    mapCoords: { x: 58, y: 52 },
+    lat: 11.5703,
+    lng: 104.9301,
+    isSample: true,
     services: [
       {
         id: "counseling-individual",
@@ -143,8 +146,6 @@ export const CLINICS_DATA: Clinic[] = [
     category: "hospital",
     rating: 4.9,
     reviewCount: 184,
-    distance: "3.5 km",
-    distanceKm: "៣.៥ គ.ម",
     city: "Phnom Penh, Cambodia",
     cityKm: "ភ្នំពេញ, កម្ពុជា",
     address: "#45, Russian Federation Blvd, Phnom Penh",
@@ -159,7 +160,9 @@ export const CLINICS_DATA: Clinic[] = [
     googleMapsUrl: "https://www.google.com/maps/search/?api=1&query=45+Russian+Federation+Blvd+Phnom+Penh",
     about: "Harmony Care Hospital is a premier medical facility providing 24/7 psychiatric care, inpatient wellness recovery, crisis intervention, and specialized outpatient psychological counseling.",
     aboutKm: "មន្ទីរពេទ្យ Harmony Care គឺជាមន្ទីរពេទ្យវេជ្ជសាស្ត្រឈានមុខគេ ដែលផ្តល់ការថែទាំចិត្តសាស្ត្រ ២៤ ម៉ោង ការសម្រាកព្យាបាល ការអន្តរាគមន៍គ្រាអាសន្ន និងការប្រឹក្សាផ្លូវចិត្តកម្រិតខ្ពស់។",
-    mapCoords: { x: 34, y: 36 },
+    lat: 11.5468,
+    lng: 104.9112,
+    isSample: true,
     services: [
       {
         id: "crisis-support",
@@ -219,8 +222,6 @@ export const CLINICS_DATA: Clinic[] = [
     category: "clinic",
     rating: 4.7,
     reviewCount: 96,
-    distance: "2.8 km",
-    distanceKm: "២.៨ គ.ម",
     city: "Phnom Penh, Cambodia",
     cityKm: "ភ្នំពេញ, កម្ពុជា",
     address: "#202, Norodom Blvd, Phnom Penh",
@@ -235,7 +236,9 @@ export const CLINICS_DATA: Clinic[] = [
     googleMapsUrl: "https://www.google.com/maps/search/?api=1&query=202+Norodom+Blvd+Phnom+Penh",
     about: "Mind & Life Clinic provides evidence-based psychotherapy, mindfulness training, youth counseling, and emotional wellness consultations in a confidential and serene setting.",
     aboutKm: "គ្លីនិក Mind & Life ផ្តល់នូវការព្យាបាលចិត្តសាស្ត្រផ្អែកលើភស្តុតាង ការបណ្តុះបណ្តាលសតិ ការប្រឹក្សាយុវវ័យ និងការពិគ្រោះសុខភាពផ្លូវចិត្តក្នុងបរិយាកាសសម្ងាត់ និងស្ងប់ស្ងាត់។",
-    mapCoords: { x: 52, y: 72 },
+    lat: 11.5536,
+    lng: 104.9286,
+    isSample: true,
     services: [
       {
         id: "mindfulness-training",
@@ -287,48 +290,6 @@ export const CLINICS_DATA: Clinic[] = [
       },
     ],
   },
-  {
-    // SAMPLE: replace the address, hours, phone, map link and photo with the
-    // real UP clinic details before launch (BACKEND-HANDOFF.md section 33).
-    id: "up-wellness",
-    slug: "up-wellness-clinic",
-    name: "UP Counseling (EMDRAC)",
-    nameKm: "ការប្រឹក្សា UP (EMDRAC)",
-    category: "clinic",
-    rating: 0,
-    reviewCount: 0,
-    distance: "1.0 km",
-    distanceKm: "១.០ គ.ម",
-    city: "Phnom Penh, Cambodia",
-    cityKm: "ភ្នំពេញ, កម្ពុជា",
-    address: "University of Puthisastra campus, Phnom Penh",
-    addressKm: "បរិវេណសាកលវិទ្យាល័យពុទ្ធិសាស្ត្រ រាជធានីភ្នំពេញ",
-    tags: ["Free for UP students and staff", "Counseling", "Campus support"],
-    tagsKm: ["ឥតគិតថ្លៃសម្រាប់និស្សិត និងបុគ្គលិក UP", "ការប្រឹក្សា (Counseling)", "ការគាំទ្រក្នុងសាលា (Campus support)"],
-    status: "Opening hours coming soon",
-    statusKm: "ម៉ោងបើកនឹងប្រកាសឆាប់ៗ",
-    image: "/clinics/mind-life.jpg",
-    phone: "",
-    phoneDisplay: "",
-    googleMapsUrl: "https://www.google.com/maps/search/?api=1&query=University+of+Puthisastra+Phnom+Penh",
-    about: "Free counseling for University of Puthisastra students and staff, with therapists from EMDR Association Cambodia (EMDRAC). Talk with a counselor about study or work stress, worry, low mood or anything on your mind, in a private room on campus or online.",
-    aboutKm: "ការប្រឹក្សាឥតគិតថ្លៃសម្រាប់និស្សិត និងបុគ្គលិកសាកលវិទ្យាល័យពុទ្ធិសាស្ត្រ ជាមួយអ្នកព្យាបាលពីសមាគម EMDR កម្ពុជា (EMDRAC)។ និយាយជាមួយអ្នកប្រឹក្សាអំពីសម្ពាធការសិក្សា ឬការងារ ការព្រួយបារម្ភ អារម្មណ៍ធ្លាក់ចុះ ឬអ្វីដែលនៅក្នុងចិត្តរបស់អ្នក ក្នុងបន្ទប់ឯកជននៅក្នុងបរិវេណសាលា ឬតាមអនឡាញ។",
-    mapCoords: { x: 38, y: 40 },
-    services: [
-      {
-        id: "up-counseling",
-        name: "Counseling Session",
-        nameKm: "ការប្រឹក្សា (Counseling Session)",
-        duration: "50 min",
-        durationKm: "៥០ នាទី",
-        fee: "Free",
-        description: "A private one to one session with a counselor for UP students and staff.",
-        descriptionKm: "ការពិភាក្សាឯកជនម្នាក់ទល់ម្នាក់ជាមួយអ្នកប្រឹក្សា សម្រាប់និស្សិត និងបុគ្គលិក UP។",
-      },
-    ],
-    reviews: [],
-    upStudentsOnly: true,
-  },
 ];
 
 /**
@@ -336,6 +297,26 @@ export const CLINICS_DATA: Clinic[] = [
  * students and staff, and for that clinic's desk and therapists (`allowed`,
  * from GET /api/clinics/access).
  */
-export function visibleClinics(upStudent: boolean, allowed: ReadonlySet<string> = new Set()): Clinic[] {
-  return CLINICS_DATA.filter((clinic) => !clinic.upStudentsOnly || upStudent || allowed.has(clinic.slug));
+export function visibleClinics(
+  clinics: Clinic[],
+  upStudent: boolean,
+  allowed: ReadonlySet<string> = new Set(),
+): Clinic[] {
+  return clinics.filter((clinic) => !clinic.upStudentsOnly || upStudent || allowed.has(clinic.slug));
+}
+
+/** Straight line distance in kilometres (haversine). */
+export function distanceKm(from: { lat: number; lng: number }, to: { lat: number; lng: number }) {
+  const rad = (value: number) => (value * Math.PI) / 180;
+  const dLat = rad(to.lat - from.lat);
+  const dLng = rad(to.lng - from.lng);
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(rad(from.lat)) * Math.cos(rad(to.lat)) * Math.sin(dLng / 2) ** 2;
+  return 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+export function formatDistance(km: number, isKm: boolean) {
+  const text = km < 10 ? km.toFixed(1) : String(Math.round(km));
+  if (!isKm) return `${text} km`;
+  const khmerDigits = "០១២៣៤៥៦៧៨៩";
+  return `${text.replace(/[0-9]/g, (digit) => khmerDigits[Number(digit)])} គ.ម`;
 }

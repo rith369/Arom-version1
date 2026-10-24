@@ -20,6 +20,7 @@ import {
   type MyClinicRequest,
   type MyClinicRequestsResponse,
 } from "@/lib/clinic-booking";
+import type { Clinic as ClinicPage } from "@/app/_components/clinics/clinic-data";
 import { uuidSchema } from "@/lib/roles";
 import { createClient } from "@/lib/supabase/server";
 import { databaseError, fail, invalidInput, json, readJson } from "./shared";
@@ -114,6 +115,90 @@ export async function getClinicBooking(slug: string) {
       isFull: row.is_full,
     })),
   });
+}
+
+interface ClinicPageRow {
+  slug: string;
+  name: string;
+  name_km: string | null;
+  kind: "clinic" | "hospital";
+  address: string | null;
+  address_km: string | null;
+  city: string | null;
+  latitude: number | string | null;
+  longitude: number | string | null;
+  phone: string | null;
+  maps_url: string | null;
+  image_url: string | null;
+  about: string | null;
+  about_km: string | null;
+  tags: string[] | null;
+  tags_km: string[] | null;
+  hours_text: string | null;
+  hours_text_km: string | null;
+  service_details: ClinicPage["services"] | null;
+  up_students_only: boolean;
+}
+
+/** "+85589968678" to "089 968 678". */
+function localPhone(phone: string) {
+  const digits = phone.replace(/[^0-9]/g, "").replace(/^855/, "0");
+  return digits.length === 9 ? `${digits.slice(0, 3)} ${digits.slice(3, 6)} ${digits.slice(6)}` : digits;
+}
+
+/**
+ * GET /api/clinics: the real clinics (section 32), in the same shape as the
+ * sample clinics in clinic-data.ts. Clinics without a map location are left
+ * out. The page hides UP only clinics from everyone else (visibleClinics).
+ */
+export async function listClinicPages() {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("clinics")
+    .select(
+      "slug, name, name_km, kind, address, address_km, city, latitude, longitude, phone, maps_url, image_url, about, about_km, tags, tags_km, hours_text, hours_text_km, service_details, up_students_only",
+    )
+    .eq("is_active", true)
+    .not("slug", "is", null)
+    .not("latitude", "is", null)
+    .not("longitude", "is", null)
+    .order("name")
+    .returns<ClinicPageRow[]>();
+  if (error) return fail("server_error", "We could not load clinics.", 500);
+
+  const clinics: ClinicPage[] = (data ?? []).map((row) => {
+    const lat = Number(row.latitude);
+    const lng = Number(row.longitude);
+    return {
+      id: row.slug,
+      slug: row.slug,
+      name: row.name,
+      nameKm: row.name_km ?? row.name,
+      category: row.kind === "hospital" ? "hospital" : "clinic",
+      rating: 0,
+      reviewCount: 0,
+      city: row.city ? `${row.city}, Cambodia` : "Cambodia",
+      cityKm: row.city === "Phnom Penh" ? "ភ្នំពេញ, កម្ពុជា" : "កម្ពុជា",
+      address: row.address ?? "",
+      addressKm: row.address_km ?? row.address ?? "",
+      tags: row.tags ?? [],
+      tagsKm: row.tags_km?.length ? row.tags_km : (row.tags ?? []),
+      status: row.hours_text ?? "",
+      statusKm: row.hours_text_km ?? row.hours_text ?? "",
+      image: row.image_url ?? "/clinics/map-preview.jpg",
+      phone: row.phone ?? "",
+      phoneDisplay: row.phone ? localPhone(row.phone) : "",
+      googleMapsUrl: row.maps_url ?? `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`,
+      about: row.about ?? "",
+      aboutKm: row.about_km ?? row.about ?? "",
+      lat,
+      lng,
+      services: Array.isArray(row.service_details) ? row.service_details : [],
+      reviews: [],
+      upStudentsOnly: row.up_students_only,
+    };
+  });
+  return json({ clinics });
 }
 
 /**

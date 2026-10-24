@@ -2,40 +2,49 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { useState, useMemo } from "react";
-import {
-  ChevronLeft,
-  Search,
-  MapPin,
-  Heart,
-  Building2,
-  Compass,
-} from "lucide-react";
-import { motion, AnimatePresence } from "motion/react";
-import { visibleClinics, type Clinic } from "./clinic-data";
-import { useAuth } from "../auth-provider";
-import { useClinicAccess } from "./use-clinic-access";
+import { ChevronLeft, Search, MapPin, Heart, Building2, Compass, LocateFixed } from "lucide-react";
+import { distanceKm, formatDistance, type Clinic } from "./clinic-data";
+import type { UserLocation } from "./use-user-location";
 import { useLanguage } from "../language-provider";
 import { UpStudentBadge } from "../up-student/up-badge";
+
+// The real map (OpenStreetMap through Leaflet) only runs in the browser.
+const ClinicMap = dynamic(() => import("./clinic-map"), {
+  ssr: false,
+  loading: () => <div className="h-full w-full animate-pulse bg-arom-wash" />,
+});
+
+/** A grey "Sample" label for the made up example clinics. */
+export function SampleBadge({ km }: { km: boolean }) {
+  return (
+    <span
+      title={km ? "គ្លីនិកគំរូ មិនមែនគ្លីនិកពិតទេ" : "An example, not a real clinic"}
+      className="inline-flex w-fit items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-[0.68rem] font-semibold text-gray-600"
+    >
+      {km ? "គំរូ (Sample)" : "Sample"}
+    </span>
+  );
+}
 
 type FilterType = "all" | "nearby" | "clinic" | "hospital";
 
 interface ClinicListViewProps {
+  // Real clinics first, then samples; already filtered for UP only clinics.
+  clinics: Clinic[];
   onSelectClinic: (clinic: Clinic) => void;
-  selectedClinicId?: string | null;
+  location: UserLocation;
+  onRequestLocation: () => void;
 }
 
-export function ClinicListView({ onSelectClinic, selectedClinicId }: ClinicListViewProps) {
+export function ClinicListView({ clinics, onSelectClinic, location, onRequestLocation }: ClinicListViewProps) {
   const { language } = useLanguage();
   const isKm = language === "km";
-  const { user } = useAuth();
-  const upStudent = user?.upStudent ?? false;
-  const allowed = useClinicAccess();
-  const clinics = useMemo(() => visibleClinics(upStudent, allowed), [upStudent, allowed]);
+  const me = location.status === "ready" ? location.coords : null;
 
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState<FilterType>("nearby");
-  const [activePinId, setActivePinId] = useState<string | null>(null);
 
   // Filtered and searched clinics
   const filteredClinics = useMemo(() => {
@@ -46,9 +55,9 @@ export function ClinicListView({ onSelectClinic, selectedClinicId }: ClinicListV
       list = list.filter((c) => c.category === "clinic");
     } else if (activeFilter === "hospital") {
       list = list.filter((c) => c.category === "hospital");
-    } else if (activeFilter === "nearby") {
-      // Sort closest first
-      list.sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance));
+    } else if (activeFilter === "nearby" && me) {
+      // Closest first, from the person's real location.
+      list.sort((a, b) => distanceKm(me, a) - distanceKm(me, b));
     }
 
     // Search query
@@ -64,7 +73,7 @@ export function ClinicListView({ onSelectClinic, selectedClinicId }: ClinicListV
     }
 
     return list;
-  }, [activeFilter, searchQuery, clinics]);
+  }, [activeFilter, searchQuery, clinics, me]);
 
   return (
     <div className="flex flex-col gap-4">
@@ -127,7 +136,11 @@ export function ClinicListView({ onSelectClinic, selectedClinicId }: ClinicListV
         {/* Nearby pill */}
         <button
           type="button"
-          onClick={() => setActiveFilter(activeFilter === "nearby" ? "all" : "nearby")}
+          onClick={() => {
+            const next = activeFilter === "nearby" ? "all" : "nearby";
+            setActiveFilter(next);
+            if (next === "nearby" && (location.status === "idle" || location.status === "denied")) onRequestLocation();
+          }}
           className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-semibold transition-all cursor-pointer select-none shrink-0 ${
             activeFilter === "nearby"
               ? "bg-[#185a4d] text-white shadow-xs"
@@ -167,85 +180,43 @@ export function ClinicListView({ onSelectClinic, selectedClinicId }: ClinicListV
         </button>
       </div>
 
-      {/* Interactive Map Preview Card matching Figma */}
-      <div className="relative h-48 sm:h-56 w-full overflow-hidden rounded-2xl sm:rounded-3xl border border-arom-border shadow-xs bg-slate-100">
-        <Image
-          src="/clinics/map-preview.jpg"
-          alt="Map showing clinic locations in Phnom Penh"
-          fill
-          sizes="(max-width: 768px) 100vw, 640px"
-          className="object-cover"
-          priority
-        />
-
-        {/* Interactive Location Pins for Clinics */}
-        {clinics.map((clinic) => {
-          const isSelected = selectedClinicId === clinic.id;
-          const isHovered = activePinId === clinic.id;
-
-          return (
-            <div
-              key={clinic.id}
-              style={{
-                left: `${clinic.mapCoords.x}%`,
-                top: `${clinic.mapCoords.y}%`,
-              }}
-              className="absolute -translate-x-1/2 -translate-y-full cursor-pointer z-10 transition-transform duration-200 hover:scale-110"
-              onMouseEnter={() => setActivePinId(clinic.id)}
-              onMouseLeave={() => setActivePinId(null)}
-              onClick={() => onSelectClinic(clinic)}
-            >
-              {/* Tooltip on hover/select */}
-              <AnimatePresence>
-                {(isHovered || isSelected) && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 5 }}
-                    animate={{ opacity: 1, y: -4 }}
-                    exit={{ opacity: 0, y: 5 }}
-                    className="absolute bottom-full left-1/2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-arom-deep px-2.5 py-1 text-[11px] font-bold text-white shadow-md pointer-events-none"
-                  >
-                    {isKm ? clinic.nameKm : clinic.name}
-                    <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-arom-deep" />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
-              {/* Pin marker styled exactly like Figma (dark blue teardrop with white dot) */}
-              <div className="relative flex flex-col items-center">
-                <div
-                  className={`flex size-8 items-center justify-center rounded-full shadow-md transition-colors ${
-                    isSelected ? "bg-arom ring-4 ring-white" : "bg-[#18395f] hover:bg-[#112742]"
-                  }`}
-                >
-                  <span className="size-2.5 rounded-full bg-white shadow-xs" />
-                </div>
-                {/* Pointer tip */}
-                <div
-                  className={`-mt-1 size-2 rotate-45 ${
-                    isSelected ? "bg-arom" : "bg-[#18395f]"
-                  }`}
-                />
-              </div>
-            </div>
-          );
-        })}
-
-        {/* User live position beacon */}
-        <div
-          style={{ left: "42%", top: "65%" }}
-          className="absolute -translate-x-1/2 -translate-y-1/2 pointer-events-none"
-        >
-          <div className="relative flex size-4 items-center justify-center">
-            <span className="absolute inline-flex size-full animate-ping rounded-full bg-arom opacity-75" />
-            <span className="relative inline-flex size-3 rounded-full border-2 border-white bg-arom shadow-sm" />
-          </div>
-        </div>
-
-        {/* Map Legend pill */}
-        <div className="absolute bottom-2.5 left-2.5 rounded-lg bg-white/90 backdrop-blur-xs px-2.5 py-1 text-[10px] font-semibold text-arom-deep shadow-2xs border border-arom-border/60">
-          {isKm ? "ផែនទីទីតាំងជាក់ស្តែង" : "Phnom Penh Clinic Map"}
-        </div>
+      {/* Real map: OpenStreetMap, pins at each clinic's location */}
+      <div className="relative isolate h-56 w-full overflow-hidden rounded-2xl border border-arom-border bg-arom-wash shadow-xs sm:h-64 sm:rounded-3xl">
+        <ClinicMap clinics={clinics} me={me} km={isKm} onSelect={onSelectClinic} />
       </div>
+
+      {/* Distance needs the person's location, asked only when they want it */}
+      {location.status !== "ready" && (
+        <div className="-mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-ink-muted">
+          {location.status === "asking" ? (
+            <span role="status">{isKm ? "កំពុងស្វែងរកទីតាំងរបស់អ្នក..." : "Finding your location..."}</span>
+          ) : (
+            <>
+              <button
+                type="button"
+                onClick={onRequestLocation}
+                className="inline-flex items-center gap-1.5 font-semibold text-arom hover:underline"
+              >
+                <LocateFixed size={14} aria-hidden="true" />
+                {isKm ? "ប្រើទីតាំងរបស់ខ្ញុំ ដើម្បីមើលចម្ងាយ" : "Use my location to see distances"}
+              </button>
+              <span>
+                {location.status === "denied"
+                  ? isKm
+                    ? "ទីតាំងត្រូវបានបិទ។ អ្នកអាចបើកវានៅក្នុងការកំណត់កម្មវិធីរុករក។"
+                    : "Location is blocked. You can allow it in your browser settings."
+                  : location.status === "unavailable"
+                    ? isKm
+                      ? "មិនអាចរកទីតាំងបានទេ។"
+                      : "Your location could not be found."
+                    : isKm
+                      ? "ទីតាំងនៅលើឧបករណ៍របស់អ្នកប៉ុណ្ណោះ មិនរក្សាទុកទេ។"
+                      : "It stays on your device and is never saved."}
+              </span>
+            </>
+          )}
+        </div>
+      )}
 
       {/* Clinic Cards List matching Figma */}
       <div className="flex flex-col gap-3.5 pt-1">
@@ -290,9 +261,9 @@ export function ClinicListView({ onSelectClinic, selectedClinicId }: ClinicListV
                     <h2 className="text-sm sm:text-base font-bold text-ink leading-tight line-clamp-1">
                       {isKm ? clinic.nameKm : clinic.name}
                     </h2>
-                    {clinic.upStudentsOnly && (
+                    {(clinic.upStudentsOnly || clinic.isSample) && (
                       <div className="mt-1">
-                        <UpStudentBadge km={isKm} />
+                        {clinic.isSample ? <SampleBadge km={isKm} /> : <UpStudentBadge km={isKm} />}
                       </div>
                     )}
 
@@ -301,10 +272,12 @@ export function ClinicListView({ onSelectClinic, selectedClinicId }: ClinicListV
                         <MapPin size={13} strokeWidth={2.2} className="text-arom shrink-0" />
                         <span className="truncate">{isKm ? clinic.cityKm : clinic.city}</span>
                       </div>
-                      <div className="flex items-center gap-1 font-semibold text-arom shrink-0 ml-2">
-                        <MapPin size={13} strokeWidth={2.2} className="text-arom" />
-                        <span>{isKm ? clinic.distanceKm : clinic.distance}</span>
-                      </div>
+                      {me && (
+                        <div className="flex items-center gap-1 font-semibold text-arom shrink-0 ml-2">
+                          <MapPin size={13} strokeWidth={2.2} className="text-arom" />
+                          <span>{formatDistance(distanceKm(me, clinic), isKm)}</span>
+                        </div>
+                      )}
                     </div>
                   </div>
 
