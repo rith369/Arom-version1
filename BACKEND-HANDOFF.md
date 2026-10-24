@@ -83,7 +83,7 @@ The yellow "Demo data on this page" banner is in `admin-shell.tsx`. Remove it fo
 | Other admin pages | Bookings and Settings are connected (sections 12, 13, 15). Group activities in admin Community still sample data | Not started for group activities | 23 |
 | Anonymous identity protection: professionals see client aliases, safe functions for bookings, messages, notes, suggestions, care plans and shared data | No UI change | Connected (Sokheng, merged with main in PR #19, 18 Oct). Intake note fix `20261018070000` still to run | 29 |
 | Find Clinic & Hospital (`/clinic-hospital` from Figma): interactive map, filters, search, clinic cards, and clinic detail view | Done | Waiting for backend (currently static curated directory in `clinic-data.ts`) | 32 |
-| UP students and staff: free UP professionals and UP clinic for anyone with a confirmed University of Puthisastra email (`/profile/up-student`, admin switch in `/admin/professionals`) | Done | PR: professionals connected (`is_up_student()`, `admin_set_up_students_only()`, `PATCH /api/admin/professionals/:id/up-students`), migration `20261024000100` not yet applied. UP clinic is sample data in `clinic-data.ts` | 33 |
+| UP students and staff: free UP professionals and UP clinic for anyone with a confirmed University of Puthisastra email (`/profile/up-student`, admin switch in `/admin/professionals`) | Done | Connected, PR #27 merged 24 Oct (`is_up_student()`, `admin_set_up_students_only()`, `PATCH /api/admin/professionals/:id/up-students`), migration `20261024000100` applied 24 Oct. UP clinic is sample data in `clinic-data.ts` | 33 |
 
 ## 5. Admin users page
 
@@ -1291,7 +1291,7 @@ Types in `lib/reviews.ts`: `PublicReview`, `MyReview`, `ProReview`, `AdminReview
 
 ## 33. UP students and staff: free UP professionals and UP clinic
 
-**Status:** Professionals connected in a pull request, migration `20261024000100_up_students.sql` not yet applied. The UP clinic is one sample entry in `clinic-data.ts` (section 32) until clinics move to the database.
+**Status:** Connected for professionals (PR #27, merged 24 Oct). Migration `20261024000100_up_students.sql` applied 24 Oct. The UP clinic is one sample entry in `clinic-data.ts` (section 32) until clinics move to the database.
 
 **Decided by Rith (24 Oct 2026). Do not change without asking:**
 

@@ -2,7 +2,7 @@
 
 ## 24 Oct 2026: Free UP Professionals and UP Clinic for University of Puthisastra Students and Staff
 
-Commit `81c7722` (pull request `rith/up-students`). Migration `20261024000100_up_students.sql`, not yet applied. Supabase setting needed: turn on Manual linking.
+Commit `81c7722` and `eed07b6`, merged in PR #27 (`c7e8f7c`). Migration `20261024000100_up_students.sql` applied 24 Oct. Supabase setting needed: turn on Manual linking.
 
 **Why.** University of Puthisastra (UP) offers free counseling to its students and staff. Only they should see those free professionals and the UP clinic, so normal users keep seeing AROM exactly as before. AROM now checks for a confirmed UP address: any email ending in `@puthisastra.edu.kh`, so both students (`name.student@puthisastra.edu.kh`) and staff (`name@puthisastra.edu.kh`). UP mail runs on Google, so Google itself proves the person owns the address.
 
