@@ -1353,6 +1353,7 @@ Types in `lib/reviews.ts`: `PublicReview`, `MyReview`, `ProReview`, `AdminReview
 - **Clinic therapists are normal professional accounts** that an admin links to a clinic (one clinic each). They are not on the Professional page and cannot be booked directly. Their own `/pro` profile (photo, about, gender) shows on the clinic's Therapists tab once they are verified, active and have a photo and an 80 character English bio. They do not need a schedule or a price, cannot suggest sessions, and do not reschedule clinic bookings (the desk does).
 - **Desk accounts are normal user accounts** an admin marks as desk staff for a clinic (`/admin/users`). No license or professional role is needed. More than one person means more than one account, never a shared password.
 - **Students stay anonymous to the desk**, by the same rule as for professionals: `hide_identity` shows "Anonymous". Each request has a short reference code.
+- **A clinic's desk accounts and therapists always see that clinic** in Find Clinic & Hospital, even without a UP email (decided 24 Oct 2026). Only user accounts see "Book a session".
 - **Admins never see requests** (no admin policy on `clinic_booking_requests`). They see the desk accounts and therapist links only.
 - A professional linked before with the section 33 "UP students and staff only" switch keeps that flag; the admin dialog offers to turn it off. New UP therapists are linked to the UP clinic instead.
 
@@ -1382,6 +1383,7 @@ Types in `lib/reviews.ts`: `PublicReview`, `MyReview`, `ProReview`, `AdminReview
 | Action | Endpoint |
 |---|---|
 | Clinic page: therapists, times, session types | `GET /api/clinics/:slug/booking` |
+| Which UP only clinics I may see without a UP email (desk accounts and linked therapists) | `GET /api/clinics/access` (`can_see_clinic()` per clinic) |
 | Send a request | `POST /api/clinics/:slug/requests` `{ sessionType, therapistGender, times[], note }` |
 | My clinic requests, cancel a waiting one | `GET /api/clinic-requests`, `POST /api/clinic-requests/:id/cancel` |
 | My desks | `GET /api/clinic-desk` |

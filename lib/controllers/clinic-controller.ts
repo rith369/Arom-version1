@@ -114,6 +114,35 @@ export async function getClinicBooking(slug: string) {
   });
 }
 
+/**
+ * GET /api/clinics/access: the UP only clinics the caller may see. Besides UP
+ * students and staff, that is the clinic's desk accounts and its linked
+ * therapists, who may not have a UP email (can_see_clinic()).
+ */
+export async function listClinicAccess() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return json({ slugs: [] as string[] });
+
+  const { data, error } = await supabase
+    .from("clinics")
+    .select("id, slug")
+    .eq("up_students_only", true)
+    .not("slug", "is", null)
+    .returns<{ id: string; slug: string }[]>();
+  if (error) return fail("server_error", "We could not load clinics.", 500);
+
+  const checks = await Promise.all(
+    (data ?? []).map(async (clinic) => {
+      const { data: allowed } = await supabase.rpc("can_see_clinic", { p_clinic_id: clinic.id });
+      return allowed === true ? clinic.slug : null;
+    }),
+  );
+  return json({ slugs: checks.filter((slug): slug is string => slug !== null) });
+}
+
 const requestSchema = z.object({
   sessionType: z.enum(["online", "in_person"]),
   therapistGender: z.enum(["female", "male", "any"]),

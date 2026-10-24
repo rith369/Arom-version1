@@ -17,6 +17,7 @@ import type { Clinic } from "./clinic-data";
 import { ClinicBookingSheet } from "./clinic-booking-sheet";
 import { ClinicTherapists } from "./clinic-therapists";
 import { UpStudentBadge } from "../up-student/up-badge";
+import { useAuth } from "../auth-provider";
 import { useLanguage } from "../language-provider";
 
 interface ClinicDetailViewProps {
@@ -52,6 +53,9 @@ export function ClinicDetailView({ clinic, onBack, startBooking = false }: Clini
   }, [clinic.slug]);
 
   const hasTherapists = (booking?.therapists.length ?? 0) > 0;
+  // Only user accounts book. A clinic's therapists can open the page but not book it.
+  const { user } = useAuth();
+  const canBook = !!booking?.takesBookings && (!user || user.role === "user");
   const tabClass = (tab: TabType) =>
     `rounded-xl py-2 px-2 text-xs sm:text-sm font-bold text-center transition-all cursor-pointer ${
       activeTab === tab ? "bg-[#185a4d] text-white shadow-xs" : "bg-[#dcefe9] text-[#185a4d] hover:bg-[#cde7df]"
@@ -265,7 +269,7 @@ export function ClinicDetailView({ clinic, onBack, startBooking = false }: Clini
       </div>
 
       {/* Book at this clinic (section 34) */}
-      {booking?.takesBookings && (
+      {canBook && (
         <button
           type="button"
           onClick={() => setBookingOpen(true)}
@@ -276,7 +280,7 @@ export function ClinicDetailView({ clinic, onBack, startBooking = false }: Clini
         </button>
       )}
 
-      {bookingOpen && booking?.takesBookings && (
+      {bookingOpen && canBook && booking && (
         <ClinicBookingSheet
           slug={clinic.slug}
           clinicName={isKm ? clinic.nameKm : clinic.name}

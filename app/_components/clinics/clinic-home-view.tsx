@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { DesktopNavigation, MobileNavigation } from "../app-navigation";
 import { visibleClinics, type Clinic } from "./clinic-data";
 import { useAuth } from "../auth-provider";
+import { useClinicAccess } from "./use-clinic-access";
 import { ClinicListView } from "./clinic-list-view";
 import { ClinicDetailView } from "./clinic-detail-view";
 
@@ -15,6 +16,7 @@ function ClinicContent() {
   const clinicSlug = searchParams.get("clinic");
   // UP only clinics open for confirmed UP students and staff only, even from a shared link.
   const upStudent = useAuth().user?.upStudent ?? false;
+  const allowed = useClinicAccess();
 
   const [selectedClinic, setSelectedClinic] = useState<Clinic | null>(() => {
     if (clinicSlug) {
@@ -26,14 +28,14 @@ function ClinicContent() {
   // Keep state in sync with URL parameter
   useEffect(() => {
     if (clinicSlug) {
-      const match = visibleClinics(upStudent).find((c) => c.slug === clinicSlug);
+      const match = visibleClinics(upStudent, allowed).find((c) => c.slug === clinicSlug);
       if (match) {
         setSelectedClinic(match);
         return;
       }
     }
     setSelectedClinic(null);
-  }, [clinicSlug, upStudent]);
+  }, [clinicSlug, upStudent, allowed]);
 
   const handleSelectClinic = (clinic: Clinic) => {
     setSelectedClinic(clinic);

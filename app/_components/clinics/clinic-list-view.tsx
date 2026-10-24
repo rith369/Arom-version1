@@ -14,6 +14,7 @@ import {
 import { motion, AnimatePresence } from "motion/react";
 import { visibleClinics, type Clinic } from "./clinic-data";
 import { useAuth } from "../auth-provider";
+import { useClinicAccess } from "./use-clinic-access";
 import { useLanguage } from "../language-provider";
 import { UpStudentBadge } from "../up-student/up-badge";
 
@@ -29,7 +30,8 @@ export function ClinicListView({ onSelectClinic, selectedClinicId }: ClinicListV
   const isKm = language === "km";
   const { user } = useAuth();
   const upStudent = user?.upStudent ?? false;
-  const clinics = useMemo(() => visibleClinics(upStudent), [upStudent]);
+  const allowed = useClinicAccess();
+  const clinics = useMemo(() => visibleClinics(upStudent, allowed), [upStudent, allowed]);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState<FilterType>("nearby");

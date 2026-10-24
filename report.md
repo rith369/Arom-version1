@@ -1,5 +1,24 @@
 # AROM: Change Report
 
+## 24 Oct 2026: UP Clinic Desk and Therapists See the UP Clinic Without a UP Email
+
+Commit pending. No migration (uses `can_see_clinic()` from `20261024000200`).
+
+**Why.** The UP clinic only showed in Find Clinic & Hospital for accounts with a UP email. A desk account or a therapist linked to the clinic often has a Gmail account, so they could not open their own clinic page. The database already allowed them; the page did not ask it.
+
+**What changed for users:**
+- **Desk accounts and UP therapists see the UP Wellness Clinic** in Find Clinic & Hospital, with its Therapists tab, even without a UP email.
+- **"Book a session" shows for user accounts only.** Therapists can look at the clinic page but do not see a booking button they could not use.
+
+**What changed for the team:**
+- New `GET /api/clinics/access` returns the UP only clinic slugs the caller may see (`can_see_clinic()`), used by `use-clinic-access.ts` in the clinic list and detail.
+- `visibleClinics(upStudent, allowed)` in `clinic-data.ts` takes those slugs.
+
+**What to re-test:**
+1. Log in as the desk account (Gmail, Clinic desk on). Find Clinic & Hospital shows UP Wellness Clinic.
+2. Log in as a therapist linked to UP Wellness Clinic (Gmail). The clinic shows, with the Therapists tab, and no "Book a session".
+3. Log in as a normal Gmail user who is not UP. The UP clinic is still hidden.
+
 ## 24 Oct 2026: Stress and Burnout Checks Added to Symptom Check (English Only for Now)
 
 Commit `4cdcf4a`. No migration: `stress` and `burnout` were already in the database.

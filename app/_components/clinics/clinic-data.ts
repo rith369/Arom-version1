@@ -331,7 +331,11 @@ export const CLINICS_DATA: Clinic[] = [
   },
 ];
 
-/** The clinics this person may see. UP only clinics are for confirmed UP students and staff. */
-export function visibleClinics(upStudent: boolean): Clinic[] {
-  return upStudent ? CLINICS_DATA : CLINICS_DATA.filter((clinic) => !clinic.upStudentsOnly);
+/**
+ * The clinics this person may see. UP only clinics are for confirmed UP
+ * students and staff, and for that clinic's desk and therapists (`allowed`,
+ * from GET /api/clinics/access).
+ */
+export function visibleClinics(upStudent: boolean, allowed: ReadonlySet<string> = new Set()): Clinic[] {
+  return CLINICS_DATA.filter((clinic) => !clinic.upStudentsOnly || upStudent || allowed.has(clinic.slug));
 }
