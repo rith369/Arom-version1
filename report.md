@@ -2,7 +2,7 @@
 
 ## 24 Oct 2026: Clinic Desk Messages in the Sidebar
 
-Commit pending. No migration. Frontend only.
+Commit `5420c14`. No migration. Frontend only.
 
 **Why.** The desk's chats with students were only a tab inside the desk page, so new messages were easy to miss. The desk asked for Messages next to Booking requests in the sidebar.
 
