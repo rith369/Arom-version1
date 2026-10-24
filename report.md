@@ -2,7 +2,7 @@
 
 ## 24 Oct 2026: Symptom Check Explains How It Works and What the Signs Mean
 
-Commit `PENDING`. No migration. Frontend only.
+Commit `4df9648`. No migration. Frontend only.
 
 **Why.** Users saw labels like "Few signs" and "Clear signs" with no explanation, and could think the app was telling them they have anxiety or depression. The check is early symptom detection only. A diagnosis can only come from a professional, such as a therapist, psychologist or doctor.
 
