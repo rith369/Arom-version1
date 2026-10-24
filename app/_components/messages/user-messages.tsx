@@ -13,6 +13,8 @@ import { GroupChat } from "../../community/components/group-chat";
 import { useMyGroups } from "../../community/group-api";
 import { ChatListRow, mergeChatRows, type ChatRow } from "./chat-list";
 import { ChatThread } from "./chat-thread";
+import { ClinicChatPanel } from "../clinic-chat/clinic-chat-panel";
+import { useMyClinicChats } from "../clinic-chat/clinic-chat-store";
 import {
   REPLY_TIME_LABELS,
   useConversations,
@@ -78,13 +80,23 @@ function Shell({ children }: { children: React.ReactNode }) {
 
 // Messages holds every chat, like Telegram: private chats with professionals
 // and the support groups this person joined, newest first (18 Oct 2026).
-export function UserMessages({ professionalId, groupId }: { professionalId?: string; groupId?: string }) {
+export function UserMessages({
+  professionalId,
+  groupId,
+  clinicSlug,
+}: {
+  professionalId?: string;
+  groupId?: string;
+  // A chat with a clinic desk (section 35).
+  clinicSlug?: string;
+}) {
   const { language } = useLanguage();
   const km = language === "km";
   const t = (kmText: string, enText: string) => (km ? kmText : enText);
   const router = useRouter();
   const list = useConversations("client");
   const myGroups = useMyGroups();
+  const clinicChats = useMyClinicChats();
   const [noticeDismissed, dismissNotice] = useEmergencyNoticeClosed();
   const [now] = useState(() => Date.now());
   const [appointments, setAppointments] = useState<UserAppointment[]>([]);
@@ -130,14 +142,38 @@ export function UserMessages({ professionalId, groupId }: { professionalId?: str
       selected: conversation.professionalId === professionalId,
     };
   });
-  const rows = mergeChatRows(directRows, myGroups.groups, {
+  const clinicRows: ChatRow[] = clinicChats.chats.map((chat) => {
+    const { last } = chat;
+    const you = last?.mine ? t("អ្នក: ", "You: ") : "";
+    return {
+      kind: "clinic",
+      key: `clinic-${chat.clinicSlug}`,
+      href: `/messages/clinic/${chat.clinicSlug}`,
+      name: (km && chat.clinicKmName) || chat.clinicName,
+      lastAt: last?.createdAt ?? null,
+      preview: !last
+        ? t("សួរគ្លីនិកអំពីការកក់របស់អ្នក", "Ask the clinic about your booking")
+        : last.kind === "voice"
+          ? `${you}${t("សារសំឡេង", "Voice message")}`
+          : last.kind === "image"
+            ? `${you}${t("រូបថត", "Photo")}`
+            : last.kind === "file"
+              ? `${you}PDF`
+              : `${you}${last.text}`,
+      voice: last?.kind === "voice",
+      unread: chat.unread,
+      selected: chat.clinicSlug === clinicSlug,
+    };
+  });
+  const rows = mergeChatRows([...directRows, ...clinicRows], myGroups.groups, {
     href: (id) => `/messages/groups/${id}`,
     selectedGroupId: groupId,
     km,
   });
   const selectedGroup = myGroups.groups.find((group) => group.id === groupId);
   const loading = list.status === "loading" || myGroups.status === "loading";
-  const hasSelection = Boolean(professionalId || groupId);
+  const hasSelection = Boolean(professionalId || groupId || clinicSlug);
+  const selectedClinic = clinicChats.chats.find((chat) => chat.clinicSlug === clinicSlug);
   const selectedSummary = list.conversations.find((item) => item.professionalId === professionalId);
   const selected: Conversation | undefined = selectedSummary && {
     id: selectedSummary.key,
@@ -218,6 +254,22 @@ export function UserMessages({ professionalId, groupId }: { professionalId?: str
         <section className={`min-h-0 flex-col ${hasSelection ? "flex h-full lg:h-auto" : "hidden lg:flex"}`}>
           {selectedGroup ? (
             <GroupChat key={selectedGroup.id} group={selectedGroup} onRead={myGroups.markRead} onBack={() => router.push("/messages")} />
+          ) : selectedClinic ? (
+            <ClinicChatPanel
+              key={selectedClinic.clinicSlug}
+              url={`/api/clinic-chat/${selectedClinic.clinicSlug}`}
+              viewer="client"
+              km={km}
+              title={(km && selectedClinic.clinicKmName) || selectedClinic.clinicName}
+              subtitle={t("ការជជែកជាមួយតុបម្រើគ្លីនិក", "Chat with the clinic desk")}
+              backHref="/messages"
+              onChange={() => void clinicChats.reload()}
+              headerAction={
+                <Link href={`/clinic-hospital?clinic=${selectedClinic.clinicSlug}`} className="text-sm font-semibold text-arom hover:underline">
+                  {t("គ្លីនិក", "Clinic")}
+                </Link>
+              }
+            />
           ) : selected && selectedSummary ? (
             <>
               <header className="flex items-center gap-3 border-b border-arom-border px-4 py-3 sm:px-6">

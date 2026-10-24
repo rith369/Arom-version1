@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { CalendarDays, ChevronLeft, ClipboardList, History } from "lucide-react";
+import { CalendarDays, ChevronLeft, ClipboardList, History, MessageCircle } from "lucide-react";
 import {
   formatClinicDay,
   formatClinicTime,
@@ -12,10 +12,12 @@ import {
 } from "@/lib/clinic-booking";
 import { DesktopNavigation, MobileNavigation } from "../app-navigation";
 import { useLanguage } from "../language-provider";
+import { useDeskChats } from "../clinic-chat/clinic-chat-store";
+import { DeskChats } from "./desk-chats";
 import { DeskRequestCard } from "./desk-request-card";
 import { DeskSchedule } from "./desk-schedule";
 
-type Tab = "requests" | "schedule" | "answered";
+type Tab = "requests" | "messages" | "schedule" | "answered";
 type Load = "loading" | "ready" | "none" | "error";
 
 /*
@@ -36,6 +38,18 @@ export function ClinicDeskView() {
   const [tab, setTab] = useState<Tab>("requests");
   const [notice, setNotice] = useState("");
   const [now, setNow] = useState(() => Date.now());
+  const [chatId, setChatId] = useState<string | null>(null);
+  const deskChats = useDeskChats(slug);
+  const unreadChats = deskChats.chats.reduce((sum, chat) => sum + chat.unread, 0);
+
+  // Opens the chat with the student who sent this request (section 35).
+  function messageAbout(requestId: string) {
+    const chat = deskChats.chats.find((item) => item.requestIds.includes(requestId));
+    setNotice("");
+    setChatId(chat?.id ?? null);
+    setTab("messages");
+    if (!chat) void deskChats.reload();
+  }
 
   useEffect(() => {
     let active = true;
@@ -85,6 +99,7 @@ export function ClinicDeskView() {
 
   const tabs: { value: Tab; label: string; icon: typeof ClipboardList; count?: number }[] = [
     { value: "requests", label: t("សំណើថ្មី", "New requests"), icon: ClipboardList, count: waiting.length },
+    { value: "messages", label: t("សារ", "Messages"), icon: MessageCircle, count: unreadChats },
     { value: "schedule", label: t("តារាងម៉ោង", "Time table"), icon: CalendarDays },
     { value: "answered", label: t("បានឆ្លើយ", "Answered"), icon: History },
   ];
@@ -154,7 +169,7 @@ export function ClinicDeskView() {
               <div
                 role="tablist"
                 aria-label={t("ផ្នែកតុបម្រើ", "Desk sections")}
-                className="mt-6 grid grid-cols-3 gap-1 rounded-2xl border border-arom-border bg-arom-wash p-1"
+                className="mt-6 grid grid-cols-4 gap-1 rounded-2xl border border-arom-border bg-arom-wash p-1"
               >
                 {tabs.map((item) => {
                   const Icon = item.icon;
@@ -204,10 +219,25 @@ export function ClinicDeskView() {
                         km={km}
                         now={now}
                         onDone={done}
+                        onMessage={() => messageAbout(item.id)}
                       />
                     ))}
                   </ul>
                 ))}
+
+              {tab === "messages" && (
+                <div className="mt-2">
+                  <DeskChats
+                    slug={slug}
+                    chats={deskChats.chats}
+                    status={deskChats.status}
+                    selectedId={chatId}
+                    onSelect={setChatId}
+                    onChange={() => void deskChats.reload()}
+                    km={km}
+                  />
+                </div>
+              )}
 
               {tab === "schedule" && (
                 <div className="mt-2">

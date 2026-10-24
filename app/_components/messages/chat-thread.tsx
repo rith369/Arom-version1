@@ -137,6 +137,9 @@ type RecorderState =
   | { phase: "recording"; seconds: number }
   | { phase: "preview"; url: string; blob: Blob; seconds: number };
 
+export type SendContent = Parameters<typeof sendMessage>[2];
+
+/** A therapist chat: the view below, fed by message-store. */
 export function ChatThread({
   conversation,
   viewer,
@@ -152,14 +155,7 @@ export function ChatThread({
   // Professionals only: turns on saved quick replies and fills {name}, {link}, {next}.
   quickReplyValues?: { name: string; link: string; next: string };
 }) {
-  const { loaded, messages: thread, summary } = useThread(conversation, viewer);
-  const savedReplies = useQuickReplies(Boolean(quickReplyValues));
-  const replies = savedReplies ?? [];
-  // A professional with no saved replies sees examples they can use or keep.
-  const showSamples = savedReplies !== null && savedReplies.length === 0;
-  const [repliesOpen, setRepliesOpen] = useState(false);
-  const [managing, setManaging] = useState(false);
-  const [newReply, setNewReply] = useState("");
+  const { loaded, messages, summary } = useThread(conversation, viewer);
   const t = (kmText: string, enText: string) => (km ? kmText : enText);
   // Read only when the parent says so, when the professional archived the
   // client, or when there is no booked or completed session.
@@ -172,6 +168,58 @@ export function ChatThread({
           ? t("អ្នកអាចផ្ញើសារម្តងទៀត បន្ទាប់ពីអ្នកកក់វគ្គ។", "You can send messages again after you book a session.")
           : t("អ្នកអាចផ្ញើសារទៅអតិថិជននេះម្តងទៀត បន្ទាប់ពីពួកគេកក់វគ្គជាមួយអ្នក។", "You can message this client again after they book a session with you.")
       : undefined);
+
+  return (
+    <ChatThreadView
+      threadKey={conversation.id}
+      viewer={viewer}
+      km={km}
+      loaded={loaded}
+      messages={messages}
+      lockedNote={lockedNote}
+      onSend={(content) => sendMessage(conversation, viewer, content)}
+      onSeen={() => markRead(conversation, viewer)}
+      quickReplyValues={quickReplyValues}
+    />
+  );
+}
+
+/**
+ * The chat itself: messages, voice recorder, photo and PDF picker. Used by
+ * therapist chats (ChatThread above) and clinic chats (clinic-chat/).
+ */
+export function ChatThreadView({
+  threadKey,
+  viewer,
+  km,
+  loaded,
+  messages: thread,
+  lockedNote,
+  onSend,
+  onSeen,
+  quickReplyValues,
+}: {
+  // Changes when another chat opens.
+  threadKey: string;
+  viewer: Sender;
+  km: boolean;
+  loaded: boolean;
+  messages: ChatMessage[];
+  // When set, the chat is read only and this explains why.
+  lockedNote?: string;
+  onSend: (content: SendContent) => Promise<SendResult>;
+  // Called when the viewer has the chat open, to mark the other side's messages read.
+  onSeen: () => void;
+  quickReplyValues?: { name: string; link: string; next: string };
+}) {
+  const savedReplies = useQuickReplies(Boolean(quickReplyValues));
+  const replies = savedReplies ?? [];
+  // A professional with no saved replies sees examples they can use or keep.
+  const showSamples = savedReplies !== null && savedReplies.length === 0;
+  const [repliesOpen, setRepliesOpen] = useState(false);
+  const [managing, setManaging] = useState(false);
+  const [newReply, setNewReply] = useState("");
+  const t = (kmText: string, enText: string) => (km ? kmText : enText);
 
   const [text, setText] = useState("");
   // A photo or PDF chosen with the paperclip, waiting to be sent.
@@ -188,10 +236,10 @@ export function ChatThread({
   const cancelledRef = useRef(false);
 
   useEffect(() => {
-    markRead(conversation, viewer);
-    // The conversation object is rebuilt on every render; its id is enough.
+    onSeen();
+    // onSeen is rebuilt on every render; the chat and its length are enough.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [conversation.id, viewer, thread.length]);
+  }, [threadKey, viewer, thread.length]);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ block: "end" });
@@ -217,7 +265,7 @@ export function ChatThread({
     if (!value || sending) return;
     setSending(true);
     setError("");
-    const result = await sendMessage(conversation, viewer, { kind: "text", text: value });
+    const result = await onSend({ kind: "text", text: value });
     setSending(false);
     if (result.ok) setText("");
     else setError(failureText(result));
@@ -248,7 +296,7 @@ export function ChatThread({
     if (!pending || sending) return;
     setSending(true);
     setError("");
-    const result = await sendMessage(conversation, viewer, { kind: "attachment", file: pending.file });
+    const result = await onSend({ kind: "attachment", file: pending.file });
     setSending(false);
     if (result.ok) clearPending();
     else setError(failureText(result));
@@ -258,7 +306,7 @@ export function ChatThread({
     if (sending) return;
     setSending(true);
     setError("");
-    const result = await sendMessage(conversation, viewer, { kind: "voice", audio: blob, durationSeconds: seconds });
+    const result = await onSend({ kind: "voice", audio: blob, durationSeconds: seconds });
     setSending(false);
     if (result.ok) {
       URL.revokeObjectURL(url);
