@@ -15,7 +15,7 @@ import { createClient } from "@/lib/supabase/server";
 import { fail, invalidInput, json, readJson, unauthorized } from "./shared";
 
 /*
- * AROM symptom check controller (BACKEND-HANDOFF.md section 34). Runs as the
+ * AROM symptom check controller (BACKEND-HANDOFF.md section 35). Runs as the
  * signed in person: RLS on symptom_checks and support_journeys returns only
  * their own rows. The server scores every check again, so the level and the
  * safety flag never come from the browser. The trigger

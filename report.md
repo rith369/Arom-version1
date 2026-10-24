@@ -73,7 +73,7 @@ Commit `717f5dd`. No migration: it uses the `symptom_checks` table, `support_jou
 - **New shared file** `lib/symptom-checks.ts`: questions (English and validated Khmer), answer options, bands, scoring and types. The server scores every check again.
 - **New API** `GET|POST /api/symptom-checks` (`lib/controllers/symptom-controller.ts`), owner only through RLS. Answers are stored but never returned.
 - **New page** `app/detection/symptoms/page.tsx`; `detection-modal.tsx` links to it.
-- **BACKEND-HANDOFF.md section 34** has the decisions, scoring table, data shape and known gaps (stress, sleep, burnout and trauma checks not built; no Home reminder yet).
+- **BACKEND-HANDOFF.md section 35** has the decisions, scoring table, data shape and known gaps (stress, sleep, burnout and trauma checks not built; no Home reminder yet).
 - **Needs a professional's review** of the Khmer and the result messages before a public launch. Review document: "AROM Symptom Check: Questionnaire Plan for Review".
 
 **What to re-test:**

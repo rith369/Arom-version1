@@ -38,7 +38,7 @@ import {
   type SymptomLevel,
 } from "@/lib/symptom-checks";
 
-// Symptom check (BACKEND-HANDOFF.md section 34): a private early warning,
+// Symptom check (BACKEND-HANDOFF.md section 35): a private early warning,
 // never a diagnosis. Answers stay in memory only until they are sent, and are
 // never kept in browser storage or logged.
 

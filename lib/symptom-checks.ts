@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-// Symptom checks (BACKEND-HANDOFF.md section 34). An early warning for the
+// Symptom checks (BACKEND-HANDOFF.md section 35). An early warning for the
 // person only, never a diagnosis. Questions, scoring and levels are shared by
 // the browser and the API; the API always scores again, so a level can never
 // come from the browser. Answers are private health data: they never go in a
