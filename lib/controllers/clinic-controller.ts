@@ -5,6 +5,8 @@ import {
   MAX_DESK_ANSWER,
   MAX_DESK_CANCEL_REASON,
   MAX_DESK_MOVE_REASON,
+  type AdminClinic,
+  type AdminClinicsResponse,
   type ClinicBookingInfo,
   type ClinicDesk,
   type ClinicSessionType,
@@ -393,12 +395,6 @@ export async function changeDeskBooking(request: NextRequest, appointmentId: str
 // Admin
 // ---------------------------------------------------------------------------
 
-export interface AdminClinic {
-  id: string;
-  slug: string;
-  name: string;
-}
-
 /** GET /api/admin/clinics: clinics, and which accounts work at a clinic desk. */
 export async function listAdminClinics() {
   const guard = await requireRole("admin");
@@ -410,7 +406,7 @@ export async function listAdminClinics() {
   ]);
   if (clinics.error || staff.error) return fail("server_error", "We could not load clinics.", 500);
 
-  return json({
+  return json<AdminClinicsResponse>({
     clinics: (clinics.data ?? []) as AdminClinic[],
     staff: ((staff.data ?? []) as { clinic_id: string; user_id: string }[]).map((row) => ({
       clinicId: row.clinic_id,

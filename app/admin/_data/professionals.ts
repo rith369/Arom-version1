@@ -42,6 +42,9 @@ export type Professional = {
   // Listed and bookable for University of Puthisastra students and staff only.
   // professional_profiles.up_students_only, set by admins only.
   upStudentsOnly?: boolean;
+  // The clinic this therapist works at (section 34). Clinic therapists are
+  // not on the Professional page; students book the clinic.
+  clinicId?: string | null;
   credential: ProfessionalCredential;
   // Private contact for verification only. Never shown on the public profile.
   phone: string;

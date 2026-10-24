@@ -52,6 +52,18 @@ function describe(row: AuditRow): { action: string; module: AuditModule; detail:
       return { action: "Showed a review again", module: "professionals", detail: text(d.professional) && `For ${text(d.professional)}` };
     case "change_verification":
       return { action: "Changed professional verification", module: "professionals", detail: fromTo };
+    case "set_professional_clinic":
+      return {
+        action: text(d.to) ? "Linked a professional to a clinic" : "Removed a professional from a clinic",
+        module: "professionals",
+        detail: text(d.to) || text(d.from),
+      };
+    case "set_clinic_staff":
+      return {
+        action: d.to ? "Made an account a clinic desk" : "Removed a clinic desk account",
+        module: "users",
+        detail: text(d.clinic),
+      };
     case "set_up_students_only":
       return d.to
         ? { action: "Made a professional UP only", module: "professionals", detail: "" }

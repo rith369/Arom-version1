@@ -10,6 +10,7 @@ import {
 
 import {
   ChevronDown,
+  ClipboardList,
   Search,
   ShieldCheck,
   ShieldOff,
@@ -170,6 +171,9 @@ export function UsersView() {
     currentUserId,
     setUserStatus,
     setUserRole,
+    clinics,
+    clinicStaff,
+    setClinicDesk,
   } = useAdmin();
   const { language } = useLanguage();
 
@@ -184,6 +188,27 @@ export function UsersView() {
     null,
   );
   const [notice, setNotice] = useState('');
+  const [deskBusy, setDeskBusy] = useState('');
+  const [deskError, setDeskError] = useState('');
+
+  // Desk accounts answer a clinic's booking requests (section 34).
+  async function toggleDesk(user: AdminUser, clinicId: string, on: boolean) {
+    if (deskBusy) return;
+    setDeskBusy(`${user.id}-${clinicId}`);
+    setDeskError('');
+    const result = await setClinicDesk(user.id, clinicId, on);
+    setDeskBusy('');
+    if (!result.ok) {
+      setDeskError(result.message);
+      return;
+    }
+    const clinicName = clinics.find((clinic) => clinic.id === clinicId)?.name ?? 'the clinic';
+    setNotice(
+      on
+        ? `${user.fullName} can now answer bookings for ${clinicName} at /clinic-desk.`
+        : `${user.fullName} no longer works at the ${clinicName} desk.`,
+    );
+  }
 
   const roleLabels: Record<UserRole, string> = {
     user: t('អ្នកប្រើប្រាស់', 'User'),
@@ -670,6 +695,11 @@ export function UsersView() {
                         {statusLabels.suspended}
                       </span>
                     )}
+                    {clinicStaff.some((item) => item.userId === user.id) && (
+                      <span className="rounded-full bg-arom-wash px-2.5 py-0.5 text-xs font-medium text-arom">
+                        Clinic desk
+                      </span>
+                    )}
                   </span>
                   <span className="mt-1 block truncate text-sm text-ink-muted">
                     {user.email}
@@ -750,6 +780,48 @@ export function UsersView() {
                         );
                       })}
                     </div>
+                  )}
+
+                  {clinics.length > 0 && (
+                    <section className="mt-4 rounded-2xl border border-arom-border p-3.5">
+                      <h3 className="flex items-center gap-2 text-sm font-semibold">
+                        <ClipboardList aria-hidden="true" size={16} className="text-arom" />
+                        Clinic desk
+                      </h3>
+                      <p className="mt-1 text-xs leading-5 text-ink-muted">
+                        A desk account answers the clinic&apos;s booking requests, picks the therapist and marks
+                        times full, at /clinic-desk. It sees students by the name they share, usually Anonymous.
+                      </p>
+                      <ul className="mt-2 space-y-2">
+                        {clinics.map((clinic) => {
+                          const on = clinicStaff.some(
+                            (item) => item.userId === user.id && item.clinicId === clinic.id,
+                          );
+                          return (
+                            <li key={clinic.id} className="flex items-center justify-between gap-3 text-sm">
+                              <span>{clinic.name}</span>
+                              <button
+                                type="button"
+                                role="switch"
+                                aria-checked={on}
+                                aria-label={`Desk for ${clinic.name}`}
+                                disabled={deskBusy !== ''}
+                                onClick={() => void toggleDesk(user, clinic.id, !on)}
+                                className={`relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition-colors disabled:opacity-60 ${on ? 'bg-arom' : 'bg-gray-300'}`}>
+                                <span
+                                  className={`inline-block size-5 rounded-full bg-white shadow transition-transform ${on ? 'translate-x-6' : 'translate-x-1'}`}
+                                />
+                              </button>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                      {deskError && (
+                        <p role="alert" className="mt-2 text-sm text-arom-danger">
+                          {deskError}
+                        </p>
+                      )}
+                    </section>
                   )}
                 </div>
               )}

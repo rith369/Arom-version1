@@ -116,6 +116,19 @@ export interface DeskData {
   schedule: DeskTime[];
 }
 
+/** GET /api/admin/clinics */
+export interface AdminClinic {
+  id: string;
+  slug: string;
+  name: string;
+}
+
+export interface AdminClinicsResponse {
+  clinics: AdminClinic[];
+  // Accounts that work at a clinic desk.
+  staff: { clinicId: string; userId: string }[];
+}
+
 /** Cambodia day key, for grouping times by day. */
 export function cambodiaDay(iso: string) {
   return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Phnom_Penh" }).format(new Date(iso));
