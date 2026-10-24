@@ -13,13 +13,22 @@ import { z } from "zod";
 // - Copenhagen Burnout Inventory, personal burnout, Kristensen et al. 2005
 // - WHO-5 Well-Being Index, Topp et al. 2015 (higher score is better)
 // - UCLA 3 item Loneliness Scale, Hughes et al. 2004
+// - PCL-5, US National Center for PTSD, Weathers et al. 2013 (public domain)
 // The PHQ-9 and GAD-7 Khmer is the wording validated in Cambodia by Steinman
 // et al. 2025, PLOS Mental Health 2(4):e0000228 (S1 and S2 Appendix). The
 // other checks have no tested Khmer yet, so `khmerReady` is false: they are
 // hidden while the app is in Khmer until a professional gives us the Khmer.
 // Do not reword any question without a professional's review.
 
-export const SYMPTOM_CHECK_TYPES = ["depression", "anxiety", "stress", "burnout", "wellbeing", "loneliness"] as const;
+export const SYMPTOM_CHECK_TYPES = [
+  "depression",
+  "anxiety",
+  "stress",
+  "burnout",
+  "wellbeing",
+  "loneliness",
+  "trauma",
+] as const;
 export type SymptomCheckType = (typeof SYMPTOM_CHECK_TYPES)[number];
 
 export const SYMPTOM_LEVELS = ["none", "low", "medium", "high"] as const;
@@ -61,6 +70,10 @@ export interface Questionnaire {
   // True for checks where a higher score means feeling better.
   higherIsBetter: boolean;
   khmerReady: boolean;
+  // Shown above the first question, for checks that need context first.
+  intro?: QuestionText;
+  // Show Get help now with every result, not only strong ones.
+  alwaysShowHelp?: boolean;
 }
 
 /** How a question or label reads in the current language, English when no Khmer exists. */
@@ -357,6 +370,83 @@ export const QUESTIONNAIRES: Record<SymptomCheckType, Questionnaire> = {
     level: (score) => (score <= 5 ? "none" : "medium"),
     higherIsBetter: false,
     khmerReady: false,
+  },
+  trauma: {
+    type: "trauma",
+    instrument: "PCL-5",
+    name: { en: "Trauma", km: "របួសផ្លូវចិត្ត (Trauma)" },
+    description: { en: "20 questions about how a very stressful experience still affects you." },
+    intro: {
+      en: "These questions are about a very stressful experience, such as an accident, violence, a disaster, or losing someone suddenly. Keep that experience in mind. You do not need to describe it, and you can stop at any time.",
+    },
+    prompt: { en: "In the past month, how much were you bothered by this?" },
+    options: [
+      { points: 0, label: { en: "Not at all" } },
+      { points: 1, label: { en: "A little bit" } },
+      { points: 2, label: { en: "Moderately" } },
+      { points: 3, label: { en: "Quite a bit" } },
+      { points: 4, label: { en: "Extremely" } },
+    ],
+    questions: [
+      { id: "pcl_1", scored: true, text: { en: "Repeated, disturbing, and unwanted memories of the stressful experience" } },
+      { id: "pcl_2", scored: true, text: { en: "Repeated, disturbing dreams of the stressful experience" } },
+      {
+        id: "pcl_3",
+        scored: true,
+        text: {
+          en: "Suddenly feeling or acting as if the stressful experience were actually happening again (as if you were actually back there reliving it)",
+        },
+      },
+      { id: "pcl_4", scored: true, text: { en: "Feeling very upset when something reminded you of the stressful experience" } },
+      {
+        id: "pcl_5",
+        scored: true,
+        text: {
+          en: "Having strong physical reactions when something reminded you of the stressful experience (for example, heart pounding, trouble breathing, sweating)",
+        },
+      },
+      { id: "pcl_6", scored: true, text: { en: "Avoiding memories, thoughts, or feelings related to the stressful experience" } },
+      {
+        id: "pcl_7",
+        scored: true,
+        text: {
+          en: "Avoiding external reminders of the stressful experience (for example, people, places, conversations, activities, objects, or situations)",
+        },
+      },
+      { id: "pcl_8", scored: true, text: { en: "Trouble remembering important parts of the stressful experience" } },
+      {
+        id: "pcl_9",
+        scored: true,
+        text: {
+          en: "Having strong negative beliefs about yourself, other people, or the world (for example, having thoughts such as: I am bad, there is something seriously wrong with me, no one can be trusted, the world is completely dangerous)",
+        },
+      },
+      { id: "pcl_10", scored: true, text: { en: "Blaming yourself or someone else for the stressful experience or what happened after it" } },
+      { id: "pcl_11", scored: true, text: { en: "Having strong negative feelings such as fear, horror, anger, guilt, or shame" } },
+      { id: "pcl_12", scored: true, text: { en: "Loss of interest in activities that you used to enjoy" } },
+      { id: "pcl_13", scored: true, text: { en: "Feeling distant or cut off from other people" } },
+      {
+        id: "pcl_14",
+        scored: true,
+        text: {
+          en: "Trouble experiencing positive feelings (for example, being unable to feel happiness or have loving feelings for people close to you)",
+        },
+      },
+      { id: "pcl_15", scored: true, text: { en: "Irritable behavior, angry outbursts, or acting aggressively" } },
+      { id: "pcl_16", scored: true, text: { en: "Taking too many risks or doing things that could cause you harm" } },
+      { id: "pcl_17", scored: true, text: { en: "Being \"superalert\" or watchful or on guard" } },
+      { id: "pcl_18", scored: true, text: { en: "Feeling jumpy or easily startled" } },
+      { id: "pcl_19", scored: true, text: { en: "Having difficulty concentrating" } },
+      { id: "pcl_20", scored: true, text: { en: "Trouble falling or staying asleep" } },
+    ],
+    maxScore: 80,
+    total: sum,
+    // National Center for PTSD: 31 to 33 suggests probable PTSD, so 31 or more
+    // is high. The 15 split below it is AROM's, for a professional to confirm.
+    level: (score) => (score <= 14 ? "none" : score <= 30 ? "medium" : "high"),
+    higherIsBetter: false,
+    khmerReady: false,
+    alwaysShowHelp: true,
   },
 };
 

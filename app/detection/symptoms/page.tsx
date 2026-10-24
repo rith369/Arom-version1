@@ -15,6 +15,7 @@ import {
   Info,
   Lock,
   Sun,
+  Shield,
   Users,
   Waves,
   X,
@@ -68,6 +69,7 @@ const TOPIC: Record<SymptomCheckType, Pair> = {
   burnout: { en: "burnout", km: "ភាពអស់កម្លាំង" },
   wellbeing: { en: "low wellbeing", km: "សុខុមាលភាពទាប" },
   loneliness: { en: "loneliness", km: "ភាពឯកោ" },
+  trauma: { en: "stress after a hard experience", km: "ភាពតានតឹងក្រោយបទពិសោធន៍ដ៏លំបាក" },
 };
 
 const CHECK_ICONS: Record<SymptomCheckType, LucideIcon> = {
@@ -77,6 +79,7 @@ const CHECK_ICONS: Record<SymptomCheckType, LucideIcon> = {
   burnout: BatteryLow,
   wellbeing: Sun,
   loneliness: Users,
+  trauma: Shield,
 };
 
 const LEVEL_MESSAGES: Record<SymptomLevel, (topic: Pair) => Pair> = {
@@ -523,6 +526,10 @@ function QuestionView({
         <div className="h-full rounded-full bg-arom transition-all duration-300" style={{ width: `${((view.index + 1) / total) * 100}%` }} />
       </div>
 
+      {questionnaire.intro && view.index === 0 && (
+        <p className="mt-5 rounded-2xl bg-arom-wash p-4 text-sm leading-6 text-ink">{tx(questionnaire.intro)}</p>
+      )}
+
       <div className="mt-6 rounded-3xl border border-arom-border bg-white p-5 shadow-card sm:p-6">
         {safetyInAnxiety && (
           <p className="mb-2 text-sm font-medium text-arom-deep">
@@ -658,7 +665,7 @@ function ResultView({
 
       <NextSteps km={km} check={check} journey={journey} professional={professional} />
 
-      {check.level === "high" && !check.safetyConcern && <GetHelpSection />}
+      {(check.level === "high" || QUESTIONNAIRES[check.type].alwaysShowHelp) && !check.safetyConcern && <GetHelpSection />}
 
       <p className="flex items-start gap-2 rounded-2xl border border-arom-border bg-white/70 px-4 py-3 text-xs leading-5 text-ink-muted">
         <Lock size={15} className="mt-0.5 shrink-0 text-arom" aria-hidden="true" />

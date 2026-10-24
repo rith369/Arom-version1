@@ -1,30 +1,34 @@
 # AROM: Change Report
 
-## 24 Oct 2026: Wellbeing and Loneliness Checks Added to Symptom Check (English Only for Now)
+## 24 Oct 2026: Wellbeing, Loneliness and Trauma Checks Added to Symptom Check (English Only for Now)
 
-Commit `abe3fbe`, pull request. Migration `20261024000300_symptom_wellbeing_loneliness.sql` **not yet applied**: run it before merging.
+Commits `abe3fbe` and `PENDING`, pull request #29. Migration `20261024000300_symptom_check_types.sql` **not yet applied**: run it before merging.
 
-**Why.** Rith asked for more checks than low mood and anxiety. Wellbeing and loneliness are free, short and common questionnaires. They need two new check types in the database. Like stress and burnout, there is no Khmer version tested in Cambodia, so they show only in English until a professional gives us the Khmer.
+**Why.** Rith asked for more checks than low mood and anxiety. Wellbeing (WHO-5) and loneliness (UCLA-3) are free, short and common. For trauma, the HTQ needs permission, so we use the PCL-5, which the US National Center for PTSD says is "in the public domain and not copyrighted". These need three new check types in the database. Like stress and burnout, there is no Khmer version tested in Cambodia, so they show only in English until a professional gives us the Khmer. Sleep is still not built, because every standard sleep questionnaire needs permission for app use.
 
 **What changed for users:**
-- **Wellbeing check:** 5 positive questions about the last 2 weeks (WHO-5). The score is 0 to 100 and higher is better, which the result says.
+- **Wellbeing check:** 5 positive questions about the last 2 weeks (WHO-5). The score is 0 to 100 and higher is better, which the result says. A Clear signs or Strong signs result offers "Take the Low mood check", as WHO-5 guidance suggests.
 - **Loneliness check:** 3 questions about feeling alone (UCLA-3).
-- **Low wellbeing leads to a next step:** a Clear signs or Strong signs wellbeing result offers "Take the Low mood check", as WHO-5 guidance suggests.
-- **English only:** in Khmer these two are hidden, like stress and burnout.
+- **Trauma check:** 20 questions about how a very stressful experience still affects you (PCL-5). A short note before the first question says to keep that experience in mind, that there is no need to describe it, and that you can stop at any time. Every trauma result shows Get help now, not only strong ones.
+- **English only:** in Khmer these three are hidden, like stress and burnout.
 
 **What changed for the team:**
-- **Migration** adds `wellbeing` and `loneliness` to `symptom_check_type`. Nothing else in the database changes.
-- `lib/symptom-checks.ts`: two new questionnaires; `higherIsBetter` is used for WHO-5 (results and the "harder than before" note).
-- `app/pro/_data/clients.ts`: the client file labels them "Wellbeing (higher score is better)" and "Loneliness".
-- `BACKEND-HANDOFF.md` section 35: scoring table with all six checks.
+- **Migration** adds `wellbeing`, `loneliness` and `trauma` to `symptom_check_type`. Nothing else in the database changes.
+- `lib/symptom-checks.ts`: three new questionnaires; new `intro` and `alwaysShowHelp` fields; `higherIsBetter` used for WHO-5.
+- `app/pro/_data/clients.ts`: client file labels "Wellbeing (higher score is better)", "Loneliness" and "Trauma (PCL-5)".
+- `BACKEND-HANDOFF.md` section 35: scoring table with all seven checks, and where sleep stands.
+- **Professional review:** the PCL-5 split at 15 (Clear signs) is AROM's own; 31 or more (Strong signs) follows the National Center for PTSD.
 
 **What to re-test (after the migration):**
-1. In English, open `/detection/symptoms`. Six checks show.
+1. In English, open `/detection/symptoms`. Seven checks show.
 2. Take Wellbeing with "More than half of the time" on all. Score 60 of 100, Few signs, "Higher is better".
 3. Take Wellbeing with "Some of the time" on all. Score 20, Strong signs, with "Take the Low mood check". Tapping it starts the Low mood check.
 4. Take Loneliness with "Some of the time" on all. Score 6 of 9, Clear signs, with a recheck date in 14 days.
-5. Switch to Khmer. Only Low mood and Anxiety show.
-6. As a professional with a client who shares symptom checks, the new checks show with their labels.
+5. Open Trauma. The note about keeping one experience in mind shows above question 1 only.
+6. Take Trauma with "Not at all" on all. Score 0, Few signs, and Get help now still shows.
+7. Take Trauma with "A little bit" on all. Score 20 of 80, Clear signs.
+8. Switch to Khmer. Only Low mood and Anxiety show.
+9. As a professional with a client who shares symptom checks, the new checks show with their labels.
 
 ## 24 Oct 2026: UP Clinic Desk and Therapists See the UP Clinic Without a UP Email
 

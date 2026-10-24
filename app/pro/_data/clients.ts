@@ -40,7 +40,8 @@ export type SymptomCheckType =
   | 'sleep'
   | 'burnout'
   | 'wellbeing'
-  | 'loneliness';
+  | 'loneliness'
+  | 'trauma';
 export type SymptomLevel = 'none' | 'low' | 'medium' | 'high';
 
 // Mirrors symptom_checks (shared when share_symptom_checks is on).
@@ -132,6 +133,7 @@ export const SYMPTOM_TYPE_LABELS: Record<SymptomCheckType, { en: string; km: str
   // WHO-5: the only check where a higher score is better.
   wellbeing: { en: 'Wellbeing (higher score is better)', km: 'សុខុមាលភាព (ពិន្ទុខ្ពស់ កាន់តែល្អ)' },
   loneliness: { en: 'Loneliness', km: 'ភាពឯកោ' },
+  trauma: { en: 'Trauma (PCL-5)', km: 'របួសផ្លូវចិត្ត (PCL-5)' },
 };
 
 export const LEVEL_LABELS: Record<SymptomLevel, { en: string; km: string }> = {
