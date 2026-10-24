@@ -85,7 +85,7 @@ The yellow "Demo data on this page" banner is in `admin-shell.tsx`. Remove it fo
 | Find Clinic & Hospital (`/clinic-hospital` from Figma): interactive map, filters, search, clinic cards, and clinic detail view | Done | Waiting for backend (currently static curated directory in `clinic-data.ts`) | 32 |
 | UP students and staff: free UP professionals and UP clinic for anyone with a confirmed University of Puthisastra email (`/profile/up-student`, admin switch in `/admin/professionals`) | Done | Connected, PR #27 merged 24 Oct (`is_up_student()`, `admin_set_up_students_only()`, `PATCH /api/admin/professionals/:id/up-students`), migration `20261024000100` applied 24 Oct. UP clinic is sample data in `clinic-data.ts` | 33 |
 | Clinic bookings, starting with the UP Wellness Clinic: Therapists tab and Book a session on the clinic page, Clinic requests in My appointments, clinic desk (`/clinic-desk`), admin clinic link and desk accounts | Done | Connected, PR #28 merged 24 Oct (`/api/clinics/:slug/booking`, `/api/clinics/:slug/requests`, `/api/clinic-requests`, `/api/clinic-desk/*`, `/api/admin/clinics`, `PATCH /api/admin/professionals/:id/clinic`, `PATCH /api/admin/users/:id/clinic-desk`), migration `20261024000200` applied 24 Oct | 34 |
-| Clinic chat: students chat with the clinic desk (text, voice, photos, PDF) in Messages; desk Messages tab and Message buttons | Done | PR (`rith/clinic-chat`): connected (`/api/clinic-chat`, `/api/clinic-chat/:slug`, `/api/clinic-desk/:slug/chats/*`, `/api/clinic-chat-files/:messageId`), migration `20261024000900` not yet applied | 35 |
+| Clinic chat: students chat with the clinic desk (text, voice, photos, PDF) in Messages; desk Messages tab and Message buttons | Done | Connected, PR #30 merged 24 Oct (`/api/clinic-chat`, `/api/clinic-chat/:slug`, `/api/clinic-desk/:slug/chats/*`, `/api/clinic-chat-files/:messageId`), migration `20261024000900` applied 24 Oct | 35 |
 | Symptom check (`/detection/symptoms`): PHQ-9 low mood and GAD-7 anxiety in English and validated Khmer, PSS-10 stress, CBI burnout, WHO-5 wellbeing, UCLA-3 loneliness and PCL-5 trauma in English only, safety screen, results, 14 day rechecks | Done | Connected (`GET\|POST /api/symptom-checks`). Wellbeing, loneliness and trauma use migration `20261024000300` (applied 24 Oct, PR #29 merged). Uses `symptom_checks`, `support_journeys` and `apply_support_path()` | 35 |
 
 ## 5. Admin users page
@@ -1471,7 +1471,7 @@ Answers are saved in `symptom_checks.answers` as `[{ questionId, value }]` in qu
 
 ## 35. Clinic chat (clinic desk and student)
 
-**Status:** Done in a pull request (`rith/clinic-chat`), migration `20261024000900_clinic_chat.sql` not yet applied. No notifications yet.
+**Status:** Connected (PR #30, merged 24 Oct). Migration `20261024000900_clinic_chat.sql` applied 24 Oct. No notifications yet.
 
 **Decided by Rith (24 Oct 2026). Do not change without asking:**
 

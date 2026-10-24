@@ -2,7 +2,7 @@
 
 ## 24 Oct 2026: Clinic Desk Chat with Students
 
-Commits `1749c84` to `b8776cc` (pull request `rith/clinic-chat`). Migration `20261024000900_clinic_chat.sql`, not yet applied.
+Commits `1749c84` to `b8776cc`, merged in PR #30 (`596ad9e`). Migration `20261024000900_clinic_chat.sql` applied 24 Oct.
 
 **Why.** The UP clinic desk needs to reach students about practical things, like a changed room, a sick therapist or a missing meeting link, and students need to ask the clinic simple questions. Until now the desk could only confirm or decline a request.
 
