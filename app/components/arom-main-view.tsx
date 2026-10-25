@@ -8,6 +8,7 @@ import { MoodSelector } from "./mood-selector";
 import { ProgressDashboard } from "./progress-dashboard";
 import { BottomNav } from "./bottom-nav";
 import { NextSessionCard, useNextSession } from "./next-session-card";
+import { CheckInDueCard, useCheckInDue } from "./check-in-due-card";
 import { DesktopNavigation } from "../_components/app-navigation";
 import { useLanguage } from "../_components/language-provider";
 import { InstallPopup } from "../_components/install-app/install-popup";
@@ -15,6 +16,7 @@ import { InstallPopup } from "../_components/install-app/install-popup";
 export function AromMainView() {
   const { language } = useLanguage();
   const nextSession = useNextSession();
+  const checkInDue = useCheckInDue();
 
   return (
     <div className="min-h-screen bg-[#f7faf9] text-[#14221f] lg:grid lg:grid-cols-[19rem_minmax(0,1fr)]">
@@ -35,12 +37,15 @@ export function AromMainView() {
             {/* The user's next booked session, when there is one */}
             {nextSession && <NextSessionCard next={nextSession} km={language === "km"} />}
 
+            {/* A 14 day symptom recheck is due. Never names the check. */}
+            {checkInDue && <CheckInDueCard km={language === "km"} />}
+
             {/* Laptops: the sprout picture has a row of its own, so the right
                 column starts level with the top of the plan card. Phones: one
                 column (picture, plan, quote, mood check in, progress). */}
             <div className="grid lg:grid-cols-[1.1fr_0.9fr] lg:items-start lg:gap-x-6">
               <div className="lg:col-start-1 lg:row-start-1">
-                <PlanBanner tuck={!nextSession} />
+                <PlanBanner tuck={!nextSession && !checkInDue} />
               </div>
               <div className="w-full lg:col-start-1 lg:row-start-2">
                 <DailyPlanCard />

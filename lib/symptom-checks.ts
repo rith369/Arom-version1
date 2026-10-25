@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { cambodiaDay } from "./mood";
 
 // Symptom checks (BACKEND-HANDOFF.md section 35). An early warning for the
 // person only, never a diagnosis. Questions, scoring and levels are shared by
@@ -686,4 +687,20 @@ export function isHarderThanBefore(checks: SymptomCheckDto[], type: SymptomCheck
   const ofType = checks.filter((check) => check.type === type);
   if (ofType.length < 2) return false;
   return QUESTIONNAIRES[type].higherIsBetter ? ofType[0].score < ofType[1].score : ofType[0].score > ofType[1].score;
+}
+
+/**
+ * Journeys whose 14 day recheck is due on `today` (a Cambodia day): the review
+ * day has come and no check of that concern was taken on or after it. The
+ * date alone is not enough, because a Strong result on the review day does
+ * not move `review_due_on` (apply_support_path), so it would stay due forever.
+ */
+export function dueJourneys(data: SymptomChecksResponse, today: string) {
+  return data.journeys.filter(
+    (journey) =>
+      journey.reviewDueOn <= today &&
+      !data.checks.some(
+        (check) => check.type === journey.concern && cambodiaDay(Date.parse(check.createdAt)) >= journey.reviewDueOn,
+      ),
+  );
 }

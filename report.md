@@ -1,5 +1,30 @@
 # AROM: Change Report
 
+## 26 Oct 2026: Home Reminds You When Your 2 Week Symptom Check Is Due
+
+Commit `PENDING`. No migration. Frontend only.
+
+**Why.** After a symptom check with some signs, the result says AROM will ask the person to check again in 2 weeks. But the reminder only showed on the Symptom check page, so anyone who did not open that page never saw it. Home is where people come every day, so the reminder now shows there.
+
+**What changed for users:**
+- **Home card on the day:** from the review day, Home shows "Time for your 2 week check in" with **Check now**, which opens the Symptom check page. It goes away once they take the check again.
+- **Private on Home:** the card never says which check it is (for example trauma or low mood), because other people can see a phone's Home screen. The Symptom check page shows which check is due.
+- **Clearer result sentence:** "On 9 November, we will remind you on Home to check again." (and in Khmer).
+- **Fixed a stuck reminder:** after a Strong result on the review day, "Time to check again" no longer stays on screen forever.
+
+**What changed for the team:**
+- New `app/components/check-in-due-card.tsx` (`useCheckInDue`, `CheckInDueCard`), shown in `app/components/arom-main-view.tsx` under the next session card.
+- New `dueJourneys()` in `lib/symptom-checks.ts`, used by Home and the Symptom check page. A journey is due when the review day has come and no check of that concern was taken since.
+- `BACKEND-HANDOFF.md` section 35: the Home reminder, and a trigger gap in `apply_support_path()` that still needs a backend fix (a Strong recheck does not move `review_due_on`).
+
+**What to re-test:**
+1. With an account that has no checks due, Home shows no reminder card.
+2. Take a check with Some or Clear signs: the result says "On <date>, we will remind you on Home to check again."
+3. To see the card without waiting 2 weeks, set that journey's `review_due_on` to today in Supabase (test account only), then open Home: the card shows, in English and Khmer, without naming the check.
+4. Tap Check now: the Symptom check page shows "Time to check again" for that check.
+5. Take the check again: the card is gone from Home and the page, also when the new result is Strong.
+6. Signed out, Home shows no card.
+
 ## 26 Oct 2026: Journal Suggests Lessons, Tips, Practices and Professionals for Your Week
 
 Commit `4bf6103`. No migration.

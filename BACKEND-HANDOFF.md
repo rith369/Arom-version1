@@ -1497,7 +1497,8 @@ Answers are saved in `symptom_checks.answers` as `[{ questionId, value }]` in qu
 - Sleep is not built: ISI (Mapi Research Trust), PSQI (University of Pittsburgh) and PROMIS Sleep (HealthMeasures, for apps) all need permission. Rith can request ISI; build it once permission arrives. HTQ (Khmer exists) still needs HPRT permission; PCL-5 is used for trauma instead.
 - Stress, burnout, wellbeing, loneliness and trauma need Khmer from a professional before they show in Khmer. WHO-5 has official translations on the WHO site; no Khmer one was found.
 - PSS-10 is free for non-profit and educational use. If AROM ever charges users, check the commercial licence first.
-- The 14 day recheck shows only on this page. There is no reminder on Home or by Telegram yet.
+- **14 day recheck reminder (26 Oct, Rith chose a Home card):** from the review day, Home shows "Time for your 2 week check in" with Check now (`app/components/check-in-due-card.tsx`, from `GET /api/symptom-checks`). It never names the check, because other people can see a phone's Home screen. There is no Telegram or push reminder yet.
+- **Trigger gap, needs a backend fix:** in `apply_support_path()`, a `high` result goes to the "serious at any point" branch first, even on or after the review day, and that branch does not move `review_due_on`. So after a Strong recheck the journey stays "due" with an old date. The frontend works around it: `dueJourneys()` counts a journey as due only when no check of that concern was taken on or after `review_due_on`. Suggested fix: in that branch, also set `review_due_on = v_today + 14` when `v_today >= v_journey.review_due_on`.
 - No limit on how often a person can take a check.
 - A professional still has to review the Khmer and the result messages before a public launch.
 - `symptom_checks` RLS lets the owner update or delete their own rows directly through the API. The app never does this.

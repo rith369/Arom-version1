@@ -34,6 +34,7 @@ import {
   QUESTIONNAIRES,
   SAFETY_QUESTION_ID,
   SYMPTOM_CHECK_TYPES,
+  dueJourneys,
   isHarderThanBefore,
   textFor,
   type SupportJourneyDto,
@@ -312,7 +313,7 @@ function HomeView({
 }) {
   const data = load.status === "ready" ? load.data : null;
   const today = load.status === "ready" ? load.today : "";
-  const due = data?.journeys.filter((journey) => journey.reviewDueOn <= today) ?? [];
+  const due = data ? dueJourneys(data, today) : [];
   const upcoming = data?.journeys.filter((journey) => journey.reviewDueOn > today) ?? [];
   const harder = data ? SYMPTOM_CHECK_TYPES.filter((type) => isHarderThanBefore(data.checks, type)) : [];
   // Checks without reviewed Khmer show only while the app is in English.
@@ -712,8 +713,8 @@ function NextSteps({
       : "Talk to a professional soon, and keep up small self help steps each day too.";
   } else if (journey) {
     note = km
-      ? "សាកល្បងជំហានតូចៗរៀងរាល់ថ្ងៃ។ យើងនឹងសួរអ្នកឱ្យពិនិត្យម្តងទៀតនៅថ្ងៃទី " + formatDay(journey.reviewDueOn, km) + "។"
-      : `Try small steps each day. We will ask you to check again on ${formatDay(journey.reviewDueOn, km)}.`;
+      ? "សាកល្បងជំហានតូចៗរៀងរាល់ថ្ងៃ។ យើងនឹងរំលឹកអ្នកនៅលើទំព័រដើម ឱ្យពិនិត្យម្តងទៀតនៅថ្ងៃទី " + formatDay(journey.reviewDueOn, km) + "។"
+      : `Try small steps each day. On ${formatDay(journey.reviewDueOn, km)}, we will remind you on Home to check again.`;
   }
 
   const links: { href: string; label: string; primary?: boolean }[] = [
