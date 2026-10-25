@@ -1,5 +1,26 @@
 # AROM: Change Report
 
+## 26 Oct 2026: A Strong 2 Week Recheck Now Sets the Next Recheck Date
+
+Commit `PENDING`. Migration `20261026000300_recheck_date_after_strong.sql` (not applied yet): replaces the `apply_support_path()` trigger function, one branch changed.
+
+**Why.** When a person's 2 week recheck came back with Strong signs, the database kept the old recheck date. The app then thought the check was still due forever, and the person was never asked to check again 2 weeks later. The Home card already hid the stuck reminder; this fixes the cause, so people with the hardest results keep getting their 2 week check ins.
+
+**What changed for users:**
+- **Next check after a Strong recheck:** a Strong result on or after the recheck day now sets the next recheck 14 days later, so Home reminds them again in 2 weeks.
+- **Nothing else changes:** a Strong result before the recheck day still keeps the existing date. Book a professional is still offered with every Strong result.
+
+**What changed for the team:**
+- New migration with the same `apply_support_path()` as `20261008000800`, except the "serious at any point" branch also moves `review_due_on` when the review day has come. It also repairs journeys already stuck (none on 26 Oct 2026).
+- `BACKEND-HANDOFF.md` section 35 updated.
+
+**What to re-test:**
+1. Run the migration in the Supabase SQL Editor.
+2. With a test account, take a check with Some signs, then set that journey's `review_due_on` to today in Supabase.
+3. Take the same check again and answer for a Strong result.
+4. In Supabase, the journey's `review_due_on` is now 14 days from today, and Home shows no reminder card.
+5. Take a Strong check before the recheck day: `review_due_on` does not change.
+
 ## 26 Oct 2026: Home Reminds You When Your 2 Week Symptom Check Is Due
 
 Commit `9820e77`. No migration. Frontend only.
