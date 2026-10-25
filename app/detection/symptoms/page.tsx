@@ -85,6 +85,9 @@ const TOPIC: Record<SymptomCheckType, Pair> = {
   trauma_screen: { en: "stress after a hard experience", km: "ភាពតានតឹងក្រោយបទពិសោធន៍ដ៏លំបាក" },
 };
 
+// The overall check shown first on the list (K-10, in English and Khmer).
+const FEATURED_CHECK: SymptomCheckType = "distress";
+
 const CHECK_ICONS: Record<SymptomCheckType, LucideIcon> = {
   depression: Activity,
   anxiety: HeartPulse,
@@ -333,6 +336,11 @@ function HomeView({
   const harder = data ? SYMPTOM_CHECK_TYPES.filter((type) => isHarderThanBefore(data.checks, type)) : [];
   // Checks without reviewed Khmer show only while the app is in English.
   const available = SYMPTOM_CHECK_TYPES.filter((type) => !km || QUESTIONNAIRES[type].khmerReady);
+  // The general check has its own card on top; the rest are one list below.
+  const featured = QUESTIONNAIRES[FEATURED_CHECK];
+  const FeaturedIcon = CHECK_ICONS[FEATURED_CHECK];
+  const featuredNext = upcoming.find((journey) => journey.concern === FEATURED_CHECK);
+  const specific = available.filter((type) => type !== FEATURED_CHECK);
 
   return (
     <div className="mt-3 space-y-5 animate-in fade-in duration-200">
@@ -423,38 +431,78 @@ function HomeView({
         </div>
       )}
 
+      {/* The general check first, for people who are not sure where to start. */}
+      <section aria-labelledby="general-check" className="rounded-3xl border border-arom/30 bg-arom-wash p-5 shadow-sm sm:p-6">
+        <p className="text-xs font-semibold uppercase tracking-wider text-arom-deep">
+          {km ? "ចាប់ផ្តើមនៅទីនេះ" : "Start here"}
+        </p>
+        <div className="mt-2 flex items-center gap-3">
+          <span className="flex size-12 shrink-0 items-center justify-center rounded-[15px] bg-white text-arom">
+            <FeaturedIcon size={22} aria-hidden="true" />
+          </span>
+          <h2 id="general-check" className="text-lg font-bold text-ink">
+            {tx(featured.name)}
+          </h2>
+        </div>
+        <p className="mt-3 text-sm leading-6 text-ink">
+          {km
+            ? "ការពិនិត្យទូទៅរហ័ស អំពីអារម្មណ៍របស់អ្នកក្នុងរយៈពេល ៣០ថ្ងៃចុងក្រោយ។ ប្រសិនបើអ្នកមិនប្រាកដថាការពិនិត្យណាសមនឹងអ្នក សូមចាប់ផ្តើមជាមួយការពិនិត្យនេះ។"
+            : "A quick overall check of how you have felt in the last 30 days. If you are not sure which check fits you, start with this one."}
+        </p>
+        <p className="mt-2 flex items-center gap-1.5 text-xs text-ink-muted">
+          <Clock size={14} aria-hidden="true" />
+          {km ? `សំណួរ ${featured.questions.length} · ប្រហែល ២ នាទី` : `${featured.questions.length} questions · About 2 minutes`}
+        </p>
+        {featuredNext && (
+          <p className="mt-1 text-xs font-medium text-arom-deep">
+            {km ? `ពិនិត្យបន្ទាប់៖ ${formatDay(featuredNext.reviewDueOn, km)}` : `Next check: ${formatDay(featuredNext.reviewDueOn, km)}`}
+          </p>
+        )}
+        <button
+          type="button"
+          disabled={load.status !== "ready"}
+          onClick={() => onStart(FEATURED_CHECK)}
+          className={`${primaryButton} mt-4`}
+        >
+          {km ? "ចាប់ផ្តើមពិនិត្យ" : "Start the check"}
+        </button>
+      </section>
+
       <section aria-labelledby="choose-check" className="space-y-3">
         <h2 id="choose-check" className="text-base font-semibold">
-          {km ? "ជ្រើសរើសការពិនិត្យ" : "Choose a check"}
+          {km ? "ឬជ្រើសរើសការពិនិត្យជាក់លាក់" : "Or choose a specific check"}
         </h2>
-        {available.map((type) => {
-          const questionnaire = QUESTIONNAIRES[type];
-          const next = upcoming.find((journey) => journey.concern === type);
-          const Icon = CHECK_ICONS[type];
-          return (
-            <button
-              key={type}
-              type="button"
-              disabled={load.status !== "ready"}
-              onClick={() => onStart(type)}
-              className={`group flex w-full items-center gap-4 rounded-[22px] border border-arom-border bg-white p-4 text-left shadow-sm transition-colors hover:border-arom hover:bg-arom-wash disabled:opacity-60 ${focusRing}`}
-            >
-              <span className="flex size-12 shrink-0 items-center justify-center rounded-[15px] bg-arom-soft text-arom">
-                <Icon size={22} aria-hidden="true" />
-              </span>
-              <span className="min-w-0 flex-1">
-                <span className="block text-base font-semibold text-ink">{tx(questionnaire.name)}</span>
-                <span className="mt-0.5 block text-xs text-ink-muted sm:text-sm">{tx(questionnaire.description)}</span>
-                {next && (
-                  <span className="mt-1 block text-xs font-medium text-arom-deep">
-                    {km ? `ពិនិត្យបន្ទាប់៖ ${formatDay(next.reviewDueOn, km)}` : `Next check: ${formatDay(next.reviewDueOn, km)}`}
+        <ul className="divide-y divide-arom-border/60 overflow-hidden rounded-[22px] border border-arom-border bg-white shadow-sm">
+          {specific.map((type) => {
+            const questionnaire = QUESTIONNAIRES[type];
+            const next = upcoming.find((journey) => journey.concern === type);
+            const Icon = CHECK_ICONS[type];
+            return (
+              <li key={type}>
+                <button
+                  type="button"
+                  disabled={load.status !== "ready"}
+                  onClick={() => onStart(type)}
+                  className={`group flex w-full items-center gap-4 p-4 text-left transition-colors hover:bg-arom-wash disabled:opacity-60 ${focusRing} focus-visible:-outline-offset-2`}
+                >
+                  <span className="flex size-11 shrink-0 items-center justify-center rounded-[14px] bg-arom-soft text-arom">
+                    <Icon size={20} aria-hidden="true" />
                   </span>
-                )}
-              </span>
-              <ChevronRight size={18} className="shrink-0 text-ink-muted group-hover:text-arom" aria-hidden="true" />
-            </button>
-          );
-        })}
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-sm font-semibold text-ink sm:text-base">{tx(questionnaire.name)}</span>
+                    <span className="mt-0.5 block text-xs text-ink-muted sm:text-sm">{tx(questionnaire.description)}</span>
+                    {next && (
+                      <span className="mt-1 block text-xs font-medium text-arom-deep">
+                        {km ? `ពិនិត្យបន្ទាប់៖ ${formatDay(next.reviewDueOn, km)}` : `Next check: ${formatDay(next.reviewDueOn, km)}`}
+                      </span>
+                    )}
+                  </span>
+                  <ChevronRight size={18} className="shrink-0 text-ink-muted group-hover:text-arom" aria-hidden="true" />
+                </button>
+              </li>
+            );
+          })}
+        </ul>
         {km && available.length < SYMPTOM_CHECK_TYPES.length && (
           <p className="text-xs leading-5 text-ink-muted">
             ការពិនិត្យបន្ថែមទៀតមានជាភាសាអង់គ្លេស ខណៈពេលដែលភាសាខ្មែររបស់វាកំពុងត្រូវបានពិនិត្យដោយអ្នកជំនាញ។

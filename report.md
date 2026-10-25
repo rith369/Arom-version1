@@ -1,5 +1,27 @@
 # AROM: Change Report
 
+## 26 Oct 2026: Symptom Check List Starts With One General Check
+
+Commit `PENDING`. No migration. Frontend only.
+
+**Why.** The list showed nine checks as nine separate cards, so people who did not know which one fits had to guess. Following the team's Figma idea, the general check now sits on top as the place to start, and the specific checks sit underneath in one tidy list.
+
+**What changed for users:**
+- **"Start here" card on top:** General distress (K-10), "A quick overall check of how you have felt in the last 30 days. If you are not sure which check fits you, start with this one.", with "11 questions · About 2 minutes" and a **Start the check** button. Shows the next check date when one is planned.
+- **"Or choose a specific check":** all other checks in one card with lines between rows. The whole row is tappable.
+- **Same in Khmer:** the top card is in Khmer, and the list shows only the checks that have Khmer, as before.
+- Everything else on the page is unchanged (Time to check again, past checks, How it works, language button).
+
+**What changed for the team:**
+- `app/detection/symptoms/page.tsx`: `FEATURED_CHECK = "distress"`, a featured card, and the other checks as one `<ul>` list.
+
+**What to re-test:**
+1. Open `/detection/symptoms`: the Start here card is on top, then "Or choose a specific check" with the other checks in one card.
+2. Tap Start the check: General distress starts at Question 1 of 11.
+3. Tap a row in the list (for example Stress): that check starts.
+4. Switch to Khmer: the top card is in Khmer and the list has only Low mood, Anxiety and the Trauma short check.
+5. Check on a small phone that the card and the rows do not overflow.
+
 ## 26 Oct 2026: Language Button on the Symptom Check
 
 Commit `6daf713`. No migration. Frontend only.
