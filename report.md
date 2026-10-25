@@ -2,7 +2,7 @@
 
 ## 26 Oct 2026: Two New Symptom Checks in English and Khmer (General Distress and Trauma Short Check)
 
-Commit `PENDING`. Migration `20261026000100_symptom_check_k10_pc_ptsd_5.sql` adds the check types `distress` and `trauma_screen`. Rith runs it before merging the pull request.
+Commit `d419c23`. Migration `20261026000100_symptom_check_k10_pc_ptsd_5.sql` adds the check types `distress` and `trauma_screen`. Rith runs it before merging the pull request.
 
 **Why.** Until now only Low mood and Anxiety could be used in Khmer, because the other checks had no Khmer from a professional. A therapist gave Rith EMDR Association Cambodia's Khmer form, and EMDR agreed AROM can use it. From that form we added the two checks that are new to AROM: K-10 (general distress) and PC-PTSD-5 (a short trauma screen). Khmer readers can now check for general distress and for trauma signs. PHQ-2 and GAD-2 on the same form are short versions of checks we already have, so they were not added. ACE (childhood experiences) asks very sensitive questions, so it will not be a self check. It is planned for the therapist intake when booking.
 
