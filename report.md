@@ -1,5 +1,34 @@
 # AROM: Change Report
 
+## 26 Oct 2026: Real Journal Summary Written by Gemini (Off Until You Turn It On)
+
+Commit `9a5120d`, merged in PR #35. Migration `20261026000200_journal_ai_summary.sql` applied 26 Oct 2026 (renamed from `20261026000100`, which PR #34 also used; nothing to run again). Needs `GEMINI_API_KEY` (paid plan) in Vercel and `.env.local`.
+
+**Why.** Students asked for a summary that actually reads their week. The journal is the most private data in AROM, so the summary is off until the person turns it on, they are told exactly where their entries go, and the AI is held to strict rules: only what they wrote, no diagnosis, no better or worse, and the helplines instead of a summary when something heavy comes up.
+
+**What changed for users:**
+- **Turn on summary:** under "Your week" on the journal, a box explains that the last 7 days of entries are sent to Google Gemini, that Google does not train on them and keeps them up to 55 days only to check for misuse, and that professionals and admins never see them. Nothing is sent until the person taps Turn on summary.
+- **The summary:** a short paragraph about the week, the main theme, up to 3 things noticed and one small thing to try, in English or Khmer, written only from their own entries. A line says it is written by AI, can be wrong and is not a diagnosis.
+- **Updates by itself:** after a new entry, the summary is written again when the journal opens (at most 5 times a day). It needs at least 3 entries in 7 days.
+- **Support instead of a summary:** if an entry mentions suicide, self harm, harming others or abuse, the card shows gentle words, Talk to a professional and the helplines.
+- **Turn off summary** at any time; the saved summary is deleted.
+
+**What changed for the team:**
+- New table `journal_ai_summaries` (owner read only, writes only through `set_journal_summary_enabled`, `claim_journal_summary_run`, `save_journal_summary`).
+- New `GET|POST|PUT /api/journal/summary`, `lib/journal-summary.ts`, `lib/gemini-journal.ts` (server only), `lib/controllers/journal-summary-controller.ts`, `app/_components/journal/journal-written-summary.tsx`.
+- Env: `GEMINI_API_KEY` (required), `GEMINI_MODEL` (optional, default `gemini-3.5-flash`). Only the HTTP status is ever logged.
+- `BACKEND-HANDOFF.md` section 22 has the full rules.
+
+**What to re-test:**
+1. Run the migration, add `GEMINI_API_KEY`, restart `npm run dev`.
+2. Open `/detection/journal`, Past Reflections: the summary box explains where entries go and shows Turn on summary.
+3. With fewer than 3 entries in 7 days, turn it on: it asks for more entries.
+4. Write 3 entries: the summary appears in English; switch to Khmer and check it is written in Khmer.
+5. Check it mentions only what you wrote, with no dates or percentages that were not in your entries.
+6. Write a test entry with "I want to die": the card shows the support message and helplines, not a summary.
+7. Turn off summary: the box goes back to Turn on, and turning it on again writes a fresh one.
+8. As a second account, check you cannot see the first account's summary.
+
 ## 26 Oct 2026: Two New Symptom Checks in English and Khmer (General Distress and Trauma Short Check)
 
 Commit `d419c23`. Migration `20261026000100_symptom_check_k10_pc_ptsd_5.sql` adds the check types `distress` and `trauma_screen` (applied 26 Oct). Merged in PR #34.

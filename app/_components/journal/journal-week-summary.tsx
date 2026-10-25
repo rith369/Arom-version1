@@ -5,14 +5,15 @@ import { HeartPulse } from "lucide-react";
 import { JOURNAL_MOOD_LEVEL, type JournalMood } from "@/lib/journal";
 import { MOOD_LABELS, MOOD_LEVELS, cambodiaDay, lastDays, type MoodLevel } from "@/lib/mood";
 import { MoodSprout } from "../mood/mood-sprout";
+import { JournalWrittenSummary } from "./journal-written-summary";
 
 export type WeekEntry = { date: string; mood: string; tags: string[] };
 
 /**
  * The journal's last 7 days, counted from the person's own entries: how many
  * entries, which moods, which feelings came up most. Counts only, it never
- * says better or worse. A written summary comes later (BACKEND-HANDOFF.md
- * section 22).
+ * says better or worse. Below it, the written summary the person can turn
+ * on (BACKEND-HANDOFF.md section 22).
  */
 export function JournalWeekSummary({
   entries,
@@ -102,9 +103,7 @@ export function JournalWeekSummary({
         </>
       )}
 
-      <p className="mt-3 border-t border-[#1f6f5b]/10 pt-2.5 text-[11px] text-[#6b7280]">
-        {km ? "សេចក្តីសង្ខេបជាអក្សរអំពីសប្តាហ៍របស់អ្នក នឹងមកដល់ឆាប់ៗ។" : "A written summary of your week is coming soon."}
-      </p>
+      <JournalWrittenSummary km={km} weekCount={recent.length} />
     </section>
   );
 }
