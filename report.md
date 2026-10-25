@@ -2,7 +2,7 @@
 
 ## 26 Oct 2026: Real Journal Summary Written by Gemini (Off Until You Turn It On)
 
-Commit `9a5120d`, pull request (not yet merged). Migration `20261026000100_journal_ai_summary.sql` **not yet applied**. Needs `GEMINI_API_KEY` (paid plan) in Vercel and `.env.local`.
+Commit `9a5120d`, pull request (not yet merged). Migration `20261026000100_journal_ai_summary.sql` applied 26 Oct 2026. Needs `GEMINI_API_KEY` (paid plan) in Vercel and `.env.local`.
 
 **Why.** Students asked for a summary that actually reads their week. The journal is the most private data in AROM, so the summary is off until the person turns it on, they are told exactly where their entries go, and the AI is held to strict rules: only what they wrote, no diagnosis, no better or worse, and the helplines instead of a summary when something heavy comes up.
 
