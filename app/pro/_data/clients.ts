@@ -45,7 +45,9 @@ export type SymptomCheckType =
   | 'burnout'
   | 'wellbeing'
   | 'loneliness'
-  | 'trauma';
+  | 'trauma'
+  | 'distress'
+  | 'trauma_screen';
 export type SymptomLevel = 'none' | 'low' | 'medium' | 'high';
 
 // Mirrors symptom_checks (shared when share_symptom_checks is on).
@@ -138,6 +140,8 @@ export const SYMPTOM_TYPE_LABELS: Record<SymptomCheckType, { en: string; km: str
   wellbeing: { en: 'Wellbeing (higher score is better)', km: 'សុខុមាលភាព (ពិន្ទុខ្ពស់ កាន់តែល្អ)' },
   loneliness: { en: 'Loneliness', km: 'ភាពឯកោ' },
   trauma: { en: 'Trauma (PCL-5)', km: 'របួសផ្លូវចិត្ត (PCL-5)' },
+  distress: { en: 'General distress (K-10)', km: 'បញ្ហាផ្លូវចិត្តទូទៅ (K-10)' },
+  trauma_screen: { en: 'Trauma short check (PC-PTSD-5)', km: 'ការពិនិត្យខ្លីអំពីរបួសផ្លូវចិត្ត (PC-PTSD-5)' },
 };
 
 export const LEVEL_LABELS: Record<SymptomLevel, { en: string; km: string }> = {

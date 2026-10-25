@@ -11,11 +11,13 @@ import {
   ChevronRight,
   Clock,
   Compass,
+  Gauge,
   HeartPulse,
   Info,
   Lock,
   Sun,
   Shield,
+  ShieldCheck,
   Users,
   Waves,
   X,
@@ -65,21 +67,25 @@ type View =
 const TOPIC: Record<SymptomCheckType, Pair> = {
   depression: { en: "low mood", km: "អារម្មណ៍ធ្លាក់ចុះ" },
   anxiety: { en: "anxiety", km: "ការថប់បារម្ភ" },
+  distress: { en: "distress", km: "បញ្ហាផ្លូវចិត្ត" },
   stress: { en: "stress", km: "ភាពតានតឹង" },
   burnout: { en: "burnout", km: "ភាពអស់កម្លាំង" },
   wellbeing: { en: "low wellbeing", km: "សុខុមាលភាពទាប" },
   loneliness: { en: "loneliness", km: "ភាពឯកោ" },
   trauma: { en: "stress after a hard experience", km: "ភាពតានតឹងក្រោយបទពិសោធន៍ដ៏លំបាក" },
+  trauma_screen: { en: "stress after a hard experience", km: "ភាពតានតឹងក្រោយបទពិសោធន៍ដ៏លំបាក" },
 };
 
 const CHECK_ICONS: Record<SymptomCheckType, LucideIcon> = {
   depression: Activity,
   anxiety: HeartPulse,
+  distress: Gauge,
   stress: Waves,
   burnout: BatteryLow,
   wellbeing: Sun,
   loneliness: Users,
   trauma: Shield,
+  trauma_screen: ShieldCheck,
 };
 
 const LEVEL_MESSAGES: Record<SymptomLevel, (topic: Pair) => Pair> = {
@@ -507,7 +513,8 @@ function QuestionView({
   const selected = view.answers[question.id];
   const isLast = view.index === total - 1;
   const allAnswered = questionnaire.questions.every((item) => view.answers[item.id] !== undefined);
-  const safetyInAnxiety = view.type === "anxiety" && question.id === SAFETY_QUESTION_ID;
+  // The unscored safety question added at the end of a check (anxiety, distress).
+  const addedSafety = question.id === SAFETY_QUESTION_ID && !question.scored;
 
   return (
     <div className="mt-3 animate-in fade-in duration-200">
@@ -531,7 +538,7 @@ function QuestionView({
       )}
 
       <div className="mt-6 rounded-3xl border border-arom-border bg-white p-5 shadow-card sm:p-6">
-        {safetyInAnxiety && (
+        {addedSafety && (
           <p className="mb-2 text-sm font-medium text-arom-deep">
             {km ? "សំណួរមួយទៀត អំពីសុវត្ថិភាពរបស់អ្នក។" : "One more question, about your safety."}
           </p>
@@ -917,6 +924,12 @@ function HowItWorksSheet({
             </span>
           </p>
         </section>
+
+        <p className="mt-5 text-xs leading-5 text-ink-muted">
+          {km
+            ? "ភាសាខ្មែរសម្រាប់ការពិនិត្យបញ្ហាផ្លូវចិត្តទូទៅ និងការពិនិត្យខ្លីអំពីរបួសផ្លូវចិត្ត មកពីសមាគម អ៊ី.អឹម.ឌី.អា កម្ពុជា (EMDR Association Cambodia)។"
+            : "The Khmer questions in the General distress and Trauma (short check) checks are from EMDR Association Cambodia."}
+        </p>
 
         <button type="button" onClick={onClose} className={`${primaryButton} mt-6`}>
           {km ? "យល់ហើយ" : "Got it"}
