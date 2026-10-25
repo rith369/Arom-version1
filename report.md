@@ -2,7 +2,7 @@
 
 ## 26 Oct 2026: Clinic Page Asks for Location With a Clear Popup
 
-Commit `PENDING`. No migration. Frontend only.
+Commit `503bc72`. No migration. Frontend only.
 
 **Why.** Many students did not notice the small "Use my location to see distances" link, so they never saw how far each clinic is or which one is closest. A popup when the page opens tells them, in plain words, what the location is for. We show our own popup first and the browser's question only after "Allow", because a cold browser question gets blocked often, and once blocked the browser never asks again.
 
