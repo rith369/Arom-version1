@@ -6,13 +6,10 @@ import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowLeft,
-  ChevronDown,
   ChevronRight,
-  ChevronUp,
   Mic,
   MicOff,
   Plus,
-  RefreshCw,
   ShieldCheck,
   X,
   Calendar,
@@ -36,9 +33,9 @@ import {
   Zap,
   type LucideIcon,
 } from "lucide-react";
-import { FigmaIcon } from "../../components/figma-icon";
 import { MOOD_LABELS, useMoodStore, type MoodLevel } from "../../_components/mood/mood-store";
 import { MoodSprout } from "../../_components/mood/mood-sprout";
+import { JournalWeekSummary } from "../../_components/journal/journal-week-summary";
 import { DesktopNavigation } from "../../_components/app-navigation";
 import { BottomNav } from "../../components/bottom-nav";
 import { TopHeader } from "../../components/top-header";
@@ -324,81 +321,6 @@ function getPlaceholderForMood(mood: string, km: boolean): string {
   }
 }
 
-type AiSummaryReport = {
-  headlineEn: string;
-  headlineKm: string;
-  paragraphEn: string;
-  paragraphKm: string;
-  trendEn: string;
-  trendKm: string;
-  themeEn: string;
-  themeKm: string;
-  actionEn: string;
-  actionKm: string;
-  highlightsEn: string[];
-  highlightsKm: string[];
-};
-
-function generateAiJournalSummary(entries: JournalEntry[], revision = 0): AiSummaryReport {
-  const total = entries.length;
-  const moodCounts = entries.reduce<Record<string, number>>((acc, e) => {
-    acc[e.mood] = (acc[e.mood] || 0) + 1;
-    return acc;
-  }, {});
-
-  const positiveCount = (moodCounts["Great"] || 0) + (moodCounts["Good"] || 0);
-  const positiveRate = total > 0 ? Math.round((positiveCount / total) * 100) : 80;
-
-  const summaries: AiSummaryReport[] = [
-    {
-      headlineEn: "Balanced & Uplifting Emotional Trend",
-      headlineKm: "និន្នាការផ្លូវចិត្តមានតុល្យភាព និងវិជ្ជមាន",
-      paragraphEn: `Across your recent reflections (${total} check-ins logged), your emotional patterns reflect healthy resilience and grounded peace (${positiveRate}% positive check-ins). Taking intentional rest and walks has strongly buffered against stress, keeping you centered and motivated.`,
-      paragraphKm: `ផ្អែកលើកំណត់ត្រាឆ្លុះបញ្ចាំងថ្មីៗរបស់អ្នក (${total} កំណត់ត្រា) ស្ថានភាពអារម្មណ៍របស់អ្នកមានភាពវិជ្ជមាន និងមានលំនឹងល្អ (${positiveRate}% វិជ្ជមាន)។ អ្នកបានរក្សាភាពស្ងប់ស្ងាត់បានយ៉ាងល្អ ហើយការឆ្លៀតពេលសម្រាកខ្លីៗបានជួយសម្រាលភាពតានតឹងយ៉ាងមានប្រសិទ្ធភាព។`,
-      trendEn: `${positiveRate}% Positive & Calm`,
-      trendKm: `${positiveRate}% វិជ្ជមាន & ស្ងប់ចិត្ត`,
-      themeEn: "Self-Care & Calm",
-      themeKm: "ការថែទាំចិត្ត & ភាពស្ងប់",
-      actionEn: "Walks & Evening Rest",
-      actionKm: "ដើរហាត់ប្រាណ & សម្រាក",
-      highlightsEn: [
-        "Morning walks and tea breaks strongly correlate with your calmest days.",
-        "Quick recovery noted after feeling tired on Sep 8 by disconnecting from screens early.",
-        "Consistent mindfulness practice puts you in the top 10% of weekly self-care consistency.",
-      ],
-      highlightsKm: [
-        "ការដើរពេលព្រឹក និងការសម្រាកផឹកតែ ជួយបង្កើតអារម្មណ៍ស្ងប់ស្ងាត់បានច្រើនបំផុត។",
-        "ការសម្រាកមុនម៉ោង និងកាត់បន្ថយអេក្រង់ បានជួយស្តារថាមពលឡើងវិញយ៉ាងឆាប់រហ័ស។",
-        "ការកត់ត្រាទៀងទាត់ជួយឱ្យអ្នកមានទម្លាប់ថែទាំសុខភាពផ្លូវចិត្តជាប់លាប់ល្អ។",
-      ],
-    },
-    {
-      headlineEn: "Mindful Awareness & Emotional Clarity",
-      headlineKm: "ការយល់ដឹងពីចិត្ត និងភាពច្បាស់លាស់នៃអារម្មណ៍",
-      paragraphEn: `Your reflections highlight growing self-awareness. When facing demanding schedules, you acknowledge fatigue early and permit yourself to slow down. Gratitude and contentment remain your most recurrent feelings over the last 7 days.`,
-      paragraphKm: `កំណត់ត្រារបស់អ្នកបង្ហាញពីការយល់ដឹងពីខ្លួនឯងកាន់តែស៊ីជម្រៅ។ នៅពេលជួបការងារច្រើន អ្នកបានកត់សម្គាល់ពីភាពនឿយហត់ទាន់ពេល និងអនុញ្ញាតឱ្យខ្លួនឯងបន្ថយល្បឿន។ ការដឹងគុណ និងការពេញចិត្តនៅតែជាអារម្មណ៍ដែលកើតឡើងញឹកញាប់បំផុត។`,
-      trendEn: "High Self-Compassion",
-      trendKm: "ការយល់ចិត្តខ្លួនឯងខ្ពស់",
-      themeEn: "Gratitude & Peace",
-      themeKm: "ការដឹងគុណ & សន្តិភាព",
-      actionEn: "2-min mindful pause",
-      actionKm: "សម្រាកដកដង្ហើម ២នាទី",
-      highlightsEn: [
-        "Proactive emotional check-ins help reduce overwhelm before it builds up.",
-        "Feelings of gratitude and pride are frequently linked to completed personal tasks.",
-        "Consistent pacing observed across weekdays and weekends.",
-      ],
-      highlightsKm: [
-        "ការពិនិត្យអារម្មណ៍ជាមុន ជួយកាត់បន្ថយភាពតានតឹងកុំឱ្យរីករាលដាល។",
-        "អារម្មណ៍ដឹងគុណ និងមោទនភាព កើតឡើងញឹកញាប់ពេលសម្រេចកិច្ចការផ្ទាល់ខ្លួន។",
-        "ចង្វាក់រស់នៅមានលំនឹងល្អទាំងថ្ងៃធ្វើការ និងចុងសប្តាហ៍។",
-      ],
-    },
-  ];
-
-  return summaries[revision % summaries.length];
-}
-
 /**
  * Formats raw speech-to-text transcripts for natural Khmer and English orthography.
  * For Khmer: collapses artificial token spaces between adjacent Khmer words and transforms
@@ -531,21 +453,6 @@ function JournalContent() {
   const [saveError, setSaveError] = useState<"" | "signed_out" | "failed">("");
   const { confirm, dialog: confirmDialog } = useConfirm();
   const [selectedDetailEntry, setSelectedDetailEntry] = useState<JournalEntry | null>(null);
-
-  // AI Journal Summary Feature State
-  const [isAiGenerating, setIsAiGenerating] = useState(false);
-  const [showAiBreakdown, setShowAiBreakdown] = useState(false);
-  const [aiSummaryRevision, setAiSummaryRevision] = useState(0);
-
-  const currentAiSummary = generateAiJournalSummary(entries, aiSummaryRevision);
-
-  const handleRegenerateAiSummary = () => {
-    setIsAiGenerating(true);
-    setTimeout(() => {
-      setAiSummaryRevision((prev) => prev + 1);
-      setIsAiGenerating(false);
-    }, 850);
-  };
 
   function applyJournal(result: JournalLoad) {
     if (result.status === "ready") setEntries(result.entries);
@@ -1638,148 +1545,15 @@ function JournalContent() {
                 </button>
               </div>
 
-              {/* ============================================================== */}
-              {/* AI Journal Summary Feature (Placed on top of history) */}
-              {/* ============================================================== */}
-              <div className="mt-5 relative overflow-hidden rounded-[24px] border border-[#bce5d8] bg-gradient-to-br from-[#ebf7f3] via-[#f8fdfb] to-[#e4f5ee] p-4 sm:p-5 shadow-[0_4px_22px_rgba(31,111,91,0.06)] transition-all">
-                {/* Decorative background glow */}
-                <div className="pointer-events-none absolute -right-8 -top-8 size-28 rounded-full bg-emerald-200/40 blur-2xl" />
-                <div className="pointer-events-none absolute -left-8 -bottom-8 size-28 rounded-full bg-teal-200/30 blur-2xl" />
-
-                <div className="relative z-10">
-                  {/* Header row */}
-                  <div className="flex flex-wrap items-center justify-between gap-3">
-                    <div className="flex items-center gap-2.5">
-                      <div className="flex size-9 shrink-0 items-center justify-center rounded-2xl bg-[#dff3ee] text-[#1f6f5b] shadow-2xs">
-                        <FigmaIcon name="ic_outline-mood" size={22} />
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <h2 className="text-sm sm:text-base font-bold text-[#111827]">
-                            {km ? "ការវិភាគសង្ខេបអារម្មណ៍ (Mood Insights)" : "AI Journal Summary"}
-                          </h2>
-                          <span className="rounded-full bg-[#1f6f5b]/10 px-2.5 py-0.5 text-[10px] font-semibold text-[#1f6f5b]">
-                            {km ? "ការឆ្លុះបញ្ចាំង (Reflection)" : "Smart Reflection"}
-                          </span>
-                        </div>
-                        <p className="text-[11px] text-[#4b5563]">
-                          {km ? "ស្វែងយល់ពីលំនាំនៃអារម្មណ៍ ៧ ថ្ងៃចុងក្រោយ" : "Emotional patterns from your past 7 days"}
-                        </p>
-                      </div>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={handleRegenerateAiSummary}
-                      disabled={isAiGenerating}
-                      className="inline-flex items-center gap-1.5 rounded-full border border-[#1f6f5b]/20 bg-white/85 px-3 py-1.5 text-xs font-semibold text-[#1f6f5b] hover:bg-white hover:border-[#1f6f5b]/40 transition-all active:scale-95 shadow-2xs disabled:opacity-60"
-                    >
-                      <RefreshCw size={12} className={isAiGenerating ? "animate-spin text-[#1f6f5b]" : "text-[#1f6f5b]"} />
-                      <span>
-                        {isAiGenerating
-                          ? (km ? "កំពុងវិភាគ..." : "Synthesizing...")
-                          : (km ? "វិភាគឡើងវិញ (Refresh)" : "Regenerate")}
-                      </span>
-                    </button>
-                  </div>
-
-                  {/* Body Content */}
-                  {isAiGenerating ? (
-                    <div className="mt-4 rounded-2xl bg-white/70 p-4 border border-emerald-100/80 animate-pulse">
-                      <div className="flex items-center gap-2 text-xs font-medium text-[#1f6f5b]">
-                        <span className="inline-block size-2 rounded-full bg-[#1f6f5b] animate-ping" />
-                        <span>{km ? "ប្រព័ន្ធកំពុងអានកំណត់ត្រា និងវិភាគអារម្មណ៍របស់អ្នក..." : "AI is reading recent entries and evaluating emotional themes..."}</span>
-                      </div>
-                      <div className="mt-3 h-3 w-4/5 rounded bg-emerald-200/50" />
-                      <div className="mt-2 h-3 w-3/5 rounded bg-emerald-200/40" />
-                    </div>
-                  ) : (
-                    <>
-                      {/* Core summary paragraph */}
-                      <div className="mt-3.5 rounded-2xl bg-white/80 p-3.5 sm:p-4 border border-[#1f6f5b]/10 text-xs sm:text-sm leading-relaxed text-[#1f2d29] shadow-2xs">
-                        <p className="font-medium">
-                          {km ? currentAiSummary.paragraphKm : currentAiSummary.paragraphEn}
-                        </p>
-                      </div>
-
-                      {/* 3 Metrics / Insights Slots */}
-                      <div className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-                        {/* Slot 1: Mood Trend */}
-                        <div className="flex items-center gap-2.5 rounded-2xl bg-white/80 p-2.5 sm:p-3 border border-[#1f6f5b]/10 shadow-2xs">
-                          <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-[#dff3ee] text-[#1f6f5b]">
-                            <FigmaIcon name="boxicons_happy-beaming" size={20} />
-                          </div>
-                          <div className="min-w-0 flex-1">
-                            <p className="text-[10px] font-semibold text-[#6b7280] uppercase tracking-wider">
-                              {km ? "និន្នាការអារម្មណ៍ (Mood Trend)" : "Mood Trend"}
-                            </p>
-                            <p className="text-xs font-bold text-[#1f6f5b] leading-tight">
-                              {km ? currentAiSummary.trendKm : currentAiSummary.trendEn}
-                            </p>
-                          </div>
-                        </div>
-
-                        {/* Slot 2: Core Theme */}
-                        <div className="flex items-center gap-2.5 rounded-2xl bg-white/80 p-2.5 sm:p-3 border border-[#1f6f5b]/10 shadow-2xs">
-                          <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-[#fee2e2] text-[#e11d48]">
-                            <FigmaIcon name="akar-icons_heart" size={19} />
-                          </div>
-                          <div className="min-w-0 flex-1">
-                            <p className="text-[10px] font-semibold text-[#6b7280] uppercase tracking-wider">
-                              {km ? "ប្រធានបទស្នូល (Core Theme)" : "Core Theme"}
-                            </p>
-                            <p className="text-xs font-bold text-[#111827] leading-tight">
-                              {km ? currentAiSummary.themeKm : currentAiSummary.themeEn}
-                            </p>
-                          </div>
-                        </div>
-
-                        {/* Slot 3: Gentle Tip */}
-                        <div className="flex items-center gap-2.5 rounded-2xl bg-white/80 p-2.5 sm:p-3 border border-[#1f6f5b]/10 shadow-2xs">
-                          <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-[#fef3c7] text-[#b45309]">
-                            <FigmaIcon name="hugeicons_yoga-03" size={20} />
-                          </div>
-                          <div className="min-w-0 flex-1">
-                            <p className="text-[10px] font-semibold text-[#6b7280] uppercase tracking-wider">
-                              {km ? "ការណែនាំសុខុមាលភាព (Wellness Tip)" : "Wellness Tip"}
-                            </p>
-                            <p className="text-xs font-bold text-[#b45309] leading-tight">
-                              {km ? currentAiSummary.actionKm : currentAiSummary.actionEn}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Toggle Detailed Breakdown */}
-                      <div className="mt-3 flex items-center justify-between border-t border-[#1f6f5b]/10 pt-2.5">
-                        <button
-                          type="button"
-                          onClick={() => setShowAiBreakdown(!showAiBreakdown)}
-                          className="group flex items-center gap-1.5 text-xs font-semibold text-[#1f6f5b] hover:text-[#165344] transition-colors"
-                        >
-                          <span>{showAiBreakdown ? (km ? "លាក់ការវិភាគលម្អិត" : "Hide detailed breakdown") : (km ? "មើលការវិភាគលម្អិត (Detailed Breakdown)" : "View detailed breakdown")}</span>
-                          {showAiBreakdown ? <ChevronUp size={14} /> : <ChevronDown size={14} className="transition-transform group-hover:translate-y-0.5" />}
-                        </button>
-                        <span className="text-[11px] text-[#6b7280]">
-                          {km ? "ធ្វើបច្ចុប្បន្នភាពជាមួយកំណត់ត្រាថ្មី" : "Synced with recent entries"}
-                        </span>
-                      </div>
-
-                      {/* Expandable Breakdown Bullets */}
-                      {showAiBreakdown && (
-                        <div className="mt-2.5 space-y-1.5 rounded-xl bg-[#e3f4ee]/70 p-3 text-xs text-[#203a33] animate-in fade-in slide-in-from-top-1 duration-200">
-                          {(km ? currentAiSummary.highlightsKm : currentAiSummary.highlightsEn).map((highlight, idx) => (
-                            <div key={idx} className="flex items-start gap-2">
-                              <span className="mt-1 size-1.5 rounded-full bg-[#1f6f5b] shrink-0" />
-                              <p className="leading-snug">{highlight}</p>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </>
-                  )}
-                </div>
-              </div>
+              {/* The last 7 days, counted from real entries (the old made up summary is gone) */}
+              <JournalWeekSummary
+                entries={entries}
+                km={km}
+                feelingLabel={(tag) => {
+                  const found = EMOTIONS.find((e) => e.en === tag);
+                  return found ? (km ? found.km : found.en) : tag;
+                }}
+              />
 
               {/* Journal Entries List Header */}
               <div className="mt-6 flex items-center justify-between px-1">

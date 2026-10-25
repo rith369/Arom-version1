@@ -30,6 +30,29 @@ Commit `d419c23`. Migration `20261026000100_symptom_check_k10_pc_ptsd_5.sql` add
 7. Open How it works: the EMDR Association Cambodia line is at the bottom, in English and in Khmer.
 8. As a professional, open a client who shares checks: the new checks show with their names.
 
+## 26 Oct 2026: Journal Shows Your Real Week Instead of a Made Up Summary
+
+Commit `1155e78`. No migration. Frontend only.
+
+**Why.** The "AI Journal Summary" on the journal page did not read anything the person wrote. It showed one of two fixed texts with invented claims ("quick recovery on Sep 8", "top 10% of self care", "healthy resilience"), the same for everyone. On a mental health app, telling a student who had a hard week that they look resilient is misleading. Until the real summary is built, the card shows only true numbers from the person's own entries.
+
+**What changed for users:**
+- **"Your week" card:** on the journal's Past Reflections, the card now shows how many entries were written on how many days in the last 7 days, how many times each mood was picked (with the mood sprouts), and the 3 feelings picked most.
+- **No made up text:** the fake paragraph, the Regenerate button and the "detailed breakdown" with invented highlights are gone.
+- **Honest empty state:** with no entries in the last 7 days, the card says so.
+- **Coming soon line:** a note says a written summary of the week is coming.
+
+**What changed for the team:**
+- New `app/_components/journal/journal-week-summary.tsx`, counted in the browser from the entries the page already loads. No new endpoint, nothing sent anywhere.
+- `app/detection/journal/page.tsx`: removed `generateAiJournalSummary`, its fake data and state.
+- `BACKEND-HANDOFF.md` section 22 notes the change and the planned Gemini summary.
+
+**What to re-test:**
+1. Sign in, open `/detection/journal`, go to Past Reflections: the "Your week" card shows the right number of entries and days.
+2. Check the mood counts and the top feelings match your entries from the last 7 days (older entries are not counted).
+3. With an account that has no entries in the last 7 days, the card shows the empty message.
+4. Switch to Khmer and check the card reads well.
+
 ## 26 Oct 2026: Clinic Page Asks for Location With a Clear Popup
 
 Commit `503bc72`. No migration. Frontend only.
