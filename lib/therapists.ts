@@ -61,6 +61,12 @@ export type Therapist = {
   podcast?: TherapistPodcast;
 };
 
+/** A professional as GET /api/professionals returns it (journal suggestions). */
+export type ProfessionalCard = Pick<
+  Therapist,
+  "slug" | "name" | "kmName" | "role" | "kmRole" | "image" | "imagePosition" | "specialties" | "price" | "upStudentsOnly"
+>;
+
 export const supportAreas = [
   "Anxiety",
   "Depression",

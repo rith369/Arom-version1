@@ -1,6 +1,7 @@
 import "server-only";
 import { z } from "zod";
 import type { JournalSummary } from "./journal-summary";
+import { WELLBEING_TOPICS, isWellbeingTopic } from "./wellbeing-topics";
 
 /*
  * Writes the journal week summary with Google Gemini (BACKEND-HANDOFF.md
@@ -72,6 +73,7 @@ function instructions(language: "en" | "km") {
     "theme: what came up most, 2 to 5 words.",
     "highlights: up to 3 short things you noticed in what they wrote, each at most 140 characters.",
     "tip: one small, everyday, non medical step they could try this week, at most 120 characters.",
+    `topics: 1 or 2 of these ids that best fit what they wrote, strongest first: ${WELLBEING_TOPICS.join(", ")}. An empty list when none fit, for example a calm, happy week. Use only these ids.`,
   ].join("\n");
 }
 
@@ -103,8 +105,9 @@ const RESPONSE_SCHEMA = {
     theme: { type: "STRING" },
     highlights: { type: "ARRAY", items: { type: "STRING" } },
     tip: { type: "STRING" },
+    topics: { type: "ARRAY", items: { type: "STRING" } },
   },
-  required: ["concern", "paragraph", "theme", "highlights", "tip"],
+  required: ["concern", "paragraph", "theme", "highlights", "tip", "topics"],
 };
 
 const answerSchema = z.object({
@@ -113,6 +116,7 @@ const answerSchema = z.object({
   theme: z.string(),
   highlights: z.array(z.string()),
   tip: z.string(),
+  topics: z.array(z.string()).default([]),
 });
 
 const responseSchema = z.object({
@@ -195,5 +199,6 @@ export async function writeJournalSummary(entries: SummaryEntry[], language: "en
     theme: clean(answer.data.theme, 80),
     highlights: answer.data.highlights.map((h) => clean(h, 240)).filter(Boolean).slice(0, 3),
     tip: clean(answer.data.tip, 200),
+    topics: [...new Set(answer.data.topics.filter(isWellbeingTopic))].slice(0, 2),
   };
 }

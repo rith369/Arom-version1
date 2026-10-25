@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { WELLBEING_TOPICS, type WellbeingTopic } from "./wellbeing-topics";
 
 // The written summary of the journal week (BACKEND-HANDOFF.md section 22).
 // Off until the person turns it on. Written on the server by Google Gemini
@@ -17,6 +18,8 @@ export type JournalSummary =
       theme: string;
       highlights: string[];
       tip: string;
+      /** 1 or 2 topics from the fixed list, for the suggestions card. Older summaries have none. */
+      topics?: WellbeingTopic[];
     }
   // An entry mentioned suicide, self harm, harming others or abuse: the app
   // shows gentle words and the helplines instead of a summary.
@@ -29,6 +32,7 @@ export const journalSummarySchema: z.ZodType<JournalSummary> = z.discriminatedUn
     theme: z.string().max(80),
     highlights: z.array(z.string().min(1).max(240)).max(3),
     tip: z.string().max(200),
+    topics: z.array(z.enum(WELLBEING_TOPICS)).max(2).optional(),
   }),
   z.object({ kind: z.literal("support") }),
 ]);

@@ -1,5 +1,34 @@
 # AROM: Change Report
 
+## 26 Oct 2026: Journal Suggests Lessons, Tips, Practices and Professionals for Your Week
+
+Commit `PENDING`. No migration.
+
+**Why.** After seeing their week, a student should be able to do something about it straight away. If they felt stressed, AROM now points to real stress content and to professionals who help with stress, without them having to search MindGuide or the directory.
+
+**What changed for users:**
+- **"Suggested for you" card** under Your week: for the week's topic (for example Stress), one lesson, one tip and one practice. Tap one to open it.
+- **Add to Home:** each suggestion has an Add to Home button that puts it on Your Plan For Today on Home. Tap again to remove it.
+- **Talk to a professional:** up to 2 professionals who help with that topic (UP professionals and free ones first), and See all professionals. On an ordinary week it is the last row. On a hard week (3 or more days marked Not Good or Very difficult) it comes first, with warmer words.
+- **How the topic is found:** from the feelings picked in the last 7 days (Stressed, Anxious, Tired, Sad, Lonely, Overwhelmed, Angry). When the written summary is on, Gemini also names the topic from what was written, so a student who writes about exams without ticking Stressed still gets stress suggestions. With two topics, the student can switch between them.
+- **No card when it does not fit:** a calm, happy week shows no suggestions, and when the summary shows the helplines, suggestions are hidden.
+
+**What changed for the team:**
+- New `lib/wellbeing-topics.ts`: the fixed topic list, content ids and specialties for each, feelings mapping and `weekTopics()`.
+- New `app/_components/journal/journal-suggestions.tsx` (loaded after the page, since lesson data is large).
+- New `GET /api/professionals` (public directory, slimmed) and `ProfessionalCard` type in `lib/therapists.ts`.
+- Gemini summary now returns `topics` (up to 2, checked against the list). The summary key moved to `v3`, so summaries are written once more to get topics.
+- `BACKEND-HANDOFF.md` section 22 updated.
+
+**What to re-test:**
+1. Write an entry with the feeling Stressed, open Past Reflections: Suggested for you shows a stress lesson, tip and practice.
+2. Tap Add to Home on one, go Home: it is in Your Plan For Today. Back on the journal it shows On Home; tapping it again removes it.
+3. Pick Stressed and Tired on different entries: two topic chips show and switch the suggestions.
+4. Mark 3 days as Not Good or Very difficult: Talk to a professional moves to the top with the hard week text.
+5. With a UP account, UP professionals show first.
+6. A week with only Happy, Calm or Proud shows no suggestions card.
+7. Switch to Khmer and check the card reads well.
+
 ## 26 Oct 2026: Journal Summary No Longer Shows the Crisis Message by Mistake
 
 Commit `fbb8c82`. No migration.

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { FileText, Lightbulb, RefreshCw } from "lucide-react";
 import { GetHelpSection } from "../get-help-section";
-import { MIN_SUMMARY_ENTRIES, type JournalSummaryResponse } from "@/lib/journal-summary";
+import { MIN_SUMMARY_ENTRIES, type JournalSummary, type JournalSummaryResponse } from "@/lib/journal-summary";
 
 type Load =
   | { status: "loading" }
@@ -30,7 +30,16 @@ async function call(method: "GET" | "POST" | "PUT", language: "en" | "km", body?
  * Off until the person turns it on, because their entries go to Google Gemini.
  * When on, a new summary is written by itself once the entries change.
  */
-export function JournalWrittenSummary({ km, weekCount }: { km: boolean; weekCount: number }) {
+export function JournalWrittenSummary({
+  km,
+  weekCount,
+  onSummary,
+}: {
+  km: boolean;
+  weekCount: number;
+  /** The saved summary while it is on (its topics feed the suggestions), or null. */
+  onSummary?: (summary: JournalSummary | null) => void;
+}) {
   const language = km ? "km" : "en";
   const [load, setLoad] = useState<Load>({ status: "loading" });
   const [writing, setWriting] = useState(false);
@@ -69,6 +78,10 @@ export function JournalWrittenSummary({ km, weekCount }: { km: boolean; weekCoun
     tried.current = attempt;
     void write();
   }, [load, language, write]);
+
+  useEffect(() => {
+    onSummary?.(load.status === "ready" && load.data.enabled ? load.data.summary : null);
+  }, [load, onSummary]);
 
   async function setEnabled(enabled: boolean) {
     setSaving(true);
