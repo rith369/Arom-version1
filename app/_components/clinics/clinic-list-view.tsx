@@ -200,9 +200,9 @@ export function ClinicListView({ clinics, onSelectClinic, location, onRequestLoc
               <button
                 type="button"
                 onClick={onRequestLocation}
-                className="inline-flex items-center gap-1.5 font-semibold text-arom hover:underline"
+                className="inline-flex items-center gap-1.5 rounded-full bg-arom-soft px-3.5 py-2 text-sm font-semibold text-arom transition-colors hover:bg-[#cde7df] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-arom"
               >
-                <LocateFixed size={14} aria-hidden="true" />
+                <LocateFixed size={16} aria-hidden="true" />
                 {isKm ? "ប្រើទីតាំងរបស់ខ្ញុំ ដើម្បីមើលចម្ងាយ" : "Use my location to see distances"}
               </button>
               <span>

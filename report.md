@@ -1,5 +1,29 @@
 # AROM: Change Report
 
+## 26 Oct 2026: Clinic Page Asks for Location With a Clear Popup
+
+Commit `PENDING`. No migration. Frontend only.
+
+**Why.** Many students did not notice the small "Use my location to see distances" link, so they never saw how far each clinic is or which one is closest. A popup when the page opens tells them, in plain words, what the location is for. We show our own popup first and the browser's question only after "Allow", because a cold browser question gets blocked often, and once blocked the browser never asks again.
+
+**What changed for users:**
+- **Popup on first open:** opening Find Clinic & Hospital shows "See clinics near you?" with **Allow location** and **Not now**. Allow brings up the browser's location question; then distances show and the closest clinics come first (the UP clinic stays on top).
+- **Not asked again and again:** Not now (or tapping outside) hides the popup until the app is opened again. If location was already allowed, there is no popup and distances show straight away. If it was blocked, there is no popup either, and the page explains how to allow it in the browser settings.
+- **Bigger location button:** the "Use my location to see distances" link is now a clear button under the map.
+- **Privacy unchanged:** the location stays on the device and is never sent or saved.
+
+**What changed for the team:**
+- `app/_components/clinics/use-user-location.ts`: returns `shouldAsk` (browser not asked yet, and not skipped this visit) and exports `skipLocationAsk()` (sessionStorage key `arom:clinic-location-skipped`).
+- `app/_components/clinics/clinic-home-view.tsx`: shows the popup with `useConfirm`.
+- `app/_components/confirm-dialog.tsx`: optional `icon` on the confirm window (default stays the alert circle).
+
+**What to re-test:**
+1. In a browser that has never been asked (or after resetting the site's location permission), open `/clinic-hospital`: the popup shows once, in English and in Khmer.
+2. Tap Allow location, accept the browser question: distances show, UP stays first, samples go nearest first.
+3. Reset the permission, open again, tap Not now: the popup closes and does not come back when you leave and return to the page. Close and reopen the app: it shows again.
+4. Block location in the browser, open the page: no popup, and the "Location is blocked" hint shows next to the button.
+5. With location already allowed, open the page: no popup, distances show straight away.
+
 ## 25 Oct 2026: Clinics on the Phone Bar, UP Clinic Always First
 
 Commit `69ab07c`. No migration. Frontend only.

@@ -1,6 +1,6 @@
 'use client';
 
-import { CircleAlert } from 'lucide-react';
+import { CircleAlert, type LucideIcon } from 'lucide-react';
 import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import { SheetDialog } from './sheet-dialog';
 
@@ -15,6 +15,8 @@ export type ConfirmOptions = {
   cancelLabel: string;
   // danger: the action deletes or stops something.
   tone?: 'default' | 'danger';
+  // Shown at the top instead of the alert circle.
+  icon?: LucideIcon;
 };
 
 type Request = { options: ConfirmOptions; resolve: (value: boolean) => void };
@@ -74,6 +76,7 @@ function ConfirmDialog({
   const messageId = useId();
   const cancelRef = useRef<HTMLButtonElement>(null);
   const danger = options.tone === 'danger';
+  const Icon = options.icon ?? CircleAlert;
 
   useEffect(() => {
     const previous = document.activeElement as HTMLElement | null;
@@ -100,7 +103,7 @@ function ConfirmDialog({
           className={`flex size-11 items-center justify-center rounded-full ${
             danger ? 'bg-arom-danger-soft text-arom-danger' : 'bg-arom-soft text-arom'
           }`}>
-          <CircleAlert size={22} aria-hidden="true" />
+          <Icon size={22} aria-hidden="true" />
         </span>
         <h2 id={titleId} className="mt-4 text-lg font-bold text-ink">
           {options.title}
