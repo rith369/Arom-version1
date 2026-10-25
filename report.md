@@ -2,7 +2,7 @@
 
 ## 26 Oct 2026: Journal Shows Your Real Week Instead of a Made Up Summary
 
-Commit `PENDING`. No migration. Frontend only.
+Commit `1155e78`. No migration. Frontend only.
 
 **Why.** The "AI Journal Summary" on the journal page did not read anything the person wrote. It showed one of two fixed texts with invented claims ("quick recovery on Sep 8", "top 10% of self care", "healthy resilience"), the same for everyone. On a mental health app, telling a student who had a hard week that they look resilient is misleading. Until the real summary is built, the card shows only true numbers from the person's own entries.
 
