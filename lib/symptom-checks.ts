@@ -14,20 +14,27 @@ import { z } from "zod";
 // - WHO-5 Well-Being Index, Topp et al. 2015 (higher score is better)
 // - UCLA 3 item Loneliness Scale, Hughes et al. 2004
 // - PCL-5, US National Center for PTSD, Weathers et al. 2013 (public domain)
+// - K-10 Kessler Psychological Distress Scale, Kessler et al. 2002 (distress)
+// - PC-PTSD-5, US National Center for PTSD, Prins et al. 2016 (public domain)
 // The PHQ-9 and GAD-7 Khmer is the wording validated in Cambodia by Steinman
 // et al. 2025, PLOS Mental Health 2(4):e0000228 (S1 and S2 Appendix). The
-// other checks have no tested Khmer yet, so `khmerReady` is false: they are
-// hidden while the app is in Khmer until a professional gives us the Khmer.
+// K-10 and PC-PTSD-5 Khmer is EMDR Association Cambodia's, used with their
+// permission. It was typed from their paper form and is waiting for their
+// therapist to proofread every line; it is not called "tested". The other
+// checks have no Khmer yet, so `khmerReady` is false: they are hidden while
+// the app is in Khmer until a professional gives us the Khmer.
 // Do not reword any question without a professional's review.
 
 export const SYMPTOM_CHECK_TYPES = [
   "depression",
   "anxiety",
+  "distress",
   "stress",
   "burnout",
   "wellbeing",
   "loneliness",
   "trauma",
+  "trauma_screen",
 ] as const;
 export type SymptomCheckType = (typeof SYMPTOM_CHECK_TYPES)[number];
 
@@ -446,6 +453,133 @@ export const QUESTIONNAIRES: Record<SymptomCheckType, Questionnaire> = {
     level: (score) => (score <= 14 ? "none" : score <= 30 ? "medium" : "high"),
     higherIsBetter: false,
     khmerReady: false,
+    alwaysShowHelp: true,
+  },
+  // Khmer below: EMDR Association Cambodia, waiting for proofreading.
+  distress: {
+    type: "distress",
+    instrument: "K-10",
+    name: { en: "General distress", km: "បញ្ហាផ្លូវចិត្តទូទៅ (General distress)" },
+    description: {
+      en: "10 questions about how you have felt in the last 30 days, and one about your safety.",
+      km: "សំណួរ ១០ អំពីអារម្មណ៍របស់អ្នកក្នុងរយៈពេល ៣០ថ្ងៃចុងក្រោយ និងសំណួរមួយអំពីសុវត្ថិភាពរបស់អ្នក។",
+    },
+    prompt: {
+      en: "During the last 30 days, about how often did you feel:",
+      km: "ក្នុងអំឡុងពេល ៣០ថ្ងៃ ចុងក្រោយនេះ៖ តើអ្នកមានអារម្មណ៍ដូចខាងក្រោម ញឹកញាប់ កម្រិតណាដែរ?",
+    },
+    // EMDR's Khmer labels give the days; "១-៥" is written "១ ដល់ ៥" (no dashes).
+    options: [
+      { points: 1, label: { en: "None of the time", km: "មិនដែលសោះ (០ថ្ងៃ)" } },
+      { points: 2, label: { en: "A little of the time", km: "កម្រ ឬតិចតួច (១ ដល់ ៥ថ្ងៃ)" } },
+      { points: 3, label: { en: "Some of the time", km: "ពេលខ្លះ (៦ ដល់ ១៥ថ្ងៃ)" } },
+      { points: 4, label: { en: "Most of the time", km: "ស្ទើរគ្រប់ពេល (១៦ ដល់ ២៩ថ្ងៃ)" } },
+      { points: 5, label: { en: "All of the time", km: "គ្រប់ពេល (៣០ថ្ងៃ)" } },
+    ],
+    questions: [
+      { id: "k10_1", scored: true, text: { en: "Tired out for no good reason", km: "អារម្មណ៍នឿយហត់ដោយគ្មានមូលហេតុសមរម្យ" } },
+      { id: "k10_2", scored: true, text: { en: "Nervous", km: "អារម្មណ៍ជ្រួលច្រាល" } },
+      {
+        id: "k10_3",
+        scored: true,
+        text: { en: "So nervous that nothing could calm you down", km: "អារម្មណ៍ជ្រួលច្រាលខ្លាំងរហូតគ្មានអ្វីអាចធ្វើឱ្យស្ងប់" },
+      },
+      { id: "k10_4", scored: true, text: { en: "Hopeless", km: "អារម្មណ៍អស់សង្ឃឹម" } },
+      { id: "k10_5", scored: true, text: { en: "Restless or fidgety", km: "អារម្មណ៍រសាប់រសល់នៅមិនសុខ" } },
+      {
+        id: "k10_6",
+        scored: true,
+        text: { en: "So restless you could not sit still", km: "អារម្មណ៍រសាប់រសល់ខ្លាំង មិនអាចអង្គុយមួយកន្លែងបាន" },
+      },
+      { id: "k10_7", scored: true, text: { en: "Depressed", km: "អារម្មណ៍ធ្លាក់ទឹកចិត្ត" } },
+      { id: "k10_8", scored: true, text: { en: "That everything was an effort", km: "មានអារម្មណ៍ថាអ្វីៗទាំងអស់សុទ្ធតែពិបាក" } },
+      {
+        id: "k10_9",
+        scored: true,
+        text: { en: "So sad that nothing could cheer you up", km: "អារម្មណ៍សោកសៅខ្លាំង គ្មានអ្វីធ្វើឲ្យរីករាយបាន" },
+      },
+      { id: "k10_10", scored: true, text: { en: "Worthless", km: "មានអារម្មណ៍ថា ខ្លួនឯងគ្មានតំលៃសោះ" } },
+      // Not part of K-10: asked unscored at the end, as in the anxiety check.
+      { id: SAFETY_QUESTION_ID, scored: false, text: SAFETY_TEXT },
+    ],
+    maxScore: 50,
+    total: sum,
+    // Score 10 to 50. Commonly used bands (Andrews and Slade 2001): 10 to 15
+    // low, 16 to 21 moderate, 22 to 29 high, 30 to 50 very high distress.
+    level: (score) => (score <= 15 ? "none" : score <= 21 ? "low" : score <= 29 ? "medium" : "high"),
+    higherIsBetter: false,
+    khmerReady: true,
+  },
+  trauma_screen: {
+    type: "trauma_screen",
+    instrument: "PC-PTSD-5",
+    name: { en: "Trauma (short check)", km: "ការពិនិត្យខ្លីអំពីរបួសផ្លូវចិត្ត (Trauma short check)" },
+    description: {
+      en: "5 yes or no questions about how a very frightening experience still affects you.",
+      km: "សំណួរ ៥ ឆ្លើយ បាទ/ចាស ឬ ទេ អំពីរបៀបដែលបទពិសោធន៍តក់ស្លុតនៅតែប៉ះពាល់អ្នក។",
+    },
+    // The first Khmer sentence is EMDR's; the rest is AROM's. PC-PTSD-5 starts
+    // by asking if such an event ever happened; here the intro says the check
+    // is only for people it happened to, so no answer about the event is kept.
+    intro: {
+      en: "After a very frightening or shocking experience, such as violence, abuse, trafficking, kidnapping, war, insecurity, a traffic accident, a natural disaster, losing a loved one, or seeing violence happen, some people are left with fear, horror, anger or distress. This check is for people who have been through an experience like this. Keep it in mind as you answer. You do not need to describe it, and you can stop at any time.",
+      km: "បន្ទាប់ពីឆ្លងកាត់បទពិសោធន៍ ឬព្រឹត្តិការណ៍តក់ស្លុត ដូចជា អំពើហិង្សា ការរំលោភបំពាន ការជួញដូរ ការចាប់ជម្រិត សង្គ្រាម បញ្ហាអសន្តិសុខ គ្រោះថ្នាក់ចរាចរ គ្រោះធម្មជាតិ ការបាត់បង់មនុស្សជាទីស្រលាញ់ ការឃើញផ្ទាល់ ឬសាក្សីនៃអំពើហិង្សាផ្សេងៗ ។ល។ មនុស្សមួយចំនួនអាចបន្សល់នូវអារម្មណ៍ភ័យខ្លាច រន្ធត់ កំហឹង វិប្បដិសារី ជុំវិញហេតុការណ៍ប៉ះទង្គិចដល់ផ្លូវចិត្ត។ ការពិនិត្យនេះសម្រាប់អ្នកដែលធ្លាប់ជួបប្រទះហេតុការណ៍បែបនេះ។ សូមគិតពីហេតុការណ៍នោះ ពេលអ្នកឆ្លើយ។ អ្នកមិនចាំបាច់រៀបរាប់វាទេ ហើយអ្នកអាចឈប់បានគ្រប់ពេល។",
+    },
+    prompt: { en: "In the past month, have you:", km: "ក្នុងរយៈពេល ៤សប្តាហ៍ចុងក្រោយនេះ៖" },
+    options: [
+      { points: 0, label: { en: "No", km: "ទេ" } },
+      { points: 1, label: { en: "Yes", km: "បាទ/ចាស" } },
+    ],
+    questions: [
+      {
+        id: "pcptsd_1",
+        scored: true,
+        text: {
+          en: "Had nightmares about the event(s) or thought about the event(s) when you did not want to",
+          km: "តើអ្នកមានយល់សប្តិអាក្រក់ ឬគិតអំពីហេតុការណ៍នោះ ទោះជាអ្នកមិនចង់គិតពីវាដែរឬទេ?",
+        },
+      },
+      {
+        id: "pcptsd_2",
+        scored: true,
+        text: {
+          en: "Tried hard not to think about the event(s) or went out of your way to avoid situations that reminded you of the event(s)",
+          km: "តើអ្នកធ្លាប់ព្យាយាមមិនចង់គិតពីហេតុការណ៍ ឬរឿងរ៉ាវនោះ ឬគេចវេសពីស្ថានភាពដែលធ្វើឱ្យនឹកដល់រឿងនោះឡើងវិញដែរឬទេ?",
+        },
+      },
+      {
+        id: "pcptsd_3",
+        scored: true,
+        text: {
+          en: "Been constantly on guard, watchful, or easily startled",
+          km: "តើអ្នកមានអារម្មណ៍ប្រុងប្រយ័ត្នជ្រុលហួសហេតុ ងាយភ្ញាក់ ឬផ្អើលៗដែរឬទេ?",
+        },
+      },
+      {
+        id: "pcptsd_4",
+        scored: true,
+        text: {
+          en: "Felt numb or detached from people, activities, or your surroundings",
+          km: "តើអ្នកធ្លាប់ស្ពឹកអារម្មណ៍ ឬដកខ្លួនឆ្ងាយចេញពីគេឯង ឬសកម្មភាពផ្សេងៗជុំវិញអ្នកដែរឬទេ?",
+        },
+      },
+      {
+        id: "pcptsd_5",
+        scored: true,
+        text: {
+          en: "Felt guilty or unable to stop blaming yourself or others for the event(s) or any problems the event(s) may have caused",
+          km: "តើអ្នកមានអារម្មណ៍បន្ទោសខ្លួនឯង ឬមិនអាចបញ្ឈប់ការស្តីបន្ទោសខ្លួនឯង ឬអ្នកដទៃ ជុំវិញហេតុការណ៍ (ព្រឹត្តិការណ៍ដែលបង្កឱ្យមានផលប៉ះពាល់) ដែលបានកើតឡើងដែរឬទេ?",
+        },
+      },
+    ],
+    maxScore: 5,
+    total: sum,
+    // Score is the number of yes answers. 3 or more is a positive screen
+    // (Prins 2016: 3 catches the most people, which suits an early warning;
+    // Rith chose 3 on 26 Oct 2026). 1 or 2 is AROM's own "some signs".
+    level: (score) => (score === 0 ? "none" : score <= 2 ? "low" : "high"),
+    higherIsBetter: false,
+    khmerReady: true,
     alwaysShowHelp: true,
   },
 };

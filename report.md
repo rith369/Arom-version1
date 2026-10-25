@@ -1,5 +1,35 @@
 # AROM: Change Report
 
+## 26 Oct 2026: Two New Symptom Checks in English and Khmer (General Distress and Trauma Short Check)
+
+Commit `d419c23`. Migration `20261026000100_symptom_check_k10_pc_ptsd_5.sql` adds the check types `distress` and `trauma_screen` (applied 26 Oct). Merged in PR #34.
+
+**Why.** Until now only Low mood and Anxiety could be used in Khmer, because the other checks had no Khmer from a professional. A therapist gave Rith EMDR Association Cambodia's Khmer form, and EMDR agreed AROM can use it. From that form we added the two checks that are new to AROM: K-10 (general distress) and PC-PTSD-5 (a short trauma screen). Khmer readers can now check for general distress and for trauma signs. PHQ-2 and GAD-2 on the same form are short versions of checks we already have, so they were not added. ACE (childhood experiences) asks very sensitive questions, so it will not be a self check. It is planned for the therapist intake when booking.
+
+**What changed for users:**
+- **General distress check:** 10 questions about the last 30 days, then the safety question that Low mood and Anxiety also ask. The result shows Few, Some, Clear or Strong signs (scores 10 to 15, 16 to 21, 22 to 29, 30 to 50).
+- **Trauma short check:** 5 yes or no questions about the past month. An intro first explains which kinds of experience it is for and that nothing needs to be described. 3 or more "yes" shows Strong signs and suggests a professional. Get help now shows with every result.
+- **Both work in Khmer:** they show while the app is in Khmer. The Khmer answer labels include EMDR's day counts, for example "ពេលខ្លះ (៦ ដល់ ១៥ថ្ងៃ)".
+- **Credit:** one line at the bottom of How it works says the Khmer for these two checks is from EMDR Association Cambodia. The app does not call this Khmer "tested".
+- **Professionals:** when a client shares checks for a booking, they show as "General distress (K-10)" and "Trauma short check (PC-PTSD-5)".
+
+**What changed for the team:**
+- `lib/symptom-checks.ts`: new `distress` (K-10) and `trauma_screen` (PC-PTSD-5) questionnaires with bands and comments on the source.
+- `app/detection/symptoms/page.tsx`: icons and topics for both. The "One more question, about your safety" line now shows for any check with the unscored safety question. Credit line added to How it works.
+- `app/pro/_data/clients.ts`: labels for the client file.
+- `BACKEND-HANDOFF.md` section 35: decisions, bands, data shape and the migration.
+- The Khmer was typed from the form's page images. The therapist must proofread every line before launch.
+
+**What to re-test:**
+1. Run the migration, then open `/detection/symptoms` in English: General distress and Trauma (short check) are in the list.
+2. Switch to Khmer: Low mood, Anxiety, General distress and the Trauma short check show, plus the note that more checks are in English.
+3. Do General distress choosing "None of the time" for every answer and "Not at all" for safety: Few signs, score 10 of 50.
+4. Do it again choosing "Some of the time" for everything: score 30 of 50, Strong signs, Book a professional is offered.
+5. Answer the safety question with anything other than "Not at all": Get help now shows before the result.
+6. Do the Trauma short check with 2 "yes": Some signs. With 3 "yes": Strong signs. Get help now shows both times.
+7. Open How it works: the EMDR Association Cambodia line is at the bottom, in English and in Khmer.
+8. As a professional, open a client who shares checks: the new checks show with their names.
+
 ## 26 Oct 2026: Journal Shows Your Real Week Instead of a Made Up Summary
 
 Commit `1155e78`. No migration. Frontend only.
