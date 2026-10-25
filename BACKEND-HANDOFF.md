@@ -821,7 +821,7 @@ Suggested table: `professional_episodes` (columns as above, `takeaways` and `cha
 - **API:** `POST /api/mood-checkins { mood, source? }` returns `{ day, mood }`; `GET /api/progress` returns `MoodWeekResponse`. Both answer 401 when signed out.
 - **Journal (connected 16 Oct 2026):** `GET|POST /api/journal`, `DELETE /api/journal/:id` (`lib/journal.ts`), owner only RLS, never professionals or admins. The journal page no longer shows sample entries. Entries an older version kept in `localStorage` (`arom_journal_entries`) are moved to the account only when the person agrees in a confirm window, because they may belong to someone else who used the device; the key is cleared once they move. Deleting an entry asks first. `entry_date` defaults to Cambodia today.
 - **Journal week card (26 Oct 2026):** the old "AI Journal Summary" card showed made up text (fixed claims, dates and percentages, the same for everyone). It is replaced by "Your week" (`app/_components/journal/journal-week-summary.tsx`), counted in the browser from the entries `GET /api/journal` already returns: entries and days written in the last 7 Cambodia days, mood counts and the 3 most picked feelings. No new endpoint. Counts only, never better or worse. Below the counts sits the written summary (next item).
-- **Journal written summary (PR, 26 Oct 2026, migration `20261026000100_journal_ai_summary.sql` applied 26 Oct 2026):** decided by Rith: Google Gemini on Rith's **paid** key (free tier may train on the text), **off until the person turns it on**. Before turning it on the card says the last 7 days of entries go to Google Gemini, Google does not train on them and keeps them up to 55 days only to check for misuse, and professionals and admins never see them.
+- **Journal written summary (PR #35, 26 Oct 2026, migration `20261026000200_journal_ai_summary.sql` applied 26 Oct 2026):** decided by Rith: Google Gemini on Rith's **paid** key (free tier may train on the text), **off until the person turns it on**. Before turning it on the card says the last 7 days of entries go to Google Gemini, Google does not train on them and keeps them up to 55 days only to check for misuse, and professionals and admins never see them.
   - **Endpoints** (`lib/controllers/journal-summary-controller.ts`, owner only): `GET /api/journal/summary?language=en|km`, `PUT { enabled, language }` (off deletes the saved summary), `POST { language }` writes a new one only when the entries of the last 7 days changed. All answer `JournalSummaryResponse` (`lib/journal-summary.ts`): `enabled`, `entryCount`, `summary`, `fresh`, `generatedAt`, `runsLeft`.
   - **Table** `journal_ai_summaries` (one row per person): select for the owner only, no write policies. Writes only through `set_journal_summary_enabled()`, `claim_journal_summary_run()` (at most 5 a Cambodia day) and `save_journal_summary()`. No admin or professional read.
   - **Rules:** at least 3 entries in 7 days. The AI writes a paragraph, a main theme, up to 3 highlights and a small non medical tip, in the person's language, only from what they wrote, no diagnosis, no better or worse, no dashes. Mood counts come from code, never the AI. If an entry mentions suicide, self harm, harming others or abuse (a word check before sending, Gemini's `concern` flag, or Gemini's safety block), the card shows gentle words, Talk to a professional and the helplines instead of a summary; on the word check nothing is sent.
@@ -1439,6 +1439,9 @@ Types in `lib/reviews.ts`: `PublicReview`, `MyReview`, `ProReview`, `AdminReview
 - **Server scores every check.** The browser sends answers only; `scoreSymptomCheck()` scores again, so a level or safety flag never comes from the browser.
 - **More checks, English only until reviewed (Rith, 24 Oct).** Stress (PSS-10), burnout (Copenhagen Burnout Inventory, personal burnout), wellbeing (WHO-5), loneliness (UCLA-3) and trauma (PCL-5) have no tested Khmer. They have `khmerReady: false` and are hidden while the app is in Khmer, with a note that more checks are in English while their Khmer is reviewed. Claude does not translate them.
 - **Questions are not reworded without a professional.** English is the original wording (dashes replaced with commas). Khmer is the wording validated in Cambodia by Steinman et al. 2025, PLOS Mental Health 2(4):e0000228, S1 Appendix. Changes from the paper: "អារម្មណ៌" spelled "អារម្មណ៍" (gad_1, gad_7, answer 2) and the S2 question prompt shortened for one question per screen.
+- **General distress (K-10) and Trauma short check (PC-PTSD-5), in English and Khmer (Rith, 26 Oct).** A therapist gave Rith EMDR Association Cambodia's Khmer form, and EMDR agreed AROM can use it. The Khmer was typed from the page images and is waiting for the therapist to proofread every line. It is a translation, not a tested version, so the app never calls it "tested". One credit line sits at the bottom of the How it works sheet. From the same form: PHQ-2 and GAD-2 are not added (we already have the full PHQ-9 and GAD-7). ACE (childhood experiences) is not a self check. Rith chose to put it in the therapist intake when booking, read only by that therapist; that is a separate piece of work.
+- **K-10 asks the self harm question too.** `phq_9` is asked, unscored, after the 10 K-10 questions, the same as in the anxiety check, because K-10 asks about hopelessness and feeling worthless.
+- **PC-PTSD-5 is positive at 3 "yes" answers (Rith, 26 Oct).** 3 catches the most people (Prins 2016), which suits an early warning.
 
 **Files:** `lib/symptom-checks.ts` (questions, answer options, bands, scoring, types), `lib/controllers/symptom-controller.ts`, `app/api/symptom-checks/route.ts`, `app/detection/symptoms/page.tsx`, `app/components/detection-modal.tsx` (Track your mind card now opens the page).
 
@@ -1446,12 +1449,12 @@ Types in `lib/reviews.ts`: `PublicReview`, `MyReview`, `ProReview`, `AdminReview
 
 The answer sent is the option's index. Each questionnaire in `QUESTIONNAIRES` has its own options (points), reversed items, `total()` and `level()`.
 
-| AROM level | PHQ-9 | GAD-7 | PSS-10 | CBI personal burnout | WHO-5 (higher is better) | UCLA-3 | PCL-5 | Shown as |
-|---|---|---|---|---|---|---|---|---|
-| `none` | 0 to 4 | 0 to 4 | 0 to 13 | 0 to 49 | 52 to 100 | 3 to 5 | 0 to 14 | Few signs |
-| `low` | 5 to 9 | 5 to 9 | not used | not used | not used | not used | not used | Some signs |
-| `medium` | 10 to 14 | 10 to 14 | 14 to 26 | 50 to 74 | 32 to 48 | 6 to 9 | 15 to 30 | Clear signs |
-| `high` | 15 to 27 | 15 to 21 | 27 to 40 | 75 to 100 | 0 to 28 | not used | 31 to 80 | Strong signs |
+| AROM level | PHQ-9 | GAD-7 | PSS-10 | CBI personal burnout | WHO-5 (higher is better) | UCLA-3 | PCL-5 | K-10 | PC-PTSD-5 | Shown as |
+|---|---|---|---|---|---|---|---|---|---|---|
+| `none` | 0 to 4 | 0 to 4 | 0 to 13 | 0 to 49 | 52 to 100 | 3 to 5 | 0 to 14 | 10 to 15 | 0 | Few signs |
+| `low` | 5 to 9 | 5 to 9 | not used | not used | not used | not used | not used | 16 to 21 | 1 to 2 | Some signs |
+| `medium` | 10 to 14 | 10 to 14 | 14 to 26 | 50 to 74 | 32 to 48 | 6 to 9 | 15 to 30 | 22 to 29 | not used | Clear signs |
+| `high` | 15 to 27 | 15 to 21 | 27 to 40 | 75 to 100 | 0 to 28 | not used | 31 to 80 | 30 to 50 | 3 to 5 | Strong signs |
 
 - **PHQ-9, GAD-7:** sum of answers 0 to 3. Standard bands (Kroenke 2001, Spitzer 2006); the Cambodian study used the same cut offs.
 - **PSS-10:** sum of answers 0 to 4 (Never to Very often); items 4, 5, 7 and 8 are reversed. Bands are the commonly used low, moderate and high split, not official cut offs, so there is no `low` level.
@@ -1460,13 +1463,15 @@ The answer sent is the option's index. Each questionnaire in `QUESTIONNAIRES` ha
 - **UCLA-3:** answers 1 to 3 (Hardly ever, Some of the time, Often), sum 3 to 9. 6 or more is the commonly used "lonely" cut off (Steptoe 2013). Only `none` and `medium`.
 - `isHarderThanBefore()` treats a lower WHO-5 score as harder.
 - **PCL-5:** 20 questions, answers 0 to 4 (Not at all to Extremely), sum 0 to 80. The National Center for PTSD says 31 to 33 suggests probable PTSD, so 31 or more is `high`. The split at 15 is AROM's own. An intro before question 1 asks the person to keep one very stressful experience in mind, without describing it. `alwaysShowHelp` shows Get help now with every trauma result. Public domain: "in the public domain and not copyrighted" (ptsd.va.gov), meant for use with professionals, which is why results say only a professional can diagnose.
+- **K-10:** 10 questions, answers 1 to 5 (None of the time to All of the time), sum 10 to 50. The Khmer answer labels add EMDR's day counts, for example "ពេលខ្លះ (៦ ដល់ ១៥ថ្ងៃ)" (the form's "៦-១៥" written without a dash). The commonly used bands are 10 to 15 low, 16 to 21 moderate, 22 to 29 high and 30 to 50 very high distress (Andrews and Slade 2001). All 10 questions are always asked; the interview skip rules for questions 3 and 6 are not used. K-10 is free to use (Kessler, Harvard Medical School).
+- **PC-PTSD-5:** 5 yes or no questions about the past month; the score is the number of yes answers (0 to 5). 3 or more is `high` (positive screen). 1 or 2 is AROM's own `low`. The real screen first asks whether such an event ever happened; AROM puts that in the intro instead ("This check is for people who have been through an experience like this"), so nothing about the event is saved. The intro's first Khmer sentence is EMDR's list of example events. `alwaysShowHelp` is on, as for PCL-5. Public domain (US National Center for PTSD). Question ids `pcptsd_1` to `pcptsd_5`; K-10 ids are `k10_1` to `k10_10`.
 - Professional to confirm the PSS-10, CBI, WHO-5, UCLA-3 and PCL-5 bands.
 
 ### Data shape
 
 | Field | Type | Database source |
 |---|---|---|
-| `SymptomCheckDto.type` | `depression` \| `anxiety` \| `stress` \| `burnout` \| `wellbeing` \| `loneliness` \| `trauma` | `symptom_checks.check_type` |
+| `SymptomCheckDto.type` | `depression` \| `anxiety` \| `distress` \| `stress` \| `burnout` \| `wellbeing` \| `loneliness` \| `trauma` \| `trauma_screen` | `symptom_checks.check_type` |
 | `score`, `maxScore` | number | `score`, `max_score` |
 | `level` | `none` \| `low` \| `medium` \| `high` | `level` |
 | `safetyConcern` | boolean | `safety_concern` |
@@ -1486,6 +1491,8 @@ Answers are saved in `symptom_checks.answers` as `[{ questionId, value }]` in qu
 ### Known gaps
 
 - **Migration `20261024000300_symptom_check_types.sql` (applied 24 Oct):** adds `wellbeing`, `loneliness` and `trauma` to `symptom_check_type`. Professionals see them in the client file as "Wellbeing (higher score is better)", "Loneliness" and "Trauma (PCL-5)".
+- **Migration `20261026000100_symptom_check_k10_pc_ptsd_5.sql` (applied 26 Oct, PR #34):** adds `distress` and `trauma_screen`. Professionals see them as "General distress (K-10)" and "Trauma short check (PC-PTSD-5)".
+- The K-10 and PC-PTSD-5 Khmer must be proofread by the therapist before launch.
 - Sleep is not built: ISI (Mapi Research Trust), PSQI (University of Pittsburgh) and PROMIS Sleep (HealthMeasures, for apps) all need permission. Rith can request ISI; build it once permission arrives. HTQ (Khmer exists) still needs HPRT permission; PCL-5 is used for trauma instead.
 - Stress, burnout, wellbeing, loneliness and trauma need Khmer from a professional before they show in Khmer. WHO-5 has official translations on the WHO site; no Khmer one was found.
 - PSS-10 is free for non-profit and educational use. If AROM ever charges users, check the commercial licence first.
