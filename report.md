@@ -2,7 +2,7 @@
 
 ## 26 Oct 2026: Symptom Check List Starts With One General Check
 
-Commit `PENDING`. No migration. Frontend only.
+Commit `84effc9`. No migration. Frontend only.
 
 **Why.** The list showed nine checks as nine separate cards, so people who did not know which one fits had to guess. Following the team's Figma idea, the general check now sits on top as the place to start, and the specific checks sit underneath in one tidy list.
 
