@@ -20,11 +20,14 @@ import {
   Activity,
   Award,
   Cloud,
+  CloudFog,
   CloudRain,
   Flame,
   Heart,
+  HeartCrack,
   Leaf,
   Moon,
+  ShieldQuestion,
   Smile,
   Sprout,
   UserRound,
@@ -41,6 +44,7 @@ import { BottomNav } from "../../components/bottom-nav";
 import { TopHeader } from "../../components/top-header";
 import { useLanguage } from "../../_components/language-provider";
 import { useConfirm } from "../../_components/confirm-dialog";
+import { GetHelpSection } from "../../_components/get-help-section";
 import {
   JOURNAL_MOODS,
   JOURNAL_MOOD_LEVEL,
@@ -49,6 +53,7 @@ import {
   type JournalListResponse,
   type JournalMood,
   type JournalPrompt,
+  journalText,
 } from "@/lib/journal";
 import { cambodiaDay } from "@/lib/mood";
 
@@ -171,9 +176,12 @@ const EMOTIONS: EmotionOption[] = [
   { en: "Tired", km: "អស់កម្លាំង (Tired)", emoji: "😴", category: "reflective" },
   { en: "Stressed", km: "តានតឹង (Stressed)", emoji: "🌪️", category: "reflective" },
   { en: "Anxious", km: "ថប់បារម្ភ (Anxious)", emoji: "💭", category: "reflective" },
+  { en: "Worried", km: "ខ្វល់ខ្វាយ (Worried)", emoji: "😟", category: "reflective" },
   { en: "Sad", km: "កើតទុក្ខ (Sad)", emoji: "🌧️", category: "reflective" },
   { en: "Overwhelmed", km: "លើសលប់ (Overwhelmed)", emoji: "🌊", category: "reflective" },
   { en: "Lonely", km: "ឯកោ (Lonely)", emoji: "🥀", category: "reflective" },
+  { en: "Insecure", km: "មិនជឿជាក់លើខ្លួនឯង (Insecure)", emoji: "🥺", category: "reflective" },
+  { en: "Hurt", km: "ឈឺចាប់ក្នុងចិត្ត (Hurt)", emoji: "💔", category: "reflective" },
   { en: "Angry", km: "ខឹង (Angry)", emoji: "🔥", category: "reflective" },
 ];
 
@@ -188,9 +196,12 @@ const EMOTION_ICONS: Record<string, LucideIcon> = {
   Tired: Moon,
   Stressed: Activity,
   Anxious: Cloud,
+  Worried: CloudFog,
   Sad: CloudRain,
   Overwhelmed: Waves,
   Lonely: UserRound,
+  Insecure: ShieldQuestion,
+  Hurt: HeartCrack,
   Angry: Flame,
 };
 
@@ -205,7 +216,7 @@ function fromDto(entry: JournalEntryDto): JournalEntry {
     date: entry.day,
     mood: entry.mood,
     tags: entry.emotions,
-    content: entry.content,
+    content: journalText(entry.content),
     createdAt: entry.day,
     questions: entry.questions,
     additionalNotes: entry.additionalNotes,
@@ -269,35 +280,6 @@ function getDefaultEmotionsForMood(mood: string): string[] {
   if (mood === "Not Good") return ["Tired"];
   if (mood === "Very difficult") return ["Stressed", "Overwhelmed"];
   return ["Calm", "Happy"];
-}
-
-function getStarterReflectionForMood(mood: string, km: boolean): string {
-  switch (mood) {
-    case "Great":
-      return km
-        ? "ថ្ងៃនេះពិតជាអស្ចារ្យណាស់! ខ្ញុំមានថាមពល បានបំពេញការងារដោយជោគជ័យ និងមានពេលវេលាដ៏មានន័យ។ ខ្ញុំមានអារម្មណ៍ដឹងគុណ និងរីករាយជាខ្លាំង។"
-        : "Today was wonderful! I felt energized, accomplished my goals, and enjoyed some great moments. Feeling grateful and happy.";
-    case "Good":
-      return km
-        ? "ថ្ងៃនេះជាថ្ងៃដ៏ល្អ និងមានផលិតភាព។ អ្វីៗដំណើរការយ៉ាងរលូន ហើយខ្ញុំមានអារម្មណ៍ស្ងប់ និងពេញចិត្តនឹងលទ្ធផល។"
-        : "Had a good, productive day today! Things went smoothly, and I'm feeling peaceful, focused, and content.";
-    case "Okay":
-      return km
-        ? "ថ្ងៃនេះធម្មតា និងមានសេចក្តីស្ងប់។ ខ្ញុំបានដោះស្រាយកិច្ចការប្រចាំថ្ងៃមួយជំហានម្តងៗ ហើយកំពុងរក្សាតុល្យភាពនៃចិត្ត។"
-        : "Today was steady and calm. Handled my daily tasks at a steady pace and took time to keep myself balanced.";
-    case "Not Good":
-      return km
-        ? "ថ្ងៃនេះមានអារម្មណ៍អស់កម្លាំងបន្តិច។ ខ្ញុំកំពុងឆ្លៀតពេលសម្រាក សម្រាលអារម្មណ៍ និងរំលឹកខ្លួនឯងថាការសម្រាកគឺជារឿងសំខាន់។"
-        : "Felt a bit low on energy today. Giving myself permission to slow down, rest, and recharge tonight.";
-    case "Very difficult":
-      return km
-        ? "ថ្ងៃនេះមានការលំបាក និងតានតឹងច្រើន។ ខ្ញុំកំពុងដកដង្ហើមវែងៗ បន្ថយល្បឿន និងដោះស្រាយម្តងមួយៗដោយការយល់ចិត្តខ្លួនឯង។"
-        : "Today was quite challenging and overwhelming. I'm taking deep breaths, letting myself rest, and taking things one step at a time.";
-    default:
-      return km
-        ? "ថ្ងៃនេះជាថ្ងៃដ៏ល្អ និងមានផលិតភាព។ អ្វីៗដំណើរការយ៉ាងរលូន ហើយខ្ញុំមានអារម្មណ៍ស្ងប់ និងពេញចិត្តនឹងលទ្ធផល។"
-        : "Had a good, productive day today! Things went smoothly, and I'm feeling peaceful, focused, and content.";
-  }
 }
 
 function getPlaceholderForMood(mood: string, km: boolean): string {
@@ -376,6 +358,7 @@ function JournalContent() {
 
   // Form State initialized with URL query parameter
   const [selectedMood, setSelectedMood] = useState(initialMood);
+  const [showHelplines, setShowHelplines] = useState(false);
   const [selectedEmotions, setSelectedEmotions] = useState<string[]>(() =>
     getDefaultEmotionsForMood(initialMood)
   );
@@ -508,7 +491,7 @@ function JournalContent() {
             body: JSON.stringify({
               mood: isJournalMood(entry.mood) ? entry.mood : "Okay",
               emotions: (entry.tags ?? []).slice(0, 20),
-              content: (entry.content || "").slice(0, 20000) || "No notes recorded.",
+              content: journalText(entry.content).slice(0, 20000),
               questions: (entry.questions ?? []).slice(0, 20),
               additionalNotes: (entry.additionalNotes ?? "").slice(0, 5000),
               day: /^\d{4}-\d{2}-\d{2}$/.test(entry.createdAt) && entry.createdAt <= today ? entry.createdAt : today,
@@ -857,10 +840,8 @@ function JournalContent() {
       .filter(Boolean)
       .join("\n\n");
 
-    const finalContent =
-      formattedContent ||
-      getStarterReflectionForMood(selectedMood, km) ||
-      (km ? "គ្មានកំណត់ត្រា" : "No notes recorded.");
+    // Mood only when nothing was written: the app never writes words for the person.
+    const finalContent = formattedContent;
 
     const answers = answeredQuestions.map((q) => ({
       id: q.id,
@@ -1001,6 +982,26 @@ function JournalContent() {
                   })}
                 </div>
               </div>
+
+              {/* A gentle door, not an alarm, when the day feels very low */}
+              {selectedMood === "Very difficult" && (
+                <div className="mt-4 rounded-2xl border border-[#1f6f5b]/15 bg-[#f2faf7] p-3.5 text-sm text-[#1f2d29]">
+                  <p className="leading-relaxed">
+                    {km
+                      ? "ប្រសិនបើថ្ងៃនេះធ្ងន់ពេក អ្នកអាចនិយាយជាមួយនរណាម្នាក់បាន។"
+                      : "If today feels too heavy, you can talk to someone."}
+                  </p>
+                  <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs font-semibold text-[#1f6f5b]">
+                    <Link href="/professional" className="hover:underline">
+                      {km ? "និយាយជាមួយអ្នកជំនាញ" : "Talk to a professional"}
+                    </Link>
+                    <button type="button" onClick={() => setShowHelplines((open) => !open)} aria-expanded={showHelplines} className="hover:underline">
+                      {showHelplines ? (km ? "លាក់ខ្សែជំនួយ" : "Hide helplines") : km ? "មើលខ្សែជំនួយ" : "See helplines"}
+                    </button>
+                  </div>
+                  {showHelplines && <GetHelpSection />}
+                </div>
+              )}
 
               {/* Section 2: What’s coming up for you? */}
               <div className="mt-6">
@@ -1465,7 +1466,7 @@ function JournalContent() {
                   </div>
                 ) : (
                   <p className="mt-3 text-sm sm:text-[15px] leading-relaxed text-[#374151]">
-                    {(savedEntry?.content || "").slice(0, 160)}
+                    {savedEntry?.content ? savedEntry.content.slice(0, 160) : (km ? "អារម្មណ៍តែប៉ុណ្ណោះ មិនមានសរសេរ" : "Mood only, nothing written")}
                     {(savedEntry?.content || "").length > 160 ? "..." : ""}
                   </p>
                 )}
@@ -1585,7 +1586,7 @@ function JournalContent() {
                           </p>
                         </div>
                         <p className="mt-1 line-clamp-2 text-xs sm:text-sm text-[#4b5563] leading-relaxed">
-                          {entry.content}
+                          {entry.content || <span className="italic">{(km ? "អារម្មណ៍តែប៉ុណ្ណោះ មិនមានសរសេរ" : "Mood only, nothing written")}</span>}
                         </p>
                         {entry.tags && entry.tags.length > 0 && (
                           <div className="mt-2 flex flex-wrap gap-1.5">
@@ -1698,7 +1699,7 @@ function JournalContent() {
                     </div>
                   ) : (
                     <p className="mt-3 text-sm leading-relaxed text-[#374151] whitespace-pre-wrap">
-                      {selectedDetailEntry.content}
+                      {selectedDetailEntry.content || <span className="italic">{(km ? "អារម្មណ៍តែប៉ុណ្ណោះ មិនមានសរសេរ" : "Mood only, nothing written")}</span>}
                     </p>
                   )}
                 </div>

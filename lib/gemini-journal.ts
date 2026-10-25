@@ -62,7 +62,7 @@ function instructions(language: "en" | "km") {
       : "Write in plain, simple English.",
     "Rules:",
     "1. Talk to the person as \"you\". Be gentle, kind and calm. Short sentences.",
-    "2. Only mention what the person actually wrote. Never invent events, places, people, dates, numbers or percentages.",
+    "2. Only mention what the person actually wrote. Never invent events, places, people, dates, numbers or percentages. An entry marked mood only has no words: use its mood and feelings, never guess what happened that day.",
     "3. Do not diagnose, name a mental illness, or give medical or medicine advice. Do not judge them or compare them with other people.",
     "4. Do not say they are getting better or worse.",
     "5. Never use dashes of any kind in the text. Use commas, periods or parentheses.",
@@ -89,6 +89,9 @@ function entriesText(entries: SummaryEntry[]) {
       ...entry.questions.filter((q) => q.answer.trim()).map((q) => `${q.question}: ${q.answer}`),
       entry.additionalNotes ? `Notes: ${entry.additionalNotes}` : "",
     ].filter(Boolean);
+    if (!entry.content && !entry.additionalNotes && !entry.questions.some((q) => q.answer.trim())) {
+      lines.push("Wrote: nothing (mood only)");
+    }
     const text = lines.join("\n").slice(0, MAX_ENTRY_CHARS);
     if (total + text.length > MAX_TOTAL_CHARS) break;
     total += text.length;

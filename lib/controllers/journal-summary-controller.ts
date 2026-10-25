@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import type { NextRequest } from "next/server";
 import { cambodiaDay, MOOD_LABELS, shiftDay, type MoodLevel } from "@/lib/mood";
+import { journalText } from "@/lib/journal";
 import { GeminiUnavailable, mentionsCrisis, writeJournalSummary, type SummaryEntry } from "@/lib/gemini-journal";
 import {
   MAX_SUMMARY_RUNS,
@@ -79,8 +80,8 @@ async function weekEntries(supabase: Supabase, userId: string) {
 
 function entriesKey(rows: EntryRow[], language: string) {
   const ids = rows.map((row) => row.id).sort();
-  // v3: summaries now carry topics for the suggestions card (26 Oct), so older ones are written again.
-  return createHash("sha256").update(`v3:${language}:${ids.join(",")}`).digest("hex");
+  // v4: mood only entries no longer carry made up text (26 Oct), so older summaries are written again.
+  return createHash("sha256").update(`v4:${language}:${ids.join(",")}`).digest("hex");
 }
 
 function toSummaryEntry(row: EntryRow): SummaryEntry {
@@ -93,7 +94,8 @@ function toSummaryEntry(row: EntryRow): SummaryEntry {
     day: row.entry_date,
     mood: MOOD_LABELS[row.mood ?? "okay"].en,
     emotions: row.emotions ?? [],
-    content: row.content,
+    // Old made up texts count as no words (mood only).
+    content: journalText(row.content),
     questions,
     additionalNotes: row.additional_notes ?? "",
   };

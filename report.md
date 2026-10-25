@@ -1,5 +1,30 @@
 # AROM: Change Report
 
+## 26 Oct 2026: Journal Never Writes Words for You, a Gentle Door on Very Low Days, Three New Feelings
+
+Commit `PENDING`. No migration.
+
+**Why.** When a student picked a mood and saved without writing, the journal saved a made up text in their name, for example "Had a good, productive day today! Things went smoothly" or "I accomplished my goals". That text then appeared in their history and the AI summary read it as if they wrote it, so summaries could describe things that never happened. A journal must only hold the person's own words. We also wanted a quiet way to reach help on very low days, and feelings that point to self esteem and relationships for the suggestions.
+
+**What changed for users:**
+- **Mood only entries:** saving with no words now saves just the mood and feelings. History and the entry details say "Mood only, nothing written". Older entries that held the made up text now show the same.
+- **Honest summaries:** the AI is told these entries have no words and must not guess what happened. Summaries are written once more so the old made up text is left out.
+- **A gentle door on Very Low:** picking Very Low shows "If today feels too heavy, you can talk to someone." with Talk to a professional and See helplines. It is not an alarm and does not stop the entry.
+- **Three new feelings:** Worried (ខ្វល់ខ្វាយ), Insecure (មិនជឿជាក់លើខ្លួនឯង) and Hurt (ឈឺចាប់ក្នុងចិត្ត). They lead to anxiety, self esteem and relationships suggestions.
+
+**What changed for the team:**
+- `lib/journal.ts`: `content` may be empty; `journalText()` turns the old made up texts into "" (used by the page and the summary).
+- `app/detection/journal/page.tsx`: removed `getStarterReflectionForMood`; mood only label; Very Low help line; new feelings and icons.
+- `lib/wellbeing-topics.ts`: Worried, Insecure, Hurt mapped to topics. `lib/gemini-journal.ts`: mood only rule. Summary key moved to `v4`.
+
+**What to re-test:**
+1. Pick a mood, write nothing, save: the saved screen and history say "Mood only, nothing written".
+2. An older entry saved without words (for example "Had a good, productive day today!") now shows as mood only.
+3. With the summary on, check it does not mention events from mood only entries.
+4. Pick Very Low: the gentle line shows; Talk to a professional opens the directory; See helplines opens the helplines; you can still save.
+5. Pick Worried, Insecure or Hurt and save: Suggested for you shows anxiety, self esteem or relationships content.
+6. Check the Khmer words for the three new feelings with a Khmer speaker.
+
 ## 26 Oct 2026: A Strong 2 Week Recheck Now Sets the Next Recheck Date
 
 Commit `e1e4e73`. Migration `20261026000300_recheck_date_after_strong.sql` (applied 26 Oct, merged in PR #36): replaces the `apply_support_path()` trigger function, one branch changed.

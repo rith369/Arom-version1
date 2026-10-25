@@ -99,9 +99,12 @@ export const FEELING_TOPICS: Record<string, WellbeingTopic[]> = {
   Overwhelmed: ["stress", "burnout"],
   Angry: ["stress"],
   Anxious: ["anxiety"],
+  Worried: ["anxiety"],
   Tired: ["sleep", "burnout"],
   Sad: ["low_mood"],
   Lonely: ["loneliness"],
+  Insecure: ["self_esteem"],
+  Hurt: ["relationships"],
 };
 
 export function isWellbeingTopic(value: unknown): value is WellbeingTopic {
