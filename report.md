@@ -2,7 +2,7 @@
 
 ## 25 Oct 2026: Clinics on the Phone Bar, UP Clinic Always First
 
-Commit `PENDING`. No migration. Frontend only.
+Commit `69ab07c`. No migration. Frontend only.
 
 **Why.** UP students and staff need to find the UP clinic fast. On the clinic list the UP clinic could drop below a sample clinic that happened to be closer, and on phone the clinic page was hidden in the menu. Putting the UP clinic first and the page on the bottom bar makes the real help easy to see.
 
