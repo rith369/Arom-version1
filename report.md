@@ -1,5 +1,34 @@
 # AROM: Change Report
 
+## 26 Oct 2026: Symptom Check Result Suggests Help for That Topic
+
+Commit `PENDING`. No migration. Frontend only.
+
+**Why.** After a symptom check, "What can help now" showed the same three buttons for everyone (Try a practice, Open MindGuide, Write about today). Someone with signs of stress got the same as someone with signs of trauma. Now the result points to the lesson, tip, practice and professionals that fit the check they just took, so the next step is one tap away.
+
+**What changed for users:**
+- **Help for the right topic:** the result shows a lesson, a tip and a practice for that topic, each with **Add to Home**, plus up to 2 professionals who help with it. For example, a Stress check shows "Learn about stress", "How to control stress", the breathing practice and Stress professionals.
+- **General distress shows two topics:** buttons switch between Anxiety and Low mood, because the K-10 asks about both.
+- **Professionals first when it matters:** with Strong signs, when a professional is suggested after 2 weeks, and always for both trauma checks. Book a professional is still there when it is suggested.
+- **Few signs:** "To keep feeling this way, these can help", with professionals last.
+- **Write about today** stays as a small link. Open MindGuide is gone.
+- **Journal unchanged:** "Suggested for you" on the journal looks and works the same; it now shares the same parts.
+
+**What changed for the team:**
+- New `app/_components/topic-help/topic-help.tsx`: `suggestionsFor`, `useProfessionals`, `matchProfessionals`, `SuggestionRow`, `ProfessionalBlock`, moved out of `journal-suggestions.tsx`.
+- `lib/wellbeing-topics.ts`: new `HelpTopic` and `HELP_CONTENT` (the journal topics plus `trauma`). `WELLBEING_TOPICS` is unchanged, so Gemini never picks trauma.
+- `app/detection/symptoms/page.tsx`: `CHECK_TOPICS` maps each check to its topics; `NextSteps` rebuilt.
+- `BACKEND-HANDOFF.md` sections 22 and 35.
+
+**What to re-test:**
+1. Take a Stress check: "What can help now" says "For stress" and shows the stress lesson, tip, breathing practice and Stress professionals. Tap Add to Home on one: it shows on Home.
+2. Take General distress: Anxiety and Low mood buttons switch the suggestions.
+3. Take either trauma check: Talk to a professional is first, with Trauma professionals if any exist, then "Know when to seek help" and breathing.
+4. Get a Strong result on any check: professionals come first, then Book a professional, then the self help.
+5. Get Few signs: the note says "To keep feeling this way, these can help" and professionals are last.
+6. Switch to Khmer and repeat one check.
+7. Open the journal's Past Reflections with a week of feelings: "Suggested for you" looks and works as before.
+
 ## 26 Oct 2026: Journal Never Writes Words for You, a Gentle Door on Very Low Days, Three New Feelings
 
 Commit `c8cb6de`. No migration.

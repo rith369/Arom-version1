@@ -28,7 +28,15 @@ import { BottomNav } from "../../components/bottom-nav";
 import { TopHeader } from "../../components/top-header";
 import { useLanguage } from "../../_components/language-provider";
 import { GetHelpSection } from "../../_components/get-help-section";
+import {
+  ProfessionalBlock,
+  SuggestionRow,
+  matchProfessionals,
+  suggestionsFor,
+  useProfessionals,
+} from "../../_components/topic-help/topic-help";
 import { cambodiaDay } from "@/lib/mood";
+import { HELP_CONTENT, type HelpTopic } from "@/lib/wellbeing-topics";
 import {
   LEVEL_LABELS,
   QUESTIONNAIRES,
@@ -691,6 +699,20 @@ function ResultView({
   );
 }
 
+// The help topics each check points to (lib/wellbeing-topics.ts). General
+// distress covers both worry and low mood, so it offers both.
+const CHECK_TOPICS: Record<SymptomCheckType, HelpTopic[]> = {
+  depression: ["low_mood"],
+  anxiety: ["anxiety"],
+  distress: ["anxiety", "low_mood"],
+  stress: ["stress"],
+  burnout: ["burnout"],
+  wellbeing: ["low_mood"],
+  loneliness: ["loneliness"],
+  trauma: ["trauma"],
+  trauma_screen: ["trauma"],
+};
+
 function NextSteps({
   km,
   check,
@@ -715,28 +737,80 @@ function NextSteps({
     note = km
       ? "សាកល្បងជំហានតូចៗរៀងរាល់ថ្ងៃ។ យើងនឹងរំលឹកអ្នកនៅលើទំព័រដើម ឱ្យពិនិត្យម្តងទៀតនៅថ្ងៃទី " + formatDay(journey.reviewDueOn, km) + "។"
       : `Try small steps each day. On ${formatDay(journey.reviewDueOn, km)}, we will remind you on Home to check again.`;
+  } else if (check.level === "none") {
+    note = km ? "ដើម្បីបន្តមានអារម្មណ៍ល្អបែបនេះ របស់ទាំងនេះអាចជួយបាន។" : "To keep feeling this way, these can help.";
   }
 
-  const links: { href: string; label: string; primary?: boolean }[] = [
-    ...(professional ? [{ href: "/professional", label: km ? "កក់ពេលជាមួយអ្នកជំនាញ" : "Book a professional", primary: true }] : []),
-    { href: "/practice", label: km ? "សាកល្បងការអនុវត្ត" : "Try a practice" },
-    { href: "/mindguide", label: km ? "បើក MindGuide" : "Open MindGuide" },
-    { href: "/detection/journal", label: km ? "សរសេរអំពីថ្ងៃនេះ" : "Write about today" },
-  ];
+  const topics = CHECK_TOPICS[check.type];
+  const [chosen, setChosen] = useState<HelpTopic>(topics[0]);
+  const topic = topics.includes(chosen) ? chosen : topics[0];
+  const content = HELP_CONTENT[topic];
+  const professionals = useProfessionals();
+  const items = suggestionsFor(topic);
+  // Strong signs, a professional suggested after 2 weeks, or trauma: professionals come first.
+  const professionalsFirst = professional || check.level === "high" || topic === "trauma";
+
+  const professionalBlock = (
+    <ProfessionalBlock
+      km={km}
+      highlight={professionalsFirst}
+      matched={matchProfessionals(professionals, topic)}
+      message={
+        professionalsFirst
+          ? km
+            ? `ការនិយាយជាមួយអ្នកជំនាញដែលជួយលើ ${content.km} អាចជួយបានច្រើន។ អ្នកអាចកក់ពេលនៅលើ AROM។`
+            : `Talking to a professional who helps with ${content.en.toLowerCase()} can really help. You can book one on AROM.`
+          : km
+            ? `ប្រសិនបើការនិយាយជាមួយនរណាម្នាក់អាចជួយបាន អ្នកជំនាញទាំងនេះជួយលើ ${content.km}។`
+            : `If it would help to talk it through, these professionals help with ${content.en.toLowerCase()}.`
+      }
+    />
+  );
 
   return (
     <section aria-labelledby="next-steps" className="rounded-3xl border border-arom-border bg-white p-5 sm:p-6">
       <h2 id="next-steps" className="text-base font-semibold text-ink">
         {km ? "ជំហានបន្ទាប់" : "What can help now"}
       </h2>
+      <p className="mt-0.5 text-xs text-ink-muted">{km ? `សម្រាប់ ${content.km}` : `For ${content.en.toLowerCase()}`}</p>
       {note && <p className="mt-2 text-sm leading-6 text-ink">{note}</p>}
-      <div className="mt-4 grid gap-2.5">
-        {links.map((link) => (
-          <Link key={link.href} href={link.href} className={link.primary ? primaryButton : secondaryButton}>
-            {link.label}
+
+      {topics.length > 1 && (
+        <div className="mt-3 flex flex-wrap gap-1.5" role="group" aria-label={km ? "ប្រធានបទ" : "Topic"}>
+          {topics.map((item) => (
+            <button
+              key={item}
+              type="button"
+              aria-pressed={item === topic}
+              onClick={() => setChosen(item)}
+              className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${focusRing} ${
+                item === topic ? "bg-arom text-white" : "border border-arom-border bg-white text-arom-deep hover:bg-arom-wash"
+              }`}
+            >
+              {km ? HELP_CONTENT[item].km : HELP_CONTENT[item].en}
+            </button>
+          ))}
+        </div>
+      )}
+
+      <div className="mt-4 space-y-2.5">
+        {professionalsFirst && professionalBlock}
+        {professional && (
+          <Link href="/professional" className={primaryButton}>
+            {km ? "កក់ពេលជាមួយអ្នកជំនាញ" : "Book a professional"}
           </Link>
+        )}
+
+        {items.map((item) => (
+          <SuggestionRow key={item.id} item={item} km={km} />
         ))}
+
+        {!professionalsFirst && professionalBlock}
       </div>
+
+      <Link href="/detection/journal" className={`mt-4 inline-flex text-sm font-semibold text-arom-deep hover:underline ${focusRing}`}>
+        {km ? "សរសេរអំពីថ្ងៃនេះ" : "Write about today"}
+      </Link>
     </section>
   );
 }

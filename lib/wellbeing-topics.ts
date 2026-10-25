@@ -93,6 +93,26 @@ export const TOPIC_CONTENT: Record<WellbeingTopic, TopicContent> = {
   },
 };
 
+/**
+ * Topics the symptom check result can point to: the journal's, plus trauma.
+ * Trauma is kept out of WELLBEING_TOPICS so the journal and Gemini never pick
+ * it. There is no trauma lesson, and self help is not enough for trauma, so
+ * the symptom check always puts trauma professionals first.
+ */
+export type HelpTopic = WellbeingTopic | "trauma";
+
+export const HELP_CONTENT: Record<HelpTopic, TopicContent> = {
+  ...TOPIC_CONTENT,
+  trauma: {
+    en: "Trauma",
+    km: "របួសផ្លូវចិត្ត (Trauma)",
+    lessons: ["know-when-to-seek-help"],
+    tips: [],
+    practices: ["sensory-grounding", "interactive-breathing"],
+    specialties: ["Trauma"],
+  },
+};
+
 /** Journal feelings (the page's EMOTIONS) that point to a topic. */
 export const FEELING_TOPICS: Record<string, WellbeingTopic[]> = {
   Stressed: ["stress"],
