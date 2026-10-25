@@ -1,5 +1,25 @@
 # AROM: Change Report
 
+## 26 Oct 2026: Journal Summary No Longer Shows the Crisis Message by Mistake
+
+Commit `PENDING`. No migration.
+
+**Why.** A student with only happy entries got "What you wrote this week sounds really heavy" and the helplines instead of a summary. The word check that runs before anything goes to Gemini looked for parts of words, so everyday phrases like "spend my", "attend my", "recommend my", "weekend my" (they contain "end my") and "this homework is killing me" counted as a crisis. Nothing was sent to Gemini, so no summary was written.
+
+**What changed for users:**
+- **Real summaries for normal entries:** only whole crisis phrases count now (for example "want to die", "kill myself", "end my life", "cut myself", and the Khmer phrases). Everyday words no longer trigger the crisis message.
+- **Gemini's own check is narrower:** it flags only when someone writes about suicide, wanting to die, hurting themselves or someone else, abuse or danger. Sadness, stress, tiredness or a hard day get a normal summary.
+- **Written again:** summaries saved before this fix are written again the next time the journal opens.
+
+**What changed for the team:**
+- `lib/gemini-journal.ts`: `CRISIS_WORDS` use whole word matches; prompt rule 6 is narrower.
+- `lib/controllers/journal-summary-controller.ts`: the entries key starts with `v2`, so old summaries count as out of date.
+
+**What to re-test:**
+1. With happy entries such as "I spend my evening with friends", open Past Reflections: a real summary shows.
+2. Write a test entry with "I want to die": the support message and helplines still show.
+3. In Khmer, a test entry with "ខ្ញុំចង់ស្លាប់" still shows the support message.
+
 ## 26 Oct 2026: Real Journal Summary Written by Gemini (Off Until You Turn It On)
 
 Commit `9a5120d`, merged in PR #35. Migration `20261026000200_journal_ai_summary.sql` applied 26 Oct 2026 (renamed from `20261026000100`, which PR #34 also used; nothing to run again). Needs `GEMINI_API_KEY` (paid plan) in Vercel and `.env.local`.

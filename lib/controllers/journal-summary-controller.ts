@@ -79,7 +79,8 @@ async function weekEntries(supabase: Supabase, userId: string) {
 
 function entriesKey(rows: EntryRow[], language: string) {
   const ids = rows.map((row) => row.id).sort();
-  return createHash("sha256").update(`${language}:${ids.join(",")}`).digest("hex");
+  // v2: the crisis word check changed (26 Oct), so older summaries are written again.
+  return createHash("sha256").update(`v2:${language}:${ids.join(",")}`).digest("hex");
 }
 
 function toSummaryEntry(row: EntryRow): SummaryEntry {
