@@ -2,7 +2,7 @@
 
 ## 26 Oct 2026: A Strong 2 Week Recheck Now Sets the Next Recheck Date
 
-Commit `PENDING`. Migration `20261026000300_recheck_date_after_strong.sql` (not applied yet): replaces the `apply_support_path()` trigger function, one branch changed.
+Commit `e1e4e73`. Migration `20261026000300_recheck_date_after_strong.sql` (not applied yet): replaces the `apply_support_path()` trigger function, one branch changed.
 
 **Why.** When a person's 2 week recheck came back with Strong signs, the database kept the old recheck date. The app then thought the check was still due forever, and the person was never asked to check again 2 weeks later. The Home card already hid the stuck reminder; this fixes the cause, so people with the hardest results keep getting their 2 week check ins.
 
