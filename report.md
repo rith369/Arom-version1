@@ -1,5 +1,28 @@
 # AROM: Change Report
 
+## 25 Oct 2026: Clinics on the Phone Bar, UP Clinic Always First
+
+Commit `PENDING`. No migration. Frontend only.
+
+**Why.** UP students and staff need to find the UP clinic fast. On the clinic list the UP clinic could drop below a sample clinic that happened to be closer, and on phone the clinic page was hidden in the menu. Putting the UP clinic first and the page on the bottom bar makes the real help easy to see.
+
+**What changed for users:**
+- **UP clinic always on top:** on Find Clinic & Hospital, UP Counseling (EMDRAC) is always the first card, under every filter. The sample clinics follow it, closest first when the person shared their location, otherwise in the usual order.
+- **Clinics on the phone bar:** the bottom bar on phone now shows **Clinics** (គ្លីនិក) where **Professional** used to be. Professional is still in the menu.
+- **Menu order:** in the sidebar, Find Clinic & Hospital now comes before Professional.
+
+**What changed for the team:**
+- `app/_components/clinics/clinic-list-view.tsx`: one sort for every filter, `upStudentsOnly` clinics first, then distance.
+- `app/_components/app-navigation.tsx`: bottom bar item `ClinicHospital` replaces `Professional`; bottom bar items can set a short English text (`en`).
+- `app/_components/navigation-config.ts`: Find Clinic & Hospital moved to the top of the Professional section.
+
+**What to re-test:**
+1. Sign in with a UP account, open `/clinic-hospital` and check UP Counseling is the first card on All, Nearby and Clinic.
+2. Tap "Use my location to see distances" and check UP stays first and the sample clinics go from nearest to farthest.
+3. On a phone width, check the bottom bar shows Clinics (in English and Khmer), it opens `/clinic-hospital` and it is highlighted there.
+4. Check Professional is still reachable from the menu, and the bottom bar shows no item highlighted on `/professional`.
+5. On desktop, check the sidebar shows Find Clinic & Hospital above Professional.
+
 ## 24 Oct 2026: Find Clinic & Hospital Gets a Real Map and the Real UP Clinic
 
 Commit `f06ba18`, merged in PR #33 (`5183612`). Migration `20261024001300_clinic_page_details.sql` applied 24 Oct. New packages: `leaflet`, `react-leaflet`, `@types/leaflet` (run `npm install` after pulling).

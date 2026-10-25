@@ -5,7 +5,7 @@ import Link from "next/link";
 import {
   Activity,
   BookOpen,
-  Heart,
+  Building2,
   Home,
   ChevronUp,
   Settings,
@@ -251,6 +251,8 @@ type BottomNavItem = {
   icon: typeof Home;
   href: string;
   km: string;
+  /** English text when it differs from the label. */
+  en?: string;
   emphasized?: boolean;
 };
 
@@ -258,7 +260,8 @@ const bottomNavItems: BottomNavItem[] = [
   { label: "Home", icon: Home, href: "/", km: "ទំព័រដើម" },
   { label: "MindGuide", icon: BookOpen, href: "/mindguide", km: "មគ្គុទ្ទេសក៍ចិត្ត" },
   { label: "Detection", icon: Activity, href: "/detection", km: "ពិនិត្យអារម្មណ៍", emphasized: true },
-  { label: "Professional", icon: Heart, href: "/professional", km: "អ្នកជំនាញ" },
+  // Clinics instead of Professional (25 Oct 2026). Professional stays in the menu.
+  { label: "ClinicHospital", en: "Clinics", icon: Building2, href: "/clinic-hospital", km: "គ្លីនិក" },
   // Messages instead of Community (19 Oct 2026): people open their chats far
   // more often than they look for a new group. Community stays in the menu.
   { label: "Messages", icon: MessageCircle, href: "/messages", km: "សារ" },
@@ -281,7 +284,7 @@ export function MobileNavigation({
       className="fixed inset-x-0 bottom-0 z-40 border-t border-arom-border bg-white/96 px-1 pb-[calc(0.55rem+env(safe-area-inset-bottom))] min-[380px]:px-3 pt-2 shadow-[0_-12px_35px_rgba(15,80,65,0.06)] backdrop-blur-xl lg:hidden"
     >
       <div className="mx-auto grid max-w-md grid-cols-5">
-        {bottomNavItems.map(({ label, icon: Icon, href, km, emphasized }) => {
+        {bottomNavItems.map(({ label, icon: Icon, href, km, en, emphasized }) => {
           const isActive = active === label;
           const content = (
             <>
@@ -316,7 +319,7 @@ export function MobileNavigation({
                     : "font-medium text-ink/75 group-hover:text-arom"
                 }`}
               >
-                {language === "km" ? km : label}
+                {language === "km" ? km : en ?? label}
               </span>
             </>
           );

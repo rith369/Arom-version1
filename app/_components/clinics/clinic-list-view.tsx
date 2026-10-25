@@ -55,10 +55,15 @@ export function ClinicListView({ clinics, onSelectClinic, location, onRequestLoc
       list = list.filter((c) => c.category === "clinic");
     } else if (activeFilter === "hospital") {
       list = list.filter((c) => c.category === "hospital");
-    } else if (activeFilter === "nearby" && me) {
-      // Closest first, from the person's real location.
-      list.sort((a, b) => distanceKm(me, a) - distanceKm(me, b));
     }
+
+    // The UP clinic always comes first. The rest go closest first, from the
+    // person's real location, or keep their order when we have no location.
+    list.sort((a, b) => {
+      const upFirst = Number(!!b.upStudentsOnly) - Number(!!a.upStudentsOnly);
+      if (upFirst !== 0 || !me) return upFirst;
+      return distanceKm(me, a) - distanceKm(me, b);
+    });
 
     // Search query
     if (searchQuery.trim()) {

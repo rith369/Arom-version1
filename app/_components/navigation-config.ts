@@ -129,6 +129,14 @@ export const NAVIGATION_SECTIONS: NavSection[] = [
     kmTitle: "អ្នកជំនាញ",
     items: [
       {
+        id: "clinic-hospital",
+        label: "ClinicHospital",
+        enTitle: "Find Clinic & Hospital",
+        kmTitle: "ស្វែងរកគ្លីនិក និងមន្ទីរពេទ្យ",
+        icon: Building2,
+        href: "/clinic-hospital",
+      },
+      {
         id: "professional",
         label: "Professional",
         enTitle: "Professional",
@@ -143,14 +151,6 @@ export const NAVIGATION_SECTIONS: NavSection[] = [
         kmTitle: "សារ",
         icon: MessageCircle,
         href: "/messages",
-      },
-      {
-        id: "clinic-hospital",
-        label: "ClinicHospital",
-        enTitle: "Find Clinic & Hospital",
-        kmTitle: "ស្វែងរកគ្លីនិក និងមន្ទីរពេទ្យ",
-        icon: Building2,
-        href: "/clinic-hospital",
       },
       {
         id: "appointments",
