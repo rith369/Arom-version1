@@ -2,7 +2,7 @@
 
 ## 26 Oct 2026: Journal Suggests Lessons, Tips, Practices and Professionals for Your Week
 
-Commit `PENDING`. No migration.
+Commit `4bf6103`. No migration.
 
 **Why.** After seeing their week, a student should be able to do something about it straight away. If they felt stressed, AROM now points to real stress content and to professionals who help with stress, without them having to search MindGuide or the directory.
 
