@@ -26,7 +26,7 @@ import {
 import { DesktopNavigation } from "../../_components/app-navigation";
 import { BottomNav } from "../../components/bottom-nav";
 import { TopHeader } from "../../components/top-header";
-import { useLanguage } from "../../_components/language-provider";
+import { LanguageQuickToggle, useLanguage } from "../../_components/language-provider";
 import { GetHelpSection } from "../../_components/get-help-section";
 import {
   ProfessionalBlock,
@@ -215,6 +215,12 @@ export default function SymptomCheckPage() {
     }
   };
 
+  // The check on screen. A check without Khmer would switch only the labels,
+  // so it hides the language button, unless the app is already in Khmer (the
+  // way back to English). Answers stay when the language changes.
+  const openType = view.kind === "questions" ? view.type : view.kind === "home" ? null : view.saved.check.type;
+  const showLanguageToggle = km || openType === null || QUESTIONNAIRES[openType].khmerReady;
+
   const goBack = () => {
     if (view.kind === "questions" && view.index > 0) {
       setView({ ...view, index: view.index - 1 });
@@ -242,9 +248,10 @@ export default function SymptomCheckPage() {
             >
               <ArrowLeft size={22} />
             </button>
-            <h1 className="text-xl font-bold tracking-tight sm:text-2xl">
+            <h1 className="min-w-0 flex-1 text-xl font-bold tracking-tight sm:text-2xl">
               {km ? "ការពិនិត្យរោគសញ្ញា (Symptom check)" : "Symptom check"}
             </h1>
+            {showLanguageToggle && <LanguageQuickToggle />}
           </div>
 
           {view.kind === "home" && (

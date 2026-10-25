@@ -1,5 +1,26 @@
 # AROM: Change Report
 
+## 26 Oct 2026: Language Button on the Symptom Check
+
+Commit `PENDING`. No migration. Frontend only.
+
+**Why.** Some people read a question in English and want to check the Khmer (or the other way), but switching meant leaving the check and opening the menu. Lessons, practices and tips already have a one tap language button; the symptom check now has the same one.
+
+**What changed for users:**
+- **One tap EN / ខ្មែរ:** the button sits at the right of the "Symptom check" title, on the list of checks, on every question and on the result.
+- **Answers are kept:** switching the language in the middle of a check keeps every answer and the current question.
+- **Hidden on checks without Khmer:** on Stress, Burnout, Wellbeing, Loneliness and Trauma (the long check) the button is hidden while the app is in English, because only the labels would change. If the app is in Khmer, it always shows, so there is a way back to English.
+
+**What changed for the team:**
+- `app/detection/symptoms/page.tsx`: `LanguageQuickToggle` in the title row, shown by `showLanguageToggle` (follows `khmerReady`).
+
+**What to re-test:**
+1. Open `/detection/symptoms`: the language button is at the right of the title, on a phone and a laptop.
+2. Start Low mood, answer 2 questions, tap the button: the question and answers switch to Khmer, Question 3 of 9 stays, and going back shows your earlier answers still picked.
+3. Finish the check: the result page has the button and switches language.
+4. In English, start Stress: no language button. Go back to the list: it shows again.
+5. Long titles in Khmer do not push the button off the screen on a small phone.
+
 ## 26 Oct 2026: Symptom Check Result Suggests Help for That Topic
 
 Commit `1076b4a`. No migration. Frontend only.
