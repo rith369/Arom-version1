@@ -2,7 +2,7 @@
 
 ## 26 Oct 2026: Home Reminds You When Your 2 Week Symptom Check Is Due
 
-Commit `PENDING`. No migration. Frontend only.
+Commit `9820e77`. No migration. Frontend only.
 
 **Why.** After a symptom check with some signs, the result says AROM will ask the person to check again in 2 weeks. But the reminder only showed on the Symptom check page, so anyone who did not open that page never saw it. Home is where people come every day, so the reminder now shows there.
 
