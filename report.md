@@ -2,7 +2,7 @@
 
 ## 26 Oct 2026: Language Button on the Symptom Check
 
-Commit `PENDING`. No migration. Frontend only.
+Commit `6daf713`. No migration. Frontend only.
 
 **Why.** Some people read a question in English and want to check the Khmer (or the other way), but switching meant leaving the check and opening the menu. Lessons, practices and tips already have a one tap language button; the symptom check now has the same one.
 
