@@ -2,7 +2,7 @@
 
 ## 26 Oct 2026: Journal Summary No Longer Shows the Crisis Message by Mistake
 
-Commit `PENDING`. No migration.
+Commit `fbb8c82`. No migration.
 
 **Why.** A student with only happy entries got "What you wrote this week sounds really heavy" and the helplines instead of a summary. The word check that runs before anything goes to Gemini looked for parts of words, so everyday phrases like "spend my", "attend my", "recommend my", "weekend my" (they contain "end my") and "this homework is killing me" counted as a crisis. Nothing was sent to Gemini, so no summary was written.
 
