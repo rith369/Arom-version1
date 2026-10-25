@@ -2,7 +2,7 @@
 
 ## 26 Oct 2026: Symptom Check Result Suggests Help for That Topic
 
-Commit `PENDING`. No migration. Frontend only.
+Commit `1076b4a`. No migration. Frontend only.
 
 **Why.** After a symptom check, "What can help now" showed the same three buttons for everyone (Try a practice, Open MindGuide, Write about today). Someone with signs of stress got the same as someone with signs of trauma. Now the result points to the lesson, tip, practice and professionals that fit the check they just took, so the next step is one tap away.
 
