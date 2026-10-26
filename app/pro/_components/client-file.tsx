@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { AlertTriangle, Archive, ArchiveRestore, ArrowLeft, CalendarCheck, FileText, Lock, MessageCircle, Monitor, NotebookPen, Pin, Search, Share2, UserRound } from 'lucide-react';
 
 import { BookingDialog } from './bookings-view';
+import { ClientAceCard } from './ace-intake';
 import { CarePlanCard } from './care-plan-card';
 import { SharedMoods } from './shared-moods';
 import { SuggestSessionDialog } from './suggest-session-dialog';
@@ -345,6 +346,8 @@ export function ClientFile({ clientId }: { clientId: string }) {
               </div>
             )}
           </Card>
+
+          <ClientAceCard clientId={clientId} />
 
           <SharedMoods km={km} sharing={sharing.moods} moods={shared.moods} />
 

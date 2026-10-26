@@ -27,6 +27,8 @@ import type { MyReview, MyReviewsResponse } from "@/lib/reviews";
 import { DesktopNavigation, MobileNavigation } from "../app-navigation";
 import { useLanguage } from "../language-provider";
 import { JoinButton } from "../sessions/join-button";
+import { AceIntakeCard } from "./ace-intake";
+import type { MyAceIntake, MyAceResponse } from "@/lib/ace";
 import { downloadCalendarFile, howSoon } from "./appointment-helpers";
 import { ChangeTimePanel } from "./change-time-panel";
 import { ClinicRequests } from "./clinic-requests";
@@ -82,10 +84,15 @@ function AppointmentCard({
   onChange,
   review,
   onReviewsChange,
+  ace,
+  onAceChange,
 }: {
   appointment: UserAppointment;
   now: number;
   onChange: (next: UserAppointment[]) => void;
+  // ACE questions for this professional (section 37), shown on one card per professional.
+  ace?: MyAceIntake;
+  onAceChange?: (next: MyAceIntake[]) => void;
   // Set on the latest completed session with each professional: their one review, or null for none yet.
   review?: MyReview | null;
   onReviewsChange?: (next: MyReview[]) => void;
@@ -386,6 +393,8 @@ function AppointmentCard({
         </div>
       )}
 
+      {ace && onAceChange && <AceIntakeCard intake={ace} professionalName={name} km={km} onChange={onAceChange} />}
+
       {clinic && canCancel && (
         <p className="mt-4 text-sm text-ink-muted">
           {t(
@@ -540,6 +549,8 @@ export function UserAppointments() {
   const [now] = useState(() => Date.now());
   // Null until loaded, and if they fail to load the review boxes stay hidden.
   const [reviews, setReviews] = useState<MyReview[] | null>(null);
+  // ACE questions from professionals who ask them. Empty if they fail to load.
+  const [aceIntakes, setAceIntakes] = useState<MyAceIntake[]>([]);
 
   useEffect(() => {
     let active = true;
@@ -559,6 +570,13 @@ export function UserAppointments() {
         if (!response.ok) return;
         const data = (await response.json()) as MyReviewsResponse;
         if (active) setReviews(data.reviews);
+      })
+      .catch(() => undefined);
+    fetch("/api/ace", { cache: "no-store" })
+      .then(async (response) => {
+        if (!response.ok) return;
+        const data = (await response.json()) as MyAceResponse;
+        if (active) setAceIntakes(data.intakes);
       })
       .catch(() => undefined);
     return () => {
@@ -584,6 +602,19 @@ export function UserAppointments() {
     .filter((item) => item.status === "booked" && Date.parse(item.endsAt) > now)
     .sort((a, b) => a.startsAt.localeCompare(b.startsAt));
   const past = appointments.filter((item) => !upcoming.includes(item));
+
+  // ACE shows once per professional: on the next session with them, or, with
+  // none coming, on the latest past one while answers are saved (to delete them).
+  const aceOn = new Map<string, string>();
+  for (const item of [...upcoming, ...past.filter((entry) => aceIntakes.some((ace) => ace.professionalSlug === entry.professional?.slug && ace.answers))]) {
+    const slug = item.professional?.slug;
+    if (slug && !aceOn.has(slug)) aceOn.set(slug, item.id);
+  }
+  function aceFor(item: UserAppointment) {
+    const slug = item.professional?.slug;
+    if (!slug || aceOn.get(slug) !== item.id) return undefined;
+    return aceIntakes.find((ace) => ace.professionalSlug === slug);
+  }
 
   return (
     <Shell>
@@ -638,7 +669,14 @@ export function UserAppointments() {
             ) : (
               <ul className="mt-3 space-y-4">
                 {upcoming.map((item) => (
-                  <AppointmentCard key={item.id} appointment={item} now={now} onChange={setAppointments} />
+                  <AppointmentCard
+                    key={item.id}
+                    appointment={item}
+                    now={now}
+                    onChange={setAppointments}
+                    ace={aceFor(item)}
+                    onAceChange={setAceIntakes}
+                  />
                 ))}
               </ul>
             )}
@@ -658,6 +696,8 @@ export function UserAppointments() {
                     onChange={setAppointments}
                     review={reviewFor(item)}
                     onReviewsChange={setReviews}
+                    ace={aceFor(item)}
+                    onAceChange={setAceIntakes}
                   />
                 ))}
               </ul>

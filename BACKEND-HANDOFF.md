@@ -88,6 +88,7 @@ The yellow "Demo data on this page" banner is in `admin-shell.tsx`. Remove it fo
 | Clinic chat: students chat with the clinic desk (text, voice, photos, PDF) in Messages; desk Messages tab and Message buttons | Done | Connected, PR #30 merged 24 Oct (`/api/clinic-chat`, `/api/clinic-chat/:slug`, `/api/clinic-desk/:slug/chats/*`, `/api/clinic-chat-files/:messageId`), migration `20261024000900` applied 24 Oct | 35 |
 | Symptom check (`/detection/symptoms`): PHQ-9 low mood and GAD-7 anxiety in English and validated Khmer, PSS-10 stress, CBI burnout, WHO-5 wellbeing, UCLA-3 loneliness and PCL-5 trauma in English only, safety screen, results, 14 day rechecks | Done | Connected (`GET\|POST /api/symptom-checks`). Wellbeing, loneliness and trauma use migration `20261024000300` (applied 24 Oct, PR #29 merged). Uses `symptom_checks`, `support_journeys` and `apply_support_path()` | 35 |
 | 2 week programs (`/mindguide/programs/stress`, `/mindguide/programs/anxiety`): one step a day for 14 days after a Some or Clear signs result, from the symptom check result and MindGuide | Done | No new backend needed: a running program is one task in Your Plan For Today (`/api/plan`), item key `two-week:<program>:<start day>`. Day history is a known gap | 36 |
+| ACE (childhood experiences) in the therapist intake: professional switch on My profile, optional card on My appointments, read only card in the client file and Prepare | Done | Waiting for migration `20261026000500_ace_intake.sql` (PR `rith/ace-intake`) | 37 |
 
 ## 5. Admin users page
 
@@ -1463,7 +1464,7 @@ Types in `lib/reviews.ts`: `PublicReview`, `MyReview`, `ProReview`, `AdminReview
 - **Server scores every check.** The browser sends answers only; `scoreSymptomCheck()` scores again, so a level or safety flag never comes from the browser.
 - **More checks, English only until reviewed (Rith, 24 Oct).** Stress (PSS-10), burnout (Copenhagen Burnout Inventory, personal burnout), wellbeing (WHO-5), loneliness (UCLA-3) and trauma (PCL-5) have no tested Khmer. They have `khmerReady: false` and are hidden while the app is in Khmer, with a note that more checks are in English while their Khmer is reviewed. Claude does not translate them.
 - **Questions are not reworded without a professional.** English is the original wording (dashes replaced with commas). Khmer is the wording validated in Cambodia by Steinman et al. 2025, PLOS Mental Health 2(4):e0000228, S1 Appendix. Changes from the paper: "អារម្មណ៌" spelled "អារម្មណ៍" (gad_1, gad_7, answer 2) and the S2 question prompt shortened for one question per screen.
-- **General distress (K-10) and Trauma short check (PC-PTSD-5), in English and Khmer (Rith, 26 Oct).** A therapist gave Rith EMDR Association Cambodia's Khmer form, and EMDR agreed AROM can use it. The Khmer was typed from the page images and is waiting for the therapist to proofread every line. It is a translation, not a tested version, so the app never calls it "tested". One credit line sits at the bottom of the How it works sheet. From the same form: PHQ-2 and GAD-2 are not added (we already have the full PHQ-9 and GAD-7). ACE (childhood experiences) is not a self check. Rith chose to put it in the therapist intake when booking, read only by that therapist; that is a separate piece of work.
+- **General distress (K-10) and Trauma short check (PC-PTSD-5), in English and Khmer (Rith, 26 Oct).** A therapist gave Rith EMDR Association Cambodia's Khmer form, and EMDR agreed AROM can use it. The Khmer was typed from the page images and is waiting for the therapist to proofread every line. It is a translation, not a tested version, so the app never calls it "tested". One credit line sits at the bottom of the How it works sheet. From the same form: PHQ-2 and GAD-2 are not added (we already have the full PHQ-9 and GAD-7). ACE (childhood experiences) is not a self check. Rith chose to put it in the therapist intake, read only by that therapist: see section 37.
 - **K-10 asks the self harm question too.** `phq_9` is asked, unscored, after the 10 K-10 questions, the same as in the anxiety check, because K-10 asks about hopelessness and feeling worthless.
 - **PC-PTSD-5 is positive at 3 "yes" answers (Rith, 26 Oct).** 3 catches the most people (Prins 2016), which suits an early warning.
 - **"What can help now" matches the check (Rith, 26 Oct).** The result shows 1 lesson, 1 tip and 1 practice for the check's topic (each with Add to Home) and up to 2 professionals with that specialty, using the journal's topic list (`HELP_CONTENT` in `lib/wellbeing-topics.ts`, components in `app/_components/topic-help/topic-help.tsx`). Check to topic (`CHECK_TOPICS` in the page): low mood and wellbeing to `low_mood`, anxiety to `anxiety`, general distress to `anxiety` and `low_mood` (two buttons), stress, burnout and loneliness to the same name, both trauma checks to `trauma`. `trauma` is only in `HELP_CONTENT`, not in `WELLBEING_TOPICS`, so the journal and Gemini never pick it. Professionals come first for Strong signs, when a professional is suggested after 2 weeks, and always for trauma. Only available content shows; locked items fall back to the next one. Nothing about the result is sent to professionals.
@@ -1606,6 +1607,49 @@ Answers are saved in `symptom_checks.answers` as `[{ questionId, value }]` in qu
 2. The program does not change `support_journeys`. The 14 day recheck card on Home still comes from the check's own journey, which usually starts the same day as the program.
 3. The stress check (PSS-10) is English only, so in Khmer the stress program asks for the General distress check instead.
 4. A professional must review all 28 days and their Khmer before a public launch.
+
+## 37. ACE (childhood experiences) in the therapist intake
+
+**Status:** Built 26 Oct 2026 on branch `rith/ace-intake`, migration `20261026000500_ace_intake.sql` (not yet applied).
+
+**Decided by Rith (26 Oct 2026). Do not change without asking:**
+
+- **Never a self check.** ACE asks about childhood abuse and neglect, so it is only part of the intake for a professional. It never appears in the symptom check, MindGuide or Home.
+- **The professional turns it on** (My profile, "Ask my clients", off by default). Then clients with an upcoming booked session with them see an optional card on My appointments.
+- **Optional at every step.** Each question has Yes, No and "Rather not say"; empty questions are saved as skipped. The client can skip all of it and talk in the session instead.
+- **Only that professional reads it.** Not the AROM team, not admins, not other professionals. The client can change the answers before a session and delete them at any time, even after the sessions.
+- **One set of answers per client and professional.** ACE asks about the past, so it is not asked again for every booking.
+- **Wording:** English from the original ACE study (Felitti et al. 1998, CDC and Kaiser Permanente), free to use. Khmer from EMDR Association Cambodia's form, used with their permission, typed from the page images and waiting for their proofreading. In question 7 the form repeats "ច្រាន ខ្ទាំ"; the app shows it once. Credit line under the questions. It is a translation, never called "tested".
+- **What the professional sees:** the ACE score (number of yes answers), how many were answered, the date, a note that it is a count and not a diagnosis, and the answers behind "Show answers" (hidden at first). In the client file and on Prepare.
+
+### Data
+
+| What | Where |
+|---|---|
+| Professional asks ACE | `professional_profiles.ask_ace boolean default false` |
+| Answers | `ace_intakes (client_id, professional_id, answers boolean[10], created_at, updated_at)`, primary key `(client_id, professional_id)`. `true` yes, `false` no, `null` skipped |
+
+`ace_intakes` has RLS on and **no policies**, and `anon` and `authenticated` have no table rights. Every read and write goes through these `security definer` functions:
+
+| Function | Who | Rule |
+|---|---|---|
+| `set_ask_ace(p_ask)`, `my_ask_ace()` | professional | own profile only |
+| `my_ace_intakes()` | client | one row per professional with an upcoming booked session or saved answers: `professional_slug`, `asks`, `can_answer` (asks and an upcoming booked session), `answers`, `updated_at` |
+| `save_ace_intake(p_professional_slug, p_answers)` | client | 10 answers; the professional asks ACE; an upcoming booked session with them |
+| `delete_ace_intake(p_professional_slug)` | client | any time |
+| `pro_client_ace_safe(p_client_alias_id)` | professional | the client alias the professional sees (section 29), own row only; null when not answered |
+
+### API
+
+| Action | Endpoint |
+|---|---|
+| Client: list, save, delete | `GET /api/ace`, `PUT /api/ace { professionalSlug, answers }`, `DELETE /api/ace?professional=<slug>` |
+| Professional: setting | `GET /api/pro/ace`, `PUT /api/pro/ace { ask }` |
+| Professional: one client | `GET /api/pro/clients/:clientId/ace` |
+
+**Files:** `lib/ace.ts` (questions, types), `lib/controllers/ace-controller.ts`, `app/_components/appointments/ace-intake.tsx` (client card and window), `app/_components/appointments/user-appointments.tsx`, `app/pro/_components/ace-intake.tsx` (setting and client card), `client-file.tsx`, `prepare-view.tsx`, `profile-editor-page.tsx`.
+
+**Never log** answers, scores or who answered.
 
 ## Template for a new feature section
 

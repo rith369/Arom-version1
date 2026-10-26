@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { ArrowLeft, ClipboardList, FileText, FolderOpen, History, Lock, MessageCircle, Monitor, NotebookPen, Pin, Repeat, Share2, Target, UserRound } from 'lucide-react';
 
+import { ClientAceCard } from './ace-intake';
 import { usePro, useSharedByClient } from './pro-provider';
 import {
   cambodiaToday,
@@ -275,6 +276,8 @@ export function PrepareView({ bookingId }: { bookingId: string }) {
               </>
             )}
           </Block>
+
+          <ClientAceCard clientId={booking.clientId} />
         </div>
 
         <aside className="space-y-5">
