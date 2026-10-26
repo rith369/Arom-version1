@@ -2,7 +2,7 @@
 
 ## 27 Oct 2026: Voice Messages Are Louder and Even
 
-Commit pending. No migration. Frontend only.
+Commit `55947a0`. No migration. Frontend only.
 
 **Why.** Voice messages were still hard to hear, even after 18 Oct when quiet words stopped being cut. Phone and laptop microphones record speech at a low level, and the file was sent as it came in, so on a phone speaker the voice was faint and soft words were lost.
 
