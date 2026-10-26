@@ -6,13 +6,14 @@ import { AlertTriangle, Archive, ArchiveRestore, ArrowLeft, CalendarCheck, FileT
 
 import { BookingDialog } from './bookings-view';
 import { ClientAceCard } from './ace-intake';
+import { SessionNotePreview } from './session-note';
 import { CarePlanCard } from './care-plan-card';
 import { SharedMoods } from './shared-moods';
 import { SuggestSessionDialog } from './suggest-session-dialog';
 import { useProAttention } from './pro-attention';
 import { usePro, useSharedByClient } from './pro-provider';
 import { useLanguage } from '../../_components/language-provider';
-import { MAX_NOTE, type ProBooking } from '../_data/bookings';
+import { MAX_NOTE, sessionNotePlain, type ProBooking } from '../_data/bookings';
 import {
   FREQUENCY_LABELS,
   LEVEL_LABELS,
@@ -91,7 +92,7 @@ export function ClientFile({ clientId }: { clientId: string }) {
 
   const search = noteSearch.trim().toLocaleLowerCase();
   const visibleSessions = search
-    ? sessions.filter((item) => (sessionNotes[item.id]?.text ?? '').toLocaleLowerCase().includes(search))
+    ? sessions.filter((item) => sessionNotePlain(sessionNotes[item.id], km).toLocaleLowerCase().includes(search))
     : sessions;
 
   const statusLabel = (booking: ProBooking) => {
@@ -264,8 +265,10 @@ export function ClientFile({ clientId }: { clientId: string }) {
                           </button>
                         </span>
                       </div>
-                      {note?.text ? (
-                        <p className="mt-2 whitespace-pre-line text-sm leading-6 text-ink">{note.text}</p>
+                      {note && sessionNotePlain(note, km).trim() ? (
+                        <div className="mt-2">
+                          <SessionNotePreview note={note} km={km} />
+                        </div>
                       ) : (
                         <p className="mt-2 text-xs text-ink-muted">{t('គ្មានកំណត់ចំណាំសម្រាប់វគ្គនេះ។', 'No note for this session.')}</p>
                       )}

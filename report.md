@@ -1,5 +1,32 @@
 # AROM: Change Report
 
+## 26 Oct 2026: Longer Session Notes, SOAP Format and Folding Notes
+
+Commit `PENDING`, pull request `rith/session-note-soap`. Migration `20261026000600_session_note_soap.sql` (not yet applied): run it in Supabase before merging.
+
+**Why.** Therapists write a lot after a session. A note could only hold 5,000 characters (about one page, less in Khmer), it was one block of text, and before the next session the part that matters most, what was agreed to do next, was buried at the end of a long note.
+
+**What changed for users:**
+- **Longer notes:** a session note can now hold 20,000 characters (about four pages).
+- **SOAP format (optional):** a "Free text | SOAP" switch above the note. SOAP has four boxes: Subjective (what the client said), Objective (what you observed), Assessment (your assessment) and Plan (the plan). Switching keeps every word: free text moves into Subjective, and SOAP turns into free text with headings. The last format used is remembered for the next note.
+- **Plan first on Prepare:** before the next session, Prepare shows the Plan from the last SOAP note on top, with "Show the full note".
+- **Long notes fold:** in the client file and on Prepare, long notes show a few lines and "Show more". Search still looks through every word.
+
+**What changed for the team:**
+- Migration: `session_notes.format`, `subjective`, `objective`, `assessment`, `plan`, and one 20,000 character limit for the whole note. RLS unchanged.
+- `app/pro/_data/bookings.ts` (`SessionRecord`, `SOAP_SECTIONS`, `SOAP_LABELS`, `sessionNotePlain`, `MAX_SESSION_NOTE`), `lib/controllers/pro-controller.ts`, `pro-provider.tsx`, `session-note.tsx` (`SessionNoteFields`, `SessionNotePreview`), `bookings-view.tsx`, `client-file.tsx`, `clients-view.tsx`, `prepare-view.tsx`.
+- `BACKEND-HANDOFF.md` section 16. The Khmer SOAP labels need a professional's check.
+
+**What to re-test:**
+1. Run the migration in Supabase, then open the preview.
+2. Open an ended session and write a free text note: it saves as before. Old notes still show.
+3. Switch to SOAP: the text moves into Subjective. Fill the four boxes, wait for "Saved", and reload: the SOAP note is there.
+4. Switch back to free text: the sections become one text with headings.
+5. On the full page, paste more than 5,000 characters: it saves, and the counter shows what is left of 20,000.
+6. Open Prepare for the next session with that client: the Plan shows first, and "Show the full note" shows the rest.
+7. In the client file, a long note folds with "Show more", and search finds a word from any SOAP section.
+8. Repeat in Khmer and on a phone width.
+
 ## 26 Oct 2026: Session Notes Save Themselves and Have a Full Page
 
 Commit `8eac484`. No migration. Frontend only.

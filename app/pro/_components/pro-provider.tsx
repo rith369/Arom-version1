@@ -12,7 +12,7 @@ import {
   type ReviewedField,
 } from '../_data/profile';
 import { emptySchedule, hasOpenTimes, type Schedule } from '../_data/schedule';
-import type { ProBooking, SessionNote } from '../_data/bookings';
+import type { NoteFormat, ProBooking, SessionNote, SessionRecord, SoapNote } from '../_data/bookings';
 import { withClientLabels, type SharedByClient } from '../_data/clients';
 import { useLanguage } from '../../_components/language-provider';
 
@@ -45,11 +45,12 @@ type ProState = {
   schedule: Schedule;
   saveSchedule: (next: Schedule) => Promise<ActionResult>;
   bookings: ProBooking[];
-  sessionNotes: Record<string, SessionNote>;
+  sessionNotes: Record<string, SessionRecord>;
   cancelBooking: (id: string, reason: string) => Promise<ActionResult>;
   rescheduleBooking: (id: string, startsAt: string, reason: string) => Promise<ActionResult>;
   setBookingOutcome: (id: string, status: 'completed' | 'no_show') => Promise<ActionResult>;
-  saveSessionNote: (id: string, text: string) => Promise<ActionResult>;
+  // Free text, or the four SOAP sections (section 16).
+  saveSessionNote: (id: string, note: { format: NoteFormat; text: string; soap: SoapNote }) => Promise<ActionResult>;
   setMeetingLink: (id: string, meetingUrl: string) => Promise<ActionResult>;
   // A private plan written before a session ("things to bring up").
   prepNotes: Record<string, SessionNote>;
@@ -279,7 +280,7 @@ export function ProProvider({ children }: { children: ReactNode }) {
         cancelBooking: (id, reason) => bookingAction(id, { action: 'cancel', reason }),
         rescheduleBooking: (id, startsAt, reason) => bookingAction(id, { action: 'reschedule', startsAt, reason }),
         setBookingOutcome: (id, status) => bookingAction(id, { action: 'outcome', status }),
-        saveSessionNote: (id, text) => bookingAction(id, { action: 'note', text }),
+        saveSessionNote: (id, note) => bookingAction(id, { action: 'note', ...note }),
         setMeetingLink: (id, meetingUrl) => bookingAction(id, { action: 'meeting', meetingUrl }),
         prepNotes: data.prepNotes,
         savePrepNote: (id, text) => bookingAction(id, { action: 'prep', text }),

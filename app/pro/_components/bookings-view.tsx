@@ -6,14 +6,14 @@ import { Building2, CalendarCheck, CalendarClock, CalendarDays, CheckCircle2, Cl
 
 import { AddTaskDialog } from './care-plan-card';
 import { usePro } from './pro-provider';
-import { NoteStatusLine, useSessionNoteDraft } from './session-note';
+import { NoteStatusLine, SessionNoteFields, useSessionNoteDraft } from './session-note';
 import { SuggestSessionDialog } from './suggest-session-dialog';
 import { WeekCalendar } from './week-calendar';
 import { cambodiaToday } from '../../_components/care/care-store';
 import { useLanguage } from '../../_components/language-provider';
 import { JoinButton } from '../../_components/sessions/join-button';
 import { seriesPosition } from '../../_components/sessions/session-store';
-import { MAX_NOTE, MAX_REASON, type ProBooking } from '../_data/bookings';
+import { MAX_REASON, sessionNotePlain, type ProBooking } from '../_data/bookings';
 import { JOIN_OPENS_MINUTES, cambodiaDate, isMeetingUrl, openSlots } from '../_data/schedule';
 
 type Tab = 'upcoming' | 'past';
@@ -445,14 +445,9 @@ export function BookingDialog({
             <Lock size={12} aria-hidden="true" />
             {t('មានតែអ្នកទេដែលមើលឃើញ។ អ្នកគ្រប់គ្រង និងអតិថិជនមិនអាចមើលបានទេ។', 'Only you can see these. Not admins, not the client.')}
           </p>
-          <textarea
-            value={note.text}
-            onChange={(event) => note.setText(event.target.value)}
-            rows={6}
-            maxLength={MAX_NOTE}
-            aria-label={t('កំណត់ចំណាំឯកជន', 'Private session notes')}
-            className={textareaClass}
-          />
+          <div className="mt-3">
+            <SessionNoteFields note={note} km={km} />
+          </div>
           <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
             <NoteStatusLine status={note.status} failure={note.failure} savedAt={note.savedAt} km={km} />
             <Link href={`/pro/bookings/${booking.id}/note`} className="inline-flex items-center gap-1.5 text-sm font-semibold text-arom hover:underline">
@@ -594,7 +589,7 @@ export function ProBookingsView({ initialOpenId }: { initialOpenId?: string }) {
                           {booking.sessionType === 'online' ? <Monitor size={14} aria-hidden="true" /> : <UserRound size={14} aria-hidden="true" />}
                           {booking.sessionType === 'online' ? t('អនឡាញ', 'Online') : t('ជួបផ្ទាល់', 'In person')}
                         </span>
-                        {sessionNotes[booking.id]?.text && (
+                        {sessionNotePlain(sessionNotes[booking.id], km).trim() && (
                           <NotebookPen size={15} aria-label={t('មានកំណត់ចំណាំ', 'Has notes')} className="text-arom" />
                         )}
                         {booking.seriesId && <Repeat size={14} aria-label={t('វគ្គធ្វើម្តងទៀត', 'Repeating series')} className="text-arom" />}
