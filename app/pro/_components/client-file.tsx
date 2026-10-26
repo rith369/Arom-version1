@@ -252,11 +252,17 @@ export function ClientFile({ clientId }: { clientId: string }) {
                           {session.sessionType === 'online' ? t('អនឡាញ', 'Online') : t('ជួបផ្ទាល់', 'In person')}
                         </span>
                         <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${chip.style}`}>{chip.label}</span>
-                        <button type="button" onClick={() => setOpenId(session.id)} className="ml-auto text-xs font-semibold text-arom hover:underline">
-                          {note || (session.status === 'booked' && endOf(session) > now) || session.status === 'cancelled'
-                            ? t('បើក', 'Open')
-                            : t('សរសេរកំណត់ចំណាំ', 'Write a note')}
-                        </button>
+                        <span className="ml-auto flex items-center gap-3">
+                          {/* Long notes are easier on their own page. */}
+                          {session.status !== 'cancelled' && endOf(session) <= now && (
+                            <Link href={`/pro/bookings/${session.id}/note`} className="text-xs font-semibold text-arom hover:underline">
+                              {note ? t('កែកំណត់ចំណាំ', 'Edit note') : t('សរសេរកំណត់ចំណាំ', 'Write a note')}
+                            </Link>
+                          )}
+                          <button type="button" onClick={() => setOpenId(session.id)} className="text-xs font-semibold text-arom hover:underline">
+                            {t('បើក', 'Open')}
+                          </button>
+                        </span>
                       </div>
                       {note?.text ? (
                         <p className="mt-2 whitespace-pre-line text-sm leading-6 text-ink">{note.text}</p>

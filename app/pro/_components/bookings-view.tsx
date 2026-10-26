@@ -2,10 +2,11 @@
 
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
-import { Building2, CalendarCheck, CalendarClock, CalendarDays, CheckCircle2, ClipboardList, FileText, FolderOpen, List, Link2, Lock, MessageCircle, Monitor, NotebookPen, Repeat, Target, UserRound, UserX, X, XCircle } from 'lucide-react';
+import { Building2, CalendarCheck, CalendarClock, CalendarDays, CheckCircle2, ClipboardList, FileText, FolderOpen, List, Link2, Lock, Maximize2, MessageCircle, Monitor, NotebookPen, Repeat, Target, UserRound, UserX, X, XCircle } from 'lucide-react';
 
 import { AddTaskDialog } from './care-plan-card';
 import { usePro } from './pro-provider';
+import { NoteStatusLine, useSessionNoteDraft } from './session-note';
 import { SuggestSessionDialog } from './suggest-session-dialog';
 import { WeekCalendar } from './week-calendar';
 import { cambodiaToday } from '../../_components/care/care-store';
@@ -45,7 +46,7 @@ export function BookingDialog({
   onClose: () => void;
   showClientLink?: boolean;
 }) {
-  const { bookings, schedule, sessionNotes, cancelBooking, rescheduleBooking, setBookingOutcome, saveSessionNote, setMeetingLink, archivedClients, profile } = usePro();
+  const { bookings, schedule, cancelBooking, rescheduleBooking, setBookingOutcome, setMeetingLink, archivedClients, profile } = usePro();
   const { language } = useLanguage();
   const km = language === 'km';
   const t = (kmText: string, enText: string) => (km ? kmText : enText);
@@ -56,8 +57,8 @@ export function BookingDialog({
   const [reason, setReason] = useState('');
   const [newStart, setNewStart] = useState('');
   const [error, setError] = useState('');
-  const [note, setNote] = useState(sessionNotes[booking.id]?.text ?? '');
-  const [noteSaved, setNoteSaved] = useState('');
+  // Saved as the professional writes (session-note.tsx).
+  const note = useSessionNoteDraft(booking.id);
   const [link, setLink] = useState(booking.meetingUrl ?? '');
   const [linkStatus, setLinkStatus] = useState('');
   const [nextStep, setNextStep] = useState<'task' | 'suggest' | null>(null);
@@ -73,7 +74,6 @@ export function BookingDialog({
 
   const isUpcoming = booking.status === 'booked' && endOf(booking) > now;
   const needsOutcome = booking.status === 'booked' && endOf(booking) <= now;
-  const savedNote = sessionNotes[booking.id];
   const ended = booking.status !== 'cancelled' && endOf(booking) <= now;
   const series = seriesPosition(bookings, booking);
   const archived = archivedClients.includes(booking.clientId);
@@ -446,29 +446,19 @@ export function BookingDialog({
             {t('មានតែអ្នកទេដែលមើលឃើញ។ អ្នកគ្រប់គ្រង និងអតិថិជនមិនអាចមើលបានទេ។', 'Only you can see these. Not admins, not the client.')}
           </p>
           <textarea
-            value={note}
-            onChange={(event) => {
-              setNote(event.target.value);
-              setNoteSaved('');
-            }}
-            rows={5}
+            value={note.text}
+            onChange={(event) => note.setText(event.target.value)}
+            rows={6}
             maxLength={MAX_NOTE}
+            aria-label={t('កំណត់ចំណាំឯកជន', 'Private session notes')}
             className={textareaClass}
           />
-          <div className="mt-2 flex flex-wrap items-center gap-3">
-            <button
-              type="button"
-              disabled={note === (savedNote?.text ?? '')}
-              onClick={async () => {
-                const result = await saveSessionNote(booking.id, note);
-                setNoteSaved(result.ok ? t('បានរក្សាទុក។', 'Saved.') : result.message);
-              }}
-              className="rounded-full bg-arom px-4 py-2 text-sm font-semibold text-white hover:bg-arom-deep disabled:opacity-40">
-              {t('រក្សាទុកកំណត់ចំណាំ', 'Save note')}
-            </button>
-            <span role="status" aria-live="polite" className="text-xs text-ink-muted">
-              {noteSaved || (savedNote ? `${t('បានរក្សាទុក', 'Last saved')} ${formats.stamp.format(new Date(savedNote.updatedAt))}` : '')}
-            </span>
+          <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
+            <NoteStatusLine status={note.status} failure={note.failure} savedAt={note.savedAt} km={km} />
+            <Link href={`/pro/bookings/${booking.id}/note`} className="inline-flex items-center gap-1.5 text-sm font-semibold text-arom hover:underline">
+              <Maximize2 size={14} aria-hidden="true" />
+              {t('សរសេរលើទំព័រពេញ', 'Write on a full page')}
+            </Link>
           </div>
         </section>
       </div>

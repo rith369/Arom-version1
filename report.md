@@ -1,5 +1,29 @@
 # AROM: Change Report
 
+## 26 Oct 2026: Session Notes Save Themselves and Have a Full Page
+
+Commit `PENDING`. No migration. Frontend only.
+
+**Why.** Therapists write a lot after a session, but the private note was a small 5 line box inside the booking window that saved only when they tapped Save note. Closing the window, a locked phone or a dropped connection could lose a long note, and writing a page of text in a small box was hard, especially on a phone.
+
+**What changed for users:**
+- **Notes save themselves:** about a second and a half after the therapist stops typing, the note is saved, with "Saving...", "Saved 14:32" or "Not saved yet. Trying again." next to it. Leaving the window or page saves what is left, and closing the browser tab with unsaved text asks first. Drafts are never stored in the browser, because the computer may be shared.
+- **A full page for long notes:** "Write on a full page" in the booking window, and "Write a note" or "Edit note" on each ended session in the client file, open `/pro/bookings/<id>/note`: a large writing area with the client's name, the session date and type, a word count and the characters left.
+- The Save note button is gone; the limit is still 5,000 characters.
+
+**What changed for the team:**
+- New `app/pro/_components/session-note.tsx` (`useSessionNoteDraft`, `NoteStatusLine`, `SessionNotePage`) and route `app/pro/bookings/[bookingId]/note/page.tsx`. `bookings-view.tsx` and `client-file.tsx` use them.
+- No backend change: it uses the existing `POST /api/pro/bookings/:id { action: "note", text }`, now called while the therapist writes (at most every 1.5 seconds). `BACKEND-HANDOFF.md` section 16 notes this.
+
+**What to re-test:**
+1. Open an ended session in My bookings and type in Private session notes. Stop typing: "Saving..." then "Saved" with the time.
+2. Type more and close the window right away. Open it again: the text is there.
+3. Tap "Write on a full page": the page shows the client, date and type, the same text, and saves as you write. Go back to the client file: the note shows there.
+4. In the client file, "Write a note" on a session without a note opens the full page.
+5. Turn off the network, type, and check "Not saved yet. Trying again." Turn it back on: it saves.
+6. Type and close the browser tab quickly: the browser asks before leaving.
+7. On a phone width and in Khmer, check the page and the word count.
+
 ## 26 Oct 2026: ACE Childhood Questions in the Therapist Intake
 
 Commit `40b7925`, merged in PR #38 (`f6e03d6`). Migration `20261026000500_ace_intake.sql` applied 26 Oct.
