@@ -2,7 +2,7 @@
 
 ## 26 Oct 2026: Support Group Suggestions on the Check Result and in the Journal
 
-Commit pending. No migration. Frontend only.
+Commit `3254efb`. No migration. Frontend only.
 
 **Why.** "What can help now" on the symptom check and "Suggested for you" in the journal offered lessons, tips, practices and professionals, but never Community, even though AROM has support groups led by professionals on the same topics. For someone who feels alone, a group of people going through the same thing is often the most useful next step.
 
@@ -28,7 +28,7 @@ Commit pending. No migration. Frontend only.
 
 ## 26 Oct 2026: Support Groups in the 2 Week Programs
 
-Commit pending. No migration. Frontend only.
+Commit `3254efb`. No migration. Frontend only.
 
 **Why.** The programs never mentioned Community, even though AROM has stress and anxiety support groups led by professionals. Some people have no one they trust to talk to, and offering the group only on day 13 left them alone for 12 days. Now the group is offered from day 1, but never as a task, so nobody is pushed to join.
 
@@ -54,7 +54,7 @@ Commit pending. No migration. Frontend only.
 
 ## 26 Oct 2026: Past Check Results Open Again
 
-Commit pending. No migration. Frontend only.
+Commit `3254efb`. No migration. Frontend only.
 
 **Why.** The result screen recommends a 2 week program, lessons, tips and professionals. But once you tapped one of them and came back, the result was gone, and Past checks showed only a name, a date and a sign level. People lost the recommendations they had just been given.
 
@@ -76,7 +76,7 @@ Commit pending. No migration. Frontend only.
 
 ## 26 Oct 2026: 2 Week Programs for Stress and Anxiety
 
-Commit pending. No migration. Frontend only (uses the plan and symptom check endpoints that already exist).
+Commit `3254efb`. No migration. Frontend only (uses the plan and symptom check endpoints that already exist).
 
 **Why.** MindGuide is a library: people with some or clear signs of stress or anxiety had to choose lessons and tips on their own, and often did not know where to start. A 2 week program gives them one small step each day for 14 days, in a set order, and ends with taking the check again. That matches what the result already says ("try self help and check again in 2 weeks").
 
