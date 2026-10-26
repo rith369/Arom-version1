@@ -2,7 +2,7 @@
 
 ## 26 Oct 2026: ACE Childhood Questions in the Therapist Intake
 
-Commit `PENDING`, pull request `rith/ace-intake`. Migration `20261026000500_ace_intake.sql` (not yet applied): run it in Supabase before merging.
+Commit `40b7925`, pull request `rith/ace-intake`. Migration `20261026000500_ace_intake.sql` (not yet applied): run it in Supabase before merging.
 
 **Why.** EMDR Association Cambodia's intake form includes ACE, 10 yes or no questions about childhood experiences such as abuse, neglect and problems at home. Therapists use it to understand a client's background before the first session. It asks very sensitive things, so it must never be a self check that anyone opens alone. Rith chose to make it part of the intake for a therapist, read only by that therapist.
 
