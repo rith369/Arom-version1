@@ -2,7 +2,7 @@
 
 ## 26 Oct 2026: Professional Area Shows What Needs Attention, Including High Results
 
-Commit `PENDING`. No migration. Frontend only.
+Commit `7391a4e`. No migration. Frontend only.
 
 **Why.** A professional could miss a client in trouble: a High result on a shared symptom check only showed as a small label inside that client's file. The menu also had no counts, so a new message or a session without an outcome was easy to miss on any page other than Home. Clients who quietly stopped coming and reviews waiting for a reply did not show anywhere.
 
