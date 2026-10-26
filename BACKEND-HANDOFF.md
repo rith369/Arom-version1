@@ -88,7 +88,7 @@ The yellow "Demo data on this page" banner is in `admin-shell.tsx`. Remove it fo
 | Clinic chat: students chat with the clinic desk (text, voice, photos, PDF) in Messages; desk Messages tab and Message buttons | Done | Connected, PR #30 merged 24 Oct (`/api/clinic-chat`, `/api/clinic-chat/:slug`, `/api/clinic-desk/:slug/chats/*`, `/api/clinic-chat-files/:messageId`), migration `20261024000900` applied 24 Oct | 35 |
 | Symptom check (`/detection/symptoms`): PHQ-9 low mood and GAD-7 anxiety in English and validated Khmer, PSS-10 stress, CBI burnout, WHO-5 wellbeing, UCLA-3 loneliness and PCL-5 trauma in English only, safety screen, results, 14 day rechecks | Done | Connected (`GET\|POST /api/symptom-checks`). Wellbeing, loneliness and trauma use migration `20261024000300` (applied 24 Oct, PR #29 merged). Uses `symptom_checks`, `support_journeys` and `apply_support_path()` | 35 |
 | 2 week programs (`/mindguide/programs/stress`, `/mindguide/programs/anxiety`): one step a day for 14 days after a Some or Clear signs result, from the symptom check result and MindGuide | Done | No new backend needed: a running program is one task in Your Plan For Today (`/api/plan`), item key `two-week:<program>:<start day>`. Day history is a known gap | 36 |
-| ACE (childhood experiences) in the therapist intake: professional switch on My profile, optional card on My appointments, read only card in the client file and Prepare | Done | Waiting for migration `20261026000500_ace_intake.sql` (PR `rith/ace-intake`) | 37 |
+| ACE (childhood experiences) in the therapist intake: professional switch on My profile, optional card on My appointments, read only card in the client file and Prepare | Done | Connected (`/api/ace`, `/api/pro/ace`, `/api/pro/clients/:id/ace`), migration `20261026000500` applied 26 Oct, PR #38 | 37 |
 
 ## 5. Admin users page
 
@@ -1610,7 +1610,7 @@ Answers are saved in `symptom_checks.answers` as `[{ questionId, value }]` in qu
 
 ## 37. ACE (childhood experiences) in the therapist intake
 
-**Status:** Built 26 Oct 2026 on branch `rith/ace-intake`, migration `20261026000500_ace_intake.sql` (not yet applied).
+**Status:** Done 26 Oct 2026, merged in PR #38. Migration `20261026000500_ace_intake.sql` applied 26 Oct.
 
 **Decided by Rith (26 Oct 2026). Do not change without asking:**
 
