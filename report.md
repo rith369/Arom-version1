@@ -2,7 +2,7 @@
 
 ## 26 Oct 2026: Professionals Can Give a 2 Week Program as a Care Task
 
-Commit `PENDING`, pull request `rith/care-task-program`. Migration `20261026000400_care_task_program.sql` (not yet applied): run it in Supabase before merging.
+Commit `ca0a0ca`, pull request `rith/care-task-program`. Migration `20261026000400_care_task_program.sql` (not yet applied): run it in Supabase before merging.
 
 **Why.** The 2 week stress and anxiety programs were only reachable by users on their own, after a recent symptom check. A professional who thinks a client would benefit had no way to give one, even though "Give a care task" already offers lessons, tips and practices from MindGuide.
 
