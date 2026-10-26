@@ -1,5 +1,29 @@
 # AROM: Change Report
 
+## 26 Oct 2026: Professionals Can Give a 2 Week Program as a Care Task
+
+Commit `ca0a0ca`, pull request `rith/care-task-program`. Migration `20261026000400_care_task_program.sql` (not yet applied): run it in Supabase before merging.
+
+**Why.** The 2 week stress and anxiety programs were only reachable by users on their own, after a recent symptom check. A professional who thinks a client would benefit had no way to give one, even though "Give a care task" already offers lessons, tips and practices from MindGuide.
+
+**What changed for users:**
+- **Professionals:** Browse MindGuide in "Give a care task" has a new tab, "2 week programs", with both programs, their two weeks and a link to see all 14 days. "How often" is hidden for a program: it is done once, when the client starts it.
+- **Clients:** the task shows on Home as "Start your 2 week program", never naming stress or anxiety. It opens the program page, which says "<professional> suggested this program for you" with Start today, without asking for a recent check first.
+- **Starting ticks the task:** when the client starts the program, the care task is marked done, and the professional sees "Done" with the date (while the client shares care progress).
+
+**What changed for the team:**
+- `mindguide_type` `program` in `care_tasks` (migration), `lib/care.ts` (`MindGuideType`, `MINDGUIDE_OPTIONS`, `PROGRAM_HOME_TITLE`) and the care API enum.
+- `app/pro/_components/mindguide-picker.tsx` (Programs tab), `care-plan-card.tsx`, `app/components/daily-plan-card.tsx` (private title), `app/_components/two-week/two-week-program-view.tsx` (assigned program skips the check and ticks the task).
+- `BACKEND-HANDOFF.md` sections 18 and 36. New Khmer text needs a native speaker check.
+
+**What to re-test:**
+1. Run the migration in Supabase, then open the preview.
+2. As a professional, open a client file, Give a care task, MindGuide, Browse MindGuide, "2 week programs". Choose the stress program: "How often" disappears and the note explains it. Give the task.
+3. As that client (with no symptom check in the last 2 weeks), Home shows "Start your 2 week program" without the topic. Tap it: the program page says your professional suggested it, with Start today.
+4. Start it: Home now shows "Today's step (2 week program)" and the care task is ticked.
+5. As the professional, the task shows Done with today's date (when the client shares care progress).
+6. As a user with no care task, the program page still asks for a recent check as before.
+
 ## 26 Oct 2026: Professional Area Shows What Needs Attention, Including High Results
 
 Commit `7391a4e`. No migration. Frontend only.

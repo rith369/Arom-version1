@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ArrowLeft,
   BookOpen,
@@ -29,6 +29,7 @@ import { BottomNav } from "../../components/bottom-nav";
 import { TopHeader } from "../../components/top-header";
 import { LanguageQuickToggle, useLanguage } from "../language-provider";
 import { addPlanTask, deletePlanTask, setPlanTaskDone, usePlan } from "../daily-plan-store";
+import { isActive, isDoneToday, toggleCheckIn, useCareStore } from "../care/care-store";
 import { ALL_LESSONS } from "../learn/learn-data";
 import { ALL_PRACTICES } from "../practice/practice-data";
 import { ALL_TIPS } from "../tips/tips-data";
@@ -172,6 +173,25 @@ export function TwoWeekProgramView({ programId }: { programId: ProgramId }) {
   const mine = running.find((item) => item.id === programId);
   const other = running.find((item) => item.id !== programId);
   const fit = checks.status === "ready" ? programFit(program, checks.checks, today) : null;
+
+  // Given by the person's professional as a care task: no check needed first,
+  // and starting the program ticks that task off.
+  const care = useCareStore("client");
+  const assigned = care.tasks.find(
+    (task) => task.mindguide?.type === "program" && task.mindguide.itemId === programId && isActive(task, today),
+  );
+  const assignedProfessional = assigned && care.professionals.find((item) => item.slug === assigned.professionalId);
+  const assignedBy = assigned
+    ? (km ? assignedProfessional?.kmName || assignedProfessional?.name : assignedProfessional?.name) || (km ? "អ្នកជំនាញរបស់អ្នក" : "Your professional")
+    : null;
+  const assignedDone = assigned ? isDoneToday(assigned, care.checkIns, today) : true;
+  const ticked = useRef<string | null>(null);
+  useEffect(() => {
+    // Once per task, so a failed save is not retried in a loop.
+    if (!mine || !assigned || assignedDone || ticked.current === assigned.id) return;
+    ticked.current = assigned.id;
+    void toggleCheckIn(assigned, today);
+  }, [mine, assigned, assignedDone, today]);
   // The check to take (again): the one that led here, or the program's own.
   // Checks without reviewed Khmer are hidden in Khmer, so pick one that shows.
   const usable = (type: SymptomCheckType) => !km || QUESTIONNAIRES[type].khmerReady;
@@ -215,7 +235,7 @@ export function TwoWeekProgramView({ programId }: { programId: ProgramId }) {
     if (!removed.ok) setError(removed.message);
   };
 
-  const loading = plan.status === "loading" || checks.status === "loading";
+  const loading = plan.status === "loading" || checks.status === "loading" || care.status === "loading";
   const signedOut = plan.status === "signed_out" || checks.status === "signed_out";
   const day = mine ? programDay(mine.startDay, today) : null;
 
@@ -287,6 +307,7 @@ export function TwoWeekProgramView({ programId }: { programId: ProgramId }) {
               t={t}
               program={program}
               fit={fit}
+              assignedBy={assignedBy}
               checksFailed={checks.status === "error"}
               otherName={other ? t(PROGRAMS[other.id].name) : null}
               checkType={checkType}
@@ -315,6 +336,7 @@ function IntroView({
   t,
   program,
   fit,
+  assignedBy,
   checksFailed,
   otherName,
   checkType,
@@ -325,6 +347,8 @@ function IntroView({
   t: (text: Text) => string;
   program: Program;
   fit: ReturnType<typeof programFit> | null;
+  // The professional who gave this program as a care task, if one did.
+  assignedBy: string | null;
   checksFailed: boolean;
   otherName: string | null;
   checkType: SymptomCheckType;
@@ -363,7 +387,19 @@ function IntroView({
 
       {/* Who it is for, from the newest matching check. */}
       <section className="rounded-3xl border border-arom-border bg-white p-5 shadow-card sm:p-6">
-        {checksFailed ? (
+        {assignedBy ? (
+          <>
+            <p className="text-sm leading-6 text-ink">
+              {km
+                ? `${assignedBy} បានណែនាំវគ្គនេះសម្រាប់អ្នក។ ចាប់ផ្តើមនៅពេលអ្នករួចរាល់។`
+                : `${assignedBy} suggested this program for you. Start when you are ready.`}
+            </p>
+            <button type="button" disabled={busy} onClick={onStart} className={`${primaryButton} mt-4`}>
+              {busy ? (km ? "កំពុងចាប់ផ្តើម..." : "Starting...") : km ? "ចាប់ផ្តើមថ្ងៃនេះ" : "Start today"}
+            </button>
+            {switchNote}
+          </>
+        ) : checksFailed ? (
           <p className="text-sm leading-6 text-ink">
             {km ? "មិនអាចផ្ទុកការពិនិត្យរបស់អ្នកបានទេ។ សូមព្យាយាមម្តងទៀតនៅពេលក្រោយ។" : "Your checks could not be loaded. Please try again later."}
           </p>

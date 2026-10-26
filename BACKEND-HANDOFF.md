@@ -734,6 +734,13 @@ The bot needs, for each active task with a `reminderTime`: client id (to find th
 - **Telegram bot:** reads `care_tasks.reminder_time`, `repeat_days`, `start_date`, `end_date`, `stopped_at`, and `care_check_ins` to skip days already ticked. It needs its own server side access (not built).
 - **Tested** on a local Postgres: give each kind, bad input refused, non client and archived client refused, other professional cannot give, stop or read, client ticks today but not tomorrow or 3 days ago or before the start, one tick for a goal, direct inserts refused, professional sees ticks only while shared and loses them when sharing is turned off, admin sees nothing, anon refused.
 
+**2 week program as a care task (26 Oct 2026), migration `20261026000400_care_task_program.sql` (not yet applied, PR `rith/care-task-program`):**
+
+- `care_tasks.mindguide_type` also accepts `program`; `mindguide_item_id` is the program id (`stress` or `anxiety`, section 36). The API enum and `isPublishedMindGuide()` accept it. No function changes.
+- The professional picks it in Browse MindGuide, tab "2 week programs". It is always a one time task ("How often" is hidden): it is done when the client starts the program. The program itself stays a plan task (section 36).
+- On the client's Home the row says "Start your 2 week program", never the topic. `/care-plan` and the professional's screens show the program name.
+- **Decided by Rith (26 Oct 2026):** a program given by a professional can be started without a recent symptom check (the professional knows the client). The program page reads the client's active care tasks (`GET /api/care-plan`) to know this, and starting the program ticks the care task (`POST /api/care-plan/check-ins`). The professional does not see day by day progress, because the plan is private to the client; they see "Done" on the day the client started, while the client shares care progress.
+
 ## 19. Sessions: meeting links, after the session, suggested and repeating sessions, quick replies
 
 **Files:** `app/_components/sessions/session-store.ts` (shared bookings and suggestions, in memory mock store), `join-button.tsx`, `suggestion-card.tsx` (shown in the chat); `app/pro/_components/suggest-session-dialog.tsx`; changes in `bookings-view.tsx` (meeting link, After the session, series label, Join in rows), `schedule-editor.tsx` (meeting link), `pro-home.tsx` (Join), `client-file.tsx` and `messages-view.tsx` ("Suggest a session"), `app/_components/messages/chat-thread.tsx` (quick replies, suggestion messages), `user-messages.tsx` (Next session strip with Join).
@@ -1587,6 +1594,7 @@ Answers are saved in `symptom_checks.answers` as `[{ questionId, value }]` in qu
 | What | Where |
 |---|---|
 | Program is running | a plan task (`plan_tasks`) with `item_key` `two-week:<stress\|anxiety>:<start day YYYY-MM-DD>`, `source` `guide`, `repeat` `daily`, `href` `/mindguide/programs/<id>` |
+| Given by a professional | a care task (section 18) with `mindguide_type` `program` and `mindguide_item_id` the program id. While it is active, the program can start without a recent check |
 | Day of the program | today (Cambodia day) minus the start day, plus 1. Above 14 means finished |
 | Today's step done | the plan task's check for today (`PUT /api/plan/tasks/:id/check`), the same tick as on Home |
 | Who it fits | the newest symptom check of the program's types (`GET /api/symptom-checks`) |

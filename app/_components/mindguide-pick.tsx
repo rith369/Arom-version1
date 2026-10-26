@@ -2,7 +2,7 @@
 
 import { createContext, useContext, type ReactNode } from "react";
 
-export type PickType = "lesson" | "tip" | "practice";
+export type PickType = "lesson" | "tip" | "practice" | "program";
 
 // When a professional browses MindGuide to give a care task, the normal
 // MindGuide screens run in "choose" mode: no app sidebar, and "Add to plan"
