@@ -2,7 +2,7 @@
 
 ## 26 Oct 2026: Session Notes Save Themselves and Have a Full Page
 
-Commit `PENDING`. No migration. Frontend only.
+Commit `8eac484`. No migration. Frontend only.
 
 **Why.** Therapists write a lot after a session, but the private note was a small 5 line box inside the booking window that saved only when they tapped Save note. Closing the window, a locked phone or a dropped connection could lose a long note, and writing a page of text in a small box was hard, especially on a phone.
 
