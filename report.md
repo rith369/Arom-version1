@@ -2,7 +2,7 @@
 
 ## 26 Oct 2026: Clinic Page Overview and Services in One Tab
 
-Commit `PENDING`. No migration. Frontend only.
+Commit `a8b8235`. No migration. Frontend only.
 
 **Why.** The clinic page had four tabs (Overviews, Services, Therapists, Reviews), which felt crowded on a phone and made people tap twice to learn what a clinic is and what it offers. Both answer the same question, so they now live together.
 
