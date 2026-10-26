@@ -2,11 +2,12 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { ChevronRight, NotebookPen, Search, UsersRound } from 'lucide-react';
+import { AlertTriangle, ChevronRight, NotebookPen, Search, UsersRound } from 'lucide-react';
 
+import { useProAttention } from './pro-attention';
 import { usePro } from './pro-provider';
 import { useLanguage } from '../../_components/language-provider';
-import { clientsFrom, type ClientSummary } from '../_data/clients';
+import { clientsFrom, SYMPTOM_TYPE_LABELS, type ClientSummary } from '../_data/clients';
 
 type Filter = 'all' | 'active' | 'new' | 'quiet' | 'archived';
 
@@ -26,6 +27,8 @@ function initials(name: string) {
 
 export function ClientsView() {
   const { bookings, sessionNotes, summaryNotes, archivedClients } = usePro();
+  const { alerts } = useProAttention();
+  const alertFor = (client: ClientSummary) => alerts.find((item) => item.client.id === client.id);
   const { language } = useLanguage();
   const km = language === 'km';
   const t = (kmText: string, enText: string) => (km ? kmText : enText);
@@ -53,7 +56,9 @@ export function ClientsView() {
   const visible = clients
     .filter((client) => matches(client, filter) && client.name.toLocaleLowerCase().includes(search))
     .sort((a, b) => {
-      // Next session first, then the most recently seen.
+      // A High shared check first, then the next session, then the most recently seen.
+      const alerted = Number(Boolean(alertFor(b))) - Number(Boolean(alertFor(a)));
+      if (alerted) return alerted;
       if (a.nextSessionAt && b.nextSessionAt) return a.nextSessionAt.localeCompare(b.nextSessionAt);
       if (a.nextSessionAt) return -1;
       if (b.nextSessionAt) return 1;
@@ -121,35 +126,47 @@ export function ClientsView() {
         </div>
       ) : (
         <ul className="mt-5 space-y-2">
-          {visible.map((client) => (
-            <li key={client.id}>
-              <Link
-                href={`/pro/clients/${client.id}`}
-                className="flex items-center gap-4 rounded-2xl border border-arom-border bg-white px-4 py-3.5 shadow-sm hover:border-arom/40 hover:bg-arom-wash/40">
-                <span aria-hidden="true" className="flex size-11 shrink-0 items-center justify-center rounded-full bg-arom-soft text-sm font-semibold text-arom">
-                  {initials(client.name)}
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="flex items-center gap-2">
-                    <span className="truncate font-semibold text-ink">{client.name}</span>
-                    {hasNotes(client) && <NotebookPen size={14} aria-label={t('មានកំណត់ចំណាំ', 'Has notes')} className="shrink-0 text-arom" />}
+          {visible.map((client) => {
+            const alert = alertFor(client);
+            return (
+              <li key={client.id}>
+                <Link
+                  href={`/pro/clients/${client.id}`}
+                  className="flex items-center gap-4 rounded-2xl border border-arom-border bg-white px-4 py-3.5 shadow-sm hover:border-arom/40 hover:bg-arom-wash/40">
+                  <span aria-hidden="true" className="flex size-11 shrink-0 items-center justify-center rounded-full bg-arom-soft text-sm font-semibold text-arom">
+                    {initials(client.name)}
                   </span>
-                  <span className="mt-0.5 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-ink-muted">
-                    <span>
-                      {client.nextSessionAt
-                        ? `${t('បន្ទាប់', 'Next')}: ${dateTime.format(new Date(client.nextSessionAt))}`
-                        : t('គ្មានវគ្គខាងមុខ', 'No upcoming session')}
+                  <span className="min-w-0 flex-1">
+                    <span className="flex items-center gap-2">
+                      <span className="truncate font-semibold text-ink">{client.name}</span>
+                      {hasNotes(client) && <NotebookPen size={14} aria-label={t('មានកំណត់ចំណាំ', 'Has notes')} className="shrink-0 text-arom" />}
                     </span>
-                    <span>
-                      {client.lastSessionAt ? `${t('ចុងក្រោយ', 'Last')}: ${date.format(new Date(client.lastSessionAt))}` : t('មិនទាន់ជួប', 'Not met yet')}
+                    {alert && (
+                      <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-arom-warning-soft px-2 py-0.5 text-xs font-semibold text-arom-warning">
+                        <AlertTriangle size={12} aria-hidden="true" />
+                        {t(
+                          `កម្រិតខ្ពស់: ${SYMPTOM_TYPE_LABELS[alert.check.type].km}`,
+                          `High: ${SYMPTOM_TYPE_LABELS[alert.check.type].en}`,
+                        )}
+                      </span>
+                    )}
+                    <span className="mt-0.5 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-ink-muted">
+                      <span>
+                        {client.nextSessionAt
+                          ? `${t('បន្ទាប់', 'Next')}: ${dateTime.format(new Date(client.nextSessionAt))}`
+                          : t('គ្មានវគ្គខាងមុខ', 'No upcoming session')}
+                      </span>
+                      <span>
+                        {client.lastSessionAt ? `${t('ចុងក្រោយ', 'Last')}: ${date.format(new Date(client.lastSessionAt))}` : t('មិនទាន់ជួប', 'Not met yet')}
+                      </span>
+                      <span>{t(`${client.completedSessions} វគ្គបានបញ្ចប់`, `${client.completedSessions} session${client.completedSessions === 1 ? '' : 's'} completed`)}</span>
                     </span>
-                    <span>{t(`${client.completedSessions} វគ្គបានបញ្ចប់`, `${client.completedSessions} session${client.completedSessions === 1 ? '' : 's'} completed`)}</span>
                   </span>
-                </span>
-                <ChevronRight size={18} aria-hidden="true" className="shrink-0 text-ink-muted" />
-              </Link>
-            </li>
-          ))}
+                  <ChevronRight size={18} aria-hidden="true" className="shrink-0 text-ink-muted" />
+                </Link>
+              </li>
+            );
+          })}
         </ul>
       )}
     </>

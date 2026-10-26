@@ -22,6 +22,7 @@ import {
 
 import { AccountMenu } from '../../_components/account-menu';
 import { LanguageSwitcher, useLanguage } from '../../_components/language-provider';
+import { useProAttention } from './pro-attention';
 import { usePro } from './pro-provider';
 
 type NavLink = {
@@ -49,6 +50,14 @@ export function ProShell({ children }: { children: ReactNode }) {
   // Clinic therapists have no schedule: the clinic books them (section 34).
   const { profile } = usePro();
   const links = profile.clinic ? LINKS.filter((link) => link.href !== '/pro/schedule') : LINKS;
+  // Counts next to menu items. A High shared check on My clients shows in warning colours.
+  const { unread, outcomes, unrepliedReviews, alerts } = useProAttention();
+  const badges: Record<string, { count: number; warning?: boolean } | undefined> = {
+    '/pro/bookings': { count: outcomes.length },
+    '/pro/clients': { count: alerts.length, warning: true },
+    '/pro/messages': { count: unread },
+    '/pro/reviews': { count: unrepliedReviews ?? 0 },
+  };
   const { language } = useLanguage();
   const km = language === 'km';
   const t = (kmText: string, enText: string) => (km ? kmText : enText);
@@ -87,6 +96,7 @@ export function ProShell({ children }: { children: ReactNode }) {
         {links.map(({ href, en, km: kmLabel, icon: Icon, soon }) => {
           const isActive = pathname === href || (href !== '/pro' && pathname.startsWith(`${href}/`));
           const label = km ? kmLabel : en;
+          const badge = badges[href];
 
           if (soon) {
             return (
@@ -114,6 +124,18 @@ export function ProShell({ children }: { children: ReactNode }) {
               }`}>
               <Icon size={19} aria-hidden="true" />
               {label}
+              {badge && badge.count > 0 && (
+                <span
+                  className={`ml-auto min-w-5 rounded-full px-1.5 py-0.5 text-center text-[0.7rem] font-bold tabular-nums ${
+                    badge.warning
+                      ? 'bg-arom-warning text-white'
+                      : isActive
+                        ? 'bg-white text-arom'
+                        : 'bg-arom text-white'
+                  }`}>
+                  {badge.count > 99 ? '99+' : badge.count}
+                </span>
+              )}
             </Link>
           );
         })}
@@ -145,8 +167,15 @@ export function ProShell({ children }: { children: ReactNode }) {
           aria-label={t('បើកម៉ឺនុយ', 'Open menu')}
           aria-expanded={menuOpen}
           aria-controls="pro-mobile-menu"
-          className="-ml-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl text-ink hover:bg-arom-wash hover:text-arom">
+          className="relative -ml-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl text-ink hover:bg-arom-wash hover:text-arom">
           <Menu size={24} aria-hidden="true" />
+          {/* Something in the menu has a count. */}
+          {links.some((link) => (badges[link.href]?.count ?? 0) > 0) && (
+            <span
+              aria-hidden="true"
+              className={`absolute right-1.5 top-1.5 size-2.5 rounded-full ring-2 ring-white ${alerts.length > 0 ? 'bg-arom-warning' : 'bg-arom'}`}
+            />
+          )}
         </button>
         {brand}
         <div className="ml-auto flex shrink-0 items-center gap-1.5">

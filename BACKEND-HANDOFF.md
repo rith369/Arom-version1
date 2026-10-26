@@ -653,6 +653,20 @@ Rules the editor enforces, repeat them on the server:
 Backend needs: store the weekly hours, settings and time off (a `professional_schedules` table or jsonb on `professional_profiles`), and keep `availability_slots` filled for the booking window from them (a function run on save and daily). Users book from `availability_slots` (instant booking). "Has open times" is the schedule step of the visibility checklist. The user booking page still shows its own sample days and times until it reads `availability_slots`.
 
 
+### Needs your attention, menu counts and High results (26 Oct 2026)
+
+Frontend only, no new endpoint and no migration. `app/pro/_components/pro-attention.tsx` (`ProAttentionProvider` in `app/pro/layout.tsx`) works out, once for the whole `/pro` area:
+
+- **Menu counts:** My bookings (past sessions without an outcome), My clients (High results, warning colour), Messages (unread client messages; support groups are not counted), Reviews (visible reviews with no reply). A dot on the phone menu button when any count is above 0.
+- **High results:** for each client who is not archived and shares symptom checks on a booked or completed session, it calls the existing `GET /api/pro/clients/:clientId` and keeps the newest check with `level = 'high'` taken after the client's last session and in the last 30 days. Shown first in Home "Needs your attention", as a chip in My clients (those clients sort first) and as a banner in the client file. Only the level, type and date: the professional never sees the answers.
+- **Drifting clients:** at least one completed session, nothing booked, no open suggested time, last session 21 to 90 days ago and no message either way for 21 days. One line on Home that opens the chat.
+- **Reviews:** `GET /api/pro/reviews`, refreshed after a reply is posted or removed.
+- **Send crisis helplines** in a client chat (quick replies panel): `GET /api/crisis-resources`, written in the client's language (`helplineMessage()` in `app/_components/support-contacts.ts`), put in the message box for the professional to send.
+
+Decisions that must not change: the professional sees the level of a shared check, never the answers or the safety question, and only while the client shares checks. Nothing here is sent to admins.
+
+Later (backend, optional): one `GET /api/pro/attention` returning these counts would replace one call per sharing client and the reviews call. The conversation list now refreshes every 30 seconds on every `/pro` page, not only Home and Messages.
+
 ## 17. Messages (client and professional)
 
 **Files:** `app/_components/messages/message-store.ts` (types, in memory mock store, actions), `chat-thread.tsx` (shared chat with voice recorder), `user-messages.tsx` (user side), routes `app/messages/` and `app/messages/[professionalId]`; professional side `app/pro/_components/messages-view.tsx`, routes `app/pro/messages/` and `[clientId]`. Links: sidebar "Messages" (users), `/pro` menu, client file "Message", booking window "Message client". `/messages` is added to `PROTECTED_PREFIXES` in `lib/supabase/proxy.ts`.

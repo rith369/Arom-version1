@@ -1,5 +1,33 @@
 # AROM: Change Report
 
+## 26 Oct 2026: Professional Area Shows What Needs Attention, Including High Results
+
+Commit `PENDING`. No migration. Frontend only.
+
+**Why.** A professional could miss a client in trouble: a High result on a shared symptom check only showed as a small label inside that client's file. The menu also had no counts, so a new message or a session without an outcome was easy to miss on any page other than Home. Clients who quietly stopped coming and reviews waiting for a reply did not show anywhere.
+
+**What changed for users:**
+- **High results stand out:** when a client who shares symptom checks gets a High result after their last session (within 30 days), it is the first line in "Needs your attention" on Home, the client gets a "High: Anxiety" chip and moves to the top of My clients, and the client file shows a banner. Only the level, check and date, never the answers.
+- **Counts in the menu:** My bookings (sessions that need an outcome), My clients (High results, in warning colour), Messages (unread client messages) and Reviews (no reply yet). On a phone a dot on the menu button shows there is something new.
+- **More in "Needs your attention":** reviews with no reply yet, and clients who have had no session or message for 3 weeks (after at least one completed session), with a link to their chat. The card now shows even before the profile is live.
+- **Send crisis helplines:** in a chat with a client, the quick replies button now starts with "Send crisis helplines". It puts the helplines the AROM team manages into the message box, in the client's language, so the professional can add a few words and send.
+
+**What changed for the team:**
+- New `app/pro/_components/pro-attention.tsx` (`ProAttentionProvider`, `useProAttention`) in `app/pro/layout.tsx`, used by the menu, Home, My clients, the client file and Reviews.
+- `helplineMessage()` in `app/_components/support-contacts.ts`; `helplineText` prop on `ChatThread` and `ChatThreadView`.
+- No new endpoint: uses `/api/pro/clients/:id`, `/api/pro/reviews`, `/api/pro/messages` and `/api/crisis-resources`. `BACKEND-HANDOFF.md` section 16 explains the rules and an optional single endpoint for later.
+- New Khmer text needs a native speaker check (High result banner, helpline message).
+
+**What to re-test:**
+1. As a client, book a session with a test professional and switch on sharing symptom checks. Take a check that ends High (for example anxiety with high answers).
+2. As the professional, open `/pro`: the first line in "Needs your attention" names the client and the check, in warning colour. My clients in the menu shows 1.
+3. Open My clients: the client is on top with a "High" chip. Open the file: the banner shows above the notes, and the link from Home jumps to "Shared by the client".
+4. Once the next session has ended, the High line, chip and count go away (the result is older than the last session now).
+5. As the client, send a message: Messages in the menu shows a count; opening the chat clears it.
+6. Leave a review as the client: Reviews shows a count; post a reply and the count goes away.
+7. In the chat, tap the quick replies button: "Send crisis helplines" fills the box with the helplines in the client's language. Nothing is sent until you press Send.
+8. On a phone width, check the dot on the menu button and the counts in the drawer, in English and Khmer.
+
 ## 26 Oct 2026: Clinic Page Overview and Services in One Tab
 
 Commit `a8b8235`. No migration. Frontend only.

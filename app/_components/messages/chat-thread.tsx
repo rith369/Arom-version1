@@ -1,6 +1,6 @@
 "use client";
 
-import { FileText, ImageOff, MessageSquareText, Mic, Paperclip, Pause, Play, Plus, Send, Square, Trash2, X } from "lucide-react";
+import { FileText, ImageOff, LifeBuoy, MessageSquareText, Mic, Paperclip, Pause, Play, Plus, Send, Square, Trash2, X } from "lucide-react";
 import { ATTACHMENT_ACCEPT, FILE_TYPES, IMAGE_TYPES, MAX_FILE_BYTES } from "@/lib/messages";
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { SuggestionCard } from "../sessions/suggestion-card";
@@ -146,6 +146,7 @@ export function ChatThread({
   km,
   closedNote,
   quickReplyValues,
+  helplineText,
 }: {
   conversation: Conversation;
   viewer: Sender;
@@ -154,6 +155,8 @@ export function ChatThread({
   closedNote?: string;
   // Professionals only: turns on saved quick replies and fills {name}, {link}, {next}.
   quickReplyValues?: { name: string; link: string; next: string };
+  // Professionals only: crisis helplines, ready to send, shown above the quick replies.
+  helplineText?: string;
 }) {
   const { loaded, messages, summary } = useThread(conversation, viewer);
   const t = (kmText: string, enText: string) => (km ? kmText : enText);
@@ -180,6 +183,7 @@ export function ChatThread({
       onSend={(content) => sendMessage(conversation, viewer, content)}
       onSeen={() => markRead(conversation, viewer)}
       quickReplyValues={quickReplyValues}
+      helplineText={helplineText}
     />
   );
 }
@@ -198,6 +202,7 @@ export function ChatThreadView({
   onSend,
   onSeen,
   quickReplyValues,
+  helplineText,
 }: {
   // Changes when another chat opens.
   threadKey: string;
@@ -211,6 +216,7 @@ export function ChatThreadView({
   // Called when the viewer has the chat open, to mark the other side's messages read.
   onSeen: () => void;
   quickReplyValues?: { name: string; link: string; next: string };
+  helplineText?: string;
 }) {
   const savedReplies = useQuickReplies(Boolean(quickReplyValues));
   const replies = savedReplies ?? [];
@@ -499,6 +505,27 @@ export function ChatThreadView({
                   </button>
                 </div>
               </div>
+              {helplineText && !managing && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    // Put in the box, not sent: the professional can add a few words first.
+                    setText((current) => (current.trim() ? `${current.trimEnd()}
+
+${helplineText}` : helplineText).slice(0, MAX_TEXT));
+                    setRepliesOpen(false);
+                  }}
+                  className="mt-2 flex w-full items-start gap-2 rounded-xl border border-arom-warning/30 bg-arom-warning-soft px-2.5 py-2 text-left text-sm text-ink hover:bg-arom-warning-soft/70"
+                >
+                  <LifeBuoy size={16} aria-hidden="true" className="mt-0.5 shrink-0 text-arom-warning" />
+                  <span>
+                    <span className="block font-semibold">{t("ផ្ញើខ្សែជំនួយបន្ទាន់", "Send crisis helplines")}</span>
+                    <span className="block text-xs text-ink-muted">
+                      {t("ខ្សែជំនួយដែលក្រុម AROM គ្រប់គ្រង ជាភាសារបស់អតិថិជន។", "The helplines the AROM team keeps up to date, in the client's language.")}
+                    </span>
+                  </span>
+                </button>
+              )}
               {showSamples && !managing && (
                 <div className="mt-2">
                   <p className="text-xs text-ink-muted">
@@ -647,8 +674,8 @@ export function ChatThreadView({
                   type="button"
                   onClick={() => setRepliesOpen(!repliesOpen)}
                   aria-expanded={repliesOpen}
-                  aria-label={t("ចម្លើយរហ័ស", "Quick replies")}
-                  title={t("ចម្លើយរហ័ស", "Quick replies")}
+                  aria-label={helplineText ? t("ចម្លើយរហ័ស និងខ្សែជំនួយ", "Quick replies and helplines") : t("ចម្លើយរហ័ស", "Quick replies")}
+                  title={helplineText ? t("ចម្លើយរហ័ស និងខ្សែជំនួយ", "Quick replies and helplines") : t("ចម្លើយរហ័ស", "Quick replies")}
                   className={`flex size-11 shrink-0 items-center justify-center rounded-full border border-arom-border hover:bg-arom-wash ${repliesOpen ? "bg-arom-wash text-arom-deep" : "text-arom"}`}
                 >
                   <MessageSquareText size={19} />

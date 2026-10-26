@@ -2,6 +2,7 @@
 
 import { EyeOff, MessageSquareReply, ShieldCheck, Star, UserRound } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { useProAttention } from './pro-attention';
 import { useLanguage } from '../../_components/language-provider';
 import { reviewMonth, starsLabel, StarRow } from '../../_components/reviews/stars';
 import { MAX_REVIEW_REPLY, summarize, type ProReview, type ProReviewsResponse } from '@/lib/reviews';
@@ -174,6 +175,8 @@ export function ProReviewsView() {
   const t = (kmText: string, enText: string) => (km ? kmText : enText);
   const [status, setStatus] = useState<Status>('loading');
   const [reviews, setReviews] = useState<ProReview[]>([]);
+  // Keeps the Reviews count in the menu right after a reply is posted or removed.
+  const { refreshReviews } = useProAttention();
 
   useEffect(() => {
     let active = true;
@@ -273,7 +276,15 @@ export function ProReviewsView() {
 
           <ul className="mt-6 space-y-4">
             {reviews.map((review) => (
-              <ReviewCard key={review.id} review={review} km={km} onChange={setReviews} />
+              <ReviewCard
+                key={review.id}
+                review={review}
+                km={km}
+                onChange={(next) => {
+                  setReviews(next);
+                  refreshReviews();
+                }}
+              />
             ))}
           </ul>
         </>

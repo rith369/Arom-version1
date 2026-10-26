@@ -2,12 +2,13 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { Archive, ArchiveRestore, ArrowLeft, CalendarCheck, FileText, Lock, MessageCircle, Monitor, NotebookPen, Pin, Search, Share2, UserRound } from 'lucide-react';
+import { AlertTriangle, Archive, ArchiveRestore, ArrowLeft, CalendarCheck, FileText, Lock, MessageCircle, Monitor, NotebookPen, Pin, Search, Share2, UserRound } from 'lucide-react';
 
 import { BookingDialog } from './bookings-view';
 import { CarePlanCard } from './care-plan-card';
 import { SharedMoods } from './shared-moods';
 import { SuggestSessionDialog } from './suggest-session-dialog';
+import { useProAttention } from './pro-attention';
 import { usePro, useSharedByClient } from './pro-provider';
 import { useLanguage } from '../../_components/language-provider';
 import { MAX_NOTE, type ProBooking } from '../_data/bookings';
@@ -31,9 +32,9 @@ const levelStyles: Record<SymptomLevel, string> = {
   high: 'bg-arom-danger-soft text-arom-danger',
 };
 
-function Card({ title, icon: Icon, hint, children }: { title: string; icon: typeof Pin; hint?: string; children: React.ReactNode }) {
+function Card({ id, title, icon: Icon, hint, children }: { id?: string; title: string; icon: typeof Pin; hint?: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-3xl border border-arom-border bg-white p-5 shadow-card sm:p-6">
+    <section id={id} className="scroll-mt-20 rounded-3xl border border-arom-border bg-white p-5 shadow-card sm:p-6">
       <h2 className="flex items-center gap-2 text-base font-bold text-ink">
         <Icon size={18} aria-hidden="true" className="text-arom" />
         {title}
@@ -69,6 +70,7 @@ export function ClientFile({ clientId }: { clientId: string }) {
   const openBooking = sessions.find((item) => item.id === openId) ?? null;
   const savedSummary = summaryNotes[clientId];
   const latestEnded = sessions.find((item) => item.status !== 'cancelled' && endOf(item) <= now);
+  const alert = useProAttention().alerts.find((item) => item.client.id === clientId);
 
   const day = new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'short', year: 'numeric', timeZone: TIME_ZONE });
   const dayTime = new Intl.DateTimeFormat(locale, { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hourCycle: 'h23', timeZone: TIME_ZONE });
@@ -160,6 +162,24 @@ export function ClientFile({ clientId }: { clientId: string }) {
       {!archived && (
         <p className="mt-2 text-xs text-ink-muted">
           {t('ដាក់ជាអតិថិជនចាស់ នៅពេលការពិគ្រោះបានបញ្ចប់។ កំណត់ចំណាំទាំងអស់ត្រូវបានរក្សាទុក។', 'Archive when therapy has ended. All notes are kept.')}
+        </p>
+      )}
+
+      {alert && (
+        <p role="status" className="mt-4 flex items-start gap-2.5 rounded-2xl border border-arom-warning/30 bg-arom-warning-soft px-4 py-3 text-sm text-ink">
+          <AlertTriangle size={18} aria-hidden="true" className="mt-0.5 shrink-0 text-arom-warning" />
+          <span>
+            <span className="font-semibold">
+              {t(
+                `លទ្ធផលកម្រិតខ្ពស់លើការពិនិត្យ ${SYMPTOM_TYPE_LABELS[alert.check.type].km} នៅថ្ងៃ ${day.format(new Date(alert.check.createdAt))}`,
+                `High result on the ${SYMPTOM_TYPE_LABELS[alert.check.type].en} check on ${day.format(new Date(alert.check.createdAt))}`,
+              )}
+            </span>
+            {t(
+              ' បន្ទាប់ពីវគ្គចុងក្រោយរបស់អ្នក។ សូមពិចារណាសួរសុខទុក្ខអតិថិជននេះមុនវគ្គបន្ទាប់។ នេះជាលទ្ធផលពិនិត្យ មិនមែនជាការធ្វើរោគវិនិច្ឆ័យទេ។',
+              ', after your last session. Consider checking in with this client before the next session. A screening result, not a diagnosis.',
+            )}
+          </span>
         </p>
       )}
 
@@ -255,6 +275,7 @@ export function ClientFile({ clientId }: { clientId: string }) {
 
         <aside className="space-y-5">
           <Card
+            id="shared"
             title={t('អតិថិជនបានចែករំលែក', 'Shared by the client')}
             icon={Share2}
             hint={t(

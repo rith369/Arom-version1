@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { ProAttentionProvider } from "./_components/pro-attention";
 import { ProProvider } from "./_components/pro-provider";
 import { ProShell } from "./_components/pro-shell";
 
@@ -6,7 +7,9 @@ import { ProShell } from "./_components/pro-shell";
 export default function ProLayout({ children }: { children: ReactNode }) {
   return (
     <ProProvider>
-      <ProShell>{children}</ProShell>
+      <ProAttentionProvider>
+        <ProShell>{children}</ProShell>
+      </ProAttentionProvider>
     </ProProvider>
   );
 }

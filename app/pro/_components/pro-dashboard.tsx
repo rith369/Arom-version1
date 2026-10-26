@@ -1,15 +1,15 @@
 'use client';
 
 import Link from 'next/link';
-import { AlertCircle, ArrowRight, CalendarCheck, CheckCircle2, ClipboardList, MessageCircle, Monitor, Target, UserRound } from 'lucide-react';
+import { AlertCircle, AlertTriangle, ArrowRight, CalendarCheck, CheckCircle2, ClipboardList, Hourglass, MessageCircle, Monitor, Star, Target, UserRound } from 'lucide-react';
 
+import { useProAttention } from './pro-attention';
 import { usePro } from './pro-provider';
 import { mondayOf } from './weekly-sessions-chart';
 import { cambodiaToday, isActive, progressBetween, sharingKey, shiftDate, useCareStore } from '../../_components/care/care-store';
-import { conversationId, unreadCount, useConversations } from '../../_components/messages/message-store';
 import { JoinButton } from '../../_components/sessions/join-button';
 import type { ProBooking } from '../_data/bookings';
-import { clientsFrom } from '../_data/clients';
+import { clientsFrom, SYMPTOM_TYPE_LABELS } from '../_data/clients';
 import { addDays, cambodiaDate, openSlots } from '../_data/schedule';
 
 const TIME_ZONE = 'Asia/Phnom_Penh';
@@ -143,16 +143,16 @@ export function StatTiles({ now, km }: { now: number; km: boolean }) {
 }
 
 // Things waiting for the professional, each linking to where it is done.
-export function NeedsAttention({ now, km }: { now: number; km: boolean }) {
+export function NeedsAttention({ km }: { km: boolean }) {
   const { bookings, profile, archivedClients, openSuggestions } = usePro();
-  const conversations = useConversations('professional');
+  const { now, outcomes, unread, unrepliedReviews, alerts, drifting } = useProAttention();
   const care = useCareStore('professional');
   const t = (kmText: string, enText: string) => (km ? kmText : enText);
   const today = cambodiaToday(now);
+  const day = new Intl.DateTimeFormat(km ? 'km-KH' : 'en-GB', { day: 'numeric', month: 'short', timeZone: TIME_ZONE });
+  const names = (list: { name: string }[]) => `${list.slice(0, 2).map((item) => item.name).join(', ')}${list.length > 2 ? '...' : ''}`;
 
-  const outcomes = bookings.filter((item) => item.status === 'booked' && endOf(item) <= now);
   const clients = clientsFrom(bookings, now).filter((client) => !archivedClients.includes(client.id));
-  const unread = clients.reduce((sum, client) => sum + unreadCount(conversations, conversationId(profile.slug, client.id)), 0);
   const waiting = openSuggestions;
   const noPlan = clients.filter(
     (client) =>
@@ -160,35 +160,67 @@ export function NeedsAttention({ now, km }: { now: number; km: boolean }) {
       !care.tasks.some((task) => task.professionalId === profile.slug && task.clientId === client.id && isActive(task, today)),
   );
 
-  const items = [
-    outcomes.length > 0 && {
-      key: 'outcomes',
-      icon: AlertCircle,
-      text: t(`${outcomes.length} វគ្គកំពុងរង់ចាំលទ្ធផល`, `${outcomes.length} ${outcomes.length === 1 ? 'session needs' : 'sessions need'} an outcome`),
-      href: `/pro/bookings?open=${outcomes[0].id}`,
-    },
-    unread > 0 && {
-      key: 'unread',
-      icon: MessageCircle,
-      text: t(`${unread} សារមិនទាន់អាន`, `${unread} unread ${unread === 1 ? 'message' : 'messages'}`),
-      href: '/pro/messages',
-    },
-    waiting.length > 0 && {
-      key: 'waiting',
-      icon: CalendarCheck,
-      text: t(`${waiting.length} ការណែនាំម៉ោងកំពុងរង់ចាំអតិថិជនជ្រើសរើស`, `${waiting.length} suggested ${waiting.length === 1 ? 'time is' : 'times are'} waiting for the client`),
-      href: `/pro/messages/${waiting[0].clientId}`,
-    },
-    noPlan.length > 0 && {
-      key: 'plan',
-      icon: ClipboardList,
+  type Item = { key: string; icon: typeof AlertCircle; text: string; href: string; warning?: boolean };
+  const items: Item[] = [
+    // A High shared check since the last session: one line per client, first.
+    ...alerts.map(({ client, check }) => ({
+      key: `alert-${client.id}`,
+      icon: AlertTriangle,
+      warning: true,
       text: t(
-        `${noPlan.length} អតិថិជនមិនទាន់មានផែនការថែទាំ: ${noPlan.slice(0, 2).map((client) => client.name).join(', ')}`,
-        `${noPlan.length} ${noPlan.length === 1 ? 'client has' : 'clients have'} no care plan: ${noPlan.slice(0, 2).map((client) => client.name).join(', ')}${noPlan.length > 2 ? '...' : ''}`,
+        `${client.name}: លទ្ធផលកម្រិតខ្ពស់លើការពិនិត្យ ${SYMPTOM_TYPE_LABELS[check.type].km} (${day.format(new Date(check.createdAt))})`,
+        `${client.name}: High result on the ${SYMPTOM_TYPE_LABELS[check.type].en} check (${day.format(new Date(check.createdAt))})`,
       ),
-      href: `/pro/clients/${noPlan[0].id}#care-plan`,
-    },
-  ].filter((item): item is { key: string; icon: typeof AlertCircle; text: string; href: string } => Boolean(item));
+      href: `/pro/clients/${client.id}#shared`,
+    })),
+    ...([
+      outcomes.length > 0 && {
+        key: 'outcomes',
+        icon: AlertCircle,
+        text: t(`${outcomes.length} វគ្គកំពុងរង់ចាំលទ្ធផល`, `${outcomes.length} ${outcomes.length === 1 ? 'session needs' : 'sessions need'} an outcome`),
+        href: `/pro/bookings?open=${outcomes[0].id}`,
+      },
+      unread > 0 && {
+        key: 'unread',
+        icon: MessageCircle,
+        text: t(`${unread} សារមិនទាន់អាន`, `${unread} unread ${unread === 1 ? 'message' : 'messages'}`),
+        href: '/pro/messages',
+      },
+      !!unrepliedReviews && {
+        key: 'reviews',
+        icon: Star,
+        text: t(
+          `${unrepliedReviews} ការវាយតម្លៃមិនទាន់មានការឆ្លើយតប`,
+          `${unrepliedReviews} ${unrepliedReviews === 1 ? 'review has' : 'reviews have'} no reply yet`,
+        ),
+        href: '/pro/reviews',
+      },
+      waiting.length > 0 && {
+        key: 'waiting',
+        icon: CalendarCheck,
+        text: t(`${waiting.length} ការណែនាំម៉ោងកំពុងរង់ចាំអតិថិជនជ្រើសរើស`, `${waiting.length} suggested ${waiting.length === 1 ? 'time is' : 'times are'} waiting for the client`),
+        href: `/pro/messages/${waiting[0].clientId}`,
+      },
+      drifting.length > 0 && {
+        key: 'drifting',
+        icon: Hourglass,
+        text: t(
+          `${drifting.length} អតិថិជនមិនមានវគ្គ ឬសារអស់ ៣ សប្តាហ៍: ${names(drifting)}`,
+          `${drifting.length} ${drifting.length === 1 ? 'client has' : 'clients have'} had no session or message for 3 weeks: ${names(drifting)}`,
+        ),
+        href: `/pro/messages/${drifting[0].id}`,
+      },
+      noPlan.length > 0 && {
+        key: 'plan',
+        icon: ClipboardList,
+        text: t(
+          `${noPlan.length} អតិថិជនមិនទាន់មានផែនការថែទាំ: ${names(noPlan)}`,
+          `${noPlan.length} ${noPlan.length === 1 ? 'client has' : 'clients have'} no care plan: ${names(noPlan)}`,
+        ),
+        href: `/pro/clients/${noPlan[0].id}#care-plan`,
+      },
+    ].filter((item): item is Item => Boolean(item))),
+  ];
 
   return (
     <Card>
@@ -200,10 +232,12 @@ export function NeedsAttention({ now, km }: { now: number; km: boolean }) {
         </p>
       ) : (
         <ul className="mt-3 space-y-1">
-          {items.map(({ key, icon: Icon, text, href }) => (
+          {items.map(({ key, icon: Icon, text, href, warning }) => (
             <li key={key}>
-              <Link href={href} className="flex items-start gap-3 rounded-2xl px-2.5 py-2 text-sm text-ink hover:bg-arom-wash">
-                <Icon size={16} aria-hidden="true" className="mt-0.5 shrink-0 text-arom" />
+              <Link
+                href={href}
+                className={`flex items-start gap-3 rounded-2xl px-2.5 py-2 text-sm text-ink ${warning ? 'bg-arom-warning-soft hover:bg-arom-warning-soft/70' : 'hover:bg-arom-wash'}`}>
+                <Icon size={16} aria-hidden="true" className={`mt-0.5 shrink-0 ${warning ? 'text-arom-warning' : 'text-arom'}`} />
                 <span className="min-w-0 flex-1">{text}</span>
                 <ArrowRight size={15} aria-hidden="true" className="mt-0.5 shrink-0 text-arom" />
               </Link>
@@ -211,11 +245,18 @@ export function NeedsAttention({ now, km }: { now: number; km: boolean }) {
           ))}
         </ul>
       )}
+      {alerts.length > 0 && (
+        <p className="mt-2 text-xs leading-5 text-ink-muted">
+          {t(
+            'លទ្ធផលកម្រិតខ្ពស់ដែលអតិថិជនបានចែករំលែកបន្ទាប់ពីវគ្គចុងក្រោយ។ អ្នកឃើញតែកម្រិត មិនឃើញចម្លើយទេ។',
+            'High results the client shared after your last session. You see the level only, never the answers.',
+          )}
+        </p>
+      )}
     </Card>
   );
 }
 
-// Only clients who share progress are counted; others stay private.
 export function CareGlance({ now, km }: { now: number; km: boolean }) {
   const { bookings, profile, archivedClients } = usePro();
   const care = useCareStore('professional');

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ArrowLeft, CalendarCheck, FolderOpen, Lock, MessageCircle, Search } from 'lucide-react';
 
 import { usePro } from './pro-provider';
@@ -22,6 +22,7 @@ import {
 } from '../../_components/messages/message-store';
 import { useLanguage } from '../../_components/language-provider';
 import { clientsFrom } from '../_data/clients';
+import { helplineMessage, type CrisisHelpline } from '../../_components/support-contacts';
 
 // Messages holds every chat, like Telegram: private chats with clients and
 // the support groups this professional leads or joined, newest first.
@@ -38,6 +39,21 @@ export function ProMessagesView({ clientId, groupId }: { clientId?: string; grou
   const [now] = useState(() => Date.now());
   const [query, setQuery] = useState('');
   const [suggesting, setSuggesting] = useState(false);
+  // Crisis helplines (managed by admins), for "Send crisis helplines" in a client chat.
+  const [helplines, setHelplines] = useState<CrisisHelpline[]>([]);
+
+  useEffect(() => {
+    let active = true;
+    fetch('/api/crisis-resources')
+      .then((response) => (response.ok ? (response.json() as Promise<{ helplines: CrisisHelpline[] }>) : null))
+      .then((data) => {
+        if (active && data) setHelplines(data.helplines);
+      })
+      .catch(() => undefined);
+    return () => {
+      active = false;
+    };
+  }, []);
 
   // Only people who booked with this professional can be messaged.
   const clients = clientsFrom(bookings, now);
@@ -195,6 +211,7 @@ export function ProMessagesView({ clientId, groupId }: { clientId?: string; grou
                     link: nextSession?.meetingUrl ?? schedule.meetingUrl,
                     next: nextLabel,
                   }}
+                  helplineText={helplineMessage(helplines, selected.preferredLanguage)}
                   closedNote={
                     archivedClients.includes(selected.id)
                       ? t('អតិថិជននេះត្រូវបានដាក់ជាអតិថិជនចាស់។ សារត្រូវបានរក្សាទុក ប៉ុន្តែមិនអាចផ្ញើសារថ្មីបានទេ។', 'This client is archived. Messages are kept, but no new messages can be sent.')

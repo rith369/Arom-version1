@@ -217,12 +217,9 @@ export function ProHome() {
         </div>
 
         <aside className="space-y-5">
-          {isVisible && (
-            <>
-              <NeedsAttention now={now} km={km} />
-              <CareGlance now={now} km={km} />
-            </>
-          )}
+          {/* Shown even before the profile is live: a client may still need attention. */}
+          <NeedsAttention km={km} />
+          {isVisible && <CareGlance now={now} km={km} />}
           {pendingChanges.length > 0 && (
             <Card className="border-arom-warning/30">
               <h2 className="text-base font-bold text-ink">{t('រង់ចាំអ្នកគ្រប់គ្រងពិនិត្យ', 'Waiting for admin review')}</h2>

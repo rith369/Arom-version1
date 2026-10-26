@@ -64,3 +64,26 @@ export function activeHelplines(list: CrisisHelpline[]) {
     .filter((item) => item.isActive && (item.phone || item.website))
     .sort((a, b) => a.sortOrder - b.sortOrder);
 }
+
+/**
+ * Active helplines as one chat message, in the reader's language. A
+ * professional sends it from the chat with a client (quick replies panel).
+ */
+export function helplineMessage(list: CrisisHelpline[], language: 'en' | 'km') {
+  const km = language === 'km';
+  const lines = activeHelplines(list).map((item) => {
+    const name = (km && item.kmName) || item.name;
+    const hours = (km && item.kmHours) || item.hours;
+    const ways = [
+      item.phone && `${km ? 'ហៅ' : 'Call'} ${item.phone}`,
+      item.sms && `${km ? 'ផ្ញើសារ' : 'Text'} ${item.sms}`,
+      !item.phone && item.website,
+    ].filter(Boolean);
+    return `• ${name}: ${ways.join(', ')}${hours ? ` (${hours})` : ''}`;
+  });
+  if (lines.length === 0) return '';
+  const intro = km
+    ? 'ប្រសិនបើអ្នកមានអារម្មណ៍មិនមានសុវត្ថិភាព ឬកំពុងគិតចង់ធ្វើបាបខ្លួនឯង សូមទាក់ទងខ្សែជំនួយទាំងនេះឥឡូវនេះ៖'
+    : 'If you feel unsafe or are thinking about hurting yourself, please contact one of these helplines now:';
+  return [intro, ...lines].join('\n');
+}
