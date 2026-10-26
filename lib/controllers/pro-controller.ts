@@ -1,7 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { NextRequest } from "next/server";
 import { z } from "zod";
-import type { ProBooking, SessionNote } from "@/app/pro/_data/bookings";
+import { MAX_SESSION_NOTE, type ProBooking, type SessionNote, type SessionRecord } from "@/app/pro/_data/bookings";
 import type { SharedByClient } from "@/app/pro/_data/clients";
 import {
   LANGUAGE_OPTIONS,
@@ -41,7 +41,7 @@ export interface ProData {
   pendingChanges: PendingChange[];
   schedule: Schedule | null;
   bookings: ProBooking[];
-  sessionNotes: Record<string, SessionNote>;
+  sessionNotes: Record<string, SessionRecord>;
   // Private plans written before a session, by booking id.
   prepNotes: Record<string, SessionNote>;
   // One pinned summary per client, by client id.
@@ -125,7 +125,10 @@ async function loadBookings(supabase: Supabase, userId: string, slug: string) {
   // client's alias id instead of their account id (anonymous privacy).
   const [appointments, notes, prep, places] = await Promise.all([
     supabase.rpc("read_my_pro_bookings_safe"),
-    supabase.from("session_notes").select("appointment_id, content, updated_at").eq("professional_id", userId),
+    supabase
+      .from("session_notes")
+      .select("appointment_id, content, format, subjective, objective, assessment, plan, updated_at")
+      .eq("professional_id", userId),
     supabase.from("session_prep_notes").select("appointment_id, content, updated_at").eq("professional_id", userId),
     // Which bookings came through a clinic (section 34). Empty on error.
     supabase.rpc("my_clinic_appointment_places"),
@@ -148,9 +151,14 @@ async function loadBookings(supabase: Supabase, userId: string, slug: string) {
     clinic: clinicOf.get(row.id) ?? null,
   }));
 
-  const sessionNotes: Record<string, SessionNote> = {};
+  const sessionNotes: Record<string, SessionRecord> = {};
   for (const note of notes.data ?? []) {
-    sessionNotes[note.appointment_id] = { text: note.content, updatedAt: note.updated_at };
+    sessionNotes[note.appointment_id] = {
+      text: note.content,
+      format: note.format === "soap" ? "soap" : "free",
+      soap: { subjective: note.subjective, objective: note.objective, assessment: note.assessment, plan: note.plan },
+      updatedAt: note.updated_at,
+    };
   }
 
   const prepNotes: Record<string, SessionNote> = {};
@@ -503,7 +511,20 @@ const bookingActionSchema = z.discriminatedUnion("action", [
   z.object({ action: z.literal("cancel"), reason: z.string().trim().min(1).max(300) }),
   z.object({ action: z.literal("reschedule"), startsAt: z.string().min(10), reason: z.string().trim().min(1).max(300) }),
   z.object({ action: z.literal("outcome"), status: z.enum(["completed", "no_show"]) }),
-  z.object({ action: z.literal("note"), text: z.string().max(5000) }),
+  // Free text, or the four SOAP sections. Together at most MAX_SESSION_NOTE characters.
+  z.object({
+    action: z.literal("note"),
+    format: z.enum(["free", "soap"]).default("free"),
+    text: z.string().max(MAX_SESSION_NOTE).default(""),
+    soap: z
+      .object({
+        subjective: z.string().max(MAX_SESSION_NOTE),
+        objective: z.string().max(MAX_SESSION_NOTE),
+        assessment: z.string().max(MAX_SESSION_NOTE),
+        plan: z.string().max(MAX_SESSION_NOTE),
+      })
+      .optional(),
+  }),
   z.object({ action: z.literal("prep"), text: z.string().max(5000) }),
   z.object({ action: z.literal("meeting"), meetingUrl: z.string().trim().max(500) }),
 ]);
@@ -558,11 +579,22 @@ export async function updateProBooking(request: NextRequest, appointmentId: stri
           .upsert({ appointment_id: id.data, professional_id: userId, content: text }, { onConflict: "appointment_id" })
       : await supabase.from("session_prep_notes").delete().eq("appointment_id", id.data));
   } else if (input.action === "note") {
-    const text = input.text.trim();
-    ({ error } = text
+    const soap = input.format === "soap" && input.soap;
+    const row = {
+      content: soap ? "" : input.text.trim(),
+      format: soap ? "soap" : "free",
+      subjective: soap ? soap.subjective.trim() : "",
+      objective: soap ? soap.objective.trim() : "",
+      assessment: soap ? soap.assessment.trim() : "",
+      plan: soap ? soap.plan.trim() : "",
+    };
+    const length = row.content.length + row.subjective.length + row.objective.length + row.assessment.length + row.plan.length;
+    if (length > MAX_SESSION_NOTE) return fail("invalid_input", "This note is too long.", 400);
+    // An empty note deletes it.
+    ({ error } = length
       ? await supabase
           .from("session_notes")
-          .upsert({ appointment_id: id.data, professional_id: userId, content: text }, { onConflict: "appointment_id" })
+          .upsert({ appointment_id: id.data, professional_id: userId, ...row }, { onConflict: "appointment_id" })
       : await supabase.from("session_notes").delete().eq("appointment_id", id.data));
   } else {
     if (input.meetingUrl && !isMeetingUrl(input.meetingUrl)) {

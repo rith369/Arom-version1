@@ -8,6 +8,7 @@ import { useProAttention } from './pro-attention';
 import { usePro } from './pro-provider';
 import { useLanguage } from '../../_components/language-provider';
 import { clientsFrom, SYMPTOM_TYPE_LABELS, type ClientSummary } from '../_data/clients';
+import { sessionNotePlain } from '../_data/bookings';
 
 type Filter = 'all' | 'active' | 'new' | 'quiet' | 'archived';
 
@@ -50,7 +51,7 @@ export function ClientsView() {
 
   const hasNotes = (client: ClientSummary) =>
     Boolean(summaryNotes[client.id]?.text) ||
-    bookings.some((booking) => booking.clientId === client.id && sessionNotes[booking.id]?.text);
+    bookings.some((booking) => booking.clientId === client.id && sessionNotePlain(sessionNotes[booking.id], false).trim());
 
   const search = query.trim().toLocaleLowerCase();
   const visible = clients

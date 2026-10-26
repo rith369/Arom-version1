@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { ArrowLeft, ClipboardList, FileText, FolderOpen, History, Lock, MessageCircle, Monitor, NotebookPen, Pin, Repeat, Share2, Target, UserRound } from 'lucide-react';
 
 import { ClientAceCard } from './ace-intake';
+import { SessionNotePreview } from './session-note';
 import { usePro, useSharedByClient } from './pro-provider';
 import {
   cambodiaToday,
@@ -18,7 +19,7 @@ import { useLanguage } from '../../_components/language-provider';
 import { conversationId, useThread } from '../../_components/messages/message-store';
 import { JoinButton } from '../../_components/sessions/join-button';
 import { seriesPosition } from '../../_components/sessions/session-store';
-import { MAX_NOTE, type ProBooking } from '../_data/bookings';
+import { MAX_NOTE, sessionNotePlain, type ProBooking } from '../_data/bookings';
 import { LEVEL_LABELS, SYMPTOM_TYPE_LABELS, sharingFor, type SymptomLevel } from '../_data/clients';
 
 const TIME_ZONE = 'Asia/Phnom_Penh';
@@ -205,8 +206,11 @@ export function PrepareView({ bookingId }: { bookingId: string }) {
                         : t('មិនទាន់កត់លទ្ធផល', 'Outcome not recorded')}
                   </span>
                 </p>
-                {lastNote?.text ? (
-                  <p className="mt-2 whitespace-pre-line rounded-2xl bg-arom-wash/70 p-3.5 text-sm leading-6 text-ink">{lastNote.text}</p>
+                {lastNote && sessionNotePlain(lastNote, km).trim() ? (
+                  <div className="mt-2 rounded-2xl bg-arom-wash/70 p-3.5">
+                    {/* SOAP notes show the Plan first: what was agreed for this session. */}
+                    <SessionNotePreview note={lastNote} km={km} planFirst />
+                  </div>
                 ) : (
                   <p className="mt-2 text-sm text-ink-muted">{t('គ្មានកំណត់ចំណាំសម្រាប់វគ្គនោះទេ។', 'No note for that session.')}</p>
                 )}
