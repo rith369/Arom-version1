@@ -87,6 +87,7 @@ The yellow "Demo data on this page" banner is in `admin-shell.tsx`. Remove it fo
 | Clinic bookings, starting with the UP Wellness Clinic: Therapists tab and Book a session on the clinic page, Clinic requests in My appointments, clinic desk (`/clinic-desk`), admin clinic link and desk accounts | Done | Connected, PR #28 merged 24 Oct (`/api/clinics/:slug/booking`, `/api/clinics/:slug/requests`, `/api/clinic-requests`, `/api/clinic-desk/*`, `/api/admin/clinics`, `PATCH /api/admin/professionals/:id/clinic`, `PATCH /api/admin/users/:id/clinic-desk`), migration `20261024000200` applied 24 Oct | 34 |
 | Clinic chat: students chat with the clinic desk (text, voice, photos, PDF) in Messages; desk Messages tab and Message buttons | Done | Connected, PR #30 merged 24 Oct (`/api/clinic-chat`, `/api/clinic-chat/:slug`, `/api/clinic-desk/:slug/chats/*`, `/api/clinic-chat-files/:messageId`), migration `20261024000900` applied 24 Oct | 35 |
 | Symptom check (`/detection/symptoms`): PHQ-9 low mood and GAD-7 anxiety in English and validated Khmer, PSS-10 stress, CBI burnout, WHO-5 wellbeing, UCLA-3 loneliness and PCL-5 trauma in English only, safety screen, results, 14 day rechecks | Done | Connected (`GET\|POST /api/symptom-checks`). Wellbeing, loneliness and trauma use migration `20261024000300` (applied 24 Oct, PR #29 merged). Uses `symptom_checks`, `support_journeys` and `apply_support_path()` | 35 |
+| 2 week programs (`/mindguide/programs/stress`, `/mindguide/programs/anxiety`): one step a day for 14 days after a Some or Clear signs result, from the symptom check result and MindGuide | Done | No new backend needed: a running program is one task in Your Plan For Today (`/api/plan`), item key `two-week:<program>:<start day>`. Day history is a known gap | 36 |
 
 ## 5. Admin users page
 
@@ -1501,6 +1502,8 @@ Answers are saved in `symptom_checks.answers` as `[{ questionId, value }]` in qu
 - PSS-10 is free for non-profit and educational use. If AROM ever charges users, check the commercial licence first.
 - **14 day recheck reminder (26 Oct, Rith chose a Home card):** from the review day, Home shows "Time for your 2 week check in" with Check now (`app/components/check-in-due-card.tsx`, from `GET /api/symptom-checks`). It never names the check, because other people can see a phone's Home screen. There is no Telegram or push reminder yet.
 - **Strong recheck sets the next review (migration `20261026000300_recheck_date_after_strong.sql`, applied 26 Oct, PR #36):** in `apply_support_path()`, a `high` result goes to the "serious at any point" branch first, even on or after the review day, and that branch did not move `review_due_on`, so the journey stayed "due" with an old date. The migration makes that branch set `review_due_on = v_today + 14` when `v_today >= review_due_on`, and repairs any journey already stuck (none were on 26 Oct). A `high` result before the review day still keeps the date. `dueJourneys()` in the frontend still also checks for a check taken since the review day, as a safety net.
+- **Support group suggestion (Rith, 26 Oct, frontend only):** What can help now (and the journal's Suggested for you, section 22) adds one Support group row for the topic, from `GET /api/community/groups`: the group the person joined, else the open one with room and the most members (`matchGroup()` in `topic-help.tsx`). Topic to `support_groups.concern`: stress, anxiety, sleep and burnout to the same name, low mood to `depression`, self esteem to `self_growth`, loneliness and relationships to `general`. Never for trauma, never after a safety answer, and never in place of professionals.
+- **Past results open again (26 Oct, frontend only):** tapping a row in Past checks rebuilds the result screen from the saved check (`GET /api/symptom-checks` already returns everything it needs). While a result is open the page address is `/detection/symptoms?result=<check id>` so Back from a suggestion returns to it. Only the id goes in the address.
 - No limit on how often a person can take a check.
 - A professional still has to review the Khmer and the result messages before a public launch.
 - `symptom_checks` RLS lets the owner update or delete their own rows directly through the API. The app never does this.
@@ -1547,6 +1550,40 @@ Answers are saved in `symptom_checks.answers` as `[{ questionId, value }]` in qu
 
 - No notifications: the desk sees new messages in its Messages tab (checked every 30 seconds) and students in Messages.
 - Files of closed chats are kept, like therapist chats.
+
+## 36. 2 week programs (stress and anxiety)
+
+**Status:** Frontend done 26 Oct 2026. No migration and no new endpoint: it uses the plan tasks (section 27) and the symptom checks (section 35) that are already connected.
+
+**Decided by Rith (26 Oct 2026). Do not change without asking:**
+
+- **For Some signs and Clear signs.** The symptom check result offers a program when the level is `low` or `medium` (`PROGRAM_LEVELS`) and there is no safety answer. Stress check offers the stress program, anxiety check the anxiety program, General distress (K-10) offers both (`CHECK_PROGRAMS`). With Strong signs the program page puts Book a professional first, and the program can only be started as a second choice, "alongside" a professional. With Few signs, or no check in the last 14 days, the page asks the person to take the check first.
+- **Self help, never called treatment.** Every program page says "This is self help, not treatment", with links to professionals and Get help now.
+- **14 days, one step a day.** Each day has a title, why it helps, the step to do, and at most one link to existing MindGuide content (lesson, tip, practice), the journal, or the symptom check. Items that are not available yet (most practices) are hidden, so a day never links to a locked item. Day 14 is "take the check again".
+- **Days open on their day.** Earlier days can be opened again; later days show only their titles.
+- **One program at a time.** Starting a program removes the other one from the plan.
+- **Support groups from day 1, never as a task (Rith, 26 Oct).** A running program shows a "You are not alone" card for the topic's community group (`support_groups.concern` `stress` or `anxiety`, from `GET /api/community/groups`): the group the person joined, else the open one with room and the most members. Day 7, day 13 and anxiety day 11 add a sentence and a link to it. With no open group for the topic, nothing about groups shows. Links use `/community?group=<id>` (Join) or the group chat.
+- **Private on Home.** The plan task is called "Today's step (2 week program)" and never says stress or anxiety, because other people can see a phone's Home screen.
+- **Content is based on** the WHO guide "Doing What Matters in Times of Stress" (grounding, unhooking from thoughts) and common CBT self help steps (worry time, checking a thought, problem solving, facing fears step by step). A professional must review the steps and the Khmer before launch.
+
+**Files:** `app/_components/two-week/two-week-data.ts` (the two programs, check to program rules, `programFit()`, item key helpers), `app/_components/two-week/two-week-program-view.tsx`, `app/mindguide/programs/[program]/page.tsx`, `app/detection/symptoms/page.tsx` (`ProgramOffer` on the result, and `?check=<type>` opens that check), `app/_components/mindguide-home.tsx` (2 week programs section).
+
+### How a running program is stored
+
+| What | Where |
+|---|---|
+| Program is running | a plan task (`plan_tasks`) with `item_key` `two-week:<stress\|anxiety>:<start day YYYY-MM-DD>`, `source` `guide`, `repeat` `daily`, `href` `/mindguide/programs/<id>` |
+| Day of the program | today (Cambodia day) minus the start day, plus 1. Above 14 means finished |
+| Today's step done | the plan task's check for today (`PUT /api/plan/tasks/:id/check`), the same tick as on Home |
+| Who it fits | the newest symptom check of the program's types (`GET /api/symptom-checks`) |
+| Start, start again, stop | `DELETE` and `POST /api/plan/tasks` |
+
+### Known gaps
+
+1. **No history of earlier days.** The plan only says whether today's step is done, so the 14 day strip shows days as past, today or later, not done or missed. If Rith wants "5 of 7 days done", the backend needs to return the plan task's check days (they are already stored per day for plan tasks), for example `GET /api/plan/tasks/:id/checks` returning the Cambodia days it was ticked.
+2. The program does not change `support_journeys`. The 14 day recheck card on Home still comes from the check's own journey, which usually starts the same day as the program.
+3. The stress check (PSS-10) is English only, so in Khmer the stress program asks for the General distress check instead.
+4. A professional must review all 28 days and their Khmer before a public launch.
 
 ## Template for a new feature section
 

@@ -1,5 +1,118 @@
 # AROM: Change Report
 
+## 26 Oct 2026: Support Group Suggestions on the Check Result and in the Journal
+
+Commit pending. No migration. Frontend only.
+
+**Why.** "What can help now" on the symptom check and "Suggested for you" in the journal offered lessons, tips, practices and professionals, but never Community, even though AROM has support groups led by professionals on the same topics. For someone who feels alone, a group of people going through the same thing is often the most useful next step.
+
+**What changed for users:**
+- **A "Support group" row** next to the lesson, tip and practice, with the group's name, "Others who feel the same. Reading without writing is fine." and See group (opens Join) or Open chat (if already joined).
+- **Topic to group:** stress to Stress, anxiety to Anxiety, sleep to Sleep, low mood to Depression, burnout to Burnout, self esteem to Self growth, loneliness and relationships to General support.
+- **Not shown:** for trauma (a professional comes first), after a self harm answer on the check (helplines and professionals only), when the journal shows helplines, or when there is no open group with room for that topic.
+- **Strong signs:** the group row stays under the professionals, never in place of them.
+
+**What changed for the team:**
+- `app/_components/topic-help/topic-help.tsx`: `GROUP_TOPIC`, `useSupportGroups()`, `matchGroup()` and `GroupRow`, shared by the journal, the check result and the 2 week programs (the program page now uses the same `matchGroup()` instead of its own copy).
+- `app/_components/journal/journal-suggestions.tsx` and `app/detection/symptoms/page.tsx` show the row.
+- `BACKEND-HANDOFF.md` section 35 updated. No new endpoint (uses `GET /api/community/groups`).
+
+**What to re-test:**
+1. With an open Anxiety group, take the Anxiety check: What can help now shows a Support group row with that group. See group opens its Join page.
+2. Join it and open the result again from Past checks: the row says Open chat and opens the group chat.
+3. Answer the last question above "Not at all": no group row on the result.
+4. Take a trauma check: no group row.
+5. Journal: pick Anxious or Stressed feelings this week; Suggested for you shows the matching group row (if that group exists).
+6. A topic with no open group, or only a full one: no group row anywhere.
+7. Khmer: the row label and text show in Khmer.
+
+## 26 Oct 2026: Support Groups in the 2 Week Programs
+
+Commit pending. No migration. Frontend only.
+
+**Why.** The programs never mentioned Community, even though AROM has stress and anxiety support groups led by professionals. Some people have no one they trust to talk to, and offering the group only on day 13 left them alone for 12 days. Now the group is offered from day 1, but never as a task, so nobody is pushed to join.
+
+**What changed for users:**
+- **"You are not alone" card, from day 1:** under today's step, a card names the topic's support group, says it is led by a professional, that reading without writing is fine and a nickname can be used, with See the group (opens Join). If you already joined, it says so and opens the group chat.
+- **Day 7 (look back on week 1):** "If you like, share one thing that helped in the support group." with a link to the group.
+- **Day 13 (connect with someone):** "If there is no one you can talk to, the support group is there for you. Reading without writing is fine." with a link to the group, next to the lesson.
+- **Anxiety program, day 11 (the next small step):** "One small step could be saying hello in the support group."
+- **No group, no mention:** if there is no open stress or anxiety group, or it is full, none of this shows and the days read as before.
+
+**What changed for the team:**
+- `two-week-data.ts`: a day now has `links` (a list) instead of one `link`, a new `{ kind: "group" }` link, and `withGroup`, a sentence added only when a group exists.
+- `two-week-program-view.tsx`: loads `GET /api/community/groups` and picks the group for the topic (`programGroup()`: the one you joined, else the open one with room and the most members). Links use the existing `/community?group=<id>` and the group chat link. `GroupCard` shows it.
+- `BACKEND-HANDOFF.md` section 36 updated. No new endpoint.
+
+**What to re-test:**
+1. With an open Anxiety group in Community, start the anxiety program: the "You are not alone" card shows under today's step with the group's name. See the group opens its Join page.
+2. Join the group, go back to the program: the card says you are in it and opens the group chat.
+3. Open day 7 and day 13 in All days (or test on those days): the group sentence and the Support group link show.
+4. Anxiety day 11 says "One small step could be saying hello in the support group."
+5. With no Stress group (or only a full or closed one), start the stress program: no card, no group sentence, no group link.
+6. Khmer: the card, sentences and link label show in Khmer.
+
+## 26 Oct 2026: Past Check Results Open Again
+
+Commit pending. No migration. Frontend only.
+
+**Why.** The result screen recommends a 2 week program, lessons, tips and professionals. But once you tapped one of them and came back, the result was gone, and Past checks showed only a name, a date and a sign level. People lost the recommendations they had just been given.
+
+**What changed for users:**
+- **Tap a past check to open its result again:** the same result screen as before, with the date, the sign level, the 2 week program (for Some or Clear signs) and What can help now. A short line under Past checks says "Tap a result to see it again, with what can help."
+- **Back brings the result back:** while a result is open, going to a lesson, tip, program or professional and pressing Back shows the same result, not the start of the page.
+- **Safety:** a past result that had a self harm answer shows the Get help now helplines on the result itself (the separate safety screen showed them the first time).
+
+**What changed for the team:**
+- `app/detection/symptoms/page.tsx`: `reopenResult()` builds the result view from a saved check (the active journey is attached only to the newest check of that type). Past checks rows are buttons. While a result is open the address is `/detection/symptoms?result=<check id>`; on load, `?result=` reopens it and `?check=` still starts a check. Only the random check id is in the address, never the level or answers.
+
+**What to re-test:**
+1. Take a check with Some or Clear signs. On the result, tap a suggested lesson, then press Back: the same result shows again.
+2. Tap Done, then tap that check under Past checks: the result opens with its date and the same suggestions.
+3. Open an older check of a type you took again later: it shows its own level and suggestions, without a "we will remind you" date.
+4. Open a past result that had a self harm answer: Get help now shows on the result.
+5. Tap the back arrow on a reopened result: you return to the list, and the address no longer has `?result=`.
+6. From a 2 week program, Take the check still starts the check directly.
+
+## 26 Oct 2026: 2 Week Programs for Stress and Anxiety
+
+Commit pending. No migration. Frontend only (uses the plan and symptom check endpoints that already exist).
+
+**Why.** MindGuide is a library: people with some or clear signs of stress or anxiety had to choose lessons and tips on their own, and often did not know where to start. A 2 week program gives them one small step each day for 14 days, in a set order, and ends with taking the check again. That matches what the result already says ("try self help and check again in 2 weeks").
+
+**What changed for users:**
+- **Offer on the result:** after a stress, anxiety or General distress check with Some signs or Clear signs, a "A 2 week program can help" card links to the program (General distress shows both). It does not show with Strong signs on the result, or after a self harm answer.
+- **New program pages:** `/mindguide/programs/stress` and `/mindguide/programs/anxiety`. Before starting: what it is (14 days, about 10 minutes a day, check again on day 14), who it fits based on the newest check, and the 14 day titles. Start today adds one daily task to Your Plan For Today.
+- **Each day:** what to do, why it helps, and a link to a lesson, tip, practice, the journal or the check. Week 1 calms the body (breathing, grounding, sleep, moving); week 2 deals with the cause (stress: sort and solve problems, boundaries, screens, balance; anxiety: worry time, checking a thought, facing small fears step by step).
+- **Today's step:** "I did today's step" ticks the same task as on Home. A 14 day strip shows where you are; earlier days can be opened again, later days stay locked.
+- **Strong signs:** the page puts Book a professional first and lets the person start the program only as a second choice. Few signs, or no check in the last 2 weeks: the page asks to take the check first.
+- **Finish:** after day 14, Check again, Start another 2 weeks, or Remove from my plan. Start again from day 1 and Stop are always there.
+- **MindGuide:** a new "2 week programs" section under For Today, showing "Day 5 of 14" for a running program.
+- **Private on Home:** the task says only "Today's step (2 week program)", never stress or anxiety.
+- **Safety:** every program page says it is self help, not treatment, with links to professionals and Get help now.
+
+**What changed for the team:**
+- `app/_components/two-week/two-week-data.ts`: both programs (28 days, English and Khmer), `CHECK_PROGRAMS`, `PROGRAM_LEVELS`, `programFit()`, and the plan item key `two-week:<program>:<start day>`, which holds the start day so no new table is needed.
+- `app/_components/two-week/two-week-program-view.tsx` and `app/mindguide/programs/[program]/page.tsx` (only `stress` and `anxiety`, others 404).
+- `app/detection/symptoms/page.tsx`: `ProgramOffer` on the result; `/detection/symptoms?check=<type>` now opens that check directly (in Khmer only if the check has Khmer).
+- `app/_components/mindguide-home.tsx`: 2 week programs section.
+- `BACKEND-HANDOFF.md` section 36. Known gap: no history of earlier days (only "done today"), which needs a small plan endpoint later.
+- **Needs review:** a professional should review all 28 steps and the Khmer before launch.
+
+**What to re-test:**
+1. Take the Anxiety check and answer to get Some or Clear signs (and "Not at all" on the last question). The result shows "A 2 week program can help" with the anxiety program.
+2. Take General distress with Some or Clear signs: both programs show. With Strong signs or a self harm answer: no program card.
+3. Open the anxiety program: it says your check shows Some or Clear signs, with Start today. Tap it: Day 1 of 14, today's step, and the link to Understanding Anxiety.
+4. Go Home: Your Plan For Today has "Today's step (2 week program)". Tick it there, go back to the program: it shows Done for today. Untick on the program page and check Home again.
+5. Days 2 to 14 are locked in All days. Day 1 opens and closes.
+6. Open the stress program while anxiety runs: it says starting stops the other one. Start it, check Home has only one "Today's step".
+7. Stop this program, Keep going, then Stop: the task leaves Home and the intro shows again.
+8. With no check, or only a check older than 2 weeks, the program asks you to take the check; Take the check opens that check straight away.
+9. With a Few signs check, the page points to MindGuide and Check again, with no Start button.
+10. MindGuide shows the 2 week programs section; a running one shows "Day 1 of 14".
+11. Switch to Khmer on each screen; the stress program's Take the check opens General distress (the stress check has no Khmer yet).
+12. Try `/mindguide/programs/sleep`: page not found.
+
 ## 26 Oct 2026: Symptom Check List Starts With One General Check
 
 Commit `84effc9`. No migration. Frontend only.

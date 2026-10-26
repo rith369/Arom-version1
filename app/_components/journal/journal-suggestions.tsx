@@ -4,7 +4,17 @@ import { useState } from "react";
 import { Compass } from "lucide-react";
 import type { JournalSummary } from "@/lib/journal-summary";
 import { TOPIC_CONTENT, weekTopics, type WellbeingTopic } from "@/lib/wellbeing-topics";
-import { ProfessionalBlock, SuggestionRow, matchProfessionals, suggestionsFor, useProfessionals } from "../topic-help/topic-help";
+import { useAuth } from "../auth-provider";
+import {
+  GroupRow,
+  ProfessionalBlock,
+  SuggestionRow,
+  matchGroup,
+  matchProfessionals,
+  suggestionsFor,
+  useProfessionals,
+  useSupportGroups,
+} from "../topic-help/topic-help";
 import type { WeekEntry } from "./journal-week-summary";
 
 /** A week with this many days marked Not Good or Very difficult puts the professionals first. */
@@ -14,8 +24,8 @@ const HARD_WEEK_DAYS = 3;
  * "Suggested for you" under the journal week (BACKEND-HANDOFF.md section 22).
  * The topic comes from the feelings the person picked, plus Gemini's topics
  * when the summary is on. Plain code turns it into real lessons, tips,
- * practices and professionals. Each item can be added to the Home plan.
- * Professionals are a gentle last row, and come first on a hard week.
+ * practices, a support group and professionals. Each item can be added to the
+ * Home plan. Professionals are a gentle last row, and come first on a hard week.
  */
 export function JournalSuggestions({
   km,
@@ -28,6 +38,8 @@ export function JournalSuggestions({
 }) {
   const [chosen, setChosen] = useState<WellbeingTopic | null>(null);
   const professionals = useProfessionals();
+  const groups = useSupportGroups();
+  const { user } = useAuth();
 
   // Something heavy came up: the summary shows the helplines instead.
   if (summary?.kind === "support") return null;
@@ -42,6 +54,7 @@ export function JournalSuggestions({
   const content = TOPIC_CONTENT[topic];
   const label = km ? content.km : content.en;
   const items = suggestionsFor(topic);
+  const group = matchGroup(groups, topic, user?.role);
   const hardDays = new Set(
     entries.filter((entry) => entry.mood === "Not Good" || entry.mood === "Very difficult").map((entry) => entry.date),
   ).size;
@@ -102,6 +115,8 @@ export function JournalSuggestions({
         {items.map((item) => (
           <SuggestionRow key={item.id} item={item} km={km} />
         ))}
+
+        {group && <GroupRow group={group} km={km} />}
 
         {!hardWeek && professionalBlock}
       </div>

@@ -3,7 +3,10 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { BookOpen, Check, Lightbulb, Plus, Wind, type LucideIcon } from "lucide-react";
+import { BookOpen, Check, Lightbulb, Plus, UsersRound, Wind, type LucideIcon } from "lucide-react";
+import { groupChatHref, type ApiGroup } from "../../community/group-api";
+import { topicOf, type GroupTopic } from "../../community/group-topics";
+import type { UserRole } from "@/lib/auth";
 import { ALL_LESSONS } from "../learn/learn-data";
 import { ALL_TIPS } from "../tips/tips-data";
 import { ALL_PRACTICES } from "../practice/practice-data";
@@ -119,6 +122,92 @@ export function useProfessionals(): ProfessionalCard[] {
   }, []);
 
   return professionals;
+}
+
+// Support groups (Community) for each help topic. Trauma has none: sharing
+// hard experiences in a group can hurt, so a professional comes first.
+const GROUP_TOPIC: Record<HelpTopic, GroupTopic | null> = {
+  stress: "stress",
+  anxiety: "anxiety",
+  sleep: "sleep",
+  low_mood: "depression",
+  burnout: "burnout",
+  relationships: "general",
+  loneliness: "general",
+  self_esteem: "self_growth",
+  trauma: null,
+};
+
+/** A real, open support group to suggest. */
+export type GroupSuggestion = { name: string; nameKm: string; href: string; joined: boolean };
+
+/** Groups from GET /api/community/groups. Empty until loaded, when signed out or on error. */
+export function useSupportGroups(): ApiGroup[] {
+  const [groups, setGroups] = useState<ApiGroup[]>([]);
+
+  useEffect(() => {
+    let active = true;
+    fetch("/api/community/groups", { cache: "no-store" })
+      .then((response) => (response.ok ? response.json() : null))
+      .then((data: { groups?: ApiGroup[] } | null) => {
+        if (active && data?.groups) setGroups(data.groups);
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  return groups;
+}
+
+/**
+ * The group for a topic: the one the person is in, or else the open group
+ * with room and the most members. Null when there is none, so nothing shows.
+ */
+export function matchGroup(groups: ApiGroup[], topic: HelpTopic, role: UserRole | undefined): GroupSuggestion | null {
+  const groupTopic = GROUP_TOPIC[topic];
+  if (!groupTopic) return null;
+  const open = groups.filter((group) => group.status === "active" && topicOf(group.concern) === groupTopic);
+  const joined = open.find((group) => group.isJoined);
+  const pick =
+    joined ?? open.filter((group) => group.membersCount < group.maxMembers).sort((a, b) => b.membersCount - a.membersCount)[0];
+  if (!pick) return null;
+  return {
+    name: pick.name,
+    nameKm: pick.nameKm || pick.name,
+    joined: Boolean(joined),
+    // /community?group=<id> opens the group's details with Join.
+    href: joined ? groupChatHref(role, pick.id) : `/community?group=${pick.id}`,
+  };
+}
+
+/** A support group row, next to the lesson, tip and practice. */
+export function GroupRow({ group, km }: { group: GroupSuggestion; km: boolean }) {
+  return (
+    <div className="flex items-center gap-3 rounded-2xl border border-[#1f6f5b]/10 bg-white/80 p-3">
+      <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[#dff3ee] text-[#1f6f5b]">
+        <UsersRound size={18} aria-hidden="true" />
+      </span>
+      <Link href={group.href} className="min-w-0 flex-1 hover:underline">
+        <span className="block text-[10px] font-semibold uppercase tracking-wider text-[#6b7280]">
+          {km ? "ក្រុមគាំទ្រ (Support group)" : "Support group"}
+        </span>
+        <span className="block text-sm font-semibold leading-snug text-[#111827]">{km ? group.nameKm : group.name}</span>
+        <span className="block text-xs text-[#4b5563]">
+          {km
+            ? "អ្នកដទៃដែលមានអារម្មណ៍ដូចគ្នា។ ការអានដោយមិនសរសេរក៏បានដែរ។"
+            : "Others who feel the same. Reading without writing is fine."}
+        </span>
+      </Link>
+      <Link
+        href={group.href}
+        className="inline-flex min-h-9 shrink-0 items-center rounded-full border border-[#1f6f5b]/25 bg-white px-3 text-xs font-semibold text-[#1f6f5b] transition-colors hover:bg-[#f2faf7]"
+      >
+        {group.joined ? (km ? "បើកការជជែក" : "Open chat") : km ? "មើលក្រុម" : "See group"}
+      </Link>
+    </div>
+  );
 }
 
 /** Up to 2 professionals with a specialty for the topic. UP only (free for UP students) first, then free ones. */

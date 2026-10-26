@@ -28,14 +28,19 @@ import { BottomNav } from "../../components/bottom-nav";
 import { TopHeader } from "../../components/top-header";
 import { LanguageQuickToggle, useLanguage } from "../../_components/language-provider";
 import { GetHelpSection } from "../../_components/get-help-section";
+import { useAuth } from "../../_components/auth-provider";
 import {
+  GroupRow,
   ProfessionalBlock,
   SuggestionRow,
+  matchGroup,
   matchProfessionals,
   suggestionsFor,
   useProfessionals,
+  useSupportGroups,
 } from "../../_components/topic-help/topic-help";
 import { cambodiaDay } from "@/lib/mood";
+import { CHECK_PROGRAMS, PROGRAMS, PROGRAM_LEVELS } from "../../_components/two-week/two-week-data";
 import { HELP_CONTENT, type HelpTopic } from "@/lib/wellbeing-topics";
 import {
   LEVEL_LABELS,
@@ -71,7 +76,17 @@ type View =
   | { kind: "home" }
   | { kind: "questions"; type: SymptomCheckType; index: number; answers: Record<string, number> }
   | { kind: "safety"; saved: SymptomCheckSavedResponse }
-  | { kind: "result"; saved: SymptomCheckSavedResponse };
+  | { kind: "result"; saved: SymptomCheckSavedResponse; reopened?: boolean };
+
+/**
+ * A saved result opened again from Past checks, with its recommendations.
+ * The active journey belongs only to the newest check of that type.
+ */
+function reopenResult(data: SymptomChecksResponse, check: SymptomCheckDto): View {
+  const newest = data.checks.find((item) => item.type === check.type)?.id === check.id;
+  const journey = newest ? (data.journeys.find((item) => item.concern === check.type) ?? null) : null;
+  return { kind: "result", saved: { check, journey }, reopened: true };
+}
 
 const TOPIC: Record<SymptomCheckType, Pair> = {
   depression: { en: "low mood", km: "អារម្មណ៍ធ្លាក់ចុះ" },
@@ -172,6 +187,31 @@ export default function SymptomCheckPage() {
     window.scrollTo({ top: 0 });
   }, [view.kind]);
 
+  // Links into the page, read once the checks have loaded:
+  // ?check=<type> starts that check (for example from a 2 week program), and
+  // ?result=<check id> opens that saved result again (see the next effect).
+  const linkRead = useRef(false);
+  useEffect(() => {
+    if (linkRead.current || load.status !== "ready") return;
+    linkRead.current = true;
+    const params = new URLSearchParams(window.location.search);
+    const saved = load.data.checks.find((check) => check.id === params.get("result"));
+    const type = SYMPTOM_CHECK_TYPES.find((item) => item === params.get("check"));
+    window.history.replaceState(null, "", window.location.pathname);
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- runs once, when the checks have loaded
+    if (saved) setView(reopenResult(load.data, saved));
+    else if (type && (!km || QUESTIONNAIRES[type].khmerReady)) setView({ kind: "questions", type, index: 0, answers: {} });
+  }, [load, km]);
+
+  // While a result is open, its id stays in the address, so going Back from a
+  // lesson, tip or professional it suggested shows the same result again.
+  // Only the random check id is in the address, never the level or answers.
+  useEffect(() => {
+    if (!linkRead.current) return;
+    const url = view.kind === "result" ? `${window.location.pathname}?result=${view.saved.check.id}` : window.location.pathname;
+    if (`${window.location.pathname}${window.location.search}` !== url) window.history.replaceState(null, "", url);
+  }, [view]);
+
   const start = (type: SymptomCheckType) => {
     setSaveError(false);
     setView({ kind: "questions", type, index: 0, answers: {} });
@@ -265,6 +305,7 @@ export default function SymptomCheckPage() {
               onStart={start}
               onRetry={refresh}
               onExplain={() => setExplainOpen(true)}
+              onOpenResult={(check) => load.status === "ready" && setView(reopenResult(load.data, check))}
             />
           )}
 
@@ -293,6 +334,7 @@ export default function SymptomCheckPage() {
               km={km}
               tx={tx}
               saved={view.saved}
+              reopened={view.reopened ?? false}
               onDone={() => setView({ kind: "home" })}
               onExplain={() => setExplainOpen(true)}
               onStart={start}
@@ -321,6 +363,7 @@ function HomeView({
   onStart,
   onRetry,
   onExplain,
+  onOpenResult,
 }: {
   km: boolean;
   tx: (text: Text) => string;
@@ -328,6 +371,7 @@ function HomeView({
   onStart: (type: SymptomCheckType) => void;
   onRetry: () => void;
   onExplain: () => void;
+  onOpenResult: (check: SymptomCheckDto) => void;
 }) {
   const data = load.status === "ready" ? load.data : null;
   const today = load.status === "ready" ? load.today : "";
@@ -522,16 +566,28 @@ function HomeView({
               label={km ? "តើសញ្ញាទាំងនេះមានន័យអ្វី?" : "What do the signs mean?"}
             />
           </div>
-          <ul className="divide-y divide-arom-border/60 rounded-2xl border border-arom-border bg-white">
+          <p className="-mt-1 text-xs text-ink-muted">
+            {km ? "ចុចលើលទ្ធផល ដើម្បីមើលវា និងអ្វីដែលអាចជួយម្តងទៀត។" : "Tap a result to see it again, with what can help."}
+          </p>
+          <ul className="divide-y divide-arom-border/60 overflow-hidden rounded-2xl border border-arom-border bg-white">
             {data.checks.slice(0, 10).map((check) => (
-              <li key={check.id} className="flex items-center justify-between gap-3 px-4 py-3">
-                <span className="min-w-0">
-                  <span className="block text-sm font-medium text-ink">{tx(QUESTIONNAIRES[check.type].name)}</span>
-                  <span className="block text-xs text-ink-muted">{formatDay(cambodiaDay(Date.parse(check.createdAt)), km)}</span>
-                </span>
-                <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${LEVEL_STYLES[check.level]}`}>
-                  {tx(LEVEL_LABELS[check.level])}
-                </span>
+              <li key={check.id}>
+                <button
+                  type="button"
+                  onClick={() => onOpenResult(check)}
+                  className={`group flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition-colors hover:bg-arom-wash ${focusRing} focus-visible:-outline-offset-2`}
+                >
+                  <span className="min-w-0">
+                    <span className="block text-sm font-medium text-ink">{tx(QUESTIONNAIRES[check.type].name)}</span>
+                    <span className="block text-xs text-ink-muted">{formatDay(cambodiaDay(Date.parse(check.createdAt)), km)}</span>
+                  </span>
+                  <span className="flex shrink-0 items-center gap-1.5">
+                    <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${LEVEL_STYLES[check.level]}`}>
+                      {tx(LEVEL_LABELS[check.level])}
+                    </span>
+                    <ChevronRight size={16} className="text-ink-muted group-hover:text-arom" aria-hidden="true" />
+                  </span>
+                </button>
               </li>
             ))}
           </ul>
@@ -685,6 +741,7 @@ function ResultView({
   km,
   tx,
   saved,
+  reopened,
   onDone,
   onExplain,
   onStart,
@@ -692,6 +749,7 @@ function ResultView({
   km: boolean;
   tx: (text: Text) => string;
   saved: SymptomCheckSavedResponse;
+  reopened: boolean;
   onDone: () => void;
   onExplain: () => void;
   onStart: (type: SymptomCheckType) => void;
@@ -706,7 +764,10 @@ function ResultView({
     <div className="mt-3 space-y-5 animate-in fade-in duration-200">
       <div className="rounded-3xl border border-arom-border bg-white p-5 shadow-card sm:p-6">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <span className="text-sm font-medium text-ink-muted">{tx(QUESTIONNAIRES[check.type].name)}</span>
+          <span className="text-sm font-medium text-ink-muted">
+            {tx(QUESTIONNAIRES[check.type].name)}
+            {reopened && ` · ${formatDay(cambodiaDay(Date.parse(check.createdAt)), km)}`}
+          </span>
           <span className={`rounded-full px-3 py-1 text-xs font-semibold ${LEVEL_STYLES[check.level]}`}>
             {tx(LEVEL_LABELS[check.level])}
           </span>
@@ -734,9 +795,15 @@ function ResultView({
         </div>
       )}
 
+      <ProgramOffer km={km} check={check} />
+
       <NextSteps km={km} check={check} journey={journey} professional={professional} />
 
-      {(check.level === "high" || QUESTIONNAIRES[check.type].alwaysShowHelp) && !check.safetyConcern && <GetHelpSection />}
+      {/* After a safety answer the helplines came first, on their own screen.
+          A result opened again from Past checks skips that screen, so it shows them here. */}
+      {(check.safetyConcern
+        ? reopened
+        : check.level === "high" || QUESTIONNAIRES[check.type].alwaysShowHelp) && <GetHelpSection />}
 
       <p className="flex items-start gap-2 rounded-2xl border border-arom-border bg-white/70 px-4 py-3 text-xs leading-5 text-ink-muted">
         <Lock size={15} className="mt-0.5 shrink-0 text-arom" aria-hidden="true" />
@@ -751,6 +818,39 @@ function ResultView({
         {km ? "រួចរាល់" : "Done"}
       </button>
     </div>
+  );
+}
+
+// A 2 week program for Some and Clear signs (BACKEND-HANDOFF.md section 36).
+// Not offered with a safety answer, where helplines and professionals come first.
+function ProgramOffer({ km, check }: { km: boolean; check: SymptomCheckDto }) {
+  const programs = CHECK_PROGRAMS[check.type] ?? [];
+  if (programs.length === 0 || !PROGRAM_LEVELS.includes(check.level) || check.safetyConcern) return null;
+
+  return (
+    <section aria-labelledby="program-offer" className="rounded-3xl border border-arom/30 bg-arom-wash p-5 sm:p-6">
+      <h2 id="program-offer" className="flex items-center gap-2 text-base font-semibold text-arom-deep">
+        <CalendarCheck size={18} aria-hidden="true" />
+        {km ? "វគ្គ ២ សប្តាហ៍អាចជួយបាន" : "A 2 week program can help"}
+      </h2>
+      <p className="mt-1.5 text-sm leading-6 text-ink">
+        {km
+          ? "ជំហានតូចមួយរៀងរាល់ថ្ងៃ រយៈពេល ២ សប្តាហ៍ ប្រហែល ១០ នាទីក្នុងមួយថ្ងៃ។ នៅថ្ងៃទី ១៤ អ្នកពិនិត្យម្តងទៀត ដើម្បីមើលអ្វីដែលបានផ្លាស់ប្តូរ។"
+          : "One small step a day for 2 weeks, about 10 minutes a day. On day 14, you check again to see what changed."}
+      </p>
+      <div className="mt-3 grid gap-2">
+        {programs.map((id) => (
+          <Link
+            key={id}
+            href={`/mindguide/programs/${id}`}
+            className={`flex min-h-12 items-center justify-between gap-3 rounded-xl bg-arom px-4 text-sm font-semibold text-white transition-colors hover:bg-arom-deep ${focusRing}`}
+          >
+            <span>{km ? PROGRAMS[id].name.km : PROGRAMS[id].name.en}</span>
+            <ChevronRight size={18} aria-hidden="true" />
+          </Link>
+        ))}
+      </div>
+    </section>
   );
 }
 
@@ -801,7 +901,11 @@ function NextSteps({
   const topic = topics.includes(chosen) ? chosen : topics[0];
   const content = HELP_CONTENT[topic];
   const professionals = useProfessionals();
+  const groups = useSupportGroups();
+  const { user } = useAuth();
   const items = suggestionsFor(topic);
+  // A group chat is not crisis help: after a safety answer, helplines and professionals only.
+  const group = check.safetyConcern ? null : matchGroup(groups, topic, user?.role);
   // Strong signs, a professional suggested after 2 weeks, or trauma: professionals come first.
   const professionalsFirst = professional || check.level === "high" || topic === "trauma";
 
@@ -859,6 +963,8 @@ function NextSteps({
         {items.map((item) => (
           <SuggestionRow key={item.id} item={item} km={km} />
         ))}
+
+        {group && <GroupRow group={group} km={km} />}
 
         {!professionalsFirst && professionalBlock}
       </div>
