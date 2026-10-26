@@ -1,5 +1,28 @@
 # AROM: Change Report
 
+## 27 Oct 2026: Voice Messages Are Louder and Even
+
+Commit pending. No migration. Frontend only.
+
+**Why.** Voice messages were still hard to hear, even after 18 Oct when quiet words stopped being cut. Phone and laptop microphones record speech at a low level, and the file was sent as it came in, so on a phone speaker the voice was faint and soft words were lost.
+
+**What changed for users:**
+- **Louder voice messages:** new voice messages in private chats, clinic chats and group chats are recorded at a fuller volume.
+- **Even volume:** soft words come up and loud words come down, so a whole message can be heard at one volume setting.
+- **Less rumble:** low hum (fans, traffic, handling the phone) is cut before recording.
+- Messages sent before this change stay as they were.
+
+**What changed for the team:**
+- **New `app/_components/messages/loud-microphone.ts`:** opens the microphone (noise suppression and echo cancellation still off, gain control on, mono) and runs it through Web Audio: an 80 Hz high pass filter, a compressor (threshold -36 dB, ratio 4, with its built in make up gain) and a 1.5x gain. The recorder records that processed stream. If Web Audio is not available, it falls back to the plain microphone.
+- **`chat-thread.tsx` and `use-voice-recorder.ts`** (group chats) both use it, so all voice messages sound the same. Upload size and format are unchanged.
+
+**What to re-test:**
+1. On a phone, open a private chat and record a sentence with one word said softly and one said loudly. Play the preview: both are clear at the same volume, with no crackle.
+2. Send it, then play it on the other account's phone with the volume at about half: it is easy to hear.
+3. Do the same in a group chat and in a clinic chat.
+4. Test on iPhone Safari as well as Android Chrome: recording starts on the first tap and the preview plays.
+5. Deny the microphone: the "Allow the microphone" message still shows.
+
 ## 26 Oct 2026: Longer Session Notes, SOAP Format and Folding Notes
 
 Commit `cccacbf`, merged in PR #39 (`3a13338`). Migration `20261026000600_session_note_soap.sql` applied 26 Oct.

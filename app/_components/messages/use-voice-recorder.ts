@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { MAX_VOICE_SECONDS } from "@/lib/messages";
+import { openLoudMicrophone } from "./loud-microphone";
 
 export type VoiceRecorderState =
   | { phase: "idle" }
@@ -9,9 +10,8 @@ export type VoiceRecorderState =
   | { phase: "preview"; url: string; blob: Blob; seconds: number };
 
 /**
- * Records a voice message, up to MAX_VOICE_SECONDS, with the same microphone
- * settings as the private chat (chat-thread.tsx): noise suppression and echo
- * cancellation off, because they cut quiet words to silence; gain control on.
+ * Records a voice message, up to MAX_VOICE_SECONDS, through the same levelled,
+ * louder microphone as the private chat (see loud-microphone.ts).
  */
 export function useVoiceRecorder() {
   const [state, setState] = useState<VoiceRecorderState>({ phase: "idle" });
@@ -40,10 +40,8 @@ export function useVoiceRecorder() {
       return;
     }
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: { noiseSuppression: false, echoCancellation: false, autoGainControl: true },
-      });
-      const media = new MediaRecorder(stream, { audioBitsPerSecond: 96_000 });
+      const microphone = await openLoudMicrophone();
+      const media = new MediaRecorder(microphone.stream, { audioBitsPerSecond: 96_000 });
       chunksRef.current = [];
       secondsRef.current = 0;
       cancelledRef.current = false;
@@ -51,7 +49,7 @@ export function useVoiceRecorder() {
         if (event.data.size > 0) chunksRef.current.push(event.data);
       };
       media.onstop = () => {
-        stream.getTracks().forEach((track) => track.stop());
+        microphone.close();
         if (cancelledRef.current || chunksRef.current.length === 0) {
           setState({ phase: "idle" });
           return;

@@ -4,6 +4,7 @@ import { FileText, ImageOff, LifeBuoy, MessageSquareText, Mic, Paperclip, Pause,
 import { ATTACHMENT_ACCEPT, FILE_TYPES, IMAGE_TYPES, MAX_FILE_BYTES } from "@/lib/messages";
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { SuggestionCard } from "../sessions/suggestion-card";
+import { openLoudMicrophone } from "./loud-microphone";
 import {
   MAX_QUICK_REPLIES,
   MAX_QUICK_REPLY,
@@ -343,14 +344,10 @@ export function ChatThreadView({
       return;
     }
     try {
-      // Noise suppression and echo cancellation are made for calls and cut quiet
-      // words to silence in a recording, so they are off. Gain control keeps
-      // soft and loud speech at an even level.
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: { noiseSuppression: false, echoCancellation: false, autoGainControl: true },
-      });
+      // Levelled and made louder before recording, see loud-microphone.ts.
+      const microphone = await openLoudMicrophone();
       // About 1.4 MB for 2 minutes, well under MAX_VOICE_BYTES.
-      const media = new MediaRecorder(stream, { audioBitsPerSecond: 96_000 });
+      const media = new MediaRecorder(microphone.stream, { audioBitsPerSecond: 96_000 });
       chunksRef.current = [];
       secondsRef.current = 0;
       cancelledRef.current = false;
@@ -358,7 +355,7 @@ export function ChatThreadView({
         if (event.data.size > 0) chunksRef.current.push(event.data);
       };
       media.onstop = () => {
-        stream.getTracks().forEach((track) => track.stop());
+        microphone.close();
         if (cancelledRef.current || chunksRef.current.length === 0) {
           setRecorder({ phase: "idle" });
           return;
