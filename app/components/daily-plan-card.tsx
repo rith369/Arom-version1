@@ -16,6 +16,7 @@ import {
   isDoneToday,
   isDueToday,
   mindguideOption,
+  PROGRAM_HOME_TITLE,
   taskHref,
   taskTitle,
   toggleCheckIn,
@@ -235,7 +236,13 @@ export function DailyPlanCard() {
       const from = km ? professional?.kmName || professional?.name || "អ្នកជំនាញរបស់អ្នក" : professional?.name || "your professional";
       return {
         id: task.id,
-        title: taskTitle(task, km),
+        // A 2 week program never names its topic on Home.
+        title:
+          mindguideOption(task)?.type === "program"
+            ? km
+              ? PROGRAM_HOME_TITLE.km
+              : PROGRAM_HOME_TITLE.en
+            : taskTitle(task, km),
         subtitle: task.note || (km ? "ពីផែនការថែទាំរបស់អ្នក" : "From your care plan"),
         icon: careIcon(task),
         href: taskHref(task),

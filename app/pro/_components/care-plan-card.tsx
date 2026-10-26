@@ -105,6 +105,8 @@ export function AddTaskDialog({ clientId, clientName, bookingId, today, onClose 
   const close = () => setClosing(true);
 
   const selectedOption = MINDGUIDE_OPTIONS.find((item) => `${item.type}:${item.id}` === itemKey);
+  // A 2 week program is done once, when the client starts it; the program has its own daily steps.
+  const isProgram = kind === 'mindguide' && selectedOption?.type === 'program';
 
   const chooseKind = (next: CareTaskKind) => {
     setKind(next);
@@ -134,7 +136,7 @@ export function AddTaskDialog({ clientId, clientName, bookingId, today, onClose 
         mindguide: kind === 'mindguide' && option ? { type: option.type, itemId: option.id } : null,
         title: kind === 'mindguide' ? '' : title.trim(),
         note: note.trim(),
-        repeat: kind === 'goal' || repeat === 'once' ? { type: 'once' } : { type: 'days', days: repeat === 'daily' ? EVERY_DAY : [...days].sort((a, b) => a - b) },
+        repeat: kind === 'goal' || repeat === 'once' || isProgram ? { type: 'once' } : { type: 'days', days: repeat === 'daily' ? EVERY_DAY : [...days].sort((a, b) => a - b) },
         endDate: endDate || null,
         reminderTime: kind === 'goal' ? null : reminderTime || null,
       },
@@ -169,7 +171,7 @@ export function AddTaskDialog({ clientId, clientName, bookingId, today, onClose 
             onChoose={(type, id) => {
               if (!MINDGUIDE_OPTIONS.some((item) => item.type === type && item.id === id)) return;
               setItemKey(`${type}:${id}`);
-              // A practice usually repeats; a lesson or tip is done once.
+              // A practice usually repeats; a lesson, tip or program is done once.
               setRepeat(type === 'practice' ? 'daily' : 'once');
               setError('');
               setBrowsing(false);
@@ -251,7 +253,12 @@ export function AddTaskDialog({ clientId, clientName, bookingId, today, onClose 
             </button>
           )}
           <p className="mt-1.5 text-xs text-ink-muted">
-            {t('មើលមេរៀន លំហាត់ និងគន្លឹះ ដូចអ្នកប្រើឃើញ។ មានតែមាតិកាដែលបានផ្សព្វផ្សាយប៉ុណ្ណោះ។', 'See lessons, practices and tips the way users do. Only published items can be chosen.')}
+            {isProgram
+              ? t(
+                  'អតិថិជនចាប់ផ្តើមវគ្គដោយខ្លួនឯង ដោយមិនចាំបាច់ធ្វើការពិនិត្យជាមុន។ កិច្ចការនេះរួចរាល់នៅពេលពួកគេចាប់ផ្តើម។ នៅលើទំព័រដើម វាបង្ហាញថា "ចាប់ផ្តើមវគ្គ ២ សប្តាហ៍របស់អ្នក" ដោយមិនដាក់ប្រធានបទ។',
+                  'The client starts the program themselves, with no check needed first. This task is done when they start. On their Home it shows as "Start your 2 week program", without the topic.',
+                )
+              : t('មើលមេរៀន លំហាត់ គន្លឹះ និងវគ្គ ២ សប្តាហ៍ ដូចអ្នកប្រើឃើញ។ មានតែមាតិកាដែលបានផ្សព្វផ្សាយប៉ុណ្ណោះ។', 'See lessons, practices, tips and 2 week programs the way users do. Only published items can be chosen.')}
           </p>
         </div>
       ) : (
@@ -296,7 +303,7 @@ export function AddTaskDialog({ clientId, clientName, bookingId, today, onClose 
         </span>
       </label>
 
-      {kind !== 'goal' && (
+      {kind !== 'goal' && !isProgram && (
         <fieldset className="mt-3">
           <legend className="text-sm font-semibold text-ink">{t('ញឹកញាប់ប៉ុណ្ណា', 'How often')}</legend>
           <div className="mt-2 flex flex-wrap gap-2">

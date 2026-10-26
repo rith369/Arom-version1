@@ -312,7 +312,7 @@ const newTaskSchema = z
     kind: z.enum(['mindguide', 'mission', 'goal', 'reminder']),
     mindguide: z
       .object({
-        type: z.enum(['lesson', 'tip', 'practice']),
+        type: z.enum(['lesson', 'tip', 'practice', 'program']),
         itemId: z.string().min(1).max(100),
       })
       .nullable(),

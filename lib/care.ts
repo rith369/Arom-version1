@@ -1,6 +1,7 @@
 import { ALL_LESSONS } from '@/app/_components/learn/learn-data';
 import { ALL_PRACTICES } from '@/app/_components/practice/practice-data';
 import { ALL_TIPS } from '@/app/_components/tips/tips-data';
+import { PROGRAMS, TWO_WEEK_PROGRAMS } from '@/app/_components/two-week/two-week-data';
 
 // Care tasks a professional gives a client between sessions (BACKEND-HANDOFF.md
 // section 18). They show in the client's "Your Plan For Today". The client
@@ -8,7 +9,8 @@ import { ALL_TIPS } from '@/app/_components/tips/tips-data';
 // shares it. Types and rules shared by the browser and the API.
 
 export type CareTaskKind = 'mindguide' | 'mission' | 'goal' | 'reminder';
-export type MindGuideType = 'lesson' | 'tip' | 'practice';
+// program: a 2 week program (section 36), done once when the client starts it.
+export type MindGuideType = 'lesson' | 'tip' | 'practice' | 'program';
 // 1 is Monday, 7 is Sunday (same as the professional schedule).
 export type CareWeekday = 1 | 2 | 3 | 4 | 5 | 6 | 7;
 
@@ -46,8 +48,8 @@ export const KIND_LABELS: Record<CareTaskKind, { en: string; km: string; hint: s
   mindguide: {
     en: 'MindGuide',
     km: 'MindGuide',
-    hint: 'A lesson, tip or practice from MindGuide.',
-    kmHint: 'មេរៀន គន្លឹះ ឬលំហាត់ពី MindGuide។',
+    hint: 'A lesson, tip, practice or 2 week program from MindGuide.',
+    kmHint: 'មេរៀន គន្លឹះ លំហាត់ ឬវគ្គ ២ សប្តាហ៍ពី MindGuide។',
   },
   mission: {
     en: 'Mission',
@@ -120,13 +122,26 @@ export const MINDGUIDE_OPTIONS: MindGuideOption[] = [
     kmDuration: item.kmDuration ?? item.duration,
     href: `/mindguide/practice?open=${item.id}`,
   })),
+  ...TWO_WEEK_PROGRAMS.map((id) => ({
+    type: 'program' as const,
+    id,
+    title: PROGRAMS[id].name.en,
+    kmTitle: PROGRAMS[id].name.km,
+    duration: '14 days',
+    kmDuration: '១៤ ថ្ងៃ',
+    href: `/mindguide/programs/${id}`,
+  })),
 ];
 
 export const MINDGUIDE_TYPE_LABELS: Record<MindGuideType, { en: string; km: string }> = {
   lesson: { en: 'Lesson', km: 'មេរៀន' },
   tip: { en: 'Tip', km: 'គន្លឹះ' },
   practice: { en: 'Practice', km: 'លំហាត់' },
+  program: { en: '2 week program', km: 'វគ្គ ២ សប្តាហ៍' },
 };
+
+// On Home other people may see the screen, so a program never names its topic there.
+export const PROGRAM_HOME_TITLE = { en: 'Start your 2 week program', km: 'ចាប់ផ្តើមវគ្គ ២ សប្តាហ៍របស់អ្នក' };
 
 export function mindguideOption(task: CareTask) {
   if (!task.mindguide) return undefined;
