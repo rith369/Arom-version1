@@ -1,5 +1,25 @@
 # AROM: Change Report
 
+## 26 Oct 2026: Clinic Page Overview and Services in One Tab
+
+Commit `PENDING`. No migration. Frontend only.
+
+**Why.** The clinic page had four tabs (Overviews, Services, Therapists, Reviews), which felt crowded on a phone and made people tap twice to learn what a clinic is and what it offers. Both answer the same question, so they now live together.
+
+**What changed for users:**
+- **One Overview tab:** About, the two highlights and the list of services (with fee and length) now show together on the first tab.
+- **Fewer tabs:** Overview, Therapists and Reviews (or Overview and Reviews for clinics without therapists in AROM), all in one row.
+- **Label fixed:** "Overviews" is now "Overview".
+
+**What changed for the team:**
+- `app/_components/clinics/clinic-detail-view.tsx`: the `services` tab is gone; its content is a section inside the `overview` tab.
+
+**What to re-test:**
+1. Open `/clinic-hospital` and tap any clinic. The Overview tab shows About, the highlights, then Offered Services.
+2. Open the UP clinic (UP account): tabs are Overview, Therapists, Reviews in one row on a phone.
+3. Open a clinic without therapists: tabs are Overview and Reviews.
+4. Switch to Khmer and check the same.
+
 ## 26 Oct 2026: Support Group Suggestions on the Check Result and in the Journal
 
 Commit `3254efb`. No migration. Frontend only.

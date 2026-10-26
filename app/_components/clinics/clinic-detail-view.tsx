@@ -30,13 +30,13 @@ interface ClinicDetailViewProps {
   me?: { lat: number; lng: number } | null;
 }
 
-type TabType = "overviews" | "services" | "therapists" | "reviews";
+type TabType = "overview" | "therapists" | "reviews";
 
 export function ClinicDetailView({ clinic, onBack, startBooking = false, me = null }: ClinicDetailViewProps) {
   const { language } = useLanguage();
   const isKm = language === "km";
 
-  const [activeTab, setActiveTab] = useState<TabType>("overviews");
+  const [activeTab, setActiveTab] = useState<TabType>("overview");
   // Therapists and times when this clinic takes bookings in AROM (section 34).
   const [booking, setBooking] = useState<ClinicBookingInfo | null>(null);
   const [bookingOpen, setBookingOpen] = useState(startBooking);
@@ -161,13 +161,10 @@ export function ClinicDetailView({ clinic, onBack, startBooking = false, me = nu
 
         {/* Segmented Control Tabs matching Figma */}
         <div
-          className={`grid gap-2 pt-2 border-t border-arom-border/60 ${hasTherapists ? "grid-cols-2 sm:grid-cols-4" : "grid-cols-3"}`}
+          className={`grid gap-2 pt-2 border-t border-arom-border/60 ${hasTherapists ? "grid-cols-3" : "grid-cols-2"}`}
         >
-          <button type="button" onClick={() => setActiveTab("overviews")} className={tabClass("overviews")}>
-            {isKm ? "ទិដ្ឋភាពទូទៅ" : "Overviews"}
-          </button>
-          <button type="button" onClick={() => setActiveTab("services")} className={tabClass("services")}>
-            {isKm ? "សេវាកម្ម" : "Services"}
+          <button type="button" onClick={() => setActiveTab("overview")} className={tabClass("overview")}>
+            {isKm ? "ទិដ្ឋភាពទូទៅ" : "Overview"}
           </button>
           {hasTherapists && (
             <button type="button" onClick={() => setActiveTab("therapists")} className={tabClass("therapists")}>
@@ -181,55 +178,55 @@ export function ClinicDetailView({ clinic, onBack, startBooking = false, me = nu
 
         {/* Tab Content Display */}
         <div className="pt-2">
-          {/* Overviews Tab matching Figma */}
-          {activeTab === "overviews" && (
-            <div className="space-y-3">
-              <h3 className="text-base font-bold text-ink">
-                {isKm ? "អំពីគ្លីនិក" : "About"}
-              </h3>
-              <p className="text-sm leading-relaxed text-ink-muted">
-                {isKm ? clinic.aboutKm : clinic.about}
-              </p>
+          {/* Overview Tab: about, highlights and services together */}
+          {activeTab === "overview" && (
+            <div className="space-y-5">
+              <div className="space-y-3">
+                <h3 className="text-base font-bold text-ink">
+                  {isKm ? "អំពីគ្លីនិក" : "About"}
+                </h3>
+                <p className="text-sm leading-relaxed text-ink-muted">
+                  {isKm ? clinic.aboutKm : clinic.about}
+                </p>
 
-              {/* Highlights */}
-              <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2 border-t border-arom-border/60">
-                <div className="flex items-center gap-2 rounded-xl bg-arom-wash p-2.5 text-xs text-ink">
-                  <CheckCircle2 size={16} className="text-arom shrink-0" />
-                  <span>{isKm ? "បុគ្គលិកមានអាជ្ញាប័ណ្ណត្រឹមត្រូវ" : "Licensed psychologists & counselors"}</span>
-                </div>
-                <div className="flex items-center gap-2 rounded-xl bg-arom-wash p-2.5 text-xs text-ink">
-                  <CheckCircle2 size={16} className="text-arom shrink-0" />
-                  <span>{isKm ? "រក្សាការសម្ងាត់ជូនអ្នកជំងឺកម្រិតខ្ពស់" : "Clinical grade confidentiality"}</span>
+                {/* Highlights */}
+                <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2 border-t border-arom-border/60">
+                  <div className="flex items-center gap-2 rounded-xl bg-arom-wash p-2.5 text-xs text-ink">
+                    <CheckCircle2 size={16} className="text-arom shrink-0" />
+                    <span>{isKm ? "បុគ្គលិកមានអាជ្ញាប័ណ្ណត្រឹមត្រូវ" : "Licensed psychologists & counselors"}</span>
+                  </div>
+                  <div className="flex items-center gap-2 rounded-xl bg-arom-wash p-2.5 text-xs text-ink">
+                    <CheckCircle2 size={16} className="text-arom shrink-0" />
+                    <span>{isKm ? "រក្សាការសម្ងាត់ជូនអ្នកជំងឺកម្រិតខ្ពស់" : "Clinical grade confidentiality"}</span>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
 
-          {/* Services Tab */}
-          {activeTab === "services" && (
-            <div className="space-y-3">
-              <h3 className="text-base font-bold text-ink">
-                {isKm ? "សេវាកម្មដែលផ្តល់ជូន" : "Offered Services"}
-              </h3>
-              <div className="space-y-2.5">
-                {clinic.services.map((svc) => (
-                  <div
-                    key={svc.id}
-                    className="rounded-xl border border-arom-border/70 bg-arom-wash/50 p-3 space-y-1"
-                  >
-                    <div className="flex items-center justify-between text-xs sm:text-sm font-bold text-ink">
-                      <span>{isKm ? svc.nameKm : svc.name}</span>
-                      <span className="text-arom">{svc.fee}</span>
+              {/* Services */}
+              <div className="space-y-3 pt-4 border-t border-arom-border/60">
+                <h3 className="text-base font-bold text-ink">
+                  {isKm ? "សេវាកម្មដែលផ្តល់ជូន" : "Offered Services"}
+                </h3>
+                <div className="space-y-2.5">
+                  {clinic.services.map((svc) => (
+                    <div
+                      key={svc.id}
+                      className="rounded-xl border border-arom-border/70 bg-arom-wash/50 p-3 space-y-1"
+                    >
+                      <div className="flex items-center justify-between text-xs sm:text-sm font-bold text-ink">
+                        <span>{isKm ? svc.nameKm : svc.name}</span>
+                        <span className="text-arom">{svc.fee}</span>
+                      </div>
+                      <p className="text-xs text-ink-muted leading-relaxed">
+                        {isKm ? svc.descriptionKm : svc.description}
+                      </p>
+                      <div className="flex items-center gap-1 text-[11px] font-medium text-arom pt-1">
+                        <Clock size={12} />
+                        <span>{isKm ? svc.durationKm : svc.duration}</span>
+                      </div>
                     </div>
-                    <p className="text-xs text-ink-muted leading-relaxed">
-                      {isKm ? svc.descriptionKm : svc.description}
-                    </p>
-                    <div className="flex items-center gap-1 text-[11px] font-medium text-arom pt-1">
-                      <Clock size={12} />
-                      <span>{isKm ? svc.durationKm : svc.duration}</span>
-                    </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             </div>
           )}
