@@ -734,7 +734,7 @@ The bot needs, for each active task with a `reminderTime`: client id (to find th
 - **Telegram bot:** reads `care_tasks.reminder_time`, `repeat_days`, `start_date`, `end_date`, `stopped_at`, and `care_check_ins` to skip days already ticked. It needs its own server side access (not built).
 - **Tested** on a local Postgres: give each kind, bad input refused, non client and archived client refused, other professional cannot give, stop or read, client ticks today but not tomorrow or 3 days ago or before the start, one tick for a goal, direct inserts refused, professional sees ticks only while shared and loses them when sharing is turned off, admin sees nothing, anon refused.
 
-**2 week program as a care task (26 Oct 2026), migration `20261026000400_care_task_program.sql` (not yet applied, PR `rith/care-task-program`):**
+**2 week program as a care task (26 Oct 2026), migration `20261026000400_care_task_program.sql` (applied 26 Oct, merged in PR #37):**
 
 - `care_tasks.mindguide_type` also accepts `program`; `mindguide_item_id` is the program id (`stress` or `anxiety`, section 36). The API enum and `isPublishedMindGuide()` accept it. No function changes.
 - The professional picks it in Browse MindGuide, tab "2 week programs". It is always a one time task ("How often" is hidden): it is done when the client starts the program. The program itself stays a plan task (section 36).
