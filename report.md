@@ -2,7 +2,7 @@
 
 ## 26 Oct 2026: Longer Session Notes, SOAP Format and Folding Notes
 
-Commit `PENDING`, pull request `rith/session-note-soap`. Migration `20261026000600_session_note_soap.sql` (not yet applied): run it in Supabase before merging.
+Commit `cccacbf`, pull request `rith/session-note-soap`. Migration `20261026000600_session_note_soap.sql` (not yet applied): run it in Supabase before merging.
 
 **Why.** Therapists write a lot after a session. A note could only hold 5,000 characters (about one page, less in Khmer), it was one block of text, and before the next session the part that matters most, what was agreed to do next, was buried at the end of a long note.
 
