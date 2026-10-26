@@ -1,5 +1,31 @@
 # AROM: Change Report
 
+## 26 Oct 2026: ACE Childhood Questions in the Therapist Intake
+
+Commit `40b7925`, pull request `rith/ace-intake`. Migration `20261026000500_ace_intake.sql` (not yet applied): run it in Supabase before merging.
+
+**Why.** EMDR Association Cambodia's intake form includes ACE, 10 yes or no questions about childhood experiences such as abuse, neglect and problems at home. Therapists use it to understand a client's background before the first session. It asks very sensitive things, so it must never be a self check that anyone opens alone. Rith chose to make it part of the intake for a therapist, read only by that therapist.
+
+**What changed for users:**
+- **Professionals:** My profile has a new card, "Childhood experiences (ACE)", with an "Ask my clients" switch (off by default). The client file and the Prepare screen show the client's answers: the ACE score, how many questions were answered, the date, a reminder that it is a count and not a diagnosis, and the answers behind "Show answers".
+- **Clients:** when their professional asks it and a session is coming, My appointments shows an optional card. It explains that some questions are about abuse, that any or all can be skipped, and that only that professional can read the answers. The window has Yes, No and "Rather not say" for each question, and a Get help now link. Clients can change the answers before a session and delete them at any time.
+- **Languages:** English from the original ACE study; Khmer from EMDR Association Cambodia, with their permission.
+
+**What changed for the team:**
+- Migration: `professional_profiles.ask_ace`, table `ace_intakes` with no policies (only security definer functions read or write it), functions `set_ask_ace`, `my_ask_ace`, `my_ace_intakes`, `save_ace_intake`, `delete_ace_intake`, `pro_client_ace_safe`.
+- API: `/api/ace`, `/api/pro/ace`, `/api/pro/clients/:clientId/ace`. Code in `lib/ace.ts` and `lib/controllers/ace-controller.ts`.
+- `BACKEND-HANDOFF.md` section 37. The Khmer questions and the new Khmer labels need EMDR Association Cambodia's proofreading.
+
+**What to re-test:**
+1. Run the migration in Supabase, then open the preview.
+2. As a professional, open My profile and turn on "Ask my clients".
+3. As a client with an upcoming session with that professional, open My appointments: the "Childhood experiences (ACE)" card shows on that session. Open it, answer some questions, leave one empty, and save.
+4. As the professional, open the client file: the card shows the score, "answered 9 of 10", and the answers after "Show answers". Check Prepare for the same session.
+5. As the client, tap "Delete my answers": the professional's card says "Not answered".
+6. Turn the switch off: clients without answers no longer see the card.
+7. As an admin, check that the answers appear nowhere in the admin area.
+8. Repeat in Khmer.
+
 ## 26 Oct 2026: Professionals Can Give a 2 Week Program as a Care Task
 
 Commit `ca0a0ca`, merged in PR #37 (`087694b`). Migration `20261026000400_care_task_program.sql` applied 26 Oct.
