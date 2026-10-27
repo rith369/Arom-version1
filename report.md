@@ -2,7 +2,7 @@
 
 ## 27 Oct 2026: Admin Area Gets a Phone Top Bar and Menu Drawer
 
-Commit `PENDING`. No migration. Frontend only.
+Commit `2ede4d7`. No migration. Frontend only.
 
 **Why.** On a phone, the admin area showed the whole sidebar stacked at the top of every page: the logo, then a long row of 11 menu buttons, then the links, before any content. The professional area already has a clean phone header (menu button, logo, language and account), so the admin area now uses the same pattern. This serves the AROM team when they check reports or bookings from a phone.
 
