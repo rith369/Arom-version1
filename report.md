@@ -2,7 +2,7 @@
 
 ## 27 Oct 2026: 2 Week Programs Show Which Days Were Done
 
-Commit `PENDING`. No migration. The ticks were already saved; this adds a way to read them.
+Commit `a936b2d`. No migration. The ticks were already saved; this adds a way to read them.
 
 **Why.** The 14 day strip on a program only showed past, today and later, so someone on day 9 could not see which steps they had actually done. Seeing the days done helps people keep going, and makes a missed day easy to spot without making it feel like a failure.
 
