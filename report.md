@@ -2,7 +2,7 @@
 
 ## 27 Oct 2026: Real Clinics and Hospitals Instead of the Fake Ones
 
-Commit `PENDING`. No migration. Frontend only.
+Commit `e181ca7`. No migration. Frontend only.
 
 **Why.** Find Clinic & Hospital showed three made up clinics (Riverside, Harmony Care, Mind & Life) with fake ratings, reviews, fees and photos, labelled "Sample". That looked unfinished, and someone looking for help needs real places they can actually call. AROM is not connected to other clinics yet, so these stay in the code, but every detail is now real and comes from public sources.
 
