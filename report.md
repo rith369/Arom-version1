@@ -2,7 +2,7 @@
 
 ## 27 Oct 2026: Saved Items and Lesson Progress Live in the Account
 
-Commit `PENDING`, pull request. Migration `20261027000100_saved_items_lesson_progress.sql` **not yet applied**: run it before merging.
+Commit `cbb4282`, pull request. Migration `20261027000100_saved_items_lesson_progress.sql` **not yet applied**: run it before merging.
 
 **Why.** Saved lessons, tips, practice and podcasts, and how far someone got in a lesson, were kept only in the browser. They were lost on a new phone, and anyone using the same phone could see what the person saves and how they answered lesson reflections. On a mental health app that is private information, so it now lives in the person's own account, readable only by them.
 
