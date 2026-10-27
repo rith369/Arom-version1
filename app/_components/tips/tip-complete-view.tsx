@@ -4,13 +4,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, Bookmark, Wind } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
-import { useState } from "react";
 import { useLanguage } from "../language-provider";
-import {
-  isTipBookmarked,
-  toggleTipBookmark,
-  type TipItem,
-} from "./tips-data";
+import { toggleSaved } from "../saved/saved-store";
+import { useSavedIds } from "../saved/use-saved";
+import type { TipItem } from "./tips-data";
 
 type TipCompleteViewProps = {
   tip: TipItem;
@@ -28,11 +25,10 @@ export function TipCompleteView({
   const { language } = useLanguage();
   const shouldReduceMotion = useReducedMotion();
   const km = language === "km";
-  const [saved, setSaved] = useState(() => isTipBookmarked(tip.id));
+  const saved = useSavedIds("tip").includes(tip.id);
 
   const handleSaveToggle = () => {
-    const nextState = toggleTipBookmark(tip.id);
-    setSaved(nextState);
+    toggleSaved("tip", tip.id);
   };
 
   return (

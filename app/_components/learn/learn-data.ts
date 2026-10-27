@@ -1,3 +1,6 @@
+import type { LessonProgress } from "@/lib/saved";
+import { toggleSaved } from "../saved/saved-store";
+
 export type TopicCategory =
   | "All"
   | "Basics"
@@ -85,19 +88,6 @@ export type Lesson = {
   outcomes: { en: string; km?: string }[];
   sections: LessonSection[];
   references: ReferenceItem[];
-};
-
-export type SavedItem = {
-  id: string;
-  type: "lesson" | "tip" | "podcast";
-  title: string;
-  kmTitle?: string;
-  category: string;
-  duration: string;
-  progressPercent?: number;
-  thumbnail: string;
-  href?: string;
-  dateSaved?: string;
 };
 
 export const TOPIC_CATEGORIES: { id: TopicCategory; label: string; kmLabel: string }[] = [
@@ -8225,51 +8215,7 @@ export const ALL_LESSONS: Lesson[] = [
   },
 ];
 
-export const INITIAL_SAVED_ITEMS: SavedItem[] = [
-  {
-    id: "learn-about-stress",
-    type: "lesson",
-    title: "Learn About Stress",
-    kmTitle: "ស្វែងយល់ពីភាពតានតឹង (Stress)",
-    category: "Stress",
-    duration: "6 min",
-    progressPercent: 60,
-    thumbnail: "/mindguide/category-stress.png",
-  },
-  {
-    id: "tip-slow-breathing",
-    type: "tip",
-    title: "1-Minute Calming Breath",
-    kmTitle: "ដកដង្ហើមស្ងប់ចិត្ត ១ នាទី (1-Min Breath)",
-    category: "Technique",
-    duration: "1 min",
-    thumbnail: "/mindguide/icon-11.svg",
-  },
-  {
-    id: "podcast-stress-signals",
-    type: "podcast",
-    title: "Episode 04: Listening to Your Body's Stress Alarm",
-    kmTitle: "ភាគ ០៤៖ ស្តាប់សញ្ញាអាសន្នរបស់រាងកាយ (Body Signals)",
-    category: "Mind & Body",
-    duration: "12 min",
-    thumbnail: "/mindguide/icon-9.svg",
-  },
-];
-
-export const STORAGE_KEYS = {
-  SAVED_ITEMS: "arom_saved_items_v1",
-  LESSON_PROGRESS: "arom_lesson_progress_v1",
-  BOOKMARKS: "arom_bookmarked_lessons_v1",
-};
-
-export type ProgressData = {
-  completedSections: number;
-  totalSections: number;
-  isComplete: boolean;
-  lastVisitedSection: number;
-  quizAnswer?: string;
-  reflectionAnswer?: string;
-};
+export type ProgressData = LessonProgress;
 
 export const EMPTY_LESSON_PROGRESS: ProgressData = {
   completedSections: 0,
@@ -8278,55 +8224,10 @@ export const EMPTY_LESSON_PROGRESS: ProgressData = {
   lastVisitedSection: 1,
 };
 
-// Fired after a bookmark changes, so open screens update (see use-lesson-storage.ts).
-export const BOOKMARKS_UPDATED_EVENT = "arom_bookmarks_updated";
+// Progress is saved with saveLessonProgress (lesson-progress-store.ts) and read
+// with useLessonProgress (use-lesson-storage.ts). Bookmarks are saved items.
 
-export function getLessonProgress(lessonId: string): ProgressData {
-  if (typeof window === "undefined") return EMPTY_LESSON_PROGRESS;
-  try {
-    const raw = window.localStorage.getItem(`${STORAGE_KEYS.LESSON_PROGRESS}_${lessonId}`);
-    return raw ? JSON.parse(raw) : EMPTY_LESSON_PROGRESS;
-  } catch {
-    return EMPTY_LESSON_PROGRESS;
-  }
-}
-
-export function saveLessonProgress(lessonId: string, data: ProgressData): void {
-  if (typeof window === "undefined") return;
-  try {
-    window.localStorage.setItem(`${STORAGE_KEYS.LESSON_PROGRESS}_${lessonId}`, JSON.stringify(data));
-  } catch (err) {
-    console.error("Failed to save lesson progress", err);
-  }
-}
-
-export function isLessonBookmarked(lessonId: string): boolean {
-  if (typeof window === "undefined") return false;
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEYS.BOOKMARKS);
-    if (!raw) return false;
-    const list: string[] = JSON.parse(raw);
-    return list.includes(lessonId);
-  } catch {
-    return false;
-  }
-}
-
+/** Saves the lesson when it is not saved and removes it when it is. Returns the new state. */
 export function toggleLessonBookmark(lessonId: string): boolean {
-  if (typeof window === "undefined") return false;
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEYS.BOOKMARKS);
-    let list: string[] = raw ? JSON.parse(raw) : [];
-    const exists = list.includes(lessonId);
-    if (exists) {
-      list = list.filter((id) => id !== lessonId);
-    } else {
-      list.push(lessonId);
-    }
-    window.localStorage.setItem(STORAGE_KEYS.BOOKMARKS, JSON.stringify(list));
-    window.dispatchEvent(new Event(BOOKMARKS_UPDATED_EVENT));
-    return !exists;
-  } catch {
-    return false;
-  }
+  return toggleSaved("lesson", lessonId);
 }

@@ -17,7 +17,8 @@ import {
 } from "lucide-react";
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { useLanguage } from "../language-provider";
-import { toggleSaved, useSavedIds } from "../saved/saved-store";
+import { toggleSaved } from "../saved/saved-store";
+import { useSavedIds } from "../saved/use-saved";
 import { formatTimestamp, type MindGuidePodcast } from "./podcast-data";
 
 const SPEEDS = [1, 1.25, 1.5, 2] as const;
