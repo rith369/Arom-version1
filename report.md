@@ -2,7 +2,7 @@
 
 ## 27 Oct 2026: One Address for Each MindGuide Library, Design Sandbox Removed
 
-Commit `PENDING`. No migration. Frontend only.
+Commit `8d6ea6d`. No migration. Frontend only.
 
 **Why.** Learn, Tips and Practice each had two addresses (`/learn` and `/mindguide/learn`, and so on) showing the same screen. Links in the app used both, so the back button and the menu could behave differently depending on how someone arrived. The old `/preview` design sandbox, with made up points, gems and streaks, could also be opened by anyone who typed its address.
 
