@@ -2,7 +2,7 @@
 
 ## 27 Oct 2026: EMDRAC Added to Find Clinic & Hospital
 
-Commit `PENDING`. No migration. Frontend only.
+Commit `6a64b22`. No migration. Frontend only.
 
 **Why.** EMDR Association Cambodia (EMDRAC) runs our free UP clinic, but it also has its own clinic in Phnom Penh that anyone can use. People outside UP should be able to find it too.
 
