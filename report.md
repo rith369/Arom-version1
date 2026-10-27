@@ -2,7 +2,7 @@
 
 ## 27 Oct 2026: Real Photo for Khmer Soviet Friendship Hospital
 
-Commit `PENDING`. No migration. Frontend only.
+Commit `f9afda8`. No migration. Frontend only.
 
 **Why.** Rith asked for real photos of the listed clinics and hospitals. Photos on a place's website, Facebook or Google Maps belong to someone, so we only use photos we are allowed to use. Wikimedia Commons has a free photo of Khmer Soviet Friendship Hospital. The other places have no free photo yet.
 
