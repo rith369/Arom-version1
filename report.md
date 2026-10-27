@@ -1,5 +1,33 @@
 # AROM: Change Report
 
+## 27 Oct 2026: Open in Chrome or Safari for Google Sign In Inside Apps
+
+Commit `PENDING`. No migration. Frontend only.
+
+**Why.** When someone opens an AROM link from Messenger, Facebook, Instagram, TikTok, LINE or (sometimes) Telegram, the page opens in that app's own built in browser. Google blocks sign in there ("Error 403: disallowed_useragent"), and that browser does not share the login from Chrome or Safari, so people got stuck. Now they get clear steps to open AROM in their real browser, where Google works and the login stays.
+
+**What changed for users:**
+- **Open in browser notice:** On the login and sign up pages, inside an app browser, the Google button is replaced by a short notice: "Open AROM in Chrome or Safari to use Google". It follows the EN / ខ្មែរ setting.
+- **One tap on Android:** An "Open in Chrome" button opens the same page straight in Chrome.
+- **iPhone:** An "Open in Safari" button tries to open Safari. If the app blocks it, the notice explains how to tap ⋯ or share, then Open in Safari.
+- **Copy link:** A button copies the page link to paste into any browser.
+- **Email still works:** Email and password login works inside these apps as before, and the notice says so.
+- **Normal browsers unchanged:** Chrome, Safari and desktop browsers still show the Google button.
+
+**What changed for the team:**
+- **New `app/_components/auth/in-app-browser.tsx`:** `useInAppBrowser()` reads the user agent (app markers like `FBAN`, `FB_IAB`, `Instagram`, plus Android `; wv)` and iPhone web views without `Safari/`). `OpenInBrowserNotice` shows the steps.
+- **`GoogleButton` swaps itself:** In `google-sign-in.tsx` the button renders the notice when in an app browser, so login and sign up both get it with no form changes.
+- **Khmer copy needs a review** by a native speaker.
+
+**What to re-test:**
+1. Send yourself the `/login` link in Messenger on Android and open it. The notice shows instead of the Google button. Tap Open in Chrome: the login page opens in Chrome, and Google sign in works.
+2. Do the same on an iPhone. Tap Open in Safari. If nothing happens, follow the ⋯ steps.
+3. Tap Copy link and paste it in a browser.
+4. Open `/signup` inside Messenger and check the notice shows there too.
+5. Switch to ខ្មែរ and check the notice is in Khmer.
+6. Open `/login` in normal Chrome, Safari and on desktop: the Google button shows as before.
+7. Open the link in Telegram. If Telegram opens it in Chrome or Safari view, the Google button shows and works. If it opens in its own browser, the notice shows.
+
 ## 27 Oct 2026: 2 Week Programs Show Which Days Were Done
 
 Commit `a936b2d`. No migration. The ticks were already saved; this adds a way to read them.
