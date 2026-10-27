@@ -47,7 +47,9 @@ export type SymptomCheckType =
   | 'loneliness'
   | 'trauma'
   | 'distress'
-  | 'trauma_screen';
+  | 'trauma_screen'
+  | 'work_burnout'
+  | 'body_symptoms';
 export type SymptomLevel = 'none' | 'low' | 'medium' | 'high';
 
 // Mirrors symptom_checks (shared when share_symptom_checks is on).
@@ -142,6 +144,8 @@ export const SYMPTOM_TYPE_LABELS: Record<SymptomCheckType, { en: string; km: str
   trauma: { en: 'Trauma (PCL-5)', km: 'របួសផ្លូវចិត្ត (PCL-5)' },
   distress: { en: 'General distress (K-10)', km: 'បញ្ហាផ្លូវចិត្តទូទៅ (K-10)' },
   trauma_screen: { en: 'Trauma short check (PC-PTSD-5)', km: 'ការពិនិត្យខ្លីអំពីរបួសផ្លូវចិត្ត (PC-PTSD-5)' },
+  work_burnout: { en: 'Work burnout (CBI)', km: 'ភាពអស់កម្លាំងដោយសារការងារ (CBI)' },
+  body_symptoms: { en: 'Body symptoms (PHQ-15)', km: 'រោគសញ្ញាលើរាងកាយ (PHQ-15)' },
 };
 
 export const LEVEL_LABELS: Record<SymptomLevel, { en: string; km: string }> = {

@@ -17,6 +17,8 @@ import { cambodiaDay } from "./mood";
 // - PCL-5, US National Center for PTSD, Weathers et al. 2013 (public domain)
 // - K-10 Kessler Psychological Distress Scale, Kessler et al. 2002 (distress)
 // - PC-PTSD-5, US National Center for PTSD, Prins et al. 2016 (public domain)
+// - Copenhagen Burnout Inventory, work related burnout, Kristensen et al. 2005
+// - PHQ-15, Kroenke, Spitzer and Williams 2002 (body symptoms)
 // The PHQ-9 and GAD-7 Khmer is the wording validated in Cambodia by Steinman
 // et al. 2025, PLOS Mental Health 2(4):e0000228 (S1 and S2 Appendix). The
 // K-10 and PC-PTSD-5 Khmer is EMDR Association Cambodia's, used with their
@@ -31,7 +33,9 @@ export const SYMPTOM_CHECK_TYPES = [
   "anxiety",
   "distress",
   "stress",
+  "body_symptoms",
   "burnout",
+  "work_burnout",
   "wellbeing",
   "loneliness",
   "trauma",
@@ -55,6 +59,8 @@ export interface SymptomQuestion {
   scored: boolean;
   // Positive item (for example "felt confident"): points run the other way.
   reverse?: boolean;
+  // Its own answer options, for checks that mix two answer scales (CBI).
+  options?: AnswerOption[];
 }
 
 export interface AnswerOption {
@@ -82,11 +88,18 @@ export interface Questionnaire {
   intro?: QuestionText;
   // Show Get help now with every result, not only strong ones.
   alwaysShowHelp?: boolean;
+  // Shown with every result of this check, under the level message.
+  resultNote?: QuestionText;
 }
 
 /** How a question or label reads in the current language, English when no Khmer exists. */
 export function textFor(text: QuestionText, km: boolean) {
   return km && text.km ? text.km : text.en;
+}
+
+/** The answer options for one question: its own, or the check's. */
+export function optionsFor(questionnaire: Questionnaire, question: SymptomQuestion) {
+  return question.options ?? questionnaire.options;
 }
 
 const OFTEN_OPTIONS: AnswerOption[] = [
@@ -115,6 +128,39 @@ const phqGadLevel = (score: number): SymptomLevel =>
   score <= 4 ? "none" : score <= 9 ? "low" : score <= 14 ? "medium" : "high";
 
 const sum = (points: number) => points;
+
+// Copenhagen Burnout Inventory answers score 0 to 100 (Kristensen 2005).
+const CBI_FREQUENCY: AnswerOption[] = [
+  { points: 0, label: { en: "Never or almost never" } },
+  { points: 25, label: { en: "Seldom" } },
+  { points: 50, label: { en: "Sometimes" } },
+  { points: 75, label: { en: "Often" } },
+  { points: 100, label: { en: "Always" } },
+];
+
+const CBI_DEGREE: AnswerOption[] = [
+  { points: 0, label: { en: "To a very low degree" } },
+  { points: 25, label: { en: "To a low degree" } },
+  { points: 50, label: { en: "Somewhat" } },
+  { points: 75, label: { en: "To a high degree" } },
+  { points: 100, label: { en: "To a very high degree" } },
+];
+
+// Commonly used CBI bands: under 50 low, 50 to 74 moderate, 75 or more high.
+const cbiLevel = (score: number): SymptomLevel => (score < 50 ? "none" : score < 75 ? "medium" : "high");
+
+const PHQ15_OPTIONS: AnswerOption[] = [
+  { points: 0, label: { en: "Not bothered at all" } },
+  { points: 1, label: { en: "Bothered a little" } },
+  { points: 2, label: { en: "Bothered a lot" } },
+];
+
+// PHQ-15 asks two questions only of some people (periods, sex). Here everyone
+// answers them, and "does not apply" scores 0, as the PHQ-15 scoring does.
+const PHQ15_MAY_NOT_APPLY: AnswerOption[] = [
+  { points: 0, label: { en: "Not bothered at all, or this does not apply to me" } },
+  ...PHQ15_OPTIONS.slice(1),
+];
 
 export const QUESTIONNAIRES: Record<SymptomCheckType, Questionnaire> = {
   depression: {
@@ -304,13 +350,7 @@ export const QUESTIONNAIRES: Record<SymptomCheckType, Questionnaire> = {
     name: { en: "Burnout", km: "ភាពអស់កម្លាំង (Burnout)" },
     description: { en: "6 questions about feeling worn out." },
     prompt: { en: "How often do you feel this way?" },
-    options: [
-      { points: 0, label: { en: "Never or almost never" } },
-      { points: 25, label: { en: "Seldom" } },
-      { points: 50, label: { en: "Sometimes" } },
-      { points: 75, label: { en: "Often" } },
-      { points: 100, label: { en: "Always" } },
-    ],
+    options: CBI_FREQUENCY,
     questions: [
       { id: "cbi_1", scored: true, text: { en: "How often do you feel tired?" } },
       { id: "cbi_2", scored: true, text: { en: "How often are you physically exhausted?" } },
@@ -322,10 +362,71 @@ export const QUESTIONNAIRES: Record<SymptomCheckType, Questionnaire> = {
     maxScore: 100,
     // The score is the average of the 6 answers, from 0 to 100.
     total: (points) => Math.round(points / 6),
-    // Commonly used bands: under 50 low, 50 to 74 moderate, 75 or more high.
-    level: (score) => (score < 50 ? "none" : score < 75 ? "medium" : "high"),
+    level: cbiLevel,
     higherIsBetter: false,
     khmerReady: false,
+  },
+  work_burnout: {
+    type: "work_burnout",
+    instrument: "CBI work related burnout",
+    name: { en: "Work burnout", km: "ភាពអស់កម្លាំងដោយសារការងារ (Work burnout)" },
+    description: { en: "7 questions about how your job wears you out." },
+    intro: {
+      en: "These questions are about your job. If you do not have a job right now, the Burnout check fits you better.",
+    },
+    prompt: { en: "Thinking about your work:" },
+    options: CBI_FREQUENCY,
+    // Kristensen 2005 order. The first 3 are answered by degree, the rest by how often.
+    questions: [
+      { id: "cbiw_1", scored: true, options: CBI_DEGREE, text: { en: "Is your work emotionally exhausting?" } },
+      { id: "cbiw_2", scored: true, options: CBI_DEGREE, text: { en: "Do you feel burnt out because of your work?" } },
+      { id: "cbiw_3", scored: true, options: CBI_DEGREE, text: { en: "Does your work frustrate you?" } },
+      { id: "cbiw_4", scored: true, text: { en: "Do you feel worn out at the end of the working day?" } },
+      { id: "cbiw_5", scored: true, text: { en: "Are you exhausted in the morning at the thought of another day at work?" } },
+      { id: "cbiw_6", scored: true, text: { en: "Do you feel that every working hour is tiring for you?" } },
+      { id: "cbiw_7", scored: true, reverse: true, text: { en: "Do you have enough energy for family and friends during leisure time?" } },
+    ],
+    maxScore: 100,
+    // The score is the average of the 7 answers, from 0 to 100.
+    total: (points) => Math.round(points / 7),
+    level: cbiLevel,
+    higherIsBetter: false,
+    khmerReady: false,
+  },
+  body_symptoms: {
+    type: "body_symptoms",
+    instrument: "PHQ-15",
+    name: { en: "Body symptoms", km: "រោគសញ្ញាលើរាងកាយ (Body symptoms)" },
+    description: { en: "15 questions about pain, tiredness and other body problems. Stress often shows up in the body." },
+    prompt: { en: "During the past 4 weeks, how much have you been bothered by this?" },
+    options: PHQ15_OPTIONS,
+    questions: [
+      { id: "phq15_1", scored: true, text: { en: "Stomach pain" } },
+      { id: "phq15_2", scored: true, text: { en: "Back pain" } },
+      { id: "phq15_3", scored: true, text: { en: "Pain in your arms, legs, or joints (knees, hips, etc.)" } },
+      { id: "phq15_4", scored: true, options: PHQ15_MAY_NOT_APPLY, text: { en: "Menstrual cramps or other problems with your periods" } },
+      { id: "phq15_5", scored: true, text: { en: "Headaches" } },
+      { id: "phq15_6", scored: true, text: { en: "Chest pain" } },
+      { id: "phq15_7", scored: true, text: { en: "Dizziness" } },
+      { id: "phq15_8", scored: true, text: { en: "Fainting spells" } },
+      { id: "phq15_9", scored: true, text: { en: "Feeling your heart pound or race" } },
+      { id: "phq15_10", scored: true, text: { en: "Shortness of breath" } },
+      { id: "phq15_11", scored: true, options: PHQ15_MAY_NOT_APPLY, text: { en: "Pain or problems during sexual intercourse" } },
+      { id: "phq15_12", scored: true, text: { en: "Constipation, loose bowels, or diarrhea" } },
+      { id: "phq15_13", scored: true, text: { en: "Nausea, gas, or indigestion" } },
+      { id: "phq15_14", scored: true, text: { en: "Feeling tired or having low energy" } },
+      { id: "phq15_15", scored: true, text: { en: "Trouble sleeping" } },
+    ],
+    maxScore: 30,
+    total: sum,
+    // Kroenke 2002: 5, 10 and 15 mark low, medium and high body symptoms.
+    level: (score) => (score <= 4 ? "none" : score <= 9 ? "low" : score <= 14 ? "medium" : "high"),
+    higherIsBetter: false,
+    khmerReady: false,
+    resultNote: {
+      en: "Body symptoms can also have a medical cause. If a symptom is new, strong, or does not go away, please see a doctor.",
+      km: "រោគសញ្ញាលើរាងកាយក៏អាចមានមូលហេតុផ្នែកវេជ្ជសាស្ត្រដែរ។ ប្រសិនបើរោគសញ្ញាណាមួយទើបតែកើតមាន ខ្លាំង ឬមិនបាត់ទៅវិញ សូមទៅជួបវេជ្ជបណ្ឌិត។",
+    },
   },
   wellbeing: {
     type: "wellbeing",
@@ -625,15 +726,16 @@ export function scoreSymptomCheck(type: SymptomCheckType, answers: SymptomAnswer
   const byId = new Map(answers.map((answer) => [answer.questionId, answer.value]));
   if (byId.size !== answers.length) return null;
 
-  const lastOption = questionnaire.options.length - 1;
   const ordered: SymptomAnswer[] = [];
   let points = 0;
   for (const question of questionnaire.questions) {
+    const options = optionsFor(questionnaire, question);
+    const lastOption = options.length - 1;
     const value = byId.get(question.id);
     if (value === undefined || value > lastOption) return null;
     ordered.push({ questionId: question.id, value });
     if (question.scored) {
-      points += questionnaire.options[question.reverse ? lastOption - value : value].points;
+      points += options[question.reverse ? lastOption - value : value].points;
     }
   }
 
