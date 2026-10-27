@@ -283,7 +283,9 @@ export const LISTED_CLINICS: Clinic[] = [
     tagsKm: ["ចិត្តវិទ្យា (Psychology)", "កុមារ និងគ្រួសារ"],
     status: "Tue and Thu 8:00 AM to 7:00 PM. Wed, Fri and Sat 8:00 AM to 5:00 PM",
     statusKm: "ថ្ងៃអង្គារ និងព្រហស្បតិ៍ ៨:០០ ព្រឹក ដល់ ៧:០០ យប់។ ថ្ងៃពុធ សុក្រ និងសៅរ៍ ៨:០០ ព្រឹក ដល់ ៥:០០ ល្ងាច",
-    image: "",
+    // Used with permission (Rith asked, 27 Oct 2026).
+    image: "/clinics/sombok-psychology.jpg",
+    imageCredit: { text: "Photo: Sombok Psychology", url: "https://www.sombokpsychology.com/" },
     phone: "+85577566110",
     phoneDisplay: "077 566 110",
     googleMapsUrl: mapsSearch("Sombok Psychology, Street 75, Daun Penh, Phnom Penh"),
@@ -371,7 +373,9 @@ export const LISTED_CLINICS: Clinic[] = [
     tags: ["Public hospital", "Emergency 24 hours"],
     tagsKm: ["មន្ទីរពេទ្យរដ្ឋ (Public hospital)", "សង្គ្រោះបន្ទាន់ ២៤ ម៉ោង"],
     ...EMERGENCY_24H,
-    image: "",
+    // Used with permission (Rith asked, 27 Oct 2026).
+    image: "/clinics/calmette-hospital.jpg",
+    imageCredit: { text: "Photo: Calmette Hospital", url: "https://www.calmette.gov.kh/" },
     phone: "+85523426948",
     phoneDisplay: "023 426 948",
     googleMapsUrl: mapsSearch("Calmette Hospital, Monivong Blvd, Phnom Penh"),
@@ -407,7 +411,9 @@ export const LISTED_CLINICS: Clinic[] = [
     tags: ["Private hospital", "Emergency 24 hours"],
     tagsKm: ["មន្ទីរពេទ្យឯកជន (Private hospital)", "សង្គ្រោះបន្ទាន់ ២៤ ម៉ោង"],
     ...EMERGENCY_24H,
-    image: "",
+    // Used with permission (Rith asked, 27 Oct 2026). Only a small photo exists on their site.
+    image: "/clinics/royal-phnom-penh-hospital.jpg",
+    imageCredit: { text: "Photo: Royal Phnom Penh Hospital", url: "https://www.royalphnompenhhospital.com/" },
     phone: "+85523991222",
     phoneDisplay: "023 991 222",
     googleMapsUrl: mapsSearch("Royal Phnom Penh Hospital, Russian Federation Blvd, Phnom Penh"),

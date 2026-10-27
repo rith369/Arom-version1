@@ -1,5 +1,28 @@
 # AROM: Change Report
 
+## 27 Oct 2026: Photos for Sombok, Calmette and Royal Phnom Penh Hospital
+
+Commit `PENDING`. No migration. Frontend only.
+
+**Why.** Rith asked the listed places for permission to use their photos. Real photos help people recognise the place when they arrive.
+
+**What changed for users:**
+- **Sombok Psychology** shows its house on Street 75.
+- **Calmette Hospital** shows a doctor in one of its rooms (no patient in the photo).
+- **Royal Phnom Penh Hospital** shows its main building. Their website only has a small version, so it looks a little soft on the big detail photo.
+- **Each photo has a small credit** under it on the detail page, linking to the place's website.
+- TPO, Sunrise, The Bamboo Centre and EMDRAC still show the icon: their websites had no usable photo (stock pictures, a client in a session, or the site was down).
+
+**What changed for the team:**
+- New files in `public/clinics/`: `sombok-psychology.jpg`, `calmette-hospital.jpg`, `royal-phnom-penh-hospital.jpg` (resized to at most 1280 px wide).
+- `clinic-data.ts`: `image` and `imageCredit` for those three, with a comment that they are used with permission.
+- `BACKEND-HANDOFF.md` section 32: photo rule updated (permission or open license, never clients or patients).
+
+**What to re-test:**
+1. Open `/clinic-hospital`: Sombok, Calmette, Royal Phnom Penh and Khmer Soviet show photos, the others show the icon.
+2. Open each of the four: the photo fills the top and the credit under it opens the right website.
+3. Check on a phone that the photos are cropped well in the list thumbnails.
+
 ## 27 Oct 2026: Real Photo for Khmer Soviet Friendship Hospital
 
 Commit `f9afda8`. No migration. Frontend only.
