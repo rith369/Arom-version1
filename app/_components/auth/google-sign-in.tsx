@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { safeNextPath } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/client";
+import { OpenInBrowserNotice, useInAppBrowser } from "./in-app-browser";
 
 // Log in or sign up with Google. The same button does both: Supabase creates
 // the account the first time (the sign up trigger makes the profile with the
@@ -40,6 +41,10 @@ export function useGoogleSignIn() {
 }
 
 export function GoogleButton({ onClick, starting }: { onClick: () => void; starting: boolean }) {
+  // Inside Messenger, Telegram and other app browsers Google refuses to sign in.
+  const inApp = useInAppBrowser();
+  if (inApp) return <OpenInBrowserNotice platform={inApp} />;
+
   return (
     <button
       type="button"
