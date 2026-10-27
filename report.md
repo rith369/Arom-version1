@@ -2,7 +2,7 @@
 
 ## 27 Oct 2026: Stress by Cause, Work Burnout and Body Symptoms Checks
 
-Commit `8fe16f3`. Migration `20261027000200_symptom_check_work_burnout_body.sql` (not yet applied, PR for Rith). It only adds two values to `symptom_check_type`.
+Commit `8fe16f3`. Migration `20261027000200_symptom_check_work_burnout_body.sql` (applied 27 Oct, PR #41 merged). It only adds two values to `symptom_check_type`.
 
 **Why.** Rith asked whether stress could have a check for each type of stress. The signs of stress (poor sleep, headaches, feeling on edge, anger, trouble focusing) are mostly the same whatever causes it. What differs is the cause. So AROM keeps one stress check and asks what is causing the stress after the result. Where a proper questionnaire exists for that cause, it offers a closer check. Many people in Cambodia feel stress in the body first, so body symptoms got their own check.
 

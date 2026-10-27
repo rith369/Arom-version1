@@ -1549,7 +1549,7 @@ Answers are saved in `symptom_checks.answers` as `[{ questionId, value }]` in qu
 
 - **Migration `20261024000300_symptom_check_types.sql` (applied 24 Oct):** adds `wellbeing`, `loneliness` and `trauma` to `symptom_check_type`. Professionals see them in the client file as "Wellbeing (higher score is better)", "Loneliness" and "Trauma (PCL-5)".
 - **Migration `20261026000100_symptom_check_k10_pc_ptsd_5.sql` (applied 26 Oct, PR #34):** adds `distress` and `trauma_screen`. Professionals see them as "General distress (K-10)" and "Trauma short check (PC-PTSD-5)".
-- **Migration `20261027000200_symptom_check_work_burnout_body.sql` (not yet applied, PR for Rith):** adds `work_burnout` and `body_symptoms`. Professionals see them as "Work burnout (CBI)" and "Body symptoms (PHQ-15)". Until it runs, saving either check fails.
+- **Migration `20261027000200_symptom_check_work_burnout_body.sql` (applied 27 Oct, PR #41):** adds `work_burnout` and `body_symptoms`. Professionals see them as "Work burnout (CBI)" and "Body symptoms (PHQ-15)".
 - The K-10 and PC-PTSD-5 Khmer must be proofread by the therapist before launch.
 - Sleep is not built: ISI (Mapi Research Trust), PSQI (University of Pittsburgh) and PROMIS Sleep (HealthMeasures, for apps) all need permission. Rith can request ISI; build it once permission arrives. HTQ (Khmer exists) still needs HPRT permission; PCL-5 is used for trauma instead.
 - Stress, burnout, work burnout, body symptoms, wellbeing, loneliness and trauma need Khmer from a professional before they show in Khmer. WHO-5 has official translations on the WHO site; no Khmer one was found.
