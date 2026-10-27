@@ -12,6 +12,7 @@ import {
   type PlanResponse,
   type PlanSource,
   type PlanTask,
+  type PlanTaskDaysResponse,
 } from "@/lib/plan";
 import { createClient } from "@/lib/supabase/server";
 import { databaseError, fail, invalidInput, json, readJson, unauthorized } from "./shared";
@@ -243,6 +244,26 @@ export async function setPlanTaskDone(taskId: string, request: NextRequest) {
   // RLS refuses a task that is not the person's own (42501).
   if (error) return fail("server_error", "That could not be saved. Please try again.", 500);
   return json({ ok: true, done: body.data.done });
+}
+
+/** GET /api/plan/tasks/:id/days: every Cambodia date the task was ticked, oldest first. */
+export async function getPlanTaskDays(taskId: string) {
+  const session = await signedIn();
+  if (!session) return unauthorized();
+
+  const id = idSchema.safeParse(taskId);
+  if (!id.success) return invalidInput();
+
+  // RLS returns only the person's own checks, so another person's task id gives an empty list.
+  const { data, error } = await session.supabase
+    .from("plan_task_checks")
+    .select("day")
+    .eq("task_id", id.data)
+    .order("day", { ascending: true })
+    .limit(400)
+    .returns<{ day: string }[]>();
+  if (error) return fail("server_error", "We could not load the days.", 500);
+  return json<PlanTaskDaysResponse>({ days: (data ?? []).map((row) => row.day) });
 }
 
 /** PUT /api/plan/order `{ ids }`: saves the order the person chose. */

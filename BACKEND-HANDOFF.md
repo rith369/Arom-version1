@@ -87,7 +87,7 @@ The yellow "Demo data on this page" banner is in `admin-shell.tsx`. Remove it fo
 | Clinic bookings, starting with the UP Wellness Clinic: Therapists tab and Book a session on the clinic page, Clinic requests in My appointments, clinic desk (`/clinic-desk`), admin clinic link and desk accounts | Done | Connected, PR #28 merged 24 Oct (`/api/clinics/:slug/booking`, `/api/clinics/:slug/requests`, `/api/clinic-requests`, `/api/clinic-desk/*`, `/api/admin/clinics`, `PATCH /api/admin/professionals/:id/clinic`, `PATCH /api/admin/users/:id/clinic-desk`), migration `20261024000200` applied 24 Oct | 34 |
 | Clinic chat: students chat with the clinic desk (text, voice, photos, PDF) in Messages; desk Messages tab and Message buttons | Done | Connected, PR #30 merged 24 Oct (`/api/clinic-chat`, `/api/clinic-chat/:slug`, `/api/clinic-desk/:slug/chats/*`, `/api/clinic-chat-files/:messageId`), migration `20261024000900` applied 24 Oct | 35 |
 | Symptom check (`/detection/symptoms`): PHQ-9 low mood and GAD-7 anxiety in English and validated Khmer, PSS-10 stress, CBI burnout, WHO-5 wellbeing, UCLA-3 loneliness and PCL-5 trauma in English only, safety screen, results, 14 day rechecks | Done | Connected (`GET\|POST /api/symptom-checks`). Wellbeing, loneliness and trauma use migration `20261024000300` (applied 24 Oct, PR #29 merged). Uses `symptom_checks`, `support_journeys` and `apply_support_path()` | 35 |
-| 2 week programs (`/mindguide/programs/stress`, `/mindguide/programs/anxiety`): one step a day for 14 days after a Some or Clear signs result, from the symptom check result and MindGuide | Done | No new backend needed: a running program is one task in Your Plan For Today (`/api/plan`), item key `two-week:<program>:<start day>`. Day history is a known gap | 36 |
+| 2 week programs (`/mindguide/programs/stress`, `/mindguide/programs/anxiety`): one step a day for 14 days after a Some or Clear signs result, from the symptom check result and MindGuide | Done | No new backend needed: a running program is one task in Your Plan For Today (`/api/plan`), item key `two-week:<program>:<start day>`. Days done come from `GET /api/plan/tasks/:id/days` (no migration) | 36 |
 | ACE (childhood experiences) in the therapist intake: professional switch on My profile, optional card on My appointments, read only card in the client file and Prepare | Done | Connected (`/api/ace`, `/api/pro/ace`, `/api/pro/clients/:id/ace`), migration `20261026000500` applied 26 Oct, PR #38 | 37 |
 
 ## 5. Admin users page
@@ -1602,10 +1602,11 @@ Answers are saved in `symptom_checks.answers` as `[{ questionId, value }]` in qu
 | Today's step done | the plan task's check for today (`PUT /api/plan/tasks/:id/check`), the same tick as on Home |
 | Who it fits | the newest symptom check of the program's types (`GET /api/symptom-checks`) |
 | Start, start again, stop | `DELETE` and `POST /api/plan/tasks` |
+| Days done so far (27 Oct 2026) | `GET /api/plan/tasks/:id/days` returns `{ days: string[] }`, the Cambodia dates in `plan_task_checks` for that task, oldest first. Owner only through RLS; no migration. The strip ticks those days and says "5 of 7 days done" |
 
 ### Known gaps
 
-1. **No history of earlier days.** The plan only says whether today's step is done, so the 14 day strip shows days as past, today or later, not done or missed. If Rith wants "5 of 7 days done", the backend needs to return the plan task's check days (they are already stored per day for plan tasks), for example `GET /api/plan/tasks/:id/checks` returning the Cambodia days it was ticked.
+1. Starting again deletes the old task, and its ticks with it, so each run of 2 weeks starts from 0 days done.
 2. The program does not change `support_journeys`. The 14 day recheck card on Home still comes from the check's own journey, which usually starts the same day as the program.
 3. The stress check (PSS-10) is English only, so in Khmer the stress program asks for the General distress check instead.
 4. A professional must review all 28 days and their Khmer before a public launch.

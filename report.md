@@ -1,5 +1,26 @@
 # AROM: Change Report
 
+## 27 Oct 2026: 2 Week Programs Show Which Days Were Done
+
+Commit `PENDING`. No migration. The ticks were already saved; this adds a way to read them.
+
+**Why.** The 14 day strip on a program only showed past, today and later, so someone on day 9 could not see which steps they had actually done. Seeing the days done helps people keep going, and makes a missed day easy to spot without making it feel like a failure.
+
+**What changed for users:**
+- **Ticked days:** each day the step was ticked shows a check mark in the 14 day strip. Missed days have a dashed outline.
+- **Days done line:** under the strip, for example "5 of 7 days done". If a day was missed it adds "Missing a day is fine, just carry on from today."
+- **Ticking today updates at once:** the strip changes as soon as today's step is ticked or unticked.
+
+**What changed for the team:**
+- **New endpoint:** `GET /api/plan/tasks/:id/days` returns the Cambodia dates a plan task was ticked, oldest first. It reads `plan_task_checks` as the signed in person, so RLS keeps it owner only.
+- **Docs:** BACKEND-HANDOFF.md section 36 lists the endpoint; the "no history" gap is closed.
+
+**What to re-test:**
+1. Start a 2 week program and tick today's step. Confirm day 1 shows a check and the line says "1 of 1 days done".
+2. Untick it and confirm the check goes away.
+3. With a program started a few days ago, confirm only the days that were ticked show a check, and missed days have a dashed outline.
+4. Switch to Khmer and confirm the line reads naturally.
+
 ## 27 Oct 2026: One Address for Each MindGuide Library, Design Sandbox Removed
 
 Commit `8d6ea6d`. No migration. Frontend only.

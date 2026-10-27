@@ -34,6 +34,7 @@ import { ALL_LESSONS } from "../learn/learn-data";
 import { ALL_PRACTICES } from "../practice/practice-data";
 import { ALL_TIPS } from "../tips/tips-data";
 import { cambodiaDay } from "@/lib/mood";
+import type { PlanTaskDaysResponse } from "@/lib/plan";
 import { LEVEL_LABELS, QUESTIONNAIRES, textFor, type SymptomCheckDto, type SymptomChecksResponse, type SymptomCheckType } from "@/lib/symptom-checks";
 import {
   PROGRAM_LENGTH,
@@ -235,9 +236,39 @@ export function TwoWeekProgramView({ programId }: { programId: ProgramId }) {
     if (!removed.ok) setError(removed.message);
   };
 
+  // The days ticked so far (GET /api/plan/tasks/:id/days). Today follows the
+  // plan store instead, so ticking it shows at once.
+  const taskId = mine?.task.id;
+  const [history, setHistory] = useState<{ taskId: string; days: string[] } | null>(null);
+  useEffect(() => {
+    if (!taskId) return;
+    let active = true;
+    fetch(`/api/plan/tasks/${taskId}/days`, { cache: "no-store" })
+      .then((response) => (response.ok ? (response.json() as Promise<PlanTaskDaysResponse>) : null))
+      .then((data) => {
+        if (active && data) setHistory({ taskId, days: data.days });
+      })
+      .catch(() => {
+        // Not loaded: the grid shows today only.
+      });
+    return () => {
+      active = false;
+    };
+  }, [taskId]);
+
   const loading = plan.status === "loading" || checks.status === "loading" || care.status === "loading";
   const signedOut = plan.status === "signed_out" || checks.status === "signed_out";
   const day = mine ? programDay(mine.startDay, today) : null;
+  const doneDays = new Set<number>();
+  if (mine) {
+    const dates = new Set(history?.taskId === mine.task.id ? history.days : []);
+    if (mine.task.doneToday) dates.add(today);
+    else dates.delete(today);
+    for (const date of dates) {
+      const number = programDay(mine.startDay, date);
+      if (number <= PROGRAM_LENGTH) doneDays.add(number);
+    }
+  }
 
   return (
     <div className="min-h-screen bg-[#f7faf9] text-ink lg:grid lg:grid-cols-[19rem_minmax(0,1fr)]">
@@ -290,6 +321,7 @@ export function TwoWeekProgramView({ programId }: { programId: ProgramId }) {
               day={day}
               startDay={mine.startDay}
               doneToday={mine.task.doneToday}
+              doneDays={doneDays}
               strongSigns={fit?.kind === "strong_signs"}
               checkType={checkType}
               group={group}
@@ -512,6 +544,7 @@ function RunningView({
   day,
   startDay,
   doneToday,
+  doneDays,
   strongSigns,
   checkType,
   group,
@@ -529,6 +562,8 @@ function RunningView({
   day: number;
   startDay: string;
   doneToday: boolean;
+  /** Program day numbers (1 to 14) the step was ticked. */
+  doneDays: Set<number>;
   strongSigns: boolean;
   checkType: SymptomCheckType;
   group: GroupSuggestion | null;
@@ -567,23 +602,43 @@ function RunningView({
           {program.days.map((_, index) => {
             const number = index + 1;
             const state = finished || number < current ? "past" : number === current ? "today" : "later";
+            const done = doneDays.has(number);
             return (
               <li
                 key={number}
                 aria-current={state === "today" ? "step" : undefined}
-                className={`flex h-8 items-center justify-center rounded-lg text-xs font-semibold ${
+                aria-label={
+                  km
+                    ? `ថ្ងៃទី ${number}${done ? " បានធ្វើ" : ""}`
+                    : `Day ${number}${done ? ", done" : ""}`
+                }
+                className={`flex h-8 items-center justify-center gap-0.5 rounded-lg text-xs font-semibold ${
                   state === "today"
                     ? "bg-arom text-white"
-                    : state === "past"
+                    : done
                       ? "bg-arom-soft text-arom-deep"
-                      : "border border-arom-border bg-white text-ink-muted"
+                      : state === "past"
+                        ? "border border-dashed border-arom-border bg-white text-ink-muted"
+                        : "border border-arom-border bg-white text-ink-muted"
                 }`}
               >
-                {number}
+                {done ? <Check size={13} strokeWidth={3} aria-hidden="true" /> : number}
               </li>
             );
           })}
         </ol>
+        <p className="mt-3 text-xs text-ink-muted">
+          {km
+            ? `បានធ្វើ ${doneDays.size} ថ្ងៃ ក្នុងចំណោម ${finished ? PROGRAM_LENGTH : current} ថ្ងៃ`
+            : `${doneDays.size} of ${finished ? PROGRAM_LENGTH : current} days done`}
+          {!finished && doneDays.size < current - (doneToday ? 0 : 1)
+            ? km
+              ? "។ មិនអីទេ បើខកខានមួយថ្ងៃ សូមបន្តពីថ្ងៃនេះ។"
+              : ". Missing a day is fine, just carry on from today."
+            : km
+              ? "។"
+              : "."}
+        </p>
       </section>
 
       {strongSigns && (

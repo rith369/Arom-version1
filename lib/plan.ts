@@ -35,6 +35,9 @@ export type PlanTask = {
 /** GET /api/plan */
 export type PlanResponse = { day: string; weekday: number; tasks: PlanTask[] };
 
+/** GET /api/plan/tasks/:id/days: the Cambodia dates a task was ticked, oldest first. */
+export type PlanTaskDaysResponse = { days: string[] };
+
 /** Weekday (0 Sunday) of a Cambodia date "YYYY-MM-DD". */
 export const weekdayOf = (day: string) => new Date(`${day}T00:00:00Z`).getUTCDay();
 
