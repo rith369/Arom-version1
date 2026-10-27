@@ -1,5 +1,33 @@
 # AROM: Change Report
 
+## 27 Oct 2026: Stress by Cause, Work Burnout and Body Symptoms Checks
+
+Commit `8fe16f3`. Migration `20261027000200_symptom_check_work_burnout_body.sql` (not yet applied, PR for Rith). It only adds two values to `symptom_check_type`.
+
+**Why.** Rith asked whether stress could have a check for each type of stress. The signs of stress (poor sleep, headaches, feeling on edge, anger, trouble focusing) are mostly the same whatever causes it. What differs is the cause. So AROM keeps one stress check and asks what is causing the stress after the result. Where a proper questionnaire exists for that cause, it offers a closer check. Many people in Cambodia feel stress in the body first, so body symptoms got their own check.
+
+**What changed for users:**
+- **"What is causing most of your stress?"** After a stress result with signs, the person picks Work, Study, Money, Family, Partner or friends, Health, Caring for someone, or Something else. It is not saved. It changes the lesson, tip, practice and professionals under "What can help now", and shows a short message for that cause.
+- **Work burnout check** (7 questions, Copenhagen Burnout Inventory, work part). Offered when the cause is Work, and in the list of checks.
+- **Body symptoms check** (15 questions, PHQ-15): pain, dizziness, heart racing, stomach problems, tiredness, sleep. Offered when the cause is Health, and in the list. Every result says to see a doctor if a symptom is new, strong or does not go away.
+- **Caring for someone** offers the Burnout check.
+- Both new checks are English only, like the other checks without reviewed Khmer.
+
+**What changed for the team:**
+- `lib/symptom-checks.ts`: `work_burnout` and `body_symptoms` questionnaires. A question can now have its own answer options (`optionsFor()`), because CBI mixes "how much" and "how often" answers. New `resultNote` on a questionnaire.
+- `app/detection/symptoms/page.tsx`: `StressCausePicker` and `STRESS_CAUSES`; `NextSteps` takes `topicOverride`; icons and topics for the new checks.
+- `app/pro/_data/clients.ts`: professional labels "Work burnout (CBI)" and "Body symptoms (PHQ-15)".
+- No money or study check: the CFPB money scale has no score bands, and the study scale (PAS) is copyrighted by its author. Details in `BACKEND-HANDOFF.md` section 35.
+
+**What to re-test:**
+1. Apply the migration in Supabase, then open `/detection/symptoms` in English: Body symptoms and Work burnout are in the list.
+2. Take the Stress check and answer so it shows Clear signs. Under the result, pick Work: the message shows with "Take the Work burnout check", and "What can help now" switches to burnout.
+3. Pick Health: "Take the Body symptoms check" shows. Pick Study or Money: no check button, help stays on stress. Pick Family: help switches to relationships.
+4. Take Work burnout: questions 1 to 3 have "To a very low degree" answers, 4 to 7 have "Never or almost never" answers. Save works.
+5. Take Body symptoms: questions 4 and 11 have "or this does not apply to me". The result shows the see a doctor note.
+6. Take Stress with Few signs: the cause question does not show.
+7. Switch to Khmer: the two new checks are hidden, as with other English only checks.
+
 ## 27 Oct 2026: Sunrise Mental Clinic Photo, Exact Pin and Khmer Name
 
 Commit `a117a2b`. No migration. Frontend only.

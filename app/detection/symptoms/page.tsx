@@ -7,6 +7,7 @@ import {
   Activity,
   ArrowLeft,
   BatteryLow,
+  Briefcase,
   CalendarCheck,
   ChevronRight,
   Clock,
@@ -15,6 +16,7 @@ import {
   HeartPulse,
   Info,
   Lock,
+  PersonStanding,
   Sun,
   Shield,
   ShieldCheck,
@@ -49,6 +51,7 @@ import {
   SYMPTOM_CHECK_TYPES,
   dueJourneys,
   isHarderThanBefore,
+  optionsFor,
   textFor,
   type SupportJourneyDto,
   type SymptomCheckDto,
@@ -98,6 +101,8 @@ const TOPIC: Record<SymptomCheckType, Pair> = {
   loneliness: { en: "loneliness", km: "ភាពឯកោ" },
   trauma: { en: "stress after a hard experience", km: "ភាពតានតឹងក្រោយបទពិសោធន៍ដ៏លំបាក" },
   trauma_screen: { en: "stress after a hard experience", km: "ភាពតានតឹងក្រោយបទពិសោធន៍ដ៏លំបាក" },
+  work_burnout: { en: "work burnout", km: "ភាពអស់កម្លាំងដោយសារការងារ" },
+  body_symptoms: { en: "body symptoms", km: "រោគសញ្ញាលើរាងកាយ" },
 };
 
 // The overall check shown first on the list (K-10, in English and Khmer).
@@ -113,6 +118,8 @@ const CHECK_ICONS: Record<SymptomCheckType, LucideIcon> = {
   loneliness: Users,
   trauma: Shield,
   trauma_screen: ShieldCheck,
+  work_burnout: Briefcase,
+  body_symptoms: PersonStanding,
 };
 
 const LEVEL_MESSAGES: Record<SymptomLevel, (topic: Pair) => Pair> = {
@@ -667,7 +674,7 @@ function QuestionView({
         <h2 className="mt-2 text-lg font-semibold leading-7 text-ink sm:text-xl">{tx(question.text)}</h2>
 
         <div role="radiogroup" aria-label={tx(question.text)} className="mt-5 grid gap-2.5">
-          {questionnaire.options.map((option, value) => {
+          {optionsFor(questionnaire, question).map((option, value) => {
             const active = selected === value;
             return (
               <button
@@ -759,6 +766,10 @@ function ResultView({
   const professional = check.recommendedPath === "self_help_and_professional" || check.recommendedPath === "professional";
   // WHO-5 guidance: low wellbeing is a reason to check for low mood next.
   const suggestLowMood = check.type === "wellbeing" && check.level !== "none";
+  const resultNote = QUESTIONNAIRES[check.type].resultNote;
+  // What the person said causes their stress. Kept on this screen only, never saved.
+  const [cause, setCause] = useState<StressCause | null>(null);
+  const askCause = check.type === "stress" && check.level !== "none" && !check.safetyConcern;
 
   return (
     <div className="mt-3 space-y-5 animate-in fade-in duration-200">
@@ -773,6 +784,12 @@ function ResultView({
           </span>
         </div>
         <p className="mt-3 text-base leading-7 text-ink">{tx(LEVEL_MESSAGES[check.level](topic))}</p>
+        {resultNote && (
+          <p className="mt-3 flex items-start gap-2 rounded-2xl bg-arom-wash px-3.5 py-3 text-sm leading-6 text-ink">
+            <Info size={16} className="mt-1 shrink-0 text-arom" aria-hidden="true" />
+            <span>{tx(resultNote)}</span>
+          </p>
+        )}
         <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
           <p className="text-xs text-ink-muted">
             {km ? `ពិន្ទុ ${check.score} នៃ ${check.maxScore}` : `Score ${check.score} of ${check.maxScore}`}
@@ -795,9 +812,17 @@ function ResultView({
         </div>
       )}
 
+      {askCause && <StressCausePicker km={km} cause={cause} onChoose={setCause} onStart={onStart} />}
+
       <ProgramOffer km={km} check={check} />
 
-      <NextSteps km={km} check={check} journey={journey} professional={professional} />
+      <NextSteps
+        km={km}
+        check={check}
+        journey={journey}
+        professional={professional}
+        topicOverride={cause ? STRESS_CAUSES[cause].topic : undefined}
+      />
 
       {/* After a safety answer the helplines came first, on their own screen.
           A result opened again from Past checks skips that screen, so it shows them here. */}
@@ -818,6 +843,139 @@ function ResultView({
         {km ? "រួចរាល់" : "Done"}
       </button>
     </div>
+  );
+}
+
+// What causes the stress. The symptoms of stress are mostly the same whatever
+// the cause, so the cause is asked after the result, unscored, to pick the
+// help below and, where one exists, a closer check. Never saved or sent.
+type StressCause = "work" | "study" | "money" | "family" | "relationships" | "health" | "caring" | "other";
+
+const STRESS_CAUSES: Record<StressCause, { label: Pair; message: Pair; topic: HelpTopic; check?: SymptomCheckType }> = {
+  work: {
+    label: { en: "Work", km: "ការងារ" },
+    message: {
+      en: "Work stress that goes on for a long time can lead to burnout. The Work burnout check looks at this more closely.",
+      km: "ភាពតានតឹងពីការងារដែលមានរយៈពេលយូរ អាចនាំឱ្យអស់កម្លាំង។ ការពិនិត្យភាពអស់កម្លាំងដោយសារការងារ ពិនិត្យមើលរឿងនេះឱ្យកាន់តែច្បាស់។",
+    },
+    topic: "burnout",
+    check: "work_burnout",
+  },
+  study: {
+    label: { en: "Study", km: "ការសិក្សា" },
+    message: {
+      en: "Exams, deadlines and study pressure are one of the most common causes of stress for students. Breaking work into small steps, with rest in between, can help.",
+      km: "ការប្រឡង ថ្ងៃកំណត់ និងសម្ពាធការសិក្សា ជាមូលហេតុទូទៅបំផុតមួយនៃភាពតានតឹងរបស់និស្សិត។ ការបែងចែកកិច្ចការជាជំហានតូចៗ ហើយសម្រាកនៅចន្លោះ អាចជួយបាន។",
+    },
+    topic: "stress",
+  },
+  money: {
+    label: { en: "Money", km: "លុយកាក់" },
+    message: {
+      en: "Money worries are one of the most common causes of stress. A simple plan for this month, and talking it through with someone you trust, can help.",
+      km: "ការព្រួយបារម្ភអំពីលុយកាក់ ជាមូលហេតុទូទៅបំផុតមួយនៃភាពតានតឹង។ ផែនការសាមញ្ញមួយសម្រាប់ខែនេះ និងការនិយាយជាមួយនរណាម្នាក់ដែលអ្នកទុកចិត្ត អាចជួយបាន។",
+    },
+    topic: "stress",
+  },
+  family: {
+    label: { en: "Family", km: "គ្រួសារ" },
+    message: {
+      en: "Stress at home can feel heavy, because family is so close to us. Talking calmly, or with someone outside the family, can help.",
+      km: "ភាពតានតឹងនៅផ្ទះអាចធ្ងន់ ព្រោះគ្រួសារនៅជិតយើងបំផុត។ ការនិយាយគ្នាដោយស្ងប់ស្ងាត់ ឬនិយាយជាមួយនរណាម្នាក់នៅក្រៅគ្រួសារ អាចជួយបាន។",
+    },
+    topic: "relationships",
+  },
+  relationships: {
+    label: { en: "Partner or friends", km: "ដៃគូ ឬមិត្តភក្តិ" },
+    message: {
+      en: "Problems with a partner or friends can weigh on you every day. The help below is about relationships.",
+      km: "បញ្ហាជាមួយដៃគូ ឬមិត្តភក្តិ អាចធ្វើឱ្យអ្នកធ្ងន់ចិត្តរៀងរាល់ថ្ងៃ។ ជំនួយខាងក្រោមគឺអំពីទំនាក់ទំនង។",
+    },
+    topic: "relationships",
+  },
+  health: {
+    label: { en: "Health", km: "សុខភាព" },
+    message: {
+      en: "Worry about health, and stress itself, can both show up in the body. The Body symptoms check looks at this more closely.",
+      km: "ការព្រួយបារម្ភអំពីសុខភាព និងភាពតានតឹងផ្ទាល់ អាចបង្ហាញចេញតាមរាងកាយ។ ការពិនិត្យរោគសញ្ញាលើរាងកាយ ពិនិត្យមើលរឿងនេះឱ្យកាន់តែច្បាស់។",
+    },
+    topic: "stress",
+    check: "body_symptoms",
+  },
+  caring: {
+    label: { en: "Caring for someone", km: "ការមើលថែអ្នកដទៃ" },
+    message: {
+      en: "Caring for someone who is sick or needs help every day can wear you out. Looking after yourself too is not selfish. The Burnout check looks at this more closely.",
+      km: "ការមើលថែនរណាម្នាក់ដែលឈឺ ឬត្រូវការជំនួយរៀងរាល់ថ្ងៃ អាចធ្វើឱ្យអ្នកអស់កម្លាំង។ ការថែរក្សាខ្លួនឯងផងដែរ មិនមែនជាការអាត្មានិយមទេ។ ការពិនិត្យភាពអស់កម្លាំង ពិនិត្យមើលរឿងនេះឱ្យកាន់តែច្បាស់។",
+    },
+    topic: "burnout",
+    check: "burnout",
+  },
+  other: {
+    label: { en: "Something else, or not sure", km: "រឿងផ្សេង ឬមិនប្រាកដ" },
+    message: {
+      en: "That is okay. The help below is for stress in general.",
+      km: "មិនអីទេ។ ជំនួយខាងក្រោមគឺសម្រាប់ភាពតានតឹងជាទូទៅ។",
+    },
+    topic: "stress",
+  },
+};
+
+function StressCausePicker({
+  km,
+  cause,
+  onChoose,
+  onStart,
+}: {
+  km: boolean;
+  cause: StressCause | null;
+  onChoose: (cause: StressCause) => void;
+  onStart: (type: SymptomCheckType) => void;
+}) {
+  const chosen = cause ? STRESS_CAUSES[cause] : null;
+  // A closer check without Khmer is not offered while the app is in Khmer.
+  const closerCheck = chosen?.check && (!km || QUESTIONNAIRES[chosen.check].khmerReady) ? chosen.check : null;
+
+  return (
+    <section aria-labelledby="stress-cause" className="rounded-3xl border border-arom-border bg-white p-5 sm:p-6">
+      <h2 id="stress-cause" className="flex items-center gap-2 text-base font-semibold text-ink">
+        <Compass size={18} className="text-arom" aria-hidden="true" />
+        {km ? "តើអ្វីបង្កឱ្យអ្នកតានតឹងច្រើនជាងគេ?" : "What is causing most of your stress?"}
+      </h2>
+      <p className="mt-1 text-xs leading-5 text-ink-muted">
+        {km
+          ? "ជ្រើសរើសមួយ។ ចម្លើយនេះមិនត្រូវបានរក្សាទុកទេ។ វាគ្រាន់តែប្តូរជំនួយខាងក្រោម។"
+          : "Pick one. This is not saved. It only changes the help below."}
+      </p>
+      <div className="mt-3 flex flex-wrap gap-2" role="group" aria-labelledby="stress-cause">
+        {(Object.keys(STRESS_CAUSES) as StressCause[]).map((id) => (
+          <button
+            key={id}
+            type="button"
+            aria-pressed={id === cause}
+            onClick={() => onChoose(id)}
+            className={`min-h-10 rounded-full px-3.5 py-2 text-sm font-medium transition-colors ${focusRing} ${
+              id === cause ? "bg-arom text-white" : "border border-arom-border bg-white text-arom-deep hover:bg-arom-wash"
+            }`}
+          >
+            {km ? STRESS_CAUSES[id].label.km : STRESS_CAUSES[id].label.en}
+          </button>
+        ))}
+      </div>
+
+      {chosen && (
+        <div className="mt-4 rounded-2xl bg-arom-wash p-4" aria-live="polite">
+          <p className="text-sm leading-6 text-ink">{km ? chosen.message.km : chosen.message.en}</p>
+          {closerCheck && (
+            <button type="button" onClick={() => onStart(closerCheck)} className={`${primaryButton} mt-3`}>
+              {km
+                ? `ធ្វើការពិនិត្យ${QUESTIONNAIRES[closerCheck].name.km}`
+                : `Take the ${QUESTIONNAIRES[closerCheck].name.en} check`}
+            </button>
+          )}
+        </div>
+      )}
+    </section>
   );
 }
 
@@ -866,6 +1024,8 @@ const CHECK_TOPICS: Record<SymptomCheckType, HelpTopic[]> = {
   loneliness: ["loneliness"],
   trauma: ["trauma"],
   trauma_screen: ["trauma"],
+  work_burnout: ["burnout"],
+  body_symptoms: ["stress"],
 };
 
 function NextSteps({
@@ -873,11 +1033,14 @@ function NextSteps({
   check,
   journey,
   professional,
+  topicOverride,
 }: {
   km: boolean;
   check: SymptomCheckDto;
   journey: SupportJourneyDto | null;
   professional: boolean;
+  // The help topic for the cause the person picked (stress check only).
+  topicOverride?: HelpTopic;
 }) {
   let note: string | null = null;
   if (professional && check.level !== "high") {
@@ -896,7 +1059,7 @@ function NextSteps({
     note = km ? "ដើម្បីបន្តមានអារម្មណ៍ល្អបែបនេះ របស់ទាំងនេះអាចជួយបាន។" : "To keep feeling this way, these can help.";
   }
 
-  const topics = CHECK_TOPICS[check.type];
+  const topics = topicOverride ? [topicOverride] : CHECK_TOPICS[check.type];
   const [chosen, setChosen] = useState<HelpTopic>(topics[0]);
   const topic = topics.includes(chosen) ? chosen : topics[0];
   const content = HELP_CONTENT[topic];
