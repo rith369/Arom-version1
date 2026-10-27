@@ -92,7 +92,7 @@ export function PracticeContainer({
           <PracticeCompleteView
             practice={selectedPractice}
             onPracticeAgain={() => setMode("exercise")}
-            onGoToLearn={() => (pick ? pick.goTo("lesson") : router.push("/learn"))}
+            onGoToLearn={() => (pick ? pick.goTo("lesson") : router.push("/mindguide/learn"))}
             onBackToPractices={() => setMode("home")}
           />
         )}

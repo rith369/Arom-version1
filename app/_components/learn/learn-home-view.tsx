@@ -90,7 +90,7 @@ export function LearnHomeView({
       badge: "Lesson",
       badgeKm: "មេរៀន (Lesson)",
       icon: "ant-design_play-circle-filled",
-      href: "/learn",
+      href: "/mindguide/learn",
     });
 
     if (isAdded) {

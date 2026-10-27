@@ -91,7 +91,7 @@ export function PracticeDetailView({
       badge: practice.category,
       badgeKm: categoryLabel,
       icon: "hugeicons_yoga-03",
-      href: "/practice",
+      href: "/mindguide/practice",
     });
 
     if (isAdded) {

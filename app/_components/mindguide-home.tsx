@@ -99,7 +99,7 @@ export const todayActivities: TodayActivity[] = [
       },
     ],
     actionType: "breathing",
-    hubHref: "/practice",
+    hubHref: "/mindguide/practice",
     hubLabelEn: "Explore Practice Hub",
     hubLabelKm: "ស្វែងរកក្នុងផ្ទាំងអនុវត្ត (Practice Hub)",
   },
@@ -133,7 +133,7 @@ export const todayActivities: TodayActivity[] = [
       },
     ],
     actionType: "learn-stress",
-    hubHref: "/learn",
+    hubHref: "/mindguide/learn",
     hubLabelEn: "Explore Learn Hub",
     hubLabelKm: "ស្វែងរកក្នុងផ្ទាំងសិក្សា (Learn Hub)",
   },
@@ -403,8 +403,8 @@ export function MindGuideHome() {
         activity.actionType === "daily-stress"
           ? "/mindguide/managing-daily-stress"
           : activity.actionType === "breathing"
-          ? "/practice"
-          : "/learn",
+          ? "/mindguide/practice"
+          : "/mindguide/learn",
     });
 
     if (isAdded) {
@@ -467,7 +467,7 @@ export function MindGuideHome() {
         lesson={LESSON_ABOUT_STRESS}
         onTryExercise={() => setActiveExperience("breathing")}
         onReadAnother={() => setActiveExperience(null)}
-        onViewSaved={() => router.push("/learn")}
+        onViewSaved={() => router.push("/mindguide/learn")}
       />
     );
   }
@@ -559,7 +559,7 @@ export function MindGuideHome() {
                 return (
                   <Link
                     key={category.label}
-                    href="/learn"
+                    href="/mindguide/learn"
                     className="group flex min-w-0 flex-col items-center rounded-2xl py-1 text-center focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-arom"
                   >
                     {categoryContent}
@@ -571,7 +571,7 @@ export function MindGuideHome() {
                 return (
                   <Link
                     key={category.label}
-                    href="/practice"
+                    href="/mindguide/practice"
                     className="group flex min-w-0 flex-col items-center rounded-2xl py-1 text-center focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-arom"
                   >
                     {categoryContent}
@@ -595,7 +595,7 @@ export function MindGuideHome() {
                 return (
                   <Link
                     key={category.label}
-                    href="/tips"
+                    href="/mindguide/tips"
                     className="group flex min-w-0 flex-col items-center rounded-2xl py-1 text-center focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-arom"
                   >
                     {categoryContent}

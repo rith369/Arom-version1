@@ -9,7 +9,7 @@ import { MoodSprout } from "../_components/mood/mood-sprout";
 type ResponseAction = { href: string; en: string; km: string; icon: LucideIcon; urgent?: boolean };
 
 const JOURNAL: ResponseAction = { href: "/detection/journal", en: "Write in your journal", km: "សរសេរក្នុងកំណត់ហេតុ", icon: BookOpen };
-const BREATHING: ResponseAction = { href: "/practice", en: "Breathing practice", km: "លំហាត់ដកដង្ហើម", icon: Wind };
+const BREATHING: ResponseAction = { href: "/mindguide/practice", en: "Breathing practice", km: "លំហាត់ដកដង្ហើម", icon: Wind };
 const PROFESSIONAL: ResponseAction = { href: "/professional", en: "Talk to a professional", km: "និយាយជាមួយអ្នកជំនាញ", icon: Stethoscope };
 const GET_HELP: ResponseAction = { href: "/profile#get-help-title", en: "Get help now", km: "ជំនួយបន្ទាន់", icon: LifeBuoy, urgent: true };
 

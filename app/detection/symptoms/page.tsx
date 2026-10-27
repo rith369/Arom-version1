@@ -465,7 +465,7 @@ function HomeView({
               : "Your last check looks harder than the one before. Want to try something today, or talk to someone?"}
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
-            <Link href="/practice" className={`rounded-full border border-arom-border px-3.5 py-2 text-xs font-semibold text-arom-deep hover:bg-arom-wash ${focusRing}`}>
+            <Link href="/mindguide/practice" className={`rounded-full border border-arom-border px-3.5 py-2 text-xs font-semibold text-arom-deep hover:bg-arom-wash ${focusRing}`}>
               {km ? "សាកល្បងការអនុវត្ត" : "Try a practice"}
             </Link>
             <Link href="/professional" className={`rounded-full border border-arom-border px-3.5 py-2 text-xs font-semibold text-arom-deep hover:bg-arom-wash ${focusRing}`}>

@@ -44,7 +44,7 @@ export const CURATED_ACTIVITIES: CuratedPlanItem[] = [
     badgeKm: "ការអនុវត្ត (Practice)",
     icon: "hugeicons_yoga-03",
     image: "/mindguide/icon-11.svg",
-    href: "/practice",
+    href: "/mindguide/practice",
   },
   {
     id: "learn-about-stress",
@@ -65,7 +65,7 @@ export const CURATED_ACTIVITIES: CuratedPlanItem[] = [
     badgeKm: "ស្វែងយល់ (Learn)",
     icon: "ant-design_play-circle-filled",
     image: "/mindguide/icon-10.svg",
-    href: "/learn",
+    href: "/mindguide/learn",
   },
   {
     id: "managing-daily-stress",
@@ -107,7 +107,7 @@ export const CURATED_ACTIVITIES: CuratedPlanItem[] = [
     badgeKm: "ការអនុវត្ត (Practice)",
     icon: "hugeicons_yoga-03",
     image: "/mindguide/strategies.png",
-    href: "/practice",
+    href: "/mindguide/practice",
   },
   {
     id: "sensory-grounding",
@@ -128,7 +128,7 @@ export const CURATED_ACTIVITIES: CuratedPlanItem[] = [
     badgeKm: "ការអនុវត្ត (Practice)",
     icon: "hugeicons_yoga-03",
     image: "/mindguide/icon-10.svg",
-    href: "/practice",
+    href: "/mindguide/practice",
   },
   {
     id: "tip-try-now-1",
@@ -149,7 +149,7 @@ export const CURATED_ACTIVITIES: CuratedPlanItem[] = [
     badgeKm: "គន្លឹះ (Tips)",
     icon: "boxicons_note-filled",
     image: "/mindguide/icon-7.svg",
-    href: "/tips",
+    href: "/mindguide/tips",
   },
   {
     id: "evening-relaxation",
@@ -170,6 +170,6 @@ export const CURATED_ACTIVITIES: CuratedPlanItem[] = [
     badgeKm: "ការអនុវត្ត (Practice)",
     icon: "hugeicons_yoga-03",
     image: "/mindguide/sleep.png",
-    href: "/practice",
+    href: "/mindguide/practice",
   },
 ];

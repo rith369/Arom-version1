@@ -43,7 +43,7 @@ export function SupportCard({ km }: { km: boolean }) {
       </div>
 
       <div className="mt-4 flex flex-wrap gap-2">
-        <Link href="/practice" className={`${action} border-arom-border bg-white text-arom hover:bg-arom-soft`}>
+        <Link href="/mindguide/practice" className={`${action} border-arom-border bg-white text-arom hover:bg-arom-soft`}>
           <Wind size={16} aria-hidden="true" />
           {t('លំហាត់ដកដង្ហើម', 'Breathing practice')}
         </Link>

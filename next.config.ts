@@ -34,6 +34,22 @@ const nextConfig: NextConfig = {
         destination: "/profile",
         permanent: true,
       },
+      // Older links (and tasks already saved in Your Plan For Today) used these.
+      {
+        source: "/practice",
+        destination: "/mindguide/practice",
+        permanent: true,
+      },
+      {
+        source: "/tips",
+        destination: "/mindguide/tips",
+        permanent: true,
+      },
+      {
+        source: "/learn",
+        destination: "/mindguide/learn",
+        permanent: true,
+      },
     ];
   },
 };

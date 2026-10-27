@@ -1,5 +1,27 @@
 # AROM: Change Report
 
+## 27 Oct 2026: One Address for Each MindGuide Library, Design Sandbox Removed
+
+Commit `PENDING`. No migration. Frontend only.
+
+**Why.** Learn, Tips and Practice each had two addresses (`/learn` and `/mindguide/learn`, and so on) showing the same screen. Links in the app used both, so the back button and the menu could behave differently depending on how someone arrived. The old `/preview` design sandbox, with made up points, gems and streaks, could also be opened by anyone who typed its address.
+
+**What changed for users:**
+- **One address per library:** Learn, Tips and Practice now always open at `/mindguide/learn`, `/mindguide/tips` and `/mindguide/practice`.
+- **Old links still work:** `/learn`, `/tips` and `/practice` (including tasks already in Your Plan For Today) forward to the new address, keeping anything after `?`.
+- **Sandbox gone:** `/preview` now shows the normal not found page.
+
+**What changed for the team:**
+- **Pages removed:** `app/learn`, `app/tips`, `app/practice` and `app/preview` are deleted. Redirects live in `next.config.ts`.
+- **Links updated:** every link and new plan task now uses the `/mindguide/...` address. `lesson-detail-view.tsx` still links to `/learn` because it has unfinished changes in progress; the redirect covers it.
+
+**What to re-test:**
+1. Open `/learn`, `/tips` and `/practice` and confirm each lands on its `/mindguide/...` page.
+2. Open `/practice?open=interactive-breathing` and confirm the breathing practice opens.
+3. On Home, tap a plan task that opens Practice or Tips and confirm it opens the right page.
+4. On MindGuide, tap Learn, Practice and Tips and confirm the address starts with `/mindguide/`.
+5. Open `/preview` and confirm it shows not found.
+
 ## 27 Oct 2026: Admin Area Gets a Phone Top Bar and Menu Drawer
 
 Commit `2ede4d7`. No migration. Frontend only.

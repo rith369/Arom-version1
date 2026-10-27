@@ -147,7 +147,7 @@ async function moveOldBrowserItems() {
           titleKm: (isTip ? item.kmTitle : item.titleKm) ?? "",
           subtitle: item.subtitle ?? "",
           subtitleKm: (isTip ? item.kmSubtitle : item.subtitleKm) ?? "",
-          href: isTip ? "/tips" : (item.href ?? null),
+          href: isTip ? "/mindguide/tips" : (item.href ?? null),
           icon: isTip ? "boxicons_note-filled" : (item.icon ?? null),
           repeat: "daily",
         });

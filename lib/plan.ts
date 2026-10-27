@@ -132,7 +132,7 @@ export const PLAN_STARTERS: (Omit<NewPlanTask, "repeat"> & { itemKey: string })[
     titleKm: "ការហាត់សមាធិ (Guided Meditation)",
     subtitle: "Relax and breathe (3 min)",
     subtitleKm: "សម្រាកកាយ និងដកដង្ហើម • ៣ នាទី",
-    href: "/practice",
+    href: "/mindguide/practice",
     icon: "hugeicons_yoga-03",
   },
   {
@@ -142,7 +142,7 @@ export const PLAN_STARTERS: (Omit<NewPlanTask, "repeat"> & { itemKey: string })[
     titleKm: "បន្ធូរបន្ថយអ្វីដែលអ្នកគ្រប់គ្រងបាន",
     subtitle: "Drop or delay one thing this week.",
     subtitleKm: "កាត់បន្ថយ ឬពន្យារពេលការងារមួយក្នុងសប្តាហ៍នេះ",
-    href: "/tips",
+    href: "/mindguide/tips",
     icon: "boxicons_note-filled",
   },
   {

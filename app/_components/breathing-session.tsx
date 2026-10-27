@@ -377,7 +377,7 @@ function SessionComplete({
               {km ? "ហាត់ម្តងទៀត (Breathe More)" : "Breathe More"}
             </button>
             <Link
-              href="/practice"
+              href="/mindguide/practice"
               className="flex h-12 w-full items-center justify-center rounded-xl border border-arom-border bg-white text-base font-semibold text-arom transition-all active:scale-[0.98] hover:bg-arom-wash"
             >
               {km ? "ស្វែងរកការអនុវត្តផ្សេងទៀត (More Practices)" : "Explore More Practices"}
