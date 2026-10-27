@@ -2,7 +2,7 @@
 
 ## 27 Oct 2026: Sunrise Mental Clinic Photo, Exact Pin and Khmer Name
 
-Commit `PENDING`. No migration. Frontend only.
+Commit `a117a2b`. No migration. Frontend only.
 
 **Why.** Rith sent Sunrise Mental Clinic's Google Maps listing. Its photo shows the clinic's sign with the Khmer name, address and phone, and its pin is on the building. Now every listed place has a real photo.
 
