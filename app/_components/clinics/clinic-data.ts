@@ -37,6 +37,8 @@ export type Clinic = {
   statusKm: string;
   /** Photo path, or "" when we have no real photo (the page shows an icon). */
   image: string;
+  /** Credit for an openly licensed photo (shown under it, the license asks for it). */
+  imageCredit?: { text: string; url: string };
   phone: string;
   phoneDisplay: string;
   googleMapsUrl: string;
@@ -137,7 +139,11 @@ export const LISTED_CLINICS: Clinic[] = [
     tags: ["Public hospital", "Psychiatry"],
     tagsKm: ["មន្ទីរពេទ្យរដ្ឋ (Public hospital)", "វិកលចរិតវិទ្យា (Psychiatry)"],
     ...CALL_TO_ASK,
-    image: "",
+    image: "/clinics/khmer-soviet-friendship-hospital.jpg",
+    imageCredit: {
+      text: "Photo: Kiensvay, CC BY-SA 3.0, Wikimedia Commons",
+      url: "https://commons.wikimedia.org/wiki/File:Khmer%E2%80%93Soviet_Friendship_Hospital_Dec_2022.jpg",
+    },
     phone: "+85523424373",
     phoneDisplay: "023 424 373",
     googleMapsUrl: mapsSearch("Khmer Soviet Friendship Hospital, Street 271, Phnom Penh"),

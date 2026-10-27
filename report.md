@@ -1,5 +1,26 @@
 # AROM: Change Report
 
+## 27 Oct 2026: Real Photo for Khmer Soviet Friendship Hospital
+
+Commit `PENDING`. No migration. Frontend only.
+
+**Why.** Rith asked for real photos of the listed clinics and hospitals. Photos on a place's website, Facebook or Google Maps belong to someone, so we only use photos we are allowed to use. Wikimedia Commons has a free photo of Khmer Soviet Friendship Hospital. The other places have no free photo yet.
+
+**What changed for users:**
+- **Khmer Soviet Friendship Hospital shows its real main building** on the list and the detail page.
+- **A small credit under the photo** ("Photo: Kiensvay, CC BY-SA 3.0, Wikimedia Commons") links to the original, because the license asks for it.
+- The other listed places still show the calm icon.
+
+**What changed for the team:**
+- New optional `imageCredit` (`text`, `url`) on `Clinic` in `clinic-data.ts`, shown under the photo in `clinic-detail-view.tsx`.
+- New file `public/clinics/khmer-soviet-friendship-hospital.jpg` (1280 px wide, from Wikimedia Commons).
+- `BACKEND-HANDOFF.md` section 32: the photo rule.
+
+**What to re-test:**
+1. Open `/clinic-hospital`: Khmer Soviet shows the hospital photo, the others show the icon.
+2. Open Khmer Soviet: the photo shows at the top with the credit under it, and the credit opens the Wikimedia page.
+3. Check on a phone that the credit sits neatly under the photo.
+
 ## 27 Oct 2026: EMDRAC Added to Find Clinic & Hospital
 
 Commit `6a64b22`. No migration. Frontend only.

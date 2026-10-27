@@ -86,6 +86,16 @@ export function ClinicDetailView({ clinic, onBack, startBooking = false, me = nu
       <div className="relative h-52 sm:h-64 w-full overflow-hidden rounded-2xl sm:rounded-3xl border border-arom-border/80 shadow-xs bg-arom-soft">
         <ClinicPhoto clinic={clinic} sizes="(max-width: 768px) 100vw, 680px" priority />
       </div>
+      {clinic.imageCredit && (
+        <a
+          href={clinic.imageCredit.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="-mt-2 self-end text-[11px] text-ink-muted hover:text-arom hover:underline"
+        >
+          {clinic.imageCredit.text}
+        </a>
+      )}
 
       {/* Main Clinic Information Card */}
       <div className="rounded-2xl sm:rounded-3xl border border-arom-border/80 bg-white p-4 sm:p-5 shadow-[0_2px_12px_rgba(20,54,47,0.04)] space-y-3.5">
