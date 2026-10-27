@@ -9,16 +9,13 @@ import {
   Play,
   ShieldCheck,
 } from "lucide-react";
-import { useState } from "react";
 import { LanguageQuickToggle, useLanguage } from "../language-provider";
 import { EducationalNote } from "../educational-note";
 import { chooseLabel, useMindGuidePick } from "../mindguide-pick";
 import { ReportProblemButton } from "../report-problem";
-import {
-  isTipBookmarked,
-  toggleTipBookmark,
-  type TipItem,
-} from "./tips-data";
+import { toggleSaved } from "../saved/saved-store";
+import { useSavedIds } from "../saved/use-saved";
+import type { TipItem } from "./tips-data";
 
 type TipDetailViewProps = {
   tip: TipItem;
@@ -37,12 +34,11 @@ export function TipDetailView({
   const { language } = useLanguage();
   const km = language === "km";
   const pick = useMindGuidePick();
-  const [bookmarked, setBookmarked] = useState(() => isTipBookmarked(tip.id));
+  const bookmarked = useSavedIds("tip").includes(tip.id);
 
   const handleToggleBookmark = () => {
     if (preview) return;
-    const newState = toggleTipBookmark(tip.id);
-    setBookmarked(newState);
+    toggleSaved("tip", tip.id);
   };
 
   return (

@@ -17,12 +17,9 @@ import { LanguageQuickToggle, useLanguage } from "../language-provider";
 import { useMindGuidePick } from "../mindguide-pick";
 import { EducationalNote } from "../educational-note";
 import { ReportProblemButton } from "../report-problem";
-import {
-  isTipBookmarked,
-  toggleTipBookmark,
-  type TipItem,
-  type TipStep,
-} from "./tips-data";
+import { toggleSaved } from "../saved/saved-store";
+import { useSavedIds } from "../saved/use-saved";
+import type { TipItem, TipStep } from "./tips-data";
 import { getPlanTryNowItems, toggleTryNowInPlan } from "./tips-plan";
 import { TipCardDeckView } from "./tip-card-deck-view";
 
@@ -56,7 +53,7 @@ function StandardTipInteractiveView({
   const { language } = useLanguage();
   const km = language === "km";
   const pick = useMindGuidePick();
-  const [bookmarked, setBookmarked] = useState(() => isTipBookmarked(tip.id));
+  const bookmarked = useSavedIds("tip").includes(tip.id);
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const [planStepNumbers, setPlanStepNumbers] = useState<number[]>(() => {
     return getPlanTryNowItems().map((i) => i.stepNumber);
@@ -65,8 +62,7 @@ function StandardTipInteractiveView({
 
   const handleToggleBookmark = () => {
     if (preview) return;
-    const newState = toggleTipBookmark(tip.id);
-    setBookmarked(newState);
+    toggleSaved("tip", tip.id);
   };
 
   const handleToggleStep = (stepNumber: number) => {

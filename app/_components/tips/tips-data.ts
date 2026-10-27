@@ -635,37 +635,4 @@ export const ALL_TIPS: TipItem[] = [
   TIP_DIGITAL_DETOX,
 ];
 
-export const STORAGE_TIPS_KEYS = {
-  BOOKMARKS: "arom_bookmarked_tips_v1",
-  COMPLETIONS: "arom_tip_completions_v1",
-};
-
-export function isTipBookmarked(tipId: string): boolean {
-  if (typeof window === "undefined") return true;
-  try {
-    const raw = window.localStorage.getItem(STORAGE_TIPS_KEYS.BOOKMARKS);
-    if (!raw) return true;
-    const list: string[] = JSON.parse(raw);
-    return list.includes(tipId);
-  } catch {
-    return true;
-  }
-}
-
-export function toggleTipBookmark(tipId: string): boolean {
-  if (typeof window === "undefined") return false;
-  try {
-    const raw = window.localStorage.getItem(STORAGE_TIPS_KEYS.BOOKMARKS);
-    let list: string[] = raw ? JSON.parse(raw) : ["how-to-control-stress"];
-    const exists = list.includes(tipId);
-    if (exists) {
-      list = list.filter((id) => id !== tipId);
-    } else {
-      list.push(tipId);
-    }
-    window.localStorage.setItem(STORAGE_TIPS_KEYS.BOOKMARKS, JSON.stringify(list));
-    return !exists;
-  } catch {
-    return false;
-  }
-}
+// Saved tips are saved items (saved-store.ts), in the person's account.

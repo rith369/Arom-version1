@@ -3,13 +3,10 @@
 import Image from "next/image";
 import { ArrowLeft, Bookmark, ChevronRight } from "lucide-react";
 import { motion } from "motion/react";
-import { useState } from "react";
 import { LanguageQuickToggle, useLanguage } from "../language-provider";
-import {
-  ALL_TIPS,
-  STORAGE_TIPS_KEYS,
-  type TipItem,
-} from "./tips-data";
+import { removeSaved } from "../saved/saved-store";
+import { useSavedIds } from "../saved/use-saved";
+import { ALL_TIPS, type TipItem } from "./tips-data";
 
 type SavedTipsViewProps = {
   onBack: () => void;
@@ -23,30 +20,11 @@ export function SavedTipsView({
   const { language } = useLanguage();
   const km = language === "km";
 
-  const [savedIds, setSavedIds] = useState<string[]>(() => {
-    if (typeof window === "undefined") return ["how-to-control-stress"];
-    try {
-      const raw = window.localStorage.getItem(STORAGE_TIPS_KEYS.BOOKMARKS);
-      return raw ? JSON.parse(raw) : ["how-to-control-stress"];
-    } catch {
-      return ["how-to-control-stress"];
-    }
-  });
+  const savedIds = useSavedIds("tip");
 
   const handleRemove = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    setSavedIds((prev) => {
-      const next = prev.filter((item) => item !== id);
-      try {
-        window.localStorage.setItem(
-          STORAGE_TIPS_KEYS.BOOKMARKS,
-          JSON.stringify(next),
-        );
-      } catch (err) {
-        console.error(err);
-      }
-      return next;
-    });
+    removeSaved("tip", id);
   };
 
   const savedTips = ALL_TIPS.filter(

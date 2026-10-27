@@ -18,11 +18,8 @@ import { useState } from "react";
 import { LanguageQuickToggle, useLanguage } from "../language-provider";
 import { EducationalNote } from "../educational-note";
 import { ReportProblemButton } from "../report-problem";
-import {
-  saveLessonProgress,
-  type Lesson,
-  type LessonSection,
-} from "./learn-data";
+import type { Lesson, LessonSection } from "./learn-data";
+import { saveLessonProgress } from "./lesson-progress-store";
 
 type LessonScreenProps = {
   lesson: Lesson;

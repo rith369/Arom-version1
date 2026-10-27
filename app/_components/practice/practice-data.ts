@@ -219,37 +219,4 @@ export const ALL_PRACTICES: PracticeItem[] = [
   },
 ];
 
-export const STORAGE_PRACTICE_KEYS = {
-  BOOKMARKS: "arom_bookmarked_practices_v1",
-  COMPLETIONS: "arom_practice_completions_v1",
-};
-
-export function isPracticeBookmarked(practiceId: string): boolean {
-  if (typeof window === "undefined") return true;
-  try {
-    const raw = window.localStorage.getItem(STORAGE_PRACTICE_KEYS.BOOKMARKS);
-    if (!raw) return true;
-    const list: string[] = JSON.parse(raw);
-    return list.includes(practiceId);
-  } catch {
-    return true;
-  }
-}
-
-export function togglePracticeBookmark(practiceId: string): boolean {
-  if (typeof window === "undefined") return false;
-  try {
-    const raw = window.localStorage.getItem(STORAGE_PRACTICE_KEYS.BOOKMARKS);
-    let list: string[] = raw ? JSON.parse(raw) : ["interactive-breathing"];
-    const exists = list.includes(practiceId);
-    if (exists) {
-      list = list.filter((id) => id !== practiceId);
-    } else {
-      list.push(practiceId);
-    }
-    window.localStorage.setItem(STORAGE_PRACTICE_KEYS.BOOKMARKS, JSON.stringify(list));
-    return !exists;
-  } catch {
-    return false;
-  }
-}
+// Saved practices are saved items (saved-store.ts), in the person's account.

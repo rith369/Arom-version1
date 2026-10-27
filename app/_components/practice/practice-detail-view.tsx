@@ -22,12 +22,9 @@ import { LanguageQuickToggle, useLanguage } from "../language-provider";
 import { chooseLabel, useMindGuidePick } from "../mindguide-pick";
 import { EducationalNote } from "../educational-note";
 import { ReportProblemButton } from "../report-problem";
-import {
-  isPracticeBookmarked,
-  PRACTICE_CATEGORIES,
-  togglePracticeBookmark,
-  type PracticeItem,
-} from "./practice-data";
+import { toggleSaved } from "../saved/saved-store";
+import { useSavedIds } from "../saved/use-saved";
+import { PRACTICE_CATEGORIES, type PracticeItem } from "./practice-data";
 
 type PracticeDetailViewProps = {
   practice: PracticeItem;
@@ -46,9 +43,7 @@ export function PracticeDetailView({
   const { language } = useLanguage();
   const km = language === "km";
   const pick = useMindGuidePick();
-  const [bookmarked, setBookmarked] = useState(() =>
-    isPracticeBookmarked(practice.id),
-  );
+  const bookmarked = useSavedIds("practice").includes(practice.id);
   const [inPlan, setInPlan] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
@@ -75,8 +70,7 @@ export function PracticeDetailView({
 
   const handleBookmarkToggle = () => {
     if (preview) return;
-    const newState = togglePracticeBookmark(practice.id);
-    setBookmarked(newState);
+    toggleSaved("practice", practice.id);
   };
 
   const handleTogglePlan = () => {

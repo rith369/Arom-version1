@@ -1,5 +1,32 @@
 # AROM: Change Report
 
+## 27 Oct 2026: Saved Items and Lesson Progress Live in the Account
+
+Commit `cbb4282`, pull request. Migration `20261027000100_saved_items_lesson_progress.sql` applied 27 Oct by Rith. Merged in PR #40.
+
+**Why.** Saved lessons, tips, practice and podcasts, and how far someone got in a lesson, were kept only in the browser. They were lost on a new phone, and anyone using the same phone could see what the person saves and how they answered lesson reflections. On a mental health app that is private information, so it now lives in the person's own account, readable only by them.
+
+**What changed for users:**
+- **Saved follows you:** bookmarks and the podcast heart are saved to your account and show on any phone or laptop you log in on.
+- **Lessons remember where you were:** the section reached and finished lessons follow your account too.
+- **Nothing is lost:** the first time you open a lesson, tip or the Saved page after logging in, anything saved on that phone moves to your account and is removed from the phone.
+- **Real lists only:** the Saved screens inside Learn, Tips and Practice show what you actually saved. The made up sample items are gone, and Saved Practices now lists every saved exercise, not only breathing.
+- **Not logged in:** saving still works on that phone, as before.
+
+**What changed for the team:**
+- **New tables:** `saved_items` and `lesson_progress`, owner only through RLS, with no professional or admin access. Up to 500 saved items per person.
+- **New endpoints:** `GET`, `PUT` and `POST /api/saved`; `GET` and `PUT /api/lesson-progress`.
+- **One store:** every bookmark button uses `saved-store.ts` and `use-saved.ts`. The old browser functions in `tips-data.ts`, `practice-data.ts` and `learn-data.ts` are removed, except `toggleLessonBookmark`, which now saves to the account.
+- **Docs:** BACKEND-HANDOFF.md section 30 is rewritten with the data shape and rules.
+
+**What to re-test:**
+1. Log in, bookmark a lesson, a tip, a practice and a podcast. Open `/profile/saved` and confirm all four show.
+2. Log in on another browser and confirm the same four show there.
+3. Remove one from Saved and confirm its bookmark is empty on the item.
+4. Start "Learn About Stress", finish 2 sections, then open it on another browser and confirm it continues from section 3.
+5. Log out, bookmark a tip, then log in and open Tips. Confirm the tip is in Saved, and in the browser's storage the `arom_bookmarked_tips_v1` key is gone.
+6. In Supabase, confirm another account cannot read your rows in `saved_items` or `lesson_progress`.
+
 ## 27 Oct 2026: Open in Chrome or Safari for Google Sign In Inside Apps
 
 Commit `118aabd`. No migration. Frontend only.

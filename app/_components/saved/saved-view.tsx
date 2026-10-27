@@ -20,7 +20,8 @@ import { ALL_LESSONS, TOPIC_CATEGORIES } from "../learn/learn-data";
 import { MINDGUIDE_PODCASTS, formatDuration } from "../podcasts/podcast-data";
 import { ALL_PRACTICES, PRACTICE_CATEGORIES } from "../practice/practice-data";
 import { ALL_TIPS, TIP_CATEGORIES } from "../tips/tips-data";
-import { removeSaved, useSavedIds, type SavedKind } from "./saved-store";
+import { removeSaved, type SavedKind } from "./saved-store";
+import { useSavedIds } from "./use-saved";
 
 type SavedRow = {
   id: string;

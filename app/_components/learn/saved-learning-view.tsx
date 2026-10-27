@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
   Bookmark,
@@ -10,18 +11,37 @@ import {
   Lightbulb,
 } from "lucide-react";
 import { motion } from "motion/react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useLanguage } from "../language-provider";
-import {
-  INITIAL_SAVED_ITEMS,
-  STORAGE_KEYS,
-  type SavedItem,
-} from "./learn-data";
+import { MINDGUIDE_PODCASTS, formatDuration } from "../podcasts/podcast-data";
+import { removeSaved } from "../saved/saved-store";
+import { useSavedIds } from "../saved/use-saved";
+import { ALL_TIPS, TIP_CATEGORIES } from "../tips/tips-data";
+import { ALL_LESSONS, TOPIC_CATEGORIES } from "./learn-data";
 
 type SavedLearningViewProps = {
   onBack: () => void;
   onSelectLesson: (lessonId: string) => void;
 };
+
+type Tab = "lesson" | "tip" | "podcast";
+
+type Row = {
+  id: string;
+  title: string;
+  category: string;
+  duration: string;
+  // Empty for podcasts, which show an icon instead of a picture.
+  image: string;
+};
+
+// Newest saved first. Ids that no longer match an available item are skipped.
+function newestFirst<T extends { id: string }>(ids: string[], items: T[]): T[] {
+  return [...ids]
+    .reverse()
+    .map((id) => items.find((item) => item.id === id))
+    .filter((item): item is T => Boolean(item));
+}
 
 export function SavedLearningView({
   onBack,
@@ -29,34 +49,54 @@ export function SavedLearningView({
 }: SavedLearningViewProps) {
   const { language } = useLanguage();
   const km = language === "km";
-  const [activeTab, setActiveTab] = useState<"lesson" | "tip" | "podcast">("lesson");
-  const [savedItems, setSavedItems] = useState<SavedItem[]>(INITIAL_SAVED_ITEMS);
+  const router = useRouter();
+  const [activeTab, setActiveTab] = useState<Tab>("lesson");
+  const lessonIds = useSavedIds("lesson");
+  const tipIds = useSavedIds("tip");
+  const podcastIds = useSavedIds("podcast");
 
-  useEffect(() => {
-    try {
-      const raw = window.localStorage.getItem(STORAGE_KEYS.SAVED_ITEMS);
-      if (raw) {
-        setSavedItems(JSON.parse(raw));
-      }
-    } catch {
-      // ignore
-    }
-  }, []);
+  const rows: Record<Tab, Row[]> = {
+    lesson: newestFirst(lessonIds, ALL_LESSONS.filter((lesson) => lesson.isAvailable)).map((lesson) => {
+      const category = TOPIC_CATEGORIES.find((item) => item.id === lesson.category);
+      return {
+        id: lesson.id,
+        title: km && lesson.kmTitle ? lesson.kmTitle : lesson.title,
+        category: (km ? category?.kmLabel : category?.label) ?? lesson.category,
+        duration: km ? lesson.kmDuration ?? lesson.duration : lesson.duration,
+        image: lesson.image,
+      };
+    }),
+    tip: newestFirst(tipIds, ALL_TIPS.filter((tip) => tip.isAvailable)).map((tip) => {
+      const category = TIP_CATEGORIES.find((item) => item.id === tip.category);
+      return {
+        id: tip.id,
+        title: km ? tip.kmTitle : tip.title,
+        category: (km ? category?.kmLabel : category?.label) ?? tip.category,
+        duration: km ? tip.kmDuration : tip.duration,
+        image: tip.image,
+      };
+    }),
+    podcast: newestFirst(podcastIds, MINDGUIDE_PODCASTS).map((podcast) => ({
+      id: podcast.id,
+      title: km ? podcast.kmTitle : podcast.title,
+      category: km ? podcast.kmTopic : podcast.topic,
+      duration: formatDuration(podcast.durationSeconds, km),
+      image: "",
+    })),
+  };
+
+  const openRow = (id: string) => {
+    if (activeTab === "lesson") onSelectLesson(id);
+    else if (activeTab === "tip") router.push(`/mindguide/tips?open=${id}`);
+    else router.push(`/podcasts/${id}`);
+  };
 
   const handleRemoveBookmark = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    setSavedItems((prev) => {
-      const next = prev.filter((item) => item.id !== id);
-      try {
-        window.localStorage.setItem(STORAGE_KEYS.SAVED_ITEMS, JSON.stringify(next));
-      } catch (err) {
-        console.error(err);
-      }
-      return next;
-    });
+    removeSaved(activeTab, id);
   };
 
-  const filteredItems = savedItems.filter((item) => item.type === activeTab);
+  const filteredItems = rows[activeTab];
 
   return (
     <div className="min-h-screen bg-canvas text-ink pb-24 lg:pb-12">
@@ -129,22 +169,22 @@ export function SavedLearningView({
               <motion.div
                 key={item.id}
                 whileHover={{ y: -2 }}
-                onClick={() => {
-                  if (item.type === "lesson") {
-                    onSelectLesson(item.id);
-                  }
-                }}
+                onClick={() => openRow(item.id)}
                 className="group flex cursor-pointer items-center gap-4 rounded-2xl border border-arom-border bg-white p-3.5 shadow-[0_8px_24px_rgba(25,87,72,0.05)] transition-all hover:border-arom/40 hover:shadow-card sm:p-4"
               >
                 {/* Thumbnail */}
-                <div className="relative size-16 shrink-0 overflow-hidden rounded-xl bg-arom-soft sm:size-20">
-                  <Image
-                    src={item.thumbnail}
-                    alt={item.title}
-                    fill
-                    className="object-cover"
-                    unoptimized
-                  />
+                <div className="relative flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-arom-soft text-arom sm:size-20">
+                  {item.image ? (
+                    <Image
+                      src={item.image}
+                      alt=""
+                      fill
+                      className="object-cover"
+                      unoptimized
+                    />
+                  ) : (
+                    <Headphones size={26} aria-hidden="true" />
+                  )}
                 </div>
 
                 {/* Info */}
@@ -153,33 +193,16 @@ export function SavedLearningView({
                     {item.category}
                   </span>
                   <h3 className="mt-1 truncate text-sm font-bold text-ink sm:text-base">
-                    {km && item.kmTitle ? item.kmTitle : item.title}
+                    {item.title}
                   </h3>
-                  <div className="mt-1 flex items-center gap-2 text-xs text-ink-muted">
-                    <span>{item.duration}</span>
-                    {item.progressPercent !== undefined && (
-                      <>
-                        <span>•</span>
-                        <span>{item.progressPercent}% completed</span>
-                      </>
-                    )}
-                  </div>
-
-                  {item.progressPercent !== undefined && (
-                    <div className="mt-2 h-1.5 w-full max-w-[12rem] overflow-hidden rounded-full bg-arom-soft">
-                      <div
-                        className="h-full rounded-full bg-arom"
-                        style={{ width: `${item.progressPercent}%` }}
-                      />
-                    </div>
-                  )}
+                  <p className="mt-1 text-xs text-ink-muted">{item.duration}</p>
                 </div>
 
                 {/* Bookmark Toggle / Remove */}
                 <button
                   type="button"
                   onClick={(e) => handleRemoveBookmark(item.id, e)}
-                  aria-label="Remove bookmark"
+                  aria-label={km ? "លុបចេញពីចំណាំ" : "Remove bookmark"}
                   className="flex size-9 shrink-0 items-center justify-center rounded-full border border-arom-border bg-white text-arom transition-colors hover:bg-arom-danger-soft hover:text-arom-danger hover:border-arom-danger/40 shadow-sm"
                 >
                   <Bookmark size={17} className="fill-arom" />

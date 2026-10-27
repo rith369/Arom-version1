@@ -35,12 +35,9 @@ import { EducationalNote } from "../educational-note";
 import { LanguageQuickToggle, useLanguage } from "../language-provider";
 import { chooseLabel, useMindGuidePick } from "../mindguide-pick";
 import { ReportProblemButton } from "../report-problem";
-import {
-  isTipBookmarked,
-  toggleTipBookmark,
-  type TipItem,
-  type TipStep,
-} from "./tips-data";
+import { toggleSaved } from "../saved/saved-store";
+import { useSavedIds } from "../saved/use-saved";
+import type { TipItem, TipStep } from "./tips-data";
 import { getPlanTryNowItems, toggleTryNowInPlan } from "./tips-plan";
 
 type TipCardDeckViewProps = {
@@ -593,7 +590,7 @@ export function TipCardDeckView({
   const [viewMode, setViewMode] = useState<"deck" | "grid">("deck");
   const [showSummary, setShowSummary] = useState(false);
 
-  const [bookmarked, setBookmarked] = useState(() => isTipBookmarked(tip.id));
+  const bookmarked = useSavedIds("tip").includes(tip.id);
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const [planStepNumbers, setPlanStepNumbers] = useState<number[]>(() => {
     return getPlanTryNowItems().map((i) => i.stepNumber);
@@ -605,8 +602,7 @@ export function TipCardDeckView({
 
   const handleToggleBookmark = () => {
     if (preview) return;
-    const newState = toggleTipBookmark(tip.id);
-    setBookmarked(newState);
+    toggleSaved("tip", tip.id);
   };
 
   const handleToggleStep = (stepNumber: number) => {

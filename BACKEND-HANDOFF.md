@@ -67,7 +67,7 @@ The yellow "Demo data on this page" banner is in `admin-shell.tsx`. Remove it fo
 | Crisis helplines and support contact: admin Settings, user "Get help now" in Profile and Settings | Done | Connected: helplines (`/api/crisis-resources`, `/api/admin/crisis-resources`, migration `20261014000300`) and support contact (returned with the helplines; `GET\|PUT /api/admin/support-contact`, migration `20261017000200`) | 13 |
 | Admin bookings chart and table, emergency cancel (`/admin/bookings`) | Done | Connected (`GET /api/admin/bookings`, `POST /api/admin/bookings/:id/cancel`), migration `20261017000100`. The client is never shown | 12 |
 | MindGuide podcasts: user pages `/podcasts` and `/podcasts/<id>`, admin Podcasts tab | Done on mock data | Waiting for backend | 11 |
-| Saved page in Settings (`/profile/saved`): saved lessons, tips, practice and podcasts | Done, saved in the browser only | Waiting for backend | 30 |
+| Saved page in Settings (`/profile/saved`) and lesson progress: saved lessons, tips, practice and podcasts, how far each lesson got | Done | Connected (`/api/saved`, `/api/lesson-progress`), PR #40, migration `20261027000100` applied 27 Oct | 30 |
 | Community: professionals and admins create groups, admins read chats and shut groups down, users report a person, image, message or group (`/community`, `/admin/community`) | Done | Partly connected: group list and create, join, chat read and send (`/api/community/groups`, `/:id/join`, `/:id/messages`), migrations `20261016000000` to `20261016000700`. Moderation connected: admin groups list, create, edit, shut down, reopen, member reports, remove message or person (`/api/admin/community/*`, `POST /api/community/reports`), migration `20261017000500`. Group activities still sample data | 23 |
 | Mood check in and Your Progress on Home (`/`, journal starts from today's mood) | Done | Connected (`POST /api/mood-checkins`, `GET /api/progress`), migration `20261015000400` | 22 |
 | Progress pages (`/progress`, `/progress/details`, from Figma): trend, bars, distribution, today's check in | Done | Connected for every range (`GET /api/progress?range=7d\|30d\|90d`). Insights worked out in the browser from the same real check ins | 22 |
@@ -1219,30 +1219,44 @@ Several original functions remain for internal use, with direct execution revoke
 - One rule for every name: `shown_name(role, hide_identity, full_name, nickname, fallback)`.
 - Rules (database check `profiles_nickname_check`, same in `lib/nickname.ts`): 2 to 30 characters, no links, emails, 5 or more digits, `#`, `@` or brackets, and nothing containing "arom", "admin" or "moderator".
 
-## 30. Saved items (Settings, Saved)
+## 30. Saved items and lesson progress (Settings, Saved)
 
-**Files:** `app/_components/saved/saved-store.ts` (read, toggle and remove saved ids), `app/_components/saved/saved-view.tsx`, route `app/profile/saved/page.tsx` (login required like the rest of `/profile`). The "Saved" card sits under the profile summary in `app/_components/profile-settings.tsx`. The podcast player heart saves through the same store.
+**Status:** Done 27 Oct 2026, merged in PR #40. Migration `20261027000100_saved_items_lesson_progress.sql` applied 27 Oct.
 
-**What it does:** one page with four tabs (Lessons, Tips, Practice, Podcasts), newest saved first, a count on each tab, remove with the filled bookmark, and an empty state with a link to browse. Each row opens the item (`/mindguide/learn?open=<id>`, `/mindguide/tips?open=<id>`, `/mindguide/practice?open=<id>`, `/podcasts/<id>`).
+**Files:** `lib/saved.ts` (types and rules), `lib/controllers/saved-controller.ts`, routes `app/api/saved/route.ts` and `app/api/lesson-progress/route.ts`. In the browser: `app/_components/saved/saved-store.ts` (no React, also imported by `learn-data.ts`), `app/_components/saved/use-saved.ts` (hooks), `app/_components/learn/lesson-progress-store.ts` and `app/_components/learn/use-lesson-storage.ts`. Pages: `app/_components/saved/saved-view.tsx` at `/profile/saved` (login required), and the Saved screens inside Learn, Tips and Practice, which now read the same saved items.
 
-**Where it is stored today (browser only, `localStorage`, a JSON array of ids per type):**
+**What it does:** one Saved page with four tabs (Lessons, Tips, Practice, Podcasts), newest saved first. Every bookmark button and the podcast heart save through the same store. Lessons remember the section reached, whether they are finished, and the quiz and reflection option picked.
 
-| Type | Key | Written by |
+### Data shape
+
+| Table | Columns | Rules |
 |---|---|---|
-| lesson | `arom_bookmarked_lessons_v1` | bookmark on lesson screens |
-| tip | `arom_bookmarked_tips_v1` | bookmark on tip screens |
-| practice | `arom_bookmarked_practices_v1` | bookmark on practice screens |
-| podcast | `arom_saved_podcasts_v1` | heart in the podcast player |
+| `saved_items` | `user_id`, `kind` (`lesson`, `tip`, `practice`, `podcast`), `item_id` (MindGuide id), `created_at` | Primary key on the first three. Up to 500 per person (trigger) |
+| `lesson_progress` | `user_id`, `lesson_id`, `completed_sections`, `total_sections`, `is_complete`, `last_visited_section`, `quiz_answer`, `reflection_answer`, `updated_at` | Primary key `(user_id, lesson_id)` |
 
-Tips and practice show one saved example (`how-to-control-stress`, `interactive-breathing`) until the person changes the list. That is demo seed data from the older screens and should not exist in production.
+**RLS:** owner only on both tables. Saved items reveal what someone is reading about, and reflection answers are personal, so no professional or admin access.
+
+### Endpoints
+
+| Call | Body | Returns |
+|---|---|---|
+| `GET /api/saved` | | `{ saved: { lesson, tip, practice, podcast } }`, ids oldest first |
+| `PUT /api/saved` | `{ kind, id, saved }` | `{ ok, saved }` |
+| `POST /api/saved` | `{ items: [{ kind, id }] }` (up to 200) | `{ saved }` after adding them |
+| `GET /api/lesson-progress` | | `{ progress: { <lessonId>: LessonProgress } }` |
+| `PUT /api/lesson-progress` | `{ items: [{ lessonId, progress }], keepExisting? }` | `{ progress }` |
+
+### Rules
+
+- **Signed in:** everything is read from and saved to the account. A bookmark shows at once and is put back if the save fails.
+- **Signed out:** the browser keys older versions used are kept (`arom_bookmarked_lessons_v1`, `arom_bookmarked_tips_v1`, `arom_bookmarked_practices_v1`, `arom_saved_podcasts_v1`, `arom_lesson_progress_v1_<lessonId>`).
+- **Moving to the account:** the first time a signed in person opens a screen that uses saved items or lesson progress, anything in those browser keys is added to the account and then removed from the browser, because anyone using the same phone could read it. For lesson progress the account wins when it already has that lesson (`keepExisting`).
+- **No demo items:** the sample saved tip, practice and Learn list are gone. An empty list shows the empty state.
 
 ### Backend gaps
 
-1. **Table `saved_items`** with `user_id`, `item_type` (`lesson`, `tip`, `practice`, `podcast`), `item_id` (the same slug the screens use), `created_at`, unique on the three first fields. **RLS: a user reads, inserts and deletes only their own rows.** Saved items are personal reading choices, so admins must not read them.
-2. **Endpoints:** `GET /api/saved` (all types, newest first), `PUT /api/saved/:type/:id` (save), `DELETE /api/saved/:type/:id` (remove). The API should check the id exists in the content list, the same way `POST /api/content-reports` does.
-3. **Move the browser lists** into the table the first time a signed in person opens Saved, then stop reading the browser keys (same idea as the journal move in section 22).
-4. **Older Saved screens still differ.** The Saved button inside Learn, Tips and Practice opens their own screens. Tips and Practice read the same keys. The Learn one reads a different key with sample items (`STORAGE_KEYS.SAVED_ITEMS`), so lessons bookmarked there do not show in it. Point all three at `/profile/saved` or at the new table once the backend exists.
-5. **No saved date** is kept yet, so the order is the order of saving.
+1. The API does not check that an id exists in the MindGuide content (content still lives in the code). Ids that no longer match are skipped on screen.
+2. A person who logs in or out without reloading keeps the old list until the next page load.
 
 ## 31. Reviews of professionals
 
