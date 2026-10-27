@@ -1,5 +1,27 @@
 # AROM: Change Report
 
+## 27 Oct 2026: Sunrise Mental Clinic Photo, Exact Pin and Khmer Name
+
+Commit `PENDING`. No migration. Frontend only.
+
+**Why.** Rith sent Sunrise Mental Clinic's Google Maps listing. Its photo shows the clinic's sign with the Khmer name, address and phone, and its pin is on the building. Now every listed place has a real photo.
+
+**What changed for users:**
+- **A photo of the clinic front** with the Sunrise Mental Clinic sign (the camera watermark is cropped off).
+- **Exact map pin** on the building on Street 432.
+- **The clinic's own Khmer name** from its sign: មន្ទីរសម្រាកព្យាបាលផ្លូវចិត្ត សាន់រ៉ាយ.
+- **Address** now says Chamkar Mon and "behind the Chinese Embassy", as on the sign.
+
+**What changed for the team:**
+- `clinic-data.ts`: Sunrise photo, `imagePosition`, pin (11.541423, 104.910948), Khmer name, address and `source`.
+- New file `public/clinics/sunrise-mental-clinic.jpg`.
+- `BACKEND-HANDOFF.md` section 32: all 8 listed places have a photo; pin notes updated.
+
+**What to re-test:**
+1. Open `/clinic-hospital`: all 8 listed places show a photo, none show the icon.
+2. Open Sunrise on a laptop and a phone: the sign is visible in the photo.
+3. Switch to Khmer: the name reads មន្ទីរសម្រាកព្យាបាលផ្លូវចិត្ត សាន់រ៉ាយ.
+
 ## 27 Oct 2026: AROM Logo in the Browser Tab
 
 Commit `f592755`. No migration. Frontend only.

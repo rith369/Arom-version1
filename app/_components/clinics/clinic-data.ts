@@ -181,17 +181,20 @@ export const LISTED_CLINICS: Clinic[] = [
     id: "sunrise-mental-clinic",
     slug: "sunrise-mental-clinic",
     name: "Sunrise Mental Clinic",
-    nameKm: "គ្លីនិកសុខភាពផ្លូវចិត្ត Sunrise",
+    // The Khmer name on the clinic's sign.
+    nameKm: "មន្ទីរសម្រាកព្យាបាលផ្លូវចិត្ត សាន់រ៉ាយ",
     category: "clinic",
     ...NO_REVIEWS,
     ...PHNOM_PENH,
-    address: "#112, Street 432, Toul Tum Poung II, Phnom Penh (west of the Chinese Embassy)",
-    addressKm: "ផ្ទះលេខ ១១២ ផ្លូវ ៤៣២ សង្កាត់ទួលទំពូងទី២ រាជធានីភ្នំពេញ (ខាងលិចស្ថានទូតចិន)",
+    address: "#112, Street 432, Toul Tum Poung II, Chamkar Mon, Phnom Penh (behind the Chinese Embassy)",
+    addressKm: "ផ្ទះលេខ ១១២ ផ្លូវ ៤៣២ សង្កាត់ទួលទំពូងទី២ ខណ្ឌចំការមន រាជធានីភ្នំពេញ (ខាងក្រោយស្ថានទូតចិន)",
     tags: ["Psychiatry", "Counseling", "Private"],
     tagsKm: ["វិកលចរិតវិទ្យា (Psychiatry)", "ការប្រឹក្សា (Counseling)", "ឯកជន (Private)"],
     status: "Every day, 8:00 AM to 8:00 PM",
     statusKm: "រៀងរាល់ថ្ងៃ ម៉ោង ៨:០០ ព្រឹក ដល់ ៨:០០ យប់",
-    image: "",
+    // From the Google Maps listing Rith sent (27 Oct 2026). Camera watermark cropped off.
+    image: "/clinics/sunrise-mental-clinic.jpg",
+    imagePosition: "50% 40%",
     phone: "+85599545565",
     phoneDisplay: "099 545 565",
     googleMapsUrl: mapsSearch("Sunrise Mental Clinic, Street 432, Phnom Penh"),
@@ -199,11 +202,11 @@ export const LISTED_CLINICS: Clinic[] = [
       "A private mental health clinic near Toul Tum Poung market. It offers mental health assessment and treatment, counseling and psychotherapy, and psychological testing.",
     aboutKm:
       "គ្លីនិកសុខភាពផ្លូវចិត្តឯកជន នៅក្បែរផ្សារទួលទំពូង។ គ្លីនិកផ្តល់ការវាយតម្លៃ និងការព្យាបាលសុខភាពផ្លូវចិត្ត ការប្រឹក្សា និងការព្យាបាលដោយការនិយាយ (Psychotherapy) និងការធ្វើតេស្តផ្លូវចិត្ត។",
-    // street
-    lat: 11.541572,
-    lng: 104.913143,
+    lat: 11.541423,
+    lng: 104.910948,
     isListed: true,
-    source: "sunriseclinic.com.kh (hours, services); UK government list of doctors in Cambodia (Jan 2026)",
+    source:
+      "sunriseclinic.com.kh (hours, services); UK government list of doctors in Cambodia (Jan 2026); Google Maps listing and the sign on the building (pin, Khmer name, address)",
     checkedOn: "2026-10-27",
     services: [
       service(
