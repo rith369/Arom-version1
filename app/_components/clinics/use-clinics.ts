@@ -1,14 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { SAMPLE_CLINICS, type Clinic } from "./clinic-data";
+import { LISTED_CLINICS, type Clinic } from "./clinic-data";
 
 // Remembered while the app is open, so going back to the list is instant.
 let cache: Clinic[] | null = null;
 
 /**
- * Real clinics from the database (GET /api/clinics) first, then the sample
- * clinics. If the real ones fail to load, the samples still show.
+ * AROM clinics from the database (GET /api/clinics) first, then the listed
+ * real places in clinic-data.ts. If the database ones fail to load, the
+ * listed places still show.
  */
 export function useClinics(): { clinics: Clinic[]; loaded: boolean } {
   const [real, setReal] = useState<Clinic[] | null>(cache);
@@ -30,5 +31,5 @@ export function useClinics(): { clinics: Clinic[]; loaded: boolean } {
     };
   }, []);
 
-  return { clinics: [...(real ?? []), ...SAMPLE_CLINICS], loaded: real !== null };
+  return { clinics: [...(real ?? []), ...LISTED_CLINICS], loaded: real !== null };
 }

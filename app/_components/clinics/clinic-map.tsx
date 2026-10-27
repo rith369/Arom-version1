@@ -44,7 +44,7 @@ function FitBounds({ points }: { points: [number, number][] }) {
 /**
  * The Find Clinic & Hospital map (OpenStreetMap, no key needed). Tapping a
  * pin shows the clinic with View details and, for real clinics, Directions
- * in Google Maps. Sample clinics have grey pins and no directions.
+ * in Google Maps. Listed places (not connected to AROM) have blue pins.
  */
 export default function ClinicMap({
   clinics,
@@ -57,7 +57,7 @@ export default function ClinicMap({
   km: boolean;
   onSelect: (clinic: Clinic) => void;
 }) {
-  const icons = useMemo(() => ({ real: pin("#1f6f5b"), sample: pin("#94a3b8") }), []);
+  const icons = useMemo(() => ({ arom: pin("#1f6f5b"), listed: pin("#3b82a6") }), []);
   const points: [number, number][] = [
     ...clinics.map((clinic): [number, number] => [clinic.lat, clinic.lng]),
     ...(me ? [[me.lat, me.lng] as [number, number]] : []),
@@ -78,13 +78,13 @@ export default function ClinicMap({
       <FitBounds points={points} />
 
       {clinics.map((clinic) => (
-        <Marker key={clinic.id} position={[clinic.lat, clinic.lng]} icon={clinic.isSample ? icons.sample : icons.real}>
+        <Marker key={clinic.id} position={[clinic.lat, clinic.lng]} icon={clinic.isListed ? icons.listed : icons.arom}>
           <Popup>
             <div style={{ minWidth: 170 }}>
               <p style={{ margin: 0, fontWeight: 700, fontSize: 13, color: "#14362f" }}>{km ? clinic.nameKm : clinic.name}</p>
-              {clinic.isSample && (
+              {clinic.isListed && (
                 <p style={{ margin: "2px 0 0", fontSize: 11, color: "#64748b" }}>
-                  {km ? "គំរូ មិនមែនគ្លីនិកពិតទេ" : "Sample, not a real clinic"}
+                  {km ? "ទូរស័ព្ទដើម្បីកក់" : "Call to book"}
                 </p>
               )}
               <div style={{ marginTop: 8, display: "flex", gap: 6, flexWrap: "wrap" }}>
@@ -104,24 +104,22 @@ export default function ClinicMap({
                 >
                   {km ? "មើលព័ត៌មាន" : "View details"}
                 </button>
-                {!clinic.isSample && (
-                  <a
-                    href={clinic.googleMapsUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{
-                      border: "1px solid #185a4d",
-                      color: "#185a4d",
-                      borderRadius: 9999,
-                      padding: "4px 10px",
-                      fontSize: 12,
-                      fontWeight: 600,
-                      textDecoration: "none",
-                    }}
-                  >
-                    {km ? "ទិសដៅ" : "Directions"}
-                  </a>
-                )}
+                <a
+                  href={clinic.googleMapsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    border: "1px solid #185a4d",
+                    color: "#185a4d",
+                    borderRadius: 9999,
+                    padding: "4px 10px",
+                    fontSize: 12,
+                    fontWeight: 600,
+                    textDecoration: "none",
+                  }}
+                >
+                  {km ? "ទិសដៅ" : "Directions"}
+                </a>
               </div>
             </div>
           </Popup>

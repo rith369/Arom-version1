@@ -2,6 +2,7 @@ export type ClinicService = {
   id: string;
   name: string;
   nameKm: string;
+  /** "" when not known: the page hides it. */
   duration: string;
   durationKm: string;
   fee: string;
@@ -34,6 +35,7 @@ export type Clinic = {
   tagsKm: string[];
   status: string;
   statusKm: string;
+  /** Photo path, or "" when we have no real photo (the page shows an icon). */
   image: string;
   phone: string;
   phoneDisplay: string;
@@ -47,247 +49,335 @@ export type Clinic = {
   reviews: ClinicReview[];
   /** Shown to confirmed University of Puthisastra students and staff only (lib/up-student.ts). */
   upStudentsOnly?: boolean;
-  /** A made up example clinic: labelled "Sample", never called. */
-  isSample?: boolean;
+  /**
+   * A real place AROM is not connected to: people call it to book. No
+   * ratings, reviews or booking in AROM.
+   */
+  isListed?: boolean;
+  /** Where the details come from and when they were checked (team only). */
+  source?: string;
+  checkedOn?: string;
 };
 
-// Made up example clinics, shown with a "Sample" label and no Call button.
-// Real clinics come from the database (GET /api/clinics, section 32).
-export const SAMPLE_CLINICS: Clinic[] = [
+/** A Google Maps search, so Directions find the place even when our pin is only on the street. */
+function mapsSearch(query: string) {
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+}
+
+const PHNOM_PENH = { city: "Phnom Penh, Cambodia", cityKm: "ភ្នំពេញ, កម្ពុជា" };
+const NO_REVIEWS = { rating: 0, reviewCount: 0, reviews: [] };
+const CALL_TO_ASK = { status: "Call to ask for opening times", statusKm: "សូមទូរស័ព្ទសួរម៉ោងបើក" };
+const EMERGENCY_24H = { status: "Emergency open 24 hours", statusKm: "ផ្នែកសង្គ្រោះបន្ទាន់ បើក ២៤ ម៉ោង" };
+
+/** A service with no fee or length we could confirm. */
+function service(id: string, name: string, nameKm: string, description: string, descriptionKm: string): ClinicService {
+  return { id, name, nameKm, duration: "", durationKm: "", fee: "", description, descriptionKm };
+}
+
+// Real places in Phnom Penh that AROM is not connected to yet, shown with a
+// "Call to book" label. Real AROM clinics come from the database (GET
+// /api/clinics, section 32). Pins marked "street" sit on the right street but
+// not on the building; Directions search Google Maps by name and address.
+export const LISTED_CLINICS: Clinic[] = [
   {
-    id: "riverside-wellness",
-    slug: "riverside-mental-wellness-center",
-    name: "Riverside mental Wellness Center",
-    nameKm: "មជ្ឈមណ្ឌលសុខភាពផ្លូវចិត្ត Riverside",
+    id: "tpo-cambodia",
+    slug: "tpo-cambodia",
+    name: "TPO Cambodia Treatment Center",
+    nameKm: "មជ្ឈមណ្ឌលព្យាបាល អង្គការ TPO កម្ពុជា",
     category: "clinic",
-    rating: 4.8,
-    reviewCount: 120,
-    city: "Phnom Penh, Cambodia",
-    cityKm: "ភ្នំពេញ, កម្ពុជា",
-    address: "#128, Preah Monivong Blvd, PhnomPenh",
-    addressKm: "ផ្ទះលេខ ១២៨ មហាវិថីព្រះមុនីវង្ស រាជធានីភ្នំពេញ",
-    tags: ["Counseling", "Psychology", "Mental health Support"],
-    tagsKm: ["ការប្រឹក្សា (Counseling)", "ចិត្តវិទ្យា (Psychology)", "ការគាំទ្រផ្លូវចិត្ត (Mental Health)"],
-    status: "Open Closes 6:00 PM",
-    statusKm: "កំពុងបើក បិទនៅម៉ោង 6:00 ល្ងាច",
-    image: "/clinics/riverside.jpg",
-    phone: "+85523888999",
-    phoneDisplay: "+855 23 888 999",
-    googleMapsUrl: "https://www.google.com/maps/search/?api=1&query=128+Preah+Monivong+Blvd+Phnom+Penh",
-    about: "Riverside mental wellness Center provides professional mental health services including counseling, therapy, and psychological support for individuals of all ages.",
-    aboutKm: "មជ្ឈមណ្ឌលសុខភាពផ្លូវចិត្ត Riverside ផ្តល់ជូនសេវាកម្មសុខភាពផ្លូវចិត្តប្រកបដោយវិជ្ជាជីវៈ រួមមានការប្រឹក្សា ការព្យាបាល និងការគាំទ្រផ្នែកចិត្តសាស្រ្តសម្រាប់មនុស្សគ្រប់វ័យ។",
-    lat: 11.5703,
-    lng: 104.9301,
-    isSample: true,
+    ...NO_REVIEWS,
+    ...PHNOM_PENH,
+    address: "#2 & 4, Oknha Vaing Road (Street 1952), Phnom Penh Thmey, Sen Sok, Phnom Penh",
+    addressKm: "ផ្ទះលេខ ២ និង ៤ ផ្លូវឧកញ៉ាវ៉ាំង (ផ្លូវ ១៩៥២) សង្កាត់ភ្នំពេញថ្មី ខណ្ឌសែនសុខ រាជធានីភ្នំពេញ",
+    tags: ["Counseling", "Psychiatry", "Trauma care"],
+    tagsKm: ["ការប្រឹក្សា (Counseling)", "វិកលចរិតវិទ្យា (Psychiatry)", "ការព្យាបាលរបួសផ្លូវចិត្ត (Trauma)"],
+    status: "Every day, 8:00 AM to 12:00 PM and 1:00 PM to 4:00 PM",
+    statusKm: "រៀងរាល់ថ្ងៃ ម៉ោង ៨:០០ ព្រឹក ដល់ ១២:០០ ថ្ងៃត្រង់ និង ១:០០ ដល់ ៤:០០ រសៀល",
+    image: "",
+    phone: "+85516222597",
+    phoneDisplay: "016 222 597",
+    googleMapsUrl: mapsSearch("TPO Cambodia, Oknha Vaing Road, Sen Sok, Phnom Penh"),
+    about:
+      "TPO (Transcultural Psychosocial Organization) is a Cambodian mental health organization. Its Treatment Center in Phnom Penh offers counseling and psychiatric care in Khmer. You can also call 095 777 004.",
+    aboutKm:
+      "TPO (អង្គការសង្គមចិត្តសាស្ត្រឆ្លងវប្បធម៌) គឺជាអង្គការសុខភាពផ្លូវចិត្តកម្ពុជា។ មជ្ឈមណ្ឌលព្យាបាលរបស់ TPO នៅភ្នំពេញ ផ្តល់ការប្រឹក្សា និងការព្យាបាលផ្នែកវិកលចរិតជាភាសាខ្មែរ។ អ្នកក៏អាចហៅលេខ ០៩៥ ៧៧៧ ០០៤ ផងដែរ។",
+    // street
+    lat: 11.583244,
+    lng: 104.880269,
+    isListed: true,
+    source: "tpocambodia.org contact page; UK government list of doctors in Cambodia (Jan 2026)",
+    checkedOn: "2026-10-27",
     services: [
-      {
-        id: "counseling-individual",
-        name: "Individual Counseling Session",
-        nameKm: "ការប្រឹក្សាផ្លូវចិត្តបុគ្គល (Individual Counseling)",
-        duration: "50 min",
-        durationKm: "៥០ នាទី",
-        fee: "$35",
-        description: "One-on-one compassionate session tailored to address stress, life transitions, and anxiety.",
-        descriptionKm: "ការពិគ្រោះផ្ទាល់ខ្លួនប្រកបដោយក្តីមេត្តា ដើម្បីដោះស្រាយភាពតានតឹង និងការថប់បារម្ភ។",
-      },
-      {
-        id: "psychological-eval",
-        name: "Clinical Psychological Evaluation",
-        nameKm: "ការវាយតម្លៃផ្នែកចិត្តវិទ្យាគ្លីនិក (Clinical Evaluation)",
-        duration: "90 min",
-        durationKm: "៩០ នាទី",
-        fee: "$65",
-        description: "Thorough diagnostic assessment by licensed clinical psychologists with treatment planning.",
-        descriptionKm: "ការវាយតម្លៃរោគវិនិច្ឆ័យយ៉ាងម៉ត់ចត់ដោយចិត្តវិទូគ្លីនិកដែលមានអាជ្ញាប័ណ្ណត្រឹមត្រូវ។",
-      },
-      {
-        id: "cbt-therapy",
-        name: "Cognitive Behavioral Therapy (CBT)",
-        nameKm: "ការព្យាបាលការយល់ដឹង និងអាកប្បកិរិយា (CBT)",
-        duration: "60 min",
-        durationKm: "៦០ នាទី",
-        fee: "$45",
-        description: "Structured sessions helping you identify unhelpful thinking patterns and adopt healthier habits.",
-        descriptionKm: "វគ្គព្យាបាលដែលមានរចនាសម្ព័ន្ធ ដើម្បីជួយកែប្រែគំរូគំនិត និងបង្កើតទម្លាប់រស់នៅល្អ។",
-      },
-    ],
-    reviews: [
-      {
-        id: "rev-1",
-        author: "Sophea K.",
-        date: "2 days ago",
-        rating: 5,
-        comment: "The environment is peaceful and welcoming. My counselor was attentive and helped me process burnout with genuine kindness.",
-        commentKm: "បរិយាកាសស្ងប់ស្ងាត់ និងកក់ក្តៅណាស់។ អ្នកប្រឹក្សាបានស្តាប់ និងជួយខ្ញុំឆ្លងកាត់ភាពតានតឹងដោយក្តីយកចិត្តទុកដាក់។",
-      },
-      {
-        id: "rev-2",
-        author: "Dara M.",
-        date: "1 week ago",
-        rating: 5,
-        comment: "Highly recommend the counseling team. Booking was easy, and the location on Monivong is very accessible.",
-        commentKm: "សូមណែនាំក្រុមអ្នកប្រឹក្សាដោយស្មោះ។ ទីតាំងនៅលើមហាវិថីមុនីវង្សងាយស្រួលធ្វើដំណើរណាស់។",
-      },
-      {
-        id: "rev-3",
-        author: "Chantrea V.",
-        date: "3 weeks ago",
-        rating: 4,
-        comment: "Clean facilities, very respectful staff, and clinical grade confidentiality.",
-        commentKm: "កន្លែងស្អាត បុគ្គលិកមានការគោរពខ្ពស់ និងរក្សាការសម្ងាត់បានយ៉ាងល្អ។",
-      },
+      service(
+        "tpo-counseling",
+        "Counseling",
+        "ការប្រឹក្សា (Counseling)",
+        "Talk with a counselor or psychologist about stress, worry, low mood or trauma.",
+        "និយាយជាមួយអ្នកប្រឹក្សា ឬចិត្តវិទូ អំពីភាពតានតឹង ការព្រួយបារម្ភ អារម្មណ៍ធ្លាក់ចុះ ឬរបួសផ្លូវចិត្ត។",
+      ),
+      service(
+        "tpo-psychiatry",
+        "Psychiatric care",
+        "ការព្យាបាលផ្នែកវិកលចរិត (Psychiatry)",
+        "See a psychiatrist for assessment and, when needed, medicine.",
+        "ជួបវិកលចរិតវិទូ ដើម្បីពិនិត្យ និងទទួលថ្នាំនៅពេលចាំបាច់។",
+      ),
     ],
   },
   {
-    id: "harmony-care",
-    slug: "harmony-care-hospital",
-    name: "Harmony Care Hospital",
-    nameKm: "មន្ទីរពេទ្យ Harmony Care",
+    id: "khmer-soviet-friendship-hospital",
+    slug: "khmer-soviet-friendship-hospital",
+    name: "Khmer Soviet Friendship Hospital, Mental Health Department",
+    nameKm: "មន្ទីរពេទ្យមិត្តភាពខ្មែរ សូវៀត ផ្នែកសុខភាពផ្លូវចិត្ត",
     category: "hospital",
-    rating: 4.9,
-    reviewCount: 184,
-    city: "Phnom Penh, Cambodia",
-    cityKm: "ភ្នំពេញ, កម្ពុជា",
-    address: "#45, Russian Federation Blvd, Phnom Penh",
-    addressKm: "ផ្ទះលេខ ៤៥ មហាវិថីសហព័ន្ធរុស្ស៊ី រាជធានីភ្នំពេញ",
-    tags: ["Counseling", "Psychology", "Mental health Support"],
-    tagsKm: ["ការប្រឹក្សា (Counseling)", "ចិត្តវិទ្យា (Psychology)", "ការគាំទ្រផ្លូវចិត្ត (Mental Health)"],
-    status: "Open 24 Hours",
-    statusKm: "បើកដំណើរការ ២៤ ម៉ោង",
-    image: "/clinics/harmony.jpg",
-    phone: "+85523999111",
-    phoneDisplay: "+855 23 999 111",
-    googleMapsUrl: "https://www.google.com/maps/search/?api=1&query=45+Russian+Federation+Blvd+Phnom+Penh",
-    about: "Harmony Care Hospital is a premier medical facility providing 24/7 psychiatric care, inpatient wellness recovery, crisis intervention, and specialized outpatient psychological counseling.",
-    aboutKm: "មន្ទីរពេទ្យ Harmony Care គឺជាមន្ទីរពេទ្យវេជ្ជសាស្ត្រឈានមុខគេ ដែលផ្តល់ការថែទាំចិត្តសាស្ត្រ ២៤ ម៉ោង ការសម្រាកព្យាបាល ការអន្តរាគមន៍គ្រាអាសន្ន និងការប្រឹក្សាផ្លូវចិត្តកម្រិតខ្ពស់។",
-    lat: 11.5468,
-    lng: 104.9112,
-    isSample: true,
+    ...NO_REVIEWS,
+    ...PHNOM_PENH,
+    address: "Street 271, Tumnub Teuk, Phnom Penh",
+    addressKm: "ផ្លូវ ២៧១ សង្កាត់ទំនប់ទឹក រាជធានីភ្នំពេញ",
+    tags: ["Public hospital", "Psychiatry"],
+    tagsKm: ["មន្ទីរពេទ្យរដ្ឋ (Public hospital)", "វិកលចរិតវិទ្យា (Psychiatry)"],
+    ...CALL_TO_ASK,
+    image: "",
+    phone: "+85523424373",
+    phoneDisplay: "023 424 373",
+    googleMapsUrl: mapsSearch("Khmer Soviet Friendship Hospital, Street 271, Phnom Penh"),
+    about:
+      "A large public hospital with one of the main psychiatry departments in Cambodia. Psychiatrists see outpatients for mental health and substance use, and the hospital has a few beds for people who need to stay.",
+    aboutKm:
+      "មន្ទីរពេទ្យរដ្ឋធំមួយ ដែលមានផ្នែកវិកលចរិតសំខាន់មួយនៅកម្ពុជា។ វិកលចរិតវិទូពិនិត្យអ្នកជំងឺក្រៅ អំពីសុខភាពផ្លូវចិត្ត និងការប្រើប្រាស់គ្រឿងញៀន ហើយមន្ទីរពេទ្យមានគ្រែមួយចំនួនសម្រាប់អ្នកដែលត្រូវសម្រាកព្យាបាល។",
+    lat: 11.543656,
+    lng: 104.904738,
+    isListed: true,
+    source: "UK government list of doctors in Cambodia (Jan 2026); OpenStreetMap",
+    checkedOn: "2026-10-27",
     services: [
-      {
-        id: "crisis-support",
-        name: "24/7 Crisis Intervention & Emergency Support",
-        nameKm: "អន្តរាគមន៍គ្រាអាសន្ន និងការគាំទ្រ ២៤ ម៉ោង",
-        duration: "Immediate",
-        durationKm: "ភ្លាមៗ",
-        fee: "Covered by insurance",
-        description: "Immediate clinical intervention for acute emotional distress, panic, or psychiatric emergencies.",
-        descriptionKm: "ការអន្តរាគមន៍ភ្លាមៗសម្រាប់វិបត្តិអារម្មណ៍ធ្ងន់ធ្ងរ ឬស្ថានភាពសង្គ្រោះបន្ទាន់។",
-      },
-      {
-        id: "inpatient-wellness",
-        name: "Inpatient Wellness & Psychiatric Care",
-        nameKm: "ការសម្រាកព្យាបាលសុខភាពផ្លូវចិត្តក្នុងមន្ទីរពេទ្យ",
-        duration: "Multi-day",
-        durationKm: "ច្រើនថ្ងៃ",
-        fee: "Consultation required",
-        description: "Comprehensive residential treatment in private, calming suites with continuous medical supervision.",
-        descriptionKm: "ការព្យាបាលស្នាក់នៅក្នុងបន្ទប់ស្ងប់ស្ងាត់ មានការត្រួតពិនិត្យវេជ្ជសាស្ត្រជាប់ជានិច្ច។",
-      },
-      {
-        id: "outpatient-psychiatry",
-        name: "Psychiatric Consultation & Medication Review",
-        nameKm: "ការពិគ្រោះផ្នែកវិកលចរិត និងការពិនិត្យថ្នាំ",
-        duration: "45 min",
-        durationKm: "៤៥ នាទី",
-        fee: "$50",
-        description: "Evaluation and personalized pharmacological support supervised by board certified psychiatrists.",
-        descriptionKm: "ការវាយតម្លៃ និងការគាំទ្រឱសថផ្ទាល់ខ្លួនក្រោមការត្រួតពិនិត្យរបស់វិកលចរិតវិទូ។",
-      },
-    ],
-    reviews: [
-      {
-        id: "rev-h1",
-        author: "Bopha T.",
-        date: "5 days ago",
-        rating: 5,
-        comment: "Outstanding medical staff. During an urgent emotional crisis, their team treated my family member with immense dignity and empathy.",
-        commentKm: "ក្រុមគ្រូពេទ្យពូកែ និងមានវិជ្ជាជីវៈខ្ពស់។ ក្នុងគ្រាអាសន្ន ពួកគេបានជួយក្រុមគ្រួសារខ្ញុំប្រកបដោយការគោរព និងក្តីមេត្តា។",
-      },
-      {
-        id: "rev-h2",
-        author: "Vireak N.",
-        date: "2 weeks ago",
-        rating: 5,
-        comment: "Modern facility, very clean, and top tier psychiatrists in Cambodia.",
-        commentKm: "មន្ទីរពេទ្យទំនើប ស្អាត និងមានវេជ្ជបណ្ឌិតវិកលចរិតលំដាប់កំពូលនៅកម្ពុជា។",
-      },
+      service(
+        "ksfh-outpatient",
+        "Psychiatric outpatient care",
+        "ការពិនិត្យជំងឺក្រៅផ្នែកវិកលចរិត (Outpatient)",
+        "See a psychiatrist at a public hospital without staying overnight.",
+        "ជួបវិកលចរិតវិទូនៅមន្ទីរពេទ្យរដ្ឋ ដោយមិនចាំបាច់ស្នាក់នៅ។",
+      ),
+      service(
+        "ksfh-inpatient",
+        "Inpatient care",
+        "ការសម្រាកព្យាបាលក្នុងមន្ទីរពេទ្យ (Inpatient)",
+        "A few beds for people who need closer care for a short time.",
+        "គ្រែមួយចំនួនសម្រាប់អ្នកដែលត្រូវការការថែទាំជិតស្និទ្ធក្នុងរយៈពេលខ្លី។",
+      ),
     ],
   },
   {
-    id: "mind-and-life",
-    slug: "mind-and-life-clinic",
-    name: "Mind & Life Clinic",
-    nameKm: "គ្លីនិក Mind & Life",
+    id: "sunrise-mental-clinic",
+    slug: "sunrise-mental-clinic",
+    name: "Sunrise Mental Clinic",
+    nameKm: "គ្លីនិកសុខភាពផ្លូវចិត្ត Sunrise",
     category: "clinic",
-    rating: 4.7,
-    reviewCount: 96,
-    city: "Phnom Penh, Cambodia",
-    cityKm: "ភ្នំពេញ, កម្ពុជា",
-    address: "#202, Norodom Blvd, Phnom Penh",
-    addressKm: "ផ្ទះលេខ ២០២ មហាវិថីនរោត្តម រាជធានីភ្នំពេញ",
-    tags: ["Counseling", "Psychology", "Mental health Support"],
-    tagsKm: ["ការប្រឹក្សា (Counseling)", "ចិត្តវិទ្យា (Psychology)", "ការគាំទ្រផ្លូវចិត្ត (Mental Health)"],
-    status: "Open Closes 7:30 PM",
-    statusKm: "កំពុងបើក បិទនៅម៉ោង 7:30 យប់",
-    image: "/clinics/mind-life.jpg",
-    phone: "+85523777555",
-    phoneDisplay: "+855 23 777 555",
-    googleMapsUrl: "https://www.google.com/maps/search/?api=1&query=202+Norodom+Blvd+Phnom+Penh",
-    about: "Mind & Life Clinic provides evidence-based psychotherapy, mindfulness training, youth counseling, and emotional wellness consultations in a confidential and serene setting.",
-    aboutKm: "គ្លីនិក Mind & Life ផ្តល់នូវការព្យាបាលចិត្តសាស្ត្រផ្អែកលើភស្តុតាង ការបណ្តុះបណ្តាលសតិ ការប្រឹក្សាយុវវ័យ និងការពិគ្រោះសុខភាពផ្លូវចិត្តក្នុងបរិយាកាសសម្ងាត់ និងស្ងប់ស្ងាត់។",
-    lat: 11.5536,
-    lng: 104.9286,
-    isSample: true,
+    ...NO_REVIEWS,
+    ...PHNOM_PENH,
+    address: "#112, Street 432, Toul Tum Poung II, Phnom Penh (west of the Chinese Embassy)",
+    addressKm: "ផ្ទះលេខ ១១២ ផ្លូវ ៤៣២ សង្កាត់ទួលទំពូងទី២ រាជធានីភ្នំពេញ (ខាងលិចស្ថានទូតចិន)",
+    tags: ["Psychiatry", "Counseling", "Private"],
+    tagsKm: ["វិកលចរិតវិទ្យា (Psychiatry)", "ការប្រឹក្សា (Counseling)", "ឯកជន (Private)"],
+    status: "Every day, 8:00 AM to 8:00 PM",
+    statusKm: "រៀងរាល់ថ្ងៃ ម៉ោង ៨:០០ ព្រឹក ដល់ ៨:០០ យប់",
+    image: "",
+    phone: "+85599545565",
+    phoneDisplay: "099 545 565",
+    googleMapsUrl: mapsSearch("Sunrise Mental Clinic, Street 432, Phnom Penh"),
+    about:
+      "A private mental health clinic near Toul Tum Poung market. It offers mental health assessment and treatment, counseling and psychotherapy, and psychological testing.",
+    aboutKm:
+      "គ្លីនិកសុខភាពផ្លូវចិត្តឯកជន នៅក្បែរផ្សារទួលទំពូង។ គ្លីនិកផ្តល់ការវាយតម្លៃ និងការព្យាបាលសុខភាពផ្លូវចិត្ត ការប្រឹក្សា និងការព្យាបាលដោយការនិយាយ (Psychotherapy) និងការធ្វើតេស្តផ្លូវចិត្ត។",
+    // street
+    lat: 11.541572,
+    lng: 104.913143,
+    isListed: true,
+    source: "sunriseclinic.com.kh (hours, services); UK government list of doctors in Cambodia (Jan 2026)",
+    checkedOn: "2026-10-27",
     services: [
-      {
-        id: "mindfulness-training",
-        name: "Mindfulness & Stress Reduction Workshop",
-        nameKm: "វគ្គបណ្តុះបណ្តាលសតិ និងកាត់បន្ថយស្ត្រេស",
-        duration: "75 min",
-        durationKm: "៧៥ នាទី",
-        fee: "$30",
-        description: "Practical breathing, guided grounding, and somatic techniques for long term emotional balance.",
-        descriptionKm: "បច្ចេកទេសដកដង្ហើម ការធ្វើលំហាត់អារម្មណ៍ជាក់ស្តែងសម្រាប់លំនឹងផ្លូវចិត្តយូរអង្វែង។",
-      },
-      {
-        id: "youth-counseling",
-        name: "Adolescent & Young Adult Counseling",
-        nameKm: "ការប្រឹក្សាសម្រាប់យុវវ័យ និងសិស្សនិស្សិត",
-        duration: "50 min",
-        durationKm: "៥០ នាទី",
-        fee: "$28",
-        description: "Safe space for students and young professionals navigating academic pressure and identity.",
-        descriptionKm: "កន្លែងប្រកបដោយសុវត្ថិភាពសម្រាប់យុវវ័យក្នុងការដោះស្រាយសម្ពាធការសិក្សា និងការងារ។",
-      },
-      {
-        id: "family-therapy",
-        name: "Family & Couples Therapy",
-        nameKm: "ការព្យាបាលគ្រួសារ និងគូស្នេហ៍ (Family Therapy)",
-        duration: "80 min",
-        durationKm: "៨០ នាទី",
-        fee: "$55",
-        description: "Fostering healthy communication and understanding between partners and family members.",
-        descriptionKm: "ការកសាងទំនាក់ទំនងប្រកបដោយសុខភាពល្អ និងការយល់ចិត្តគ្នាក្នុងគ្រួសារ។",
-      },
+      service(
+        "sunrise-assessment",
+        "Mental health assessment and treatment",
+        "ការវាយតម្លៃ និងការព្យាបាលសុខភាពផ្លូវចិត្ត",
+        "A doctor checks how you are doing and plans treatment with you.",
+        "វេជ្ជបណ្ឌិតពិនិត្យស្ថានភាពរបស់អ្នក ហើយរៀបចំផែនការព្យាបាលជាមួយអ្នក។",
+      ),
+      service(
+        "sunrise-therapy",
+        "Counseling and psychotherapy",
+        "ការប្រឹក្សា និងការព្យាបាលដោយការនិយាយ (Psychotherapy)",
+        "Regular sessions to talk through what you are going through.",
+        "វគ្គជាប្រចាំ ដើម្បីនិយាយអំពីអ្វីដែលអ្នកកំពុងឆ្លងកាត់។",
+      ),
+      service(
+        "sunrise-testing",
+        "Psychological testing",
+        "ការធ្វើតេស្តផ្លូវចិត្ត (Psychological testing)",
+        "Tests that help understand your mood, thinking and needs.",
+        "តេស្តដែលជួយឱ្យយល់ពីអារម្មណ៍ ការគិត និងតម្រូវការរបស់អ្នក។",
+      ),
     ],
-    reviews: [
-      {
-        id: "rev-m1",
-        author: "Kosal R.",
-        date: "4 days ago",
-        rating: 5,
-        comment: "The mindfulness and counseling sessions brought tremendous clarity to my life. Friendly staff and cozy rooms.",
-        commentKm: "វគ្គហ្វឹកហាត់សតិ និងការប្រឹក្សាបានជួយឱ្យចិត្តខ្ញុំស្ងប់ និងភ្លឺស្វាងឡើងវិញ។ បន្ទប់កក់ក្តៅ និងបុគ្គលិកគួរសម។",
-      },
-      {
-        id: "rev-m2",
-        author: "Malis P.",
-        date: "3 weeks ago",
-        rating: 4,
-        comment: "Great location on Norodom Boulevard, very punctual appointments and reasonable pricing.",
-        commentKm: "ទីតាំងល្អលើមហាវិថីនរោត្តម គោរពម៉ោងណាត់ជួប និងតម្លៃសមរម្យ។",
-      },
+  },
+  {
+    id: "the-bamboo-centre",
+    slug: "the-bamboo-centre",
+    name: "The Bamboo Centre",
+    nameKm: "មជ្ឈមណ្ឌលប្រឹក្សា The Bamboo Centre",
+    category: "clinic",
+    ...NO_REVIEWS,
+    ...PHNOM_PENH,
+    address: "#30B, Street 21, Tonle Bassac, Phnom Penh (near Aeon Mall 1)",
+    addressKm: "ផ្ទះលេខ ៣០B ផ្លូវ ២១ សង្កាត់ទន្លេបាសាក់ រាជធានីភ្នំពេញ (ក្បែរផ្សារទំនើបអ៊ីអន ១)",
+    tags: ["Counseling", "Couples and families", "English and Khmer"],
+    tagsKm: ["ការប្រឹក្សា (Counseling)", "គូស្វាមីភរិយា និងគ្រួសារ", "ភាសាអង់គ្លេស និងខ្មែរ"],
+    ...CALL_TO_ASK,
+    image: "",
+    phone: "+85512208318",
+    phoneDisplay: "012 208 318",
+    googleMapsUrl: mapsSearch("The Bamboo Centre, Street 21, Tonle Bassac, Phnom Penh"),
+    about:
+      "A counseling center for individuals, couples, families and teenagers. Sessions are in English or Khmer, in person or online.",
+    aboutKm:
+      "មជ្ឈមណ្ឌលប្រឹក្សាសម្រាប់បុគ្គល គូស្វាមីភរិយា គ្រួសារ និងយុវវ័យ។ វគ្គប្រឹក្សាជាភាសាអង់គ្លេស ឬខ្មែរ ដោយផ្ទាល់ ឬតាមអនឡាញ។",
+    // street
+    lat: 11.550143,
+    lng: 104.930161,
+    isListed: true,
+    source: "UK government list of doctors in Cambodia (Jan 2026)",
+    checkedOn: "2026-10-27",
+    services: [
+      service(
+        "bamboo-individual",
+        "Individual counseling",
+        "ការប្រឹក្សាបុគ្គល (Individual counseling)",
+        "One to one sessions with a counselor, in person or online.",
+        "វគ្គម្នាក់ទល់ម្នាក់ជាមួយអ្នកប្រឹក្សា ដោយផ្ទាល់ ឬតាមអនឡាញ។",
+      ),
+      service(
+        "bamboo-couples-families",
+        "Couples, family and teen counseling",
+        "ការប្រឹក្សាគូស្វាមីភរិយា គ្រួសារ និងយុវវ័យ",
+        "Sessions for partners, families and teenagers.",
+        "វគ្គសម្រាប់គូស្វាមីភរិយា គ្រួសារ និងយុវវ័យ។",
+      ),
+    ],
+  },
+  {
+    id: "sombok-psychology",
+    slug: "sombok-psychology",
+    name: "Sombok Psychology",
+    nameKm: "Sombok Psychology (ចិត្តវិទ្យា)",
+    category: "clinic",
+    ...NO_REVIEWS,
+    ...PHNOM_PENH,
+    address: "#10A, Street 75, Srah Chak, Daun Penh, Phnom Penh",
+    addressKm: "ផ្ទះលេខ ១០A ផ្លូវ ៧៥ សង្កាត់ស្រះចក ខណ្ឌដូនពេញ រាជធានីភ្នំពេញ",
+    tags: ["Psychology", "Children and families"],
+    tagsKm: ["ចិត្តវិទ្យា (Psychology)", "កុមារ និងគ្រួសារ"],
+    status: "Tue and Thu 8:00 AM to 7:00 PM. Wed, Fri and Sat 8:00 AM to 5:00 PM",
+    statusKm: "ថ្ងៃអង្គារ និងព្រហស្បតិ៍ ៨:០០ ព្រឹក ដល់ ៧:០០ យប់។ ថ្ងៃពុធ សុក្រ និងសៅរ៍ ៨:០០ ព្រឹក ដល់ ៥:០០ ល្ងាច",
+    image: "",
+    phone: "+85577566110",
+    phoneDisplay: "077 566 110",
+    googleMapsUrl: mapsSearch("Sombok Psychology, Street 75, Daun Penh, Phnom Penh"),
+    about:
+      "A team of Cambodian and international psychologists working with children, young people and families. The number also works on WhatsApp, Telegram and Signal.",
+    aboutKm:
+      "ក្រុមចិត្តវិទូកម្ពុជា និងបរទេស ដែលធ្វើការជាមួយកុមារ យុវវ័យ និងគ្រួសារ។ លេខទូរស័ព្ទនេះក៏ប្រើបានតាម WhatsApp, Telegram និង Signal ផងដែរ។",
+    // street
+    lat: 11.578893,
+    lng: 104.918015,
+    isListed: true,
+    source: "sombokpsychology.com (address, hours, services)",
+    checkedOn: "2026-10-27",
+    services: [
+      service(
+        "sombok-therapy",
+        "Therapy",
+        "ការព្យាបាលដោយការនិយាយ (Therapy)",
+        "Sessions with a psychologist for children, young people, adults and families.",
+        "វគ្គជាមួយចិត្តវិទូ សម្រាប់កុមារ យុវវ័យ មនុស្សពេញវ័យ និងគ្រួសារ។",
+      ),
+      service(
+        "sombok-assessment",
+        "Assessments",
+        "ការវាយតម្លៃផ្លូវចិត្ត (Assessment)",
+        "Psychological assessments to understand needs and plan support.",
+        "ការវាយតម្លៃផ្លូវចិត្ត ដើម្បីយល់ពីតម្រូវការ និងរៀបចំការគាំទ្រ។",
+      ),
+    ],
+  },
+  {
+    id: "calmette-hospital",
+    slug: "calmette-hospital",
+    name: "Calmette Hospital",
+    nameKm: "មន្ទីរពេទ្យកាល់ម៉ែត",
+    category: "hospital",
+    ...NO_REVIEWS,
+    ...PHNOM_PENH,
+    address: "#3, Monivong Blvd, Srah Chak, Daun Penh, Phnom Penh",
+    addressKm: "ផ្ទះលេខ ៣ មហាវិថីព្រះមុនីវង្ស សង្កាត់ស្រះចក ខណ្ឌដូនពេញ រាជធានីភ្នំពេញ",
+    tags: ["Public hospital", "Emergency 24 hours"],
+    tagsKm: ["មន្ទីរពេទ្យរដ្ឋ (Public hospital)", "សង្គ្រោះបន្ទាន់ ២៤ ម៉ោង"],
+    ...EMERGENCY_24H,
+    image: "",
+    phone: "+85523426948",
+    phoneDisplay: "023 426 948",
+    googleMapsUrl: mapsSearch("Calmette Hospital, Monivong Blvd, Phnom Penh"),
+    about:
+      "A large public hospital with emergency care day and night. It does not list a separate mental health department, so go here if you or someone else is in danger right now. Hotline 011 426 948.",
+    aboutKm:
+      "មន្ទីរពេទ្យរដ្ឋធំមួយ ដែលមានការសង្គ្រោះបន្ទាន់ទាំងថ្ងៃ និងយប់។ មន្ទីរពេទ្យមិនបានបង្ហាញផ្នែកសុខភាពផ្លូវចិត្តដាច់ដោយឡែកទេ ដូច្នេះសូមមកទីនេះ ប្រសិនបើអ្នក ឬនរណាម្នាក់កំពុងមានគ្រោះថ្នាក់ឥឡូវនេះ។ លេខបន្ទាន់ ០១១ ៤២៦ ៩៤៨។",
+    lat: 11.581144,
+    lng: 104.916869,
+    isListed: true,
+    source: "UK government list of doctors in Cambodia (Jan 2026); OpenStreetMap",
+    checkedOn: "2026-10-27",
+    services: [
+      service(
+        "calmette-emergency",
+        "Emergency care",
+        "ការសង្គ្រោះបន្ទាន់ (Emergency)",
+        "Open 24 hours for urgent medical help.",
+        "បើក ២៤ ម៉ោង សម្រាប់ជំនួយវេជ្ជសាស្ត្របន្ទាន់។",
+      ),
+    ],
+  },
+  {
+    id: "royal-phnom-penh-hospital",
+    slug: "royal-phnom-penh-hospital",
+    name: "Royal Phnom Penh Hospital",
+    nameKm: "មន្ទីរពេទ្យរ៉ូយ៉ាល់ភ្នំពេញ",
+    category: "hospital",
+    ...NO_REVIEWS,
+    ...PHNOM_PENH,
+    address: "#888, Russian Federation Blvd (Street 110), Sen Sok, Phnom Penh",
+    addressKm: "ផ្ទះលេខ ៨៨៨ មហាវិថីសហព័ន្ធរុស្ស៊ី (ផ្លូវ ១១០) ខណ្ឌសែនសុខ រាជធានីភ្នំពេញ",
+    tags: ["Private hospital", "Emergency 24 hours"],
+    tagsKm: ["មន្ទីរពេទ្យឯកជន (Private hospital)", "សង្គ្រោះបន្ទាន់ ២៤ ម៉ោង"],
+    ...EMERGENCY_24H,
+    image: "",
+    phone: "+85523991222",
+    phoneDisplay: "023 991 222",
+    googleMapsUrl: mapsSearch("Royal Phnom Penh Hospital, Russian Federation Blvd, Phnom Penh"),
+    about:
+      "A private hospital with emergency care day and night. The Call button rings the 24 hour emergency line. For other questions, call the main line 023 991 000.",
+    aboutKm:
+      "មន្ទីរពេទ្យឯកជន ដែលមានការសង្គ្រោះបន្ទាន់ទាំងថ្ងៃ និងយប់។ ប៊ូតុងហៅទូរស័ព្ទ ហៅទៅលេខសង្គ្រោះបន្ទាន់ ២៤ ម៉ោង។ សម្រាប់សំណួរផ្សេងៗ សូមហៅលេខ ០២៣ ៩៩១ ០០០។",
+    lat: 11.562118,
+    lng: 104.880789,
+    isListed: true,
+    source: "UK government list of doctors in Cambodia (Jan 2026); OpenStreetMap",
+    checkedOn: "2026-10-27",
+    services: [
+      service(
+        "rpph-emergency",
+        "Emergency care",
+        "ការសង្គ្រោះបន្ទាន់ (Emergency)",
+        "Open 24 hours for urgent medical help.",
+        "បើក ២៤ ម៉ោង សម្រាប់ជំនួយវេជ្ជសាស្ត្របន្ទាន់។",
+      ),
     ],
   },
 ];

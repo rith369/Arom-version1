@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useState, useMemo } from "react";
-import { ChevronLeft, Search, MapPin, Heart, Building2, Compass, LocateFixed } from "lucide-react";
+import { ChevronLeft, Search, MapPin, Heart, Building2, Compass, LocateFixed, Hospital } from "lucide-react";
 import { distanceKm, formatDistance, type Clinic } from "./clinic-data";
 import type { UserLocation } from "./use-user-location";
 import { useLanguage } from "../language-provider";
@@ -16,22 +16,54 @@ const ClinicMap = dynamic(() => import("./clinic-map"), {
   loading: () => <div className="h-full w-full animate-pulse bg-arom-wash" />,
 });
 
-/** A grey "Sample" label for the made up example clinics. */
-export function SampleBadge({ km }: { km: boolean }) {
+/** A "Call to book" label for real places AROM is not connected to. */
+export function ListedBadge({ km }: { km: boolean }) {
   return (
     <span
-      title={km ? "គ្លីនិកគំរូ មិនមែនគ្លីនិកពិតទេ" : "An example, not a real clinic"}
-      className="inline-flex w-fit items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-[0.68rem] font-semibold text-gray-600"
+      title={km ? "មិនទាន់ភ្ជាប់ជាមួយ AROM ទេ។ សូមទូរស័ព្ទទៅពួកគេដោយផ្ទាល់។" : "Not connected to AROM. Call them directly."}
+      className="inline-flex w-fit items-center rounded-full bg-sky-50 px-2.5 py-0.5 text-[0.68rem] font-semibold text-sky-800"
     >
-      {km ? "គំរូ (Sample)" : "Sample"}
+      {km ? "ទូរស័ព្ទដើម្បីកក់ (Call to book)" : "Call to book"}
     </span>
+  );
+}
+
+/** The clinic's photo, or a calm icon when we have no real photo of the place. */
+export function ClinicPhoto({
+  clinic,
+  sizes,
+  className = "",
+  priority = false,
+}: {
+  clinic: Clinic;
+  sizes: string;
+  className?: string;
+  priority?: boolean;
+}) {
+  if (!clinic.image) {
+    const Icon = clinic.category === "hospital" ? Hospital : Building2;
+    return (
+      <div className="flex h-full w-full items-center justify-center bg-arom-soft text-arom/70" aria-hidden="true">
+        <Icon className="size-1/3 max-h-16 max-w-16" strokeWidth={1.6} />
+      </div>
+    );
+  }
+  return (
+    <Image
+      src={clinic.image}
+      alt={clinic.name}
+      fill
+      sizes={sizes}
+      priority={priority}
+      className={`object-cover ${className}`}
+    />
   );
 }
 
 type FilterType = "all" | "nearby" | "clinic" | "hospital";
 
 interface ClinicListViewProps {
-  // Real clinics first, then samples; already filtered for UP only clinics.
+  // AROM clinics first, then listed real places; already filtered for UP only clinics.
   clinics: Clinic[];
   onSelectClinic: (clinic: Clinic) => void;
   location: UserLocation;
@@ -250,12 +282,10 @@ export function ClinicListView({ clinics, onSelectClinic, location, onRequestLoc
               <div className="grid grid-cols-[5.5rem_minmax(0,1fr)] sm:grid-cols-[6.5rem_minmax(0,1fr)] gap-3.5 items-start">
                 {/* Thumbnail image */}
                 <div className="relative h-22 sm:h-26 w-full overflow-hidden rounded-xl bg-arom-soft">
-                  <Image
-                    src={clinic.image}
-                    alt={clinic.name}
-                    fill
+                  <ClinicPhoto
+                    clinic={clinic}
                     sizes="(max-width: 640px) 90px, 110px"
-                    className="object-cover transition-transform duration-300 group-hover:scale-105"
+                    className="transition-transform duration-300 group-hover:scale-105"
                   />
                 </div>
 
@@ -266,9 +296,9 @@ export function ClinicListView({ clinics, onSelectClinic, location, onRequestLoc
                     <h2 className="text-sm sm:text-base font-bold text-ink leading-tight line-clamp-1">
                       {isKm ? clinic.nameKm : clinic.name}
                     </h2>
-                    {(clinic.upStudentsOnly || clinic.isSample) && (
+                    {(clinic.upStudentsOnly || clinic.isListed) && (
                       <div className="mt-1">
-                        {clinic.isSample ? <SampleBadge km={isKm} /> : <UpStudentBadge km={isKm} />}
+                        {clinic.isListed ? <ListedBadge km={isKm} /> : <UpStudentBadge km={isKm} />}
                       </div>
                     )}
 

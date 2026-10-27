@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useState } from "react";
 import {
   CalendarCheck,
@@ -14,7 +13,7 @@ import {
 } from "lucide-react";
 import type { ClinicBookingInfo } from "@/lib/clinic-booking";
 import { distanceKm, formatDistance, type Clinic } from "./clinic-data";
-import { SampleBadge } from "./clinic-list-view";
+import { ClinicPhoto, ListedBadge } from "./clinic-list-view";
 import { ClinicBookingSheet } from "./clinic-booking-sheet";
 import { ClinicTherapists } from "./clinic-therapists";
 import { UpStudentBadge } from "../up-student/up-badge";
@@ -42,6 +41,8 @@ export function ClinicDetailView({ clinic, onBack, startBooking = false, me = nu
   const [bookingOpen, setBookingOpen] = useState(startBooking);
 
   useEffect(() => {
+    // Listed places are not connected to AROM: nothing to book.
+    if (clinic.isListed) return;
     let active = true;
     fetch(`/api/clinics/${clinic.slug}/booking`, { cache: "no-store" })
       .then(async (response) => {
@@ -53,7 +54,7 @@ export function ClinicDetailView({ clinic, onBack, startBooking = false, me = nu
     return () => {
       active = false;
     };
-  }, [clinic.slug]);
+  }, [clinic.slug, clinic.isListed]);
 
   const hasTherapists = (booking?.therapists.length ?? 0) > 0;
   // Only user accounts book. A clinic's therapists can open the page but not book it.
@@ -83,14 +84,7 @@ export function ClinicDetailView({ clinic, onBack, startBooking = false, me = nu
 
       {/* Hero Image matching Figma */}
       <div className="relative h-52 sm:h-64 w-full overflow-hidden rounded-2xl sm:rounded-3xl border border-arom-border/80 shadow-xs bg-arom-soft">
-        <Image
-          src={clinic.image}
-          alt={clinic.name}
-          fill
-          sizes="(max-width: 768px) 100vw, 680px"
-          className="object-cover"
-          priority
-        />
+        <ClinicPhoto clinic={clinic} sizes="(max-width: 768px) 100vw, 680px" priority />
       </div>
 
       {/* Main Clinic Information Card */}
@@ -100,13 +94,13 @@ export function ClinicDetailView({ clinic, onBack, startBooking = false, me = nu
           {isKm ? clinic.nameKm : clinic.name}
         </h2>
         {clinic.upStudentsOnly && <UpStudentBadge km={isKm} />}
-        {clinic.isSample && (
+        {clinic.isListed && (
           <div className="flex flex-wrap items-center gap-2">
-            <SampleBadge km={isKm} />
+            <ListedBadge km={isKm} />
             <span className="text-xs text-ink-muted">
               {isKm
-                ? "នេះជាឧទាហរណ៍ មិនមែនគ្លីនិកពិតទេ។ កុំទូរស័ព្ទ ឬធ្វើដំណើរទៅទីនេះ។"
-                : "An example, not a real clinic. Please do not call or travel here."}
+                ? "AROM មិនទាន់ភ្ជាប់ជាមួយកន្លែងនេះនៅឡើយទេ។ ព័ត៌មានមកពីបញ្ជីសាធារណៈ ដូច្នេះសូមទូរស័ព្ទសួរមុនពេលធ្វើដំណើរ។"
+                : "AROM is not connected to this place yet. Details come from public lists, so please call before you go."}
             </span>
           </div>
         )}
@@ -189,7 +183,8 @@ export function ClinicDetailView({ clinic, onBack, startBooking = false, me = nu
                   {isKm ? clinic.aboutKm : clinic.about}
                 </p>
 
-                {/* Highlights */}
+                {/* Highlights: AROM clinics only, we cannot vouch for listed places */}
+                {!clinic.isListed && (
                 <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2 border-t border-arom-border/60">
                   <div className="flex items-center gap-2 rounded-xl bg-arom-wash p-2.5 text-xs text-ink">
                     <CheckCircle2 size={16} className="text-arom shrink-0" />
@@ -200,6 +195,7 @@ export function ClinicDetailView({ clinic, onBack, startBooking = false, me = nu
                     <span>{isKm ? "រក្សាការសម្ងាត់ជូនអ្នកជំងឺកម្រិតខ្ពស់" : "Clinical grade confidentiality"}</span>
                   </div>
                 </div>
+                )}
               </div>
 
               {/* Services */}
@@ -215,15 +211,17 @@ export function ClinicDetailView({ clinic, onBack, startBooking = false, me = nu
                     >
                       <div className="flex items-center justify-between text-xs sm:text-sm font-bold text-ink">
                         <span>{isKm ? svc.nameKm : svc.name}</span>
-                        <span className="text-arom">{svc.fee}</span>
+                        {svc.fee && <span className="text-arom">{svc.fee}</span>}
                       </div>
                       <p className="text-xs text-ink-muted leading-relaxed">
                         {isKm ? svc.descriptionKm : svc.description}
                       </p>
-                      <div className="flex items-center gap-1 text-[11px] font-medium text-arom pt-1">
-                        <Clock size={12} />
-                        <span>{isKm ? svc.durationKm : svc.duration}</span>
-                      </div>
+                      {svc.duration && (
+                        <div className="flex items-center gap-1 text-[11px] font-medium text-arom pt-1">
+                          <Clock size={12} />
+                          <span>{isKm ? svc.durationKm : svc.duration}</span>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -302,8 +300,7 @@ export function ClinicDetailView({ clinic, onBack, startBooking = false, me = nu
         />
       )}
 
-      {/* Action Buttons matching Figma. Sample clinics are not real: no directions, no calls. */}
-      {!clinic.isSample && (
+      {/* Action Buttons matching Figma */}
       <div className="flex flex-col sm:flex-row gap-3 pt-2">
         {/* Get Direction Button (Outlined green with compass/arrow icon) */}
         <a
@@ -329,7 +326,6 @@ export function ClinicDetailView({ clinic, onBack, startBooking = false, me = nu
           </a>
         )}
       </div>
-      )}
     </div>
   );
 }

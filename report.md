@@ -1,5 +1,34 @@
 # AROM: Change Report
 
+## 27 Oct 2026: Real Clinics and Hospitals Instead of the Fake Ones
+
+Commit `PENDING`. No migration. Frontend only.
+
+**Why.** Find Clinic & Hospital showed three made up clinics (Riverside, Harmony Care, Mind & Life) with fake ratings, reviews, fees and photos, labelled "Sample". That looked unfinished, and someone looking for help needs real places they can actually call. AROM is not connected to other clinics yet, so these stay in the code, but every detail is now real and comes from public sources.
+
+**What changed for users:**
+- **7 real places in Phnom Penh:** TPO Cambodia Treatment Center, Khmer Soviet Friendship Hospital (mental health department), Sunrise Mental Clinic, The Bamboo Centre, Sombok Psychology, Calmette Hospital and Royal Phnom Penh Hospital, with their real address, phone, hours (where published) and services.
+- **Call and Get Direction work** for all of them. Directions open Google Maps searching the place by name and address.
+- **Honest labels:** each shows "Call to book" and a note that AROM is not connected to it yet and the details come from public lists, so call before you go.
+- **No made up numbers:** no stars, reviews, fees or stock photos for these places (an icon shows instead of a photo). The UP clinic is unchanged.
+- **Map:** AROM clinics have green pins, listed places blue pins.
+
+**What changed for the team:**
+- `clinic-data.ts`: `SAMPLE_CLINICS` and `isSample` replaced by `LISTED_CLINICS` and `isListed`, each with `source` and `checkedOn` (not shown). Pins marked `// street` are on the right street but not the building.
+- `clinic-list-view.tsx`: `SampleBadge` replaced by `ListedBadge`; new `ClinicPhoto` shows an icon when `image` is empty.
+- `clinic-detail-view.tsx`: no booking fetch for listed places, highlights only for AROM clinics, empty fee and duration hidden, Call and Directions for everyone.
+- Removed `public/clinics/riverside.jpg`, `harmony.jpg`, `mind-life.jpg`.
+- `BACKEND-HANDOFF.md` section 32: new "Listed real places" part with the rule (no ratings or reviews for places not on AROM).
+
+**What to re-test:**
+1. Open `/clinic-hospital`. The 7 places show with "Call to book" and no "Sample" anywhere.
+2. Map: 7 blue pins in Phnom Penh, tap one: View details and Directions.
+3. Open TPO: hours "Every day, 8:00 AM to 12:00 PM and 1:00 PM to 4:00 PM", Call dials 016 222 597, Get Direction opens TPO in Google Maps.
+4. Open Calmette: no stars, Reviews tab says "No reviews yet", no Book button, no "Licensed psychologists" highlight.
+5. Filters: Hospital shows Khmer Soviet, Calmette and Royal Phnom Penh. Clinic shows the other 4 (and UP for UP accounts).
+6. Switch to Khmer and check every new text.
+7. On a phone, the icon in place of a photo looks right on the list and detail page.
+
 ## 27 Oct 2026: Saved Items and Lesson Progress Live in the Account
 
 Commit `cbb4282`, pull request. Migration `20261027000100_saved_items_lesson_progress.sql` applied 27 Oct by Rith. Merged in PR #40.
