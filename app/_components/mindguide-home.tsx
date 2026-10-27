@@ -615,6 +615,58 @@ export function MindGuideHome() {
             })}
           </motion.nav>
 
+          <motion.section variants={item} aria-labelledby="programs-title" className="mt-9 lg:mt-12">
+            <p className="hidden text-xs font-semibold uppercase tracking-[0.15em] text-arom-accent lg:block">
+              {km ? "ម្តងមួយជំហាន (Step by step)" : "Step by step"}
+            </p>
+            <h2 id="programs-title" className="text-2xl font-semibold text-arom lg:mt-1.5 lg:text-3xl">
+              {km ? "វគ្គ ២ សប្តាហ៍ (2 week programs)" : "2 week programs"}
+            </h2>
+            <p className="mt-1 text-sm text-ink-muted">
+              {km
+                ? "សម្រាប់ពេលដែលការពិនិត្យរោគសញ្ញារបស់អ្នក បង្ហាញសញ្ញាខ្លះៗ ឬសញ្ញាច្បាស់។"
+                : "For when your symptom check shows some signs or clear signs."}
+            </p>
+            <div className="mt-4 grid gap-2.5 lg:grid-cols-2 lg:gap-5">
+              {TWO_WEEK_PROGRAMS.map((id) => {
+                const program = PROGRAMS[id];
+                const Icon = id === "stress" ? Waves : HeartPulse;
+                const running = planIds.map(parseProgramKey).find((key) => key?.id === id);
+                const day = running ? programDay(running.startDay, today) : null;
+                return (
+                  <Link
+                    key={id}
+                    href={`/mindguide/programs/${id}`}
+                    className="group flex items-center gap-3 rounded-2xl border border-arom-border bg-white p-3.5 transition-[background-color,box-shadow,transform] duration-150 hover:-translate-y-0.5 hover:bg-arom-wash hover:shadow-card focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-arom lg:p-4"
+                  >
+                    <span className="flex size-11 shrink-0 items-center justify-center rounded-[14px] bg-arom-soft text-arom">
+                      <Icon size={21} aria-hidden="true" />
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-sm font-semibold text-arom lg:text-base">
+                        {km ? program.name.km : program.name.en}
+                      </span>
+                      <span className="mt-0.5 block text-xs text-ink-muted">
+                        {day === null
+                          ? km
+                            ? "១៤ ថ្ងៃ · ប្រហែល ១០ នាទីក្នុងមួយថ្ងៃ"
+                            : "14 days · About 10 minutes a day"
+                          : day > PROGRAM_LENGTH
+                            ? km
+                              ? "បានបញ្ចប់ · ពិនិត្យម្តងទៀត"
+                              : "Finished · Check again"
+                            : km
+                              ? `ថ្ងៃទី ${day} នៃ ${PROGRAM_LENGTH}`
+                              : `Day ${day} of ${PROGRAM_LENGTH}`}
+                      </span>
+                    </span>
+                    <ChevronRight aria-hidden="true" size={18} className="shrink-0 text-ink-muted group-hover:text-arom" />
+                  </Link>
+                );
+              })}
+            </div>
+          </motion.section>
+
           <motion.section variants={item} id="today" aria-labelledby="today-title" className="mt-9 lg:mt-12">
             <div className="flex items-end justify-between gap-4">
               <div>
@@ -707,58 +759,6 @@ export function MindGuideHome() {
                       )}
                     </button>
                   </div>
-                );
-              })}
-            </div>
-          </motion.section>
-
-          <motion.section variants={item} aria-labelledby="programs-title" className="mt-9 lg:mt-12">
-            <p className="hidden text-xs font-semibold uppercase tracking-[0.15em] text-arom-accent lg:block">
-              {km ? "ម្តងមួយជំហាន (Step by step)" : "Step by step"}
-            </p>
-            <h2 id="programs-title" className="text-2xl font-semibold text-arom lg:mt-1.5 lg:text-3xl">
-              {km ? "វគ្គ ២ សប្តាហ៍ (2 week programs)" : "2 week programs"}
-            </h2>
-            <p className="mt-1 text-sm text-ink-muted">
-              {km
-                ? "សម្រាប់ពេលដែលការពិនិត្យរោគសញ្ញារបស់អ្នក បង្ហាញសញ្ញាខ្លះៗ ឬសញ្ញាច្បាស់។"
-                : "For when your symptom check shows some signs or clear signs."}
-            </p>
-            <div className="mt-4 grid gap-2.5 lg:grid-cols-2 lg:gap-5">
-              {TWO_WEEK_PROGRAMS.map((id) => {
-                const program = PROGRAMS[id];
-                const Icon = id === "stress" ? Waves : HeartPulse;
-                const running = planIds.map(parseProgramKey).find((key) => key?.id === id);
-                const day = running ? programDay(running.startDay, today) : null;
-                return (
-                  <Link
-                    key={id}
-                    href={`/mindguide/programs/${id}`}
-                    className="group flex items-center gap-3 rounded-2xl border border-arom-border bg-white p-3.5 transition-[background-color,box-shadow,transform] duration-150 hover:-translate-y-0.5 hover:bg-arom-wash hover:shadow-card focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-arom lg:p-4"
-                  >
-                    <span className="flex size-11 shrink-0 items-center justify-center rounded-[14px] bg-arom-soft text-arom">
-                      <Icon size={21} aria-hidden="true" />
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      <span className="block text-sm font-semibold text-arom lg:text-base">
-                        {km ? program.name.km : program.name.en}
-                      </span>
-                      <span className="mt-0.5 block text-xs text-ink-muted">
-                        {day === null
-                          ? km
-                            ? "១៤ ថ្ងៃ · ប្រហែល ១០ នាទីក្នុងមួយថ្ងៃ"
-                            : "14 days · About 10 minutes a day"
-                          : day > PROGRAM_LENGTH
-                            ? km
-                              ? "បានបញ្ចប់ · ពិនិត្យម្តងទៀត"
-                              : "Finished · Check again"
-                            : km
-                              ? `ថ្ងៃទី ${day} នៃ ${PROGRAM_LENGTH}`
-                              : `Day ${day} of ${PROGRAM_LENGTH}`}
-                      </span>
-                    </span>
-                    <ChevronRight aria-hidden="true" size={18} className="shrink-0 text-ink-muted group-hover:text-arom" />
-                  </Link>
                 );
               })}
             </div>

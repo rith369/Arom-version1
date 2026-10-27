@@ -1,5 +1,24 @@
 # AROM: Change Report
 
+## 27 Oct 2026: 2 Week Programs Now Show Above For Today
+
+Commit `PENDING`. No migration. Frontend only.
+
+**Why.** On the MindGuide home, the 2 week programs sat below the For Today activities, so people who had started a program had to scroll past the daily suggestions to reach it. A program is a longer commitment that people come back to every day, so it now comes first.
+
+**What changed for users:**
+- **2 week programs first:** The Stress and Anxiety programs (with "Day X of 14" when started) now appear right after the category icons.
+- **For Today second:** The 3 daily activities now sit below the programs. Nothing inside either section changed.
+
+**What changed for the team:**
+- In `app/_components/mindguide-home.tsx` the two `motion.section` blocks swapped places. No logic changed. The category icons still jump to `#today`.
+
+**What to re-test:**
+1. Open `/mindguide` on a phone width and confirm "2 week programs" shows above "For Today".
+2. Tap a category icon and confirm it still scrolls to For Today.
+3. Start a program and confirm its card shows "Day 1 of 14".
+4. Check the same order on a laptop width.
+
 ## 27 Oct 2026: Voice Messages Are Louder and Even
 
 Commit `55947a0`. No migration. Frontend only.
