@@ -2,7 +2,7 @@
 
 ## 27 Oct 2026: Photos for Sombok, Calmette and Royal Phnom Penh Hospital
 
-Commit `PENDING`. No migration. Frontend only.
+Commit `1a00029`. No migration. Frontend only.
 
 **Why.** Rith asked the listed places for permission to use their photos. Real photos help people recognise the place when they arrive.
 
