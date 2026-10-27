@@ -2,7 +2,7 @@
 
 ## 27 Oct 2026: 2 Week Programs Now Show Above For Today
 
-Commit `PENDING`. No migration. Frontend only.
+Commit `0ac0e84`. No migration. Frontend only.
 
 **Why.** On the MindGuide home, the 2 week programs sat below the For Today activities, so people who had started a program had to scroll past the daily suggestions to reach it. A program is a longer commitment that people come back to every day, so it now comes first.
 
