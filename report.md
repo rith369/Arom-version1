@@ -1,5 +1,24 @@
 # AROM: Change Report
 
+## 27 Oct 2026: EMDRAC Added to Find Clinic & Hospital
+
+Commit `PENDING`. No migration. Frontend only.
+
+**Why.** EMDR Association Cambodia (EMDRAC) runs our free UP clinic, but it also has its own clinic in Phnom Penh that anyone can use. People outside UP should be able to find it too.
+
+**What changed for users:**
+- **EMDRAC is listed:** #126, Street 12BT, Boeung Tumpun, Meanchey, Phnom Penh. Monday to Friday, 8:00 AM to 5:00 PM. Call 089 968 678. Therapy for trauma in English or Khmer, $40 a session (from their website).
+- **Same rules as the other listed places:** "Call to book", real Call and Directions, no stars or reviews, no booking in AROM.
+
+**What changed for the team:**
+- `clinic-data.ts`: one more entry in `LISTED_CLINICS`. The address comes from the CCC Cambodia member directory and EMDRAC's Facebook page (their website only shows Battambang). The pin is on Street 12BT, not the building.
+- `BACKEND-HANDOFF.md` section 32: now 8 listed places.
+
+**What to re-test:**
+1. Open `/clinic-hospital` and find EMDR Association Cambodia (EMDRAC) in the list and on the map, south of the centre in Boeung Tumpun.
+2. Open it: hours, $40 on the therapy session, Call dials 089 968 678, Get Direction opens Google Maps.
+3. Switch to Khmer and check the text.
+
 ## 27 Oct 2026: Real Clinics and Hospitals Instead of the Fake Ones
 
 Commit `e181ca7`. No migration. Frontend only.

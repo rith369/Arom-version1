@@ -309,6 +309,50 @@ export const LISTED_CLINICS: Clinic[] = [
     ],
   },
   {
+    id: "emdr-association-cambodia",
+    slug: "emdr-association-cambodia",
+    name: "EMDR Association Cambodia (EMDRAC)",
+    nameKm: "សមាគម EMDR កម្ពុជា (EMDRAC)",
+    category: "clinic",
+    ...NO_REVIEWS,
+    ...PHNOM_PENH,
+    address: "#126, Street 12BT, Boeung Tumpun, Meanchey, Phnom Penh",
+    addressKm: "ផ្ទះលេខ ១២៦ ផ្លូវ ១២BT សង្កាត់បឹងទំពុន ខណ្ឌមានជ័យ រាជធានីភ្នំពេញ",
+    tags: ["EMDR therapy", "Trauma care", "English and Khmer"],
+    tagsKm: ["ការព្យាបាល EMDR", "ការព្យាបាលរបួសផ្លូវចិត្ត (Trauma)", "ភាសាអង់គ្លេស និងខ្មែរ"],
+    status: "Monday to Friday, 8:00 AM to 5:00 PM",
+    statusKm: "ថ្ងៃច័ន្ទ ដល់ថ្ងៃសុក្រ ម៉ោង ៨:០០ ព្រឹក ដល់ ៥:០០ ល្ងាច",
+    image: "",
+    phone: "+85589968678",
+    phoneDisplay: "089 968 678",
+    googleMapsUrl: mapsSearch("EMDR Association Cambodia, #126 Street 12BT, Boeung Tumpun, Phnom Penh"),
+    about:
+      "A Cambodian association of psychologists that helps people heal from trauma, with offices in Phnom Penh, Siem Reap and Battambang. Its therapists also run the free UP Counseling clinic for University of Puthisastra students and staff.",
+    aboutKm:
+      "សមាគមចិត្តវិទូកម្ពុជា ដែលជួយមនុស្សឱ្យជាសះស្បើយពីរបួសផ្លូវចិត្ត មានការិយាល័យនៅភ្នំពេញ សៀមរាប និងបាត់ដំបង។ អ្នកព្យាបាលរបស់សមាគមក៏ផ្តល់សេវាប្រឹក្សាឥតគិតថ្លៃ UP Counseling សម្រាប់និស្សិត និងបុគ្គលិកសាកលវិទ្យាល័យពុទ្ធិសាស្ត្រផងដែរ។",
+    // street
+    lat: 11.534012,
+    lng: 104.909635,
+    isListed: true,
+    source:
+      "emdrcambodia.org (phone, hours, services, fee); CCC Cambodia member directory (2024) and EMDRAC Facebook page (Phnom Penh address)",
+    checkedOn: "2026-10-27",
+    services: [
+      {
+        id: "emdrac-therapy",
+        name: "Therapy session",
+        nameKm: "វគ្គព្យាបាល (Therapy session)",
+        duration: "",
+        durationKm: "",
+        fee: "$40",
+        description:
+          "One to one therapy for trauma, in English or Khmer. EMDR, and with some therapists CBT, trauma focused CBT, family or art therapy.",
+        descriptionKm:
+          "ការព្យាបាលម្នាក់ទល់ម្នាក់សម្រាប់របួសផ្លូវចិត្ត ជាភាសាអង់គ្លេស ឬខ្មែរ។ EMDR និងជាមួយអ្នកព្យាបាលខ្លះ CBT, CBT សម្រាប់របួសផ្លូវចិត្ត ការព្យាបាលគ្រួសារ ឬការព្យាបាលតាមរយៈសិល្បៈ។",
+      },
+    ],
+  },
+  {
     id: "calmette-hospital",
     slug: "calmette-hospital",
     name: "Calmette Hospital",
