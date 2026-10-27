@@ -37,6 +37,8 @@ export type Clinic = {
   statusKm: string;
   /** Photo path, or "" when we have no real photo (the page shows an icon). */
   image: string;
+  /** CSS object-position for a tall photo, so the crop keeps the sign or building (e.g. "50% 15%"). */
+  imagePosition?: string;
   /** Credit for an openly licensed photo (shown under it, the license asks for it). */
   imageCredit?: { text: string; url: string };
   phone: string;
@@ -95,7 +97,9 @@ export const LISTED_CLINICS: Clinic[] = [
     tagsKm: ["ការប្រឹក្សា (Counseling)", "វិកលចរិតវិទ្យា (Psychiatry)", "ការព្យាបាលរបួសផ្លូវចិត្ត (Trauma)"],
     status: "Every day, 8:00 AM to 12:00 PM and 1:00 PM to 4:00 PM",
     statusKm: "រៀងរាល់ថ្ងៃ ម៉ោង ៨:០០ ព្រឹក ដល់ ១២:០០ ថ្ងៃត្រង់ និង ១:០០ ដល់ ៤:០០ រសៀល",
-    image: "",
+    // Sent by Rith, 27 Oct 2026.
+    image: "/clinics/tpo-cambodia.jpg",
+    imagePosition: "50% 4%",
     phone: "+85516222597",
     phoneDisplay: "016 222 597",
     googleMapsUrl: mapsSearch("TPO Cambodia, Oknha Vaing Road, Sen Sok, Phnom Penh"),
@@ -238,7 +242,8 @@ export const LISTED_CLINICS: Clinic[] = [
     tags: ["Counseling", "Couples and families", "English and Khmer"],
     tagsKm: ["ការប្រឹក្សា (Counseling)", "គូស្វាមីភរិយា និងគ្រួសារ", "ភាសាអង់គ្លេស និងខ្មែរ"],
     ...CALL_TO_ASK,
-    image: "",
+    // Sent by Rith, 27 Oct 2026.
+    image: "/clinics/the-bamboo-centre.jpg",
     phone: "+85512208318",
     phoneDisplay: "012 208 318",
     googleMapsUrl: mapsSearch("The Bamboo Centre, Street 21, Tonle Bassac, Phnom Penh"),
@@ -413,6 +418,7 @@ export const LISTED_CLINICS: Clinic[] = [
     ...EMERGENCY_24H,
     // Used with permission (Rith asked, 27 Oct 2026). Only a small photo exists on their site.
     image: "/clinics/royal-phnom-penh-hospital.jpg",
+    imagePosition: "50% 50%",
     imageCredit: { text: "Photo: Royal Phnom Penh Hospital", url: "https://www.royalphnompenhhospital.com/" },
     phone: "+85523991222",
     phoneDisplay: "023 991 222",

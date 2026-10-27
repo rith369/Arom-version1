@@ -1,5 +1,27 @@
 # AROM: Change Report
 
+## 27 Oct 2026: Photos for TPO Cambodia and The Bamboo Centre
+
+Commit `PENDING`. No migration. Frontend only.
+
+**Why.** Rith sent photos of TPO's building and a room at The Bamboo Centre, so people can recognise these places too.
+
+**What changed for users:**
+- **TPO Cambodia** shows its building with the TPO sign.
+- **The Bamboo Centre** shows its sitting room.
+- **Tall photos keep the important part in view:** the TPO sign and the Royal Phnom Penh Hospital building stay visible in the wide photo at the top of the detail page.
+- 6 of the 8 listed places now have a photo. Sunrise and EMDRAC still show the icon.
+
+**What changed for the team:**
+- New files `public/clinics/tpo-cambodia.jpg` and `public/clinics/the-bamboo-centre.jpg`.
+- New optional `imagePosition` on `Clinic` (CSS object-position), used by `ClinicPhoto` in `clinic-list-view.tsx`. Set for TPO and Royal Phnom Penh Hospital.
+- `BACKEND-HANDOFF.md` section 32: photo notes updated.
+
+**What to re-test:**
+1. Open `/clinic-hospital`: TPO and The Bamboo Centre show their photos in the list.
+2. Open TPO on a laptop and on a phone: the TPO sign is visible at the top of the photo.
+3. Open Royal Phnom Penh Hospital: the whole building shows, not just the ground floor.
+
 ## 27 Oct 2026: Photos for Sombok, Calmette and Royal Phnom Penh Hospital
 
 Commit `1a00029`. No migration. Frontend only.

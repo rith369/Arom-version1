@@ -55,6 +55,7 @@ export function ClinicPhoto({
       fill
       sizes={sizes}
       priority={priority}
+      style={clinic.imagePosition ? { objectPosition: clinic.imagePosition } : undefined}
       className={`object-cover ${className}`}
     />
   );
