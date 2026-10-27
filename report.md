@@ -2,7 +2,7 @@
 
 ## 27 Oct 2026: Open in Chrome or Safari for Google Sign In Inside Apps
 
-Commit `PENDING`. No migration. Frontend only.
+Commit `118aabd`. No migration. Frontend only.
 
 **Why.** When someone opens an AROM link from Messenger, Facebook, Instagram, TikTok, LINE or (sometimes) Telegram, the page opens in that app's own built in browser. Google blocks sign in there ("Error 403: disallowed_useragent"), and that browser does not share the login from Chrome or Safari, so people got stuck. Now they get clear steps to open AROM in their real browser, where Google works and the login stays.
 
