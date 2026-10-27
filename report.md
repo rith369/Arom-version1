@@ -2,7 +2,7 @@
 
 ## 27 Oct 2026: AROM Logo in the Browser Tab
 
-Commit `PENDING`. No migration. Frontend only.
+Commit `f592755`. No migration. Frontend only.
 
 **Why.** On a computer, the browser tab for AROM still showed the default Next.js triangle, left over from when the project was created. Other sites show their own logo there. People who keep AROM open in a tab should be able to find it at a glance.
 
