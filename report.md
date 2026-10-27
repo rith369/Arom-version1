@@ -1,5 +1,22 @@
 # AROM: Change Report
 
+## 27 Oct 2026: AROM Logo in the Browser Tab
+
+Commit `PENDING`. No migration. Frontend only.
+
+**Why.** On a computer, the browser tab for AROM still showed the default Next.js triangle, left over from when the project was created. Other sites show their own logo there. People who keep AROM open in a tab should be able to find it at a glance.
+
+**What changed for users:**
+- **The AROM logo in the tab:** the green leaf and heart mark on a white circle, the same logo used when AROM is installed to the home screen. It also shows in bookmarks and browser history.
+
+**What changed for the team:**
+- **New `app/favicon.ico`** with 16, 32, 48 and 64 pixel sizes, made from `public/icons/icon-512.png`. The logo is cropped closer than in the home screen icon so it stays clear at 16 pixels. No code changed.
+
+**What to re-test:**
+1. Open AROM on a computer in Chrome or Edge and check the tab shows the AROM logo, not a black triangle.
+2. If the old icon still shows, do a hard refresh (Ctrl + Shift + R) or close and reopen the tab, because browsers keep old tab icons for a while.
+3. Check it in both a light and a dark browser theme.
+
 ## 27 Oct 2026: EMDRAC Correct Address, Exact Pin and Photo
 
 Commit `9ed4c84`. No migration. Frontend only.
