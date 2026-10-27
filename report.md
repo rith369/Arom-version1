@@ -1,5 +1,26 @@
 # AROM: Change Report
 
+## 27 Oct 2026: EMDRAC Correct Address, Exact Pin and Photo
+
+Commit `PENDING`. No migration. Frontend only.
+
+**Why.** Rith sent EMDRAC's Google Maps listing. Its pin and the photo of the sign on the door both show EMDRAC's Phnom Penh office at #44Bz, Street 1986, Sen Sok, not #126 Street 12BT (an older address from an NGO directory). People must be sent to the right door.
+
+**What changed for users:**
+- **Right address:** #44Bz, Street 1986, Phnom Penh Thmey, Sen Sok, Phnom Penh.
+- **Exact map pin** on the building, so the distance is right too.
+- **A photo of the entrance** with the EMDR Cambodia sign. Motorbike number plates in the photo are blurred, because people visiting a mental health clinic may not want to be recognised.
+
+**What changed for the team:**
+- `clinic-data.ts`: EMDRAC address, pin (11.574114, 104.872208), photo, `imagePosition`, and the `source` note.
+- New file `public/clinics/emdr-association-cambodia.jpg` (plates blurred).
+- `BACKEND-HANDOFF.md` section 32: EMDRAC address, photo and pin notes.
+
+**What to re-test:**
+1. Open `/clinic-hospital`: EMDRAC's pin is in Sen Sok (north west of the centre), near Street 1986.
+2. Open EMDRAC: the photo shows the sign at the top, the address reads #44Bz, Street 1986, and Get Direction finds "EMDR Association Cambodia Phnom Penh" in Google Maps.
+3. Zoom into the photo: no number plate can be read.
+
 ## 27 Oct 2026: Photos for TPO Cambodia and The Bamboo Centre
 
 Commit `6b9d083`. No migration. Frontend only.
