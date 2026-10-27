@@ -1,5 +1,30 @@
 # AROM: Change Report
 
+## 27 Oct 2026: Admin Area Gets a Phone Top Bar and Menu Drawer
+
+Commit `PENDING`. No migration. Frontend only.
+
+**Why.** On a phone, the admin area showed the whole sidebar stacked at the top of every page: the logo, then a long row of 11 menu buttons, then the links, before any content. The professional area already has a clean phone header (menu button, logo, language and account), so the admin area now uses the same pattern. This serves the AROM team when they check reports or bookings from a phone.
+
+**What changed for users:**
+- **Slim top bar on phones:** Admin pages on a phone now open with one bar: a menu button, the AROM logo with "Administration", the EN / ខ្មែរ switch and the account button. It stays at the top while scrolling.
+- **Menu in a drawer:** Tapping the menu button slides the admin menu in from the left. Tapping a link, the X, the dark background or pressing Escape closes it.
+- **Open reports dot:** A small red dot on the menu button shows when there are open reports. The count still shows next to Reports inside the menu.
+- **Desktop unchanged:** On a computer the sidebar looks and works as before.
+
+**What changed for the team:**
+- **Same shell pattern as /pro:** `app/admin/_components/admin-shell.tsx` now follows `app/pro/_components/pro-shell.tsx` (shared `brand` and `menu`, desktop sidebar, mobile header, drawer with `inert` and scroll lock).
+- **English only labels:** The new "Open menu" and "Close menu" labels are English only, following the admin rule. Existing Khmer labels are kept.
+
+**What to re-test:**
+1. Open `/admin` on a phone (or the browser at about 390px wide). Check that only the top bar shows above the page content.
+2. Tap the menu button. The drawer slides in with all 11 links, Professional area and View website.
+3. Tap Reports. The drawer closes and the Reports page opens with Reports highlighted next time the drawer opens.
+4. Open the drawer and close it with the X, by tapping the dark background, and with Escape.
+5. With an open report, check the red dot on the menu button.
+6. Switch to ខ្មែរ and check the top bar still fits on one line.
+7. Widen to desktop and check the sidebar looks the same as before.
+
 ## 27 Oct 2026: 2 Week Programs Now Show Above For Today
 
 Commit `0ac0e84`. No migration. Frontend only.
