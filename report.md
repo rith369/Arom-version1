@@ -2,7 +2,7 @@
 
 ## 27 Oct 2026: Photos for TPO Cambodia and The Bamboo Centre
 
-Commit `PENDING`. No migration. Frontend only.
+Commit `6b9d083`. No migration. Frontend only.
 
 **Why.** Rith sent photos of TPO's building and a room at The Bamboo Centre, so people can recognise these places too.
 
