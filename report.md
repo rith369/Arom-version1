@@ -2,7 +2,7 @@
 
 ## 27 Oct 2026: EMDRAC Correct Address, Exact Pin and Photo
 
-Commit `PENDING`. No migration. Frontend only.
+Commit `9ed4c84`. No migration. Frontend only.
 
 **Why.** Rith sent EMDRAC's Google Maps listing. Its pin and the photo of the sign on the door both show EMDRAC's Phnom Penh office at #44Bz, Street 1986, Sen Sok, not #126 Street 12BT (an older address from an NGO directory). People must be sent to the right door.
 
