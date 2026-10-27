@@ -67,7 +67,7 @@ The yellow "Demo data on this page" banner is in `admin-shell.tsx`. Remove it fo
 | Crisis helplines and support contact: admin Settings, user "Get help now" in Profile and Settings | Done | Connected: helplines (`/api/crisis-resources`, `/api/admin/crisis-resources`, migration `20261014000300`) and support contact (returned with the helplines; `GET\|PUT /api/admin/support-contact`, migration `20261017000200`) | 13 |
 | Admin bookings chart and table, emergency cancel (`/admin/bookings`) | Done | Connected (`GET /api/admin/bookings`, `POST /api/admin/bookings/:id/cancel`), migration `20261017000100`. The client is never shown | 12 |
 | MindGuide podcasts: user pages `/podcasts` and `/podcasts/<id>`, admin Podcasts tab | Done on mock data | Waiting for backend | 11 |
-| Saved page in Settings (`/profile/saved`) and lesson progress: saved lessons, tips, practice and podcasts, how far each lesson got | Done | Built on branch `rith/saved-items-sync` (`/api/saved`, `/api/lesson-progress`), migration `20261027000100` not yet applied | 30 |
+| Saved page in Settings (`/profile/saved`) and lesson progress: saved lessons, tips, practice and podcasts, how far each lesson got | Done | Connected (`/api/saved`, `/api/lesson-progress`), PR #40, migration `20261027000100` applied 27 Oct | 30 |
 | Community: professionals and admins create groups, admins read chats and shut groups down, users report a person, image, message or group (`/community`, `/admin/community`) | Done | Partly connected: group list and create, join, chat read and send (`/api/community/groups`, `/:id/join`, `/:id/messages`), migrations `20261016000000` to `20261016000700`. Moderation connected: admin groups list, create, edit, shut down, reopen, member reports, remove message or person (`/api/admin/community/*`, `POST /api/community/reports`), migration `20261017000500`. Group activities still sample data | 23 |
 | Mood check in and Your Progress on Home (`/`, journal starts from today's mood) | Done | Connected (`POST /api/mood-checkins`, `GET /api/progress`), migration `20261015000400` | 22 |
 | Progress pages (`/progress`, `/progress/details`, from Figma): trend, bars, distribution, today's check in | Done | Connected for every range (`GET /api/progress?range=7d\|30d\|90d`). Insights worked out in the browser from the same real check ins | 22 |
@@ -1221,7 +1221,7 @@ Several original functions remain for internal use, with direct execution revoke
 
 ## 30. Saved items and lesson progress (Settings, Saved)
 
-**Status:** Built 27 Oct 2026 on branch `rith/saved-items-sync` (pull request). Migration `20261027000100_saved_items_lesson_progress.sql` **not yet applied**. Until it runs, `/api/saved` and `/api/lesson-progress` fail, so the branch must not be merged first.
+**Status:** Done 27 Oct 2026, merged in PR #40. Migration `20261027000100_saved_items_lesson_progress.sql` applied 27 Oct.
 
 **Files:** `lib/saved.ts` (types and rules), `lib/controllers/saved-controller.ts`, routes `app/api/saved/route.ts` and `app/api/lesson-progress/route.ts`. In the browser: `app/_components/saved/saved-store.ts` (no React, also imported by `learn-data.ts`), `app/_components/saved/use-saved.ts` (hooks), `app/_components/learn/lesson-progress-store.ts` and `app/_components/learn/use-lesson-storage.ts`. Pages: `app/_components/saved/saved-view.tsx` at `/profile/saved` (login required), and the Saved screens inside Learn, Tips and Practice, which now read the same saved items.
 
