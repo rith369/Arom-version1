@@ -14,10 +14,16 @@ import { z } from "zod";
 //   wording is unchanged. The three groups below (facing the problem, caring
 //   for feelings, pulling away) follow Cooper, Katona and Livingston 2008; the
 //   Brief COPE itself has no total score, so none is made here.
+// - personality: Mini IPIP, Donnellan, Oswald, Baird and Lucas 2006, Psychol
+//   Assess 18(2):192 to 203. 20 items from the International Personality Item
+//   Pool, public domain. The Big Five is shown as two friendly ends, never a
+//   good and a bad end. The "closest 4 letter style" is for fun, from the Big
+//   Five links in McCrae and Costa 1989. It is never called MBTI: that name is
+//   a trademark and its questions are licensed.
 // All Khmer in this file is a draft by AROM, waiting for a Khmer speaking
 // professional to review it. Do not reword any question without that review.
 
-export const SELF_MAP_PARTS = ["values", "coping"] as const;
+export const SELF_MAP_PARTS = ["values", "coping", "personality"] as const;
 export type SelfMapPart = (typeof SELF_MAP_PARTS)[number];
 
 type Text = { en: string; km: string };
@@ -452,12 +458,204 @@ export function usesSubstances(answers: CopingAnswers) {
 }
 
 // ---------------------------------------------------------------------------
+// My personality (Mini IPIP, Big Five)
+// ---------------------------------------------------------------------------
+
+export const TRAITS = ["outgoing", "curious", "caring", "organised", "calm"] as const;
+export type Trait = (typeof TRAITS)[number];
+
+export interface TraitInfo {
+  // The Big Five name, for professionals and the credit line.
+  bigFive: string;
+  name: Text;
+  // Both ends are good ways to be. `low` is the left end of the bar.
+  low: Text;
+  high: Text;
+  lowNote: Text;
+  highNote: Text;
+}
+
+export const TRAIT_INFO: Record<Trait, TraitInfo> = {
+  outgoing: {
+    bigFive: "Extraversion",
+    name: { en: "Social energy", km: "ថាមពលក្នុងសង្គម (Social energy)" },
+    low: { en: "Quiet", km: "ស្ងប់ស្ងាត់" },
+    high: { en: "Outgoing", km: "ចូលចិត្តជួបគ្នា" },
+    lowNote: {
+      en: "You tend to recharge with time alone or with a few close people. Plan quiet time after busy days.",
+      km: "អ្នកច្រើនតែបានកម្លាំងវិញ ពេលនៅម្នាក់ឯង ឬជាមួយមនុស្សជិតស្និទ្ធពីរបីនាក់។ សូមទុកពេលស្ងាត់ក្រោយថ្ងៃរវល់។",
+    },
+    highNote: {
+      en: "You tend to get energy from being with people. When life is hard, reaching out may help you most.",
+      km: "អ្នកច្រើនតែទទួលបានថាមពលពីការនៅជាមួយមនុស្ស។ ពេលជីវិតលំបាក ការទាក់ទងអ្នកដទៃអាចជួយអ្នកបានច្រើនបំផុត។",
+    },
+  },
+  curious: {
+    bigFive: "Openness (imagination)",
+    name: { en: "Imagination", km: "ការស្រមើស្រមៃ (Imagination)" },
+    low: { en: "Practical", km: "អនុវត្តជាក់ស្តែង" },
+    high: { en: "Imaginative", km: "ស្រមើស្រមៃច្រើន" },
+    lowNote: {
+      en: "You tend to like what is real and useful. Clear, practical steps may suit you best.",
+      km: "អ្នកច្រើនតែចូលចិត្តអ្វីដែលពិត និងមានប្រយោជន៍។ ជំហានច្បាស់លាស់ និងជាក់ស្តែងអាចសមនឹងអ្នកបំផុត។",
+    },
+    highNote: {
+      en: "You tend to enjoy ideas and imagination. Writing, art or music may help you work through feelings.",
+      km: "អ្នកច្រើនតែចូលចិត្តគំនិត និងការស្រមើស្រមៃ។ ការសរសេរ សិល្បៈ ឬតន្ត្រី អាចជួយអ្នកឆ្លងកាត់អារម្មណ៍។",
+    },
+  },
+  caring: {
+    bigFive: "Agreeableness",
+    name: { en: "Warmth", km: "ភាពកក់ក្តៅ (Warmth)" },
+    low: { en: "Direct", km: "និយាយត្រង់" },
+    high: { en: "Caring", km: "យកចិត្តទុកដាក់អ្នកដទៃ" },
+    lowNote: {
+      en: "You tend to say what you think and decide with your head. Remember people may need warmth too.",
+      km: "អ្នកច្រើនតែនិយាយអ្វីដែលអ្នកគិត ហើយសម្រេចចិត្តដោយហេតុផល។ សូមចាំថាមនុស្សក៏ត្រូវការភាពកក់ក្តៅដែរ។",
+    },
+    highNote: {
+      en: "You tend to feel what others feel. Caring for others is a gift, so make sure you care for yourself too.",
+      km: "អ្នកច្រើនតែទទួលអារម្មណ៍ដូចអ្នកដទៃ។ ការយកចិត្តទុកដាក់អ្នកដទៃជាអំណោយ ដូច្នេះត្រូវប្រាកដថាអ្នកក៏ថែខ្លួនឯងដែរ។",
+    },
+  },
+  organised: {
+    bigFive: "Conscientiousness",
+    name: { en: "Order", km: "សណ្តាប់ធ្នាប់ (Order)" },
+    low: { en: "Flexible", km: "បត់បែន" },
+    high: { en: "Organised", km: "មានរបៀប" },
+    lowNote: {
+      en: "You tend to go with the flow. One small daily plan on Home can help on busy weeks.",
+      km: "អ្នកច្រើនតែធ្វើតាមស្ថានភាព។ ផែនការតូចមួយប្រចាំថ្ងៃនៅទំព័រដើម អាចជួយក្នុងសប្តាហ៍រវល់។",
+    },
+    highNote: {
+      en: "You tend to like order and finishing things. Be kind to yourself when plans do not work out.",
+      km: "អ្នកច្រើនតែចូលចិត្តសណ្តាប់ធ្នាប់ និងធ្វើអ្វីៗឱ្យចប់។ សូមមានចិត្តល្អចំពោះខ្លួនឯង ពេលផែនការមិនដំណើរការ។",
+    },
+  },
+  calm: {
+    bigFive: "Emotional stability (low Neuroticism)",
+    name: { en: "Feelings", km: "អារម្មណ៍ (Feelings)" },
+    low: { en: "Feels things strongly", km: "ទទួលអារម្មណ៍ខ្លាំង" },
+    high: { en: "Steady", km: "នឹងនរ" },
+    lowNote: {
+      en: "You tend to feel things deeply. That is not a weakness. If worry or low mood gets heavy, a symptom check or a professional can help.",
+      km: "អ្នកច្រើនតែទទួលអារម្មណ៍យ៉ាងជ្រាលជ្រៅ។ នោះមិនមែនជាភាពទន់ខ្សោយទេ។ ប្រសិនបើការព្រួយបារម្ភ ឬអារម្មណ៍ធ្លាក់ចុះធ្ងន់ពេក ការពិនិត្យរោគសញ្ញា ឬអ្នកជំនាញអាចជួយបាន។",
+    },
+    highNote: {
+      en: "You tend to stay steady when things go wrong. Still check in with yourself: steady people can carry a lot quietly.",
+      km: "អ្នកច្រើនតែនៅនឹងនរ ពេលមានរឿងខុសប្រក្រតី។ ប៉ុន្តែសូមពិនិត្យខ្លួនឯងដែរ៖ មនុស្សនឹងនរអាចទ្រាំទ្ររឿងច្រើនដោយស្ងៀមស្ងាត់។",
+    },
+  },
+};
+
+export const PERSONALITY_PROMPT: Text = {
+  en: "Describe yourself as you generally are now, not as you wish to be. How well does this describe you?",
+  km: "សូមពិពណ៌នាខ្លួនអ្នក ដូចដែលអ្នកជាជាទូទៅឥឡូវនេះ មិនមែនដូចដែលអ្នកចង់ក្លាយជានោះទេ។ តើឃ្លានេះពិពណ៌នាអ្នកបានត្រឹមត្រូវប៉ុណ្ណា?",
+};
+
+export const PERSONALITY_INTRO: Text = {
+  en: "20 short sentences about how you usually are. Every way of being has its strengths. Answer honestly, there are no right or wrong answers.",
+  km: "ឃ្លាខ្លីៗ ២០ អំពីរបៀបដែលអ្នកជាជាធម្មតា។ គ្រប់របៀបនៃការរស់នៅ សុទ្ធតែមានចំណុចខ្លាំង។ សូមឆ្លើយដោយស្មោះត្រង់ គ្មានចម្លើយត្រូវ ឬខុសទេ។",
+};
+
+export const PERSONALITY_OPTIONS: Text[] = [
+  { en: "Very inaccurate", km: "មិនត្រឹមត្រូវទាល់តែសោះ" },
+  { en: "Moderately inaccurate", km: "មិនសូវត្រឹមត្រូវ" },
+  { en: "Neither accurate nor inaccurate", km: "មិនប្រាកដ" },
+  { en: "Moderately accurate", km: "ត្រឹមត្រូវខ្លះ" },
+  { en: "Very accurate", km: "ត្រឹមត្រូវណាស់" },
+];
+
+export const PERSONALITY_CREDIT: Text = {
+  en: "Questions from the Mini IPIP (Donnellan et al. 2006), public domain. The 4 letters are for fun, not the official MBTI. Khmer draft by AROM, waiting for review by a professional.",
+  km: "សំណួរពី Mini IPIP (Donnellan et al. 2006) ជាសាធារណៈ។ អក្សរ ៤ គឺសម្រាប់កម្សាន្ត មិនមែនជា MBTI ផ្លូវការទេ។ សេចក្តីព្រាងភាសាខ្មែរដោយ AROM កំពុងរង់ចាំការពិនិត្យដោយអ្នកជំនាញ។",
+};
+
+// Mini IPIP items in their original order. `reverse` items count the other way.
+export const PERSONALITY_QUESTIONS: { trait: Trait; reverse: boolean; text: Text }[] = [
+  { trait: "outgoing", reverse: false, text: { en: "I am the life of the party.", km: "ខ្ញុំជាមនុស្សដែលធ្វើឱ្យពិធីជប់លៀងសប្បាយ។" } },
+  { trait: "caring", reverse: false, text: { en: "I sympathize with others' feelings.", km: "ខ្ញុំយល់ចិត្តចំពោះអារម្មណ៍របស់អ្នកដទៃ។" } },
+  { trait: "organised", reverse: false, text: { en: "I get chores done right away.", km: "ខ្ញុំធ្វើការងារផ្ទះភ្លាមៗ។" } },
+  { trait: "calm", reverse: true, text: { en: "I have frequent mood swings.", km: "អារម្មណ៍របស់ខ្ញុំប្រែប្រួលញឹកញាប់។" } },
+  { trait: "curious", reverse: false, text: { en: "I have a vivid imagination.", km: "ខ្ញុំមានការស្រមើស្រមៃរស់រវើក។" } },
+  { trait: "outgoing", reverse: true, text: { en: "I don't talk a lot.", km: "ខ្ញុំមិនសូវនិយាយច្រើនទេ។" } },
+  { trait: "caring", reverse: true, text: { en: "I am not interested in other people's problems.", km: "ខ្ញុំមិនចាប់អារម្មណ៍នឹងបញ្ហារបស់អ្នកដទៃទេ។" } },
+  { trait: "organised", reverse: true, text: { en: "I often forget to put things back in their proper place.", km: "ខ្ញុំតែងតែភ្លេចដាក់របស់របរទៅកន្លែងដើមវិញ។" } },
+  { trait: "calm", reverse: false, text: { en: "I am relaxed most of the time.", km: "ខ្ញុំស្ងប់ចិត្តស្ទើរតែគ្រប់ពេល។" } },
+  { trait: "curious", reverse: true, text: { en: "I am not interested in abstract ideas.", km: "ខ្ញុំមិនចាប់អារម្មណ៍នឹងគំនិតអរូបីទេ។" } },
+  { trait: "outgoing", reverse: false, text: { en: "I talk to a lot of different people at parties.", km: "ខ្ញុំនិយាយជាមួយមនុស្សច្រើនផ្សេងៗគ្នា នៅពិធីជប់លៀង។" } },
+  { trait: "caring", reverse: false, text: { en: "I feel others' emotions.", km: "ខ្ញុំទទួលអារម្មណ៍នូវអារម្មណ៍របស់អ្នកដទៃ។" } },
+  { trait: "organised", reverse: false, text: { en: "I like order.", km: "ខ្ញុំចូលចិត្តសណ្តាប់ធ្នាប់។" } },
+  { trait: "calm", reverse: true, text: { en: "I get upset easily.", km: "ខ្ញុំងាយនឹងអាក់អន់ចិត្ត។" } },
+  { trait: "curious", reverse: true, text: { en: "I have difficulty understanding abstract ideas.", km: "ខ្ញុំពិបាកយល់គំនិតអរូបី។" } },
+  { trait: "outgoing", reverse: true, text: { en: "I keep in the background.", km: "ខ្ញុំចូលចិត្តនៅខាងក្រោយ មិនសូវបង្ហាញខ្លួន។" } },
+  { trait: "caring", reverse: true, text: { en: "I am not really interested in others.", km: "ខ្ញុំមិនសូវចាប់អារម្មណ៍នឹងអ្នកដទៃពិតប្រាកដទេ។" } },
+  { trait: "organised", reverse: true, text: { en: "I make a mess of things.", km: "ខ្ញុំធ្វើអ្វីៗរញ៉េរញ៉ៃ។" } },
+  { trait: "calm", reverse: false, text: { en: "I seldom feel blue.", km: "ខ្ញុំកម្រមានអារម្មណ៍ក្រៀមក្រំ។" } },
+  { trait: "curious", reverse: true, text: { en: "I do not have a good imagination.", km: "ខ្ញុំមិនសូវមានការស្រមើស្រមៃល្អទេ។" } },
+];
+
+export const PERSONALITY_LENGTH = PERSONALITY_QUESTIONS.length;
+
+// Each answer is the chosen option's index, 0 to 4 (Mini IPIP's 1 to 5).
+export const personalityAnswersSchema = z.array(z.number().int().min(0).max(4)).length(PERSONALITY_LENGTH);
+export type PersonalityAnswers = z.infer<typeof personalityAnswersSchema>;
+
+// One letter of the 4 letter style, from one trait.
+export interface StyleLetter {
+  letter: string;
+  name: Text;
+}
+
+const LETTERS: { trait: Trait; low: StyleLetter; high: StyleLetter }[] = [
+  {
+    trait: "outgoing",
+    low: { letter: "I", name: { en: "Inward: recharges alone", km: "ផ្តោតខាងក្នុង៖ បានកម្លាំងពេលនៅម្នាក់ឯង" } },
+    high: { letter: "E", name: { en: "Outward: recharges with people", km: "ផ្តោតខាងក្រៅ៖ បានកម្លាំងពេលនៅជាមួយមនុស្ស" } },
+  },
+  {
+    trait: "curious",
+    low: { letter: "S", name: { en: "Senses: trusts facts and experience", km: "អារម្មណ៍វិញ្ញាណ៖ ទុកចិត្តការពិត និងបទពិសោធន៍" } },
+    high: { letter: "N", name: { en: "Intuition: drawn to ideas and meaning", km: "វិចារណញាណ៖ ចូលចិត្តគំនិត និងអត្ថន័យ" } },
+  },
+  {
+    trait: "caring",
+    low: { letter: "T", name: { en: "Thinking: decides with logic", km: "ការគិត៖ សម្រេចចិត្តដោយហេតុផល" } },
+    high: { letter: "F", name: { en: "Feeling: decides with people in mind", km: "អារម្មណ៍៖ សម្រេចចិត្តដោយគិតពីមនុស្ស" } },
+  },
+  {
+    trait: "organised",
+    low: { letter: "P", name: { en: "Open: likes to keep options open", km: "បើកចំហ៖ ចូលចិត្តទុកជម្រើសបើកចំហ" } },
+    high: { letter: "J", name: { en: "Planned: likes things settled", km: "មានផែនការ៖ ចូលចិត្តឱ្យអ្វីៗច្បាស់លាស់" } },
+  },
+];
+
+export interface PersonalityResult {
+  // Each trait as 0 to 100, from the low end to the high end.
+  traits: Record<Trait, number>;
+  letters: StyleLetter[];
+}
+
+export function scorePersonality(answers: PersonalityAnswers): PersonalityResult {
+  // Each trait is the sum of its 4 items on 1 to 5 points, so 4 to 20.
+  const sums = Object.fromEntries(TRAITS.map((trait) => [trait, 0])) as Record<Trait, number>;
+  PERSONALITY_QUESTIONS.forEach((question, index) => {
+    sums[question.trait] += (question.reverse ? 4 - answers[index] : answers[index]) + 1;
+  });
+  const traits = Object.fromEntries(TRAITS.map((trait) => [trait, Math.round(((sums[trait] - 4) / 16) * 100)])) as Record<Trait, number>;
+  // Above the middle (12 of 20) is the high letter; the middle itself goes low.
+  const letters = LETTERS.map((item) => (sums[item.trait] > 12 ? item.high : item.low));
+  return { traits, letters };
+}
+
+// ---------------------------------------------------------------------------
 // API shapes
 // ---------------------------------------------------------------------------
 
 export type SelfMapPartDto =
   | { part: "values"; answers: ValuesAnswers; previous: ValuesAnswers | null; previousAt: string | null; updatedAt: string }
-  | { part: "coping"; answers: CopingAnswers; previous: CopingAnswers | null; previousAt: string | null; updatedAt: string };
+  | { part: "coping"; answers: CopingAnswers; previous: CopingAnswers | null; previousAt: string | null; updatedAt: string }
+  | { part: "personality"; answers: PersonalityAnswers; previous: PersonalityAnswers | null; previousAt: string | null; updatedAt: string };
 
 /** A professional the person has booked, and whether they see the self map. */
 export interface SelfMapShareDto {
@@ -477,6 +675,7 @@ export interface SelfMapResponse {
 export const saveSelfMapSchema = z.discriminatedUnion("part", [
   z.object({ part: z.literal("values"), answers: valuesAnswersSchema }),
   z.object({ part: z.literal("coping"), answers: copingAnswersSchema }),
+  z.object({ part: z.literal("personality"), answers: personalityAnswersSchema }),
 ]);
 export type SaveSelfMap = z.infer<typeof saveSelfMapSchema>;
 
@@ -489,6 +688,7 @@ export const shareSelfMapSchema = z.object({
 export type ProClientSelfMap = {
   values: { answers: ValuesAnswers; updatedAt: string } | null;
   coping: { answers: CopingAnswers; updatedAt: string } | null;
+  personality: { answers: PersonalityAnswers; updatedAt: string } | null;
 } | null;
 
 /** Reads a part's saved answers, or null when they do not match the current questions. */
@@ -500,6 +700,10 @@ export function parsePart(part: string, answers: unknown) {
   if (part === "coping") {
     const parsed = copingAnswersSchema.safeParse(answers);
     return parsed.success ? ({ part: "coping", answers: parsed.data } as const) : null;
+  }
+  if (part === "personality") {
+    const parsed = personalityAnswersSchema.safeParse(answers);
+    return parsed.success ? ({ part: "personality", answers: parsed.data } as const) : null;
   }
   return null;
 }

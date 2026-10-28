@@ -154,7 +154,7 @@ export function DetectionModal({ isOpen, onClose }: DetectionModalProps) {
                 </span>
               </div>
               <p className="mt-0.5 text-xs sm:text-sm text-[#757575] transition-colors duration-200 group-hover:text-[#1f6f5b]/90">
-                {km ? "តម្លៃរបស់អ្នក និងរបៀបដែលអ្នកទប់ទល់នឹងភាពតានតឹង" : "Your values and how you handle stress"}
+                {km ? "តម្លៃ បុគ្គលិកលក្ខណៈ និងរបៀបទប់ទល់នឹងភាពតានតឹង" : "Your values, personality and how you handle stress"}
               </p>
             </div>
 

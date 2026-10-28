@@ -1,5 +1,33 @@
 # AROM: Change Report
 
+## 28 Oct 2026: My Personality in Understand Yourself
+
+Commit pending, on branch `rith/self-map-personality` (pull request). Migration `20261028000200_self_map_personality.sql`, not yet applied. It only allows the new part and updates the save function.
+
+**Why.** Rith asked for MBTI. The real MBTI cannot be used: "MBTI" and "Myers-Briggs" are trademarks, the questions are sold only through licensed practitioners, and psychologists see it as weak science. Rith chose the Big Five instead (the model psychologists use, with free public domain questions), plus a closest 4 letter style for fun, because many young people in Cambodia know the 4 letters.
+
+**What changed for users:**
+- **New part "My personality"** on `/understand`: 20 short sentences (about 3 minutes), each answered from Very inaccurate to Very accurate.
+- **Result:** 5 traits, each a line between two friendly ends (Quiet and Outgoing, Practical and Imaginative, Direct and Caring, Flexible and Organised, Feels things strongly and Steady), with notes for the 3 clearest ones. Neither end is better.
+- **Closest 4 letter style** (for example INFJ), each letter explained, with a note that it is for fun and not the official MBTI.
+- **Do it again** shows which traits moved and if the letters changed.
+- **Sharing:** professionals the person shares with now also see personality, with the Big Five names.
+- Home and the Detection sheet mention personality, and Home now counts 3 parts ("You have done 1 of 3").
+
+**What changed for the team:**
+- `lib/self-map.ts`: Mini IPIP items, `TRAIT_INFO`, `scorePersonality()`, `personalityAnswersSchema`, the `personality` part in the API types.
+- The stress activity became a shared `QuestionsActivity` used by both question parts.
+- `TraitBars` in `app/_components/understand/self-map-summary.tsx`, used by the person's result and the professional's card.
+- Details in `BACKEND-HANDOFF.md` section 38. Khmer for the 20 sentences is AROM's draft, waiting for review.
+
+**What to re-test:**
+1. Apply the migration in Supabase, then open `/understand`: My personality is the third part.
+2. Answer all 20 and see the 5 trait lines, the notes and the 4 letters with the "not the official MBTI" note.
+3. Do it again with different answers: "Since last time" lists the moved traits and the old letters.
+4. Share with a booked professional and open their client file: the Personality block shows with the Big Five names.
+5. Home on an account with 1 part done says "You have done 1 of 3".
+6. Switch to Khmer and read the 20 sentences and the result (draft Khmer).
+
 ## 28 Oct 2026: Understand Yourself (My Self Map)
 
 Commit `13dc65c`, merged in PR #42 (`1ec65ba`). Migration `20261028000100_self_map.sql` applied 28 Oct and checked live.

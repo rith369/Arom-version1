@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Activity, ArrowLeft, CalendarCheck, ChevronRight, Clock, Compass, Lock, UserRound, Waves, type LucideIcon } from "lucide-react";
+import { Activity, ArrowLeft, CalendarCheck, ChevronRight, Clock, Compass, Lock, Smile, UserRound, Waves, type LucideIcon } from "lucide-react";
 import { DesktopNavigation } from "../../_components/app-navigation";
 import { BottomNav } from "../../components/bottom-nav";
 import { TopHeader } from "../../components/top-header";
@@ -12,7 +12,7 @@ import { LanguageQuickToggle, useLanguage } from "../../_components/language-pro
 import { useMoodRange } from "../../_components/mood/mood-store";
 import {
   LOOK_AGAIN_DAYS,
-  type CopingAnswers,
+  SELF_MAP_PARTS,
   type SaveSelfMap,
   type SelfMapPart,
   type SelfMapPartDto,
@@ -20,8 +20,8 @@ import {
   type SelfMapShareDto,
   type ValuesAnswers,
 } from "@/lib/self-map";
-import { CopingActivity, ValuesActivity } from "./activities";
-import { CopingResult, ValuesResult } from "./results";
+import { QuestionsActivity, ValuesActivity, type QuestionPart } from "./activities";
+import { CopingResult, PersonalityResult, ValuesResult } from "./results";
 import { PATTERN_MIN_CHECK_INS, moodPatterns } from "./patterns";
 import { focusRing, primaryButton } from "./styles";
 
@@ -37,7 +37,7 @@ type Load =
 type View =
   | { kind: "home" }
   | { kind: "values"; stage: "pick" | "rate" }
-  | { kind: "coping"; index: number }
+  | { kind: "questions"; part: QuestionPart; index: number }
   | { kind: "result"; part: SelfMapPart };
 
 const PART_INFO: Record<SelfMapPart, { icon: LucideIcon; name: { en: string; km: string }; description: { en: string; km: string }; time: { en: string; km: string } }> = {
@@ -59,9 +59,20 @@ const PART_INFO: Record<SelfMapPart, { icon: LucideIcon; name: { en: string; km:
     },
     time: { en: "About 4 minutes", km: "ប្រហែល ៤ នាទី" },
   },
+  personality: {
+    icon: Smile,
+    name: { en: "My personality", km: "បុគ្គលិកលក្ខណៈរបស់ខ្ញុំ (My personality)" },
+    description: {
+      en: "20 short sentences about how you usually are, with your closest 4 letter style for fun.",
+      km: "ឃ្លាខ្លីៗ ២០ អំពីរបៀបដែលអ្នកជាជាធម្មតា ព្រមទាំងរចនាប័ទ្មអក្សរ ៤ ដែលជិតបំផុតរបស់អ្នក សម្រាប់កម្សាន្ត។",
+    },
+    time: { en: "About 3 minutes", km: "ប្រហែល ៣ នាទី" },
+  },
 };
 
-const PARTS: SelfMapPart[] = ["values", "coping"];
+function firstView(part: SelfMapPart): View {
+  return part === "values" ? { kind: "values", stage: "pick" } : { kind: "questions", part, index: -1 };
+}
 
 function formatDate(iso: string, km: boolean) {
   return new Intl.DateTimeFormat(km ? "km-KH" : "en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "Asia/Phnom_Penh" }).format(
@@ -99,21 +110,20 @@ export function UnderstandView() {
     window.scrollTo({ top: 0 });
   }, [view.kind]);
 
-  // ?start=values or ?start=coping (from Home) opens that activity once loaded.
+  // ?start=<part> (from Home) opens that activity once loaded.
   const linkRead = useRef(false);
   useEffect(() => {
     if (linkRead.current || load.status !== "ready") return;
     linkRead.current = true;
-    const start = new URLSearchParams(window.location.search).get("start");
+    const part = SELF_MAP_PARTS.find((item) => item === new URLSearchParams(window.location.search).get("start"));
     window.history.replaceState(null, "", window.location.pathname);
     // eslint-disable-next-line react-hooks/set-state-in-effect -- runs once, when the self map has loaded
-    if (start === "values") setView({ kind: "values", stage: "pick" });
-    else if (start === "coping") setView({ kind: "coping", index: -1 });
+    if (part) setView(firstView(part));
   }, [load]);
 
   const start = (part: SelfMapPart) => {
     setSaveError(false);
-    setView(part === "values" ? { kind: "values", stage: "pick" } : { kind: "coping", index: -1 });
+    setView(firstView(part));
   };
 
   const send = async (url: string, init: RequestInit) => {
@@ -164,7 +174,7 @@ export function UnderstandView() {
 
   const goBack = () => {
     if (view.kind === "values" && view.stage === "rate") setView({ kind: "values", stage: "pick" });
-    else if (view.kind === "coping" && view.index >= 0) setView({ kind: "coping", index: view.index - 1 });
+    else if (view.kind === "questions" && view.index >= 0) setView({ ...view, index: view.index - 1 });
     else if (view.kind === "home") router.push("/");
     else setView({ kind: "home" });
   };
@@ -208,14 +218,18 @@ export function UnderstandView() {
             />
           )}
 
-          {view.kind === "coping" && (
-            <CopingActivity
+          {view.kind === "questions" && (
+            <QuestionsActivity
+              key={view.part}
               km={km}
+              part={view.part}
               index={view.index}
-              onIndex={(index) => setView({ kind: "coping", index })}
+              onIndex={(index) => setView({ ...view, index })}
               saving={saving}
               saveError={saveError}
-              onSubmit={(answers: CopingAnswers) => void submit({ part: "coping", answers })}
+              onSubmit={(answers) =>
+                void submit(view.part === "coping" ? { part: "coping", answers } : { part: "personality", answers })
+              }
             />
           )}
 
@@ -224,6 +238,15 @@ export function UnderstandView() {
           )}
           {resultPart?.part === "coping" && (
             <CopingResult km={km} part={resultPart} onAgain={() => start("coping")} onDone={() => setView({ kind: "home" })} onDelete={() => remove("coping")} />
+          )}
+          {resultPart?.part === "personality" && (
+            <PersonalityResult
+              km={km}
+              part={resultPart}
+              onAgain={() => start("personality")}
+              onDone={() => setView({ kind: "home" })}
+              onDelete={() => remove("personality")}
+            />
           )}
         </main>
       </div>
@@ -261,8 +284,8 @@ function HomeView({
     <div className="mt-3 space-y-5 animate-in fade-in duration-200">
       <p className="text-sm leading-6 text-ink-muted">
         {km
-          ? "សកម្មភាពខ្លីៗ ដើម្បីស្គាល់ខ្លួនឯងកាន់តែច្បាស់៖ អ្វីដែលសំខាន់សម្រាប់អ្នក របៀបដែលអ្នកទប់ទល់នឹងភាពតានតឹង និងលំនាំអារម្មណ៍របស់អ្នក។"
-          : "Short activities to know yourself better: what matters to you, how you handle stress, and the patterns in your mood."}
+          ? "សកម្មភាពខ្លីៗ ដើម្បីស្គាល់ខ្លួនឯងកាន់តែច្បាស់៖ អ្វីដែលសំខាន់សម្រាប់អ្នក របៀបដែលអ្នកទប់ទល់នឹងភាពតានតឹង បុគ្គលិកលក្ខណៈរបស់អ្នក និងលំនាំអារម្មណ៍របស់អ្នក។"
+          : "Short activities to know yourself better: what matters to you, how you handle stress, your personality, and the patterns in your mood."}
       </p>
 
       <div className="rounded-2xl border border-arom-border bg-white p-4 text-sm text-ink">
@@ -309,7 +332,7 @@ function HomeView({
         <h2 id="self-map-parts" className="text-base font-semibold">
           {km ? "ផែនទីខ្លួនឯងរបស់ខ្ញុំ" : "My self map"}
         </h2>
-        {PARTS.map((part) => (
+        {SELF_MAP_PARTS.map((part) => (
           <PartCard
             key={part}
             km={km}
@@ -497,8 +520,8 @@ function SharingCard({
       </h2>
       <p className="mt-1 text-sm leading-6 text-ink-muted">
         {km
-          ? "អ្នកជំនាញរបស់អ្នកអាចស្គាល់អ្នកមុនវគ្គដំបូង។ ពួកគេឃើញតម្លៃរបស់អ្នក និងរបៀបដែលអ្នកទប់ទល់នឹងភាពតានតឹង។ មិនដែលឃើញលំនាំអារម្មណ៍ ឬកំណត់ហេតុរបស់អ្នកទេ។ អ្នកអាចបិទវាបានគ្រប់ពេល។"
-          : "Your professional can get to know you before your first session. They see your values and how you handle stress, never your mood patterns or journal. You can turn it off at any time."}
+          ? "អ្នកជំនាញរបស់អ្នកអាចស្គាល់អ្នកមុនវគ្គដំបូង។ ពួកគេឃើញតម្លៃរបស់អ្នក របៀបដែលអ្នកទប់ទល់នឹងភាពតានតឹង និងបុគ្គលិកលក្ខណៈរបស់អ្នក។ មិនដែលឃើញលំនាំអារម្មណ៍ ឬកំណត់ហេតុរបស់អ្នកទេ។ អ្នកអាចបិទវាបានគ្រប់ពេល។"
+          : "Your professional can get to know you before your first session. They see your values, how you handle stress and your personality, never your mood patterns or journal. You can turn it off at any time."}
       </p>
 
       {shares.length === 0 ? (

@@ -6,6 +6,7 @@ import {
   SELF_MAP_PARTS,
   copingAnswersSchema,
   parsePart,
+  personalityAnswersSchema,
   valuesAnswersSchema,
   saveSelfMapSchema,
   shareSelfMapSchema,
@@ -52,9 +53,14 @@ function toPart(row: PartRow): SelfMapPartDto | null {
   if (!current) return null;
   const previous = row.previous_answers === null ? null : parsePart(row.part, row.previous_answers);
   const base = { previousAt: previous ? row.previous_at : null, updatedAt: row.updated_at };
-  return current.part === 'values'
-    ? { part: 'values', answers: current.answers, previous: previous?.part === 'values' ? previous.answers : null, ...base }
-    : { part: 'coping', answers: current.answers, previous: previous?.part === 'coping' ? previous.answers : null, ...base };
+  switch (current.part) {
+    case 'values':
+      return { part: 'values', answers: current.answers, previous: previous?.part === 'values' ? previous.answers : null, ...base };
+    case 'coping':
+      return { part: 'coping', answers: current.answers, previous: previous?.part === 'coping' ? previous.answers : null, ...base };
+    case 'personality':
+      return { part: 'personality', answers: current.answers, previous: previous?.part === 'personality' ? previous.answers : null, ...base };
+  }
 }
 
 async function respondWithMine(supabase: SupabaseClient) {
@@ -137,13 +143,16 @@ export async function getProClientSelfMap(clientId: string) {
   if (error) return fail('server_error', 'We could not load this self map.', 500);
   if (data === null) return json<{ selfMap: ProClientSelfMap }>({ selfMap: null });
 
-  const saved = data as Partial<Record<'values' | 'coping', { answers: unknown; updatedAt: string }>>;
+  const saved = data as Partial<Record<'values' | 'coping' | 'personality', { answers: unknown; updatedAt: string }>>;
   const values = saved.values ? valuesAnswersSchema.safeParse(saved.values.answers) : null;
   const coping = saved.coping ? copingAnswersSchema.safeParse(saved.coping.answers) : null;
+  const personality = saved.personality ? personalityAnswersSchema.safeParse(saved.personality.answers) : null;
   return json<{ selfMap: ProClientSelfMap }>({
     selfMap: {
       values: saved.values && values?.success ? { answers: values.data, updatedAt: saved.values.updatedAt } : null,
       coping: saved.coping && coping?.success ? { answers: coping.data, updatedAt: saved.coping.updatedAt } : null,
+      personality:
+        saved.personality && personality?.success ? { answers: personality.data, updatedAt: saved.personality.updatedAt } : null,
     },
   });
 }

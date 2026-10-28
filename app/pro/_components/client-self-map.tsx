@@ -4,14 +4,17 @@ import { useEffect, useState } from 'react';
 import { Compass, Lock } from 'lucide-react';
 
 import { useLanguage } from '../../_components/language-provider';
-import { CopingStyleBars, ValuesList } from '../../_components/understand/self-map-summary';
+import { CopingStyleBars, TraitBars, ValuesList } from '../../_components/understand/self-map-summary';
 import {
   COPING_CREDIT,
   COPING_SCALE_INFO,
+  PERSONALITY_CREDIT,
   scoreCoping,
+  scorePersonality,
   usesSubstances,
   type CopingAnswers,
   type CopingScale,
+  type PersonalityAnswers,
   type ProClientSelfMap,
 } from '@/lib/self-map';
 
@@ -63,11 +66,11 @@ export function ClientSelfMapCard({ clientId }: { clientId: string }) {
         ) : !selfMap ? (
           <p className="text-sm leading-6 text-ink-muted">
             {t(
-              'មិនបានចែករំលែកទេ។ អតិថិជនអាចចែករំលែកតម្លៃរបស់ពួកគេ និងរបៀបដែលពួកគេទប់ទល់នឹងភាពតានតឹង ពីទំព័រ "ស្គាល់ខ្លួនឯង"។',
-              'Not shared. Clients can share their values and how they handle stress from Understand yourself.',
+              'មិនបានចែករំលែកទេ។ អតិថិជនអាចចែករំលែកតម្លៃរបស់ពួកគេ របៀបដែលពួកគេទប់ទល់នឹងភាពតានតឹង និងបុគ្គលិកលក្ខណៈ ពីទំព័រ "ស្គាល់ខ្លួនឯង"។',
+              'Not shared. Clients can share their values, how they handle stress and their personality from Understand yourself.',
             )}
           </p>
-        ) : !selfMap.values && !selfMap.coping ? (
+        ) : !selfMap.values && !selfMap.coping && !selfMap.personality ? (
           <p className="text-sm leading-6 text-ink-muted">
             {t('អតិថិជនចែករំលែកវា ប៉ុន្តែមិនទាន់បានធ្វើសកម្មភាពណាមួយនៅឡើយទេ។', 'The client shares it, but has not done an activity yet.')}
           </p>
@@ -83,6 +86,9 @@ export function ClientSelfMapCard({ clientId }: { clientId: string }) {
               </div>
             )}
             {selfMap.coping && <CopingSummary km={km} answers={selfMap.coping.answers} updatedAt={date.format(new Date(selfMap.coping.updatedAt))} />}
+            {selfMap.personality && (
+              <PersonalitySummary km={km} answers={selfMap.personality.answers} updatedAt={date.format(new Date(selfMap.personality.updatedAt))} />
+            )}
             <p className="rounded-2xl bg-arom-wash/70 p-3 text-xs leading-5 text-ink">
               {t('ការស្គាល់ខ្លួនឯង មិនមែនជាការធ្វើរោគវិនិច្ឆ័យទេ។', 'Self knowledge, not a diagnosis.')}
             </p>
@@ -124,6 +130,27 @@ function CopingSummary({ km, answers, updatedAt }: { km: boolean; answers: Copin
         )}
       </dl>
       <p className="mt-3 text-[0.7rem] leading-5 text-ink-muted">{km ? COPING_CREDIT.km : COPING_CREDIT.en}</p>
+    </div>
+  );
+}
+
+function PersonalitySummary({ km, answers, updatedAt }: { km: boolean; answers: PersonalityAnswers; updatedAt: string }) {
+  const t = (kmText: string, enText: string) => (km ? kmText : enText);
+  const result = scorePersonality(answers);
+  const style = result.letters.map((item) => item.letter).join('');
+
+  return (
+    <div>
+      <h3 className="text-sm font-semibold text-ink">{t('បុគ្គលិកលក្ខណៈ (Big Five, Mini IPIP)', 'Personality (Big Five, Mini IPIP)')}</h3>
+      <p className="mb-3 text-xs text-ink-muted">{t(`បានឆ្លើយនៅថ្ងៃ ${updatedAt}`, `Answered ${updatedAt}`)}</p>
+      <TraitBars result={result} km={km} showBigFive />
+      <p className="mt-3 text-xs leading-5 text-ink-muted">
+        {t(
+          `អតិថិជនបានឃើញរចនាប័ទ្មអក្សរ ៤ "${style}" សម្រាប់កម្សាន្ត (ការផ្គូផ្គងប្រហាក់ប្រហែលពី Big Five មិនមែន MBTI ទេ)។`,
+          `The client was shown the 4 letter style "${style}" for fun (a rough match from the Big Five, not the MBTI).`,
+        )}
+      </p>
+      <p className="mt-2 text-[0.7rem] leading-5 text-ink-muted">{km ? PERSONALITY_CREDIT.km : PERSONALITY_CREDIT.en}</p>
     </div>
   );
 }
