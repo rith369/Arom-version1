@@ -4,10 +4,57 @@ import {
   COPING_STYLES,
   COPING_STYLE_INFO,
   LIVING_OPTIONS,
+  TRAITS,
+  TRAIT_INFO,
   valueCard,
   type CopingResult,
+  type PersonalityResult,
   type ValuesAnswers,
 } from "@/lib/self-map";
+
+/**
+ * The five traits, each a line between two friendly ends with a dot where
+ * the person sits. Neither end is better. `showBigFive` adds the Big Five
+ * names for professionals.
+ */
+export function TraitBars({ result, km, showBigFive = false }: { result: PersonalityResult; km: boolean; showBigFive?: boolean }) {
+  return (
+    <ul className="space-y-4">
+      {TRAITS.map((trait) => {
+        const info = TRAIT_INFO[trait];
+        const percent = result.traits[trait];
+        const side = percent > 50 ? info.high : percent < 50 ? info.low : null;
+        return (
+          <li key={trait}>
+            <p className="text-sm font-semibold text-ink">
+              {km ? info.name.km : info.name.en}
+              {showBigFive && <span className="font-normal text-ink-muted"> ({info.bigFive})</span>}
+            </p>
+            <div className="relative mt-2 h-2 rounded-full bg-arom-soft" aria-hidden="true">
+              <span
+                className="absolute top-1/2 size-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-arom shadow"
+                style={{ left: `${Math.min(96, Math.max(4, percent))}%` }}
+              />
+            </div>
+            <div className="mt-1 flex justify-between gap-3 text-xs text-ink-muted">
+              <span>{km ? info.low.km : info.low.en}</span>
+              <span className="text-right">{km ? info.high.km : info.high.en}</span>
+            </div>
+            <p className="sr-only">
+              {side
+                ? km
+                  ? `ទំនោរទៅរក ${side.km}`
+                  : `Leans toward ${side.en}`
+                : km
+                  ? "នៅកណ្តាល"
+                  : "In the middle"}
+            </p>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
 
 // Self map pieces shown to the person (/understand) and, when they share it,
 // to their professional (client file and Prepare). BACKEND-HANDOFF.md section 38.

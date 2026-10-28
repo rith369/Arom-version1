@@ -57,8 +57,8 @@ export function SelfMapCard({ state, km }: { state: CardState; km: boolean }) {
       ? {
           title: t("ស្គាល់ខ្លួនឯង", "Understand yourself"),
           body: t(
-            "ស្វែងយល់ពីអ្វីដែលសំខាន់សម្រាប់អ្នក និងរបៀបដែលអ្នកទប់ទល់នឹងភាពតានតឹង។ ប្រហែល ៣ នាទី។",
-            "Find out what matters to you and how you handle stress. About 3 minutes to start.",
+            "ស្វែងយល់ពីអ្វីដែលសំខាន់សម្រាប់អ្នក បុគ្គលិកលក្ខណៈរបស់អ្នក និងរបៀបដែលអ្នកទប់ទល់នឹងភាពតានតឹង។ ប្រហែល ៣ នាទី ដើម្បីចាប់ផ្តើម។",
+            "Find out what matters to you, your personality and how you handle stress. About 3 minutes to start.",
           ),
           action: t("ចាប់ផ្តើម", "Start"),
           href: "/understand",

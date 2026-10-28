@@ -5,21 +5,24 @@ import { Check } from "lucide-react";
 import {
   COPING_CREDIT,
   COPING_INTRO,
-  COPING_LENGTH,
   COPING_OPTIONS,
   COPING_PROMPT,
   COPING_QUESTIONS,
   LIVING_OPTIONS,
   MAX_VALUES,
   MIN_VALUES,
+  PERSONALITY_CREDIT,
+  PERSONALITY_INTRO,
+  PERSONALITY_OPTIONS,
+  PERSONALITY_PROMPT,
+  PERSONALITY_QUESTIONS,
   VALUE_CARDS,
   valueCard,
-  type CopingAnswers,
   type ValuesAnswers,
 } from "@/lib/self-map";
 import { focusRing, primaryButton } from "./styles";
 
-// The two activities of the self map. Answers stay in memory until they are
+// The activities of the self map. Answers stay in memory until they are
 // sent, and are never kept in browser storage or logged.
 
 function SaveError({ km }: { km: boolean }) {
@@ -198,12 +201,40 @@ export function ValuesActivity({
   );
 }
 
+
 // ---------------------------------------------------------------------------
-// How I handle stress: Brief COPE, one question per screen
+// How I handle stress (Brief COPE) and My personality (Mini IPIP): one
+// question per screen
 // ---------------------------------------------------------------------------
 
-export function CopingActivity({
+export type QuestionPart = "coping" | "personality";
+
+type Text = { en: string; km: string };
+
+const QUESTION_SETS: Record<QuestionPart, { name: Text; intro: Text; prompt: Text; options: Text[]; questions: Text[]; minutes: Text; credit: Text }> = {
+  coping: {
+    name: { en: "How I handle stress", km: "របៀបដែលខ្ញុំទប់ទល់នឹងភាពតានតឹង" },
+    intro: COPING_INTRO,
+    prompt: COPING_PROMPT,
+    options: COPING_OPTIONS,
+    questions: COPING_QUESTIONS.map((question) => question.text),
+    minutes: { en: "About 4 minutes", km: "ប្រហែល ៤ នាទី" },
+    credit: COPING_CREDIT,
+  },
+  personality: {
+    name: { en: "My personality", km: "បុគ្គលិកលក្ខណៈរបស់ខ្ញុំ" },
+    intro: PERSONALITY_INTRO,
+    prompt: PERSONALITY_PROMPT,
+    options: PERSONALITY_OPTIONS,
+    questions: PERSONALITY_QUESTIONS.map((question) => question.text),
+    minutes: { en: "About 3 minutes", km: "ប្រហែល ៣ នាទី" },
+    credit: PERSONALITY_CREDIT,
+  },
+};
+
+export function QuestionsActivity({
   km,
+  part,
   index,
   onIndex,
   saving,
@@ -211,50 +242,53 @@ export function CopingActivity({
   onSubmit,
 }: {
   km: boolean;
-  // -1 is the introduction, then 0 to 27.
+  part: QuestionPart;
+  // -1 is the introduction, then one index per question.
   index: number;
   onIndex: (index: number) => void;
   saving: boolean;
   saveError: boolean;
-  onSubmit: (answers: CopingAnswers) => void;
+  onSubmit: (answers: number[]) => void;
 }) {
-  const [answers, setAnswers] = useState<(number | undefined)[]>(() => Array.from({ length: COPING_LENGTH }));
-  const name = km ? "របៀបដែលខ្ញុំទប់ទល់នឹងភាពតានតឹង" : "How I handle stress";
+  const set = QUESTION_SETS[part];
+  const total = set.questions.length;
+  const [answers, setAnswers] = useState<(number | undefined)[]>(() => Array.from({ length: total }));
+  const tx = (text: Text) => (km ? text.km : text.en);
+  const name = tx(set.name);
 
   if (index < 0) {
     return (
       <div className="mt-3 animate-in fade-in duration-200">
         <div className="rounded-3xl border border-arom-border bg-white p-5 shadow-card sm:p-6">
           <h2 className="text-lg font-semibold text-ink">{name}</h2>
-          <p className="mt-2 text-sm leading-6 text-ink">{km ? COPING_INTRO.km : COPING_INTRO.en}</p>
-          <p className="mt-3 text-xs text-ink-muted">{km ? `សំណួរ ${COPING_LENGTH} · ប្រហែល ៤ នាទី` : `${COPING_LENGTH} questions · About 4 minutes`}</p>
+          <p className="mt-2 text-sm leading-6 text-ink">{tx(set.intro)}</p>
+          <p className="mt-3 text-xs text-ink-muted">{km ? `សំណួរ ${total} · ${set.minutes.km}` : `${total} questions · ${set.minutes.en}`}</p>
         </div>
         <button type="button" onClick={() => onIndex(0)} className={`${primaryButton} mt-5`}>
           {km ? "ចាប់ផ្តើម" : "Start"}
         </button>
-        <p className="mt-3 text-[0.7rem] leading-5 text-ink-muted">{km ? COPING_CREDIT.km : COPING_CREDIT.en}</p>
+        <p className="mt-3 text-[0.7rem] leading-5 text-ink-muted">{tx(set.credit)}</p>
       </div>
     );
   }
 
-  const question = COPING_QUESTIONS[index];
-  const isLast = index === COPING_LENGTH - 1;
+  const isLast = index === total - 1;
   const complete = answers.every((answer) => answer !== undefined);
-  const text = km ? question.text.km : question.text.en;
+  const text = tx(set.questions[index]);
 
   return (
     <div className="mt-3 animate-in fade-in duration-200">
       <div className="flex items-center justify-between text-xs font-medium text-ink-muted">
         <span>{name}</span>
-        <span>{km ? `សំណួរ ${index + 1} នៃ ${COPING_LENGTH}` : `Question ${index + 1} of ${COPING_LENGTH}`}</span>
+        <span>{km ? `សំណួរ ${index + 1} នៃ ${total}` : `Question ${index + 1} of ${total}`}</span>
       </div>
-      <ProgressBar km={km} step={index + 1} total={COPING_LENGTH} />
+      <ProgressBar km={km} step={index + 1} total={total} />
 
       <div className="mt-6 rounded-3xl border border-arom-border bg-white p-5 shadow-card sm:p-6">
-        <p className="text-sm text-ink-muted">{km ? COPING_PROMPT.km : COPING_PROMPT.en}</p>
+        <p className="text-sm text-ink-muted">{tx(set.prompt)}</p>
         <h2 className="mt-2 text-lg font-semibold leading-7 text-ink sm:text-xl">{text}</h2>
         <div role="radiogroup" aria-label={text} className="mt-5 grid gap-2.5">
-          {COPING_OPTIONS.map((option, value) => {
+          {set.options.map((option, value) => {
             const active = answers[index] === value;
             return (
               <button
@@ -270,7 +304,7 @@ export function CopingActivity({
                   active ? "border-arom bg-arom text-white" : "border-arom-border bg-white text-ink hover:border-arom hover:bg-arom-wash"
                 }`}
               >
-                {km ? option.km : option.en}
+                {tx(option)}
               </button>
             );
           })}

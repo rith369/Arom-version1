@@ -2,15 +2,19 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Activity, Bookmark, Compass, HeartPulse, Lightbulb, Trash2 } from "lucide-react";
+import { Activity, Bookmark, Compass, HeartPulse, Lightbulb, Trash2, UserRound } from "lucide-react";
 import { SuggestionRow, suggestionsFor } from "../../_components/topic-help/topic-help";
-import { CopingStyleBars, ValuesList } from "../../_components/understand/self-map-summary";
+import { CopingStyleBars, TraitBars, ValuesList } from "../../_components/understand/self-map-summary";
 import {
   COPING_CREDIT,
   COPING_SCALE_INFO,
   COPING_STYLES,
   COPING_STYLE_INFO,
+  PERSONALITY_CREDIT,
+  TRAITS,
+  TRAIT_INFO,
   scoreCoping,
+  scorePersonality,
   usesSubstances,
   valueCard,
   valueToGrowInto,
@@ -308,6 +312,121 @@ export function CopingResult({
         </button>
       </div>
       <p className="text-[0.7rem] leading-5 text-ink-muted">{km ? COPING_CREDIT.km : COPING_CREDIT.en}</p>
+      <DeletePart km={km} onDelete={onDelete} />
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// My personality
+// ---------------------------------------------------------------------------
+
+export function PersonalityResult({
+  km,
+  part,
+  onAgain,
+  onDone,
+  onDelete,
+}: {
+  km: boolean;
+  part: Extract<SelfMapPartDto, { part: "personality" }>;
+  onAgain: () => void;
+  onDone: () => void;
+  onDelete: () => Promise<boolean>;
+}) {
+  const result = scorePersonality(part.answers);
+  const previous = part.previous ? scorePersonality(part.previous) : null;
+  const style = result.letters.map((item) => item.letter).join("");
+  const previousStyle = previous?.letters.map((item) => item.letter).join("");
+  // The 3 traits furthest from the middle, each with what its side means.
+  const clearest = [...TRAITS]
+    .filter((trait) => result.traits[trait] !== 50)
+    .sort((a, b) => Math.abs(result.traits[b] - 50) - Math.abs(result.traits[a] - 50))
+    .slice(0, 3);
+  const moved = previous
+    ? TRAITS.filter((trait) => Math.abs(result.traits[trait] - previous.traits[trait]) >= 15).map((trait) => {
+        const info = TRAIT_INFO[trait];
+        const toward = result.traits[trait] > previous.traits[trait] ? info.high : info.low;
+        return km ? `${info.name.km}៖ ទៅរក ${toward.km}` : `${info.name.en}: more ${toward.en.toLowerCase()}`;
+      })
+    : [];
+
+  return (
+    <div className="mt-3 space-y-4 animate-in fade-in duration-200">
+      <p className="text-xs text-ink-muted">{km ? `ឆ្លើយនៅថ្ងៃ ${formatDate(part.updatedAt, km)}` : `Answered ${formatDate(part.updatedAt, km)}`}</p>
+
+      <Section icon={UserRound} title={km ? "បុគ្គលិកលក្ខណៈរបស់អ្នក" : "Your personality"}>
+        <p className="mb-4 text-sm leading-6 text-ink-muted">
+          {km
+            ? "គ្មានចុងណាមួយល្អជាង ឬអាក្រក់ជាងទេ។ វាបង្ហាញតែកន្លែងដែលអ្នកច្រើនតែស្ថិតនៅ។"
+            : "Neither end is better or worse. It only shows where you tend to sit."}
+        </p>
+        <TraitBars result={result} km={km} />
+      </Section>
+
+      {clearest.length > 0 && (
+        <Section icon={Lightbulb} title={km ? "អ្វីដែលវាមានន័យសម្រាប់អ្នក" : "What this means for you"}>
+          <ul className="space-y-2.5">
+            {clearest.map((trait) => {
+              const info = TRAIT_INFO[trait];
+              const high = result.traits[trait] > 50;
+              const note = high ? info.highNote : info.lowNote;
+              const side = high ? info.high : info.low;
+              return (
+                <li key={trait} className="rounded-2xl bg-arom-wash/70 p-3">
+                  <p className="text-sm font-semibold text-ink">{km ? side.km : side.en}</p>
+                  <p className="mt-0.5 text-xs leading-5 text-ink-muted">{km ? note.km : note.en}</p>
+                </li>
+              );
+            })}
+          </ul>
+        </Section>
+      )}
+
+      <Section icon={Compass} title={km ? "រចនាប័ទ្មអក្សរ ៤ ដែលជិតបំផុត" : "Your closest 4 letter style"}>
+        <p className="text-3xl font-bold tracking-[0.2em] text-arom-deep">{style}</p>
+        <ul className="mt-3 space-y-1.5">
+          {result.letters.map((item) => (
+            <li key={item.letter} className="flex gap-2.5 text-sm text-ink">
+              <span className="w-4 shrink-0 font-bold text-arom-deep">{item.letter}</span>
+              <span>{km ? item.name.km : item.name.en}</span>
+            </li>
+          ))}
+        </ul>
+        <p className="mt-3 text-xs leading-5 text-ink-muted">
+          {km
+            ? "សម្រាប់កម្សាន្ត។ នេះជាការផ្គូផ្គងប្រហាក់ប្រហែលពីចម្លើយរបស់អ្នក មិនមែនជាតេស្ត MBTI ផ្លូវការទេ។ មនុស្សមិនសមនឹងប្រអប់តែមួយទេ។"
+            : "For fun. A rough match from your answers, not the official MBTI test. People do not fit in one box."}
+        </p>
+      </Section>
+
+      {previous && part.previousAt && (
+        <Section icon={Bookmark} title={km ? "តាំងពីលើកមុន" : "Since last time"}>
+          <p className="text-sm leading-6 text-ink">
+            {moved.length === 0
+              ? km
+                ? `ស្ទើរតែដូចគ្នានឹងថ្ងៃ ${formatDate(part.previousAt, km)}។`
+                : `About the same as on ${formatDate(part.previousAt, km)}.`
+              : `${km ? `ធៀបនឹងថ្ងៃ ${formatDate(part.previousAt, km)}៖` : `Compared with ${formatDate(part.previousAt, km)}:`} ${moved.join(km ? "។ " : ". ")}${km ? "។" : "."}`}
+          </p>
+          {previousStyle && previousStyle !== style && (
+            <p className="mt-1 text-sm text-ink">{km ? `អក្សរ ៤ របស់អ្នកពីមុនគឺ ${previousStyle}។` : `Your 4 letters were ${previousStyle} before.`}</p>
+          )}
+          <p className="mt-1 text-xs text-ink-muted">
+            {km ? "បុគ្គលិកលក្ខណៈអាចផ្លាស់ប្តូរបន្តិចម្តងៗ ជាពិសេសក្នុងពេលលំបាក។" : "Personality can shift a little over time, especially through hard times."}
+          </p>
+        </Section>
+      )}
+
+      <div className="grid gap-2.5">
+        <button type="button" onClick={onDone} className={primaryButton}>
+          {km ? "ត្រឡប់ទៅផែនទីរបស់ខ្ញុំ" : "Back to my self map"}
+        </button>
+        <button type="button" onClick={onAgain} className={secondaryButton}>
+          {km ? "ធ្វើម្តងទៀត" : "Do it again"}
+        </button>
+      </div>
+      <p className="text-[0.7rem] leading-5 text-ink-muted">{km ? PERSONALITY_CREDIT.km : PERSONALITY_CREDIT.en}</p>
       <DeletePart km={km} onDelete={onDelete} />
     </div>
   );
