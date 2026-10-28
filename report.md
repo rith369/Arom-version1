@@ -2,7 +2,7 @@
 
 ## 28 Oct 2026: Understand Yourself (My Self Map)
 
-Commit `13dc65c`, on branch `rith/understand-yourself` (pull request). Migration `20261028000100_self_map.sql`, not yet applied.
+Commit `13dc65c`, merged in PR #42 (`1ec65ba`). Migration `20261028000100_self_map.sql` applied 28 Oct and checked live.
 
 **Why.** The symptom checks answer "How am I doing right now?". Many people, especially new users who feel fine, will never open a check about depression or anxiety. Understand yourself answers a warmer question: "Who am I, and why do I react the way I do?". It is a friendly way into AROM for new users and a place for deeper reflection for existing users. Rith decided it is for both, and that people can share it with their professional, so the therapist knows them before the first session.
 
