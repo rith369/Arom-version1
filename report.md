@@ -2,7 +2,7 @@
 
 ## 28 Oct 2026: My Personality in Understand Yourself
 
-Commit `3602caf`, on branch `rith/self-map-personality` (pull request). Migration `20261028000200_self_map_personality.sql`, not yet applied. It only allows the new part and updates the save function.
+Commit `3602caf`, merged in PR #43 (`bd8716b`). Migration `20261028000200_self_map_personality.sql` applied 28 Oct and checked live. It only allows the new part and updates the save function.
 
 **Why.** Rith asked for MBTI. The real MBTI cannot be used: "MBTI" and "Myers-Briggs" are trademarks, the questions are sold only through licensed practitioners, and psychologists see it as weak science. Rith chose the Big Five instead (the model psychologists use, with free public domain questions), plus a closest 4 letter style for fun, because many young people in Cambodia know the 4 letters.
 

@@ -1686,7 +1686,7 @@ Answers are saved in `symptom_checks.answers` as `[{ questionId, value }]` in qu
 
 ## 38. Understand yourself ("My self map")
 
-**Status:** Done 28 Oct 2026, merged in PR #42. Migration `20261028000100_self_map.sql` applied 28 Oct. Personality part added on branch `rith/self-map-personality`; migration `20261028000200_self_map_personality.sql` **not yet applied**.
+**Status:** Done 28 Oct 2026, merged in PR #42. Migration `20261028000100_self_map.sql` applied 28 Oct. Personality part merged in PR #43; migration `20261028000200_self_map_personality.sql` applied 28 Oct.
 
 **Decided by Rith (28 Oct 2026). Do not change without asking:**
 
