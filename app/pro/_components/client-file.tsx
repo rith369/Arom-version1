@@ -6,6 +6,7 @@ import { AlertTriangle, Archive, ArchiveRestore, ArrowLeft, CalendarCheck, FileT
 
 import { BookingDialog } from './bookings-view';
 import { ClientAceCard } from './ace-intake';
+import { ClientSelfMapCard } from './client-self-map';
 import { SessionNotePreview } from './session-note';
 import { CarePlanCard } from './care-plan-card';
 import { SharedMoods } from './shared-moods';
@@ -357,6 +358,8 @@ export function ClientFile({ clientId }: { clientId: string }) {
           </Card>
 
           <ClientAceCard clientId={clientId} />
+
+          <ClientSelfMapCard clientId={clientId} />
 
           <SharedMoods km={km} sharing={sharing.moods} moods={shared.moods} />
 

@@ -1,5 +1,39 @@
 # AROM: Change Report
 
+## 28 Oct 2026: Understand Yourself (My Self Map)
+
+Commit pending, on branch `rith/understand-yourself` (pull request). Migration `20261028000100_self_map.sql`, not yet applied.
+
+**Why.** The symptom checks answer "How am I doing right now?". Many people, especially new users who feel fine, will never open a check about depression or anxiety. Understand yourself answers a warmer question: "Who am I, and why do I react the way I do?". It is a friendly way into AROM for new users and a place for deeper reflection for existing users. Rith decided it is for both, and that people can share it with their professional, so the therapist knows them before the first session.
+
+**What changed for users:**
+- **New page `/understand` ("Understand yourself", ស្គាល់ខ្លួនឯង)** with three parts. It is self knowledge, never a test or a diagnosis.
+- **My values:** choose 3 to 5 of 20 value cards (family, respect, faith, gratitude, peace and more), then say how much you lived each one in the last 2 weeks. The value with the least room gets one small step for this week.
+- **How I handle stress:** 28 short questions (Brief COPE). The result shows, in words, how much you face the problem, care for your feelings and pull away, what you do most, ways that may keep you stuck, and ways worth trying more, with a lesson, tip and practice to try.
+- **My patterns:** from your mood check ins over 3 months (after 10 check ins): your best and hardest weekday, and how many days were hard. Never shared.
+- **Do it again** any time. The result then shows "Since last time" (new values, or more or less of a stress style). Each part can be deleted.
+- **Share with my professional:** a switch for each professional you have booked. They see your values and stress result, never your patterns or journal. You can turn it off at any time.
+- **Home card:** an invitation for new users (also when not logged in), "Continue your self map" when one part is done, and "Look at your self map again" after 3 months. Home never shows results.
+- **Detection sheet:** a third choice, "Understand yourself".
+- **Professionals:** a "Self map" card in the client file and on Prepare, shown only while the client shares it.
+
+**What changed for the team:**
+- `lib/self-map.ts`: value cards, Brief COPE items and scales, scoring (`scoreCoping`, `valueToGrowInto`), zod schemas and API types.
+- New tables `self_map_parts` and `self_map_shares`, RLS on with no policies; all access through security definer functions (same pattern as ACE). Details in `BACKEND-HANDOFF.md` section 38.
+- New endpoints: `/api/self-map`, `/api/self-map/sharing`, `/api/pro/clients/:clientId/self-map`.
+- All Khmer for this feature is AROM's draft and needs a Khmer speaking professional to review it, as with the play cards.
+
+**What to re-test:**
+1. Apply the migration in Supabase (SQL Editor), then open `/understand` logged in.
+2. My values: choose 5 cards (a 6th cannot be chosen), Next, rate each, See my values. Rate one "Not at all" and check the small step card shows for it.
+3. Do My values again with different cards: "Since last time" lists the new and dropped values.
+4. How I handle stress: answer all 28. Answer "a lot" to the self blame questions and check it shows under "Ways that may keep you stuck" with self esteem help. Answer any alcohol question above "not at all" and check the professional note.
+5. My patterns: with fewer than 10 mood check ins it shows the count; with more it shows the weekday line.
+6. Share: as a user with a booked session, turn on sharing for that professional. Log in as the professional, open the client file and Prepare: the Self map card shows values and the stress bars. Turn sharing off: the card says Not shared.
+7. Home: a new account sees "Understand yourself"; after one part, "Continue your self map"; after both, no card. Logged out, the invitation shows and leads to log in.
+8. Delete a part from its result: it goes back to Start on `/understand`.
+9. Switch to Khmer and check every screen reads naturally (draft Khmer).
+
 ## 27 Oct 2026: Stress by Cause, Work Burnout and Body Symptoms Checks
 
 Commit `8fe16f3`. Migration `20261027000200_symptom_check_work_burnout_body.sql` (applied 27 Oct, PR #41 merged). It only adds two values to `symptom_check_type`.

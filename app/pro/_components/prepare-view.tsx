@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { ArrowLeft, ClipboardList, FileText, FolderOpen, History, Lock, MessageCircle, Monitor, NotebookPen, Pin, Repeat, Share2, Target, UserRound } from 'lucide-react';
 
 import { ClientAceCard } from './ace-intake';
+import { ClientSelfMapCard } from './client-self-map';
 import { SessionNotePreview } from './session-note';
 import { usePro, useSharedByClient } from './pro-provider';
 import {
@@ -282,6 +283,7 @@ export function PrepareView({ bookingId }: { bookingId: string }) {
           </Block>
 
           <ClientAceCard clientId={booking.clientId} />
+          <ClientSelfMapCard clientId={booking.clientId} />
         </div>
 
         <aside className="space-y-5">
