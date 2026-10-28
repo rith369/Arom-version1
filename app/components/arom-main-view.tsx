@@ -9,6 +9,7 @@ import { ProgressDashboard } from "./progress-dashboard";
 import { BottomNav } from "./bottom-nav";
 import { NextSessionCard, useNextSession } from "./next-session-card";
 import { CheckInDueCard, useCheckInDue } from "./check-in-due-card";
+import { SelfMapCard, useSelfMapCard } from "./self-map-card";
 import { DesktopNavigation } from "../_components/app-navigation";
 import { useLanguage } from "../_components/language-provider";
 import { InstallPopup } from "../_components/install-app/install-popup";
@@ -17,6 +18,7 @@ export function AromMainView() {
   const { language } = useLanguage();
   const nextSession = useNextSession();
   const checkInDue = useCheckInDue();
+  const selfMap = useSelfMapCard();
 
   return (
     <div className="min-h-screen bg-[#f7faf9] text-[#14221f] lg:grid lg:grid-cols-[19rem_minmax(0,1fr)]">
@@ -57,6 +59,8 @@ export function AromMainView() {
                 <div className="rounded-[20px] bg-white p-4 shadow-[0_4px_20px_rgba(0,0,0,0.03)] sm:p-5">
                   <MoodSelector />
                 </div>
+                {/* Understand yourself: an invitation, how far along, or look again */}
+                <SelfMapCard state={selfMap} km={language === "km"} />
                 <ProgressDashboard />
               </div>
             </div>

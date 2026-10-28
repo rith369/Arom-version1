@@ -1684,6 +1684,66 @@ Answers are saved in `symptom_checks.answers` as `[{ questionId, value }]` in qu
 
 **Never log** answers, scores or who answered.
 
+## 38. Understand yourself ("My self map")
+
+**Status:** Built 28 Oct 2026 on branch `rith/understand-yourself`. Migration `20261028000100_self_map.sql` **not yet applied**.
+
+**Decided by Rith (28 Oct 2026). Do not change without asking:**
+
+- **For new and existing users.** New users get a friendly way into AROM (Home invitation, also shown to people who are not logged in). Existing users get deeper reflection and a "look again" nudge after 3 months.
+- **Self knowledge, never a diagnosis.** No levels, no scores shown to the person, no "you are" labels and no personality types (MBTI, Enneagram). Results say "you tend to".
+- **The person may share it with a professional they have booked** (a booked or completed session). They turn it on per professional and can turn it off at any time. The professional sees values and the stress result, never My patterns or the journal. Admins never see it.
+- **Khmer is AROM's draft.** All Khmer for the value cards and the Brief COPE was written by AROM and is waiting for a Khmer speaking professional to review it. Do not call it tested. Do not reword a question without that review.
+
+**Parts:**
+
+| Part | What | Saved? |
+|---|---|---|
+| My values | 20 value cards (AROM's own, with Cambodian values such as family, respect, faith, gratitude). Pick 3 to 5 in order, then how much each was lived in the last 2 weeks (0 Not at all to 4 Fully). The value lived least (below "Mostly") gets one small step for this week. | Yes, `values` |
+| How I handle stress | Brief COPE (Carver 1997), 28 items, unchanged wording, free for research and clinical use. 14 scales of 2 items (2 to 8). Shown as 3 groups (Facing the problem, Caring for your feelings, Pulling away, after Cooper, Katona and Livingston 2008) in words (A little, Some, A lot), what they do most, "Pulling away" scales used a lot (6 or more), and 2 helpful scales to try more. Any alcohol or drug answer above "not at all" shows a gentle note with a link to a professional. | Yes, `coping` |
+| My patterns | From the person's own mood check ins over 90 days (needs 10): best and hardest weekday, and how many check ins were Low or Very Low. Worked out in the browser, no endpoint, never compared with earlier weeks, never shared. | No |
+
+### Data
+
+| What | Where |
+|---|---|
+| Answers | `self_map_parts (user_id, part 'values' or 'coping', answers jsonb, previous_answers jsonb, previous_at, created_at, updated_at)`, primary key `(user_id, part)`. Saving again moves the old answers to `previous_*`, so the result can show "Since last time". |
+| Sharing | `self_map_shares (client_id, professional_id, created_at)`, primary key `(client_id, professional_id)` |
+
+Answer shapes (checked by the API with zod in `lib/self-map.ts`; the table only checks the JSON type and size):
+
+- `values`: `{ "picks": [{ "id": "family", "living": 0..4 }, ...] }`, 3 to 5 picks, no repeats, ids from `VALUE_CARDS`.
+- `coping`: an array of 28 numbers, 0 to 3, the chosen option of each Brief COPE item in its original order.
+
+Both tables have RLS on and **no policies**, and `anon` and `authenticated` have no table rights. Every read and write goes through these `security definer` functions:
+
+| Function | Who | Rule |
+|---|---|---|
+| `my_self_map()` | person | own rows only |
+| `save_self_map_part(p_part, p_answers)` | person | own row; keeps the previous answers |
+| `delete_self_map_part(p_part)` | person | own row, with its previous answers, any time |
+| `my_self_map_shares()` | person | one row per professional with a booked or completed session, or an existing share: slug, name, Khmer name, photo, `shared` |
+| `set_self_map_share(p_professional_slug, p_share)` | person | sharing needs a booked or completed session with them; stopping is always allowed |
+| `pro_client_self_map_safe(p_client_alias_id)` | professional | the client alias the professional sees (section 29); null unless the client shares with this professional; otherwise `{ values?: { answers, updatedAt }, coping?: { answers, updatedAt } }` |
+
+### API
+
+| Action | Endpoint |
+|---|---|
+| Person: read, save, delete | `GET /api/self-map`, `PUT /api/self-map { part, answers }`, `DELETE /api/self-map?part=values` |
+| Person: share or stop | `PUT /api/self-map/sharing { professionalSlug, share }` |
+| Professional: one client | `GET /api/pro/clients/:clientId/self-map` |
+
+Every person endpoint answers with the whole `SelfMapResponse { parts, shares }`. A saved row whose answers no longer match the questions is left out.
+
+**Where it shows:** `/understand` (the page), Home card (`app/components/self-map-card.tsx`: invitation, "Continue 1 of 2", or "Look again" after 90 days; never shows results, because others can see a phone's Home screen), the Detection sheet ("Understand yourself"), and the professional's client file and Prepare (`app/pro/_components/client-self-map.tsx`).
+
+**Files:** `lib/self-map.ts` (cards, questions, scoring, types), `lib/controllers/self-map-controller.ts`, `app/api/self-map/`, `app/api/pro/clients/[clientId]/self-map/`, `app/understand/`, `app/_components/understand/self-map-summary.tsx`.
+
+**Later, not built:** strengths, where I feel it (body map), life balance wheel, "how I like to be supported" card to share with friends.
+
+**Never log** answers or who shares with whom.
+
 ## Template for a new feature section
 
 ```md

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import Link from "next/link";
-import { ChevronRight, X } from "lucide-react";
+import { ChevronRight, Compass, X } from "lucide-react";
 import { FigmaIcon } from "./figma-icon";
 import { useLanguage } from "../_components/language-provider";
 
@@ -125,6 +125,36 @@ export function DetectionModal({ isOpen, onClose }: DetectionModalProps) {
               </div>
               <p className="mt-0.5 text-xs sm:text-sm text-[#757575] transition-colors duration-200 group-hover:text-[#1f6f5b]/90">
                 {km ? "ពិនិត្យ និងស្ទង់កម្រិតអារម្មណ៍រហ័ស" : "A quick check-in on how you’re doing"}
+              </p>
+            </div>
+
+            <ChevronRight
+              size={18}
+              className="text-gray-400 group-hover:text-[#1f6f5b] group-hover:translate-x-0.5 transition-all shrink-0"
+            />
+          </Link>
+
+          {/* Understand yourself: values, how I handle stress, my patterns */}
+          <Link
+            href="/understand"
+            onClick={onClose}
+            className="group flex w-full items-center text-left gap-4 rounded-[22px] border border-gray-200/90 bg-white p-4 shadow-sm transition-all duration-200 hover:border-[#1f6f5b] hover:shadow-md hover:bg-[#e6f6f1] focus-visible:outline-2 focus-visible:outline-[#1f6f5b]"
+          >
+            <div className="flex size-12 shrink-0 items-center justify-center rounded-[15px] bg-[#dff3ee] text-[#1f6f5b] transition-colors duration-200 group-hover:bg-[#1f6f5b] group-hover:text-white">
+              <Compass size={24} aria-hidden="true" />
+            </div>
+
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center justify-between">
+                <p className="text-base font-semibold text-black transition-colors duration-200 group-hover:text-[#1f6f5b]">
+                  {km ? "ស្គាល់ខ្លួនឯង (Understand yourself)" : "Understand yourself"}
+                </p>
+                <span className="text-[11px] font-medium text-[#1f6f5b] bg-[#e6f6f1] px-2.5 py-0.5 rounded-full">
+                  {km ? "ថ្មី (New)" : "New"}
+                </span>
+              </div>
+              <p className="mt-0.5 text-xs sm:text-sm text-[#757575] transition-colors duration-200 group-hover:text-[#1f6f5b]/90">
+                {km ? "តម្លៃរបស់អ្នក និងរបៀបដែលអ្នកទប់ទល់នឹងភាពតានតឹង" : "Your values and how you handle stress"}
               </p>
             </div>
 
