@@ -127,8 +127,8 @@ export function PracticeHomeView({
   }, [searchQuery, selectedCategory]);
 
   return (
-    <div className="min-h-screen bg-canvas text-ink pb-28 lg:pb-16">
-      <div className="mx-auto max-w-4xl px-4 pt-6 sm:px-8 sm:pt-8">
+    <div className="min-h-screen bg-canvas text-ink pb-36 lg:pb-16">
+      <div className="mx-auto max-w-4xl px-4 pt-[max(1.5rem,env(safe-area-inset-top,1.5rem))] sm:px-8 sm:pt-8">
         {/* Top Header Row */}
         <div className="flex items-center justify-between gap-4">
           <button
@@ -182,8 +182,8 @@ export function PracticeHomeView({
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={
                 km
-                  ? "ស្វែងរកការអនុវត្ត... (ការដកដង្ហើម, សមាធិ, ដំណេក...)"
-                  : "Search practices... (Breathing, Meditation, Grounding, Sleep...)"
+                  ? "ស្វែងរកការអនុវត្ត... (ការដកដង្ហើម...)"
+                  : "Search practices... (Breathing, Sleep)"
               }
               className="h-12 w-full rounded-2xl border border-arom-border bg-white pl-11 pr-10 text-sm text-ink outline-none transition-[border-color,box-shadow] placeholder:text-ink-muted/70 shadow-sm focus:border-arom focus:ring-4 focus:ring-arom/10"
             />
@@ -256,11 +256,20 @@ export function PracticeHomeView({
                 </p>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2.5 pt-1 sm:pt-0">
                 <button
                   type="button"
                   onClick={() => handleTogglePlan(PRACTICE_BREATHING)}
                   title={
+                    (!pick && planIds.includes(PRACTICE_BREATHING.id))
+                      ? km
+                        ? "លុបចេញពីផែនការទំព័រដើម"
+                        : "Remove from Home Daily Plan"
+                      : km
+                      ? "បន្ថែមទៅផែនការទំព័រដើម"
+                      : "Add to Home Daily Plan"
+                  }
+                  aria-label={
                     (!pick && planIds.includes(PRACTICE_BREATHING.id))
                       ? km
                         ? "លុបចេញពីផែនការទំព័រដើម"
@@ -285,10 +294,13 @@ export function PracticeHomeView({
                 <button
                   type="button"
                   onClick={() => onSelectPractice(PRACTICE_BREATHING)}
-                  className="group flex size-12 shrink-0 items-center justify-center rounded-2xl bg-arom text-white shadow-md transition-all duration-150 hover:-translate-y-0.5 hover:bg-arom-deep hover:shadow-[0_10px_24px_rgba(31,111,91,0.25)] sm:size-14 cursor-pointer"
+                  className="group flex h-12 flex-1 items-center justify-center gap-2 rounded-2xl bg-arom px-4 text-xs font-bold text-white shadow-md transition-all duration-150 hover:-translate-y-0.5 hover:bg-arom-deep hover:shadow-[0_10px_24px_rgba(31,111,91,0.25)] sm:size-14 sm:flex-initial sm:px-0 cursor-pointer"
                 >
+                  <span className="sm:hidden">
+                    {km ? "ចាប់ផ្តើមអនុវត្ត" : "Start Practice"}
+                  </span>
                   <ArrowRight
-                    size={22}
+                    size={20}
                     className="transition-transform duration-150 group-hover:translate-x-0.5"
                   />
                 </button>

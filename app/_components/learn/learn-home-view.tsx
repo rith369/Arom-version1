@@ -9,8 +9,6 @@ import {
   CalendarPlus,
   CheckCircle2,
   ChevronRight,
-  Clock3,
-  GraduationCap,
   Lock,
   Search,
   TrendingUp,
@@ -33,6 +31,9 @@ import {
   type TopicCategory,
 } from "./learn-data";
 import { useLessonProgress } from "./use-lesson-storage";
+
+// The cards match the podcast design with a hard offset shadow and a thin dark border.
+const cardEdge = "rounded-[9px] border border-black/25 shadow-[4px_4px_4px_rgba(0,0,0,0.25)]";
 
 type LearnHomeViewProps = {
   onSelectLesson: (lesson: Lesson) => void;
@@ -130,7 +131,7 @@ export function LearnHomeView({
 
   return (
     <div className="min-h-screen bg-canvas text-ink pb-36 lg:pb-16">
-      <div className="mx-auto max-w-4xl px-4 pt-6 sm:px-8 sm:pt-8">
+      <div className="mx-auto max-w-4xl px-4 pt-[max(1.5rem,env(safe-area-inset-top,1.5rem))] sm:px-8 sm:pt-8">
         {/* Top Header Row */}
         <div className="flex items-center justify-between gap-4">
           <button
@@ -176,7 +177,7 @@ export function LearnHomeView({
           <div className="relative">
             <Search
               size={19}
-              className="absolute left-4 top-1/2 -translate-y-1/2 text-ink-muted/70"
+              className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-ink-muted/70"
             />
             <input
               type="search"
@@ -184,10 +185,10 @@ export function LearnHomeView({
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={
                 km
-                  ? "ស្វែងរកមេរៀន... (ភាពតានតឹង, ការថប់បារម្ភ, អារម្មណ៍...)"
-                  : "Search lessons... (Stress, Anxiety, Burnout, Sleep...)"
+                  ? "ស្វែងរកមេរៀន... (ភាពតានតឹង, ការថប់បារម្ភ)"
+                  : "Search lessons... (Stress, Anxiety)"
               }
-              className="h-12 w-full rounded-2xl border border-arom-border bg-white pl-11 pr-10 text-sm text-ink outline-none transition-[border-color,box-shadow] placeholder:text-ink-muted/70 shadow-sm focus:border-arom focus:ring-4 focus:ring-arom/10"
+              className={`h-11 w-full bg-white pl-11 pr-10 text-sm font-light text-ink placeholder:text-ink-muted/70 focus-visible:outline-2 focus-visible:outline-arom ${cardEdge}`}
             />
             {searchQuery && (
               <button
@@ -229,7 +230,7 @@ export function LearnHomeView({
         {selectedCategory === "All" && !searchQuery && (
           <section
             aria-labelledby="recommended-heading"
-            className="mt-7 overflow-hidden rounded-[1.85rem] border border-arom/20 bg-gradient-to-br from-[#e8faf5] via-[#f0fbf7] to-white p-5 sm:p-7 shadow-[0_12px_32px_rgba(31,111,91,0.06)]"
+            className={`mt-7 overflow-hidden bg-white p-5 sm:p-6 transition-all duration-150 ${cardEdge}`}
           >
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold uppercase tracking-wider text-arom-accent">
@@ -258,7 +259,7 @@ export function LearnHomeView({
                 </p>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2.5 pt-1 sm:pt-0">
                 <button
                   type="button"
                   onClick={() => handleTogglePlan(LESSON_ABOUT_STRESS)}
@@ -271,26 +272,38 @@ export function LearnHomeView({
                       ? "បន្ថែមទៅផែនការទំព័រដើម"
                       : "Add to Home Daily Plan"
                   }
-                  className={`flex size-12 shrink-0 items-center justify-center rounded-2xl border transition-all duration-150 cursor-pointer sm:size-14 ${
+                  aria-label={
                     (!pick && planIds.includes(LESSON_ABOUT_STRESS.id))
-                      ? "border-arom bg-arom text-white shadow-md"
-                      : "border-arom-border bg-white text-arom hover:border-arom hover:bg-arom-wash shadow-sm"
+                      ? km
+                        ? "លុបចេញពីផែនការទំព័រដើម"
+                        : "Remove from Home Daily Plan"
+                      : km
+                      ? "បន្ថែមទៅផែនការទំព័រដើម"
+                      : "Add to Home Daily Plan"
+                  }
+                  className={`flex size-11 shrink-0 items-center justify-center rounded-[9px] border transition-all duration-150 cursor-pointer sm:size-12 ${
+                    (!pick && planIds.includes(LESSON_ABOUT_STRESS.id))
+                      ? "border-arom bg-arom text-white shadow-[2px_2px_2px_rgba(0,0,0,0.2)]"
+                      : "border-black/25 bg-white text-arom hover:border-black/40 hover:bg-arom-wash shadow-[2px_2px_2px_rgba(0,0,0,0.2)]"
                   }`}
                 >
                   {(!pick && planIds.includes(LESSON_ABOUT_STRESS.id)) ? (
-                    <CalendarCheck size={22} />
+                    <CalendarCheck size={20} />
                   ) : (
-                    <CalendarPlus size={22} />
+                    <CalendarPlus size={20} />
                   )}
                 </button>
 
                 <button
                   type="button"
                   onClick={() => onSelectLesson(LESSON_ABOUT_STRESS)}
-                  className="group flex size-12 shrink-0 items-center justify-center rounded-2xl bg-arom text-white shadow-md transition-all duration-150 hover:-translate-y-0.5 hover:bg-arom-deep hover:shadow-[0_10px_24px_rgba(31,111,91,0.25)] sm:size-14 cursor-pointer"
+                  className="group flex h-11 flex-1 items-center justify-center gap-2 rounded-[9px] border border-arom-deep bg-arom px-4 text-xs font-bold text-white shadow-[2px_2px_2px_rgba(0,0,0,0.2)] transition-all duration-150 hover:-translate-y-0.5 hover:bg-arom-deep sm:size-12 sm:flex-initial sm:px-0 cursor-pointer"
                 >
+                  <span className="sm:hidden">
+                    {km ? "ចាប់ផ្តើមរៀន" : "Start Lesson"}
+                  </span>
                   <ArrowRight
-                    size={22}
+                    size={20}
                     className="transition-transform duration-150 group-hover:translate-x-0.5"
                   />
                 </button>
@@ -303,7 +316,7 @@ export function LearnHomeView({
         {hasProgress && !searchQuery && (
           <section
             aria-labelledby="continue-learning-heading"
-            className="mt-6 rounded-2xl border border-arom-border bg-white p-5 shadow-[0_8px_24px_rgba(25,87,72,0.05)] sm:p-6"
+            className={`mt-6 bg-white p-5 transition-all duration-150 sm:p-6 ${cardEdge}`}
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -334,7 +347,7 @@ export function LearnHomeView({
               <button
                 type="button"
                 onClick={() => onSelectLesson(LESSON_ABOUT_STRESS)}
-                className="flex items-center gap-2 self-start rounded-xl bg-arom px-4 py-2 text-xs font-bold text-white shadow-sm transition-all hover:bg-arom-deep cursor-pointer"
+                className="flex items-center gap-2 self-start rounded-[9px] border border-arom-deep bg-arom px-4 py-2 text-xs font-bold text-white shadow-[2px_2px_2px_rgba(0,0,0,0.2)] transition-all hover:bg-arom-deep cursor-pointer"
               >
                 <span>{km ? "បន្តឥឡូវនេះ" : "Resume"}</span>
                 <ArrowRight size={14} />
@@ -374,20 +387,20 @@ export function LearnHomeView({
                       onSelectLesson(lesson);
                     }
                   }}
-                  className={`group flex items-center gap-4 rounded-2xl border p-4 transition-all duration-150 ${
+                  className={`group flex items-center gap-4 bg-white p-3.5 sm:px-4 sm:py-4 transition-all duration-150 ${cardEdge} ${
                     isAvailable
-                      ? "cursor-pointer border-arom-border bg-white shadow-[0_8px_24px_rgba(25,87,72,0.05)] hover:border-arom/40 hover:shadow-card"
-                      : "cursor-default border-arom-border/60 bg-white/70 opacity-75"
+                      ? "cursor-pointer hover:-translate-y-0.5 hover:border-black/35"
+                      : "cursor-default opacity-75"
                   }`}
                 >
-                  {/* Thumbnail */}
-                  <div className="relative size-14 shrink-0 overflow-hidden rounded-2xl bg-arom-soft sm:size-16 flex items-center justify-center">
+                  {/* Thumbnail / Category Tile */}
+                  <div className="relative size-12 shrink-0 overflow-hidden rounded-lg bg-arom-accent/20 text-arom flex items-center justify-center sm:size-13">
                     <Image
                       src={lesson.image || getCategoryThumbnail(lesson.category)}
                       alt={lesson.title}
-                      width={48}
-                      height={48}
-                      className="size-11 object-contain sm:size-12 transition-transform duration-200 group-hover:scale-105"
+                      width={44}
+                      height={44}
+                      className="size-9 object-contain sm:size-10 transition-transform duration-200 group-hover:scale-105"
                       unoptimized
                     />
                   </div>
@@ -399,37 +412,23 @@ export function LearnHomeView({
                         {lesson.category}
                       </span>
                       {lesson.badge && (
-                        <span className="inline-flex items-center gap-1 rounded-full border border-arom-border bg-arom-wash px-2.5 py-0.5 text-[0.68rem] font-semibold text-ink-muted">
+                        <span className="inline-flex items-center gap-1 rounded-full border border-arom-border bg-arom-wash px-2 py-0.5 text-[0.65rem] font-semibold text-ink-muted">
                           <Lock size={10} />
                           {lesson.badge === "Coming Soon" && km ? "នឹងមកដល់ឆាប់ៗ (Coming Soon)" : lesson.badge}
                         </span>
                       )}
                     </div>
 
-                    <h3 className="mt-1 truncate text-sm font-bold text-arom sm:text-base">
+                    <h3 className="mt-0.5 truncate text-[15px] font-medium text-arom sm:text-base">
                       {km && lesson.kmTitle ? lesson.kmTitle : lesson.title}
                     </h3>
 
-                    <p className="mt-0.5 line-clamp-2 text-xs text-ink-muted sm:text-sm">
-                      {km && lesson.kmDescription
-                        ? lesson.kmDescription
-                        : lesson.description}
+                    <p className="mt-0.5 line-clamp-1 text-[13px] font-light text-ink">
+                      {km && lesson.kmDuration ? lesson.kmDuration : lesson.duration} · {km && lesson.kmDifficulty ? lesson.kmDifficulty : lesson.difficulty}
                     </p>
-
-                    <div className="mt-2 flex items-center gap-3 text-xs text-ink-muted">
-                      <span className="inline-flex items-center gap-1">
-                        <Clock3 size={13} />
-                        {km && lesson.kmDuration ? lesson.kmDuration : lesson.duration}
-                      </span>
-                      <span>•</span>
-                      <span className="inline-flex items-center gap-1">
-                        <GraduationCap size={13} />
-                        {km && lesson.kmDifficulty ? lesson.kmDifficulty : lesson.difficulty}
-                      </span>
-                    </div>
                   </div>
 
-                  {/* Actions: Add to plan + Arrow or Lock */}
+                  {/* Actions: Add to plan + Chevron or Lock */}
                   <div className="flex items-center gap-2 shrink-0">
                     {isAvailable && (
                       <button
@@ -449,10 +448,21 @@ export function LearnHomeView({
                             ? "បន្ថែមទៅផែនការទំព័រដើម"
                             : "Add to Home Daily Plan"
                         }
-                        className={`flex size-9 items-center justify-center rounded-xl border transition-all duration-150 cursor-pointer ${
+                        aria-label={
+                          pick
+                            ? chooseLabel(pick.clientName, km)
+                            : inPlan
+                            ? km
+                              ? "លុបចេញពីផែនការទំព័រដើម"
+                              : "Remove from Home Daily Plan"
+                            : km
+                            ? "បន្ថែមទៅផែនការទំព័រដើម"
+                            : "Add to Home Daily Plan"
+                        }
+                        className={`flex size-9 items-center justify-center rounded-[8px] border transition-all duration-150 cursor-pointer ${
                           inPlan
-                            ? "border-arom bg-arom text-white shadow-2xs"
-                            : "border-arom-border bg-white text-arom hover:border-arom hover:bg-arom-wash"
+                            ? "border-arom bg-arom text-white shadow-[1px_1px_2px_rgba(0,0,0,0.15)]"
+                            : "border-black/20 bg-white text-arom hover:border-black/40 hover:bg-arom-wash shadow-[1px_1px_2px_rgba(0,0,0,0.15)]"
                         }`}
                       >
                         {inPlan ? <CalendarCheck size={16} /> : <CalendarPlus size={16} />}
@@ -460,11 +470,13 @@ export function LearnHomeView({
                     )}
 
                     {isAvailable ? (
-                      <span className="flex size-10 items-center justify-center rounded-full bg-arom-soft text-arom transition-colors group-hover:bg-arom group-hover:text-white">
-                        <ChevronRight size={18} />
-                      </span>
+                      <ChevronRight
+                        size={22}
+                        aria-hidden="true"
+                        className="shrink-0 text-arom transition-transform duration-150 group-hover:translate-x-0.5"
+                      />
                     ) : (
-                      <span className="flex size-9 items-center justify-center rounded-full bg-arom-wash text-ink-muted/50">
+                      <span className="flex size-8 items-center justify-center rounded-full bg-arom-wash text-ink-muted/50">
                         <Lock size={14} />
                       </span>
                     )}

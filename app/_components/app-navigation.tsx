@@ -281,39 +281,46 @@ export function MobileNavigation({
   return (
     <nav
       aria-label="Primary"
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-arom-border bg-white/96 px-1 pb-[calc(0.55rem+env(safe-area-inset-bottom))] min-[380px]:px-3 pt-2 shadow-[0_-12px_35px_rgba(15,80,65,0.06)] backdrop-blur-xl lg:hidden"
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-arom-border bg-white/96 px-1.5 pt-2 pb-[max(0.75rem,calc(env(safe-area-inset-bottom)+0.35rem))] min-[380px]:px-3 shadow-[0_-12px_35px_rgba(15,80,65,0.06)] backdrop-blur-xl lg:hidden"
     >
       <div className="mx-auto grid max-w-md grid-cols-5">
         {bottomNavItems.map(({ label, icon: Icon, href, km, en, emphasized }) => {
           const isActive = active === label;
           const content = (
             <>
+              {emphasized ? (
+                <>
+                  {/* Invisible spacer so flex justify-between keeps identical label baseline */}
+                  <span aria-hidden="true" className="h-7 w-7 pointer-events-none" />
+                  <span
+                    className={`absolute -top-7 left-1/2 -translate-x-1/2 flex size-12 items-center justify-center rounded-full bg-arom text-white shadow-[0_10px_22px_rgba(31,111,91,0.28)] ring-4 ring-white transition-transform duration-200 ${
+                      isActive ? "scale-105 ring-arom/20" : "hover:scale-105"
+                    }`}
+                  >
+                    <Icon
+                      aria-hidden="true"
+                      size={25}
+                      strokeWidth={2.5}
+                      className="text-white"
+                    />
+                  </span>
+                </>
+              ) : (
+                <span className="flex h-7 items-center justify-center pt-0.5">
+                  <Icon
+                    aria-hidden="true"
+                    size={24}
+                    strokeWidth={isActive ? 2.5 : 2}
+                    className={
+                      isActive
+                        ? "text-arom"
+                        : "text-ink-muted/80 group-hover:text-arom"
+                    }
+                  />
+                </span>
+              )}
               <span
-                className={
-                  emphasized
-                    ? `absolute -top-6 flex size-12 items-center justify-center rounded-full bg-arom text-white shadow-[0_8px_22px_rgba(31,111,91,0.26)] ring-4 ring-white transition-transform duration-200 ${
-                        isActive ? "scale-105 ring-arom/20" : "hover:scale-105"
-                      }`
-                    : "flex h-7 items-center justify-center"
-                }
-              >
-                <Icon
-                  aria-hidden="true"
-                  size={emphasized ? 25 : 24}
-                  strokeWidth={isActive ? 2.5 : 2}
-                  className={
-                    emphasized
-                      ? ""
-                      : isActive
-                      ? "text-arom"
-                      : "text-ink-muted/80 group-hover:text-arom"
-                  }
-                />
-              </span>
-              <span
-                className={`block max-w-full truncate px-0.5 tracking-tight transition-colors duration-150 ${
-                  emphasized ? "mt-7" : ""
-                } ${
+                className={`block max-w-full truncate px-0.5 pb-0.5 tracking-tight transition-colors duration-150 ${
                   isActive
                     ? "font-bold text-arom"
                     : "font-medium text-ink/75 group-hover:text-arom"
@@ -324,6 +331,9 @@ export function MobileNavigation({
             </>
           );
 
+          const itemClass =
+            "group relative flex h-[54px] min-w-0 flex-col items-center justify-between py-1 rounded-xl text-[0.62rem] min-[380px]:text-[0.66rem] transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-arom cursor-pointer select-none";
+
           if (emphasized) {
             return (
               <button
@@ -331,7 +341,7 @@ export function MobileNavigation({
                 type="button"
                 onClick={handleOpenDetection}
                 aria-label={language === "km" ? km : label}
-                className="group relative flex min-h-[52px] min-w-0 flex-col items-center justify-end gap-1 rounded-xl text-[0.62rem] min-[380px]:text-[0.66rem] transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-arom cursor-pointer select-none"
+                className={itemClass}
               >
                 {content}
               </button>
@@ -343,7 +353,7 @@ export function MobileNavigation({
               key={label}
               href={href}
               aria-current={isActive ? "page" : undefined}
-              className="group relative flex min-h-[52px] min-w-0 flex-col items-center justify-end gap-1 rounded-xl text-[0.62rem] min-[380px]:text-[0.66rem] transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-arom cursor-pointer select-none"
+              className={itemClass}
             >
               {content}
             </Link>
