@@ -176,13 +176,13 @@ export function TipsHomeView({
             >
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div className="flex items-start gap-4">
-                  <div className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-arom-soft text-arom shadow-sm">
+                  <div className="relative size-14 shrink-0 overflow-hidden rounded-2xl bg-arom-soft text-arom shadow-sm flex items-center justify-center sm:size-16">
                     <Image
                       src={TIP_CONTROL_STRESS.image}
                       alt=""
-                      width={38}
-                      height={38}
-                      className="size-8 object-contain"
+                      width={52}
+                      height={52}
+                      className="size-11 object-contain sm:size-12"
                       unoptimized
                     />
                   </div>
@@ -252,13 +252,13 @@ export function TipsHomeView({
                   }`}
                 >
                   <div className="flex items-center gap-3.5 min-w-0">
-                    <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-arom-soft text-arom">
+                    <div className="relative size-12 shrink-0 overflow-hidden rounded-xl bg-arom-soft text-arom flex items-center justify-center sm:size-13">
                       <Image
                         src={tip.image}
                         alt=""
-                        width={32}
-                        height={32}
-                        className="size-7 object-contain"
+                        width={44}
+                        height={44}
+                        className="size-9 object-contain sm:size-10 transition-transform duration-200 group-hover:scale-105"
                         unoptimized
                       />
                     </div>

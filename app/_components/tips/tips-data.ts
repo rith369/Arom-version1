@@ -92,7 +92,7 @@ export const TIP_CONTROL_STRESS: TipItem = {
   format: "6 Practical Tips",
   kmFormat: "៦ គន្លឹះអនុវត្តជាក់ស្តែង",
   isAvailable: true,
-  image: "/mindguide/icon-7.svg",
+  image: "/mindguide/category-stress.png",
   heroImage: "/mindguide/managing-stress-hero.svg",
   sourceCitation: "Adapted from the American Psychological Association (2024).",
   kmSourceCitation: "ដកស្រង់ចេញពីសមាគមចិត្តសាស្រ្តអាមេរិក (APA, 2024)។",
@@ -187,7 +187,7 @@ export const TIP_SLEEP_HYGIENE: TipItem = {
   format: "5 Evening Tips",
   kmFormat: "៥ គន្លឹះពេលល្ងាច",
   isAvailable: true,
-  image: "/mindguide/sleep.png",
+  image: "/mindguide/category-sleep.png",
   heroImage: "/mindguide/better-sleep-hero.jpg",
   sourceCitation:
     "Adapted from the American Academy of Sleep Medicine (AASM) and National Sleep Foundation clinical guidelines (2024).",
@@ -282,7 +282,7 @@ export const TIP_CALMING_RACING_THOUGHTS: TipItem = {
   format: "5 Calming Steps",
   kmFormat: "៥ ជំហានបន្ធូរបន្ថយគំនិត",
   isAvailable: true,
-  image: "/mindguide/icon-10.svg",
+  image: "/mindguide/category-anxiety.png",
   heroImage: "/mindguide/understanding-anxiety-hero.jpg",
   sourceCitation:
     "Adapted from the Anxiety and Depression Association of America (ADAA) and American Psychological Association guidelines (2024).",
@@ -377,7 +377,7 @@ export const TIP_SETTING_BOUNDARIES: TipItem = {
   format: "5 Boundary Scripts",
   kmFormat: "៥ គំរូកំណត់ព្រំដែន",
   isAvailable: true,
-  image: "/mindguide/icon-7.svg",
+  image: "/mindguide/category-emotions.png",
   heroImage: "/mindguide/managing-stress-hero.svg",
   sourceCitation:
     "Adapted from the American Psychological Association clinical guidelines (2024).",
@@ -471,7 +471,7 @@ export const TIP_DIGITAL_DETOX: TipItem = {
   format: "5 Micro-Habits",
   kmFormat: "៥ ទម្លាប់កាត់បន្ថយអេក្រង់",
   isAvailable: true,
-  image: "/mindguide/strategies.png",
+  image: "/mindguide/category-burnout.png",
   heroImage: "/mindguide/better-sleep-hero.jpg",
   sourceCitation:
     "Adapted from Harvard Health Publishing and clinical research on digital mindfulness (2024).",
@@ -566,7 +566,7 @@ export const TIP_OVERTHINKING_NOW: TipItem = {
   format: "3 Practical Steps",
   kmFormat: "៣ ជំហានអនុវត្តជាក់ស្តែង",
   isAvailable: true,
-  image: "/mindguide/icon-10.svg",
+  image: "/mindguide/category-anxiety.png",
   heroImage: "/mindguide/understanding-anxiety-hero.jpg",
   sourceCitation:
     "Adapted from the World Health Organization (WHO) and NHS Every Mind Matters CBT guidelines (2024).",

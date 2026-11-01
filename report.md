@@ -1,5 +1,26 @@
 # AROM: Change Report
 
+## 01 Nov 2026: 3D Category Illustration Pictures on MindGuide Tips Cards
+
+Commit `1d90061`. No migration. Frontend only.
+
+**Why.** Previously, cards in MindGuide Tips displayed flat generic SVG files (`icon-7.svg`, `icon-10.svg`, and `strategies.png`). Per design standards where each mental health condition or category has a signature 3D illustration icon, MindGuide Tips now displays the corresponding 3D category artwork images matching Learn Hub (green sprout for Stress, wave for Anxiety, sleep cloud for Sleep, rainbow heart for Emotions, and plant jar for Body and Burnout).
+
+**What changed for users:**
+- **Signature 3D category pictures in Tips:** All tip cards across `/mindguide/tips` and the recommended tip banner now display the signature 3D category artwork pictures matching their condition.
+- **Visual consistency between Learn Hub and Tips:** Consistent visual language where 1 3D icon represents each mental health condition across the entire platform.
+
+**What changed for the team:**
+- `app/_components/tips/tips-data.ts`: Updated all `TipItem` definitions to reference the 3D category artwork (`/mindguide/category-stress.png`, `/mindguide/category-sleep.png`, `/mindguide/category-anxiety.png`, `/mindguide/category-emotions.png`, and `/mindguide/category-burnout.png`).
+- `app/_components/tips/tips-home-view.tsx`: Updated tip thumbnail containers and dimensions for high-resolution 3D picture rendering.
+- Passed `npx tsc --noEmit` with zero errors.
+
+**What to re-test:**
+1. Open `/mindguide/tips` on desktop and mobile.
+2. Verify the recommended tip banner shows the 3D green sprout artwork for Stress.
+3. Verify each card in the "All Tips" list displays its corresponding 3D category artwork.
+4. Open `/mindguide/learn`: verify all lesson cards retain their original 3D category pictures.
+
 ## 01 Nov 2026: Retain 3D Category Pictures on Learn Hub Cards
 
 Commit `009eb3f`. No migration. Frontend only.
