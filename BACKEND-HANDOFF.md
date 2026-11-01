@@ -87,7 +87,7 @@ The yellow "Demo data on this page" banner is in `admin-shell.tsx`. Remove it fo
 | Clinic bookings, starting with the UP Wellness Clinic: Therapists tab and Book a session on the clinic page, Clinic requests in My appointments, clinic desk (`/clinic-desk`), admin clinic link and desk accounts | Done | Connected, PR #28 merged 24 Oct (`/api/clinics/:slug/booking`, `/api/clinics/:slug/requests`, `/api/clinic-requests`, `/api/clinic-desk/*`, `/api/admin/clinics`, `PATCH /api/admin/professionals/:id/clinic`, `PATCH /api/admin/users/:id/clinic-desk`), migration `20261024000200` applied 24 Oct | 34 |
 | Clinic chat: students chat with the clinic desk (text, voice, photos, PDF) in Messages; desk Messages tab and Message buttons | Done | Connected, PR #30 merged 24 Oct (`/api/clinic-chat`, `/api/clinic-chat/:slug`, `/api/clinic-desk/:slug/chats/*`, `/api/clinic-chat-files/:messageId`), migration `20261024000900` applied 24 Oct | 35 |
 | Symptom check (`/detection/symptoms`): PHQ-9 low mood and GAD-7 anxiety in English and validated Khmer, PSS-10 stress, CBI burnout, WHO-5 wellbeing, UCLA-3 loneliness and PCL-5 trauma in English only, safety screen, results, 14 day rechecks | Done | Connected (`GET\|POST /api/symptom-checks`). Wellbeing, loneliness and trauma use migration `20261024000300` (applied 24 Oct, PR #29 merged). Uses `symptom_checks`, `support_journeys` and `apply_support_path()` | 35 |
-| 2 week programs (`/mindguide/programs/stress`, `/mindguide/programs/anxiety`): one step a day for 14 days after a Some or Clear signs result, from the symptom check result and MindGuide | Done | No new backend needed: a running program is one task in Your Plan For Today (`/api/plan`), item key `two-week:<program>:<start day>`. Days done come from `GET /api/plan/tasks/:id/days` (no migration) | 36 |
+| 2 week programs (`/mindguide/programs/stress`, `/mindguide/programs/anxiety`, `/mindguide/programs/loneliness`): one step a day for 14 days after a Some or Clear signs result, from the symptom check result and MindGuide | Done | No new backend needed: a running program is one task in Your Plan For Today (`/api/plan`), item key `two-week:<program>:<start day>`. Days done come from `GET /api/plan/tasks/:id/days` (no migration) | 36 |
 | ACE (childhood experiences) in the therapist intake: professional switch on My profile, optional card on My appointments, read only card in the client file and Prepare | Done | Connected (`/api/ace`, `/api/pro/ace`, `/api/pro/clients/:id/ace`), migration `20261026000500` applied 26 Oct, PR #38 | 37 |
 
 ## 5. Admin users page
@@ -1605,28 +1605,28 @@ Answers are saved in `symptom_checks.answers` as `[{ questionId, value }]` in qu
 - No notifications: the desk sees new messages in its Messages tab (checked every 30 seconds) and students in Messages.
 - Files of closed chats are kept, like therapist chats.
 
-## 36. 2 week programs (stress and anxiety)
+## 36. 2 week programs (stress, anxiety and loneliness)
 
-**Status:** Frontend done 26 Oct 2026. No migration and no new endpoint: it uses the plan tasks (section 27) and the symptom checks (section 35) that are already connected.
+**Status:** Frontend done 26 Oct 2026 (loneliness added 1 Nov 2026). No migration and no new endpoint: it uses the plan tasks (section 27) and the symptom checks (section 35) that are already connected.
 
-**Decided by Rith (26 Oct 2026). Do not change without asking:**
+**Decided by Rith (26 Oct 2026, updated 1 Nov 2026). Do not change without asking:**
 
-- **For Some signs and Clear signs.** The symptom check result offers a program when the level is `low` or `medium` (`PROGRAM_LEVELS`) and there is no safety answer. Stress check offers the stress program, anxiety check the anxiety program, General distress (K-10) offers both (`CHECK_PROGRAMS`). With Strong signs the program page puts Book a professional first, and the program can only be started as a second choice, "alongside" a professional. With Few signs, or no check in the last 14 days, the page asks the person to take the check first.
+- **For Some signs and Clear signs.** The symptom check result offers a program when the level is `low` or `medium` (`PROGRAM_LEVELS`) and there is no safety answer. Stress check offers the stress program, anxiety check the anxiety program, loneliness check (UCLA-3) offers the loneliness program, and General distress (K-10) offers stress and anxiety (`CHECK_PROGRAMS`). With Strong signs the program page puts Book a professional first, and the program can only be started as a second choice, "alongside" a professional. With Few signs, or no check in the last 14 days, the page asks the person to take the check first.
 - **Self help, never called treatment.** Every program page says "This is self help, not treatment", with links to professionals and Get help now.
 - **14 days, one step a day.** Each day has a title, why it helps, the step to do, and at most one link to existing MindGuide content (lesson, tip, practice), the journal, or the symptom check. Items that are not available yet (most practices) are hidden, so a day never links to a locked item. Day 14 is "take the check again".
 - **Days open on their day.** Earlier days can be opened again; later days show only their titles.
 - **One program at a time.** Starting a program removes the other one from the plan.
-- **Support groups from day 1, never as a task (Rith, 26 Oct).** A running program shows a "You are not alone" card for the topic's community group (`support_groups.concern` `stress` or `anxiety`, from `GET /api/community/groups`): the group the person joined, else the open one with room and the most members. Day 7, day 13 and anxiety day 11 add a sentence and a link to it. With no open group for the topic, nothing about groups shows. Links use `/community?group=<id>` (Join) or the group chat.
-- **Private on Home.** The plan task is called "Today's step (2 week program)" and never says stress or anxiety, because other people can see a phone's Home screen.
-- **Content is based on** the WHO guide "Doing What Matters in Times of Stress" (grounding, unhooking from thoughts) and common CBT self help steps (worry time, checking a thought, problem solving, facing fears step by step). A professional must review the steps and the Khmer before launch.
+- **Support groups from day 1, never as a task (Rith, 26 Oct).** A running program shows a "You are not alone" card for the topic's community group (`support_groups.concern` `stress`, `anxiety` or `general`, from `GET /api/community/groups`): the group the person joined, else the open one with room and the most members. Day 7, day 13 and anxiety/loneliness day 11 add a sentence and a link to it. With no open group for the topic, nothing about groups shows. Links use `/community?group=<id>` (Join) or the group chat.
+- **Private on Home.** The plan task is called "Today's step (2 week program)" and never says stress, anxiety or loneliness, because other people can see a phone's Home screen.
+- **Content is based on** the WHO guide "Doing What Matters in Times of Stress" (grounding, unhooking from thoughts), common CBT self help steps (worry time, checking a thought, problem solving, facing fears step by step) and evidence based social connection interventions (reframing solitude, self compassion, the low stakes connection ladder). A professional must review the steps and the Khmer before launch.
 
-**Files:** `app/_components/two-week/two-week-data.ts` (the two programs, check to program rules, `programFit()`, item key helpers), `app/_components/two-week/two-week-program-view.tsx`, `app/mindguide/programs/[program]/page.tsx`, `app/detection/symptoms/page.tsx` (`ProgramOffer` on the result, and `?check=<type>` opens that check), `app/_components/mindguide-home.tsx` (2 week programs section).
+**Files:** `app/_components/two-week/two-week-data.ts` (the three programs, check to program rules, `programFit()`, item key helpers), `app/_components/two-week/two-week-program-view.tsx`, `app/mindguide/programs/[program]/page.tsx`, `app/detection/symptoms/page.tsx` (`ProgramOffer` on the result, and `?check=<type>` opens that check), `app/_components/mindguide-home.tsx` (2 week programs section).
 
 ### How a running program is stored
 
 | What | Where |
 |---|---|
-| Program is running | a plan task (`plan_tasks`) with `item_key` `two-week:<stress\|anxiety>:<start day YYYY-MM-DD>`, `source` `guide`, `repeat` `daily`, `href` `/mindguide/programs/<id>` |
+| Program is running | a plan task (`plan_tasks`) with `item_key` `two-week:<stress\|anxiety\|loneliness>:<start day YYYY-MM-DD>`, `source` `guide`, `repeat` `daily`, `href` `/mindguide/programs/<id>` |
 | Given by a professional | a care task (section 18) with `mindguide_type` `program` and `mindguide_item_id` the program id. While it is active, the program can start without a recent check |
 | Day of the program | today (Cambodia day) minus the start day, plus 1. Above 14 means finished |
 | Today's step done | the plan task's check for today (`PUT /api/plan/tasks/:id/check`), the same tick as on Home |
@@ -1638,8 +1638,8 @@ Answers are saved in `symptom_checks.answers` as `[{ questionId, value }]` in qu
 
 1. Starting again deletes the old task, and its ticks with it, so each run of 2 weeks starts from 0 days done.
 2. The program does not change `support_journeys`. The 14 day recheck card on Home still comes from the check's own journey, which usually starts the same day as the program.
-3. The stress check (PSS-10) is English only, so in Khmer the stress program asks for the General distress check instead.
-4. A professional must review all 28 days and their Khmer before a public launch.
+3. The stress check (PSS-10) and loneliness check (UCLA-3) are English only, so in Khmer the programs fall back to the General distress check instead.
+4. A professional must review all 42 days and their Khmer before a public launch.
 
 ## 37. ACE (childhood experiences) in the therapist intake
 

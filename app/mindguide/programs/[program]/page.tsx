@@ -1,3 +1,4 @@
+// 2 week program route (/mindguide/programs/[program]): stress, anxiety, loneliness.
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { TwoWeekProgramView } from "../../../_components/two-week/two-week-program-view";

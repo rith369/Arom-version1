@@ -6,7 +6,7 @@ import type { SymptomCheckDto, SymptomCheckType, SymptomLevel } from "@/lib/symp
 // treatment. Each day points to content that already exists in MindGuide
 // (unavailable items are hidden). The Khmer needs a professional's review.
 
-export const TWO_WEEK_PROGRAMS = ["stress", "anxiety"] as const;
+export const TWO_WEEK_PROGRAMS = ["stress", "anxiety", "loneliness"] as const;
 export type ProgramId = (typeof TWO_WEEK_PROGRAMS)[number];
 
 export const PROGRAM_LENGTH = 14;
@@ -44,11 +44,12 @@ export type Program = {
 /** Some and Clear signs. Strong signs go to a professional first. */
 export const PROGRAM_LEVELS: SymptomLevel[] = ["low", "medium"];
 
-/** Checks whose result offers a program. General distress offers both. */
+/** Checks whose result offers a program. General distress offers stress and anxiety. */
 export const CHECK_PROGRAMS: Partial<Record<SymptomCheckType, ProgramId[]>> = {
   stress: ["stress"],
   anxiety: ["anxiety"],
   distress: ["stress", "anxiety"],
+  loneliness: ["loneliness"],
 };
 
 const BREATHING: ProgramDay = {
@@ -400,6 +401,162 @@ export const PROGRAMS: Record<ProgramId, Program> = {
         why: {
           en: "Anxiety grows in silence. Telling someone you trust often makes it smaller.",
           km: "ការថប់បារម្ភកើនឡើងនៅក្នុងភាពស្ងៀមស្ងាត់។ ការប្រាប់នរណាម្នាក់ដែលអ្នកទុកចិត្ត ច្រើនតែធ្វើឱ្យវាតូចជាងមុន។",
+        },
+        step: TALK_STEP,
+        withGroup: TALK_WITH_GROUP,
+        links: [{ kind: "lesson", id: "talk-about-feelings" }, { kind: "group" }],
+      },
+      CHECK_AGAIN,
+    ],
+  },
+  loneliness: {
+    id: "loneliness",
+    name: { en: "2 week loneliness program", km: "វគ្គ ២ សប្តាហ៍ សម្រាប់ភាពឯកោ (Loneliness)" },
+    description: {
+      en: "One small step a day to ease the ache of feeling disconnected and build meaningful bonds.",
+      km: "ជំហានតូចមួយរៀងរាល់ថ្ងៃ ដើម្បីកាត់បន្ថយអារម្មណ៍ឯកោ និងកសាងទំនាក់ទំនងដ៏មានអត្ថន័យ។",
+    },
+    checks: ["loneliness", "distress"],
+    weeks: [
+      { en: "Make peace with being alone and calm your mind", km: "រៀនរស់នៅជាមួយភាពនៅម្នាក់ឯង និងសម្រួលចិត្ត" },
+      { en: "Build connection step by step", km: "កសាងទំនាក់ទំនងម្តងមួយជំហាន" },
+    ],
+    days: [
+      {
+        title: { en: "What loneliness is", km: "ការយល់ដឹងពីភាពឯកោ" },
+        why: {
+          en: "Loneliness is a natural biological alarm signaling a hunger for connection, not a personal flaw.",
+          km: "ភាពឯកោគឺជាសំឡេងរោទិ៍ជីវសាស្ត្រធម្មជាតិដែលប្រាប់ពីរាងកាយត្រូវការការតភ្ជាប់ មិនមែនជាកំហុសផ្ទាល់ខ្លួននោះទេ។",
+        },
+        step: {
+          en: "Read the lesson. Then write down one painful thought you often have when feeling lonely. You do not need to fix it today.",
+          km: "អានមេរៀននេះ។ បន្ទាប់មក សរសេរគំនិតពិបាកមួយដែលអ្នកតែងតែគិតនៅពេលមានអារម្មណ៍ឯកោ។ អ្នកមិនទាន់ចាំបាច់ដោះស្រាយវាទេនៅថ្ងៃនេះ។",
+        },
+        links: [{ kind: "lesson", id: "how-to-deal-with-loneliness" }],
+      },
+      {
+        ...BREATHING,
+        why: {
+          en: "Feeling isolated triggers your body's threat alarm. Slow breathing signals that you are safe right now.",
+          km: "អារម្មណ៍ឯកោដាស់សំឡេងរោទិ៍គ្រោះថ្នាក់ក្នុងរាងកាយ។ ការដកដង្ហើមយឺតៗប្រាប់ថាអ្នកមានសុវត្ថិភាពនៅពេលនេះ។",
+        },
+        step: {
+          en: "Do the breathing exercise twice today: once in the morning, and once when an empty feeling arises.",
+          km: "ធ្វើលំហាត់ដកដង្ហើមពីរដងនៅថ្ងៃនេះ៖ ម្តងនៅពេលព្រឹក និងម្តងទៀតនៅពេលមានអារម្មណ៍ឯកោ ឬទទេស្អាតក្នុងចិត្ត។",
+        },
+      },
+      {
+        title: { en: "Loneliness or solitude?", km: "ភាពឯកោ ឬភាពស្ងប់ស្ងាត់?" },
+        why: {
+          en: "Loneliness is feeling empty. Solitude is enjoying your own presence and giving yourself rest.",
+          km: "ភាពឯកោគឺជាអារម្មណ៍ទទេស្អាត។ ចំណែកភាពស្ងប់ស្ងាត់ (Solitude) គឺជាការពេញចិត្តនឹងការនៅជាមួយខ្លួនឯង និងផ្តល់ការសម្រាកដល់ខ្លួនឯង។",
+        },
+        step: {
+          en: "Do one quiet activity just for you today for 15 minutes, such as listening to music, having tea, or drawing, without using social media.",
+          km: "ធ្វើសកម្មភាពស្ងប់ស្ងាត់មួយសម្រាប់ខ្លួនឯងរយៈពេល ១៥ នាទីនៅថ្ងៃនេះ ដូចជាស្តាប់តន្ត្រី ញ៉ាំតែ ឬគូររូប ដោយមិនប្រើបណ្តាញសង្គម។",
+        },
+        links: [{ kind: "tip", id: "im-overthinking-right-now" }],
+      },
+      {
+        title: { en: "Come back to the present", km: "នាំចិត្តមកកាន់បច្ចុប្បន្ន (Grounding)" },
+        why: {
+          en: "Loneliness often traps the mind in worry about being left behind. Your senses bring you back to now.",
+          km: "ភាពឯកោច្រើនតែទាញចិត្តឱ្យបារម្ភពីរឿងត្រូវគេបំភ្លេចចោល។ ញ្ញាណរបស់អ្នកជួយនាំអ្នកត្រឡប់មកពេលនេះវិញ។",
+        },
+        step: GROUNDING_STEP,
+        links: [{ kind: "practice", id: "sensory-grounding" }],
+      },
+      {
+        title: { en: "A break from social media", km: "សម្រាកពីបណ្តាញសង្គម" },
+        why: {
+          en: "Comparing your everyday life to highlight reels online makes you feel more disconnected than you really are.",
+          km: "ការប្រៀបធៀបជីវិតប្រចាំថ្ងៃរបស់អ្នកទៅនឹងរូបភាពល្អឥតខ្ចោះលើបណ្តាញសង្គម ធ្វើឱ្យអ្នកមានអារម្មណ៍ឯកោកាន់តែខ្លាំង។",
+        },
+        step: {
+          en: "Spend 1 hour without checking social feeds tonight. Notice if your mind feels calmer.",
+          km: "ចំណាយពេល ១ ម៉ោងដោយមិនមើលបណ្តាញសង្គមនៅយប់នេះ។ កត់សម្គាល់ថាតើចិត្តរបស់អ្នកមានអារម្មណ៍ស្ងប់ជាងមុនឬទេ។",
+        },
+        links: [{ kind: "tip", id: "mindful-digital-detox" }],
+      },
+      {
+        title: { en: "A gentle word to yourself", km: "ពាក្យទន់ភ្លន់សម្រាប់ខ្លួនឯង" },
+        why: {
+          en: "Self-criticism makes loneliness twice as painful. A kind thought softens the ache.",
+          km: "ការបន្ទោសខ្លួនឯងធ្វើឱ្យភាពឯកោកាន់តែឈឺចាប់ទ្វេដង។ គំនិតទន់ភ្លន់ជួយសម្រាលការឈឺចាប់នោះ។",
+        },
+        step: {
+          en: "In your journal, write 2 or 3 sentences to yourself as if you were encouraging a friend who feels lonely.",
+          km: "នៅក្នុងកំណត់ហេតុរបស់អ្នក សរសេរ ២ ឬ ៣ បន្ទាត់ទៅកាន់ខ្លួនឯង ដូចជាអ្នកកំពុងលើកទឹកចិត្តមិត្តភក្តិម្នាក់ដែលកំពុងឯកោ។",
+        },
+        links: [{ kind: "journal" }],
+      },
+      WEEK_ONE_REVIEW,
+      {
+        title: { en: "Notice people around you", km: "កត់សម្គាល់មនុស្សជុំវិញខ្លួន" },
+        why: {
+          en: "Small, casual moments of human presence remind you that you are part of the world.",
+          km: "ពេលវេលាតូចៗនៃការនៅក្បែរអ្នកដទៃ រំលឹកអ្នកថាអ្នកនៅតែជាផ្នែកមួយនៃពិភពលោកនេះ។",
+        },
+        step: {
+          en: "Notice 3 small human moments today: a smile from a shopkeeper, a neighbor waving, or people walking together.",
+          km: "កត់សម្គាល់ពេលវេលាតូចៗ ៣ ជាមួយមនុស្សជុំវិញខ្លួននៅថ្ងៃនេះ៖ ស្នាមញញឹមពីអ្នកលក់ដូរ អ្នកជិតខាងបក់ដៃ ឬមនុស្សដើរជាមួយគ្នា។",
+        },
+      },
+      {
+        title: { en: "A micro-greeting", km: "ការសួរសុខទុក្ខតូចមួយ" },
+        why: {
+          en: "Starting with small, low-pressure greetings builds social confidence without fear of rejection.",
+          km: "ការចាប់ផ្តើមដោយការសួរសុខទុក្ខតូចៗដែលគ្មានសម្ពាធ ជួយកសាងទំនុកចិត្តក្នុងការប្រាស្រ័យទាក់ទង ដោយមិនបារម្ភពីរឿងគេបដិសេធ។",
+        },
+        step: {
+          en: "Say hello, good morning, or thank you clearly to one person today, such as a cashier, delivery driver, or classmate.",
+          km: "និយាយពាក្យសួស្តី អរុណសួស្តី ឬអរគុណឱ្យបានច្បាស់ ទៅកាន់មនុស្សម្នាក់នៅថ្ងៃនេះ ដូចជាអ្នកគិតលុយ អ្នកដឹកជញ្ជូន ឬមិត្តរួមថ្នាក់។",
+        },
+      },
+      {
+        title: { en: "Send a gentle text", km: "ផ្ញើសារទន់ភ្លន់មួយ" },
+        why: {
+          en: "Reaching out does not need a long conversation. A brief, kind note opens the door gently.",
+          km: "ការទាក់ទងទៅគេ មិនចាំបាច់មានការសន្ទនាយូរនោះទេ។ សារខ្លី និងទន់ភ្លន់មួយ អាចបើកទ្វារទំនាក់ទំនងឡើងវិញដោយស្ងៀមស្ងាត់។",
+        },
+        step: {
+          en: "Send a short message to someone you have not talked to in a while: \"Thinking of you, hope your week is going well.\" You do not need to expect an immediate reply.",
+          km: "ផ្ញើសារខ្លីមួយទៅកាន់មនុស្សម្នាក់ដែលអ្នកមិនបាននិយាយជាមួយមួយរយៈ៖ \"នឹកឃើញ ក៏ផ្ញើសារសួរសុខទុក្ខ សង្ឃឹមថាសប្តាហ៍នេះដំណើរការល្អណា។\" អ្នកមិនបាច់ទន្ទឹងរង់ចាំការឆ្លើយតបភ្លាមៗនោះទេ។",
+        },
+      },
+      {
+        title: { en: "Be in a shared space", km: "ចំណាយពេលនៅទីកន្លែងរួម" },
+        why: {
+          en: "Being physically near others studying, working, or reading creates quiet companionship without pressure to perform.",
+          km: "ការនៅក្បែរអ្នកដទៃដែលកំពុងរៀន ធ្វើការ ឬអានសៀវភៅ បង្កើតភាពកក់ក្តៅដោយស្ងៀមស្ងាត់ ដោយមិនចាំបាច់បង្ខំចិត្តនិយាយច្រើន។",
+        },
+        step: {
+          en: "Spend 30 minutes in a shared space today, such as a library, a quiet coffee shop, or a campus lawn.",
+          km: "ចំណាយពេល ៣០ នាទីនៅកន្លែងរួមមួយនៅថ្ងៃនេះ ដូចជាបណ្ណាល័យ ហាងកាហ្វេស្ងប់ស្ងាត់ ឬទីធ្លាសាលា។",
+        },
+        withGroup: {
+          en: "The community support group is also a welcoming space where you can be present without pressure.",
+          km: "ក្រុមគាំទ្រសហគមន៍ក៏ជាកន្លែងដ៏កក់ក្តៅមួយ ដែលអ្នកអាចចូលរួមបានដោយគ្មានសម្ពាធ។",
+        },
+        links: [{ kind: "group" }],
+      },
+      {
+        title: { en: "Ask and truly listen", km: "សួរ និងស្តាប់ដោយយកចិត្តទុកដាក់" },
+        why: {
+          en: "Real listening shifts your focus away from worrying about what you will say, making conversation natural.",
+          km: "ការស្តាប់ពិតប្រាកដជួយបង្វែរការយកចិត្តទុកដាក់ចេញពីការព្រួយបារម្ភអំពីអ្វីដែលត្រូវនិយាយ បង្កើតការសន្ទនាបែបធម្មជាតិ។",
+        },
+        step: {
+          en: "Read the lesson. In one conversation today, ask an open question like \"How has your day been?\" and listen without interrupting.",
+          km: "អានមេរៀននេះ។ នៅក្នុងការសន្ទនាមួយនៅថ្ងៃនេះ ចូរសួរសំណួរបើកចំហដូចជា \"តើថ្ងៃនេះយ៉ាងម៉េចដែរ?\" ហើយស្តាប់ដោយមិនកាត់សម្តី។",
+        },
+        links: [{ kind: "lesson", id: "talk-about-feelings" }],
+      },
+      {
+        title: { en: "Connect with someone", km: "ភ្ជាប់ទំនាក់ទំនងជាមួយនរណាម្នាក់" },
+        why: {
+          en: "Sharing even a small part of your genuine thoughts lightens the feeling of being alone.",
+          km: "ការចែករំលែកសូម្បីតែផ្នែកតូចមួយនៃអារម្មណ៍ពិតរបស់អ្នក ជួយសម្រាលអារម្មណ៍ឯកោបានយ៉ាងច្រើន។",
         },
         step: TALK_STEP,
         withGroup: TALK_WITH_GROUP,

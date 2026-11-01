@@ -16,6 +16,7 @@ import {
   HeartPulse,
   Play,
   Plus,
+  UsersRound,
   Waves,
   Wind,
   X,
@@ -627,10 +628,10 @@ export function MindGuideHome() {
                 ? "សម្រាប់ពេលដែលការពិនិត្យរោគសញ្ញារបស់អ្នក បង្ហាញសញ្ញាខ្លះៗ ឬសញ្ញាច្បាស់។"
                 : "For when your symptom check shows some signs or clear signs."}
             </p>
-            <div className="mt-4 grid gap-2.5 lg:grid-cols-2 lg:gap-5">
+            <div className="mt-4 grid gap-2.5 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5">
               {TWO_WEEK_PROGRAMS.map((id) => {
                 const program = PROGRAMS[id];
-                const Icon = id === "stress" ? Waves : HeartPulse;
+                const Icon = id === "stress" ? Waves : id === "anxiety" ? HeartPulse : UsersRound;
                 const running = planIds.map(parseProgramKey).find((key) => key?.id === id);
                 const day = running ? programDay(running.startDay, today) : null;
                 return (
