@@ -30,6 +30,7 @@ import {
   type Lesson,
   type TopicCategory,
 } from "./learn-data";
+import { LessonTopicIcon } from "./lesson-topic-icon";
 import { useLessonProgress } from "./use-lesson-storage";
 
 // The cards match the podcast design with a hard offset shadow and a thin dark border.
@@ -393,15 +394,11 @@ export function LearnHomeView({
                       : "cursor-default opacity-75"
                   }`}
                 >
-                  {/* Thumbnail / Category Tile */}
-                  <div className="relative size-12 shrink-0 overflow-hidden rounded-lg bg-arom-accent/20 text-arom flex items-center justify-center sm:size-13">
-                    <Image
-                      src={lesson.image || getCategoryThumbnail(lesson.category)}
-                      alt={lesson.title}
-                      width={44}
-                      height={44}
-                      className="size-9 object-contain sm:size-10 transition-transform duration-200 group-hover:scale-105"
-                      unoptimized
+                  {/* Distinct Topic Tile */}
+                  <div className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-arom-accent/20 text-arom sm:size-13">
+                    <LessonTopicIcon
+                      lesson={lesson}
+                      className="size-6 sm:size-[26px] transition-transform duration-200 group-hover:scale-110"
                     />
                   </div>
 

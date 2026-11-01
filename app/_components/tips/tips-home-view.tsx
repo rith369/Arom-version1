@@ -1,15 +1,21 @@
 "use client";
 
-import Image from "next/image";
 import {
+  Activity,
   ArrowLeft,
   ArrowRight,
   Bookmark,
+  Brain,
   ChevronRight,
   Clock3,
   Lock,
+  Moon,
   Search,
+  ShieldCheck,
+  Smartphone,
+  Waves,
   X,
+  type LucideIcon,
 } from "lucide-react";
 import { motion } from "motion/react";
 import { useMemo, useState } from "react";
@@ -21,6 +27,30 @@ import {
   type TipCategory,
   type TipItem,
 } from "./tips-data";
+
+const TIP_ICONS: Record<string, LucideIcon> = {
+  "control-stress-before-it-controls-you": Activity,
+  "im-overthinking-right-now": Brain,
+  "sleep-hygiene-five-evening-rules": Moon,
+  "calming-racing-thoughts": Waves,
+  "setting-boundaries-without-guilt": ShieldCheck,
+  "mindful-digital-detox": Smartphone,
+};
+
+function getTipIcon(tip: Pick<TipItem, "id">): LucideIcon {
+  return TIP_ICONS[tip.id] ?? Activity;
+}
+
+function TipTopicIcon({
+  tip,
+  className = "size-6",
+}: {
+  tip: Pick<TipItem, "id">;
+  className?: string;
+}) {
+  const Icon = getTipIcon(tip);
+  return <Icon className={className} strokeWidth={1.8} aria-hidden="true" />;
+}
 
 type TipsHomeViewProps = {
   onSelectTip: (tip: TipItem) => void;
@@ -177,14 +207,7 @@ export function TipsHomeView({
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div className="flex items-start gap-4">
                   <div className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-arom-soft text-arom shadow-sm">
-                    <Image
-                      src={TIP_CONTROL_STRESS.image}
-                      alt=""
-                      width={38}
-                      height={38}
-                      className="size-8 object-contain"
-                      unoptimized
-                    />
+                    <TipTopicIcon tip={TIP_CONTROL_STRESS} className="size-7" />
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 text-xs font-medium text-ink-muted">
@@ -253,14 +276,7 @@ export function TipsHomeView({
                 >
                   <div className="flex items-center gap-3.5 min-w-0">
                     <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-arom-soft text-arom">
-                      <Image
-                        src={tip.image}
-                        alt=""
-                        width={32}
-                        height={32}
-                        className="size-7 object-contain"
-                        unoptimized
-                      />
+                      <TipTopicIcon tip={tip} className="size-6" />
                     </div>
 
                     <div className="min-w-0 flex-1">

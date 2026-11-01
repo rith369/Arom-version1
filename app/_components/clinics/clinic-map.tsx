@@ -67,7 +67,7 @@ export default function ClinicMap({
     <MapContainer
       center={PHNOM_PENH}
       zoom={13}
-      scrollWheelZoom={false}
+      scrollWheelZoom={true}
       className="h-full w-full"
       attributionControl
     >

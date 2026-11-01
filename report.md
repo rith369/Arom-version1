@@ -1,5 +1,54 @@
 # AROM: Change Report
 
+## 01 Nov 2026: Distinct Semantic Topic Icons for Learn Hub and MindGuide Tips
+
+Commit `24560d1`. No migration. Frontend only.
+
+**Why.** Previously, every lesson card within the same mental health condition or category displayed the exact same 3D category thumbnail. For example, under Anxiety, all three lessons (Understanding Anxiety, How to Handle Social Anxiety, and How to Handle Anxiety Before an Exam) showed the identical teal wave swirl graphic. A similar duplication occurred in Tips, where multiple tips repeated the same SVG icon. Users found it difficult to visually distinguish between lessons and tips at a glance. Each lesson and tip now features a dedicated, meaningful icon tailored to its specific subject matter.
+
+**What changed for users:**
+- **Distinct topic icons for Anxiety lessons:** "Understanding Anxiety" displays a calming wave icon (`Waves`), "How to Handle Social Anxiety" displays a social group icon (`Users`), and "How to Handle Anxiety Before an Exam" displays an academic graduation cap icon (`GraduationCap`).
+- **Unique visual identity across all 20 lessons:** Each lesson in Learn Hub now displays a dedicated, clinically appropriate icon that reflects its topic, such as `Activity` for biological stress arousal, `BookOpen` for academic pressure, `Scale` for study/work/life balance, `GitCompare` for comparing stress vs anxiety, `Compass` for foundational mental health, `UserCheck` for self-understanding, `LifeBuoy` for seeking clinical help, `Moon` for sleep hygiene, `UsersRound` for moving through loneliness, `HeartHandshake` for supporting a friend, `ShieldCheck` for relationship boundaries, `MessageCircle` for vocalizing emotions, `Sunrise` for lifting out of anhedonia, `CloudRain` for sadness vs depression, `Target` for overcoming fear of failure, `BatteryCharging` for burnout recovery, and `Heart` for building self-esteem.
+- **Distinct topic icons in MindGuide Tips:** Tips now display distinct icons (`Activity` for controlling stress, `Brain` for pausing overthinking, `Moon` for evening sleep hygiene, `Waves` for calming racing thoughts, `ShieldCheck` for guilt-free boundaries, and `Smartphone` for mindful digital detox) instead of repeating identical SVG graphics.
+- **Saved learning consistency:** Saved lesson items in the Saved view now display the corresponding distinct topic icon.
+
+**What changed for the team:**
+- `app/_components/learn/lesson-topic-icon.tsx`: Created central `LessonTopicIcon` component and `LESSON_ICONS` lookup table mapping all 20 lessons to intuitive Lucide icons with category fallbacks.
+- `app/_components/learn/learn-home-view.tsx`: Replaced repeated category thumbnail images with `LessonTopicIcon` inside the tactile podcast-style container (`size-12 shrink-0 rounded-lg bg-arom-accent/20 text-arom`).
+- `app/_components/learn/saved-learning-view.tsx`: Integrated `LessonTopicIcon` for saved lessons.
+- `app/_components/tips/tips-home-view.tsx`: Implemented `TipTopicIcon` with distinct icons for each tip, replacing duplicate SVG references.
+- Passed `npx tsc --noEmit` with zero errors.
+
+**What to re-test:**
+1. Open `/mindguide/learn` on desktop and mobile.
+2. Filter or scroll to Anxiety: verify "Understanding Anxiety" shows a wave icon, "How to Handle Social Anxiety" shows a people icon, and "How to Handle Anxiety Before an Exam" shows an academic cap icon.
+3. Browse other categories (Stress, Relationships, Depression, Self-esteem): verify each lesson has a distinct icon matching its topic.
+4. Save any lesson and navigate to the Saved Learning view: verify the saved lesson card renders the distinct icon.
+5. Open `/mindguide/tips`: verify each tip card in the list and the recommended tip banner display distinct, non-repeating icons.
+
+## 01 Nov 2026: Enable Mouse Wheel and Trackpad Zoom on Clinic Map
+
+Commit pending. No migration. Frontend only.
+
+**Why.** On desktop and laptop computers, users trying to zoom the Find Clinic & Hospital map with their mouse wheel or trackpad pinch gesture experienced the entire browser window zooming in and out instead of the map. Leaflet was configured with `scrollWheelZoom={false}`, causing wheel and trackpad pinch events over the map to bubble unprevented to the browser. Users could previously only zoom via the on-screen plus and minus buttons on computers.
+
+**What changed for users:**
+- **Mouse wheel zooming on map:** Scrolling the mouse wheel while hovering directly over the clinic map now zooms the map view smoothly in and out centered at the mouse cursor.
+- **Trackpad pinch zoom on laptops:** Two-finger trackpad pinch to zoom over the map now zooms the map itself rather than zooming the entire browser webpage or laptop display.
+- **Normal browser zooming preserved outside map:** When the mouse pointer is anywhere outside the map container, normal page scrolling and browser zooming behave standardly as expected.
+
+**What changed for the team:**
+- `app/_components/clinics/clinic-map.tsx`: Enabled `scrollWheelZoom={true}` on `MapContainer`.
+- `app/_components/learn/saved-learning-view.tsx`: Typed category prop cast to `TopicCategory` for clean compilation.
+- Passed `npx tsc --noEmit` with zero errors.
+
+**What to re-test:**
+1. Open `/clinic-hospital` on a desktop or laptop computer.
+2. Hover the mouse cursor over the map and roll the mouse wheel: verify the map zooms in and out cleanly without zooming the webpage.
+3. On a laptop trackpad, pinch to zoom with two fingers over the map: verify the map zooms in and out instead of the browser viewport.
+4. Move the mouse cursor outside the map onto the page background or clinic list cards and scroll or zoom: verify the normal webpage scrolling and browser zoom apply.
+5. On a mobile phone, verify touch pan and touch pinch zoom continue to work smoothly.
+
 ## 01 Nov 2026: Mobile Layout, Bottom Navigation & Offset Shadow Cards
 
 Commit `3d26fce`. No migration. Frontend only.

@@ -17,7 +17,8 @@ import { MINDGUIDE_PODCASTS, formatDuration } from "../podcasts/podcast-data";
 import { removeSaved } from "../saved/saved-store";
 import { useSavedIds } from "../saved/use-saved";
 import { ALL_TIPS, TIP_CATEGORIES } from "../tips/tips-data";
-import { ALL_LESSONS, TOPIC_CATEGORIES } from "./learn-data";
+import { ALL_LESSONS, TOPIC_CATEGORIES, type TopicCategory } from "./learn-data";
+import { LessonTopicIcon } from "./lesson-topic-icon";
 
 type SavedLearningViewProps = {
   onBack: () => void;
@@ -174,7 +175,9 @@ export function SavedLearningView({
               >
                 {/* Thumbnail */}
                 <div className="relative flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-arom-soft text-arom sm:size-20">
-                  {item.image ? (
+                  {activeTab === "lesson" ? (
+                    <LessonTopicIcon lesson={{ id: item.id, category: item.category as TopicCategory }} className="size-8 sm:size-9" />
+                  ) : item.image ? (
                     <Image
                       src={item.image}
                       alt=""
