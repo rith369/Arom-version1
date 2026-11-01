@@ -1,5 +1,36 @@
 # AROM: Change Report
 
+## 01 Nov 2026: Comprehensive MindGuide Learn Design Overhaul (Overview, Interactive Reader & Mobile Clearance)
+
+Commit `d524d06`. No migration. Frontend only.
+
+**Why.** The initial Learn screens suffered from crowded mobile headers with awkward text wrapping, glitched references drawers, raw academic citation brackets (`[1]`, `[2, 3]`) inside bullet points and paragraphs, and clunky action buttons that collided with the floating mobile navigation bar. Redesigning the entire Learn experience creates a cohesive, modern, and clinical aesthetic across all lessons and reading screens, matching the quality of the visual card tips.
+
+**What changed for users:**
+- **Clean uncrowded lesson headers:** Replaced cramped header text with a sleek, centered overview badge that never wraps across lines on mobile devices.
+- **Interactive Section Road Map:** Added a dedicated 5-section syllabus preview displaying each part of the lesson with section numbers, progress checkmarks, and direct one-tap navigation to jump into any section.
+- **Cleaned Key Takeaways card:** Removed distracting academic bracketed numbers (`[1]`, `[2, 3]`) from takeaways, presenting each point in a comfortable, softly rounded card capsule.
+- **Refined Clinical References drawer:** Rebuilt the references collapsible bar so text and toggle badges never overlap or break across lines, with direct links to clinical source materials.
+- **Interactive superscript citation badges:** Replaced raw Wikipedia-style bracket codes (`[1]`, `[2]`) in interactive lesson paragraphs and key points with subtle, clickable green pill badges that open the references drawer directly.
+- **Refined Action Button hierarchy:** Replaced heavy stacked slabs with a primary forward CTA button (`Start Learning` / `Continue Learning`) and a complementary, compact Home Screen Daily Plan button.
+- **Comfortable mobile navigation clearance:** Increased bottom padding to `pb-36` across the Lesson Overview, Interactive Lesson Reader, Lesson Complete View, and Saved Learning View so all content is completely clear of the floating navigation dock.
+
+**What changed for the team:**
+- Redesigned `app/_components/learn/lesson-detail-view.tsx` with responsive layout improvements, `cleanOutcomeText` helper, and interactive section outline support.
+- Redesigned `app/_components/learn/lesson-screen.tsx` with `renderContentWithCitations`, clinical references accordion, and mobile-safe padding.
+- Updated `app/_components/learn/learn-home-view.tsx`, `app/_components/learn/lesson-complete-view.tsx`, and `app/_components/learn/saved-learning-view.tsx` for mobile clearance (`pb-36`).
+- Zero ESLint and TypeScript compilation errors.
+
+**What to re-test:**
+1. Open `/learn` and tap into "Learn About Stress" (`ស្វែងយល់ពីភាពតានតឹង (Stress)`).
+2. Check that the top header title fits neatly without wrapping into two lines.
+3. Verify the new 5-section Road Map renders with section numbers and allows tapping into sections.
+4. Verify the Key Takeaways bullets are clean, with no raw brackets like `[1]` or `[2, 3]`.
+5. Tap the Clinical References bar and confirm it opens smoothly without text wrapping errors.
+6. Tap "Start Learning" to enter the interactive reader: confirm paragraphs render citations as sleek superscript badges rather than raw brackets.
+7. Tap a citation badge: verify the references drawer opens.
+8. Advance to the final section and complete the lesson: verify the celebration screen has comfortable clearance above the mobile navigation bar.
+
 ## 28 Oct 2026: My Personality in Understand Yourself
 
 Commit `3602caf`, merged in PR #43 (`bd8716b`). Migration `20261028000200_self_map_personality.sql` applied 28 Oct and checked live. It only allows the new part and updates the save function.

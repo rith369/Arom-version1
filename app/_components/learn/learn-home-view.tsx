@@ -129,7 +129,7 @@ export function LearnHomeView({
   }, [searchQuery, selectedCategory]);
 
   return (
-    <div className="min-h-screen bg-canvas text-ink pb-28 lg:pb-16">
+    <div className="min-h-screen bg-canvas text-ink pb-36 lg:pb-16">
       <div className="mx-auto max-w-4xl px-4 pt-6 sm:px-8 sm:pt-8">
         {/* Top Header Row */}
         <div className="flex items-center justify-between gap-4">

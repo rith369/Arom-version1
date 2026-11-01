@@ -32,6 +32,32 @@ type LessonScreenProps = {
   preview?: boolean;
 };
 
+// Helper to parse citations like [1] or [2, 3] into subtle, interactive pill badges
+function renderContentWithCitations(
+  text: string,
+  onCitationClick?: () => void,
+) {
+  const parts = text.split(/(\[[\d,\s-]+\])/g);
+  return parts.map((part, index) => {
+    const match = part.match(/^\[([\d,\s-]+)\]$/);
+    if (match) {
+      const citationText = match[1].trim();
+      return (
+        <button
+          key={index}
+          type="button"
+          onClick={onCitationClick}
+          title={`Citation [${citationText}]`}
+          className="inline-flex items-center align-super mx-0.5 px-1.5 py-0.2 text-[0.65rem] font-bold text-arom bg-arom-soft/80 hover:bg-arom hover:text-white rounded-full transition-colors cursor-pointer select-none leading-none shadow-2xs"
+        >
+          {citationText}
+        </button>
+      );
+    }
+    return <span key={index}>{part}</span>;
+  });
+}
+
 export function LessonScreen({
   lesson,
   initialSection = 1,
@@ -87,21 +113,23 @@ export function LessonScreen({
     <div className="min-h-screen bg-canvas text-ink flex flex-col justify-between">
       {/* Top Header with Step Progress */}
       <header className="sticky top-0 z-30 border-b border-arom-border bg-white/95 px-4 py-3 backdrop-blur-xl sm:px-8">
-        <div className="mx-auto flex max-w-2xl items-center justify-between gap-4">
+        <div className="mx-auto flex max-w-2xl items-center justify-between gap-3 sm:gap-4">
           <button
             type="button"
             onClick={onExit}
             aria-label={km ? "ចេញពីមេរៀន" : "Exit lesson"}
-            className="flex size-9 items-center justify-center rounded-full border border-arom-border bg-white text-ink-muted shadow-sm transition-colors hover:bg-arom-wash hover:text-arom"
+            className="flex size-9 items-center justify-center rounded-full border border-arom-border bg-white text-ink-muted shadow-sm transition-colors hover:bg-arom-wash hover:text-arom cursor-pointer shrink-0"
           >
             <X size={18} />
           </button>
 
-          <div className="flex flex-1 flex-col items-center">
+          <div className="flex flex-1 flex-col items-center min-w-0">
             <span className="text-xs font-semibold tracking-wider text-arom">
-              {sectionNumber} / {totalSections}
+              {km
+                ? `ផ្នែកទី ${sectionNumber} នៃ ${totalSections}`
+                : `Section ${sectionNumber} of ${totalSections}`}
             </span>
-            <div className="mt-1.5 h-1.5 w-36 sm:w-56 overflow-hidden rounded-full bg-arom-soft">
+            <div className="mt-1.5 h-1.5 w-32 sm:w-56 overflow-hidden rounded-full bg-arom-soft">
               <div
                 className="h-full rounded-full bg-arom transition-all duration-300"
                 style={{ width: `${(sectionNumber / totalSections) * 100}%` }}
@@ -109,7 +137,7 @@ export function LessonScreen({
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             <span className="hidden text-[0.75rem] font-semibold text-arom sm:inline">
               {lesson.category}
             </span>
@@ -119,7 +147,7 @@ export function LessonScreen({
       </header>
 
       {/* Main Content Area */}
-      <main className="mx-auto flex-1 w-full max-w-2xl px-4 py-6 sm:px-8 sm:py-8">
+      <main className="mx-auto flex-1 w-full max-w-2xl px-4 py-6 sm:px-8 sm:py-8 pb-16">
         <AnimatePresence mode="wait">
           <motion.article
             key={currentSection.id}
@@ -131,10 +159,13 @@ export function LessonScreen({
           >
             {/* Section Tag & Title */}
             <div>
-              <span className="inline-flex items-center rounded-full bg-arom-soft px-3 py-1 text-xs font-semibold text-arom">
-                {km ? `ផ្នែកទី ${sectionNumber}` : `Section ${sectionNumber}`}
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-arom-border/60 bg-arom-soft px-3 py-1 text-xs font-semibold text-arom">
+                <span className="size-1.5 rounded-full bg-arom" />
+                {km
+                  ? `ផ្នែកទី ${sectionNumber} នៃ ${totalSections}`
+                  : `Section ${sectionNumber} of ${totalSections}`}
               </span>
-              <h1 className="mt-2.5 text-2xl font-bold tracking-tight text-arom sm:text-3xl">
+              <h1 className="mt-2.5 text-2xl font-bold tracking-tight text-arom sm:text-3xl leading-snug">
                 {km && currentSection.kmTitle
                   ? currentSection.kmTitle
                   : currentSection.title}
@@ -142,13 +173,13 @@ export function LessonScreen({
             </div>
 
             {/* Paragraphs */}
-            <div className="space-y-4 text-[0.95rem] leading-relaxed text-ink sm:text-base sm:leading-7">
+            <div className="space-y-4 text-[0.95rem] leading-relaxed text-ink sm:text-base sm:leading-8">
               {(km && currentSection.kmParagraphs
                 ? currentSection.kmParagraphs
                 : currentSection.paragraphs
               ).map((p, idx) => (
                 <p key={idx} className="whitespace-pre-line">
-                  {p}
+                  {renderContentWithCitations(p, () => setShowReferences(true))}
                 </p>
               ))}
             </div>
@@ -367,19 +398,23 @@ export function LessonScreen({
 
             {/* Key Points Highlight Card */}
             {currentSection.keyPoints && currentSection.keyPoints.length > 0 && (
-              <div className="rounded-2xl border border-arom/20 bg-arom-wash p-4 sm:p-5 shadow-sm">
+              <div className="rounded-3xl border border-arom/20 bg-gradient-to-br from-arom-wash/90 to-arom-soft/40 p-5 sm:p-6 shadow-sm">
                 <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-arom">
-                  <Lightbulb size={15} />
-                  <span>{km ? "ចំណុចគន្លឹះសំខាន់ៗ" : "Key Points"}</span>
+                  <CheckCircle2 size={16} />
+                  <span>{km ? "ចំណុចគន្លឹះសំខាន់ៗ (Key Points)" : "Key Takeaways"}</span>
                 </div>
-                <ul className="mt-3 space-y-2 text-xs leading-relaxed text-ink sm:text-sm">
+                <ul className="mt-3.5 space-y-2.5 text-xs leading-relaxed text-ink sm:text-sm">
                   {(km && currentSection.kmKeyPoints
                     ? currentSection.kmKeyPoints
                     : currentSection.keyPoints
                   ).map((kp, idx) => (
                     <li key={idx} className="flex items-start gap-2.5">
-                      <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-arom" />
-                      <span>{kp}</span>
+                      <span className="mt-1 flex size-4 shrink-0 items-center justify-center rounded-full bg-arom-soft text-arom">
+                        <span className="size-1.5 rounded-full bg-arom" />
+                      </span>
+                      <span className="flex-1">
+                        {renderContentWithCitations(kp, () => setShowReferences(true))}
+                      </span>
                     </li>
                   ))}
                 </ul>
@@ -389,37 +424,84 @@ export function LessonScreen({
             <EducationalNote />
 
             {/* References preview accordion */}
-            <div className="border-t border-arom-border pt-4 text-xs text-ink-muted">
+            <div className="border-t border-arom-border pt-5 text-xs text-ink-muted">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <button
                   type="button"
                   onClick={() => setShowReferences(!showReferences)}
-                  className="inline-flex items-center gap-1.5 font-semibold text-arom hover:text-arom-deep"
+                  className="inline-flex items-center gap-2 rounded-full border border-arom-border bg-white px-3.5 py-1.5 text-xs font-semibold text-arom shadow-2xs transition-all hover:bg-arom-wash hover:border-arom/40 cursor-pointer"
                 >
-                  <Info size={13} />
+                  <span className="flex size-5 items-center justify-center rounded-full bg-arom-soft text-arom">
+                    <Info size={12} />
+                  </span>
                   <span>
                     {km
-                      ? `មើលឯកសារយោង [1] ដល់ [${lesson.references.length}] (References)`
-                      : `View Citations & References [1] to [${lesson.references.length}]`}
+                      ? "មើលប្រភព និងឯកសារយោង (References)"
+                      : "Clinical Citations & Sources"}
+                  </span>
+                  <span className="rounded-full bg-arom-soft px-2 py-0.5 text-[0.68rem] font-bold text-arom">
+                    1 to {lesson.references.length}
+                  </span>
+                  <span
+                    className={`text-[0.65rem] transition-transform duration-200 ${
+                      showReferences ? "rotate-180" : ""
+                    }`}
+                  >
+                    ▼
                   </span>
                 </button>
+
                 {!preview && (
                   <ReportProblemButton
-                    target={{ type: "lesson", sourceId: lesson.id, partId: String(currentSection.id) }}
-                    itemTitle={km && lesson.kmTitle ? lesson.kmTitle : lesson.title}
+                    target={{
+                      type: "lesson",
+                      sourceId: lesson.id,
+                      partId: String(currentSection.id),
+                    }}
+                    itemTitle={
+                      km && lesson.kmTitle ? lesson.kmTitle : lesson.title
+                    }
                     partLabel={`${km ? "ផ្នែកទី" : "Section"} ${sectionNumber}`}
                   />
                 )}
               </div>
+
               {showReferences && (
-                <ul className="mt-2.5 space-y-1 rounded-xl border border-arom-border bg-white p-3 text-[0.75rem] text-ink shadow-sm">
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="mt-3.5 divide-y divide-arom-border/60 rounded-2xl border border-arom-border bg-white p-3.5 shadow-sm"
+                >
                   {lesson.references.map((ref) => (
-                    <li key={ref.id}>
-                      <span className="font-bold text-arom">{ref.citation}</span>{" "}
-                      {ref.title}
-                    </li>
+                    <div
+                      key={ref.id}
+                      className="flex items-start gap-3 py-2.5 first:pt-1 last:pb-1"
+                    >
+                      <span className="shrink-0 rounded-full bg-arom-soft px-2 py-0.5 text-[0.68rem] font-bold text-arom">
+                        {ref.citation || `[${ref.id}]`}
+                      </span>
+                      <div className="min-w-0 flex-1 text-[0.78rem] leading-relaxed text-ink">
+                        <span className="font-semibold text-arom">
+                          {ref.source}
+                        </span>
+                        {ref.title && (
+                          <span className="text-ink-muted"> • {ref.title}</span>
+                        )}
+                        {ref.url && (
+                          <a
+                            href={ref.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="mt-0.5 block text-[0.72rem] font-medium text-arom hover:underline"
+                          >
+                            {km ? "ចូលមើលប្រភពដើម" : "View clinical source"} ↗
+                          </a>
+                        )}
+                      </div>
+                    </div>
                   ))}
-                </ul>
+                </motion.div>
               )}
             </div>
           </motion.article>
@@ -436,7 +518,7 @@ export function LessonScreen({
             className={`flex h-12 items-center gap-2 rounded-2xl px-5 text-sm font-semibold transition-colors ${
               currentSectionIndex === 0
                 ? "cursor-not-allowed opacity-30 text-ink-muted"
-                : "border border-arom-border bg-white text-ink hover:bg-arom-wash"
+                : "border border-arom-border bg-white text-ink hover:bg-arom-wash cursor-pointer"
             }`}
           >
             <ArrowLeft size={16} />
@@ -446,12 +528,12 @@ export function LessonScreen({
           <button
             type="button"
             onClick={handleNext}
-            className="flex h-12 items-center gap-2 rounded-2xl bg-arom px-6 text-sm font-bold text-white shadow-[0_8px_24px_rgba(31,111,91,0.2)] transition-all hover:bg-arom-deep hover:-translate-y-0.5"
+            className="flex h-12 items-center gap-2 rounded-2xl bg-arom px-6 text-sm font-bold text-white shadow-[0_8px_24px_rgba(31,111,91,0.2)] transition-all hover:bg-arom-deep hover:-translate-y-0.5 cursor-pointer"
           >
             <span>
               {sectionNumber >= totalSections
                 ? km
-                  ? "បញ្ចប់មេរៀន"
+                  ? "បញ្ចប់មេរៀន (Finish)"
                   : "Finish Lesson"
                 : km
                   ? "បន្ទាប់"

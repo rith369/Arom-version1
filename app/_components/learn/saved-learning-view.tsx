@@ -99,7 +99,7 @@ export function SavedLearningView({
   const filteredItems = rows[activeTab];
 
   return (
-    <div className="min-h-screen bg-canvas text-ink pb-24 lg:pb-12">
+    <div className="min-h-screen bg-canvas text-ink pb-36 lg:pb-16">
       {/* Sticky Header */}
       <header className="sticky top-0 z-30 flex items-center justify-between border-b border-arom-border bg-white px-4 py-3.5 backdrop-blur-xl sm:px-8">
         <button

@@ -57,7 +57,7 @@ export function LessonCompleteView({
   };
 
   return (
-    <div className="min-h-screen bg-canvas text-ink pb-24 lg:pb-12">
+    <div className="min-h-screen bg-canvas text-ink pb-36 lg:pb-16">
       {/* Toast Notification */}
       {toastMessage && (
         <motion.div
@@ -217,6 +217,19 @@ export function LessonCompleteView({
                 {saved ? (km ? "បានរក្សាទុក" : "Saved") : (km ? "រក្សាទុក" : "Save")}
               </span>
             </motion.button>
+
+            {saved && (
+              <div className="text-right px-2">
+                <button
+                  type="button"
+                  onClick={onViewSaved}
+                  className="inline-flex items-center gap-1 text-xs font-semibold text-arom hover:underline cursor-pointer"
+                >
+                  <span>{km ? "បើកមើលបញ្ជីរក្សាទុក" : "View all saved items"}</span>
+                  <span>→</span>
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
