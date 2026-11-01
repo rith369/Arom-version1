@@ -1,5 +1,65 @@
 # AROM: Change Report
 
+## 01 Nov 2026: Mobile Layout, Bottom Navigation & Offset Shadow Cards
+
+Commit `3d26fce`. No migration. Frontend only.
+
+**Why.** When opened on mobile phones (such as iPhone with notch and Dynamic Island), several elements degraded the visual experience: the floating Detection button in the bottom navigation bar physically overlapped and clipped the text label "Detection", the top browser status bar was rendered in dark green creating a harsh visual band over the light canvas, search placeholders were truncated abruptly on smaller screens ("Burr" instead of "Burnout"), the recommended lesson card had awkward empty whitespace with tiny unlabelled icon buttons, the bottom navigation labels were squeezed against the iPhone home bar, and the Next.js dev indicator covered the Home navigation tab during testing. Additionally, the user requested that the card boxes in Learn Hub match the tactile, high-contrast offset drop shadow card style (`cardEdge`) from the Podcasts screen.
+
+**What changed for users:**
+- **Podcast-style offset drop shadow cards in Learn Hub:** The search input, "Recommended For You" lesson card, "Continue Learning" section, and all lesson list cards now feature the distinct `cardEdge` design (`rounded-[9px] border border-black/25 shadow-[4px_4px_4px_rgba(0,0,0,0.25)]`).
+- **Tactile category icon tiles and chevrons:** Lesson list cards now feature the podcast-style category thumbnail badge (`rounded-lg bg-arom-accent/20`), clean two-line typography (title + duration/difficulty), and navigation chevrons for an intuitive, tangible tap target.
+- **Floating Detection button clearance:** Elevated the circular pulse action button to `-top-7` and mathematically centered it with `left-1/2 -translate-x-1/2`, providing a generous 14px of breathing space above the "Detection" and "ពិនិត្យអារម្មណ៍" labels so the floating button never overlaps or clips the text.
+- **Unified bottom navigation baseline:** All five navigation tabs now share the exact same height and bottom baseline (`h-[54px]` with `justify-between`), producing a balanced, symmetrical mobile dock.
+- **Home indicator safe-area clearance:** Increased bottom padding to `pb-[max(0.75rem,calc(env(safe-area-inset-bottom)+0.35rem))]`, guaranteeing the bottom navigation labels never collide with the iPhone home indicator bar even when safe-area insets evaluate to zero.
+- **Seamless status bar integration:** Updated viewport `themeColor` to `#f7faf9` in light mode (matching the app canvas) and `#165746` in dark mode, removing the disconnected dark green block across the top of phone screens.
+- **Responsive search placeholders:** Shortened search bar placeholders in Learn Hub and Practice Hub to fit neatly within 360px and 390px mobile screens without mid-word truncation.
+- **Expanded mobile CTA buttons:** In the Recommended Lesson and Recommended Practice cards, the primary action button expands responsively on mobile to provide a full-width, clear label ("Start Lesson →" / "ចាប់ផ្តើមរៀន" and "Start Practice →" / "ចាប់ផ្តើមអនុវត្ត"), while the calendar button stays neatly alongside it.
+- **Dev indicator repositioning:** Disabled the Next.js dev badge in `next.config.ts` so it no longer obstructs the Home button during mobile testing.
+
+**What changed for the team:**
+- `app/_components/learn/learn-home-view.tsx`: Adopted `cardEdge` (`rounded-[9px] border border-black/25 shadow-[4px_4px_4px_rgba(0,0,0,0.25)]`), updated search bar, recommended section, and lesson row layouts.
+- `app/_components/app-navigation.tsx`: Rebuilt `MobileNavigation` layout with fixed height, invisible top spacer for emphasized tabs, and safe-area calculation.
+- `app/layout.tsx`: Configured color-scheme aware `themeColor` in viewport metadata.
+- `app/_components/practice/practice-home-view.tsx`: Added safe-area top padding (`pt-[max(1.5rem,env(safe-area-inset-top,1.5rem))]`), concise placeholders, and responsive action button row.
+- `next.config.ts`: Set `devIndicators: false`.
+- Passed `npx tsc --noEmit` with zero errors.
+
+**What to re-test:**
+1. Open the app on a mobile device or iPhone simulator.
+2. Verify the top status bar behind the Dynamic Island blends seamlessly with the light background.
+3. Check the bottom navigation bar: verify the circular Detection icon floats cleanly above the word "Detection" with no overlap or clipping.
+4. Switch to Khmer language: verify "ពិនិត្យអារម្មណ៍" and all other labels sit comfortably below the icons without clipping.
+5. Check the iPhone home bar: verify there is comfortable spacing between the text labels and the bottom of the phone screen.
+6. Open `/learn` on phone: verify the search placeholder ("Search lessons... (Stress, Anxiety)") is fully visible without truncation.
+7. Verify the "Recommended For You" card has an expanded "Start Lesson →" button filling the action row cleanly.
+
+## 01 Nov 2026: 2 Week Loneliness Program
+
+Commit `55a7502`. No migration. Frontend only.
+
+**Why.** Loneliness is a widespread emotional challenge in Cambodia, particularly for students and young adults relocating from provinces to Phnom Penh for university or work. Following the stress and anxiety 2 week programs, this 14-day evidence-based program offers gentle daily micro-steps to help users move from painful isolation to restorative solitude in week 1, and build low-stakes social connection in week 2.
+
+**What changed for users:**
+- **New 2 week Loneliness Program:** Accessible at `/mindguide/programs/loneliness` in both English and Khmer.
+- **Symptom Check Recommendation:** Users who score in the moderate/medium range on the UCLA-3 Loneliness check (`/detection/symptoms?check=loneliness`) receive an invitation card to start the 2 week loneliness program.
+- **MindGuide Home Program Grid:** The 2 week programs section on `/mindguide` now displays Stress, Anxiety, and Loneliness side by side in a responsive 3-column layout, showing day progress (`Day X of 14`) and remaining private on Home.
+- **Structured 14-Day Micro-Steps:** Week 1 focuses on reframing solitude, biological psychoeducation, slow breathing, sensory grounding, social media breaks, and self-compassion. Week 2 provides a gentle connection ladder (observing people, micro-greetings, brief texts, visiting shared spaces, active listening, and community support group integration).
+- **Therapist Care Plan:** Therapists and counselors can assign the 2 week loneliness program directly to clients as a structured care task in their professional portal.
+
+**What changed for the team:**
+- `app/_components/two-week/two-week-data.ts`: Added `'loneliness'` to `TWO_WEEK_PROGRAMS`, `CHECK_PROGRAMS`, and `PROGRAMS` with bilingual 14-day definitions and links to existing content.
+- `app/_components/mindguide-home.tsx`: Updated grid to `lg:grid-cols-3` and mapped the Loneliness card with the `UsersRound` icon.
+- `BACKEND-HANDOFF.md` section 36 updated to document the Loneliness program.
+- No database migrations or new endpoints required.
+
+**What to re-test:**
+1. Open `/mindguide` and verify the "2 week programs" section shows all 3 programs: Stress, Anxiety, and Loneliness.
+2. Open `/mindguide/programs/loneliness` directly and confirm the intro screen, 14-day breakdown, and bilingual toggle work smoothly.
+3. Start the Loneliness program: verify it appears on Home as "Today's step (2 week program)" without revealing the topic.
+4. Verify Day 1 opens with its step and link to "How to Deal With Loneliness".
+5. In Khmer mode, verify all 14 titles and descriptions render natural Khmer without dashes or sparkles.
+
 ## 01 Nov 2026: Comprehensive MindGuide Learn Design Overhaul (Overview, Interactive Reader & Mobile Clearance)
 
 Commit `d524d06`. No migration. Frontend only.
