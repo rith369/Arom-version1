@@ -2,7 +2,7 @@
 
 ## 01 Nov 2026: Distinct Semantic Topic Icons for Learn Hub and MindGuide Tips
 
-Commit `24560d1`. No migration. Frontend only.
+Commit `6c3cd55`. No migration. Frontend only.
 
 **Why.** Previously, every lesson card within the same mental health condition or category displayed the exact same 3D category thumbnail. For example, under Anxiety, all three lessons (Understanding Anxiety, How to Handle Social Anxiety, and How to Handle Anxiety Before an Exam) showed the identical teal wave swirl graphic. A similar duplication occurred in Tips, where multiple tips repeated the same SVG icon. Users found it difficult to visually distinguish between lessons and tips at a glance. Each lesson and tip now features a dedicated, meaningful icon tailored to its specific subject matter.
 
