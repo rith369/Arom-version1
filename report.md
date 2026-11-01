@@ -1,30 +1,23 @@
 # AROM: Change Report
 
-## 01 Nov 2026: Distinct Semantic Topic Icons for Learn Hub and MindGuide Tips
+## 01 Nov 2026: Retain 3D Category Pictures on Learn Hub Cards
 
-Commit `6c3cd55`. No migration. Frontend only.
+Commit `009eb3f`. No migration. Frontend only.
 
-**Why.** Previously, every lesson card within the same mental health condition or category displayed the exact same 3D category thumbnail. For example, under Anxiety, all three lessons (Understanding Anxiety, How to Handle Social Anxiety, and How to Handle Anxiety Before an Exam) showed the identical teal wave swirl graphic. A similar duplication occurred in Tips, where multiple tips repeated the same SVG icon. Users found it difficult to visually distinguish between lessons and tips at a glance. Each lesson and tip now features a dedicated, meaningful icon tailored to its specific subject matter.
+**Why.** Preserved the signature 3D category illustration artwork on Learn Hub cards across all mental health categories (Relationships, Emotions, Burnout, Basics, Stress, Anxiety, and Sleep) per product design specifications.
 
 **What changed for users:**
-- **Distinct topic icons for Anxiety lessons:** "Understanding Anxiety" displays a calming wave icon (`Waves`), "How to Handle Social Anxiety" displays a social group icon (`Users`), and "How to Handle Anxiety Before an Exam" displays an academic graduation cap icon (`GraduationCap`).
-- **Unique visual identity across all 20 lessons:** Each lesson in Learn Hub now displays a dedicated, clinically appropriate icon that reflects its topic, such as `Activity` for biological stress arousal, `BookOpen` for academic pressure, `Scale` for study/work/life balance, `GitCompare` for comparing stress vs anxiety, `Compass` for foundational mental health, `UserCheck` for self-understanding, `LifeBuoy` for seeking clinical help, `Moon` for sleep hygiene, `UsersRound` for moving through loneliness, `HeartHandshake` for supporting a friend, `ShieldCheck` for relationship boundaries, `MessageCircle` for vocalizing emotions, `Sunrise` for lifting out of anhedonia, `CloudRain` for sadness vs depression, `Target` for overcoming fear of failure, `BatteryCharging` for burnout recovery, and `Heart` for building self-esteem.
-- **Distinct topic icons in MindGuide Tips:** Tips now display distinct icons (`Activity` for controlling stress, `Brain` for pausing overthinking, `Moon` for evening sleep hygiene, `Waves` for calming racing thoughts, `ShieldCheck` for guilt-free boundaries, and `Smartphone` for mindful digital detox) instead of repeating identical SVG graphics.
-- **Saved learning consistency:** Saved lesson items in the Saved view now display the corresponding distinct topic icon.
+- **Signature 3D category artwork preserved:** All lesson cards in Learn Hub retain the vibrant 3D tactile category illustration thumbnails (such as the glowing heart hands for Relationships, rainbow heart for Emotions, plant jar for Burnout, open book brain for Basics, green sprout for Stress, and wave for Anxiety).
+- **Tactile offset shadow card borders:** Preserved the offset drop shadow styling (`rounded-[9px] border border-black/25 shadow-[4px_4px_4px_rgba(0,0,0,0.25)]`).
 
 **What changed for the team:**
-- `app/_components/learn/lesson-topic-icon.tsx`: Created central `LessonTopicIcon` component and `LESSON_ICONS` lookup table mapping all 20 lessons to intuitive Lucide icons with category fallbacks.
-- `app/_components/learn/learn-home-view.tsx`: Replaced repeated category thumbnail images with `LessonTopicIcon` inside the tactile podcast-style container (`size-12 shrink-0 rounded-lg bg-arom-accent/20 text-arom`).
-- `app/_components/learn/saved-learning-view.tsx`: Integrated `LessonTopicIcon` for saved lessons.
-- `app/_components/tips/tips-home-view.tsx`: Implemented `TipTopicIcon` with distinct icons for each tip, replacing duplicate SVG references.
+- `app/_components/learn/learn-home-view.tsx`: Retained `getCategoryThumbnail(lesson.category)` rendering with 3D illustration artwork.
+- `app/_components/learn/saved-learning-view.tsx`: Retained image thumbnails.
 - Passed `npx tsc --noEmit` with zero errors.
 
 **What to re-test:**
 1. Open `/mindguide/learn` on desktop and mobile.
-2. Filter or scroll to Anxiety: verify "Understanding Anxiety" shows a wave icon, "How to Handle Social Anxiety" shows a people icon, and "How to Handle Anxiety Before an Exam" shows an academic cap icon.
-3. Browse other categories (Stress, Relationships, Depression, Self-esteem): verify each lesson has a distinct icon matching its topic.
-4. Save any lesson and navigate to the Saved Learning view: verify the saved lesson card renders the distinct icon.
-5. Open `/mindguide/tips`: verify each tip card in the list and the recommended tip banner display distinct, non-repeating icons.
+2. Verify all lesson cards show their 3D category illustration picture on the left side of each card.
 
 ## 01 Nov 2026: Enable Mouse Wheel and Trackpad Zoom on Clinic Map
 
