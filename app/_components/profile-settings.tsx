@@ -487,6 +487,15 @@ export function ProfileSettings() {
               {km ? 'ទិន្នន័យរបស់អ្នក (Your data)' : 'Your data'}
             </h2>
             <AccountData km={km} />
+            <p className="mt-5 border-t border-arom-border/60 pt-4 text-xs text-ink-muted">
+              <Link href="/privacy" className="font-semibold text-arom underline underline-offset-2">
+                {km ? 'គោលការណ៍ឯកជនភាព' : 'Privacy Policy'}
+              </Link>
+              {'  ·  '}
+              <Link href="/terms" className="font-semibold text-arom underline underline-offset-2">
+                {km ? 'លក្ខខណ្ឌប្រើប្រាស់' : 'Terms of Service'}
+              </Link>
+            </p>
           </motion.section>
 
           {/* QUICK LINKS & APP NAVIGATION */}

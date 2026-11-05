@@ -144,8 +144,11 @@ export function JournalWrittenSummary({
         {heading}
         <p className="mt-2 text-xs leading-relaxed text-[#1f2d29]">
           {km
-            ? "AROM អាចសរសេរសេចក្តីសង្ខេបខ្លីៗអំពីសប្តាហ៍របស់អ្នក ពីកំណត់ត្រារបស់អ្នក។ ដើម្បីធ្វើដូច្នេះ កំណត់ត្រា ៧ ថ្ងៃចុងក្រោយរបស់អ្នកនឹងត្រូវផ្ញើទៅ Google Gemini។ Google មិនប្រើវាដើម្បីបង្ហាត់ AI របស់ខ្លួនទេ ហើយរក្សាទុករហូតដល់ ៥៥ ថ្ងៃ សម្រាប់តែពិនិត្យការប្រើប្រាស់ខុសប៉ុណ្ណោះ។ អ្នកជំនាញ និងអ្នកគ្រប់គ្រង មិនដែលឃើញកំណត់ត្រារបស់អ្នកទេ។ អ្នកអាចបិទវាបានគ្រប់ពេល។"
-            : "AROM can write a short summary of your week from your journal. To do this, your entries from the last 7 days are sent to Google Gemini. Google does not use them to train its AI, and keeps them for up to 55 days only to check for misuse. Professionals and admins never see your entries. You can turn it off at any time."}
+            ? "AROM អាចសរសេរសេចក្តីសង្ខេបខ្លីៗអំពីសប្តាហ៍របស់អ្នក ពីកំណត់ត្រារបស់អ្នក។ ដើម្បីធ្វើដូច្នេះ កំណត់ត្រា ៧ ថ្ងៃចុងក្រោយរបស់អ្នកនឹងត្រូវផ្ញើទៅ Google Gemini។ អ្នកជំនាញ និងអ្នកគ្រប់គ្រង មិនដែលឃើញកំណត់ត្រារបស់អ្នកទេ។ អ្នកអាចបិទវាបានគ្រប់ពេល។"
+            : "AROM can write a short summary of your week from your journal. To do this, your entries from the last 7 days are sent to Google Gemini. Professionals and admins never see your entries. You can turn it off at any time."}{" "}
+          <Link href="/privacy" className="font-semibold text-[#1f6f5b] underline underline-offset-2">
+            {km ? "គោលការណ៍ឯកជនភាព" : "Privacy Policy"}
+          </Link>
         </p>
         <button
           type="button"

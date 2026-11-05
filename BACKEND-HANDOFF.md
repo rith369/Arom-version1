@@ -1805,6 +1805,16 @@ Every person endpoint answers with the whole `SelfMapResponse { parts, shares }`
 
 **Never log** exported or deleted content, only error codes.
 
+## 42. Terms and Privacy pages
+
+**Status:** live pages at `/terms` and `/privacy`, no backend. Text in `app/_components/legal/legal-content.ts`.
+
+**Rule:** these pages describe what the app really does. Any change to what is collected, who can see it, or which outside service receives it must update this text in the same commit.
+
+**Facts they promise, so keep them true:** no ads, no outside analytics, no selling data, location stays on the device, error reports are deleted after 30 days, no backups (remove this line when backups exist), and a breach is told to affected people.
+
+**Not reviewed:** no lawyer has read them, and the Khmer needs a native review. Open questions for a lawyer: minimum age (13 is taken from the clinic form), whether therapists must keep records, and what Cambodian law requires. Accepting the terms at signup is not recorded anywhere yet.
+
 ## Template for a new feature section
 
 ```md

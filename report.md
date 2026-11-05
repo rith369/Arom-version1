@@ -1,5 +1,28 @@
 # AROM: Change Report
 
+## 05 Nov 2026: Terms and Privacy Pages
+
+Commit `PENDING`. No migration.
+
+**Why.** The signup form asked people to agree to Terms and a Privacy Policy, but both links went nowhere. This was finding H6 in the security audit. People should know what happens to their mental health information before they share it.
+
+**What changed for users:**
+- **New pages:** `/terms` and `/privacy`, in English and Khmer, written in plain language.
+- **Signup:** the links now open the real pages in a new tab, so the form is not lost.
+- **Journal summary:** the screen no longer promises how long Google keeps entries or that it does not train on them, because this was never checked. It still says entries go to Google Gemini, and links to the Privacy Policy.
+- **Profile:** links to both pages under Your data.
+
+**What changed for the team:**
+- **`app/_components/legal/legal-content.ts`:** all the text, written from what the code does. See `BACKEND-HANDOFF.md` section 42.
+- **Not reviewed:** a lawyer should read both pages, and the Khmer needs a native review.
+- **Checks:** `npm run build` and `npx tsc --noEmit` pass, and `npm run lint` has the same 5 errors as `main`.
+
+**What to re-test:**
+1. Open `/terms` and `/privacy` while logged out, on a phone and a computer, in both languages.
+2. On the signup page, click each link. It should open in a new tab and keep what you typed.
+3. On the journal page with the summary off, read the text and click Privacy Policy.
+4. In Profile, under Your data, click both links.
+
 ## 05 Nov 2026: Download My Data and Delete My Account
 
 Commit `db7a335`. No migration.
