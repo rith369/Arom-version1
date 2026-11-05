@@ -7,6 +7,7 @@ import type {
   VerificationStatus,
 } from "@/app/admin/_data/professionals";
 import { uuidSchema } from "@/lib/roles";
+import { createPrivateStorageClient } from "@/lib/supabase/private-storage";
 import { NO_STORE, databaseError, fail, invalidInput, json, readJson } from "./shared";
 import { requireRole } from "./role-controller";
 
@@ -243,6 +244,18 @@ const accountStatusSchema = z.object({
   reason: z.string().trim().max(500).optional(),
 });
 
+/** Needs SUPABASE_SECRET_KEY, which stays on the server. */
+async function setLoginBan(userId: string, banned: boolean) {
+  try {
+    const { error } = await createPrivateStorageClient().auth.admin.updateUserById(userId, {
+      ban_duration: banned ? "876000h" : "none",
+    });
+    return !error;
+  } catch {
+    return false;
+  }
+}
+
 /** PATCH /api/admin/users/:id/status  body `{ status, reason? }` */
 export async function setAccountStatus(request: NextRequest, userId: string) {
   const guard = await requireRole("admin");
@@ -259,6 +272,19 @@ export async function setAccountStatus(request: NextRequest, userId: string) {
     p_reason: body.data.reason ?? null,
   });
   if (error) return databaseError(error, "That change could not be saved. Please try again.");
+
+  // A ban stops new logins and token refreshes, so a suspension ends their
+  // sessions. A token already issued runs out on its own, and until then the
+  // database refuses it (migration 20261105000100). Lifting the suspension
+  // lifts the ban.
+  const sessionsEnded = await setLoginBan(id.data, body.data.status === "suspended");
+  if (!sessionsEnded) {
+    return fail(
+      "server_error",
+      "The status was saved, but their login could not be updated. Please try again.",
+      500,
+    );
+  }
 
   return json({ ok: true, userId: id.data, status: body.data.status });
 }

@@ -143,6 +143,9 @@ export async function login(request: NextRequest) {
     if (error.code === "email_not_confirmed") {
       return fail("email_not_confirmed", "Please confirm your email before logging in.", 403);
     }
+    if (error.code === "user_banned") {
+      return fail("forbidden", "This account is suspended. Please contact AROM support.", 403);
+    }
     if (error.code === "invalid_credentials" || error.status === 400) {
       return fail("invalid_credentials", "Email or password is incorrect.", 401);
     }
