@@ -290,8 +290,8 @@ export function ClientFile({ clientId }: { clientId: string }) {
             title={t('អតិថិជនបានចែករំលែក', 'Shared by the client')}
             icon={Share2}
             hint={t(
-              'មានតែអ្វីដែលអតិថិជនបានជ្រើសរើសចែករំលែកសម្រាប់ការពិគ្រោះជាមួយអ្នក។ ពួកគេអាចបិទវាគ្រប់ពេល។ មិនមែនជាការធ្វើរោគវិនិច្ឆ័យទេ។',
-              'Only what the client chose to share for their sessions with you. They can turn it off at any time. Not a diagnosis.',
+              'មានតែអ្វីដែលអតិថិជនបានជ្រើសរើសចែករំលែកសម្រាប់ការពិគ្រោះជាមួយអ្នក។ ពួកគេអាចបិទវាគ្រប់ពេល។ មិនមែនជាការធ្វើរោគវិនិច្ឆ័យទេ។ វានឹងឈប់បង្ហាញ ៩០ ថ្ងៃបន្ទាប់ពីវគ្គចុងក្រោយរបស់ពួកគេជាមួយអ្នក។',
+              'Only what the client chose to share for their sessions with you. They can turn it off at any time. It stops showing 90 days after their last session with you. Not a diagnosis.',
             )}>
             {!sharing.survey && !sharing.symptomChecks ? (
               <p className="rounded-2xl bg-arom-wash/70 p-3.5 text-sm text-ink-muted">

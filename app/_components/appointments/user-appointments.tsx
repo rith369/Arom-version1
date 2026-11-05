@@ -343,8 +343,8 @@ function AppointmentCard({
               <legend className="sr-only">{t("ចែករំលែកជាមួយអ្នកជំនាញនេះ", "Share with this professional")}</legend>
               <p className="text-xs leading-5 text-ink-muted">
                 {t(
-                  "ជម្រើសរបស់អ្នក។ អ្នកអាចបិទវាបានគ្រប់ពេល។ កំណត់ហេតុរបស់អ្នក មិនត្រូវបានចែករំលែកឡើយ។",
-                  "Your choice, and you can turn it off at any time. Your journal is never shared.",
+                  "ជម្រើសរបស់អ្នក។ អ្នកអាចបិទវាបានគ្រប់ពេល។ កំណត់ហេតុរបស់អ្នក មិនត្រូវបានចែករំលែកឡើយ។ អ្នកជំនាញមើលឃើញវារហូតដល់ ៩០ ថ្ងៃបន្ទាប់ពីវគ្គចុងក្រោយជាមួយពួកគេ។",
+                  "Your choice, and you can turn it off at any time. Your journal is never shared. Your professional can see what you share until 90 days after your last session with them.",
                 )}
               </p>
               <div className="mt-2.5 space-y-2 text-sm text-ink">

@@ -1829,6 +1829,16 @@ Every person endpoint answers with the whole `SelfMapResponse { parts, shares }`
 
 **Known limit:** calling Supabase Auth directly skips these app limits. Supabase's own per address limits still apply there. CAPTCHA was left out by choice (5 Nov 2026).
 
+## 44. Logged out rights, and sharing that ends
+
+**Status:** code on branch `rith/anon-rights-consent-expiry`. **Migrations `20261105000600_remove_anon_rights.sql` and `20261105000700_sharing_ends_after_90_days.sql` not yet applied.**
+
+**Decided (do not change without Rith):**
+- **Logged out visitors (`anon`) can only read 8 tables:** announcements, clinics, crisis_resources, journal_prompts, podcasts, professional_clinics, professional_profiles and support_contact. They write nothing directly. New tables start with no rights, so **a new public table needs its own `grant select ... to anon`** next to its policy.
+- **Sharing ends 90 days after the last session** with that professional (decided 5 Nov 2026). It covers the survey, screening scores, mood trend, self map, ACE answers and care progress. A new booking starts it again, if sharing is on for that session. Clients can still turn it off at any time.
+- **`sharing_cutoff()` is the one place the period is set.** New functions that show shared data must check `a.ends_at > public.sharing_cutoff()`.
+- **Not affected:** bookings and intake notes, messages, and the professional's own notes. These are part of the care relationship, not something the client chose to share.
+
 ## Template for a new feature section
 
 ```md
