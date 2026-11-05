@@ -2,7 +2,7 @@
 
 ## 05 Nov 2026: Login Limits and a Booking Cap
 
-Commit `7911783`. **Migration not yet applied:** `20261105000500_login_limits_booking_cap.sql`.
+Commit `7911783`. Migration `20261105000500_login_limits_booking_cap.sql` was applied on 5 Nov 2026.
 
 **Why.** Nothing in the app slowed down password guessing, and one account could book every open session and fill therapists' calendars. These were findings M8 and M5 in the security audit. CAPTCHA was left out by choice for now.
 

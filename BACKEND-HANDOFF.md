@@ -1817,7 +1817,7 @@ Every person endpoint answers with the whole `SelfMapResponse { parts, shares }`
 
 ## 43. Login limits and the booking cap
 
-**Status:** code on branch `rith/login-limits-booking-cap`. **Migration `20261105000500_login_limits_booking_cap.sql` not yet applied.** The code allows every attempt until it is, so the order does not matter.
+**Status:** live. Migration `20261105000500_login_limits_booking_cap.sql` was applied on 5 Nov 2026.
 
 **Decided (do not change without a reason):**
 - **Limits live in `lib/rate-limit.ts`.** Counts are in `rate_limits`, in the database, because server instances share nothing. Only hashes are stored, never an email or address.
