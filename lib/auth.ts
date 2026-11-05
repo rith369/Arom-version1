@@ -116,6 +116,12 @@ export const changePasswordSchema = z
     message: 'Your new password must be different from your current one',
   });
 
+/** Delete my account. The password is optional only for a session that just logged in. */
+export const deleteAccountSchema = z.object({
+  confirm: z.literal('DELETE'),
+  password: z.string().min(1).max(MAX_PASSWORD_LENGTH).optional(),
+});
+
 export const profileUpdateSchema = z
   .object({
     fullName: z
@@ -209,6 +215,9 @@ export type AuthErrorCode =
   | 'unauthorized'
   | 'forbidden'
   | 'mfa_required'
+  | 'reauth_required'
+  | 'upcoming_sessions'
+  | 'staff_account'
   | 'server_error';
 
 export interface AuthErrorBody {

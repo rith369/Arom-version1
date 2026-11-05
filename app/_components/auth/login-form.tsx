@@ -141,6 +141,9 @@ export function LoginForm() {
             </span>
           </FormAlert>
         )}
+        {searchParams.get("deleted") === "1" && !errors.root && !isSubmitSuccessful && (
+          <FormAlert tone="success">Your account and your data have been deleted.</FormAlert>
+        )}
         {google.error && <FormAlert tone="error">{google.error}</FormAlert>}
         {isSubmitSuccessful && !errors.root && (
           <FormAlert tone="success">
