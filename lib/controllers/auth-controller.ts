@@ -14,6 +14,7 @@ import {
   type SessionResponse,
 } from "@/lib/auth";
 import { supabaseAnonKey, supabaseUrl } from "@/lib/supabase/env";
+import { LIMITS, clearRateLimit, clientAddress, overLimit } from "@/lib/rate-limit";
 import { createClient } from "@/lib/supabase/server";
 import {
   NO_STORE,
@@ -75,6 +76,14 @@ export async function register(request: NextRequest) {
 
   const { email, password, fullName, language } = parsed.data;
   const origin = request.nextUrl.origin;
+
+  // This form can also log in to an existing account, so it shares the password limit.
+  const limited = await overLimit([
+    { name: "password", value: email, limit: LIMITS.passwordPerAccount },
+    { name: "signup-address", value: clientAddress(request), limit: LIMITS.signupPerAddress },
+  ]);
+  if (limited) return fail("rate_limited", "Too many attempts. Please wait a while and try again.", 429);
+
   const supabase = await createClient();
 
   const { data, error } = await supabase.auth.signUp({
@@ -120,6 +129,12 @@ export async function resendConfirmation(request: NextRequest) {
   const parsed = resendSchema.safeParse(await readJson(request));
   if (!parsed.success) return invalidInput();
 
+  const limited = await overLimit([
+    { name: "email", value: parsed.data.email, limit: LIMITS.emailPerAccount },
+    { name: "email-address", value: clientAddress(request), limit: LIMITS.emailPerAddress },
+  ]);
+  if (limited) return fail("rate_limited", "Please wait a while before asking for another email.", 429);
+
   const supabase = await createClient();
   const { error } = await supabase.auth.resend({
     type: "signup",
@@ -137,6 +152,12 @@ export async function resendConfirmation(request: NextRequest) {
 export async function login(request: NextRequest) {
   const parsed = loginSchema.safeParse(await readJson(request));
   if (!parsed.success) return invalidInput();
+
+  const limited = await overLimit([
+    { name: "password", value: parsed.data.email, limit: LIMITS.passwordPerAccount },
+    { name: "login-address", value: clientAddress(request), limit: LIMITS.loginPerAddress },
+  ]);
+  if (limited) return fail("rate_limited", "Too many attempts. Please wait 15 minutes and try again.", 429);
 
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signInWithPassword(parsed.data);
@@ -156,6 +177,8 @@ export async function login(request: NextRequest) {
     }
     return fail("server_error", "We could not log you in. Please try again.", 500);
   }
+
+  await clearRateLimit("password", parsed.data.email);
 
   return json<LoginResponse>({ user: await toAuthUser(supabase, data.user) });
 }
@@ -289,6 +312,12 @@ export async function forgotPassword(request: NextRequest) {
   const parsed = resendSchema.safeParse(await readJson(request));
   if (!parsed.success) return invalidInput();
 
+  const limited = await overLimit([
+    { name: "email", value: parsed.data.email, limit: LIMITS.emailPerAccount },
+    { name: "email-address", value: clientAddress(request), limit: LIMITS.emailPerAddress },
+  ]);
+  if (limited) return fail("rate_limited", "Please wait a while before asking for another email.", 429);
+
   const supabase = await createClient();
   const { error } = await supabase.auth.resetPasswordForEmail(parsed.data.email, {
     redirectTo: `${request.nextUrl.origin}/auth/confirm?flow=recovery`,
@@ -352,6 +381,11 @@ export async function resetPassword(request: NextRequest) {
   const parsed = resetPasswordSchema.safeParse(await readJson(request));
   if (!parsed.success) return invalidInput();
 
+  const limited = await overLimit([
+    { name: "reset-address", value: clientAddress(request), limit: LIMITS.resetPerAddress },
+  ]);
+  if (limited) return fail("rate_limited", "Too many attempts. Please wait 15 minutes and try again.", 429);
+
   const supabase = await createClient();
 
   if (parsed.data.tokenHash) {
@@ -405,11 +439,17 @@ export async function changePassword(request: NextRequest) {
   const parsed = changePasswordSchema.safeParse(await readJson(request));
   if (!parsed.success) return invalidInput();
 
+  const limited = await overLimit([
+    { name: "password-check", value: user.id, limit: LIMITS.passwordCheckPerUser },
+  ]);
+  if (limited) return fail("rate_limited", "Too many attempts. Please wait 15 minutes and try again.", 429);
+
   const check = await passwordIsRight(user.email, parsed.data.currentPassword);
   if (check === "rate_limited") {
     return fail("rate_limited", "Too many attempts. Please wait a moment and try again.", 429);
   }
   if (check === "wrong") return fail("invalid_credentials", "Your current password is not right.", 400);
+  await clearRateLimit("password-check", user.id);
 
   const failed = await saveNewPassword(supabase, parsed.data.password);
   if (failed) return failed;
@@ -425,8 +465,14 @@ export async function verifyCode(request: NextRequest) {
   const parsed = verifyCodeSchema.safeParse(await readJson(request));
   if (!parsed.success) return invalidInput();
 
-  const supabase = await createClient();
   const { email, code } = parsed.data;
+  const limited = await overLimit([
+    { name: "code", value: email, limit: LIMITS.codePerAccount },
+    { name: "code-address", value: clientAddress(request), limit: LIMITS.codePerAddress },
+  ]);
+  if (limited) return fail("rate_limited", "Too many attempts. Please wait 15 minutes and try again.", 429);
+
+  const supabase = await createClient();
   let { data, error } = await supabase.auth.verifyOtp({ email, token: code, type: "email" });
   // Older Supabase Auth versions only accept the signup type for this code.
   if (error && !isRateLimited(error)) {

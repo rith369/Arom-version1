@@ -1,5 +1,28 @@
 # AROM: Change Report
 
+## 05 Nov 2026: Login Limits and a Booking Cap
+
+Commit `PENDING`. **Migration not yet applied:** `20261105000500_login_limits_booking_cap.sql`.
+
+**Why.** Nothing in the app slowed down password guessing, and one account could book every open session and fill therapists' calendars. These were findings M8 and M5 in the security audit. CAPTCHA was left out by choice for now.
+
+**What changed for users:**
+- **Password guessing is slowed:** after 10 tries on one account in 15 minutes, login asks them to wait. A successful login resets the count. Google login is not affected.
+- **Booking cap:** up to 5 upcoming sessions, and 10 bookings a day. Sessions a therapist proposes do not count.
+- **Everyone else:** nothing changes.
+
+**What changed for the team:**
+- **`lib/rate-limit.ts`:** the limits, used by login, signup, confirmation codes, emails, change password and delete account. See `BACKEND-HANDOFF.md` section 43.
+- **`rate_limits` table:** hashed keys and counts only, usable only by the server.
+- **Checks:** `npm run build` and `npx tsc --noEmit` pass, and `npm run lint` has the same 5 errors as `main`. On a throwaway database rebuilt from the migrations, 24 of 24 limit and booking checks pass, and the earlier deletion (19) and security (47) checks still pass. Not tested: the limits against the real login page.
+
+**What to re-test:**
+1. Apply the migration.
+2. With a test account, type a wrong password 11 times. It should ask you to wait. The right password should also wait, until 15 minutes have passed.
+3. On another test account, type a wrong password a few times, then the right one. It should log in.
+4. Log in with Google during step 2. It should still work.
+5. Book 5 future sessions with a test account, then try a 6th. It should say you already have 5.
+
 ## 05 Nov 2026: Terms and Privacy Pages
 
 Commit `44cc299`. No migration.

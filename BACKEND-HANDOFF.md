@@ -1815,6 +1815,20 @@ Every person endpoint answers with the whole `SelfMapResponse { parts, shares }`
 
 **Not reviewed:** no lawyer has read them, and the Khmer needs a native review. Open questions for a lawyer: minimum age (13 is taken from the clinic form), whether therapists must keep records, and what Cambodian law requires. Accepting the terms at signup is not recorded anywhere yet.
 
+## 43. Login limits and the booking cap
+
+**Status:** code on branch `rith/login-limits-booking-cap`. **Migration `20261105000500_login_limits_booking_cap.sql` not yet applied.** The code allows every attempt until it is, so the order does not matter.
+
+**Decided (do not change without a reason):**
+- **Limits live in `lib/rate-limit.ts`.** Counts are in `rate_limits`, in the database, because server instances share nothing. Only hashes are stored, never an email or address.
+- **Only the server can use them** (`rate_limit_hit`, `rate_limit_clear` for `service_role`). If browsers could, anyone could lock another person out.
+- **If the check fails, the attempt is allowed.** A database problem must not stop people logging in.
+- **Address limits are high** (100 in 15 minutes), because a campus or phone network shares one address.
+- **Password limit:** 10 tries in 15 minutes per account, shared by login and signup, and cleared by a successful login. Someone can use this to delay a person's password login, but not their Google login.
+- **Bookings:** 5 upcoming sessions per person, and 10 bookings a day, checked in `book_appointment`. Sessions a professional proposes do not count, because both people agreed to them.
+
+**Known limit:** calling Supabase Auth directly skips these app limits. Supabase's own per address limits still apply there. CAPTCHA was left out by choice (5 Nov 2026).
+
 ## Template for a new feature section
 
 ```md
