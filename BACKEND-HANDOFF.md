@@ -1749,7 +1749,7 @@ Every person endpoint answers with the whole `SelfMapResponse { parts, shares }`
 
 ## 39. Account security (active account checks, admin MFA, outcome rules)
 
-**Status:** code on branch `rith/security-access-fixes`. **Migrations not yet applied.**
+**Status:** live. All four migrations were applied on 5 Nov 2026.
 
 **Decided (do not change):**
 - Removed access is enforced in the database, not only in `requireRole`, because anyone signed in can call Supabase directly with their own token.
@@ -1760,11 +1760,11 @@ Every person endpoint answers with the whole `SelfMapResponse { parts, shares }`
 - An outcome (`completed`, `no_show`) can only be saved on a `booked` session that has ended.
 - Admins need a second step (`aal2`) in the admin and professional areas: `lib/supabase/proxy.ts`, `requireRole`, and after migration 0400 `is_admin()`.
 
-**Migrations, in this order:**
+**Migrations, in the order they were applied:**
 1. `20261105000100_active_account_checks.sql`
 2. `20261105000200_remove_admin_appointment_reads.sql`
 3. `20261105000300_booking_outcome_rules.sql`
-4. `20261105000400_require_admin_mfa.sql`: only after both admins have set up an authenticator app at `/mfa`.
+4. `20261105000400_require_admin_mfa.sql`: an admin without an authenticator can still set one up at `/mfa`, but cannot do admin work until then.
 
 **If an admin loses their phone:** another admin removes the factor in the Supabase SQL Editor (`delete from auth.mfa_factors where user_id = '<their id>';`), and the person sets it up again at their next login.
 

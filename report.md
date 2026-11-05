@@ -1,8 +1,27 @@
 # AROM: Change Report
 
+## 05 Nov 2026: Suspended Message for Google Sign In
+
+Commit `PENDING`. No migration.
+
+**Why.** A suspended person who used Google to log in saw "Google sign in did not finish. Please try again", which suggests the problem is temporary. Only email and password logins explained that the account was suspended.
+
+**What changed for users:**
+- **Clear message:** a suspended account that signs in with Google now sees "This account is suspended. Please contact AROM support."
+
+**What changed for the team:**
+- **`confirmEmail` in `lib/controllers/auth-controller.ts`:** reads the reason Supabase sends back and redirects to `/login?error=suspended`.
+- **`google-sign-in.tsx`:** shows the message for `error=suspended`.
+- **Docs:** the entry below and `BACKEND-HANDOFF.md` section 39 now say the security migrations are applied.
+
+**What to re-test:**
+1. Suspend a test account, then try to log in with its Google account. The suspended message should appear on the login page.
+2. Lift the suspension and log in with Google again. It should work.
+3. Cancel a Google sign in. The "did not finish" message should still appear.
+
 ## 05 Nov 2026: Removed Staff Lose Access, Admin Second Step and Booking Record Limits
 
-Commits `013b704`, `99bcedf`, `2b29628`, `98d95c3`. **Migrations not yet applied:** `20261105000100` to `20261105000400`. Apply `0400` last, only after both admins have set up an authenticator app.
+Commits `013b704`, `99bcedf`, `2b29628`, `98d95c3`. All four migrations (`20261105000100` to `20261105000400`) were applied on 5 Nov 2026.
 
 **Why.** A security audit found that suspending or demoting someone only blocked them in the AROM API. They could still call the database directly with their own login, so a suspended therapist could read client intake notes, session notes, private messages and shared data, and a suspended admin kept admin powers. Admin logins also had no second step, could read every client's intake note with nothing logged, and a therapist could turn a cancelled booking back into a completed one to regain what the client had shared. Some accounts belong to real people, so these are urgent.
 
