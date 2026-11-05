@@ -2,7 +2,7 @@
 
 ## 05 Nov 2026: Change Password, and Password Help Without Email
 
-Commit `4d93a9a`. No migration. Reset emails stay off until AROM has its own email service (SMTP).
+Commits `4d93a9a`, `f94a4c0`, `a8415ca`. No migration. Reset emails stay off until AROM has its own email service (SMTP).
 
 **Why.** The login page said "Password reset is coming soon", and nobody could change a password. Someone whose password was stolen had no way to lock the other person out. This was finding H3 in the security audit. Supabase's built in email only reaches team members, and the team decided not to add an email service yet, so a reset email form would promise an email that never comes.
 
