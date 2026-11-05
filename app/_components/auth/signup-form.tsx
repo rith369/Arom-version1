@@ -165,14 +165,14 @@ export function SignupForm() {
             <span>
               I agree to the{" "}
               <a
-                href="#terms"
+                href="/terms" target="_blank" rel="noopener"
                 className="font-semibold text-arom underline decoration-arom-border underline-offset-4"
               >
                 Terms of Service
               </a>{" "}
               and{" "}
               <a
-                href="#privacy"
+                href="/privacy" target="_blank" rel="noopener"
                 className="font-semibold text-arom underline decoration-arom-border underline-offset-4"
               >
                 Privacy Policy
@@ -214,11 +214,11 @@ export function SignupForm() {
       <GoogleButton starting={google.starting} onClick={() => void google.start()} />
       <p className="mt-2 text-center text-xs leading-5 text-ink-muted">
         By continuing with Google, you agree to the{" "}
-        <a href="#terms" className="font-semibold text-arom underline decoration-arom-border underline-offset-4">
+        <a href="/terms" target="_blank" rel="noopener" className="font-semibold text-arom underline decoration-arom-border underline-offset-4">
           Terms of Service
         </a>{" "}
         and{" "}
-        <a href="#privacy" className="font-semibold text-arom underline decoration-arom-border underline-offset-4">
+        <a href="/privacy" target="_blank" rel="noopener" className="font-semibold text-arom underline decoration-arom-border underline-offset-4">
           Privacy Policy
         </a>
         .
