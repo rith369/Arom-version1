@@ -1,5 +1,31 @@
 # AROM: Change Report
 
+## 05 Nov 2026: Smaller Images, to Save Vercel Storage and Load Lists Faster
+
+Commit `f25fcf0`. No migration.
+
+**Why.** Vercel warned that AROM has used all of its free 10 GB of Deployment Storage. Every deployment stores its own copy of the site, including all images, and going over the limit can block new deployments. Many images were also far bigger than they appear on screen. For example, the category artwork shows at about 40px but was sent to phones at 512px and up to 364 KB each.
+
+**What changed for users:**
+- **Faster lists:** Learn and Tips lists download much smaller icons, which helps most on mobile data.
+- **Same look:** pictures keep their proportions and transparency. Compared side by side, the samples we checked look the same.
+
+**What changed for the team:**
+- **43 images, 22 MB down to 5.5 MB:** `public` went from 26 MB to 11 MB. File names and formats did not change, so no code changed.
+- **Category artwork is now 256px:** it stays in full colour, because reducing its colours left visible grain on the soft gradients. If a page ever shows it larger than about 128px, it needs a bigger source file.
+- **Other resized files:** `booking-complete.png`, the podcast artwork and two therapist photos now have smaller pixel dimensions. Lesson banners keep their 1376 by 768 size with stronger compression.
+- **Not touched:** `public/figma` and `public/traced`, plus all SVG files.
+- **Vercel storage is not fixed by this alone:** deployment count is the bigger cause (538 commits on `main` in 30 days). Old deployments still need clearing in the Vercel dashboard.
+- **Checks:** `npm run build` passes. An automated check confirmed all 43 images open with the same format and proportions, and without losing transparency. Not tested: the pages in a browser.
+
+**What to re-test:**
+1. Open MindGuide, Learn and Tips on a phone. The small category icons should look sharp.
+2. Open a lesson. The large banner should look clear.
+3. Open Podcasts and an episode. The artwork should have no white box around it.
+4. Finish a practice or a booking. The completion picture should look sharp, with a clean edge.
+5. Open a clinic page and a professional profile. The photos should look normal.
+6. Share the site link in a chat app. The preview picture should appear.
+
 ## 05 Nov 2026: Change Password, and Password Help Without Email
 
 Commits `4d93a9a`, `f94a4c0`, `a8415ca`. No migration. Reset emails stay off until AROM has its own email service (SMTP).
