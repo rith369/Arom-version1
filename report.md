@@ -1,5 +1,28 @@
 # AROM: Change Report
 
+## 05 Nov 2026: Security Upgrade of Next.js, sharp and zod
+
+Commit `873b1e5`. No migration.
+
+**Why.** A security audit found that the installed versions of Next.js (16.3.5), sharp (0.35.4) and zod (4.6.5) have publicly documented security problems, including critical Next.js advisories. AROM holds private mental health information, so known problems in the framework should not stay open, even though most of the critical advisories need features AROM does not appear to use.
+
+**What changed for users:**
+- **No visible change:** pages, login and booking are meant to work as before.
+
+**What changed for the team:**
+- **Next.js 16.4.5:** `next` and `eslint-config-next` stay pinned to an exact version.
+- **sharp 0.35.5:** comes in through the new Next.js version.
+- **zod 4.6.7, follow-redirects 1.16.2, source-map-js 1.2.2:** the other high severity fixes.
+- **`npm audit` result:** production packages now report 0 problems. 13 moderate reports remain, all in development tools (`potrace` and `eslint-config-next`) that do not ship to users.
+- **`package-lock.json` is in this commit on purpose:** the lock file is what decides the installed versions, so this fix does not work without it.
+- **Checks:** `npm run build` and `npx tsc --noEmit` pass. `npm run lint` shows the same 5 errors as `main`, none from this change.
+
+**What to re-test:**
+1. Open the Vercel preview of this pull request and confirm the home page, `/mindguide/learn` and `/professional` load with their images.
+2. Log in and log out with email, then with Google.
+3. Write a journal entry and check it appears.
+4. As a therapist, open `/pro/bookings`. As an admin, open `/admin/bookings`.
+
 ## 01 Nov 2026: 3D Category Illustration Pictures on MindGuide Tips Cards
 
 Commit `1d90061`. No migration. Frontend only.
