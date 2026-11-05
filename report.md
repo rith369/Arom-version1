@@ -2,7 +2,7 @@
 
 ## 05 Nov 2026: Docs Only Commits No Longer Create a Vercel Deployment
 
-Commit `6a69d65`. No migration. Live test on Vercel: running on the commit that added this line.
+Commit `6a69d65`. No migration. Live test on Vercel passed: docs only commit `e745302` showed "Canceled by Ignored Build Step".
 
 **Why.** AROM has used all of its free 10 GB of Vercel Deployment Storage, and every deployment stores a full copy of the site. Many deployments came from commits that only changed `report.md`, which visitors never see. Skipping them slows how fast storage fills up, so new features can keep going live.
 
