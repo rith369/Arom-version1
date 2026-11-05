@@ -12,7 +12,7 @@ type Step =
   | { kind: "loading" }
   | { kind: "setup"; factorId: string; qrCode: string; secret: string }
   | { kind: "confirm"; factorId: string }
-  | { kind: "failed" };
+  | { kind: "failed"; reason: string };
 
 /**
  * Admin second step. Without an authenticator app yet, this shows a QR code to
@@ -45,7 +45,7 @@ export function MfaForm() {
 
       const factors = await mfa.listFactors();
       if (factors.error) {
-        setStep({ kind: "failed" });
+        setStep({ kind: "failed", reason: factors.error.message });
         return;
       }
 
@@ -60,9 +60,15 @@ export function MfaForm() {
         if (factor.status === "unverified") await mfa.unenroll({ factorId: factor.id });
       }
 
-      const enrolled = await mfa.enroll({ factorType: "totp", friendlyName: `AROM admin ${Date.now()}` });
+      // The issuer is the name shown in the authenticator app. Without it, Supabase
+      // works it out from the project's Site URL and fails if that has no https://.
+      const enrolled = await mfa.enroll({
+        factorType: "totp",
+        issuer: "AROM",
+        friendlyName: `AROM admin ${Date.now()}`,
+      });
       if (enrolled.error) {
-        setStep({ kind: "failed" });
+        setStep({ kind: "failed", reason: enrolled.error.message });
         return;
       }
       setStep({
@@ -73,7 +79,7 @@ export function MfaForm() {
       });
     }
 
-    begin().catch(() => setStep({ kind: "failed" }));
+    begin().catch(() => setStep({ kind: "failed", reason: "The connection failed." }));
   }, [destination]);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
@@ -126,8 +132,8 @@ export function MfaForm() {
       {step.kind === "failed" && (
         <div className="mt-8">
           <FormAlert tone="error">
-            This could not be loaded. Refresh the page. If it keeps happening, check that authenticator apps (TOTP) are
-            turned on in Supabase under Authentication.
+            This could not be loaded: {step.reason} Refresh the page. If it keeps happening, tell the person who manages
+            AROM's Supabase project.
           </FormAlert>
         </div>
       )}
