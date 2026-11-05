@@ -1831,7 +1831,7 @@ Every person endpoint answers with the whole `SelfMapResponse { parts, shares }`
 
 ## 44. Logged out rights, and sharing that ends
 
-**Status:** code on branch `rith/anon-rights-consent-expiry`. **Migrations `20261105000600_remove_anon_rights.sql` and `20261105000700_sharing_ends_after_90_days.sql` not yet applied.**
+**Status:** live. Migrations `20261105000600_remove_anon_rights.sql` and `20261105000700_sharing_ends_after_90_days.sql` were applied on 5 Nov 2026.
 
 **Decided (do not change without Rith):**
 - **Logged out visitors (`anon`) can only read 8 tables:** announcements, clinics, crisis_resources, journal_prompts, podcasts, professional_clinics, professional_profiles and support_contact. They write nothing directly. New tables start with no rights, so **a new public table needs its own `grant select ... to anon`** next to its policy.

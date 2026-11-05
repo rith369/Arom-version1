@@ -2,7 +2,7 @@
 
 ## 05 Nov 2026: Logged Out Rights Removed, and Sharing That Ends After 90 Days
 
-Commit `8c95fb8`. **Migrations not yet applied:** `20261105000600_remove_anon_rights.sql`, `20261105000700_sharing_ends_after_90_days.sql`.
+Commit `8c95fb8`. Migrations `20261105000600_remove_anon_rights.sql` and `20261105000700_sharing_ends_after_90_days.sql` were applied on 5 Nov 2026.
 
 **Why.** Logged out visitors technically had rights on most tables, and only row rules stopped them. One wrong policy could have exposed private data. Separately, what a client shared with a therapist stayed visible forever unless they remembered to turn it off. These were findings M9 and M2 in the security audit.
 
@@ -16,7 +16,7 @@ Commit `8c95fb8`. **Migrations not yet applied:** `20261105000600_remove_anon_ri
 - **`anon` can read only 8 tables and write none.** A new public table needs its own grant. See `BACKEND-HANDOFF.md` section 44.
 - **`sharing_cutoff()`:** the one place the 90 days is set.
 - **Language:** the new Khmer text needs review.
-- **Checks:** `npm run build` and `npx tsc --noEmit` pass, and `npm run lint` has the same 5 errors as `main`. On a throwaway database rebuilt from the migrations, 33 of 33 sharing and logged out checks pass, and the earlier security (47), limit (24) and deletion (19) checks still pass. Not tested: public pages against the live database after the migrations, which is checked straight after applying them.
+- **Checks:** `npm run build` and `npx tsc --noEmit` pass, and `npm run lint` has the same 5 errors as `main`. On a throwaway database rebuilt from the migrations, 33 of 33 sharing and logged out checks pass, and the earlier security (47), limit (24) and deletion (19) checks still pass. After applying them, public pages and public data matched the earlier responses exactly, and logged out reads of private tables and writes were refused.
 
 **What to re-test:**
 1. Apply both migrations, in order.
