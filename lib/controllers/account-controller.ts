@@ -1,6 +1,7 @@
 import type { SupabaseClient, User } from "@supabase/supabase-js";
 import { NextResponse, type NextRequest } from "next/server";
 import { deleteAccountSchema } from "@/lib/auth";
+import { LIMITS, clearRateLimit, overLimit } from "@/lib/rate-limit";
 import { createPrivateStorageClient } from "@/lib/supabase/private-storage";
 import { createClient } from "@/lib/supabase/server";
 import { passwordIsRight } from "./auth-controller";
@@ -353,11 +354,17 @@ export async function deleteAccount(request: NextRequest) {
 
   // A left open browser is not enough: prove it is really them.
   if (parsed.data.password) {
+    const limited = await overLimit([
+      { name: "password-check", value: user.id, limit: LIMITS.passwordCheckPerUser },
+    ]);
+    if (limited) return fail("rate_limited", "Too many attempts. Please wait 15 minutes and try again.", 429);
+
     const check = user.email ? await passwordIsRight(user.email, parsed.data.password) : "wrong";
     if (check === "rate_limited") {
       return fail("rate_limited", "Too many attempts. Please wait a moment and try again.", 429);
     }
     if (check === "wrong") return fail("invalid_credentials", "That password is not right.", 400);
+    await clearRateLimit("password-check", user.id);
   } else if (!(await loggedInRecently(supabase))) {
     return fail("reauth_required", "For your safety, please log out, log in again, and then try within 15 minutes.", 403);
   }
