@@ -2,7 +2,7 @@
 
 ## 05 Nov 2026: Password Reset and Change Password
 
-Commit `PENDING`. No migration. Needs the Reset Password email template changed in Supabase.
+Commit `4d93a9a`. No migration. Needs the Reset Password email template changed in Supabase.
 
 **Why.** The login page said "Password reset is coming soon", and nobody could change a password. Someone who forgot it was locked out, and someone whose password was stolen had no way to lock the other person out. This was finding H3 in the security audit.
 
