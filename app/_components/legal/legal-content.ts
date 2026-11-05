@@ -102,10 +102,6 @@ export const PRIVACY_SECTIONS: LegalSection[] = [
         km: "អ្នកគ្រប់គ្រង AROM៖ ឈ្មោះ អ៊ីមែល ចំនួនសកម្មភាព និងព័ត៌មានកក់ដែលមានកំណត់ ដោយគ្មានកំណត់ចំណាំរបស់អ្នក។ ពួកគេមិនឃើញកំណត់ហេតុ អារម្មណ៍ ឬលទ្ធផលតេស្តរបស់អ្នកក្នុងកម្មវិធីទេ។",
         en: "AROM admins: your name, email, activity counts and limited booking details, without your notes. They do not see your journal, moods or screening results in the app.",
       },
-      {
-        km: "អ្នកថែទាំប្រព័ន្ធ៖ សមាជិកក្រុម AROM មួយចំនួនដែលគ្រប់គ្រងមូលដ្ឋានទិន្នន័យ មានលទ្ធភាពបច្ចេកទេសចូលមើលទិន្នន័យដែលបានរក្សាទុក។ យើងប្រើវាសម្រាប់តែការដំណើរការ និងការការពារសេវាកម្មប៉ុណ្ណោះ។",
-        en: "People who run the system: the few AROM team members who manage the database have technical access to stored data. We use this only to run and protect the service.",
-      },
     ],
   },
   {
@@ -123,16 +119,12 @@ export const PRIVACY_SECTIONS: LegalSection[] = [
       },
       { km: "Vercel៖ ដំណើរការគេហទំព័រ AROM។", en: "Vercel: hosts the AROM website." },
       {
-        km: "Google Sign In៖ ប្រសិនបើអ្នកជ្រើសរើសចូលជាមួយ Google។",
-        en: "Google Sign In: if you choose to log in with Google.",
+        km: "Google៖ សម្រាប់ការចូលជាមួយ Google ប្រសិនបើអ្នកជ្រើសរើសវា។ ប្រសិនបើអ្នកបើកសេចក្តីសង្ខេបកំណត់ហេតុ កំណត់ហេតុ ៧ ថ្ងៃចុងក្រោយរបស់អ្នកនឹងត្រូវផ្ញើទៅ Google Gemini។",
+        en: "Google: for Google Sign In, if you choose it. If you turn on journal summaries, your entries from the last 7 days are sent to Google Gemini.",
       },
       {
-        km: "Google Gemini៖ មានតែនៅពេលអ្នកបើកសេចក្តីសង្ខេបកំណត់ហេតុប៉ុណ្ណោះ។ កំណត់ហេតុ ៧ ថ្ងៃចុងក្រោយរបស់អ្នកនឹងត្រូវផ្ញើទៅ Google ដើម្បីសរសេរសេចក្តីសង្ខេប។ ឈ្មោះ និងអ៊ីមែលរបស់អ្នកមិនត្រូវបានផ្ញើទេ ប៉ុន្តែអ្វីដែលអ្នកសរសេរនឹងត្រូវផ្ញើ។ លក្ខខណ្ឌផ្ទាល់ខ្លួនរបស់ Google គ្រប់គ្រងរបៀបដែលវាដោះស្រាយទិន្នន័យនេះ។ អ្នកអាចបិទវាបានគ្រប់ពេល។",
-        en: "Google Gemini: only if you turn on journal summaries. Your journal entries from the last 7 days are sent to Google to write the summary. Your name and email are not sent, but what you wrote is. Google's own terms govern how it handles this data. You can turn this off at any time.",
-      },
-      {
-        km: "មុខងារនិយាយជាអក្សររបស់កម្មវិធីរុករក៖ នៅពេលអ្នកនិយាយកំណត់ហេតុ កម្មវិធីរុករករបស់អ្នកបម្លែងសំឡេងទៅជាអក្សរ។ កម្មវិធីរុករកខ្លះ ដូចជា Chrome អាចផ្ញើសំឡេងទៅក្រុមហ៊ុនរបស់វា។ AROM មិនរក្សាទុកសំឡេងនោះទេ មានតែអក្សរដែលអ្នករក្សាទុកប៉ុណ្ណោះ។",
-        en: "Your browser's speech feature: when you speak a journal entry, your browser turns it into text. Some browsers, such as Chrome, may send the audio to their company. AROM does not store that audio, only the text you save.",
+        km: "កម្មវិធីរុករករបស់អ្នក៖ នៅពេលអ្នកនិយាយកំណត់ហេតុ កម្មវិធីរុករកបម្លែងសំឡេងទៅជាអក្សរ ហើយអាចផ្ញើសំឡេងទៅក្រុមហ៊ុនរបស់វា។",
+        en: "Your browser: when you speak a journal entry, your browser turns it into text and may send the audio to its company.",
       },
       {
         km: "OpenStreetMap៖ ផែនទីគ្លីនិក។ ឧបករណ៍របស់អ្នកទាញយកផែនទីពីពួកគេដោយផ្ទាល់។",
