@@ -79,8 +79,8 @@ export const PRIVACY_SECTIONS: LegalSection[] = [
     title: { km: "៣. អ្នកណាអាចមើលឃើញអ្វីខ្លះ", en: "3. Who can see what" },
     items: [
       {
-        km: "អ្នកជំនាញដែលអ្នកកក់៖ ការកក់របស់អ្នក កំណត់ចំណាំ និងចម្លើយមុនវគ្គ សារជាមួយគាត់ និងអ្វីដែលអ្នកជ្រើសរើសចែករំលែក ដូចជាការស្ទង់មតិ ពិន្ទុតេស្ត និន្នាការអារម្មណ៍ និងផែនទីខ្លួនឯង។ គាត់មិនឃើញកំណត់ហេតុរបស់អ្នកទេ។ ប្រសិនបើអ្នកលាក់អត្តសញ្ញាណ គាត់នឹងឃើញឈ្មោះហៅក្រៅ ឬ Anonymous ជំនួសឈ្មោះរបស់អ្នក។",
-        en: "A professional you book: your booking, your note and answers before the session, your messages with them, and what you choose to share, such as your survey, screening scores, mood trend and self map. They do not see your journal. If you hide your identity, they see your nickname or Anonymous instead of your name.",
+        km: "អ្នកជំនាញដែលអ្នកកក់៖ ការកក់របស់អ្នក កំណត់ចំណាំ និងចម្លើយមុនវគ្គ សារជាមួយគាត់ និងអ្វីដែលអ្នកជ្រើសរើសចែករំលែក ដូចជាការស្ទង់មតិ ពិន្ទុតេស្ត និន្នាការអារម្មណ៍ និងផែនទីខ្លួនឯង។ អ្វីដែលអ្នកចែករំលែកនឹងឈប់បង្ហាញ ៩០ ថ្ងៃបន្ទាប់ពីវគ្គចុងក្រោយជាមួយគាត់ លុះត្រាតែអ្នកកក់ម្តងទៀត ហើយចែករំលែកវា។ គាត់មិនឃើញកំណត់ហេតុរបស់អ្នកទេ។ ប្រសិនបើអ្នកលាក់អត្តសញ្ញាណ គាត់នឹងឃើញឈ្មោះហៅក្រៅ ឬ Anonymous ជំនួសឈ្មោះរបស់អ្នក។",
+        en: "A professional you book: your booking, your note and answers before the session, your messages with them, and what you choose to share, such as your survey, screening scores, mood trend and self map. What you share stops showing 90 days after your last session with them, unless you book again and share it. They do not see your journal. If you hide your identity, they see your nickname or Anonymous instead of your name.",
       },
       {
         km: "អ្នកជំនាញក៏សរសេរកំណត់ត្រារបស់ខ្លួនអំពីវគ្គផងដែរ។ អ្នកមិនឃើញកំណត់ត្រាទាំងនេះទេ ហើយអ្នកគ្រប់គ្រងក៏មិនឃើញតាមកម្មវិធីដែរ។",

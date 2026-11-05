@@ -1,5 +1,30 @@
 # AROM: Change Report
 
+## 05 Nov 2026: Logged Out Rights Removed, and Sharing That Ends After 90 Days
+
+Commit `PENDING`. **Migrations not yet applied:** `20261105000600_remove_anon_rights.sql`, `20261105000700_sharing_ends_after_90_days.sql`.
+
+**Why.** Logged out visitors technically had rights on most tables, and only row rules stopped them. One wrong policy could have exposed private data. Separately, what a client shared with a therapist stayed visible forever unless they remembered to turn it off. These were findings M9 and M2 in the security audit.
+
+**What changed for users:**
+- **Clients:** what they share stops showing 90 days after their last session with that professional. A new booking starts it again if sharing is on. The sharing screen says so.
+- **Therapists:** the client file explains this, and older shared information no longer shows.
+- **Logged out visitors:** public pages work as before.
+- **Privacy Policy:** now explains the 90 days.
+
+**What changed for the team:**
+- **`anon` can read only 8 tables and write none.** A new public table needs its own grant. See `BACKEND-HANDOFF.md` section 44.
+- **`sharing_cutoff()`:** the one place the 90 days is set.
+- **Language:** the new Khmer text needs review.
+- **Checks:** `npm run build` and `npx tsc --noEmit` pass, and `npm run lint` has the same 5 errors as `main`. On a throwaway database rebuilt from the migrations, 33 of 33 sharing and logged out checks pass, and the earlier security (47), limit (24) and deletion (19) checks still pass. Not tested: public pages against the live database after the migrations, which is checked straight after applying them.
+
+**What to re-test:**
+1. Apply both migrations, in order.
+2. While logged out, open the home page, `/professional`, a therapist profile, `/clinic-hospital`, `/mindguide`, `/podcasts`, `/login` and `/signup`.
+3. As a client, open the sharing choices on an appointment and read the new sentence.
+4. As a therapist, open a client file with shared information from the last 90 days. It should still show.
+5. Log in and check the journal, bookings and messages as usual.
+
 ## 05 Nov 2026: Login Limits and a Booking Cap
 
 Commit `7911783`. Migration `20261105000500_login_limits_booking_cap.sql` was applied on 5 Nov 2026.
