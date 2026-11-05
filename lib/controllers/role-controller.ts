@@ -43,6 +43,18 @@ export async function requireRole(...allowed: UserRole[]): Promise<Guard> {
     };
   }
 
+  // Staff areas need an admin's second step. Endpoints open to every signed in
+  // person also allow "user", and an admin's own account works on them as usual.
+  if (profile.role === "admin" && !allowed.includes("user")) {
+    const { data } = await supabase.auth.getClaims();
+    if (data?.claims?.aal !== "aal2") {
+      return {
+        ok: false,
+        response: fail("forbidden", "Please confirm the code from your authenticator app first.", 403),
+      };
+    }
+  }
+
   return { ok: true, supabase, userId: user.id, role: profile.role };
 }
 

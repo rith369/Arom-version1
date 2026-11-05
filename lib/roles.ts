@@ -64,4 +64,5 @@ export interface ApplicationSummary {
 export const ROLE_ROUTES: { prefix: string; roles: readonly UserRole[] }[] = [
   { prefix: "/admin", roles: ["admin"] },
   { prefix: "/pro", roles: ["professional", "admin"] },
+  { prefix: "/mfa", roles: ["admin"] },
 ];

@@ -83,6 +83,21 @@ export async function updateSession(request: NextRequest) {
     return withCookies(NextResponse.redirect(url), response);
   }
 
+  // Admins confirm a second step before the admin and professional areas.
+  if (
+    signedIn &&
+    roleRoute &&
+    roleFromClaims(data?.claims) === "admin" &&
+    data?.claims?.aal !== "aal2" &&
+    !startsWithSegment(pathname, "/mfa")
+  ) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/mfa";
+    url.search = "";
+    url.searchParams.set("next", `${pathname}${search}`);
+    return withCookies(NextResponse.redirect(url), response);
+  }
+
   if (signedIn && GUEST_ONLY.includes(pathname)) {
     const url = request.nextUrl.clone();
     url.pathname = "/";
