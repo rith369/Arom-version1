@@ -133,7 +133,7 @@ export function MfaForm() {
         <div className="mt-8">
           <FormAlert tone="error">
             This could not be loaded: {step.reason} Refresh the page. If it keeps happening, tell the person who manages
-            AROM's Supabase project.
+            the AROM Supabase project.
           </FormAlert>
         </div>
       )}
