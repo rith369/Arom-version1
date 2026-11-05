@@ -1,5 +1,35 @@
 # AROM: Change Report
 
+## 05 Nov 2026: Removed Staff Lose Access, Admin Second Step and Booking Record Limits
+
+Commits `013b704`, `99bcedf`, `2b29628`, `98d95c3`. **Migrations not yet applied:** `20261105000100` to `20261105000400`. Apply `0400` last, only after both admins have set up an authenticator app.
+
+**Why.** A security audit found that suspending or demoting someone only blocked them in the AROM API. They could still call the database directly with their own login, so a suspended therapist could read client intake notes, session notes, private messages and shared data, and a suspended admin kept admin powers. Admin logins also had no second step, could read every client's intake note with nothing logged, and a therapist could turn a cancelled booking back into a completed one to regain what the client had shared. Some accounts belong to real people, so these are urgent.
+
+**What changed for users:**
+- **Clients:** nothing changes on screen. Their private intake notes are no longer readable by an admin login, and a cancelled booking stays cancelled.
+- **Suspended people:** they are logged out and see "This account is suspended" at login. They cannot post in groups.
+- **Removed therapists:** they lose access to client records straight away.
+- **Admins:** a new `/mfa` page sets up an authenticator app the first time, then asks for its code before the admin and professional areas.
+
+**What changed for the team:**
+- **`is_active_staff()` and `is_active_account()`:** new database checks used by `is_admin()`, therapist functions and session note policies. See `BACKEND-HANDOFF.md` section 39.
+- **`setAccountStatus`:** also bans or unbans the login with the Auth Admin API, which needs `SUPABASE_SECRET_KEY` on the server.
+- **`Admins read all appointments` is removed:** the admin Bookings page keeps using `admin_list_bookings()`.
+- **`update_pro_booking_safe`:** an outcome now needs a booked session that has ended. The Bookings screen only ever offered it in that case.
+- **`requireRole`, `lib/supabase/proxy.ts`:** the admin and professional areas need `aal2` for admins.
+- **One group is affected:** the group named "admin" has a mentor whose role is now `user`, so that person stops being able to act as its mentor. Choose a new mentor in admin Community if the group is still needed.
+- **Checks:** all 93 migrations plus these 4 were rebuilt in a throwaway database (202 of 203 functions and all function permissions match live). 47 attacks and normal use checks with fake users all pass. On the current schema, 15 of the first 41 fail. `npm run build` and `npx tsc --noEmit` pass, and `npm run lint` has the same 5 errors as `main`.
+- **Not tested:** the `/mfa` page in a browser, a real authenticator app, and a real login ban, because those need real accounts.
+
+**What to re-test:**
+1. On the Vercel preview, log in as an admin and set up the authenticator app at `/mfa`. Log out, log back in and enter a code.
+2. Open every admin page, including Bookings and Users. Check that Bookings still looks the same.
+3. As a therapist, open bookings, a client file, messages and a session note. Save a note and record an outcome.
+4. As a client, open appointments, messages and the journal.
+5. Suspend a test account. Check it is logged out, sees the suspended message at login, and works again after you lift the suspension.
+6. After migration `0400`, check that the admin area still opens after a code.
+
 ## 05 Nov 2026: Security Upgrade of Next.js, sharp and zod
 
 Commit `873b1e5`. No migration.

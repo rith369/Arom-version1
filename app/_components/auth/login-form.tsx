@@ -24,6 +24,7 @@ const loginErrors: Partial<Record<AuthErrorCode, string>> = {
   invalid_credentials: "That email and password do not match an AROM account.",
   email_not_confirmed: "Please confirm your email first. Check your inbox for the link.",
   rate_limited: "Too many attempts. Please wait a moment and try again.",
+  forbidden: "This account is suspended. Please contact AROM support.",
 };
 
 
