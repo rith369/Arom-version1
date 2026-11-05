@@ -2,7 +2,7 @@
 
 ## 05 Nov 2026: Suspended Message for Google Sign In
 
-Commit `PENDING`. No migration.
+Commit `f989fa7`. No migration.
 
 **Why.** A suspended person who used Google to log in saw "Google sign in did not finish. Please try again", which suggests the problem is temporary. Only email and password logins explained that the account was suspended.
 
