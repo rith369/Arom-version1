@@ -61,7 +61,7 @@ export function ForgotPasswordForm() {
             If {sentTo} has an AROM account, a link is on its way. It can take a few minutes, so check your spam folder too.
           </FormAlert>
           <p className="text-sm leading-6 text-ink-muted">
-            The link works once. If you usually log in with Google, you can keep doing that without a password.
+            Open the link in this same browser, because it works only once. If you usually log in with Google, you can keep doing that without a password.
           </p>
         </div>
       ) : (
@@ -78,7 +78,7 @@ export function ForgotPasswordForm() {
             error={errors.email?.message}
           />
           {searchParams.get("expired") === "1" && !errors.root && (
-            <FormAlert tone="error">That link has expired or was already used. Please ask for a new one.</FormAlert>
+            <FormAlert tone="error">That link has expired, was already used, or was opened in a different browser. Please ask for a new one and open it here.</FormAlert>
           )}
           {errors.root?.message && <FormAlert tone="error">{errors.root.message}</FormAlert>}
           <button

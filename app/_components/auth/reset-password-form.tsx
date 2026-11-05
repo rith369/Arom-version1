@@ -16,13 +16,15 @@ import { AuthInput, FormAlert } from "./auth-input";
 import { PasswordStrengthMeter } from "./password-strength";
 
 /**
- * Chooses a new password from the emailed link. The one time token is only
- * used when this form is sent, so email scanners that open links cannot use it up.
+ * Chooses a new password from the emailed link. A one time token in the link
+ * is only used when this form is sent. With Supabase's default email the link
+ * opens a short recovery session instead (`via=link`), which the server checks.
  */
 export function ResetPasswordForm() {
   const searchParams = useSearchParams();
   // Kept here because the address is cleaned below.
   const [tokenHash] = useState(() => searchParams.get("token_hash"));
+  const [fromLink] = useState(() => searchParams.get("via") === "link");
 
   const {
     register,
@@ -47,7 +49,7 @@ export function ResetPasswordForm() {
       const response = await fetch("/api/auth/reset-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...values, tokenHash }),
+        body: JSON.stringify({ ...values, tokenHash: tokenHash ?? undefined }),
       });
       if (!response.ok) {
         const body = (await response.json().catch(() => null)) as AuthErrorBody | null;
@@ -77,7 +79,7 @@ export function ResetPasswordForm() {
         </h2>
       </header>
 
-      {tokenHash ? (
+      {tokenHash || fromLink ? (
         <form onSubmit={onSubmit} noValidate className="mt-7 space-y-0.5">
           <AuthInput
             {...register("password")}

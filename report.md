@@ -2,7 +2,7 @@
 
 ## 05 Nov 2026: Password Reset and Change Password
 
-Commit `4d93a9a`. No migration. Needs the Reset Password email template changed in Supabase.
+Commit `4d93a9a`. No migration. Works with Supabase's default email, which is limited, so real users need a custom email service (SMTP).
 
 **Why.** The login page said "Password reset is coming soon", and nobody could change a password. Someone who forgot it was locked out, and someone whose password was stolen had no way to lock the other person out. This was finding H3 in the security audit.
 
@@ -19,8 +19,8 @@ Commit `4d93a9a`. No migration. Needs the Reset Password email template changed 
 - **Checks:** `npm run build` and `npx tsc --noEmit` pass, and `npm run lint` has the same 5 errors as `main`. Not tested without real email: the full reset from a real inbox.
 
 **What to re-test:**
-1. Change the Reset Password email template as in `BACKEND-HANDOFF.md` section 40.
-2. On the login page, click Forgot password?, enter a test account's email, and open the link from the email.
+1. Nothing to change in Supabase for this test.
+2. On the login page, click Forgot password?, enter a test account's email, and open the link from the email in the same browser.
 3. Choose a new password. You should be logged in, and the old password should no longer work.
 4. Open the same link again. It should say the link expired or was used.
 5. In Profile, change the password with a wrong current password, then the right one.

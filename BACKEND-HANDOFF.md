@@ -1772,16 +1772,17 @@ Every person endpoint answers with the whole `SelfMapResponse { parts, shares }`
 
 ## 40. Password reset and change
 
-**Status:** live code, no migration. Needs one Supabase setting: the Reset Password email template.
+**Status:** no migration. Works with Supabase's default email. Real users need a custom email service (SMTP), see below.
 
 **Decided (do not change):**
-- The reset email links to `/auth/confirm?flow=recovery&token_hash=...`, which only forwards to `/reset-password`. The token is used when the new password is submitted, so email scanners opening the link cannot use it up.
+- **Default email:** the link goes through Supabase to `/auth/confirm?flow=recovery&code=...`. The code only works in the browser that asked for the email, and it opens a recovery session. `resetPassword` accepts no token only if that session's `amr` has `recovery` and is under 30 minutes old, so a normal session still needs the current password.
+- **Custom email template (needs SMTP):** the link can carry `token_hash`, which is used only when the new password is submitted. That works on any device, and email scanners opening the link cannot use it up. The code already supports this.
 - `/api/auth/forgot-password` answers the same for every email, so nobody can test which have accounts.
 - Saving a new password signs out the person's other sessions.
 - An account with an authenticator confirms a code before it can change the password. The reset page sends it to `/mfa`, then `/profile`.
 - Change password checks the current password on a separate client, so the person's own session is untouched.
 
-**Reset Password email template (Supabase, Authentication, Emails):** the link must be `{{ .RedirectTo }}&token_hash={{ .TokenHash }}`.
+**Once SMTP is set up, change the Reset Password email template (Supabase, Authentication, Emails):** the link should be `{{ .RedirectTo }}&token_hash={{ .TokenHash }}`.
 
 **Never log** passwords or reset tokens.
 

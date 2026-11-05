@@ -216,12 +216,17 @@ export async function confirmEmail(request: NextRequest) {
     return redirect("/login?error=suspended");
   }
 
-  // A password reset email. The token is not used here: email scanners open
-  // links, and that would use it up before the person sees the page.
+  // A password reset email. With a custom email template the link carries a
+  // token, which is not used yet: email scanners open links, and that would use
+  // it up before the person sees the page. With Supabase's default email it
+  // carries a code, which only works in the browser that asked for the email.
   if (searchParams.get("flow") === "recovery") {
-    return redirect(
-      tokenHash ? `/reset-password?token_hash=${encodeURIComponent(tokenHash)}` : "/forgot-password?expired=1",
-    );
+    if (tokenHash) return redirect(`/reset-password?token_hash=${encodeURIComponent(tokenHash)}`);
+    if (code) {
+      const { error } = await supabase.auth.exchangeCodeForSession(code);
+      if (!error) return redirect("/reset-password?via=link");
+    }
+    return redirect("/forgot-password?expired=1");
   }
 
   // Linking a UP Google account from /profile/up-student (`link=up`,
@@ -316,31 +321,61 @@ async function saveNewPassword(supabase: SupabaseClient, password: string) {
   }
 }
 
-/** POST /api/auth/reset-password  body `{ tokenHash, password, confirmPassword }`. Signs them in. */
+const RESET_LINK_EXPIRED =
+  "This link has expired, was already used, or was opened in a different browser. Please ask for a new one.";
+/** How long after opening the reset email a new password can be saved without the old one. */
+const RECOVERY_SESSION_SECONDS = 30 * 60;
+
+/**
+ * True only for a session opened from a reset email a short time ago, so a
+ * normal signed in session can never reach this without the current password.
+ */
+async function isFreshRecoverySession(supabase: SupabaseClient) {
+  const { data } = await supabase.auth.getClaims();
+  const entries: unknown = data?.claims?.amr;
+  if (!Array.isArray(entries)) return false;
+  const now = Math.floor(Date.now() / 1000);
+  return entries.some((entry: unknown) => {
+    if (typeof entry !== "object" || entry === null) return false;
+    const { method, timestamp } = entry as { method?: unknown; timestamp?: unknown };
+    return method === "recovery" && typeof timestamp === "number" && now - timestamp < RECOVERY_SESSION_SECONDS;
+  });
+}
+
+/** POST /api/auth/reset-password  body `{ tokenHash?, password, confirmPassword }`. Signs them in. */
 export async function resetPassword(request: NextRequest) {
   const parsed = resetPasswordSchema.safeParse(await readJson(request));
   if (!parsed.success) return invalidInput();
 
   const supabase = await createClient();
-  const { data, error } = await supabase.auth.verifyOtp({
-    token_hash: parsed.data.tokenHash,
-    type: "recovery",
-  });
 
-  if (error || !data.user) {
-    if (error && isRateLimited(error)) {
-      return fail("rate_limited", "Too many attempts. Please wait a moment and try again.", 429);
+  if (parsed.data.tokenHash) {
+    const { data, error } = await supabase.auth.verifyOtp({
+      token_hash: parsed.data.tokenHash,
+      type: "recovery",
+    });
+    if (error || !data.user) {
+      if (error && isRateLimited(error)) {
+        return fail("rate_limited", "Too many attempts. Please wait a moment and try again.", 429);
+      }
+      if (error?.code === "user_banned") {
+        return fail("forbidden", "This account is suspended. Please contact AROM support.", 403);
+      }
+      return fail("invalid_input", RESET_LINK_EXPIRED, 400);
     }
-    if (error?.code === "user_banned") {
-      return fail("forbidden", "This account is suspended. Please contact AROM support.", 403);
-    }
-    return fail("invalid_input", "This link has expired or was already used. Please ask for a new one.", 400);
+  } else if (!(await isFreshRecoverySession(supabase))) {
+    return fail("invalid_input", RESET_LINK_EXPIRED, 400);
   }
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return fail("invalid_input", RESET_LINK_EXPIRED, 400);
 
   const failed = await saveNewPassword(supabase, parsed.data.password);
   if (failed) return failed;
 
-  return json<LoginResponse>({ user: await toAuthUser(supabase, data.user) });
+  return json<LoginResponse>({ user: await toAuthUser(supabase, user) });
 }
 
 /** POST /api/auth/password  body `{ currentPassword, password, confirmPassword }`. */

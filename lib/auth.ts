@@ -77,10 +77,14 @@ export const newPasswordSchema = z
     message: 'Passwords do not match',
   });
 
-/** What the reset page sends: the new password and the one time token from the email. */
+/**
+ * What the reset page sends: the new password, and the one time token when
+ * the email carried one. Without a token, the server checks that this session
+ * was just opened from a reset email (see resetPassword).
+ */
 export const resetPasswordSchema = z
   .object({
-    tokenHash: z.string().min(1).max(500),
+    tokenHash: z.string().min(1).max(500).optional(),
     password: newPasswordField,
     confirmPassword: z.string().min(1),
   })
