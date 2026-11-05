@@ -2,7 +2,7 @@
 
 ## 05 Nov 2026: Terms and Privacy Pages
 
-Commit `PENDING`. No migration.
+Commit `44cc299`. No migration.
 
 **Why.** The signup form asked people to agree to Terms and a Privacy Policy, but both links went nowhere. This was finding H6 in the security audit. People should know what happens to their mental health information before they share it.
 
