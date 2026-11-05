@@ -2,7 +2,7 @@
 
 ## 05 Nov 2026: Download My Data and Delete My Account
 
-Commit `PENDING`. No migration.
+Commit `db7a335`. No migration.
 
 **Why.** People could not download or remove their own mental health records. This was finding H6 in the security audit. Deleting an account also left voice messages, photos and PDFs behind in storage.
 
