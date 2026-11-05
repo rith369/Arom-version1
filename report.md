@@ -2,7 +2,7 @@
 
 ## 05 Nov 2026: Logged Out Rights Removed, and Sharing That Ends After 90 Days
 
-Commit `PENDING`. **Migrations not yet applied:** `20261105000600_remove_anon_rights.sql`, `20261105000700_sharing_ends_after_90_days.sql`.
+Commit `8c95fb8`. **Migrations not yet applied:** `20261105000600_remove_anon_rights.sql`, `20261105000700_sharing_ends_after_90_days.sql`.
 
 **Why.** Logged out visitors technically had rights on most tables, and only row rules stopped them. One wrong policy could have exposed private data. Separately, what a client shared with a therapist stayed visible forever unless they remembered to turn it off. These were findings M9 and M2 in the security audit.
 
