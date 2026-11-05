@@ -2,7 +2,7 @@
 
 ## 05 Nov 2026: Security Upgrade of Next.js, sharp and zod
 
-Commit `PENDING`. No migration.
+Commit `873b1e5`. No migration.
 
 **Why.** A security audit found that the installed versions of Next.js (16.3.5), sharp (0.35.4) and zod (4.6.5) have publicly documented security problems, including critical Next.js advisories. AROM holds private mental health information, so known problems in the framework should not stay open, even though most of the critical advisories need features AROM does not appear to use.
 
