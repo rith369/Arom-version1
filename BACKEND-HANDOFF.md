@@ -1770,6 +1770,21 @@ Every person endpoint answers with the whole `SelfMapResponse { parts, shares }`
 
 **Never log** authenticator secrets or codes.
 
+## 40. Password reset and change
+
+**Status:** live code, no migration. Needs one Supabase setting: the Reset Password email template.
+
+**Decided (do not change):**
+- The reset email links to `/auth/confirm?flow=recovery&token_hash=...`, which only forwards to `/reset-password`. The token is used when the new password is submitted, so email scanners opening the link cannot use it up.
+- `/api/auth/forgot-password` answers the same for every email, so nobody can test which have accounts.
+- Saving a new password signs out the person's other sessions.
+- An account with an authenticator confirms a code before it can change the password. The reset page sends it to `/mfa`, then `/profile`.
+- Change password checks the current password on a separate client, so the person's own session is untouched.
+
+**Reset Password email template (Supabase, Authentication, Emails):** the link must be `{{ .RedirectTo }}&token_hash={{ .TokenHash }}`.
+
+**Never log** passwords or reset tokens.
+
 ## Template for a new feature section
 
 ```md

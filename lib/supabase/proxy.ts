@@ -17,7 +17,7 @@ const PROTECTED_PREFIXES = [
 const PROTECTED_PATTERNS = [/^\/professional\/[^/]+\/book(\/|$)/];
 
 /** Auth pages a signed in user should skip. */
-const GUEST_ONLY = ["/login", "/signup"];
+const GUEST_ONLY = ["/login", "/signup", "/forgot-password"];
 
 const startsWithSegment = (pathname: string, prefix: string) =>
   pathname === prefix || pathname.startsWith(`${prefix}/`);

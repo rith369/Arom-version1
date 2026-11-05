@@ -1,5 +1,32 @@
 # AROM: Change Report
 
+## 05 Nov 2026: Password Reset and Change Password
+
+Commit `PENDING`. No migration. Needs the Reset Password email template changed in Supabase.
+
+**Why.** The login page said "Password reset is coming soon", and nobody could change a password. Someone who forgot it was locked out, and someone whose password was stolen had no way to lock the other person out. This was finding H3 in the security audit.
+
+**What changed for users:**
+- **Forgot password:** the login page now links to `/forgot-password`, which emails a link to choose a new password.
+- **Change password:** Profile has a new Password section. It asks for the current password first.
+- **Other devices are logged out:** after a reset or a change, anyone still using the old password is signed out.
+- **Google accounts:** Profile explains there is no AROM password to change.
+
+**What changed for the team:**
+- **New pages and API:** `/forgot-password`, `/reset-password`, `/api/auth/forgot-password`, `/api/auth/reset-password`, `/api/auth/password`. See `BACKEND-HANDOFF.md` section 40.
+- **`lib/auth.ts`:** one shared password rule for sign up, reset and change. `AuthUser` gains `hasPassword`.
+- **Language:** `/forgot-password` and `/reset-password` are English, like the login and signup pages. Profile is bilingual, and its new Khmer text needs review.
+- **Checks:** `npm run build` and `npx tsc --noEmit` pass, and `npm run lint` has the same 5 errors as `main`. Not tested without real email: the full reset from a real inbox.
+
+**What to re-test:**
+1. Change the Reset Password email template as in `BACKEND-HANDOFF.md` section 40.
+2. On the login page, click Forgot password?, enter a test account's email, and open the link from the email.
+3. Choose a new password. You should be logged in, and the old password should no longer work.
+4. Open the same link again. It should say the link expired or was used.
+5. In Profile, change the password with a wrong current password, then the right one.
+6. Stay logged in on a second browser during step 5. It should be logged out soon after.
+7. With a Google only account, Profile should explain there is no password to change.
+
 ## 05 Nov 2026: Suspended Message for Google Sign In
 
 Commit `f989fa7`. No migration.

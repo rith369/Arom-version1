@@ -5,7 +5,6 @@ import { CheckCircle2, LockKeyhole, Mail } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useState } from "react";
 import { GoogleButton, useGoogleSignIn } from "./google-sign-in";
 import { useForm } from "react-hook-form";
 import {
@@ -32,7 +31,6 @@ export function LoginForm() {
   const { refresh } = useAuth();
   const searchParams = useSearchParams();
   const shouldReduceMotion = useReducedMotion();
-  const [notice, setNotice] = useState<string | null>(null);
   const google = useGoogleSignIn();
 
   const {
@@ -47,7 +45,6 @@ export function LoginForm() {
   });
 
   const onSubmit = handleSubmit(async (values) => {
-    setNotice(null);
     let role: UserRole = "user";
 
     try {
@@ -128,17 +125,16 @@ export function LoginForm() {
         />
 
         <div className="-mt-1 flex items-center justify-end gap-4 pb-4">
-          <button
-            type="button"
-            onClick={() => setNotice("Password reset is coming soon.")}
+          <Link
+            href="/forgot-password"
             className="rounded-md text-sm font-semibold text-arom transition-colors duration-150 hover:text-arom-deep focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-arom"
           >
             Forgot password?
-          </button>
+          </Link>
         </div>
 
         {errors.root?.message && <FormAlert tone="error">{errors.root.message}</FormAlert>}
-        {searchParams.get("confirmed") === "1" && !notice && !errors.root && !isSubmitSuccessful && (
+        {searchParams.get("confirmed") === "1" && !errors.root && !isSubmitSuccessful && (
           <FormAlert tone="success">
             <span className="flex items-center gap-2">
               <CheckCircle2 aria-hidden="true" size={18} /> Your email is confirmed. Log in to continue.
@@ -146,7 +142,6 @@ export function LoginForm() {
           </FormAlert>
         )}
         {google.error && <FormAlert tone="error">{google.error}</FormAlert>}
-        {notice && <FormAlert tone="success">{notice}</FormAlert>}
         {isSubmitSuccessful && !errors.root && (
           <FormAlert tone="success">
             <span className="flex items-center gap-2">
@@ -175,10 +170,7 @@ export function LoginForm() {
       <div>
         <GoogleButton
           starting={google.starting}
-          onClick={() => {
-            setNotice(null);
-            void google.start();
-          }}
+          onClick={() => void google.start()}
         />
       </div>
 
