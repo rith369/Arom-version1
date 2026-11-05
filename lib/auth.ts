@@ -22,6 +22,16 @@ export const PASSWORD_RULES = [
 // Supabase Auth hashes at most 72 characters; longer would be cut silently.
 export const MAX_PASSWORD_LENGTH = 72;
 
+/** A new password has to pass every rule. Used by sign up, reset and change. */
+const newPasswordField = z
+  .string()
+  .max(MAX_PASSWORD_LENGTH, `Use ${MAX_PASSWORD_LENGTH} characters or fewer`)
+  .superRefine((value, context) => {
+    for (const rule of PASSWORD_RULES) {
+      if (!rule.test(value)) context.addIssue({ code: 'custom', message: rule.label });
+    }
+  });
+
 export const signupSchema = z
   .object({
     fullName: z
@@ -34,14 +44,7 @@ export const signupSchema = z
       .trim()
       .min(1, 'Email is required')
       .email('Enter a valid email address'),
-    password: z
-      .string()
-      .max(MAX_PASSWORD_LENGTH, `Use ${MAX_PASSWORD_LENGTH} characters or fewer`)
-      .superRefine((value, context) => {
-        for (const rule of PASSWORD_RULES) {
-          if (!rule.test(value)) context.addIssue({ code: 'custom', message: rule.label });
-        }
-      }),
+    password: newPasswordField,
     confirmPassword: z.string().min(1, 'Confirm your password'),
 
     terms: z.boolean().refine((value) => value, {
@@ -62,6 +65,56 @@ export const resendSchema = z.object({
     .min(1, 'Email is required')
     .email('Enter a valid email address'),
 });
+
+/**
+ * Reset emails stay off until AROM has its own email service (SMTP), because
+ * Supabase's built in email only reaches the team. Set this environment
+ * variable to "on" in Vercel and redeploy to switch them on.
+ */
+export const PASSWORD_RESET_EMAIL_ON = process.env.NEXT_PUBLIC_PASSWORD_RESET_EMAIL === 'on';
+
+/** The new password form on the page the reset email opens. */
+export const newPasswordSchema = z
+  .object({
+    password: newPasswordField,
+    confirmPassword: z.string().min(1, 'Confirm your password'),
+  })
+  .refine((values) => values.password === values.confirmPassword, {
+    path: ['confirmPassword'],
+    message: 'Passwords do not match',
+  });
+
+/**
+ * What the reset page sends: the new password, and the one time token when
+ * the email carried one. Without a token, the server checks that this session
+ * was just opened from a reset email (see resetPassword).
+ */
+export const resetPasswordSchema = z
+  .object({
+    tokenHash: z.string().min(1).max(500).optional(),
+    password: newPasswordField,
+    confirmPassword: z.string().min(1),
+  })
+  .refine((values) => values.password === values.confirmPassword, {
+    path: ['confirmPassword'],
+    message: 'Passwords do not match',
+  });
+
+/** Change password in Profile, for someone who is signed in. */
+export const changePasswordSchema = z
+  .object({
+    currentPassword: z.string().min(1, 'Enter your current password').max(MAX_PASSWORD_LENGTH),
+    password: newPasswordField,
+    confirmPassword: z.string().min(1, 'Confirm your new password'),
+  })
+  .refine((values) => values.password === values.confirmPassword, {
+    path: ['confirmPassword'],
+    message: 'Passwords do not match',
+  })
+  .refine((values) => values.password !== values.currentPassword, {
+    path: ['password'],
+    message: 'Your new password must be different from your current one',
+  });
 
 export const profileUpdateSchema = z
   .object({
@@ -116,6 +169,7 @@ export const PENDING_CONFIRMATION_KEY = 'arom:pending-confirmation';
 export type LoginValues = z.infer<typeof loginSchema>;
 export type SignupValues = z.infer<typeof signupSchema>;
 export type ResendValues = z.infer<typeof resendSchema>;
+export type NewPasswordValues = z.infer<typeof newPasswordSchema>;
 export type ProfileUpdateValues = z.infer<typeof profileUpdateSchema>;
 
 /** Mirrors the `user_role` enum in Supabase. */
@@ -141,6 +195,8 @@ export interface AuthUser {
   upStudent?: boolean;
   /** The UP address that proved it, shown only to its owner. */
   upEmail?: string | null;
+  /** False for an account that only logs in with Google. */
+  hasPassword?: boolean;
   createdAt: string;
 }
 
@@ -152,6 +208,7 @@ export type AuthErrorCode =
   | 'rate_limited'
   | 'unauthorized'
   | 'forbidden'
+  | 'mfa_required'
   | 'server_error';
 
 export interface AuthErrorBody {

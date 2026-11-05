@@ -1770,6 +1770,24 @@ Every person endpoint answers with the whole `SelfMapResponse { parts, shares }`
 
 **Never log** authenticator secrets or codes.
 
+## 40. Password reset and change
+
+**Status:** no migration. Change password is on. Reset emails are **off** until AROM has its own email service (SMTP), because Supabase's built in email only reaches team members, 2 emails an hour. `/forgot-password` explains the other ways back in instead.
+
+**To switch reset emails on:** connect SMTP in Supabase, set `NEXT_PUBLIC_PASSWORD_RESET_EMAIL=on` in Vercel, redeploy, and change the email template as below.
+
+**Decided (do not change):**
+- **Default email:** the link goes through Supabase to `/auth/confirm?flow=recovery&code=...`. The code only works in the browser that asked for the email, and it opens a recovery session. `resetPassword` accepts no token only if that session's `amr` has `recovery` and is under 30 minutes old, so a normal session still needs the current password.
+- **Custom email template (needs SMTP):** the link can carry `token_hash`, which is used only when the new password is submitted. That works on any device, and email scanners opening the link cannot use it up. The code already supports this.
+- `/api/auth/forgot-password` answers the same for every email, so nobody can test which have accounts.
+- Saving a new password signs out the person's other sessions.
+- An account with an authenticator confirms a code before it can change the password. The reset page sends it to `/mfa`, then `/profile`.
+- Change password checks the current password on a separate client, so the person's own session is untouched.
+
+**Once SMTP is set up, change the Reset Password email template (Supabase, Authentication, Emails):** the link should be `{{ .RedirectTo }}&token_hash={{ .TokenHash }}`.
+
+**Never log** passwords or reset tokens.
+
 ## Template for a new feature section
 
 ```md

@@ -1,8 +1,11 @@
 import { NextResponse, type NextRequest } from "next/server";
-import type { SupabaseClient } from "@supabase/supabase-js";
+import { createClient as createPlainClient, type SupabaseClient } from "@supabase/supabase-js";
 import {
+  PASSWORD_RESET_EMAIL_ON,
+  changePasswordSchema,
   loginSchema,
   resendSchema,
+  resetPasswordSchema,
   safeNextPath,
   signupSchema,
   verifyCodeSchema,
@@ -10,6 +13,7 @@ import {
   type RegisterResponse,
   type SessionResponse,
 } from "@/lib/auth";
+import { supabaseAnonKey, supabaseUrl } from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/server";
 import {
   NO_STORE,
@@ -19,6 +23,7 @@ import {
   json,
   readJson,
   toAuthUser,
+  unauthorized,
 } from "./shared";
 
 /*
@@ -212,6 +217,19 @@ export async function confirmEmail(request: NextRequest) {
     return redirect("/login?error=suspended");
   }
 
+  // A password reset email. With a custom email template the link carries a
+  // token, which is not used yet: email scanners open links, and that would use
+  // it up before the person sees the page. With Supabase's default email it
+  // carries a code, which only works in the browser that asked for the email.
+  if (searchParams.get("flow") === "recovery") {
+    if (tokenHash) return redirect(`/reset-password?token_hash=${encodeURIComponent(tokenHash)}`);
+    if (code) {
+      const { error } = await supabase.auth.exchangeCodeForSession(code);
+      if (!error) return redirect("/reset-password?via=link");
+    }
+    return redirect("/forgot-password?expired=1");
+  }
+
   // Linking a UP Google account from /profile/up-student (`link=up`,
   // BACKEND-HANDOFF.md section 33). That page says whether it worked.
   if (searchParams.get("link") === "up") {
@@ -260,6 +278,142 @@ export async function confirmEmail(request: NextRequest) {
   }
 
   return redirect("/signup/confirm?status=expired");
+}
+
+/** POST /api/auth/forgot-password. Always answers the same way, so emails cannot be probed. */
+export async function forgotPassword(request: NextRequest) {
+  if (!PASSWORD_RESET_EMAIL_ON) {
+    return fail("forbidden", "Password reset emails are not available yet.", 403);
+  }
+
+  const parsed = resendSchema.safeParse(await readJson(request));
+  if (!parsed.success) return invalidInput();
+
+  const supabase = await createClient();
+  const { error } = await supabase.auth.resetPasswordForEmail(parsed.data.email, {
+    redirectTo: `${request.nextUrl.origin}/auth/confirm?flow=recovery`,
+  });
+
+  if (error && isRateLimited(error)) {
+    return fail("rate_limited", "Please wait a moment before asking for another email.", 429);
+  }
+  return json({ ok: true });
+}
+
+/** Saves the new password and ends the person's other sessions. Null when it worked. */
+async function saveNewPassword(supabase: SupabaseClient, password: string) {
+  const { error } = await supabase.auth.updateUser({ password });
+
+  if (!error) {
+    // Anyone who was using an old password is logged out.
+    await supabase.auth.signOut({ scope: "others" });
+    return null;
+  }
+  if (isRateLimited(error)) {
+    return fail("rate_limited", "Too many attempts. Please wait a moment and try again.", 429);
+  }
+  switch (error.code) {
+    case "weak_password":
+      return fail("invalid_input", "Please choose a stronger password. This one is too weak or has appeared in a data leak.", 400);
+    case "same_password":
+      return fail("invalid_input", "That is already your password. Please choose a different one.", 400);
+    case "insufficient_aal":
+      return fail("mfa_required", "Please enter the code from your authenticator app first.", 403);
+    case "reauthentication_needed":
+      return fail("forbidden", "Please log out, log in again, and then try once more.", 403);
+    default:
+      return fail("server_error", "Your password could not be saved. Please try again.", 500);
+  }
+}
+
+const RESET_LINK_EXPIRED =
+  "This link has expired, was already used, or was opened in a different browser. Please ask for a new one.";
+/** How long after opening the reset email a new password can be saved without the old one. */
+const RECOVERY_SESSION_SECONDS = 30 * 60;
+
+/**
+ * True only for a session opened from a reset email a short time ago, so a
+ * normal signed in session can never reach this without the current password.
+ */
+async function isFreshRecoverySession(supabase: SupabaseClient) {
+  const { data } = await supabase.auth.getClaims();
+  const entries: unknown = data?.claims?.amr;
+  if (!Array.isArray(entries)) return false;
+  const now = Math.floor(Date.now() / 1000);
+  return entries.some((entry: unknown) => {
+    if (typeof entry !== "object" || entry === null) return false;
+    const { method, timestamp } = entry as { method?: unknown; timestamp?: unknown };
+    return method === "recovery" && typeof timestamp === "number" && now - timestamp < RECOVERY_SESSION_SECONDS;
+  });
+}
+
+/** POST /api/auth/reset-password  body `{ tokenHash?, password, confirmPassword }`. Signs them in. */
+export async function resetPassword(request: NextRequest) {
+  const parsed = resetPasswordSchema.safeParse(await readJson(request));
+  if (!parsed.success) return invalidInput();
+
+  const supabase = await createClient();
+
+  if (parsed.data.tokenHash) {
+    const { data, error } = await supabase.auth.verifyOtp({
+      token_hash: parsed.data.tokenHash,
+      type: "recovery",
+    });
+    if (error || !data.user) {
+      if (error && isRateLimited(error)) {
+        return fail("rate_limited", "Too many attempts. Please wait a moment and try again.", 429);
+      }
+      if (error?.code === "user_banned") {
+        return fail("forbidden", "This account is suspended. Please contact AROM support.", 403);
+      }
+      return fail("invalid_input", RESET_LINK_EXPIRED, 400);
+    }
+  } else if (!(await isFreshRecoverySession(supabase))) {
+    return fail("invalid_input", RESET_LINK_EXPIRED, 400);
+  }
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return fail("invalid_input", RESET_LINK_EXPIRED, 400);
+
+  const failed = await saveNewPassword(supabase, parsed.data.password);
+  if (failed) return failed;
+
+  return json<LoginResponse>({ user: await toAuthUser(supabase, user) });
+}
+
+/** POST /api/auth/password  body `{ currentPassword, password, confirmPassword }`. */
+export async function changePassword(request: NextRequest) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user?.email) return unauthorized();
+
+  const parsed = changePasswordSchema.safeParse(await readJson(request));
+  if (!parsed.success) return invalidInput();
+
+  // Checked on a separate client, so the person's own session stays as it is.
+  const checker = createPlainClient(supabaseUrl, supabaseAnonKey, {
+    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
+  });
+  const { error: checkError } = await checker.auth.signInWithPassword({
+    email: user.email,
+    password: parsed.data.currentPassword,
+  });
+  if (checkError) {
+    if (isRateLimited(checkError)) {
+      return fail("rate_limited", "Too many attempts. Please wait a moment and try again.", 429);
+    }
+    return fail("invalid_credentials", "Your current password is not right.", 400);
+  }
+  await checker.auth.signOut({ scope: "local" });
+
+  const failed = await saveNewPassword(supabase, parsed.data.password);
+  if (failed) return failed;
+
+  return json({ ok: true });
 }
 
 /**

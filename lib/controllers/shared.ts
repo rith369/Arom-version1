@@ -100,6 +100,7 @@ export function buildAuthUser(
     nickname: profile?.nickname ?? '',
     upStudent: upEmail !== null,
     upEmail,
+    hasPassword: user.identities?.some((identity) => identity.provider === 'email') ?? false,
     createdAt: profile?.created_at ?? user.created_at,
   };
 }
