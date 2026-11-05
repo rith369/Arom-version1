@@ -699,7 +699,7 @@ Later (backend, optional): one `GET /api/pro/attention` returning these counts w
 - **API:** client side `GET /api/messages`, `GET|POST /api/messages/:professionalSlug`, `POST .../read`; professional side `GET|PATCH /api/pro/messages` (`PATCH { replyTime }`), `GET|POST /api/pro/messages/:clientId`, `POST .../read`; `POST /api/pro/clients/:clientId { archived }`. `POST` takes JSON `{ kind: "text", text }` or multipart `audio` + `durationSeconds`. `GET /api/pro/me` returns `archivedClients`.
 - **Frontend:** `message-store.ts` loads from the API, polls every 10 seconds while a chat is open and every 30 seconds for lists (only while the tab is visible). Hooks `useConversations(side)` and `useThread(conversation, side)`. `DEMO_CLIENT` is no longer used by Messages. The user "Next session" strip reads `GET /api/appointments`.
 - **Suggestions and quick replies:** connected in section 19 (`messages.kind = 'suggestion'`, `messages.suggestion_id`, `quick_replies`).
-- **Open:** Realtime instead of polling; report or block; what happens to messages and voice files when an account is deleted (rows cascade, files stay in the bucket).
+- **Open:** Realtime instead of polling; report or block; (account deletion now removes messages and their files, see section 41).
 - **Tested** on a local Postgres with stubbed `auth` and `storage`: cancelled only booking cannot write, both sides write after booking, client cannot pose as the professional side, direct inserts refused, read receipts, outsiders and admins see 0 messages and 0 files, voice folder and duplicate rules, archive closes and reopens for both, suspended professional and suspended client refused, anon refused.
 
 ## 18. Care plan (tasks between sessions)
@@ -1787,6 +1787,23 @@ Every person endpoint answers with the whole `SelfMapResponse { parts, shares }`
 **Once SMTP is set up, change the Reset Password email template (Supabase, Authentication, Emails):** the link should be `{{ .RedirectTo }}&token_hash={{ .TokenHash }}`.
 
 **Never log** passwords or reset tokens.
+
+## 41. Download my data and delete my account
+
+**Status:** live, no migration. In Profile, under Your data.
+
+**Decided (do not change without Rith):**
+- **Deleting an account deletes everything,** including the therapist's session, prep and summary notes about that client (option A, decided 5 Nov 2026). Therapists see a notice beside their notes. Check with a lawyer whether therapists must keep records. If they must, this needs to change, and notes already deleted cannot be recovered.
+- **Only role `user` can delete their own account.** Deleting a professional would cascade to their clients' appointments and notes, and `support_groups.mentor_id` blocks deleting a mentor. Former professionals and mentors are also refused. These go through the AROM team.
+- **Upcoming sessions must be cancelled first,** so no therapist is left waiting.
+- **Proof it is them:** typing `DELETE`, plus the password, or a login in the last 15 minutes.
+- **Files are removed first.** Deleting a user removes rows but not files. If removing files fails, nothing else is deleted, so the person can try again.
+- **The export never includes therapist notes,** and voice, photo and PDF files are listed by name only. Chats include the newest 300 messages of each. Always filter export queries by the person's id, because an admin's RLS can read more than their own rows.
+- **The audit log keeps** `account_deleted_by_owner` with the old user id, no name or email.
+
+**What stays after deletion:** copies Google may hold of journal text sent for summaries, reports they sent (without their name), and the audit log line.
+
+**Never log** exported or deleted content, only error codes.
 
 ## Template for a new feature section
 

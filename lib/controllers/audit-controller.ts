@@ -34,6 +34,8 @@ function describe(row: AuditRow): { action: string; module: AuditModule; detail:
       return text(d.to) === "suspended"
         ? { action: "Suspended account", module: "users", detail: text(d.reason) }
         : { action: "Restored account", module: "users", detail: "" };
+    case "account_deleted_by_owner":
+      return { action: "Person deleted their own account", module: "users", detail: "" };
     case "reinstate_note":
       return { action: "Note on restoring account", module: "users", detail: text(d.note) };
     case "promote_professional":

@@ -296,6 +296,12 @@ export function SessionNotePage({ bookingId }: { bookingId: string }) {
         <Lock size={12} aria-hidden="true" />
         {t('មានតែអ្នកទេដែលមើលឃើញ។ អ្នកគ្រប់គ្រង និងអតិថិជនមិនអាចមើលបានទេ។ រក្សាទុកដោយស្វ័យប្រវត្តិ។', 'Only you can see this. Not admins, not the client. Saved as you write.')}
       </p>
+      <p className="mt-1 text-xs leading-5 text-ink-muted">
+        {t(
+          'កំណត់ត្រានេះនឹងត្រូវលុប ប្រសិនបើអតិថិជនលុបគណនីរបស់ពួកគេ។ សូមរក្សាទុកអ្វីដែលអ្នកត្រូវតែរក្សាទុកនៅកន្លែងផ្សេង។',
+          'This note is deleted if the client deletes their account. Keep anything you are required to keep somewhere else.',
+        )}
+      </p>
 
       <div className="mt-4 flex-1">
         <SessionNoteFields note={note} km={km} page />

@@ -1,5 +1,32 @@
 # AROM: Change Report
 
+## 05 Nov 2026: Download My Data and Delete My Account
+
+Commit `db7a335`. No migration.
+
+**Why.** People could not download or remove their own mental health records. This was finding H6 in the security audit. Deleting an account also left voice messages, photos and PDFs behind in storage.
+
+**What changed for users:**
+- **Download my data:** Profile now has a Your data section. It gives a file with their journal, moods, screening results, bookings, messages and more.
+- **Delete my account:** it deletes everything for good, after typing DELETE and giving their password, or having just logged in.
+- **Upcoming sessions:** they are asked to cancel these first.
+- **Therapists, mentors and admins:** they are told to contact AROM, because their removal affects other people.
+- **Therapists:** a notice beside session notes says the notes are removed if the client deletes their account.
+
+**What changed for the team:**
+- **`lib/controllers/account-controller.ts`:** export runs as the signed in person, delete uses the secret key after checking who is asking. See `BACKEND-HANDOFF.md` section 41.
+- **Decision to check with a lawyer:** whether therapists must keep records. Deleting a client deletes their notes.
+- **Language:** the new Khmer text needs review.
+- **Checks:** `npm run build` and `npx tsc --noEmit` pass, and `npm run lint` has the same 5 errors as `main`. On a throwaway database rebuilt from the migrations, 19 of 19 deletion checks pass: nothing points at the deleted person and other people's data stays. Not tested: a real export, and a real deletion with real files.
+
+**What to re-test:**
+1. With a test account, click Download my data and open the file. Check it holds that account's journal and bookings, and nothing about anyone else.
+2. As an admin, download the file. It should hold only the admin's own data.
+3. Book a future session with a test account, then try to delete it. It should ask you to cancel first.
+4. As a therapist, check that Delete says to contact AROM, and that the notice shows beside session notes.
+5. Delete a test account with a wrong password, then the right one. You should land on the login page with a message, and the account should no longer log in.
+6. Check the Audit log shows "Person deleted their own account", and that the therapist's other clients still show.
+
 ## 05 Nov 2026: Docs Only Commits No Longer Create a Vercel Deployment
 
 Commit `6a69d65`. No migration. Live test on Vercel passed: docs only commit `e745302` showed "Canceled by Ignored Build Step".

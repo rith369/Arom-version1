@@ -40,6 +40,7 @@ import { ProfileSummary } from './profile-summary';
 import { useClinicDesks } from './clinic-desk/use-clinic-desks';
 import { NicknameSetting } from './nickname-setting';
 import { ChangePassword } from './change-password';
+import { AccountData } from './account-data';
 
 const easeOut = [0.23, 1, 0.32, 1] as const;
 
@@ -475,6 +476,17 @@ export function ProfileSettings() {
               {km ? 'ពាក្យសម្ងាត់ (Password)' : 'Password'}
             </h2>
             <ChangePassword km={km} />
+          </motion.section>
+
+          {/* YOUR DATA */}
+          <motion.section
+            variants={itemVariants}
+            aria-label="Your data"
+            className="mt-6 rounded-3xl border border-arom-border bg-white p-5 shadow-card sm:p-6">
+            <h2 className="text-base font-bold text-ink sm:text-lg">
+              {km ? 'ទិន្នន័យរបស់អ្នក (Your data)' : 'Your data'}
+            </h2>
+            <AccountData km={km} />
           </motion.section>
 
           {/* QUICK LINKS & APP NAVIGATION */}

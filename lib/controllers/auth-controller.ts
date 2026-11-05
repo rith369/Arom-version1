@@ -383,6 +383,17 @@ export async function resetPassword(request: NextRequest) {
   return json<LoginResponse>({ user: await toAuthUser(supabase, user) });
 }
 
+/** Checks a password on a separate client, so the person's own session stays as it is. */
+export async function passwordIsRight(email: string, password: string): Promise<"ok" | "wrong" | "rate_limited"> {
+  const checker = createPlainClient(supabaseUrl, supabaseAnonKey, {
+    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
+  });
+  const { error } = await checker.auth.signInWithPassword({ email, password });
+  if (error) return isRateLimited(error) ? "rate_limited" : "wrong";
+  await checker.auth.signOut({ scope: "local" });
+  return "ok";
+}
+
 /** POST /api/auth/password  body `{ currentPassword, password, confirmPassword }`. */
 export async function changePassword(request: NextRequest) {
   const supabase = await createClient();
@@ -394,21 +405,11 @@ export async function changePassword(request: NextRequest) {
   const parsed = changePasswordSchema.safeParse(await readJson(request));
   if (!parsed.success) return invalidInput();
 
-  // Checked on a separate client, so the person's own session stays as it is.
-  const checker = createPlainClient(supabaseUrl, supabaseAnonKey, {
-    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
-  });
-  const { error: checkError } = await checker.auth.signInWithPassword({
-    email: user.email,
-    password: parsed.data.currentPassword,
-  });
-  if (checkError) {
-    if (isRateLimited(checkError)) {
-      return fail("rate_limited", "Too many attempts. Please wait a moment and try again.", 429);
-    }
-    return fail("invalid_credentials", "Your current password is not right.", 400);
+  const check = await passwordIsRight(user.email, parsed.data.currentPassword);
+  if (check === "rate_limited") {
+    return fail("rate_limited", "Too many attempts. Please wait a moment and try again.", 429);
   }
-  await checker.auth.signOut({ scope: "local" });
+  if (check === "wrong") return fail("invalid_credentials", "Your current password is not right.", 400);
 
   const failed = await saveNewPassword(supabase, parsed.data.password);
   if (failed) return failed;
