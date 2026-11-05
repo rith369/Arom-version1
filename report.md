@@ -27,6 +27,29 @@ Commit `db7a335`. No migration.
 5. Delete a test account with a wrong password, then the right one. You should land on the login page with a message, and the account should no longer log in.
 6. Check the Audit log shows "Person deleted their own account", and that the therapist's other clients still show.
 
+## 05 Nov 2026: Docs Only Commits No Longer Create a Vercel Deployment
+
+Commit `6a69d65`. No migration. Live test on Vercel passed: docs only commit `e745302` showed "Canceled by Ignored Build Step".
+
+**Why.** AROM has used all of its free 10 GB of Vercel Deployment Storage, and every deployment stores a full copy of the site. Many deployments came from commits that only changed `report.md`, which visitors never see. Skipping them slows how fast storage fills up, so new features can keep going live.
+
+**What changed for users:**
+- **Nothing visible:** the live site works the same, and real changes still go live as before.
+
+**What changed for the team:**
+- **Skipped deployments:** when every file changed since the last successful deployment on a branch is a `.md` file, Vercel cancels the build. This applies to production and to branch previews.
+- **Any doubt builds:** a branch's first deployment, a commit missing from Vercel's clone, a manual Redeploy, or any non Markdown change all build normally.
+- **No more worry about commit order:** docs and code pushed together still deploy, even if the docs commit is last.
+- **If the app ever reads a `.md` file:** update `scripts/vercel-ignore-build.sh`, because the skip assumes the app reads none today.
+- **New files:** `vercel.json` and `scripts/vercel-ignore-build.sh`.
+- **Checks:** 9 test cases pass locally, on real AROM commits and in a throwaway repo.
+
+**What to re-test:**
+1. Push a commit that only changes `report.md`. On the Vercel Deployments page it should show as canceled, and the live site should not change.
+2. Push a commit that changes any app file. It should build and go live as normal.
+3. Push app changes and a report commit together. It should build.
+4. Press Redeploy on a deployment in Vercel. It should build.
+
 ## 05 Nov 2026: Smaller Images, to Save Vercel Storage and Load Lists Faster
 
 Commit `f25fcf0`. No migration.
