@@ -16,7 +16,11 @@ export function useGoogleSignIn() {
   const searchParams = useSearchParams();
   const [starting, setStarting] = useState(false);
   const [error, setError] = useState<string | null>(
-    searchParams.get("error") === "google" ? "Google sign in did not finish. Please try again." : null,
+    searchParams.get("error") === "suspended"
+      ? "This account is suspended. Please contact AROM support."
+      : searchParams.get("error") === "google"
+        ? "Google sign in did not finish. Please try again."
+        : null,
   );
 
   async function start() {

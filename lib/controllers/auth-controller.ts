@@ -203,6 +203,15 @@ export async function confirmEmail(request: NextRequest) {
   const redirect = (target: string) =>
     NextResponse.redirect(new URL(target, request.url), { headers: NO_STORE });
 
+  // A suspended account's login is banned, so Supabase refuses Google sign in
+  // and sends the reason back here. Say so, instead of "please try again".
+  if (
+    searchParams.get("error_code") === "user_banned" ||
+    /banned/i.test(searchParams.get("error_description") ?? "")
+  ) {
+    return redirect("/login?error=suspended");
+  }
+
   // Linking a UP Google account from /profile/up-student (`link=up`,
   // BACKEND-HANDOFF.md section 33). That page says whether it worked.
   if (searchParams.get("link") === "up") {
