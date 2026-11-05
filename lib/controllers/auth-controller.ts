@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient as createPlainClient, type SupabaseClient } from "@supabase/supabase-js";
 import {
+  PASSWORD_RESET_EMAIL_ON,
   changePasswordSchema,
   loginSchema,
   resendSchema,
@@ -281,6 +282,10 @@ export async function confirmEmail(request: NextRequest) {
 
 /** POST /api/auth/forgot-password. Always answers the same way, so emails cannot be probed. */
 export async function forgotPassword(request: NextRequest) {
+  if (!PASSWORD_RESET_EMAIL_ON) {
+    return fail("forbidden", "Password reset emails are not available yet.", 403);
+  }
+
   const parsed = resendSchema.safeParse(await readJson(request));
   if (!parsed.success) return invalidInput();
 

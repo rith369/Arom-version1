@@ -1,31 +1,31 @@
 # AROM: Change Report
 
-## 05 Nov 2026: Password Reset and Change Password
+## 05 Nov 2026: Change Password, and Password Help Without Email
 
-Commit `4d93a9a`. No migration. Works with Supabase's default email, which is limited, so real users need a custom email service (SMTP).
+Commit `4d93a9a`. No migration. Reset emails stay off until AROM has its own email service (SMTP).
 
-**Why.** The login page said "Password reset is coming soon", and nobody could change a password. Someone who forgot it was locked out, and someone whose password was stolen had no way to lock the other person out. This was finding H3 in the security audit.
+**Why.** The login page said "Password reset is coming soon", and nobody could change a password. Someone whose password was stolen had no way to lock the other person out. This was finding H3 in the security audit. Supabase's built in email only reaches team members, and the team decided not to add an email service yet, so a reset email form would promise an email that never comes.
 
 **What changed for users:**
-- **Forgot password:** the login page now links to `/forgot-password`, which emails a link to choose a new password.
+- **Forgot password:** the login page now links to `/forgot-password`, which explains the ways back in: Google for Gmail addresses, otherwise AROM support. No email is sent.
 - **Change password:** Profile has a new Password section. It asks for the current password first.
-- **Other devices are logged out:** after a reset or a change, anyone still using the old password is signed out.
+- **Other devices are logged out:** after a change, anyone still using the old password is signed out.
 - **Google accounts:** Profile explains there is no AROM password to change.
 
 **What changed for the team:**
 - **New pages and API:** `/forgot-password`, `/reset-password`, `/api/auth/forgot-password`, `/api/auth/reset-password`, `/api/auth/password`. See `BACKEND-HANDOFF.md` section 40.
+- **Reset emails are built but off:** `NEXT_PUBLIC_PASSWORD_RESET_EMAIL=on` switches them on once an email service exists. They have not been tested from a real inbox.
+- **Support contact is empty:** add an email or phone in Admin, Settings, so the help page has something to show.
 - **`lib/auth.ts`:** one shared password rule for sign up, reset and change. `AuthUser` gains `hasPassword`.
 - **Language:** `/forgot-password` and `/reset-password` are English, like the login and signup pages. Profile is bilingual, and its new Khmer text needs review.
-- **Checks:** `npm run build` and `npx tsc --noEmit` pass, and `npm run lint` has the same 5 errors as `main`. Not tested without real email: the full reset from a real inbox.
+- **Checks:** `npm run build` and `npx tsc --noEmit` pass, and `npm run lint` has the same 5 errors as `main`. Not tested: a real password change.
 
 **What to re-test:**
-1. Nothing to change in Supabase for this test.
-2. On the login page, click Forgot password?, enter a test account's email, and open the link from the email in the same browser.
-3. Choose a new password. You should be logged in, and the old password should no longer work.
-4. Open the same link again. It should say the link expired or was used.
-5. In Profile, change the password with a wrong current password, then the right one.
-6. Stay logged in on a second browser during step 5. It should be logged out soon after.
-7. With a Google only account, Profile should explain there is no password to change.
+1. On the login page, click Forgot password?. The page should explain Google and AROM support, with no email form.
+2. In Profile, change the password of an email and password test account with a wrong current password, then the right one.
+3. Log out, and check that the old password fails and the new one works.
+4. Stay logged in on a second browser during step 2. It should be logged out soon after.
+5. With a Google only account, Profile should explain there is no password to change.
 
 ## 05 Nov 2026: Suspended Message for Google Sign In
 

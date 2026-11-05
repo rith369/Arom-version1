@@ -66,6 +66,13 @@ export const resendSchema = z.object({
     .email('Enter a valid email address'),
 });
 
+/**
+ * Reset emails stay off until AROM has its own email service (SMTP), because
+ * Supabase's built in email only reaches the team. Set this environment
+ * variable to "on" in Vercel and redeploy to switch them on.
+ */
+export const PASSWORD_RESET_EMAIL_ON = process.env.NEXT_PUBLIC_PASSWORD_RESET_EMAIL === 'on';
+
 /** The new password form on the page the reset email opens. */
 export const newPasswordSchema = z
   .object({

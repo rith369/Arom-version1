@@ -1772,7 +1772,9 @@ Every person endpoint answers with the whole `SelfMapResponse { parts, shares }`
 
 ## 40. Password reset and change
 
-**Status:** no migration. Works with Supabase's default email. Real users need a custom email service (SMTP), see below.
+**Status:** no migration. Change password is on. Reset emails are **off** until AROM has its own email service (SMTP), because Supabase's built in email only reaches team members, 2 emails an hour. `/forgot-password` explains the other ways back in instead.
+
+**To switch reset emails on:** connect SMTP in Supabase, set `NEXT_PUBLIC_PASSWORD_RESET_EMAIL=on` in Vercel, redeploy, and change the email template as below.
 
 **Decided (do not change):**
 - **Default email:** the link goes through Supabase to `/auth/confirm?flow=recovery&code=...`. The code only works in the browser that asked for the email, and it opens a recovery session. `resetPassword` accepts no token only if that session's `amr` has `recovery` and is under 30 minutes old, so a normal session still needs the current password.
