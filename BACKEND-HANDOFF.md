@@ -1790,7 +1790,7 @@ Every person endpoint answers with the whole `SelfMapResponse { parts, shares }`
 
 ## 41. Download my data and delete my account
 
-**Status:** code on branch `rith/account-delete-export`, no migration. In Profile, under Your data.
+**Status:** live, no migration. In Profile, under Your data.
 
 **Decided (do not change without Rith):**
 - **Deleting an account deletes everything,** including the therapist's session, prep and summary notes about that client (option A, decided 5 Nov 2026). Therapists see a notice beside their notes. Check with a lawyer whether therapists must keep records. If they must, this needs to change, and notes already deleted cannot be recovered.
