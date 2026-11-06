@@ -1,8 +1,9 @@
 #!/bin/bash
 # Vercel Ignored Build Step. Exit 0 skips the build, exit 1 builds.
 # Skips only when every file changed since the last successful deployment on
-# this branch is a Markdown file, because each deployment uses Vercel storage.
-# The app does not read any .md file at build time or at runtime.
+# this branch is a Markdown file, a security test (tests/security/) or a GitHub
+# workflow (.github/), because each deployment uses Vercel storage. The app does
+# not read any of these at build time or at runtime.
 # Anything uncertain builds, so a real change can never be skipped by accident.
 
 previous="$VERCEL_GIT_PREVIOUS_SHA"
@@ -31,10 +32,10 @@ if [ -z "$changed" ]; then
   exit 1
 fi
 
-if echo "$changed" | grep -qvE '\.md$'; then
+if echo "$changed" | grep -qvE '(\.md$|^tests/security/|^\.github/)'; then
   echo "App files changed. Building."
   exit 1
 fi
 
-echo "Only Markdown files changed. Skipping this deployment."
+echo "Only docs, security tests or workflows changed. Skipping this deployment."
 exit 0
