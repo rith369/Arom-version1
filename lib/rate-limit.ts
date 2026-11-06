@@ -37,8 +37,13 @@ export function clientAddress(request: NextRequest) {
   return request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || request.headers.get("x-real-ip") || "";
 }
 
+/**
+ * The rule name stays readable, so a lock can be counted by kind on the Admin
+ * dashboard (section 47). The person or address is only ever a hash.
+ */
 function hashKey(secret: string, name: string, value: string) {
-  return createHash("sha256").update(`${secret}|${name}|${value.trim().toLowerCase()}`).digest("hex");
+  const hash = createHash("sha256").update(`${secret}|${name}|${value.trim().toLowerCase()}`).digest("hex");
+  return `${name}:${hash.slice(0, 40)}`;
 }
 
 function limiter() {

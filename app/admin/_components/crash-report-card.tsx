@@ -75,7 +75,7 @@ export function CrashReportCard() {
   }
 
   return (
-    <section className="rounded-2xl border border-arom-line bg-white shadow-panel">
+    <section id="crash-reports" className="scroll-mt-6 rounded-2xl border border-arom-line bg-white shadow-panel">
       <header className="flex flex-wrap items-start justify-between gap-3 border-b border-arom-line px-5 py-4">
         <div className="relative">
           <h2 className="flex items-center gap-1.5 text-base font-semibold text-ink">

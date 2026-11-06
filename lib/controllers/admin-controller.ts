@@ -9,6 +9,7 @@ import {
   type OpenFlag,
   type OverviewRange,
   type PendingApplication,
+  type SecurityWarnings,
 } from "@/lib/admin-overview";
 import type { AdminBooking } from "@/app/admin/_data/bookings";
 import { databaseError, fail, invalidInput, json, readJson } from "./shared";
@@ -77,7 +78,7 @@ export async function getOverview(request: NextRequest) {
   const { supabase } = guard;
   const since = new Date(Date.now() - range * 24 * 60 * 60 * 1000).toISOString();
 
-  const [stats, signups, applications, flags, hotlinesActive, hotlinesMissing, audit] =
+  const [stats, signups, applications, flags, hotlinesActive, hotlinesMissing, audit, security] =
     await Promise.all([
       supabase.rpc("admin_stats"),
       supabase.from("profiles").select("created_at").gte("created_at", since).limit(20000),
@@ -104,6 +105,7 @@ export async function getOverview(request: NextRequest) {
         .select("id, action, target_table, details, created_at, admin:profiles!admin_audit_log_admin_id_fkey(full_name)")
         .order("created_at", { ascending: false })
         .limit(6),
+      supabase.rpc("admin_security_warnings"),
     ]);
 
   if (stats.error) {
@@ -112,6 +114,7 @@ export async function getOverview(request: NextRequest) {
 
   const overview: AdminOverview = {
     generatedAt: new Date().toISOString(),
+    security: security.error ? null : (security.data as SecurityWarnings | null),
     range,
     stats: toStats(stats.data as RawStats | null),
     signups: bucketByDay(
