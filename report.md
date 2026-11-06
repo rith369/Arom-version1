@@ -1,5 +1,27 @@
 # AROM: Change Report
 
+## 06 Nov 2026: Security Headers and Secure Login Cookies
+
+Commit `ddeadc9`. No migration.
+
+**Why.** AROM sent almost no security headers. Another site could show it inside a hidden frame and trick people into clicking (clickjacking), and nothing limited where pages could load scripts from. Login cookies were also not marked to travel over HTTPS only. These were findings M6 and M7 in the security audit.
+
+**What changed for users:**
+- **Nothing visible:** pages work the same.
+- **Safer:** other sites can no longer frame AROM, and only the microphone and location can ever be asked for.
+
+**What changed for the team:**
+- **`next.config.ts`:** security headers on every page, and a content policy in report only mode. See `BACKEND-HANDOFF.md` section 45.
+- **`/api/csp-report`:** what the policy would block shows in Admin, Crashes, starting with "CSP would block".
+- **Next step:** after a few days of reports, switch the policy to enforce.
+- **Checks:** `npm run build` and `npx tsc --noEmit` pass, and `npm run lint` has the same 5 errors as `main`. On a local production build, every page sends the headers and the main pages load. Not tested: real browsers on the live site, which the report only mode is for.
+
+**What to re-test:**
+1. Open the home page, login, Google login, MindGuide, a lesson, a podcast, the clinic map, and a therapist profile.
+2. Record and play a voice message, and play one you received.
+3. As an admin, open the MindGuide editor preview. As a therapist, open the profile preview.
+4. After a day, open Admin, Crashes and look for reports starting with "CSP would block".
+
 ## 05 Nov 2026: Logged Out Rights Removed, and Sharing That Ends After 90 Days
 
 Commit `8c95fb8`. Migrations `20261105000600_remove_anon_rights.sql` and `20261105000700_sharing_ends_after_90_days.sql` were applied on 5 Nov 2026.

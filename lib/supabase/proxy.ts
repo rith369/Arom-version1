@@ -44,6 +44,8 @@ export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
 
   const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
+    // Login cookies are only sent over HTTPS on the live site.
+    cookieOptions: { secure: process.env.NODE_ENV === "production" },
     cookies: {
       getAll() {
         return request.cookies.getAll();

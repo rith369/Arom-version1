@@ -3,5 +3,8 @@ import { supabaseAnonKey, supabaseUrl } from "./env";
 
 /** Browser client. Uses the public anon key only; RLS guards every table. */
 export function createClient() {
-  return createBrowserClient(supabaseUrl, supabaseAnonKey);
+  return createBrowserClient(supabaseUrl, supabaseAnonKey, {
+    // Login cookies are only sent over HTTPS on the live site.
+    cookieOptions: { secure: process.env.NODE_ENV === "production" },
+  });
 }

@@ -10,6 +10,8 @@ export async function createClient() {
   const cookieStore = await cookies();
 
   return createServerClient(supabaseUrl, supabaseAnonKey, {
+    // Login cookies are only sent over HTTPS on the live site.
+    cookieOptions: { secure: process.env.NODE_ENV === "production" },
     cookies: {
       getAll() {
         return cookieStore.getAll();
