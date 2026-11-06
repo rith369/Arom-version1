@@ -30,6 +30,66 @@ function clientKey(request: NextRequest) {
   return createHash("sha256").update(`${address}|${cambodiaDay(Date.now())}`).digest("hex").slice(0, 32);
 }
 
+/** Only the host, or a keyword such as "inline": a full address can hold private details. */
+function blockedSource(value: unknown) {
+  if (typeof value !== "string" || !value) return "unknown";
+  if (!value.includes(":")) return value.slice(0, 40);
+  try {
+    const url = new URL(value);
+    return url.protocol === "http:" || url.protocol === "https:" ? url.host : url.protocol.replace(":", "");
+  } catch {
+    return value.split(":")[0].slice(0, 40);
+  }
+}
+
+function pagePath(value: unknown) {
+  if (typeof value !== "string") return "";
+  try {
+    return new URL(value).pathname.slice(0, 200);
+  } catch {
+    return "";
+  }
+}
+
+/**
+ * POST /api/csp-report: browsers report what the content policy would block
+ * (BACKEND-HANDOFF.md section 45). Saved as a crash report, so admins see them
+ * in Admin, Crashes. Always answers 204.
+ */
+export async function receiveCspReport(request: NextRequest) {
+  const done = new NextResponse(null, { status: 204, headers: NO_STORE });
+  let raw: unknown = null;
+  try {
+    const text = await request.text();
+    if (text.length > 20_000) return done;
+    raw = JSON.parse(text);
+  } catch {
+    return done;
+  }
+
+  const report = (raw as { "csp-report"?: Record<string, unknown> } | null)?.["csp-report"];
+  if (!report || typeof report !== "object") return done;
+
+  const directive = String(report["effective-directive"] ?? report["violated-directive"] ?? "unknown")
+    .split(" ")[0]
+    .slice(0, 40);
+  const source = blockedSource(report["blocked-uri"]);
+  // Browser add ons are not AROM's code.
+  if (/extension$/.test(source)) return done;
+
+  const supabase = await createClient();
+  await supabase.rpc("report_crash", {
+    p_kind: "app",
+    p_message: `CSP would block ${directive}: ${source}`,
+    p_route: pagePath(report["document-uri"]),
+    p_release: "csp",
+    p_digest: null,
+    p_occurred_at: new Date().toISOString(),
+    p_client_key: clientKey(request),
+  });
+  return done;
+}
+
 /** POST /api/crash-reports: sent with navigator.sendBeacon. Always answers 204. */
 export async function receiveCrashReport(request: NextRequest) {
   let raw: unknown = null;

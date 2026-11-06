@@ -1839,6 +1839,18 @@ Every person endpoint answers with the whole `SelfMapResponse { parts, shares }`
 - **`sharing_cutoff()` is the one place the period is set.** New functions that show shared data must check `a.ends_at > public.sharing_cutoff()`.
 - **Not affected:** bookings and intake notes, messages, and the professional's own notes. These are part of the care relationship, not something the client chose to share.
 
+## 45. Security headers
+
+**Status:** live code, no migration. Set in `next.config.ts` for every page.
+
+**Decided (do not change without a reason):**
+- **Headers:** `X-Frame-Options: SAMEORIGIN` (AROM's own preview frames still work), `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, and `Permissions-Policy` with only the microphone (voice) and location (nearby clinics) allowed. HSTS comes from Vercel.
+- **Content policy (CSP):** the app may load only from AROM, Supabase and OpenStreetMap map tiles. It uses `'unsafe-inline'` for scripts, as the Next.js guide shows without nonces, so pages stay static. It started in **report only** mode on 6 Nov 2026.
+- **Reports:** `/api/csp-report` saves only the rule and the blocked host (never a full address) as a crash report, `CSP would block ...`, so they show in Admin, Crashes.
+- **To enforce it:** read the CSP crash reports, add any real source to `contentPolicy`, then set `CSP_ENFORCE` to true.
+- **Adding an outside service:** add its host to the right line of `contentPolicy` in the same commit, or it will be blocked once the policy is enforced.
+- **Login cookies are `Secure`** on the live site (`cookieOptions` in `lib/supabase/`). They are not HttpOnly, because the browser client reads them for Google sign in and MFA.
+
 ## Template for a new feature section
 
 ```md
