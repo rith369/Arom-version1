@@ -1874,7 +1874,7 @@ Every person endpoint answers with the whole `SelfMapResponse { parts, shares }`
 
 ## 47. Security warnings and the data leak plan
 
-**Status:** code on branch `rith/security-warnings`. **Migration `20261106000100_security_warnings.sql` not yet applied.**
+**Status:** live since 6 Nov 2026 (PR #54). Migration `20261106000100_security_warnings.sql` applied and checked.
 
 **What admins see:** warnings at the top of "Needs attention" on the Admin dashboard, from `admin_security_warnings()` through `GET /api/admin/overview` (`security`, null if it fails, so the rest of the dashboard still loads):
 - **Someone was made an admin** in the last 7 days, including from the Supabase dashboard (urgent).
