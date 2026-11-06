@@ -2,7 +2,7 @@
 
 ## 06 Nov 2026: Automatic Security Tests on Every Pull Request
 
-Commit `PENDING`. No migration.
+Commit `71a7b4c`. No migration.
 
 **Why.** The security fixes from the audit were checked by hand, with fake users in a throwaway database. Nothing stopped a later change from quietly opening the same gaps again, for example a new table without row level security, or a new function that shows private data to logged out visitors. This was finding M10 in the security audit.
 
