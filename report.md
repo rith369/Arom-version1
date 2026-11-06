@@ -2,7 +2,7 @@
 
 ## 06 Nov 2026: Security Headers and Secure Login Cookies
 
-Commit `PENDING`. No migration.
+Commit `ddeadc9`. No migration.
 
 **Why.** AROM sent almost no security headers. Another site could show it inside a hidden frame and trick people into clicking (clickjacking), and nothing limited where pages could load scripts from. Login cookies were also not marked to travel over HTTPS only. These were findings M6 and M7 in the security audit.
 
