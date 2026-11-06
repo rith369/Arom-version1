@@ -1,5 +1,25 @@
 # AROM: Change Report
 
+## 06 Nov 2026: Automatic Security Tests on Every Pull Request
+
+Commit `PENDING`. No migration.
+
+**Why.** The security fixes from the audit were checked by hand, with fake users in a throwaway database. Nothing stopped a later change from quietly opening the same gaps again, for example a new table without row level security, or a new function that shows private data to logged out visitors. This was finding M10 in the security audit.
+
+**What changed for users:**
+- **Nothing visible.** This protects them from future mistakes.
+
+**What changed for the team:**
+- **`npm run test:security`:** 134 checks in about 12 seconds, in a database that lives only in memory. It never touches Supabase. See `BACKEND-HANDOFF.md` section 46.
+- **GitHub runs them** on every pull request, every change to `main`, and every Monday. A red cross on a pull request means a check failed: open "Details" to see which one.
+- **New rules to follow:** a new public function must be listed in `tests/security/rules.mjs`, and new private data should get its own checks in `attacks.mjs`.
+- **Fewer Vercel deployments:** changes that only touch tests or workflows no longer deploy.
+- **Checks:** `npm run test:security` passes all 134 checks, `npx tsc --noEmit` passes, and `npm run lint` has the same 5 errors as `main`. Planted mistakes (a table without row level security, an open write policy, a function that shows journals to visitors, and a secret used outside server code) each made the tests fail.
+
+**What to re-test:**
+1. Open this pull request on GitHub and check that "Security tests" has a green tick.
+2. Open "Details" and check that every file shows all its checks passed.
+
 ## 06 Nov 2026: Security Headers and Secure Login Cookies
 
 Commit `ddeadc9`. No migration.

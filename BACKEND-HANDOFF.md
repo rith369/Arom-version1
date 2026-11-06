@@ -1851,6 +1851,27 @@ Every person endpoint answers with the whole `SelfMapResponse { parts, shares }`
 - **Adding an outside service:** add its host to the right line of `contentPolicy` in the same commit, or it will be blocked once the policy is enforced.
 - **Login cookies are `Secure`** on the live site (`cookieOptions` in `lib/supabase/`). They are not HttpOnly, because the browser client reads them for Google sign in and MFA.
 
+## 46. Automatic security tests
+
+**Status:** live code, no migration. `npm run test:security` runs them locally. GitHub runs them on every pull request, every change to `main`, and every Monday (`.github/workflows/security.yml`).
+
+**How it works:** `tests/security/harness.mjs` builds a throwaway Postgres database in memory from every file in `supabase/migrations`, with small stand ins for Supabase's `auth` and `storage`. Tests then act as fake users. **They never connect to Supabase or Vercel**, and need no keys.
+
+**What is checked:**
+- **`rules`:** every table has row level security on, there are no views, no write policy lets everyone through, every privileged (`security definer`) function fixes its `search_path`, and logged out visitors can call only the privileged functions listed in `ANON_ALLOWED`.
+- **`attacks`:** one user cannot read or change another user's private data, suspended or demoted staff lose access, admins need their 6 digit code, and booking outcomes follow the rules.
+- **`consent`:** sharing ends 90 days after the last session, and logged out visitors can read only the 8 public tables.
+- **`deletion`:** deleting an account leaves nothing behind and keeps other people's data.
+- **`limits`:** login attempt counting and the booking cap.
+- **`code`:** files that read a secret import `server-only` and are never browser files, no public variable is named like a secret, no `.env` file is committed, and the security headers are still set.
+- **Also:** the type check, and `npm audit` for serious known weaknesses in packages the live site uses.
+
+**Decided (do not change without a reason):**
+- **A failing test means stop and look**, not "change the test". Change a test only when the product decision itself changed, and say so in the pull request.
+- **A new public function or table** must be added on purpose: grant it to `anon` in the migration, and add a function to `ANON_ALLOWED` in `tests/security/rules.mjs`.
+- **New features that hold private data** should add checks to `attacks.mjs` in the same pull request.
+- **Changes that only touch `.md` files, `tests/security/` or `.github/` skip the Vercel deployment** (`scripts/vercel-ignore-build.sh`), because the app never reads them.
+
 ## Template for a new feature section
 
 ```md
