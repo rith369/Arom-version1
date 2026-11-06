@@ -1,5 +1,6 @@
 'use client';
 
+import { clearBrowserDataOnLogout } from '@/app/_components/auth/clear-browser-data';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   ArrowLeft,
@@ -534,7 +535,7 @@ function StatusCard({
             </p>
           </div>
         </div>
-        <form action="/api/auth/logout" method="post" className="mt-5">
+        <form action="/api/auth/logout" method="post" onSubmit={clearBrowserDataOnLogout} className="mt-5">
           <button
             type="submit"
             className="flex items-center gap-2 rounded-full bg-arom px-6 py-3 text-sm font-bold text-white hover:bg-arom-deep">

@@ -1886,9 +1886,26 @@ Every person endpoint answers with the whole `SelfMapResponse { parts, shares }`
 **Decided (do not change without Rith):**
 - **No log of who looked at what** (decided 6 Nov 2026). Only admin actions (`admin_audit_log`) and admin chat reads are logged.
 - **`security_events` holds only the rule name and the time** of each lock. Never an email, an address or the hashed key. It is written by `rate_limit_hit` the moment a key goes over its limit, once per lock, and kept 90 days. Nobody can read it except through `admin_security_warnings()`.
-- **Login limit keys start with the rule name** (`passwordPerAccount:<hash>`, `lib/rate-limit.ts`), so locks can be counted by kind. Changing the format reset the counts once, which is harmless.
+- **Login limit keys start with the rule name** (`password:<hash>`, `lib/rate-limit.ts`), so locks can be counted by kind. Changing the format reset the counts once, which is harmless.
+- **The warnings count the rule names the app really uses** (`name:` in each `overLimit` call): `password` and `password-check` for passwords, `code` for 6 digit codes, and every name ending in `-address` for networks. **A new rule name must be added to `admin_security_warnings()`** to be counted. (The first version used other names and counted nothing. Fixed in section 48.)
 - **Warnings are on the dashboard only**, not email, because there is no custom email (SMTP) yet.
 - **`INCIDENT-PLAN.md`** is the team's step by step plan for a data leak. Keep it up to date when keys, hosting or contacts change. It is public, so no secrets or people's details in it.
+
+## 48. Low risk fixes from the security audit
+
+**Status:** code on branch `rith/low-risk-fixes`. **Migration `20261106000200_low_risk_fixes.sql` not yet applied.**
+
+**Decided (do not change without a reason):**
+- **Therapists never read client tables by real id (L1).** `mental_health_insights` and `support_journeys` have no therapist policy. Shared information goes through the `_safe` functions with the client's alias.
+- **Logs hold error codes only (L2).** `console.error` in the community routes logs `error.code`, never the whole error, which can hold message text.
+- **Only the server saves crash reports (L3).** `report_crash` is for `service_role` only. `lib/controllers/crash-controller.ts` (`saveCrash`) works out the limit key from the real address and passes the account id only to count people. Locally, without `SUPABASE_SECRET_KEY`, crash reports are simply not saved.
+- **Deleting a journal entry from the last 10 days clears the AI week summary (L5)**, so text based on it does not stay. The summary stays turned on and the daily limit is not reset. Trigger `journal_entries_clear_summary`.
+- **Old raw id functions are closed to browsers (L6):** `send_message`, `open_conversation`, `shared_mood_checkins`, `set_client_archived`. Their `_safe` versions call them and keep working. Use the `_safe` versions in new code.
+- **Test therapist profiles are not public (L7):** the public policy on `professional_profiles` adds `not is_test`. The owner and admins still see them.
+- **Confirmation links with a token need a Continue click (L9).** `/auth/confirm` sends them to `/signup/confirm`, and `POST /api/auth/confirm-link` signs in only when the request comes from AROM's own page (`Origin` check). Google login and the code in the email work as before.
+- **Logout clears the browser (L10).** Every logout button calls `clearBrowserDataOnLogout()` (`app/_components/auth/clear-browser-data.ts`). It keeps only device settings (language, install popup, dismissed announcement, note format). **A new logout button must call it too.**
+- **Left for later, by choice (6 Nov 2026):** audit items L4 and L8, two larger changes to uploads and profile settings.
+- **Data retention periods were not changed** (decided 6 Nov 2026). Data is kept until the person deletes it or their account, as the Privacy Policy says.
 
 ## Template for a new feature section
 

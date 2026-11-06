@@ -1,5 +1,34 @@
 # AROM: Change Report
 
+## 06 Nov 2026: Low Risk Security Fixes
+
+Commit `PENDING`. **Migration not yet applied:** `20261106000200_low_risk_fixes.sql`.
+
+**Why.** The security audit listed small weaknesses that were not dangerous alone but added up: a way around the nickname system, logs that could hold message text, crash reports anyone could flood, an AI summary that outlived the journal entry it used, old database functions, public test profiles, a confirmation link that signed in whoever opened it, and personal data left in the browser after logout. These were findings L1, L2, L3, L5, L6, L7, L9 and L10. It also fixes the lockout warnings from the previous change, which looked for the wrong names and so never counted anything.
+
+**What changed for users:**
+- **Logging out clears this browser:** saved lessons, answers and drafts kept on the device are removed, so the next person on a shared phone cannot see them. Language stays.
+- **Confirmation links ask for one click:** a page says "Confirm Your Email" with a Continue button. The usual email code and Google login are unchanged.
+- **Deleting a recent journal entry clears the AI week summary,** so it can be made again without that entry.
+- **Test therapist profiles no longer show to the public.**
+- **Admins:** the lockout warnings on the dashboard now really count lockouts.
+
+**What changed for the team:**
+- **Crash reports are saved only through the server.** See `BACKEND-HANDOFF.md` section 48.
+- **New logout buttons must call `clearBrowserDataOnLogout()`.**
+- **New login limit names must be added to `admin_security_warnings()`.**
+- **Tests:** a new `fixes` file in `tests/security/` (22 checks), and the others updated. 180 checks in all.
+- **Left for later, by choice:** audit items L4 and L8. Data keeping periods unchanged.
+- **Checks:** `npm run test:security` passes all 180 checks, `npx tsc --noEmit` and `npm run build` pass, and `npm run lint` has the same 5 errors as `main`. On a local production build, a confirmation link with a token stops at the new page, and requests to `/api/auth/confirm-link` from another site or with no origin are refused. Not tested by hand yet: the Continue button with a real email, and logout clearing the browser.
+
+**What to re-test:**
+1. Apply the migration, then merge soon after, because crash reports are not saved between the two steps.
+2. Log out from the account menu, then log in again. Your language should stay, and your saved lessons should come back from your account.
+3. As a therapist, open a client file with shared information. It should show as before.
+4. Send and read messages with a therapist and in a group.
+5. Write a journal entry, make the AI week summary, delete the entry, and check that the summary is gone and can be made again.
+6. Log out, open a therapist list, and check the test profiles do not appear.
+
 ## 06 Nov 2026: Security Warnings on the Admin Dashboard, and a Data Leak Plan
 
 Commit `9209d3e`. Migration `20261106000100_security_warnings.sql` applied and checked on 6 Nov 2026.

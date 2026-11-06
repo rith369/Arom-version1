@@ -88,8 +88,8 @@ t(H2, 'Suspended admin passes is_admin', val(await as(ID.adminOut, `select publi
 t(H2, 'Suspended admin lists all users', rowsOf(await as(ID.adminOut, `select 1 from public.admin_list_users()`, [], 'aal2')), 'ERROR');
 t(H2, 'Suspended therapist reads bookings', rowsOf(await as(ID.proOut, `select 1 from public.read_my_pro_bookings_safe()`)), 'ERROR');
 t(H2, 'Suspended therapist reads session notes', rowsOf(await as(ID.proOut, `select 1 from public.session_notes`)), '0 rows');
-t(H2, 'Suspended therapist reads shared mood', rowsOf(await as(ID.proOut, `select 1 from public.shared_mood_checkins($1)`, [ID.a])), '0 rows');
 const aliasOut = (await db.query(`select alias_id from public.professional_client_aliases where professional_id=$1 and user_id=$2`, [ID.proOut, ID.a])).rows[0].alias_id;
+t(H2, 'Suspended therapist reads shared mood', rowsOf(await as(ID.proOut, `select 1 from public.shared_mood_checkins_safe($1)`, [aliasOut])), 'ERROR');
 t(H2, 'Suspended therapist opens shared client data', val(await as(ID.proOut, `select public.get_shared_client_data_safe($1)`, [aliasOut])), 'ERROR');
 t(H2, 'Suspended therapist reads private messages', rowsOf(await as(ID.proOut, `select 1 from public.read_private_messages_safe($1)`, [CONV])), 'ERROR');
 t(H2, 'Suspended therapist is conversation member', val(await as(ID.proOut, `select public.is_conversation_member($1)`, [CONV])), 'false');

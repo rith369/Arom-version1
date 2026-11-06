@@ -40,7 +40,7 @@ export async function GET() {
 
   const { data, error } = await supabase.rpc('my_group_chats');
   if (error) {
-    console.error('Could not load group chats:', { code: error.code, message: error.message });
+    console.error('Could not load group chats:', error.code);
     return NextResponse.json({ error: 'Could not load your groups' }, { status: 500, headers: noStore });
   }
 

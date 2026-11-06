@@ -26,7 +26,6 @@ const ANON_ALLOWED = [
   'public_open_slots',
   'public_professional_reviews',
   'public_review_summaries',
-  'report_crash',
 ];
 
 const T = 'Tables';

@@ -1,5 +1,6 @@
 'use client';
 
+import { clearBrowserDataOnLogout } from '@/app/_components/auth/clear-browser-data';
 import { ChevronDown, LogOut, UserRound } from 'lucide-react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import Link from 'next/link';
@@ -101,7 +102,7 @@ function AccountMenuPanel({
               <UserRound aria-hidden="true" size={18} className="text-arom" />
               {t('ប្រវត្តិរូបរបស់ខ្ញុំ', 'My profile')}
             </Link>
-            <form action="/api/auth/logout" method="post">
+            <form action="/api/auth/logout" method="post" onSubmit={clearBrowserDataOnLogout}>
               <button
                 type="submit"
                 className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm text-arom-danger transition-colors duration-150 hover:bg-arom-danger-soft/60">

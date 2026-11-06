@@ -1,5 +1,6 @@
 "use client";
 
+import { clearBrowserDataOnLogout } from "@/app/_components/auth/clear-browser-data";
 import { KeyRound } from "lucide-react";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
@@ -179,7 +180,7 @@ export function MfaForm() {
         </form>
       )}
 
-      <form action="/api/auth/logout" method="post" className="mt-6 text-center">
+      <form action="/api/auth/logout" method="post" onSubmit={clearBrowserDataOnLogout} className="mt-6 text-center">
         <button type="submit" className="text-sm font-semibold text-arom underline-offset-4 hover:underline">
           Log out
         </button>

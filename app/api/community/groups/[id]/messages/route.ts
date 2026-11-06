@@ -42,7 +42,7 @@ export async function GET(_request: Request, context: RouteContext) {
   });
 
   if (error) {
-    console.error('Could not read community messages:', error);
+    console.error('Could not read community messages:', error.code);
     return NextResponse.json(
       { error: 'Could not read messages for this group' },
       { status: error.code === 'P0001' ? 403 : 500, headers: noStore },
@@ -116,7 +116,7 @@ export async function POST(request: Request, context: RouteContext) {
     .single();
 
   if (error) {
-    console.error('Could not send community message:', error);
+    console.error('Could not send community message:', error.code);
     return NextResponse.json(
       { error: 'Could not send message' },
       { status: error.code === '42501' ? 403 : 500, headers: noStore },
@@ -210,7 +210,7 @@ async function sendMedia(
   if (error) {
     // An upload that never became a message is removed again.
     await createPrivateStorageClient().storage.from(MEDIA_BUCKET).remove([path]);
-    console.error('Could not send community media:', { code: error.code, message: error.message });
+    console.error('Could not send community media:', error.code);
     return NextResponse.json(
       { error: 'Could not send message' },
       { status: error.code === '42501' ? 403 : 500, headers: noStore },

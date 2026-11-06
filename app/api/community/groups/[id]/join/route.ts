@@ -51,7 +51,7 @@ export async function POST(_request: Request, context: RouteContext) {
   );
 
   if (error) {
-    console.error('Could not join support group:', error);
+    console.error('Could not join support group:', error.code);
     return NextResponse.json(
       { error: 'Could not join this group. It may be closed or full.' },
       { status: 409, headers: noStore },

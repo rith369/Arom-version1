@@ -32,7 +32,7 @@ export async function GET(_request: Request, context: RouteContext) {
   const { data, error } = await supabase.rpc('read_group_members', { p_group_id: id });
 
   if (error) {
-    console.error('Could not read group members:', { code: error.code, message: error.message });
+    console.error('Could not read group members:', error.code);
     return NextResponse.json(
       { error: 'Could not load the members of this group' },
       { status: error.code === 'PT403' ? 403 : 500, headers: noStore },
