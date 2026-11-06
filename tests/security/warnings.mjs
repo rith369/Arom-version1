@@ -59,18 +59,18 @@ await db.exec(`update public.profiles set account_status='suspended' where id='$
 t('suspended admins are not listed as without a code', (await warnings()).adminsWithoutCode.length, 0);
 
 // Lock events: once per lock, only the rule name, never the key.
-await hit('passwordPerAccount:aaaa');
-await hit('passwordPerAccount:aaaa');
+await hit('password:aaaa');
+await hit('password:aaaa');
 t('no event while within the limit', await events(), 'none');
-await hit('passwordPerAccount:aaaa');
-await hit('passwordPerAccount:aaaa');
-await hit('passwordPerAccount:aaaa');
-t('one event per lock, not per try', await events(), 'passwordPerAccount');
+await hit('password:aaaa');
+await hit('password:aaaa');
+await hit('password:aaaa');
+t('one event per lock, not per try', await events(), 'password');
 const stored = (await db.query(`select to_jsonb(e)::text j from public.security_events e`)).rows.map((r) => r.j).join();
 t('the hashed key is never stored', stored.includes('aaaa'), false);
-await hit('codePerAccount:bbbb', 0);
-await hit('loginPerAddress:cccc', 0);
-await hit('signupPerAddress:dddd', 0);
+await hit('code:bbbb', 0);
+await hit('login-address:cccc', 0);
+await hit('signup-address:dddd', 0);
 await hit('oldstylekeywithnocolon', 0);
 w = await warnings();
 t('password locks counted', w.lockouts.passwords, 1);

@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient as createPlainClient, type SupabaseClient } from "@supabase/supabase-js";
+import { z } from "zod";
 import {
   PASSWORD_RESET_EMAIL_ON,
   changePasswordSchema,
@@ -282,9 +283,14 @@ export async function confirmEmail(request: NextRequest) {
     return redirect(`/login?error=google${searchParams.get("next") ? `&next=${encodeURIComponent(next)}` : ""}`);
   }
 
+  // A link that carries a token signs in whoever opens it. Someone could send
+  // their own link to another person, who would then write into the wrong
+  // account (security audit L9). Email scanners open links too. So the person
+  // presses Continue on AROM's own page first (confirmEmailLink).
   if (tokenHash && (type === "email" || type === "signup")) {
-    const { error } = await supabase.auth.verifyOtp({ token_hash: tokenHash, type });
-    if (!error) return redirect(next);
+    const params = new URLSearchParams({ token_hash: tokenHash, type });
+    if (next !== "/") params.set("next", next);
+    return redirect(`/signup/confirm?${params.toString()}`);
   } else if (code) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) return redirect(next);
@@ -485,6 +491,43 @@ export async function verifyCode(request: NextRequest) {
     }
     // Same answer for a wrong, used or expired code.
     return fail("invalid_input", "That code is not right or has expired.", 400);
+  }
+
+  return json<LoginResponse>({ user: await toAuthUser(supabase, data.user) });
+}
+
+const confirmLinkSchema = z.object({
+  tokenHash: z.string().trim().min(10).max(200),
+  type: z.enum(["email", "signup"]),
+});
+
+/**
+ * POST /api/auth/confirm-link  body `{ tokenHash, type }`. The Continue button
+ * on /signup/confirm, after opening a confirmation link (security audit L9).
+ * Only AROM's own pages can call it: another site cannot press it for someone.
+ */
+export async function confirmEmailLink(request: NextRequest) {
+  if (request.headers.get("origin") !== request.nextUrl.origin) {
+    return fail("forbidden", "Please open the link from your email again.", 403);
+  }
+  const parsed = confirmLinkSchema.safeParse(await readJson(request));
+  if (!parsed.success) return invalidInput();
+
+  const limited = await overLimit([
+    { name: "code-address", value: clientAddress(request), limit: LIMITS.codePerAddress },
+  ]);
+  if (limited) return fail("rate_limited", "Too many attempts. Please wait 15 minutes and try again.", 429);
+
+  const supabase = await createClient();
+  const { data, error } = await supabase.auth.verifyOtp({
+    token_hash: parsed.data.tokenHash,
+    type: parsed.data.type,
+  });
+  if (error || !data.user) {
+    if (error && isRateLimited(error)) {
+      return fail("rate_limited", "Too many attempts. Please wait a moment and try again.", 429);
+    }
+    return fail("invalid_input", "This link was already used or has expired.", 400);
   }
 
   return json<LoginResponse>({ user: await toAuthUser(supabase, data.user) });

@@ -1,5 +1,6 @@
 'use client';
 
+import { clearBrowserDataOnLogout } from '@/app/_components/auth/clear-browser-data';
 import Link from 'next/link';
 import {
   ArrowLeft,
@@ -590,7 +591,7 @@ export function ProfileSettings() {
                 />
               </Link>
 
-              <form action="/api/auth/logout" method="post">
+              <form action="/api/auth/logout" method="post" onSubmit={clearBrowserDataOnLogout}>
                 <button
                   type="submit"
                   className="group flex w-full items-center justify-between py-3.5 text-left text-arom-danger transition-colors duration-150 hover:opacity-85">

@@ -3,7 +3,7 @@
 import { spawnSync } from 'node:child_process';
 import path from 'node:path';
 
-const FILES = ['code', 'rules', 'attacks', 'consent', 'deletion', 'limits', 'warnings'];
+const FILES = ['code', 'rules', 'attacks', 'consent', 'deletion', 'limits', 'warnings', 'fixes'];
 const failed = [];
 for (const name of FILES) {
   console.log(`\n######## ${name}`);

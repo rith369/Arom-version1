@@ -57,7 +57,7 @@ async function as(role, id, sql, params = []) {
 const val = (r) => (r.error ? 'ERROR' : Object.values(r.rows[0] ?? {})[0]);
 const pro = (sql, params) => as('authenticated', ID.pro, sql, params);
 const shares = async (client, kind = 'survey') => val(await pro(`select public.client_shares_with_me($1,'${kind}')`, [client]));
-const moods = async (client) => (await pro(`select 1 from public.shared_mood_checkins($1)`, [client])).rows?.length ?? 'ERROR';
+const moods = async (client) => (await pro(`select 1 from public.shared_mood_checkins_safe($1)`, [await alias(client)])).rows?.length ?? 'ERROR';
 const data = async (client) => { const r = await pro(`select public.get_shared_client_data_safe($1) d`, [await alias(client)]); return r.rows?.[0]?.d?.survey ? 'visible' : 'hidden'; };
 
 t('session 80 days ago: still shared', await shares(ID.recent), true);
@@ -72,7 +72,7 @@ t('mood visible at 80 days', await moods(ID.recent), 1);
 t('mood hidden at 100 days', await moods(ID.old), 0);
 t('mood visible after a new booking', await moods(ID.rebooked), 1);
 t('mood hidden on an old booking with no outcome', await moods(ID.staleBooked), 0);
-t('direct table read at 80 days', (await pro(`select 1 from public.mental_health_insights where user_id=$1`, [ID.recent])).rows?.length, 1);
+t('therapist cannot read the insights table directly, even when shared (L1)', (await pro(`select 1 from public.mental_health_insights where user_id=$1`, [ID.recent])).rows?.length, 0);
 t('direct table read at 100 days', (await pro(`select 1 from public.mental_health_insights where user_id=$1`, [ID.old])).rows?.length, 0);
 const map = async (c) => val(await pro(`select public.pro_client_self_map_safe($1) is not null`, [await alias(c)]));
 t('self map visible at 80 days', await map(ID.recent), true);
@@ -103,7 +103,7 @@ t('anon cannot read appointments', val(await anon(`select count(*) from public.a
 t('anon can read public therapists', val(await anon(`select count(*)::int from public.professional_profiles`)), 2);
 t('anon public functions still work', (await anon(`select 1 from public.public_review_summaries()`)).error ?? 'ok', 'ok');
 t('anon public list still works', (await anon(`select 1 from public.list_public_professionals()`)).error ?? 'ok', 'ok');
-t('anon crash report still works', (await anon(`select public.report_crash('app','m','/','1',null,now(),'k')`)).error ?? 'ok', 'ok');
+t('anon cannot save crash reports directly (L3)', (await anon(`select public.report_crash('app','m','/','1',null,now(),'k')`)).error ? 'ERROR' : 'ok', 'ERROR');
 t('signed in person keeps own rights', (await as('authenticated', ID.recent, `insert into public.journal_entries (user_id,entry_date,content) values ('${ID.recent}',current_date,'x') returning 1`)).rows?.length, 1);
 await db.exec(`create table public.brand_new_table (id int)`);
 t('new tables start with no anon rights', (await db.query(`select has_table_privilege('anon','public.brand_new_table','SELECT') s`)).rows[0].s, false);

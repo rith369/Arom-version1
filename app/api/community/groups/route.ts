@@ -29,7 +29,7 @@ export async function GET() {
     .order('created_at', { ascending: false });
 
   if (groupsError) {
-    console.error('Could not load community groups:', groupsError);
+    console.error('Could not load community groups:', groupsError.code);
     return NextResponse.json(
       { error: 'Could not load groups' },
       { status: 500, headers: noStore },
@@ -43,7 +43,7 @@ export async function GET() {
     .is('left_at', null);
 
   if (membershipError) {
-    console.error('Could not load group memberships:', membershipError);
+    console.error('Could not load group memberships:', membershipError.code);
     return NextResponse.json(
       { error: 'Could not load groups' },
       { status: 500, headers: noStore },
@@ -60,7 +60,7 @@ export async function GET() {
       );
 
       if (error) {
-        console.error('Could not load group member count:', error);
+        console.error('Could not load group member count:', error.code);
         throw error;
       }
 
@@ -141,7 +141,7 @@ export async function POST(request: Request) {
     .single();
 
   if (error) {
-    console.error('Could not create support group:', error);
+    console.error('Could not create support group:', error.code);
     return NextResponse.json(
       {
         error:

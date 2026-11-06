@@ -10,6 +10,7 @@ import { useForm } from "react-hook-form";
 import {
   PENDING_CONFIRMATION_KEY,
   resendSchema,
+  safeNextPath,
   verifyCodeSchema,
   type AuthErrorBody,
   type ResendValues,
@@ -126,7 +127,103 @@ function CodeForm() {
   );
 }
 
+/**
+ * After opening a confirmation link that carries a token. Nothing happens
+ * until the person presses Continue, so a link someone else sent cannot sign
+ * them into another account by itself (security audit L9).
+ */
+function ContinueLink({ tokenHash, type, next }: { tokenHash: string; type: "email" | "signup"; next: string }) {
+  const { refresh } = useAuth();
+  const [busy, setBusy] = useState(false);
+  const [problem, setProblem] = useState("");
+
+  const confirm = async () => {
+    setBusy(true);
+    setProblem("");
+    try {
+      const response = await fetch("/api/auth/confirm-link", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tokenHash, type }),
+      });
+      if (!response.ok) {
+        const body = (await response.json().catch(() => null)) as AuthErrorBody | null;
+        if (body?.error.code === "rate_limited") {
+          setProblem("Too many attempts. Please wait a moment and try again.");
+        } else {
+          window.location.replace("/signup/confirm?status=expired");
+          return;
+        }
+        setBusy(false);
+        return;
+      }
+    } catch {
+      setProblem("You seem to be offline. Check your connection and try again.");
+      setBusy(false);
+      return;
+    }
+    try {
+      window.sessionStorage.removeItem(PENDING_CONFIRMATION_KEY);
+    } catch {
+      // Not critical.
+    }
+    await refresh();
+    // A full page load, so every part of the app sees the person as signed in.
+    window.location.replace(next);
+  };
+
+  return (
+    <div>
+      <header>
+        <span className="mb-5 flex size-14 items-center justify-center rounded-2xl bg-arom-wash text-arom">
+          <MailCheck aria-hidden="true" size={26} />
+        </span>
+        <p className="text-xs font-bold uppercase tracking-[0.18em] text-arom-accent">Almost there</p>
+        <h2 className="mt-2 text-[2rem] font-bold leading-tight tracking-[-0.045em] text-arom sm:text-[2.35rem]">
+          Confirm Your Email
+        </h2>
+        <p className="mt-2 max-w-md text-sm leading-6 text-ink-muted sm:text-[0.95rem]">
+          Press Continue to confirm your email and log in. Only continue if you asked for this email yourself.
+        </p>
+      </header>
+      {problem && (
+        <div className="mt-6">
+          <FormAlert tone="error">{problem}</FormAlert>
+        </div>
+      )}
+      <button
+        type="button"
+        onClick={confirm}
+        disabled={busy}
+        className="mt-7 flex h-[3.2rem] w-full items-center justify-center gap-2 rounded-xl bg-arom px-5 text-[0.95rem] font-bold text-white shadow-[0_12px_28px_rgba(31,111,91,0.2)] transition-colors duration-150 hover:bg-arom-deep focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-arom disabled:opacity-65"
+      >
+        <LogIn aria-hidden="true" size={18} />
+        {busy ? "Confirming…" : "Continue"}
+      </button>
+      <p className="mt-7 text-center text-sm text-ink-muted">
+        Did not ask for this?{" "}
+        <Link
+          href="/"
+          className="font-semibold text-arom underline decoration-arom-border underline-offset-4 hover:text-arom-deep focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-arom"
+        >
+          Go to the home page
+        </Link>
+      </p>
+    </div>
+  );
+}
+
 export function ConfirmEmailForm() {
+  const searchParams = useSearchParams();
+  const tokenHash = searchParams.get("token_hash");
+  const type = searchParams.get("type");
+  if (tokenHash && (type === "email" || type === "signup")) {
+    return <ContinueLink tokenHash={tokenHash} type={type} next={safeNextPath(searchParams.get("next"))} />;
+  }
+  return <CheckEmail />;
+}
+
+function CheckEmail() {
   const searchParams = useSearchParams();
   const shouldReduceMotion = useReducedMotion();
   const linkExpired = searchParams.get("status") === "expired";

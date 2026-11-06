@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import type { CrashGroup } from "@/app/admin/_data/crashes";
 import { cambodiaDay } from "@/lib/mood";
+import { createPrivateStorageClient } from "@/lib/supabase/private-storage";
 import { createClient } from "@/lib/supabase/server";
 import { NO_STORE, fail, invalidInput, json } from "./shared";
 import { requireRole } from "./role-controller";
@@ -77,17 +78,44 @@ export async function receiveCspReport(request: NextRequest) {
   // Browser add ons are not AROM's code.
   if (/extension$/.test(source)) return done;
 
-  const supabase = await createClient();
-  await supabase.rpc("report_crash", {
+  await saveCrash(request, {
     p_kind: "app",
     p_message: `CSP would block ${directive}: ${source}`,
     p_route: pagePath(report["document-uri"]),
     p_release: "csp",
     p_digest: null,
     p_occurred_at: new Date().toISOString(),
-    p_client_key: clientKey(request),
   });
   return done;
+}
+
+type CrashFields = {
+  p_kind: "render" | "app";
+  p_message: string;
+  p_route: string;
+  p_release: string;
+  p_digest: string | null;
+  p_occurred_at: string;
+};
+
+/**
+ * Only the server may save a crash report (security audit L3), so the limit
+ * key always comes from the visitor's real address, never from the browser.
+ * The account, if any, is kept only to count how many people saw a crash.
+ */
+async function saveCrash(request: NextRequest, fields: CrashFields) {
+  try {
+    const { data } = await (await createClient()).auth.getClaims();
+    const reporter = typeof data?.claims?.sub === "string" ? data.claims.sub : null;
+    const { error } = await createPrivateStorageClient().rpc("report_crash", {
+      ...fields,
+      p_client_key: clientKey(request),
+      p_reporter_id: reporter,
+    });
+    if (error) console.error("Crash report not saved:", error.code);
+  } catch {
+    // No secret key (local work) or no database: a crash report is never worth an error.
+  }
 }
 
 /** POST /api/crash-reports: sent with navigator.sendBeacon. Always answers 204. */
@@ -101,16 +129,13 @@ export async function receiveCrashReport(request: NextRequest) {
   const body = crashSchema.safeParse(raw);
   if (!body.success) return invalidInput();
 
-  const supabase = await createClient();
-  // Signed in or not: the function stores the account only to count people.
-  await supabase.rpc("report_crash", {
+  await saveCrash(request, {
     p_kind: body.data.kind,
     p_message: body.data.message,
     p_route: body.data.route,
     p_release: body.data.release,
     p_digest: body.data.digest,
     p_occurred_at: body.data.occurredAt,
-    p_client_key: clientKey(request),
   });
   return new NextResponse(null, { status: 204, headers: NO_STORE });
 }
