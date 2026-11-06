@@ -2,7 +2,7 @@
 
 ## 06 Nov 2026: Security Warnings on the Admin Dashboard, and a Data Leak Plan
 
-Commit `PENDING`. **Migration not yet applied:** `20261106000100_security_warnings.sql`.
+Commit `9209d3e`. **Migration not yet applied:** `20261106000100_security_warnings.sql`.
 
 **Why.** Nothing told the team when something suspicious happened, such as a new admin nobody expected, many accounts being locked by password guessing, or a sudden wave of crashes. There was also no agreed plan for what to do if private data ever leaked. These were part of finding M11 in the security audit. A log of who looked at whose information was left out on purpose.
 
