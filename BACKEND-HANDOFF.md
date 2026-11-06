@@ -1893,7 +1893,7 @@ Every person endpoint answers with the whole `SelfMapResponse { parts, shares }`
 
 ## 48. Low risk fixes from the security audit
 
-**Status:** code on branch `rith/low-risk-fixes`. **Migration `20261106000200_low_risk_fixes.sql` not yet applied.**
+**Status:** live since 6 Nov 2026 (PR #55). Migration `20261106000200_low_risk_fixes.sql` applied and checked.
 
 **Decided (do not change without a reason):**
 - **Therapists never read client tables by real id (L1).** `mental_health_insights` and `support_journeys` have no therapist policy. Shared information goes through the `_safe` functions with the client's alias.

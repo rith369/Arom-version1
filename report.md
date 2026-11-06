@@ -2,7 +2,7 @@
 
 ## 06 Nov 2026: Low Risk Security Fixes
 
-Commit `e717b65`. **Migration not yet applied:** `20261106000200_low_risk_fixes.sql`.
+Commit `e717b65`. Migration `20261106000200_low_risk_fixes.sql` applied and checked on 6 Nov 2026.
 
 **Why.** The security audit listed small weaknesses that were not dangerous alone but added up: a way around the nickname system, logs that could hold message text, crash reports anyone could flood, an AI summary that outlived the journal entry it used, old database functions, public test profiles, a confirmation link that signed in whoever opened it, and personal data left in the browser after logout. These were findings L1, L2, L3, L5, L6, L7, L9 and L10. It also fixes the lockout warnings from the previous change, which looked for the wrong names and so never counted anything.
 
