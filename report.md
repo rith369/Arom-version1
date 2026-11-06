@@ -1,5 +1,28 @@
 # AROM: Change Report
 
+## 06 Nov 2026: Security Warnings on the Admin Dashboard, and a Data Leak Plan
+
+Commit `PENDING`. **Migration not yet applied:** `20261106000100_security_warnings.sql`.
+
+**Why.** Nothing told the team when something suspicious happened, such as a new admin nobody expected, many accounts being locked by password guessing, or a sudden wave of crashes. There was also no agreed plan for what to do if private data ever leaked. These were part of finding M11 in the security audit. A log of who looked at whose information was left out on purpose.
+
+**What changed for users:**
+- **Nothing visible for members and therapists.**
+- **Admins:** new warnings at the top of "Needs attention" on the dashboard: someone made an admin, admins without an authenticator app, accounts locked after wrong passwords or codes, networks paused after too many tries, a jump in crashes, and content policy reports.
+
+**What changed for the team:**
+- **`security_events`:** records only which login limit was reached and when. Never who or where. Kept 90 days. See `BACKEND-HANDOFF.md` section 47.
+- **`admin_security_warnings()`:** the counts behind the warnings, for admins with their 6 digit code only.
+- **`INCIDENT-PLAN.md`:** step by step plan for a data leak: tell the team, save evidence, stop it, work out what happened, tell the people affected within 72 hours, and learn from it.
+- **Tests:** a new `warnings` file in `tests/security/` (24 checks).
+- **Checks:** `npm run test:security` passes all 158 checks, `npx tsc --noEmit` passes, and `npm run lint` has the same 5 errors as `main`. Code and migration work in either order: without the migration the dashboard simply shows no warnings.
+
+**What to re-test:**
+1. Apply the migration.
+2. As an admin, open the dashboard. "Needs attention" should load as before, plus any warnings that apply.
+3. Log in once with a wrong password, then the right one. Both should work as before.
+4. Read `INCIDENT-PLAN.md` once, so it is familiar.
+
 ## 06 Nov 2026: Automatic Security Tests on Every Pull Request
 
 Commit `71a7b4c`. No migration.

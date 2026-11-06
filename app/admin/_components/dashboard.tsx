@@ -2,9 +2,12 @@
 
 import Link from "next/link";
 import {
+  Activity,
   AlertTriangle,
   CheckCircle2,
   ChevronDown,
+  FileText,
+  KeyRound,
   Phone,
   RotateCw,
   ShieldAlert,
@@ -14,7 +17,7 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 import type { AuthErrorBody } from "@/lib/auth";
-import type { AdminOverview, OpenFlag, OverviewRange, PendingApplication } from "@/lib/admin-overview";
+import type { AdminOverview, OpenFlag, OverviewRange, PendingApplication, SecurityWarnings } from "@/lib/admin-overview";
 import { useLanguage } from "../../_components/language-provider";
 import { CrashReportCard } from "./crash-report-card";
 import { SignupsChart } from "./signups-chart";
@@ -61,6 +64,94 @@ function Panel({ title, action, children, className = "" }: {
       {children}
     </section>
   );
+}
+
+const plural = (count: number, one: string, many: string) => `${count} ${count === 1 ? one : many}`;
+
+/**
+ * Security warnings (BACKEND-HANDOFF.md section 47). Admin only, so English
+ * only. Counts only: the database never says who was locked out or from where.
+ */
+function securityItems(security: SecurityWarnings | null, ago: (iso: string) => string): AttentionItem[] {
+  if (!security) return [];
+  const items: AttentionItem[] = [];
+
+  for (const admin of security.newAdmins) {
+    items.push({
+      key: `new-admin-${admin.name}-${admin.at}`,
+      severity: "critical",
+      icon: ShieldAlert,
+      title: `${admin.name} was made an admin`,
+      meta: `${admin.fromDashboard ? "From the Supabase dashboard" : "From Admin, Users"} · ${ago(admin.at)} · Check this was meant to happen`,
+      href: "/admin/audit-log",
+    });
+  }
+
+  if (security.adminsWithoutCode.length > 0) {
+    items.push({
+      key: "admins-without-code",
+      severity: "warning",
+      icon: KeyRound,
+      title: `${plural(security.adminsWithoutCode.length, "admin has", "admins have")} no authenticator app`,
+      meta: `${security.adminsWithoutCode.join(", ")} · They cannot open admin pages until they set it up at /mfa`,
+      href: "/admin/users",
+    });
+  }
+
+  const { passwords, codes, networks } = security.lockouts;
+  if (passwords > 0) {
+    items.push({
+      key: "lockouts-passwords",
+      severity: passwords >= 3 ? "warning" : "info",
+      icon: KeyRound,
+      title: `${plural(passwords, "account was", "accounts were")} locked after too many wrong passwords`,
+      meta: "Last 24 hours · Several at once can mean someone is guessing passwords",
+    });
+  }
+  if (codes > 0) {
+    items.push({
+      key: "lockouts-codes",
+      severity: "warning",
+      icon: KeyRound,
+      title: `${plural(codes, "account was", "accounts were")} locked after too many wrong 6 digit codes`,
+      meta: "Last 24 hours · Someone may know a password and be guessing the code",
+    });
+  }
+  if (networks > 0) {
+    items.push({
+      key: "lockouts-networks",
+      severity: networks >= 3 ? "warning" : "info",
+      icon: ShieldAlert,
+      title: `${plural(networks, "network was", "networks were")} paused after too many login or signup tries`,
+      meta: "Last 24 hours · Usually a script, sometimes a busy campus network",
+    });
+  }
+
+  const { last24h, previous7d } = security.crashes;
+  const dailyAverage = previous7d / 7;
+  if (last24h >= 10 && last24h >= 3 * dailyAverage) {
+    items.push({
+      key: "crash-jump",
+      severity: "warning",
+      icon: Activity,
+      title: `${last24h} crashes in the last 24 hours`,
+      meta: `About ${Math.round(dailyAverage)} a day the week before · See crash reports below`,
+      href: "#crash-reports",
+    });
+  }
+
+  if (security.csp.last7d > 0) {
+    items.push({
+      key: "csp-reports",
+      severity: "info",
+      icon: FileText,
+      title: `${plural(security.csp.last7d, "content policy report", "content policy reports")} this week`,
+      meta: "Crash reports starting with \"CSP would block\" · Needed before the content policy is switched on",
+      href: "#crash-reports",
+    });
+  }
+
+  return items;
 }
 
 export function Dashboard() {
@@ -192,6 +283,7 @@ export function Dashboard() {
   const { stats } = data;
 
   const attention: AttentionItem[] = [
+    ...securityItems(data.security, (iso) => relative(iso, data.generatedAt)),
     ...data.flags.map((flag): AttentionItem => ({
       key: `flag-${flag.id}`,
       severity: flag.reason === "self_harm_risk" ? "critical" : "warning",

@@ -56,8 +56,22 @@ export interface AdminStats {
   symptomChecks7d: number;
 }
 
+/** Counts behind the security warnings (BACKEND-HANDOFF.md section 47). Never who or where. */
+export interface SecurityWarnings {
+  /** People made admin in the last 7 days. */
+  newAdmins: { name: string; at: string; fromDashboard: boolean }[];
+  /** Active admins with no authenticator app yet. */
+  adminsWithoutCode: string[];
+  /** Locks in the last 24 hours. */
+  lockouts: { passwords: number; codes: number; networks: number };
+  crashes: { last24h: number; previous7d: number };
+  csp: { last7d: number };
+}
+
 export interface AdminOverview {
   generatedAt: string;
+  /** Null when the warnings could not be loaded. The rest of the dashboard still works. */
+  security: SecurityWarnings | null;
   range: OverviewRange;
   stats: AdminStats;
   signups: DailyCount[];

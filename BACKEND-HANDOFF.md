@@ -1872,6 +1872,24 @@ Every person endpoint answers with the whole `SelfMapResponse { parts, shares }`
 - **New features that hold private data** should add checks to `attacks.mjs` in the same pull request.
 - **Changes that only touch `.md` files, `tests/security/` or `.github/` skip the Vercel deployment** (`scripts/vercel-ignore-build.sh`), because the app never reads them.
 
+## 47. Security warnings and the data leak plan
+
+**Status:** code on branch `rith/security-warnings`. **Migration `20261106000100_security_warnings.sql` not yet applied.**
+
+**What admins see:** warnings at the top of "Needs attention" on the Admin dashboard, from `admin_security_warnings()` through `GET /api/admin/overview` (`security`, null if it fails, so the rest of the dashboard still loads):
+- **Someone was made an admin** in the last 7 days, including from the Supabase dashboard (urgent).
+- **Active admins with no authenticator app** (by name).
+- **Locks in the last 24 hours:** accounts locked after wrong passwords, after wrong 6 digit codes, and networks paused after too many tries.
+- **A jump in crashes:** at least 10 in a day and 3 times the daily average of the week before.
+- **Content policy reports** this week (section 45), with a link to the crash reports.
+
+**Decided (do not change without Rith):**
+- **No log of who looked at what** (decided 6 Nov 2026). Only admin actions (`admin_audit_log`) and admin chat reads are logged.
+- **`security_events` holds only the rule name and the time** of each lock. Never an email, an address or the hashed key. It is written by `rate_limit_hit` the moment a key goes over its limit, once per lock, and kept 90 days. Nobody can read it except through `admin_security_warnings()`.
+- **Login limit keys start with the rule name** (`passwordPerAccount:<hash>`, `lib/rate-limit.ts`), so locks can be counted by kind. Changing the format reset the counts once, which is harmless.
+- **Warnings are on the dashboard only**, not email, because there is no custom email (SMTP) yet.
+- **`INCIDENT-PLAN.md`** is the team's step by step plan for a data leak. Keep it up to date when keys, hosting or contacts change. It is public, so no secrets or people's details in it.
+
 ## Template for a new feature section
 
 ```md
